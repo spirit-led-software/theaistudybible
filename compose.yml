@@ -9,3 +9,25 @@ services:
       PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
       DEFAULT_VECTORIZER_MODULE: "none"
       CLUSTER_HOSTNAME: "node1"
+
+  postgres:
+    image: postgres:15.3
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=septuagint
+
+  backend:
+    image: septuagint/backend:0.0.1
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - backend/.env
+    depends_on:
+      - weaviate
+      - postgres

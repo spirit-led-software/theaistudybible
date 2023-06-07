@@ -1,7 +1,8 @@
-import "@tensorflow/tfjs-node";
-import { XMLParser } from "fast-xml-parser";
-import { Pool, Worker, spawn } from "threads";
-import { axios } from "../config/axios.config";
+import '@tensorflow/tfjs-node';
+import { XMLParser } from 'fast-xml-parser';
+import { axios } from 'src/config/axios.config';
+import { config } from 'src/config/web-scraper.config';
+import { Pool, Worker, spawn } from 'threads';
 
 /**
  * This function retrieves sitemap URLs from a given website's robots.txt file.
@@ -15,12 +16,12 @@ export const getSitemaps = async (url: string): Promise<string[]> => {
   const response = await axios.get(`${url}/robots.txt`, {});
   if (response.status === 200) {
     const text: string = response.data;
-    const lines = text.split("\n");
+    const lines = text.split('\n');
     const sitemapLines = lines.filter((line) =>
-      line.toLowerCase().includes("sitemap")
+      line.toLowerCase().includes('sitemap'),
     );
     const sitemapUrls = sitemapLines.map((line) => {
-      const url = line.split(": ")[1].trim();
+      const url = line.split(': ')[1].trim();
       return url;
     });
     return sitemapUrls;
@@ -40,7 +41,7 @@ export const getSitemaps = async (url: string): Promise<string[]> => {
  */
 export const navigateSitemap = async (
   initialUrl: string,
-  urlRegex: RegExp
+  urlRegex: RegExp,
 ): Promise<string[]> => {
   const urls: string[] = [];
   const stack: string[] = [initialUrl];
@@ -57,12 +58,12 @@ export const navigateSitemap = async (
       const urlMapper = async (foundUrlObj) => {
         const foundUrl = foundUrlObj.loc;
         if (foundUrl) {
-          if (foundUrl.endsWith(".xml")) {
+          if (foundUrl.endsWith('.xml')) {
             stack.push(foundUrl);
           } else if (foundUrl.match(urlRegex)) {
             urls.push(foundUrl);
           } else {
-            console.debug("Skipping", foundUrl);
+            console.debug('Skipping', foundUrl);
           }
         }
       };
@@ -73,7 +74,7 @@ export const navigateSitemap = async (
       } else if (sitemapXmlObj.sitemapindex) {
         sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
       } else {
-        console.log("sitemapXmlObj", sitemapXmlObj);
+        console.log('sitemapXmlObj', sitemapXmlObj);
       }
 
       if (Array.isArray(sitemapUrls)) {
@@ -99,12 +100,12 @@ export const navigateSitemap = async (
 export const scrapeSite = async (url: string, pathRegex: string) => {
   const urlRegex = new RegExp(`${url}${pathRegex}`);
   const sitemapUrls = await getSitemaps(url);
-  console.debug("sitemapUrls", sitemapUrls);
+  console.debug('sitemapUrls', sitemapUrls);
   for (const url of sitemapUrls) {
     await navigateSitemap(url, urlRegex).then(async (foundUrls) => {
-      console.debug("foundUrls:", foundUrls);
+      console.debug('foundUrls:', foundUrls);
       if (foundUrls.length !== 0) {
-        const pool = Pool(() => spawn(new Worker("./worker")), 4);
+        const pool = Pool(() => spawn(new Worker('./worker')), config.threads);
         for (const foundUrl of foundUrls) {
           pool.queue(async (worker) => {
             await worker.generatePageContentEmbeddings(foundUrl);

@@ -1,13 +1,13 @@
-import "@tensorflow/tfjs-node";
+import '@tensorflow/tfjs-node';
 import {
   Browser,
   Page,
   PuppeteerWebBaseLoader,
-} from "langchain/document_loaders/web/puppeteer";
-import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
-import { WeaviateStore } from "langchain/vectorstores/weaviate";
-import { expose } from "threads";
-import weaviate from "weaviate-ts-client";
+} from 'langchain/document_loaders/web/puppeteer';
+import { WeaviateStore } from 'langchain/vectorstores/weaviate';
+import { expose } from 'threads';
+import { createEmbeddings } from '../tensorflow';
+import { createClient } from '../weaviate';
 
 expose({
   /**
@@ -26,28 +26,21 @@ expose({
           },
           evaluate: async (page: Page, browser: Browser) => {
             await page.waitForNetworkIdle();
-            await page.waitForSelector("body");
+            await page.waitForSelector('body');
             return await page.evaluate(() => {
-              const text = document.querySelector("body").innerText;
-              return text.replace(/\n/g, " ").trim();
+              const text = document.querySelector('body').innerText;
+              return text.replace(/\n/g, ' ').trim();
             });
           },
         });
         const docs = await loader.loadAndSplit();
         console.debug(docs);
 
-        const embeddings = new TensorFlowEmbeddings();
-
-        const client = weaviate.client({
-          scheme: process.env.WEAVIATE_SCHEME,
-          host: process.env.WEAVIATE_HOST,
-          apiKey: new weaviate.ApiKey(process.env.WEAVIATE_API_KEY),
-        });
-
+        const embeddings = createEmbeddings();
+        const client = createClient();
         await WeaviateStore.fromDocuments(docs, embeddings, {
           client,
-          indexName: "Docs",
-          textKey: "text",
+          indexName: 'Docs',
         });
         retries = 0;
       } catch (err) {

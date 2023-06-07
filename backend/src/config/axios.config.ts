@@ -1,5 +1,5 @@
-import { default as axiosBase } from "axios";
-import axiosRetry from "axios-retry";
+import { default as axiosBase } from 'axios';
+import axiosRetry from 'axios-retry';
 
 export const axios = axiosBase.create({});
 
