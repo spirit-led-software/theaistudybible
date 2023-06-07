@@ -1,9 +1,0 @@
-Dockerfile
-.dockerignore
-
-node_modules
-
-# IDE
-.vscode
-dist
-.env*

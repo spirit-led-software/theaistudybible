@@ -3,6 +3,8 @@ services:
     image: semitechnologies/weaviate:1.19.6
     ports:
       - 8080:8080
+    volumes:
+      - ./volumes/weaviate:/var/lib/weaviate
     environment:
       QUERY_DEFAULTS_LIMIT: 25
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
@@ -14,20 +16,9 @@ services:
     image: postgres:15.3
     ports:
       - 5432:5432
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=septuagint
-
-  backend:
-    image: septuagint/backend:0.0.1
-    build:
-      context: backend
-      dockerfile: Dockerfile
-    ports:
-      - 3000:3000
-    env_file:
-      - backend/.env
-    depends_on:
-      - weaviate
-      - postgres
