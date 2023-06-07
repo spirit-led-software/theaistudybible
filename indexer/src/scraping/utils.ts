@@ -1,14 +1,7 @@
 import "@tensorflow/tfjs-node";
-import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
-import {
-  Browser,
-  Page,
-  PuppeteerWebBaseLoader,
-} from "langchain/document_loaders/web/puppeteer";
-import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
-import { WeaviateStore } from "langchain/vectorstores/weaviate";
-import weaviate from "weaviate-ts-client";
+import { Pool, Worker, spawn } from "threads";
+import { axios } from "../config/axios.config";
 
 /**
  * This function retrieves sitemap URLs from a given website's robots.txt file.
@@ -19,7 +12,7 @@ import weaviate from "weaviate-ts-client";
  * the `robots.txt` file is not found or the response status is not 200, an empty array is returned.
  */
 export const getSitemaps = async (url: string): Promise<string[]> => {
-  const response = await axios.get(`${url}/robots.txt`);
+  const response = await axios.get(`${url}/robots.txt`, {});
   if (response.status === 200) {
     const text: string = response.data;
     const lines = text.split("\n");
@@ -96,64 +89,6 @@ export const navigateSitemap = async (
 };
 
 /**
- * This function generates embeddings for the content of a web page using Puppeteer and TensorFlow, and
- * stores them in a Weaviate database.
- * @param {string} url - The URL of the webpage that will be loaded and processed for generating page
- * content embeddings.
- */
-const generatePageContentEmbeddings = async (url: string) => {
-  let retry = 5;
-  while (retry > 0) {
-    try {
-      const loader = new PuppeteerWebBaseLoader(url, {
-        launchOptions: {
-          headless: true,
-          waitForInitialPage: true,
-          timeout: 0,
-          protocolTimeout: 0,
-          args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        },
-        gotoOptions: {
-          waitUntil: "networkidle2",
-          timeout: 0,
-        },
-        evaluate: async (page: Page, browser: Browser) => {
-          let retries = 5;
-          while (retries > 0) {
-            return await page.evaluate(() => {
-              let text = "";
-              document.querySelectorAll("p").forEach((el) => {
-                text += el.innerText;
-              });
-              return text;
-            });
-          }
-        },
-      });
-      const docs = await loader.loadAndSplit();
-      console.debug(docs);
-
-      const embeddings = new TensorFlowEmbeddings();
-
-      const client = weaviate.client({
-        scheme: process.env.WEAVIATE_SCHEME,
-        host: process.env.WEAVIATE_HOST,
-        apiKey: new weaviate.ApiKey(process.env.WEAVIATE_API_KEY),
-      });
-
-      await WeaviateStore.fromDocuments(docs, embeddings, {
-        client,
-        indexName: "Docs",
-        textKey: "text",
-      });
-    } catch (err) {
-      console.log(err);
-      retry--;
-    }
-  }
-};
-
-/**
  * This function scrapes a website by getting sitemap URLs, navigating them with a path regex, and
  * generating page content embeddings.
  * @param {string} url - The URL of the website to be scraped.
@@ -164,12 +99,19 @@ const generatePageContentEmbeddings = async (url: string) => {
 export const scrapeSite = async (url: string, pathRegex: string) => {
   const urlRegex = new RegExp(`${url}${pathRegex}`);
   const sitemapUrls = await getSitemaps(url);
-  console.debug(sitemapUrls);
+  console.debug("sitemapUrls", sitemapUrls);
   for (const url of sitemapUrls) {
-    await navigateSitemap(url, urlRegex).then(async (sitemapUrls) => {
-      console.debug(sitemapUrls);
-      for (const url of sitemapUrls) {
-        await generatePageContentEmbeddings(url);
+    await navigateSitemap(url, urlRegex).then(async (foundUrls) => {
+      console.debug("foundUrls:", foundUrls);
+      if (foundUrls.length !== 0) {
+        const pool = Pool(() => spawn(new Worker("./worker")), 4);
+        for (const foundUrl of foundUrls) {
+          pool.queue(async (worker) => {
+            await worker.generatePageContentEmbeddings(foundUrl);
+          });
+        }
+        await pool.completed();
+        await pool.terminate();
       }
     });
   }

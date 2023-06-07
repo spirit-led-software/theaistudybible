@@ -14,11 +14,13 @@
     "@tensorflow/tfjs-core": "^4.6.0",
     "@tensorflow/tfjs-node": "^4.6.0",
     "axios": "^1.4.0",
+    "axios-retry": "^3.5.0",
     "dotenv": "^16.1.4",
     "fast-xml-parser": "^4.2.4",
     "graphql": "^16.6.0",
     "langchain": "^0.0.91",
     "puppeteer": "^19.11.1",
+    "threads": "^1.7.0",
     "weaviate-ts-client": "^1.3.2"
   },
   "devDependencies": {

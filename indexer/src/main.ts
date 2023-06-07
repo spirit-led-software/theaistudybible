@@ -5,7 +5,7 @@ import { VectorDBQAChain } from "langchain/chains";
 import { TensorFlowEmbeddings } from "langchain/embeddings/tensorflow";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
 import weaviate from "weaviate-ts-client";
-import { scrapeSite } from "./scraper";
+import { scrapeSite } from "./scraping/utils";
 
 const main = async () => {
   dotenv.config({
@@ -13,7 +13,10 @@ const main = async () => {
   });
   console.debug(process.env);
 
-  await scrapeSite("https://enduringword.com", "/bible-commentary/.*");
+  await scrapeSite(
+    "https://enduringword.com",
+    "/bible-commentary/.+-\\d{1,3}/"
+  );
 
   const embeddings = new TensorFlowEmbeddings();
 
@@ -49,3 +52,6 @@ const main = async () => {
   console.debug(result);
 };
 main();
+function generatePageContentEmbeddings(url: string) {
+  throw new Error("Function not implemented.");
+}
