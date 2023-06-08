@@ -1,0 +1,81 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+  "name": "Debian",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-contrib/features/jest:2": {},
+    "ghcr.io/devcontainers-contrib/features/nestjs-cli:2": {},
+    "ghcr.io/devcontainers-contrib/features/nx-npm:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.github-vscode-theme",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "mintlify.document",
+        "ms-toolsai.jupyter",
+        "mgmcdermott.vscode-language-babel",
+        "ms-vscode.vscode-typescript-next",
+        "remcohaszing.schemastore",
+        "WallabyJs.quokka-vscode",
+        "ms-azuretools.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "PKief.material-icon-theme",
+        "PKief.material-product-icons",
+        "formulahendry.code-runner",
+        "kamikillerto.vscode-colorize",
+        "mitchdenny.ecdc",
+        "dbaeumer.vscode-eslint",
+        "rvest.vs-code-prettier-eslint",
+        "leizongmin.node-module-intellisense",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "VisualStudioExptTeam.intellicode-api-usage-examples",
+        "christian-kohler.npm-intellisense",
+        "christian-kohler.path-intellisense",
+        "bradlc.vscode-tailwindcss",
+        "burkeholland.simple-react-snippets",
+        "dsznajder.es7-react-js-snippets",
+        "kevinkyang.auto-comment-blocks",
+        "formulahendry.auto-close-tag",
+        "Dart-Code.dart-code",
+        "Dart-Code.flutter",
+        "alexisvt.flutter-snippets",
+        "GitHub.codespaces",
+        "GitHub.copilot",
+        "GitHub.copilot-labs",
+        "codezombiech.gitignore",
+        "wix.glean",
+        "hashicorp.terraform",
+        "ms-python.isort",
+        "esbenp.prettier-vscode",
+        "svipas.prettier-plus",
+        "foxundermoon.shell-format",
+        "SonarSource.sonarlint-vscode",
+        "ChakrounAnas.turbo-console-log"
+      ]
+    }
+  }
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Configure tool-specific properties.
+  // "customizations": {},
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+}
