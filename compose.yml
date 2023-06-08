@@ -24,7 +24,7 @@ services:
       - POSTGRES_DB=septuagint
 
   backend:
-    image: septuagint/backend:latest
+    image: septuagint/backend:0.0.1
     ports:
       - 8081:8080
     env_file:
