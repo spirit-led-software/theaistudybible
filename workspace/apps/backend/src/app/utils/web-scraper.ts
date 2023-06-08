@@ -1,8 +1,9 @@
+import { Logger } from '@nestjs/common';
 import '@tensorflow/tfjs-node';
 import { XMLParser } from 'fast-xml-parser';
-import { Pool, Worker, spawn } from 'threads';
-import { axios } from '../../config/axios.config';
-import config from '../../config/web-scraper.config';
+import { Worker } from 'worker_threads';
+import { axios } from '../config/axios.config';
+import config from '../config/web-scraper.config';
 
 /**
  * This function retrieves sitemap URLs from a given website's robots.txt file.
@@ -63,7 +64,7 @@ export const navigateSitemap = async (
           } else if (foundUrl.match(urlRegex)) {
             urls.push(foundUrl);
           } else {
-            console.debug('Skipping', foundUrl);
+            Logger.debug('Skipping', foundUrl);
           }
         }
       };
@@ -74,7 +75,7 @@ export const navigateSitemap = async (
       } else if (sitemapXmlObj.sitemapindex) {
         sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
       } else {
-        console.log('sitemapXmlObj', sitemapXmlObj);
+        Logger.debug('sitemapXmlObj', sitemapXmlObj);
       }
 
       if (Array.isArray(sitemapUrls)) {
@@ -83,10 +84,75 @@ export const navigateSitemap = async (
         await urlMapper(sitemapUrls);
       }
     } catch (err) {
-      console.log(err);
+      Logger.error(err);
     }
   }
   return urls;
+};
+
+/**
+ * This function creates a worker that scrapes a webpage and returns a promise that resolves with the
+ * scraped data.
+ * @param {string} url - The URL of the webpage that the worker will scrape.
+ * @returns A promise that resolves with the result of the page scraping operation performed by a
+ * worker.
+ */
+const createPageScraperWorker = (url: string) => {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(
+      new URL('../workers/page-scraper.worker.ts', import.meta.url),
+      {
+        workerData: {
+          url,
+        },
+      }
+    );
+    worker.on('message', (message) => {
+      Logger.log('message from worker:', message);
+    });
+    worker.on('exit', (code) => {
+      if (code !== 0) {
+        Logger.error(`Worker stopped with exit code ${code}`);
+        reject(code);
+      }
+      resolve(code);
+    });
+  });
+};
+
+/**
+ * This function scrapes multiple web pages concurrently using worker threads.
+ * @param {string[]} urls - An array of strings representing the URLs to be scraped.
+ * @returns The function `scrapePages` is returning a Promise that resolves to an array of results from
+ * each worker that was created to scrape the pages in the `urls` array.
+ */
+const scrapePages = async (urls: string[]) => {
+  const maxWorkers = config.threads;
+  let finishedUrls = 0;
+  let runningWorkers = 0;
+  const workers = [];
+  while (finishedUrls < urls.length) {
+    if (runningWorkers >= maxWorkers) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      continue;
+    }
+    runningWorkers++;
+    const worker = createPageScraperWorker(urls[finishedUrls])
+      .then((result) => {
+        Logger.log('worker result:', result);
+        runningWorkers--;
+        finishedUrls++;
+      })
+      .catch((err) => {
+        Logger.error(err);
+        runningWorkers--;
+        finishedUrls++;
+      });
+    workers.push(worker);
+  }
+  const results = await Promise.all(workers);
+  Logger.log('scrapePages results:', results);
+  return results;
 };
 
 /**
@@ -100,20 +166,13 @@ export const navigateSitemap = async (
 export const scrapeSite = async (url: string, pathRegex: string) => {
   const urlRegex = new RegExp(`${url}${pathRegex}`);
   const sitemapUrls = await getSitemaps(url);
-  console.debug('sitemapUrls', sitemapUrls);
-  for (const url of sitemapUrls) {
-    await navigateSitemap(url, urlRegex).then(async (foundUrls) => {
-      console.debug('foundUrls:', foundUrls);
-      if (foundUrls.length !== 0) {
-        const pool = Pool(() => spawn(new Worker('./worker')), config.threads);
-        for (const foundUrl of foundUrls) {
-          pool.queue(async (worker) => {
-            await worker.generatePageContentEmbeddings(foundUrl);
-          });
-        }
-        await pool.completed();
-        await pool.terminate();
-      }
-    });
-  }
+  Logger.log('sitemapUrls:', sitemapUrls);
+  await Promise.all(
+    sitemapUrls.map(async (sitemapUrl) => {
+      const foundUrls = await navigateSitemap(sitemapUrl, urlRegex);
+      Logger.log('foundUrls:', foundUrls);
+      const results = await scrapePages(foundUrls);
+      Logger.log('results:', results);
+    })
+  );
 };

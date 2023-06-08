@@ -22,3 +22,18 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=septuagint
+
+  backend:
+    image: septuagint/backend:latest
+    ports:
+      - 8081:8080
+    env_file:
+      - ./workspace/apps/backend/.env
+    environment:
+      - WEAVIATE_HOST=weaviate:8080
+      - WEAVIATE_SCHEME=http
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=septuagint

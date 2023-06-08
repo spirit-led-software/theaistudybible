@@ -58,6 +58,16 @@
           "codeCoverage": true
         }
       }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build --pull={args.pull} --no-cache={args.no-cache} --platform={args.platform} -f apps/backend/Dockerfile . -t septuagint/backend:{args.tag}",
+      "options": {
+        "no-cache": false,
+        "platform": "linux/amd64",
+        "pull": true,
+        "tag": "latest"
+      }
     }
   },
   "tags": []
