@@ -13,7 +13,8 @@
     "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/devcontainers-contrib/features/jest:2": {},
     "ghcr.io/devcontainers-contrib/features/nestjs-cli:2": {},
-    "ghcr.io/devcontainers-contrib/features/nx-npm:1": {}
+    "ghcr.io/devcontainers-contrib/features/nx-npm:1": {},
+    "ghcr.io/devcontainers/features/java": {}
   },
   "customizations": {
     "vscode": {
