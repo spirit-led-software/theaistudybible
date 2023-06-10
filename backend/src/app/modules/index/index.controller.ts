@@ -6,15 +6,21 @@ import { IndexService } from './index.service';
 export class IndexController {
   constructor(private readonly indexService: IndexService) {}
 
+  @Get()
+  async getIndexOperations() {
+    const indexOperations = await this.indexService.getIndexOperations();
+    return indexOperations;
+  }
+
   @Get(':id')
   async getOperation(@Param('id') id: number) {
-    const operation = await this.indexService.getOperation(id);
-    return operation;
+    const indexOperation = await this.indexService.getIndexOperation(id);
+    return indexOperation;
   }
 
   @Post('website')
   async indexWebsite(@Body() body: WebsiteIndexRequest) {
-    const id = await this.indexService.indexWebsite(body);
-    return { message: 'Indexing website', id };
+    const indexOperation = await this.indexService.queueIndexWebsiteOp(body);
+    return indexOperation;
   }
 }

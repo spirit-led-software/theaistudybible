@@ -99,11 +99,14 @@ export const navigateSitemap = async (
  */
 const createPageScraperWorker = (url: string) => {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('../workers/page-scraper.worker.ts', {
-      workerData: {
-        url,
+    const worker = new Worker(
+      __dirname + '/../workers/page-scraper.worker.js',
+      {
+        workerData: {
+          url,
+        },
       },
-    });
+    );
     worker.on('message', (message) => {
       Logger.log('message from worker:', message);
     });

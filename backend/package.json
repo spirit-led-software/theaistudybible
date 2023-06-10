@@ -47,6 +47,8 @@
     "typescript": "~5.0.2"
   },
   "dependencies": {
+    "@nestjs/bull": "^0.6.3",
+    "@nestjs/cache-manager": "^1.0.0",
     "@nestjs/common": "^9.1.1",
     "@nestjs/config": "^2.3.2",
     "@nestjs/core": "^9.1.1",
@@ -57,9 +59,13 @@
     "@tensorflow/tfjs-converter": "^4.7.0",
     "@tensorflow/tfjs-core": "^4.7.0",
     "@tensorflow/tfjs-node": "^4.7.0",
+    "@types/amqplib": "^0.10.1",
     "@zilliz/milvus2-sdk-node": "^2.2.15",
+    "amqplib": "^0.10.3",
     "axios": "^1.0.0",
     "axios-retry": "^3.5.0",
+    "bull": "^4.10.4",
+    "cache-manager": "^5.2.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "fast-xml-parser": "^4.2.4",

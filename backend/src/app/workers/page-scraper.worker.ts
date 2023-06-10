@@ -1,6 +1,5 @@
 import '@tensorflow/tfjs-node';
 import {
-  Browser,
   Page,
   PuppeteerWebBaseLoader,
 } from 'langchain/document_loaders/web/puppeteer';
@@ -16,9 +15,9 @@ const generatePageContentEmbeddings = async (url: string) => {
       const loader = new PuppeteerWebBaseLoader(url, {
         launchOptions: {
           headless: true,
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          args: ['--no-sandbox'],
         },
-        evaluate: async (page: Page, browser: Browser) => {
+        evaluate: async (page: Page) => {
           await page.waitForNetworkIdle();
           await page.waitForSelector('body');
           return await page.evaluate(() => {

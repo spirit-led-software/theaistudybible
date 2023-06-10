@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { QueryRequest } from './dto/query-request.dto';
 import { QueryService } from './query.service';
 
@@ -8,6 +8,7 @@ export class QueryController {
 
   @Post()
   async newQuery(@Body() body: QueryRequest) {
+    Logger.log('Received query request:', body);
     return await this.queryService.query(body);
   }
 }

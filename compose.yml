@@ -1,6 +1,5 @@
 services:
   etcd:
-    container_name: milvus-etcd
     image: quay.io/coreos/etcd:v3.5.5
     environment:
       - ETCD_AUTO_COMPACTION_MODE=revision
@@ -10,9 +9,10 @@ services:
     volumes:
       - ./volumes/etcd:/etcd
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    profiles:
+      - "default"
 
   minio:
-    container_name: milvus-minio
     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
     environment:
       - MINIO_ACCESS_KEY=minioadmin
@@ -25,9 +25,10 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    profiles:
+      - "default"
 
   milvus:
-    container_name: milvus-standalone
     image: milvusdb/milvus:v2.2.9
     command: ["milvus", "run", "standalone"]
     environment:
@@ -41,37 +42,74 @@ services:
     depends_on:
       - "etcd"
       - "minio"
+    profiles:
+      - "default"
+      - "backend-dev"
 
   postgres:
     image: postgres:15.3
     ports:
       - 5432:5432
-    # In case you want to persist the data
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=septuagint
+    profiles:
+      - "backend-dev"
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - 6379:6379
+    volumes:
+      - ./volumes/redis:/data
+    environment:
+      - REDIS_PASSWORD=redis
+    profiles:
+      - "default"
+      - "backend-dev"
+
+  rabbitmq:
+    image: rabbitmq:3.12.0-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_VHOST=/
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+    volumes:
+      - ./volumes/rabbitmq:/var/lib/rabbitmq
+    profiles:
+      - "default"
+      - "backend-dev"
 
   backend:
     image: septuagint/backend:latest
-    # Build image locally (must build nx project first)
-    # build:
-    #   context: ./workspace
-    #   dockerfile: apps/backend/Dockerfile
-    #   platforms:
-    #     - "linux/amd64"
-    #     - "linux/arm64/v8"
     ports:
-      - 8081:8080
+      - 8080:8080
     env_file:
       - ./backend/.env
     environment:
-      - WEAVIATE_HOST=weaviate:8080
-      - WEAVIATE_SCHEME=http
+      - MILVUS_URL=http://milvus:19530
+      - MILVUS_COLLECTION_NAME=septuagint
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=septuagint
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_VHOST=/
+      - RABBITMQ_USER=rabbitmq
+      - RABBITMQ_PASSWORD=rabbitmq
+    depends_on:
+      - milvus
+      - postgres
+      - rabbitmq
+      - redis
+    profiles:
+      - "default"
+      - "frontend-dev"

@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { SourceDocumentMetadata } from './source-document-metadata.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class SourceDocument {
@@ -15,7 +8,12 @@ export class SourceDocument {
   @Column()
   pageContent: string;
 
-  @OneToOne(() => SourceDocumentMetadata)
-  @JoinColumn()
-  metadata: SourceDocumentMetadata;
+  @Column()
+  source: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updated: Date;
 }

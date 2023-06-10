@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VectorDBQAChain } from 'langchain/chains';
 import { ChainValues } from 'langchain/dist/schema';
@@ -10,7 +10,6 @@ import { createEmbeddings } from '../../utils/tensorflow';
 import { QueryRequest } from './dto/query-request.dto';
 import { QueryResult } from './entities/query-result.entity';
 import { Query } from './entities/query.entity';
-import { SourceDocumentMetadata } from './entities/source-document-metadata.entity';
 import { SourceDocument } from './entities/source-document.entity';
 
 @Injectable()
@@ -18,6 +17,8 @@ export class QueryService {
   constructor(
     @InjectRepository(Query)
     private readonly queryRepository: Repository<Query>,
+    @InjectRepository(SourceDocument)
+    private readonly sourceDocumentRepository: Repository<SourceDocument>,
   ) {}
 
   async query(query: QueryRequest) {
@@ -36,28 +37,31 @@ export class QueryService {
       query: query.query,
       history: query.history,
     });
+    Logger.log('Result for query:', result);
     return await this.saveQuery(query, result);
   }
 
   async saveQuery(query: QueryRequest, result: ChainValues) {
-    let queryEntity = new Query();
+    const queryEntity = new Query();
     queryEntity.query = query.query;
     queryEntity.result = result.text;
     queryEntity.history = query.history;
     const queryResultEntity = new QueryResult();
     queryResultEntity.text = result.text;
-    queryResultEntity.sourceDocuments = result.sourceDocuments.map(
-      (sourceDocument) => {
-        const sourceDocumentEntity = new SourceDocument();
+    const sourceDocuments = [];
+    await result.sourceDocuments.forEach(async (sourceDocument) => {
+      let sourceDocumentEntity = await this.sourceDocumentRepository.findOne({
+        where: { pageContent: sourceDocument.pageContent },
+      });
+      if (!sourceDocumentEntity) {
+        sourceDocumentEntity = new SourceDocument();
         sourceDocumentEntity.pageContent = sourceDocument.pageContent;
-        const metadata = new SourceDocumentMetadata();
-        metadata.source = sourceDocument.metadata.source;
-        sourceDocumentEntity.metadata = metadata;
-        return sourceDocumentEntity;
-      },
-    );
+        sourceDocumentEntity.source = sourceDocument.metadata.source;
+        sourceDocuments.push(sourceDocumentEntity);
+      }
+    });
+    queryResultEntity.sourceDocuments = sourceDocuments;
     queryEntity.result = queryResultEntity;
-    queryEntity = await this.queryRepository.save(queryEntity);
-    return queryEntity;
+    return await this.queryRepository.save(queryEntity);
   }
 }

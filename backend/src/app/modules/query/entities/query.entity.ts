@@ -15,10 +15,18 @@ export class Query {
   @Column()
   query: string;
 
-  @Column({ nullable: true })
+  @Column('text', { nullable: true, array: true })
   history: string[];
 
-  @OneToOne(() => QueryResult, (queryResult) => queryResult.query)
+  @OneToOne(() => QueryResult, (queryResult) => queryResult.query, {
+    cascade: true,
+  })
   @JoinColumn()
   result: QueryResult;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updated: Date;
 }

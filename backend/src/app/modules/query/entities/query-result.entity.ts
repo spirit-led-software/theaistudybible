@@ -20,7 +20,13 @@ export class QueryResult {
   @OneToOne(() => Query, (query) => query.result)
   query: Query;
 
-  @ManyToMany(() => SourceDocument)
+  @ManyToMany(() => SourceDocument, { cascade: true })
   @JoinTable()
   sourceDocuments: SourceDocument[];
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updated: Date;
 }

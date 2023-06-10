@@ -9,7 +9,7 @@ export class IndexOperation {
   type: 'website' | 'document';
 
   @Column()
-  status: 'pending' | 'completed' | 'failed';
+  status: 'running' | 'queued' | 'completed' | 'failed';
 
   @Column({ nullable: true })
   url: string;
