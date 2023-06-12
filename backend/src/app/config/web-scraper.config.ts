@@ -3,9 +3,7 @@ type WebScraperConfig = {
 };
 
 export const config: WebScraperConfig = {
-  threads: process.env.WEB_SCRAPER_THREADS
-    ? parseInt(process.env.WEB_SCRAPER_THREADS, 10)
-    : 5,
+  threads: parseInt(process.env.WEB_SCRAPER_THREADS) || 4,
 };
 
 export default config;

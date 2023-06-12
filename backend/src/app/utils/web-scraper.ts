@@ -3,8 +3,7 @@ import '@tensorflow/tfjs-node';
 import { XMLParser } from 'fast-xml-parser';
 import { Worker } from 'worker_threads';
 import { axios } from '../config/axios.config';
-import config from '../config/web-scraper.config';
-
+import { config } from '../config/web-scraper.config';
 /**
  * This function retrieves sitemap URLs from a given website's robots.txt file.
  * @param {string} url - A string representing the base URL of a website. The function uses this URL to
@@ -64,7 +63,7 @@ export const navigateSitemap = async (
           } else if (foundUrl.match(urlRegex)) {
             urls.push(foundUrl);
           } else {
-            Logger.debug('Skipping', foundUrl);
+            Logger.debug(`Skipping URL: ${foundUrl}`);
           }
         }
       };
@@ -75,7 +74,7 @@ export const navigateSitemap = async (
       } else if (sitemapXmlObj.sitemapindex) {
         sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
       } else {
-        Logger.debug('sitemapXmlObj', sitemapXmlObj);
+        Logger.debug(`sitemapXmlObj: ${sitemapXmlObj}`);
       }
 
       if (Array.isArray(sitemapUrls)) {
@@ -108,7 +107,7 @@ const createPageScraperWorker = (url: string) => {
       },
     );
     worker.on('message', (message) => {
-      Logger.log('message from worker:', message);
+      Logger.log(`Message from worker: ${message}`);
     });
     worker.on('exit', (code) => {
       if (code !== 0) {
@@ -139,7 +138,7 @@ const scrapePages = async (urls: string[]) => {
     runningWorkers++;
     const worker = createPageScraperWorker(urls[finishedUrls])
       .then((result) => {
-        Logger.log('worker result:', result);
+        Logger.log(`Worker finished with result: ${result}`);
         runningWorkers--;
         finishedUrls++;
       })
@@ -151,7 +150,7 @@ const scrapePages = async (urls: string[]) => {
     workers.push(worker);
   }
   const results = await Promise.all(workers);
-  Logger.log('scrapePages results:', results);
+  Logger.log(`results: ${results}`);
   return results;
 };
 
@@ -166,13 +165,13 @@ const scrapePages = async (urls: string[]) => {
 export const scrapeSite = async (url: string, pathRegex: string) => {
   const urlRegex = new RegExp(`${url}${pathRegex}`);
   const sitemapUrls = await getSitemaps(url);
-  Logger.log('sitemapUrls:', sitemapUrls);
+  Logger.log(`sitemapUrls: ${sitemapUrls}`);
   await Promise.all(
     sitemapUrls.map(async (sitemapUrl) => {
       const foundUrls = await navigateSitemap(sitemapUrl, urlRegex);
-      Logger.log('foundUrls:', foundUrls);
+      Logger.log(`foundUrls: ${foundUrls}`);
       const results = await scrapePages(foundUrls);
-      Logger.log('results:', results);
+      Logger.log(`scrapePages results: ${results}`);
     }),
   );
 };

@@ -8,7 +8,7 @@ export class QueryController {
 
   @Post()
   async newQuery(@Body() body: QueryRequest) {
-    Logger.log('Received query request:', body);
+    Logger.log(`Received query request: ${JSON.stringify(body)}`);
     return await this.queryService.query(body);
   }
 }

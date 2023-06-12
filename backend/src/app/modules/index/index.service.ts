@@ -46,7 +46,7 @@ export class IndexService {
     name: 'indexWebsite',
     concurrency: 1,
   })
-  async indexWebsite(indexOperationJob: Job<number>) {
+  async indexWebsite(indexOperationJob: Job<number>): Promise<void> {
     const indexOperation = await this.indexOperationRepository.findOneOrFail({
       where: { id: indexOperationJob.data },
     });
@@ -60,7 +60,7 @@ export class IndexService {
     }
     indexOperation.status = 'running';
     await this.indexOperationRepository.save(indexOperation);
-    scrapeSite(indexOperation.url, indexOperation.pathRegex)
+    await scrapeSite(indexOperation.url, indexOperation.pathRegex)
       .then(async () => {
         indexOperation.status = 'completed';
         await this.indexOperationRepository.save(indexOperation);
@@ -69,7 +69,6 @@ export class IndexService {
         indexOperation.status = 'failed';
         await this.indexOperationRepository.save(indexOperation);
       });
-    return true;
   }
 
   @OnQueueActive()

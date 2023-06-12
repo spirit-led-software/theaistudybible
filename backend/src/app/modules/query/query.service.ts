@@ -5,8 +5,7 @@ import { ChainValues } from 'langchain/dist/schema';
 import { Milvus } from 'langchain/vectorstores/milvus';
 import { Repository } from 'typeorm';
 import { config as milvusConfig } from '../../config/milvus.config';
-import { createModel } from '../../utils/openai';
-import { createEmbeddings } from '../../utils/tensorflow';
+import { createEmbeddings, createModel } from '../../utils/openai';
 import { QueryRequest } from './dto/query-request.dto';
 import { QueryResult } from './entities/query-result.entity';
 import { Query } from './entities/query.entity';
@@ -37,7 +36,7 @@ export class QueryService {
       query: query.query,
       history: query.history,
     });
-    Logger.log('Result for query:', result);
+    Logger.log(`Result for query: ${JSON.stringify(result)}`);
     return await this.saveQuery(query, result);
   }
 
