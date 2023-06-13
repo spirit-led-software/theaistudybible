@@ -20,6 +20,7 @@ export class Query {
 
   @OneToOne(() => QueryResult, (queryResult) => queryResult.query, {
     cascade: true,
+    eager: true,
   })
   @JoinColumn()
   result: QueryResult;

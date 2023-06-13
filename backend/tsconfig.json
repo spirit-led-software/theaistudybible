@@ -21,8 +21,7 @@
     "paths": {
       "@/*": ["./src/app/*"],
       "@configs/*": ["src/app/configs/*"],
-      "@modules/*": ["./src/app/modules/*"],
-      "@utils/*": ["./src/app/utils/*"]
+      "@modules/*": ["./src/app/modules/*"]
     }
   }
 }

@@ -1,5 +1,5 @@
 import { config as milvusConfig } from '@/configs/milvus.config';
-import { createEmbeddings } from '@utils/openai';
+import { createEmbeddings } from '@configs/openai.config';
 import {
   Page,
   PuppeteerWebBaseLoader,
@@ -28,8 +28,7 @@ const generatePageContentEmbeddings = async (url: string) => {
       const docs = await loader.loadAndSplit();
       parentPort.postMessage(`Loaded ${docs.length} documents`);
 
-      const embeddings = createEmbeddings();
-      await Milvus.fromDocuments(docs, embeddings, {
+      await Milvus.fromDocuments(docs, createEmbeddings(), {
         url: milvusConfig.url,
         collectionName: milvusConfig.collectionName,
         username: milvusConfig.user,

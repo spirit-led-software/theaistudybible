@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { QueryResult } from './query-result.entity';
 
 @Entity()
 export class SourceDocument {
@@ -8,8 +9,15 @@ export class SourceDocument {
   @Column()
   pageContent: string;
 
-  @Column()
-  source: string;
+  @Column({ nullable: true })
+  metadata: string;
+
+  @ManyToMany(
+    () => QueryResult,
+    (queryResult) => queryResult.sourceDocuments,
+    {},
+  )
+  queryResults: QueryResult[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

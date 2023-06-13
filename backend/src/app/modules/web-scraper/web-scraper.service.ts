@@ -101,7 +101,7 @@ export class WebScraperService {
   createPageScraperWorker(url: string) {
     return new Promise((resolve, reject) => {
       const worker = new Worker(
-        `${__dirname}/../../workers/webpage-scraper.worker.ts`,
+        `${__dirname}/workers/webpage-scraper.worker.ts`,
         {
           workerData: {
             url,

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -9,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateWebsiteIndexOperationRequest } from './dto/create-website-index-operation.dto';
+import { CreateWebsiteIndexOperationDto } from './dto/create-website-index-operation.dto';
 import { IndexService } from './index.service';
 
 @Controller('index-operations')
@@ -23,23 +24,25 @@ export class IndexController {
   }
 
   @Get(':id')
-  async getOperation(@Param('id') id: number) {
-    const indexOperation = await this.indexService.getIndexOperation(id);
+  async getOperation(@Param('id') id: string) {
+    const indexOperation = await this.indexService.getIndexOperation(+id);
+    if (!indexOperation) {
+      throw new NotFoundException();
+    }
     return indexOperation;
   }
 
   @Put(':id/cancel')
-  async cancelOperation(@Param('id') id: number) {
-    const indexOperation = await this.indexService.cancelIndexOperation(id);
+  async cancelOperation(@Param('id') id: string) {
+    const indexOperation = await this.indexService.cancelIndexOperation(+id);
     return indexOperation;
   }
 
   @Post('website')
-  async indexWebsite(@Body() body: CreateWebsiteIndexOperationRequest) {
-    const indexOperation = await this.indexService.queueIndexWebsiteOperation(
-      body,
-    );
-    return indexOperation;
+  async indexWebsite(@Body() body: CreateWebsiteIndexOperationDto) {
+    const { job, indexOperation } =
+      await this.indexService.queueIndexWebsiteOperation(body);
+    return { job, indexOperation };
   }
 
   @Post('file')

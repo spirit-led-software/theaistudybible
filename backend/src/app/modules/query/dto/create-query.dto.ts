@@ -1,4 +1,4 @@
-export class QueryRequest {
+export class CreateQueryDto {
   query: string;
   history: string[];
 }

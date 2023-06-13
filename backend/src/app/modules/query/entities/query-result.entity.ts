@@ -20,7 +20,11 @@ export class QueryResult {
   @OneToOne(() => Query, (query) => query.result)
   query: Query;
 
-  @ManyToMany(() => SourceDocument, { cascade: true })
+  @ManyToMany(
+    () => SourceDocument,
+    (sourceDocuments) => sourceDocuments.queryResults,
+    { cascade: true, eager: true },
+  )
   @JoinTable()
   sourceDocuments: SourceDocument[];
 

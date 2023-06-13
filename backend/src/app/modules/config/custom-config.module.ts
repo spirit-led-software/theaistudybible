@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { QueueModule } from '../queue/queue.module';
 
 @Module({
   imports: [
@@ -8,7 +7,7 @@ import { QueueModule } from '../queue/queue.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    QueueModule,
   ],
+  exports: [ConfigModule],
 })
 export class CustomConfigModule {}

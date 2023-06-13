@@ -1,18 +1,15 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class IndexOperation {
+export class Devo {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  type: 'website' | 'file';
+  title: string;
 
   @Column()
-  status: 'running' | 'queued' | 'completed' | 'failed' | 'cancelled';
-
-  @Column({ nullable: true })
-  metadata: string;
+  content: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

@@ -1,4 +1,4 @@
-export class CreateWebsiteIndexOperationRequest {
+export class CreateWebsiteIndexOperationDto {
   url: string;
   pathRegex: string;
 }

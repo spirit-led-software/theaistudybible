@@ -1,13 +1,13 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { default as s3Config } from '@configs/aws-s3.config';
 import { FileScraperService } from '@modules/file-scraper/file-scraper.service';
 import { WebScraperService } from '@modules/web-scraper/web-scraper.service';
 import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import AWS from 'aws-sdk';
 import { Job, Queue } from 'bull';
 import { Repository } from 'typeorm';
-import { CreateWebsiteIndexOperationRequest } from './dto/create-website-index-operation.dto';
+import { CreateWebsiteIndexOperationDto } from './dto/create-website-index-operation.dto';
 import { IndexOperation } from './entities/index-operation.entity';
 
 @Processor('indexOperations')
@@ -28,7 +28,7 @@ export class IndexService {
   }
 
   async getIndexOperation(id: number) {
-    const operation = await this.indexOperationRepository.findOneByOrFail({
+    const operation = await this.indexOperationRepository.findOneBy({
       id,
     });
     return operation;
@@ -51,7 +51,7 @@ export class IndexService {
     return operation;
   }
 
-  async queueIndexWebsiteOperation(body: CreateWebsiteIndexOperationRequest) {
+  async queueIndexWebsiteOperation(body: CreateWebsiteIndexOperationDto) {
     let indexOperation = new IndexOperation();
     indexOperation.type = 'website';
     indexOperation.metadata = JSON.stringify({
@@ -100,7 +100,7 @@ export class IndexService {
         indexOperation.status = 'failed';
         const existingMetadata = JSON.parse(indexOperation.metadata);
         indexOperation.metadata = JSON.stringify({
-          error: err,
+          error: JSON.stringify(err),
           ...existingMetadata,
         });
         await this.indexOperationRepository.save(indexOperation);
@@ -111,28 +111,29 @@ export class IndexService {
   }
 
   async queueIndexFileOperation(file: Express.Multer.File) {
-    const s3 = new AWS.S3({
-      accessKeyId: s3Config.accessKeyId,
-      secretAccessKey: s3Config.secretAccessKey,
+    const s3Client = new S3Client({
+      region: s3Config.region,
+      credentials: {
+        accessKeyId: s3Config.accessKeyId,
+        secretAccessKey: s3Config.secretAccessKey,
+      },
     });
-    const uploadResult = await s3
-      .upload({
-        Bucket: s3Config.bucketName,
-        Key: file.filename,
-        Body: file.buffer,
-      })
-      .promise();
+    const uploadCommand = new PutObjectCommand({
+      Bucket: s3Config.bucketName,
+      Key: file.originalname,
+      Body: file.buffer,
+    });
+    await s3Client.send(uploadCommand);
 
-    Logger.log(`Uploaded file ${file.filename} to S3`);
+    Logger.log(`Uploaded file ${file.originalname} to S3`);
 
     let indexOperation = new IndexOperation();
     indexOperation.type = 'file';
     indexOperation.metadata = JSON.stringify({
       originalName: file.originalname,
-      filename: file.filename,
       mimeType: file.mimetype,
       size: file.size,
-      s3Key: uploadResult.Key,
+      s3Key: file.originalname,
     });
     indexOperation.status = 'queued';
     indexOperation = await this.indexOperationRepository.save(indexOperation);
@@ -174,7 +175,7 @@ export class IndexService {
         indexOperation.status = 'failed';
         const existingMetadata = JSON.parse(indexOperation.metadata);
         indexOperation.metadata = JSON.stringify({
-          error: err,
+          error: JSON.stringify(err),
           ...existingMetadata,
         });
         await this.indexOperationRepository.save(indexOperation);
