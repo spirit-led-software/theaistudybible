@@ -4,7 +4,7 @@ import { VectorDBQAChain } from 'langchain/chains';
 import { ChainValues } from 'langchain/dist/schema';
 import { Milvus } from 'langchain/vectorstores/milvus';
 import { Repository } from 'typeorm';
-import { config as milvusConfig } from '../../config/milvus.config';
+import { config as milvusConfig } from '../../configs/milvus.config';
 import { createEmbeddings, createModel } from '../../utils/openai';
 import { QueryRequest } from './dto/query-request.dto';
 import { QueryResult } from './entities/query-result.entity';

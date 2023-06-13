@@ -1,12 +1,11 @@
-import '@tensorflow/tfjs-node';
+import { config as milvusConfig } from '@/configs/milvus.config';
+import { createEmbeddings } from '@utils/openai';
 import {
   Page,
   PuppeteerWebBaseLoader,
 } from 'langchain/document_loaders/web/puppeteer';
 import { Milvus } from 'langchain/vectorstores/milvus';
 import { parentPort, workerData } from 'worker_threads';
-import { config as milvusConfig } from '../config/milvus.config';
-import { createEmbeddings } from '../utils/openai';
 
 const generatePageContentEmbeddings = async (url: string) => {
   let retries = 5;

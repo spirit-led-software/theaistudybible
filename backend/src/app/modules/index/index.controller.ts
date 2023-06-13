@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { WebsiteIndexRequest } from './dto/website-index-request.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateWebsiteIndexOperationRequest } from './dto/create-website-index-operation.dto';
 import { IndexService } from './index.service';
 
-@Controller('index')
+@Controller('index-operations')
 export class IndexController {
   constructor(private readonly indexService: IndexService) {}
 
@@ -18,9 +28,26 @@ export class IndexController {
     return indexOperation;
   }
 
+  @Put(':id/cancel')
+  async cancelOperation(@Param('id') id: number) {
+    const indexOperation = await this.indexService.cancelIndexOperation(id);
+    return indexOperation;
+  }
+
   @Post('website')
-  async indexWebsite(@Body() body: WebsiteIndexRequest) {
-    const indexOperation = await this.indexService.queueIndexWebsiteOp(body);
+  async indexWebsite(@Body() body: CreateWebsiteIndexOperationRequest) {
+    const indexOperation = await this.indexService.queueIndexWebsiteOperation(
+      body,
+    );
+    return indexOperation;
+  }
+
+  @Post('file')
+  @UseInterceptors(FileInterceptor('file'))
+  async indexFile(@UploadedFile() file: Express.Multer.File) {
+    const indexOperation = await this.indexService.queueIndexFileOperation(
+      file,
+    );
     return indexOperation;
   }
 }

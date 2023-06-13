@@ -13,7 +13,7 @@ WORKDIR /app
 
 # Install dependencies
 RUN apt-get update -y \
-  && apt-get install -y build-essential python \
+  && apt-get install -y build-essential \
   # Chromium dependencies
   chromium ca-certificates fonts-liberation libasound2 \
   libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 \
@@ -36,7 +36,6 @@ COPY dist ./dist
 
 # Install node dependencies
 RUN npm ci --omit=dev \
-  && npm rebuild @tensorflow/tfjs-node --build-from-source \
   && npm cache clean --force \
   && chown -R sept:sept /app \
   && chmod -R 755 /app

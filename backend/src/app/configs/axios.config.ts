@@ -9,3 +9,5 @@ axiosRetry(axios, {
   retryCondition: (error) =>
     axiosRetry.isNetworkOrIdempotentRequestError(error), // Retry only on specific errors
 });
+
+export default axios;

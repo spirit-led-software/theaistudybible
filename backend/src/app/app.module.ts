@@ -5,7 +5,7 @@ import { IndexModule } from './modules/index/index.module';
 import { QueryModule } from './modules/query/query.module';
 
 @Module({
-  imports: [CustomConfigModule, IndexModule, DbModule, QueryModule],
+  imports: [CustomConfigModule, DbModule, IndexModule, QueryModule],
   controllers: [],
   providers: [],
 })

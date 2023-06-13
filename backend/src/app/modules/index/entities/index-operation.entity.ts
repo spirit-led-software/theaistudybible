@@ -6,17 +6,11 @@ export class IndexOperation {
   id: number;
 
   @Column()
-  type: 'website' | 'document';
+  type: 'website' | 'file';
 
   @Column()
-  status: 'running' | 'queued' | 'completed' | 'failed';
+  status: 'running' | 'queued' | 'completed' | 'failed' | 'cancelled';
 
   @Column({ nullable: true })
-  url: string;
-
-  @Column({ nullable: true })
-  pathRegex: string;
-
-  @Column({ nullable: true })
-  error: string;
+  metadata: string;
 }

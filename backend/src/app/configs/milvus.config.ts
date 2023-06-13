@@ -11,3 +11,5 @@ export const config: MilvusConfig = {
   user: process.env.MILVUS_USER,
   password: process.env.MILVUS_PASSWORD,
 };
+
+export default config;

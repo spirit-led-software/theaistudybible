@@ -1,6 +1,6 @@
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { OpenAI } from 'langchain/llms/openai';
-import { config } from '../config/openai.config';
+import { config } from '../configs/openai.config';
 
 export function createModel() {
   return new OpenAI({

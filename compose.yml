@@ -77,6 +77,16 @@ services:
       - "backend-dev"
       - "frontend-dev"
 
+  unstructured-api:
+    image: quay.io/unstructured-io/unstructured-api:0.0.23
+    ports:
+      - 8000:8000
+    command: --host 0.0.0.0 --port 8000
+    profiles:
+      - "default"
+      - "backend-dev"
+      - "frontend-dev"
+
   backend:
     image: septuagint/backend:latest
     ports:
@@ -97,6 +107,7 @@ services:
       - milvus
       - postgres
       - redis
+      - unstructured-api
     profiles:
       - "default"
       - "frontend-dev"
