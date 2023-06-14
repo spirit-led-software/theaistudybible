@@ -1,13 +1,11 @@
-import { config as milvusConfig } from '@/configs/milvus.config';
-import { getEmbeddings } from '@configs/openai.config';
+import { getVectorStore } from '@/configs/milvus.config';
 import {
   Page,
   PuppeteerWebBaseLoader,
 } from 'langchain/document_loaders/web/puppeteer';
-import { Milvus } from 'langchain/vectorstores/milvus';
 import { parentPort, workerData } from 'worker_threads';
 
-const generatePageContentEmbeddings = async (url: string) => {
+const generatePageContentEmbeddings = async (url: string): Promise<void> => {
   let retries = 5;
   while (retries > 0) {
     try {
@@ -25,21 +23,32 @@ const generatePageContentEmbeddings = async (url: string) => {
           });
         },
       });
-      const docs = await loader.loadAndSplit();
-      parentPort.postMessage(`Loaded ${docs.length} documents`);
-
-      await Milvus.fromDocuments(docs, getEmbeddings(), {
-        url: milvusConfig.url,
-        collectionName: milvusConfig.collectionName,
-        username: milvusConfig.user,
-        password: milvusConfig.password,
+      let docs = await loader.loadAndSplit();
+      docs = docs.map((doc) => {
+        doc.pageContent = doc.pageContent.replace(/\n/g, ' ').trim();
+        doc.metadata = {
+          ...doc.metadata,
+          filetype: 'webpage',
+          page_number: 'N/A',
+          filename: 'N/A',
+          category: 'webpage',
+          // TODO: May need to add metadata for milvus client not to complain
+        };
+        return doc;
       });
-      retries = 0;
+      parentPort.postMessage(
+        `Obtained ${docs.length} documents from url '${url}'`,
+      );
+      const vectorStore = await getVectorStore();
+      await vectorStore.addDocuments(docs);
+      return;
     } catch (err) {
-      parentPort.postMessage(`Error: ${err}`);
+      parentPort.postMessage(`${err.name}: ${err.message}`);
+      parentPort.postMessage(`${err.stack}`);
       retries--;
     }
   }
+  throw new Error('Failed to generate page content embeddings');
 };
 
 parentPort.postMessage('Page Scraper Worker Started!');

@@ -1,3 +1,3 @@
 export class CreateDevoDto {
-  bibleVerse: string;
+  bibleVerse?: string;
 }

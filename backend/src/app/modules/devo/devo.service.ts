@@ -1,3 +1,4 @@
+import axios from '@configs/axios.config';
 import { getVectorStore } from '@configs/milvus.config';
 import { getModel } from '@configs/openai.config';
 import { SourceDocument } from '@modules/query/entities/source-document.entity';
@@ -24,13 +25,31 @@ export class DevoService {
     timeZone: 'America/New_York',
   })
   async scheduledCreate() {
-    await this.create({
-      bibleVerse: 'John 3:16',
-    });
+    await this.create({});
+  }
+
+  async getRandomBibleVerse(): Promise<string> {
+    const response = await axios.get(
+      'https://labs.bible.org/api?passage=random&type=json&formatting=plain',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    const verseData = response.data[0];
+    const verse = `${verseData.bookname} ${verseData.chapter}:${verseData.verse} - ${verseData.text}`;
+    return verse;
   }
 
   async create(createDevoDto: CreateDevoDto) {
-    Logger.log(`Creating devo with verse: ${createDevoDto.bibleVerse}`);
+    let bibleVerse: string;
+    if (!createDevoDto.bibleVerse) {
+      bibleVerse = await this.getRandomBibleVerse();
+    } else {
+      bibleVerse = createDevoDto.bibleVerse;
+    }
+    Logger.log(`Creating devo with verse: ${bibleVerse}`);
     const fullPrompt = PromptTemplate.fromTemplate(`Given the context:
 {context}
 
@@ -42,16 +61,14 @@ then write a summary of the verse which should include other related Bible verse
 The summary can include a story or an analogy. Then, write a reflection on the verse.
 Finally, write a prayer to wrap up the devotional.`);
     const vectorStore = await getVectorStore();
-    const context = await vectorStore.similaritySearch(
-      createDevoDto.bibleVerse,
-    );
+    const context = await vectorStore.similaritySearch(bibleVerse);
     const chain = new LLMChain({
       llm: getModel(),
       prompt: fullPrompt,
       verbose: true,
     });
     const result = await chain.call({
-      bibleVerse: createDevoDto.bibleVerse,
+      bibleVerse: bibleVerse,
       context: context.map((c) => c.pageContent).join('\n'),
     });
     let devoEntity = new Devo();

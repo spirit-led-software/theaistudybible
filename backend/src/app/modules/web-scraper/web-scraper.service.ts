@@ -76,7 +76,7 @@ export class WebScraperService {
         } else if (sitemapXmlObj.sitemapindex) {
           sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
         } else {
-          Logger.debug(`sitemapXmlObj: ${sitemapXmlObj}`);
+          Logger.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
         }
 
         if (Array.isArray(sitemapUrls)) {
@@ -101,7 +101,7 @@ export class WebScraperService {
   createPageScraperWorker(url: string) {
     return new Promise((resolve, reject) => {
       const worker = new Worker(
-        `${__dirname}/workers/webpage-scraper.worker.ts`,
+        `${__dirname}/workers/webpage-scraper.worker.js`,
         {
           workerData: {
             url,
@@ -109,7 +109,7 @@ export class WebScraperService {
         },
       );
       worker.on('message', (message) => {
-        Logger.log(`Message from worker: ${message}`);
+        Logger.debug(`Message from worker: ${message}`);
       });
       worker.on('exit', (code) => {
         if (code !== 0) {
@@ -145,7 +145,7 @@ export class WebScraperService {
           finishedUrls++;
         })
         .catch((err) => {
-          Logger.error(err);
+          Logger.error(`${err.name}: ${err.message} - ${err.stack}`);
           runningWorkers--;
           finishedUrls++;
         });
@@ -164,8 +164,13 @@ export class WebScraperService {
    * in the sitemap that we want to scrape. Only URLs that match this regular expression will be
    * processed further.
    */
-  async scrapeSite(url: string, pathRegex: string) {
-    const urlRegex = new RegExp(`${url}${pathRegex}`);
+  async scrapeSite(url: string, pathRegex?: string) {
+    let urlRegex: RegExp;
+    if (pathRegex) {
+      urlRegex = new RegExp(`${url}${pathRegex}`);
+    } else {
+      urlRegex = new RegExp(`${url}/.*`);
+    }
     const sitemapUrls = await this.getSitemaps(url);
     Logger.log(`sitemapUrls: ${sitemapUrls}`);
     await Promise.all(

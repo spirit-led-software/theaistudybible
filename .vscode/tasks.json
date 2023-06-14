@@ -5,7 +5,7 @@
       "type": "shell",
       "label": "backend-dev-env",
       "detail": "Start fresh backend development environment",
-      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile backend-dev up -d && sleep 10 && cd backend && npm run start:dev",
+      "command": "docker compose down -v --remove-orphans && docker compose --profile backend-dev up -d && sleep 10 && cd backend && npm run start:dev",
       "problemMatcher": []
     }
   ]

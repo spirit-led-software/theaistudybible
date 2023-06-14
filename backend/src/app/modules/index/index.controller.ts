@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -40,6 +41,9 @@ export class IndexController {
 
   @Post('website')
   async indexWebsite(@Body() body: CreateWebsiteIndexOperationDto) {
+    if (!body.url) {
+      throw new BadRequestException('URL is required');
+    }
     const { job, indexOperation } =
       await this.indexService.queueIndexWebsiteOperation(body);
     return { job, indexOperation };

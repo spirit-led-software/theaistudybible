@@ -47,7 +47,6 @@ export class QueryService {
       chat = new Chat();
       chat.subject = query.query;
       chat.queries = [];
-      chat = await this.chatService.internalCreate(chat);
       query.chatId = chat.id;
     } else {
       chat = await this.chatService.findOne(query.chatId);
@@ -79,6 +78,7 @@ export class QueryService {
       vectorStore.asRetriever(),
       {
         returnSourceDocuments: true,
+        verbose: true,
         memory,
       },
     );
