@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   Column,
   Entity,
@@ -17,13 +18,15 @@ export class QueryResult {
   @Column()
   text: string;
 
+  @Expose({ groups: ['query-result', 'source-document'] })
   @OneToOne(() => Query, (query) => query.result)
   query: Query;
 
+  @Expose({ groups: ['query', 'query-result'] })
   @ManyToMany(
     () => SourceDocument,
     (sourceDocuments) => sourceDocuments.queryResults,
-    { cascade: true, eager: true },
+    { eager: true },
   )
   @JoinTable()
   sourceDocuments: SourceDocument[];

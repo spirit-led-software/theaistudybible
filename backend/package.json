@@ -5,6 +5,7 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "type": "commonjs",
   "scripts": {
     "build": "nest build",
     "build:docker": "nest build && docker build -t septuagint/backend:${npm_package_version} -t septuagint/backend:latest -f Dockerfile .",

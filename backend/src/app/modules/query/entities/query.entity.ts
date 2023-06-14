@@ -1,7 +1,10 @@
+import { Chat } from '@modules/chat/entities/chat.entity';
+import { Expose } from 'class-transformer';
 import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -12,14 +15,15 @@ export class Query {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Expose({ groups: ['query'] })
+  @ManyToOne(() => Chat, (chat) => chat.queries)
+  chat: Chat;
+
   @Column()
   query: string;
 
-  @Column('text', { nullable: true, array: true })
-  history: string[];
-
+  @Expose({ groups: ['query'] })
   @OneToOne(() => QueryResult, (queryResult) => queryResult.query, {
-    cascade: true,
     eager: true,
   })
   @JoinColumn()

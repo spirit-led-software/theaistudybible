@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -17,11 +17,13 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "lib": ["ES2022", "DOM"],
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["./src/app/*"],
       "@configs/*": ["src/app/configs/*"],
-      "@modules/*": ["./src/app/modules/*"]
+      "@modules/*": ["./src/app/modules/*"],
+      "@/*": ["./src/app/*"]
     }
   }
 }

@@ -170,6 +170,8 @@ export class IndexService {
       await this.indexOperationRepository.save(indexOperation);
       const { s3Key } = JSON.parse(indexOperation.metadata);
       await this.fileScraperService.scrapeFile(s3Key);
+      indexOperation.status = 'completed';
+      await this.indexOperationRepository.save(indexOperation);
     } catch (err) {
       if (indexOperation) {
         indexOperation.status = 'failed';

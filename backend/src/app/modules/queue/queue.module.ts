@@ -1,6 +1,6 @@
+import { config } from '@configs/redis.config';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { config } from '../../configs/redis.config';
 
 @Module({
   imports: [

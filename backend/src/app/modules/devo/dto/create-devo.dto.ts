@@ -1,1 +1,3 @@
-export class CreateDevoDto {}
+export class CreateDevoDto {
+  bibleVerse: string;
+}

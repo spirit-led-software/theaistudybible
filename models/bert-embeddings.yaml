@@ -1,0 +1,7 @@
+# Download the model first:
+# wget https://huggingface.co/skeskinen/ggml/resolve/main/all-MiniLM-L6-v2/ggml-model-q4_0.bin -O ./models/bert-MiniLM-L6-v2q4_0
+name: bert-embeddings
+backend: bert-embeddings
+parameters:
+  model: bert-MiniLM-L6-v2q4_0
+embeddings: true

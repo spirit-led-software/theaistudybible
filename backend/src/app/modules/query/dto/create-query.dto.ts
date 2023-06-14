@@ -1,4 +1,4 @@
 export class CreateQueryDto {
   query: string;
-  history: string[];
+  chatId?: number;
 }

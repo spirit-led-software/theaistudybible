@@ -1,6 +1,6 @@
+import { config as postgresConfig } from '@configs/postgres.config';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { config as postgresConfig } from '../../configs/postgres.config';
 
 @Module({
   imports: [
@@ -11,8 +11,8 @@ import { config as postgresConfig } from '../../configs/postgres.config';
       username: postgresConfig.username,
       password: postgresConfig.password,
       database: postgresConfig.database,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+      entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
     }),

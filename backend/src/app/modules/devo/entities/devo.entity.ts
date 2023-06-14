@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { SourceDocument } from '@modules/query/entities/source-document.entity';
+import { Expose } from 'class-transformer';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Devo {
@@ -6,10 +14,19 @@ export class Devo {
   id: number;
 
   @Column()
-  title: string;
-
-  @Column()
   content: string;
+
+  @Expose({ groups: ['devo'] })
+  @ManyToMany(
+    () => SourceDocument,
+    (sourceDocument) => sourceDocument.devotionals,
+    {
+      cascade: true,
+      eager: true,
+    },
+  )
+  @JoinTable()
+  sourceDocuments: SourceDocument[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;

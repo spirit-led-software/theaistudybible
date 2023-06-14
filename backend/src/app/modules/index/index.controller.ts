@@ -48,9 +48,8 @@ export class IndexController {
   @Post('file')
   @UseInterceptors(FileInterceptor('file'))
   async indexFile(@UploadedFile() file: Express.Multer.File) {
-    const indexOperation = await this.indexService.queueIndexFileOperation(
-      file,
-    );
-    return indexOperation;
+    const { job, indexOperation } =
+      await this.indexService.queueIndexFileOperation(file);
+    return { job, indexOperation };
   }
 }
