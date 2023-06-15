@@ -1,16 +1,14 @@
-import axios from '@configs/axios.config';
-import { getVectorStore } from '@configs/milvus.config';
-import { getModel } from '@configs/openai.config';
-import { SourceDocument } from '@modules/query/entities/source-document.entity';
+import { axios } from '@configs/axios';
+import { getVectorStore } from '@configs/milvus';
+import { getModel } from '@configs/openai';
+import { CreateDevoDto, UpdateDevoDto } from '@dtos/devo';
+import { Devo, SourceDocument } from '@entities';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LLMChain } from 'langchain/chains';
 import { PromptTemplate } from 'langchain/prompts';
 import { Repository } from 'typeorm';
-import { CreateDevoDto } from './dto/create-devo.dto';
-import { UpdateDevoDto } from './dto/update-devo.dto';
-import { Devo } from './entities/devo.entity';
 
 @Injectable()
 export class DevoService {

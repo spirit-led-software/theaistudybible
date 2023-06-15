@@ -1,17 +1,17 @@
-import { config as postgresConfig } from '@configs/postgres.config';
+import { config } from '@configs/postgres';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: postgresConfig.type,
-      host: postgresConfig.host,
-      port: postgresConfig.port,
-      username: postgresConfig.username,
-      password: postgresConfig.password,
-      database: postgresConfig.database,
-      entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
+      type: config.type,
+      host: config.host,
+      port: config.port,
+      username: config.username,
+      password: config.password,
+      database: config.database,
+      entities: [__dirname + '/../../entities/*{.ts,.js}'],
       migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,

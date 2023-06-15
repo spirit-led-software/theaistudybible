@@ -1,8 +1,8 @@
+import { ChatMessageModule } from '@modules/chat-message/chat-message.module';
 import { CustomConfigModule } from '@modules/config/custom-config.module';
 import { DbModule } from '@modules/database/database.module';
 import { DevoModule } from '@modules/devo/devo.module';
-import { IndexModule } from '@modules/index/index.module';
-import { QueryModule } from '@modules/query/query.module';
+import { IndexOpModule } from '@modules/index-op/index-op.module';
 import { QueueModule } from '@modules/queue/queue.module';
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -14,8 +14,8 @@ import { ChatModule } from './modules/chat/chat.module';
     ScheduleModule.forRoot(),
     QueueModule,
     DbModule,
-    IndexModule,
-    QueryModule,
+    IndexOpModule,
+    ChatMessageModule,
     DevoModule,
     ChatModule,
   ],

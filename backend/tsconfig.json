@@ -22,7 +22,11 @@
     "moduleResolution": "node",
     "paths": {
       "@configs/*": ["src/app/configs/*"],
+      "@configs": ["src/app/configs"],
       "@modules/*": ["./src/app/modules/*"],
+      "@dtos/*": ["./src/app/dtos/*"],
+      "@entities/*": ["src/app/entities/*"],
+      "@entities": ["src/app/entities"],
       "@/*": ["./src/app/*"]
     }
   }

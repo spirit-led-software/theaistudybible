@@ -1,3 +1,4 @@
+import { CreateChatDto } from '@dtos/chat';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -10,7 +11,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto } from './dto/create-chat.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('chats')

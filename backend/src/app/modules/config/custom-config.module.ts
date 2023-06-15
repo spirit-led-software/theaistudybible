@@ -8,6 +8,5 @@ import { ConfigModule } from '@nestjs/config';
       envFilePath: '.env',
     }),
   ],
-  exports: [ConfigModule],
 })
 export class CustomConfigModule {}

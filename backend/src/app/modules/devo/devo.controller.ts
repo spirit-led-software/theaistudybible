@@ -1,3 +1,4 @@
+import { CreateDevoDto, UpdateDevoDto } from '@dtos/devo';
 import {
   Body,
   ClassSerializerInterceptor,
@@ -11,8 +12,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { DevoService } from './devo.service';
-import { CreateDevoDto } from './dto/create-devo.dto';
-import { UpdateDevoDto } from './dto/update-devo.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('devotionals')

@@ -1,7 +1,7 @@
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { default as s3Config } from '@configs/aws-s3.config';
-import { getVectorStore } from '@configs/milvus.config';
-import { default as unstructuredConfig } from '@configs/unstructured.config';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { awsS3Config, unstructuredConfig } from '@configs';
+import { client as s3Client } from '@configs/aws-s3';
+import { getVectorStore } from '@configs/milvus';
 import { Injectable, Logger } from '@nestjs/common';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
@@ -11,14 +11,8 @@ import { join } from 'path';
 @Injectable()
 export class FileScraperService {
   async scrapeFile(s3Key) {
-    const s3Client = new S3Client({
-      credentials: {
-        accessKeyId: s3Config.accessKeyId,
-        secretAccessKey: s3Config.secretAccessKey,
-      },
-    });
     const getObjectCommand = new GetObjectCommand({
-      Bucket: s3Config.bucketName,
+      Bucket: awsS3Config.bucketName,
       Key: s3Key,
     });
     const s3GetResult = await s3Client.send(getObjectCommand);

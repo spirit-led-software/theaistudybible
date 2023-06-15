@@ -1,4 +1,4 @@
-import { config } from '@configs/redis.config';
+import { config } from '@configs/redis';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 

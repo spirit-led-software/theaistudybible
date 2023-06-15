@@ -1,5 +1,5 @@
-import { axios } from '@configs/axios.config';
-import { config } from '@configs/web-scraper.config';
+import { axios } from '@configs/axios';
+import { config } from '@configs/web-scraper';
 import { Injectable, Logger } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
 import { Worker } from 'worker_threads';
@@ -100,14 +100,11 @@ export class WebScraperService {
    */
   createPageScraperWorker(url: string) {
     return new Promise((resolve, reject) => {
-      const worker = new Worker(
-        `${__dirname}/workers/webpage-scraper.worker.js`,
-        {
-          workerData: {
-            url,
-          },
+      const worker = new Worker(`${__dirname}/workers/webpage-scraper.js`, {
+        workerData: {
+          url,
         },
-      );
+      });
       worker.on('message', (message) => {
         Logger.debug(`Message from worker: ${message}`);
       });
