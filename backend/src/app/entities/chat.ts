@@ -1,12 +1,10 @@
 import { Expose } from 'class-transformer';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { BaseEntity } from './base';
 import { ChatMessage } from './chat-message';
 
 @Entity()
-export class Chat {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Chat extends BaseEntity {
   @Column()
   subject: string;
 

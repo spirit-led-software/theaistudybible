@@ -51,6 +51,17 @@ services:
       - "backend-dev"
       - "frontend-dev"
 
+  attu:
+    image: zilliz/attu:v2.2.3
+    environment:
+      MILVUS_URL: milvus:19530
+    ports:
+      - "8090:3000"
+    depends_on:
+      - "milvus"
+    profiles:
+      - "backend-dev"
+
   postgres:
     image: postgres:15.3
     ports:
@@ -96,9 +107,7 @@ services:
     volumes:
       - ./models:/models:cached
     profiles:
-      - "default"
-      # - "backend-dev"
-      # - "frontend-dev"
+      - "local-ai"
 
   backend:
     image: septuagint/backend:0.0.1

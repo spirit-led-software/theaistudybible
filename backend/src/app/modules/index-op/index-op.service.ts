@@ -13,6 +13,8 @@ import { Repository } from 'typeorm';
 @Processor('indexOperations')
 @Injectable()
 export class IndexOpService {
+  private readonly logger = new Logger(this.constructor.name);
+
   constructor(
     @InjectRepository(IndexOperation)
     private readonly indexOperationRepository: Repository<IndexOperation>,
@@ -39,7 +41,7 @@ export class IndexOpService {
       id,
     });
     if (operation.status !== 'queued' && operation.status !== 'running') {
-      Logger.error('Index operation is not in a cancellable state');
+      this.logger.error('Index operation is not in a cancellable state');
       throw new Error('Index operation is not in a cancellable state');
     }
     const job = await this.indexOperationsQueue.getJob(operation.id);
@@ -67,7 +69,7 @@ export class IndexOpService {
         attempts: 1,
       },
     );
-    Logger.log(
+    this.logger.log(
       `Queued job ${job.id} for website index operation ${indexOperation.id}`,
     );
     return { job, indexOperation };
@@ -100,12 +102,12 @@ export class IndexOpService {
         indexOperation.status = 'failed';
         const existingMetadata = JSON.parse(indexOperation.metadata);
         indexOperation.metadata = JSON.stringify({
-          error: JSON.stringify(err),
+          error: `${err.stack}`,
           ...existingMetadata,
         });
         await this.indexOperationRepository.save(indexOperation);
       }
-      Logger.error(err);
+      this.logger.error(`${err.stack}`);
       throw err;
     }
   }
@@ -125,7 +127,7 @@ export class IndexOpService {
     });
     await s3Client.send(uploadCommand);
 
-    Logger.log(`Uploaded file ${file.originalname} to S3`);
+    this.logger.log(`Uploaded file ${file.originalname} to S3`);
 
     let indexOperation = new IndexOperation();
     indexOperation.type = 'file';
@@ -144,7 +146,7 @@ export class IndexOpService {
         attempts: 1,
       },
     );
-    Logger.log(
+    this.logger.log(
       `Queued job ${job.id} for file index operation ${indexOperation.id}`,
     );
     return { job, indexOperation };
@@ -177,12 +179,12 @@ export class IndexOpService {
         indexOperation.status = 'failed';
         const existingMetadata = JSON.parse(indexOperation.metadata);
         indexOperation.metadata = JSON.stringify({
-          error: JSON.stringify(err),
+          error: `${err.stack}`,
           ...existingMetadata,
         });
         await this.indexOperationRepository.save(indexOperation);
       }
-      Logger.error(err);
+      this.logger.error(`${err.stack}`);
       throw err;
     }
   }

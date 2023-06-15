@@ -1,10 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
+import { BaseEntity } from './base';
 
 @Entity()
-export class IndexOperation {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class IndexOperation extends BaseEntity {
   @Column()
   type: 'website' | 'file';
 
@@ -13,10 +11,4 @@ export class IndexOperation {
 
   @Column({ nullable: true })
   metadata: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created: Date;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updated: Date;
 }

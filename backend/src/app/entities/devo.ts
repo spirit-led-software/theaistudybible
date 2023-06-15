@@ -1,18 +1,10 @@
 import { Expose } from 'class-transformer';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { BaseEntity } from './base';
 import { SourceDocument } from './source-document';
 
 @Entity()
-export class Devo {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Devo extends BaseEntity {
   @Column()
   content: string;
 
@@ -27,10 +19,4 @@ export class Devo {
   )
   @JoinTable()
   sourceDocuments: SourceDocument[];
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created: Date;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updated: Date;
 }

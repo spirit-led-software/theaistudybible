@@ -1,4 +1,4 @@
 export class CreateChatMessageDto {
-  query: string;
+  message: string;
   chatId?: number;
 }

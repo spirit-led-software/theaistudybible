@@ -12,6 +12,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class DevoService {
+  private readonly logger = new Logger(this.constructor.name);
+
   constructor(
     @InjectRepository(Devo) private readonly devoRepository: Repository<Devo>,
     @InjectRepository(SourceDocument)
@@ -47,7 +49,7 @@ export class DevoService {
     } else {
       bibleVerse = createDevoDto.bibleVerse;
     }
-    Logger.log(`Creating devo with verse: ${bibleVerse}`);
+    this.logger.log(`Creating devo with verse: ${bibleVerse}`);
     const fullPrompt = PromptTemplate.fromTemplate(`Given the context:
 {context}
 
@@ -59,11 +61,10 @@ then write a summary of the verse which should include other related Bible verse
 The summary can include a story or an analogy. Then, write a reflection on the verse.
 Finally, write a prayer to wrap up the devotional.`);
     const vectorStore = await getVectorStore();
-    const context = await vectorStore.similaritySearch(bibleVerse);
+    const context = await vectorStore.similaritySearch(bibleVerse, 15);
     const chain = new LLMChain({
       llm: getModel(),
       prompt: fullPrompt,
-      verbose: true,
     });
     const result = await chain.call({
       bibleVerse: bibleVerse,

@@ -3,6 +3,7 @@ import {
   Page,
   PuppeteerWebBaseLoader,
 } from 'langchain/document_loaders/web/puppeteer';
+import { TokenTextSplitter } from 'langchain/text_splitter';
 import { parentPort, workerData } from 'worker_threads';
 
 const generatePageContentEmbeddings = async (url: string): Promise<void> => {
@@ -23,9 +24,14 @@ const generatePageContentEmbeddings = async (url: string): Promise<void> => {
           });
         },
       });
-      let docs = await loader.loadAndSplit();
+      let docs = await loader.loadAndSplit(
+        new TokenTextSplitter({
+          chunkSize: 400,
+          chunkOverlap: 50,
+          encodingName: 'cl100k_base',
+        }),
+      );
       docs = docs.map((doc) => {
-        doc.pageContent = doc.pageContent.replace(/\n/g, ' ').trim();
         doc.metadata = {
           ...doc.metadata,
           filetype: 'webpage',

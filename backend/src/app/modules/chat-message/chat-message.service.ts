@@ -17,6 +17,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class ChatMessageService {
+  private readonly logger = new Logger(this.constructor.name);
+
   constructor(
     @InjectRepository(ChatMessage)
     private readonly chatMessageRepository: Repository<ChatMessage>,
@@ -38,12 +40,13 @@ export class ChatMessageService {
   }
 
   async message(message: CreateChatMessageDto) {
-    Logger.log(`Query: ${JSON.stringify(message)}`);
+    this.logger.log(`Recieved chat message: ${JSON.stringify(message)}`);
     let chat: Chat;
     if (!message.chatId) {
       chat = new Chat();
-      chat.subject = message.query;
+      chat.subject = message.message;
       chat.messages = [];
+      chat = await this.chatService.internalCreate(chat);
       message.chatId = chat.id;
     } else {
       chat = await this.chatService.findOne(message.chatId);
@@ -51,7 +54,7 @@ export class ChatMessageService {
         throw new NotFoundException('Chat not found');
       }
     }
-    Logger.log(`Using chat: '${JSON.stringify(chat)}' as history`);
+    this.logger.debug(`Using chat: '${chat.id}' as history`);
     const vectorStore = await getVectorStore();
     const history: BaseChatMessage[] =
       chat.messages
@@ -62,30 +65,29 @@ export class ChatMessageService {
           ];
         })
         .flat() || [];
-    Logger.log(`Chat history: ${JSON.stringify(history)}`);
+    this.logger.debug(`Chat history: ${JSON.stringify(history)}`);
     const memory = new BufferMemory({
       chatHistory: new ChatMessageHistory(history),
       memoryKey: 'chat_history',
-      inputKey: 'question',
+      inputKey: 'message',
       outputKey: 'answer',
       returnMessages: true,
     });
     const chain = ConversationalRetrievalQAChain.fromLLM(
       getChatModel(),
-      vectorStore.asRetriever(),
+      vectorStore.asRetriever(10),
       {
         returnSourceDocuments: true,
-        verbose: true,
         memory,
+        inputKey: 'message',
+        outputKey: 'answer',
       },
     );
     const result = await chain.call({
-      question: message.query,
+      message: message.message,
     });
-    Logger.log(`Result for query: ${JSON.stringify(result)}`);
+    this.logger.debug(`Result for query: ${JSON.stringify(result)}`);
     const queryEntity = await this.saveMessage(message, result, chat);
-    chat.messages.push(queryEntity);
-    await this.chatService.internalUpdate(chat);
     return queryEntity;
   }
 
@@ -95,12 +97,12 @@ export class ChatMessageService {
     chat: Chat,
   ) {
     let chatMessageEntity = new ChatMessage();
-    chatMessageEntity.message = query.query;
+    chatMessageEntity.message = query.message;
     chatMessageEntity.answer = result.text;
     chatMessageEntity.chat = chat;
     let chatAnswerEntity = new ChatAnswer();
     chatAnswerEntity.text = result.text;
-    const sourceDocuments = [];
+    const sourceDocuments: SourceDocument[] = [];
     for (const sourceDocument of result.sourceDocuments) {
       let sourceDocumentEntity = await this.sourceDocumentRepository.findOne({
         where: { pageContent: sourceDocument.pageContent },
@@ -112,8 +114,8 @@ export class ChatMessageService {
         sourceDocumentEntity = await this.sourceDocumentRepository.save(
           sourceDocumentEntity,
         );
-        sourceDocuments.push(sourceDocumentEntity);
       }
+      sourceDocuments.push(sourceDocumentEntity);
     }
     chatAnswerEntity.sourceDocuments = sourceDocuments;
     chatAnswerEntity = await this.chatAnswerRepository.save(chatAnswerEntity);

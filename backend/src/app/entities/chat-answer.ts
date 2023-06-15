@@ -1,20 +1,11 @@
 import { Expose } from 'class-transformer';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToOne } from 'typeorm';
+import { BaseEntity } from './base';
 import { ChatMessage } from './chat-message';
 import { SourceDocument } from './source-document';
 
 @Entity()
-export class ChatAnswer {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class ChatAnswer extends BaseEntity {
   @Column()
   text: string;
 
@@ -30,10 +21,4 @@ export class ChatAnswer {
   )
   @JoinTable()
   sourceDocuments: SourceDocument[];
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created: Date;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updated: Date;
 }

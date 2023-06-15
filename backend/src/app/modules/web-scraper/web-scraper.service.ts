@@ -6,6 +6,8 @@ import { Worker } from 'worker_threads';
 
 @Injectable()
 export class WebScraperService {
+  private readonly logger = new Logger(this.constructor.name);
+
   /**
    * This function retrieves sitemap URLs from a given website's robots.txt file.
    * @param {string} url - A string representing the base URL of a website. The function uses this URL to
@@ -26,7 +28,9 @@ export class WebScraperService {
         const url = line.split(': ')[1].trim();
         return url;
       });
-      return sitemapUrls;
+      return sitemapUrls.filter(
+        (url, index) => sitemapUrls.indexOf(url) === index,
+      );
     }
     return [];
   }
@@ -45,8 +49,8 @@ export class WebScraperService {
     initialUrl: string,
     urlRegex: RegExp,
   ): Promise<string[]> {
-    const urls: string[] = [];
-    const stack: string[] = [initialUrl];
+    const urls = [];
+    const stack = [initialUrl];
     while (stack.length > 0) {
       const url = stack.pop();
       try {
@@ -65,7 +69,7 @@ export class WebScraperService {
             } else if (foundUrl.match(urlRegex)) {
               urls.push(foundUrl);
             } else {
-              Logger.debug(`Skipping URL: ${foundUrl}`);
+              this.logger.debug(`Skipping URL: ${foundUrl}`);
             }
           }
         };
@@ -76,7 +80,7 @@ export class WebScraperService {
         } else if (sitemapXmlObj.sitemapindex) {
           sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
         } else {
-          Logger.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
+          this.logger.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
         }
 
         if (Array.isArray(sitemapUrls)) {
@@ -85,10 +89,10 @@ export class WebScraperService {
           await urlMapper(sitemapUrls);
         }
       } catch (err) {
-        Logger.error(err);
+        this.logger.error(`${err.stack}`);
       }
     }
-    return urls;
+    return urls.filter((url, index) => urls.indexOf(url) === index);
   }
 
   /**
@@ -106,11 +110,11 @@ export class WebScraperService {
         },
       });
       worker.on('message', (message) => {
-        Logger.debug(`Message from worker: ${message}`);
+        this.logger.debug(`Message from worker: ${message}`);
       });
       worker.on('exit', (code) => {
         if (code !== 0) {
-          Logger.error(`Worker stopped with exit code ${code}`);
+          this.logger.error(`Worker stopped with exit code ${code}`);
           reject(code);
         }
         resolve(code);
@@ -124,33 +128,31 @@ export class WebScraperService {
    * @returns The function `scrapePages` is returning a Promise that resolves to an array of results from
    * each worker that was created to scrape the pages in the `urls` array.
    */
-  async scrapePages(urls: string[]) {
+  async scrapePages(urls: string[]): Promise<void> {
     const maxWorkers = config.threads;
-    let finishedUrls = 0;
     let runningWorkers = 0;
     const workers = [];
-    while (finishedUrls < urls.length) {
+    while (urls.length > 0) {
+      const url = urls.pop();
       if (runningWorkers >= maxWorkers) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 500));
         continue;
       }
       runningWorkers++;
-      const worker = this.createPageScraperWorker(urls[finishedUrls])
+      const worker = this.createPageScraperWorker(url)
         .then((result) => {
-          Logger.log(`Worker finished with result: ${result}`);
+          this.logger.log(
+            `Webpage scraper worker finished with result: ${result}`,
+          );
           runningWorkers--;
-          finishedUrls++;
         })
         .catch((err) => {
-          Logger.error(`${err.name}: ${err.message} - ${err.stack}`);
+          this.logger.error(`${err.stack}`);
           runningWorkers--;
-          finishedUrls++;
         });
       workers.push(worker);
     }
-    const results = await Promise.all(workers);
-    Logger.log(`results: ${results}`);
-    return results;
+    await Promise.all(workers);
   }
 
   /**
@@ -169,13 +171,12 @@ export class WebScraperService {
       urlRegex = new RegExp(`${url}/.*`);
     }
     const sitemapUrls = await this.getSitemaps(url);
-    Logger.log(`sitemapUrls: ${sitemapUrls}`);
+    this.logger.debug(`sitemapUrls: ${sitemapUrls}`);
     await Promise.all(
       sitemapUrls.map(async (sitemapUrl) => {
         const foundUrls = await this.navigateSitemap(sitemapUrl, urlRegex);
-        Logger.log(`foundUrls: ${foundUrls}`);
-        const results = await this.scrapePages(foundUrls);
-        Logger.log(`scrapePages results: ${results}`);
+        this.logger.debug(`foundUrls: ${foundUrls}`);
+        await this.scrapePages(foundUrls);
       }),
     );
   }
