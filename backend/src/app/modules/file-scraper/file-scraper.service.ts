@@ -1,8 +1,8 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { s3Config, unstructuredConfig } from '@configs';
-import { client as s3Client } from '@configs/s3';
-import { getVectorStore } from '@configs/vector-db';
+import { S3Service } from '@modules/s3/s3.service';
+import { VectorDBService } from '@modules/vector-db/vector-db.service';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
 import { TokenTextSplitter } from 'langchain/text_splitter';
@@ -13,15 +13,22 @@ import { join } from 'path';
 export class FileScraperService {
   private readonly logger = new Logger(this.constructor.name);
 
-  constructor() {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly s3Service: S3Service,
+    private readonly vectorDbService: VectorDBService,
+  ) {}
 
   async scrapeFile(s3Key) {
+    const s3Config = this.s3Service.getConfig();
     try {
       const getObjectCommand = new GetObjectCommand({
         Bucket: s3Config.bucketName,
         Key: s3Key,
       });
-      const s3GetResult = await s3Client.send(getObjectCommand);
+      const s3GetResult = await this.s3Service
+        .getClient()
+        .send(getObjectCommand);
       this.logger.log(`File '${s3Key}' fetched from S3`);
 
       const filename = s3Key.split('/').pop();
@@ -31,6 +38,7 @@ export class FileScraperService {
       writeFileSync(filePath, fileContent);
       this.logger.log(`File '${s3Key}' saved to ${filePath}`);
 
+      const unstructuredConfig = this.configService.get('unstructured');
       const loader = new UnstructuredLoader(filePath, {
         apiUrl: unstructuredConfig.apiUrl,
       });
@@ -53,7 +61,7 @@ export class FileScraperService {
       this.logger.debug(
         `Obtained ${docs.length} documents from file '${s3Key}'`,
       );
-      const vectorStore = await getVectorStore();
+      const vectorStore = await this.vectorDbService.getVectorStore();
       await vectorStore.addDocuments(docs);
       this.logger.log(`File '${s3Key}' loaded into Milvus successfully`);
     } catch (err) {

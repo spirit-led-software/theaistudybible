@@ -1,11 +1,12 @@
-import { axios } from '@configs/axios';
-import { getModel } from '@configs/llm';
-import { getVectorStore } from '@configs/vector-db';
 import { CreateDevoDto, UpdateDevoDto } from '@dtos/devo';
 import { Devo, SourceDocument } from '@entities';
+import { LLMService } from '@modules/llm/llm.service';
+import { VectorDBService } from '@modules/vector-db/vector-db.service';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import axios from 'axios';
 import { LLMChain } from 'langchain/chains';
 import { PromptTemplate } from 'langchain/prompts';
 import { Repository } from 'typeorm';
@@ -15,6 +16,9 @@ export class DevoService {
   private readonly logger = new Logger(this.constructor.name);
 
   constructor(
+    private readonly configService: ConfigService,
+    private readonly vectorDbService: VectorDBService,
+    private readonly llmService: LLMService,
     @InjectRepository(Devo) private readonly devoRepository: Repository<Devo>,
     @InjectRepository(SourceDocument)
     private readonly sourceDocumentRepository: Repository<SourceDocument>,
@@ -29,14 +33,16 @@ export class DevoService {
   }
 
   async getRandomBibleVerse(): Promise<string> {
-    const response = await axios.get(
-      'https://labs.bible.org/api?passage=random&type=json&formatting=plain',
-      {
-        headers: {
-          'Content-Type': 'application/json',
+    const response = await axios
+      .create(this.configService.get('axios'))
+      .get(
+        'https://labs.bible.org/api?passage=random&type=json&formatting=plain',
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      },
-    );
+      );
     const verseData = response.data[0];
     const verse = `${verseData.bookname} ${verseData.chapter}:${verseData.verse} - ${verseData.text}`;
     return verse;
@@ -60,10 +66,10 @@ Write a daily devotional between 800 to 1000 words. Start by reciting the Bible 
 then write a summary of the verse which should include other related Bible verses.
 The summary can include a story or an analogy. Then, write a reflection on the verse.
 Finally, write a prayer to wrap up the devotional.`);
-    const vectorStore = await getVectorStore();
+    const vectorStore = await this.vectorDbService.getVectorStore();
     const context = await vectorStore.similaritySearch(bibleVerse, 15);
     const chain = new LLMChain({
-      llm: getModel(),
+      llm: this.llmService.getModel(),
       prompt: fullPrompt,
     });
     const result = await chain.call({

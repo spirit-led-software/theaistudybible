@@ -1,8 +1,8 @@
-import { config as dotenvConfig } from 'dotenv';
+import dotenv from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 const getConfig = (): DataSourceOptions => {
-  dotenvConfig();
+  dotenv.config();
   return {
     type: process.env.DATABASE_TYPE as any,
     host: process.env.DATABASE_HOST,

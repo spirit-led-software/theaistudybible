@@ -1,8 +1,8 @@
-import { getChatModel } from '@configs/llm';
-import { getVectorStore } from '@configs/vector-db';
 import { CreateChatMessageDto } from '@dtos/chat-message';
 import { Chat, ChatAnswer, ChatMessage, SourceDocument } from '@entities';
 import { ChatService } from '@modules/chat/chat.service';
+import { LLMService } from '@modules/llm/llm.service';
+import { VectorDBService } from '@modules/vector-db/vector-db.service';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConversationalRetrievalQAChain } from 'langchain/chains';
@@ -20,6 +20,8 @@ export class ChatMessageService {
   private readonly logger = new Logger(this.constructor.name);
 
   constructor(
+    private readonly vectorDbService: VectorDBService,
+    private readonly llmService: LLMService,
     @InjectRepository(ChatMessage)
     private readonly chatMessageRepository: Repository<ChatMessage>,
     @InjectRepository(ChatAnswer)
@@ -55,7 +57,7 @@ export class ChatMessageService {
       }
     }
     this.logger.debug(`Using chat: '${chat.id}' as history`);
-    const vectorStore = await getVectorStore();
+    const vectorStore = await this.vectorDbService.getVectorStore();
     const history: BaseChatMessage[] =
       chat.messages
         ?.map((q) => {
@@ -74,7 +76,7 @@ export class ChatMessageService {
       returnMessages: true,
     });
     const chain = ConversationalRetrievalQAChain.fromLLM(
-      getChatModel(),
+      this.llmService.getChatModel(),
       vectorStore.asRetriever(10),
       {
         returnSourceDocuments: true,

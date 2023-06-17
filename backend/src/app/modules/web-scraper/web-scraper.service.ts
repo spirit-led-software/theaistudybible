@@ -1,14 +1,19 @@
-import { axios } from '@configs/axios';
-import { config } from '@configs/web-scraper';
+import { VectorDBService } from '@modules/vector-db/vector-db.service';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
+import { VectorStore } from 'langchain/vectorstores';
 import { Worker } from 'worker_threads';
 
 @Injectable()
 export class WebScraperService {
   private readonly logger = new Logger(this.constructor.name);
 
-  constructor() {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly vectorDbService: VectorDBService,
+  ) {}
 
   /**
    * This function retrieves sitemap URLs from a given website's robots.txt file.
@@ -19,7 +24,9 @@ export class WebScraperService {
    * the `robots.txt` file is not found or the response status is not 200, an empty array is returned.
    */
   async getSitemaps(url: string): Promise<string[]> {
-    const response = await axios.get(`${url}/robots.txt`, {});
+    const response = await axios
+      .create(this.configService.get('axios'))
+      .get(`${url}/robots.txt`, {});
     if (response.status === 200) {
       const text: string = response.data;
       const lines = text.split('\n');
@@ -104,11 +111,12 @@ export class WebScraperService {
    * @returns A promise that resolves with the result of the page scraping operation performed by a
    * worker.
    */
-  createPageScraperWorker(url: string) {
+  createPageScraperWorker(url: string, vectorStore: VectorStore) {
     return new Promise((resolve, reject) => {
       const worker = new Worker(`${__dirname}/workers/webpage-scraper.js`, {
         workerData: {
           url,
+          vectorStore,
         },
       });
       worker.on('message', (message) => {
@@ -130,7 +138,8 @@ export class WebScraperService {
    * @returns The function `scrapePages` is returning a Promise that resolves to an array of results from
    * each worker that was created to scrape the pages in the `urls` array.
    */
-  async scrapePages(urls: string[]): Promise<void> {
+  async scrapePages(urls: string[], vectorStore: VectorStore): Promise<void> {
+    const config = this.configService.get('webScraper');
     const maxWorkers = config.threads;
     let runningWorkers = 0;
     const workers = [];
@@ -141,7 +150,7 @@ export class WebScraperService {
         continue;
       }
       runningWorkers++;
-      const worker = this.createPageScraperWorker(url)
+      const worker = this.createPageScraperWorker(url, vectorStore)
         .then((result) => {
           this.logger.log(
             `Webpage scraper worker finished with result: ${result}`,
@@ -172,13 +181,14 @@ export class WebScraperService {
     } else {
       urlRegex = new RegExp(`${url}/.*`);
     }
+    const vectorStore = await this.vectorDbService.getVectorStore();
     const sitemapUrls = await this.getSitemaps(url);
     this.logger.debug(`sitemapUrls: ${sitemapUrls}`);
     await Promise.all(
       sitemapUrls.map(async (sitemapUrl) => {
         const foundUrls = await this.navigateSitemap(sitemapUrl, urlRegex);
         this.logger.debug(`foundUrls: ${foundUrls}`);
-        await this.scrapePages(foundUrls);
+        await this.scrapePages(foundUrls, vectorStore);
       }),
     );
   }

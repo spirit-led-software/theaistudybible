@@ -1,4 +1,5 @@
 import { FileScraperModule } from '@modules/file-scraper/file-scraper.module';
+import { S3Module } from '@modules/s3/s3.module';
 import { WebScraperModule } from '@modules/web-scraper/web-scraper.module';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { IndexOpService } from './index-op.service';
     BullModule.registerQueue({ name: 'indexOperations' }),
     WebScraperModule,
     FileScraperModule,
+    S3Module,
   ],
   controllers: [IndexOpController],
   providers: [IndexOpService],

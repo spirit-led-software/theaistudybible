@@ -1,8 +1,8 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { config as s3Config } from '@configs/s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { CreateWebsiteIndexOperationDto } from '@dtos/index-operation';
 import { IndexOperation } from '@entities';
 import { FileScraperService } from '@modules/file-scraper/file-scraper.service';
+import { S3Service } from '@modules/s3/s3.service';
 import { WebScraperService } from '@modules/web-scraper/web-scraper.service';
 import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
@@ -22,6 +22,7 @@ export class IndexOpService {
     private readonly indexOperationsQueue: Queue,
     private readonly webScraperService: WebScraperService,
     private readonly fileScraperService: FileScraperService,
+    private readonly s3Service: S3Service,
   ) {}
 
   async getIndexOperations() {
@@ -113,13 +114,8 @@ export class IndexOpService {
   }
 
   async queueIndexFileOperation(file: Express.Multer.File) {
-    const s3Client = new S3Client({
-      region: s3Config.region,
-      credentials: {
-        accessKeyId: s3Config.accessKeyId,
-        secretAccessKey: s3Config.secretAccessKey,
-      },
-    });
+    const s3Config = this.s3Service.getConfig();
+    const s3Client = this.s3Service.getClient();
     const uploadCommand = new PutObjectCommand({
       Bucket: s3Config.bucketName,
       Key: file.originalname,
@@ -127,7 +123,7 @@ export class IndexOpService {
     });
     await s3Client.send(uploadCommand);
 
-    this.logger.log(`Uploaded file ${file.originalname} to S3`);
+    this.logger.log(`Uploaded file '${file.originalname}' to S3`);
 
     let indexOperation = new IndexOperation();
     indexOperation.type = 'file';

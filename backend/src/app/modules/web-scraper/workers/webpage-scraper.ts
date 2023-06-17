@@ -1,4 +1,4 @@
-import { getVectorStore } from '@configs/vector-db';
+import { VectorStore } from 'langchain/dist/vectorstores/base';
 import {
   Page,
   PuppeteerWebBaseLoader,
@@ -6,7 +6,10 @@ import {
 import { TokenTextSplitter } from 'langchain/text_splitter';
 import { parentPort, workerData } from 'worker_threads';
 
-const generatePageContentEmbeddings = async (url: string): Promise<void> => {
+const generatePageContentEmbeddings = async (
+  url: string,
+  vectorStore: VectorStore,
+): Promise<void> => {
   let retries = 5;
   while (retries > 0) {
     try {
@@ -40,7 +43,6 @@ const generatePageContentEmbeddings = async (url: string): Promise<void> => {
       parentPort.postMessage(
         `Obtained ${docs.length} documents from url '${url}'`,
       );
-      const vectorStore = await getVectorStore();
       await vectorStore.addDocuments(docs);
       return;
     } catch (err) {
@@ -53,7 +55,7 @@ const generatePageContentEmbeddings = async (url: string): Promise<void> => {
 };
 
 parentPort.postMessage('Page Scraper Worker Started!');
-generatePageContentEmbeddings(workerData.url)
+generatePageContentEmbeddings(workerData.url, workerData.vectorStore)
   .then(() => {
     parentPort.postMessage('Page Scraper Worker Finished!');
   })

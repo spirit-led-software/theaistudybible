@@ -9,7 +9,7 @@
   "scripts": {
     "build": "nest build",
     "build:docker": "nest build && docker build -t septuagint/backend:${npm_package_version} -t septuagint/backend:latest -f Dockerfile .",
-    "migrations:generate": "npm run build && typeorm migration:generate -d ./dist/app/configs/datasource.js ./src/app/migrations/migration --pretty",
+    "migrations:generate": "npm run build && typeorm migration:generate -d ./dist/migration.js ./src/app/migrations/migration --pretty",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
