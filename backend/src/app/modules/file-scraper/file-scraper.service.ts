@@ -1,9 +1,8 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { S3Config, client as s3Client } from '@configs/s3';
-import { UnstructuredConfig } from '@configs/unstructured';
+import { s3Config, unstructuredConfig } from '@configs';
+import { client as s3Client } from '@configs/s3';
 import { getVectorStore } from '@configs/vector-db';
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
 import { TokenTextSplitter } from 'langchain/text_splitter';
@@ -14,12 +13,9 @@ import { join } from 'path';
 export class FileScraperService {
   private readonly logger = new Logger(this.constructor.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor() {}
 
   async scrapeFile(s3Key) {
-    const s3Config = this.configService.getOrThrow<S3Config>('s3');
-    const unstructuredConfig =
-      this.configService.getOrThrow<UnstructuredConfig>('unstructured');
     try {
       const getObjectCommand = new GetObjectCommand({
         Bucket: s3Config.bucketName,

@@ -14,7 +14,6 @@ import { ChatModule } from './modules/chat/chat.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
       load: [configuration],
     }),
     ScheduleModule.forRoot(),
