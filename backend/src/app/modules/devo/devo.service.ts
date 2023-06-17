@@ -1,6 +1,6 @@
 import { axios } from '@configs/axios';
 import { getModel } from '@configs/llm';
-import { getVectorStore } from '@configs/vector-database';
+import { getVectorStore } from '@configs/vector-db';
 import { CreateDevoDto, UpdateDevoDto } from '@dtos/devo';
 import { Devo, SourceDocument } from '@entities';
 import { Injectable, Logger } from '@nestjs/common';

@@ -1,4 +1,4 @@
-type DatabaseConfig = {
+export type DatabaseConfig = {
   type: 'postgres' | 'mysql' | 'sqlite';
   host: string;
   port: number;
@@ -8,12 +8,12 @@ type DatabaseConfig = {
 };
 
 export const config: DatabaseConfig = {
-  type: process.env.DATABASE_TYPE as DatabaseConfig['type'],
+  type: 'postgres',
   host: process.env.DATABASE_HOST,
   port: parseInt(process.env.DATABASE_PORT),
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_DB,
+  database: process.env.DATABASE_NAME,
 };
 
 export default config;

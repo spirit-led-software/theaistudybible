@@ -1,11 +1,12 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { default as s3Config } from '@configs/s3';
+import { S3Config } from '@configs/s3';
 import { CreateWebsiteIndexOperationDto } from '@dtos/index-operation';
 import { IndexOperation } from '@entities';
 import { FileScraperService } from '@modules/file-scraper/file-scraper.service';
 import { WebScraperService } from '@modules/web-scraper/web-scraper.service';
 import { InjectQueue, Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job, Queue } from 'bull';
 import { Repository } from 'typeorm';
@@ -16,6 +17,7 @@ export class IndexOpService {
   private readonly logger = new Logger(this.constructor.name);
 
   constructor(
+    private readonly configService: ConfigService,
     @InjectRepository(IndexOperation)
     private readonly indexOperationRepository: Repository<IndexOperation>,
     @InjectQueue('indexOperations')
@@ -113,6 +115,7 @@ export class IndexOpService {
   }
 
   async queueIndexFileOperation(file: Express.Multer.File) {
+    const s3Config = this.configService.get<S3Config>('s3');
     const s3Client = new S3Client({
       region: s3Config.region,
       credentials: {

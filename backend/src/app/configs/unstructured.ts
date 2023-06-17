@@ -1,4 +1,4 @@
-type UnstructuredConfig = {
+export type UnstructuredConfig = {
   apiUrl: string;
 };
 

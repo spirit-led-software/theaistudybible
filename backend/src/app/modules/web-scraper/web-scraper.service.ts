@@ -1,12 +1,15 @@
 import { axios } from '@configs/axios';
-import { config } from '@configs/web-scraper';
+import { WebScraperConfig } from '@configs/web-scraper';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { XMLParser } from 'fast-xml-parser';
 import { Worker } from 'worker_threads';
 
 @Injectable()
 export class WebScraperService {
   private readonly logger = new Logger(this.constructor.name);
+
+  constructor(private readonly configService: ConfigService) {}
 
   /**
    * This function retrieves sitemap URLs from a given website's robots.txt file.
@@ -129,6 +132,7 @@ export class WebScraperService {
    * each worker that was created to scrape the pages in the `urls` array.
    */
   async scrapePages(urls: string[]): Promise<void> {
+    const config = this.configService.get<WebScraperConfig>('webScraper');
     const maxWorkers = config.threads;
     let runningWorkers = 0;
     const workers = [];

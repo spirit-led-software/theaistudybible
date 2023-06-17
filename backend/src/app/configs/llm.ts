@@ -2,14 +2,14 @@ import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { OpenAI } from 'langchain/llms/openai';
 
-type OpenAiConfig = {
+export type LLMConfig = {
   apiKey: string;
   temperature: number;
   modelName: string;
   embeddingsModelName: string;
 };
 
-export const config: OpenAiConfig = {
+export const config: LLMConfig = {
   apiKey: process.env.LLM_API_KEY,
   temperature: parseInt(process.env.LLM_TEMPERATURE) || 1,
   modelName: process.env.LLM_MODEL_NAME,

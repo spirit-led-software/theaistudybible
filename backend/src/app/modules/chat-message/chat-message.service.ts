@@ -1,5 +1,5 @@
 import { getChatModel } from '@configs/llm';
-import { getVectorStore } from '@configs/vector-database';
+import { getVectorStore } from '@configs/vector-db';
 import { CreateChatMessageDto } from '@dtos/chat-message';
 import { Chat, ChatAnswer, ChatMessage, SourceDocument } from '@entities';
 import { ChatService } from '@modules/chat/chat.service';

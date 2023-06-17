@@ -1,9 +1,12 @@
-export { default as axios } from './axios';
-export { default as postgresConfig } from './database';
-export { default as openAiConfig } from './llm';
+import configuration from './configuration';
+
+export { default as axiosConfig } from './axios';
+export { default as databaseConfig } from './database';
+export { default as llmConfig } from './llm';
 export { default as redisConfig } from './redis';
-export { default as awsS3Config } from './s3';
-export { config as typeormConfig } from './typeorm';
+export { default as s3Config } from './s3';
 export { default as unstructuredConfig } from './unstructured';
-export { default as milvusConfig } from './vector-database';
+export { default as vectorDbConfig } from './vector-db';
 export { default as webScraperConfig } from './web-scraper';
+
+export default configuration;

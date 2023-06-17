@@ -1,4 +1,4 @@
-import { getVectorStore } from '@configs/vector-database';
+import { getVectorStore } from '@configs/vector-db';
 import {
   Page,
   PuppeteerWebBaseLoader,

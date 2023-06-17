@@ -3,6 +3,10 @@ services:
     image: qdrant/qdrant:v1.2.2
     ports:
       - 6333:6333
+    profiles:
+      - "default"
+      - "backend-dev"
+      - "frontend-dev"
 
   postgres:
     image: postgres:15.3
@@ -58,17 +62,19 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - MILVUS_URL=http://milvus:19530
-      - MILVUS_COLLECTION_NAME=septuagint
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=septuagint
+      - VECTOR_DB_URL=http://milvus:19530
+      - VECTOR_DB_COLLECTION_NAME=septuagint
+      - VECTOR_DB_COLLECTION_SIZE=1536
+      - DATABASE_TYPE=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_DB=septuagint
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:
-      - milvus
+      - qdrant
       - postgres
       - redis
       - unstructured-api

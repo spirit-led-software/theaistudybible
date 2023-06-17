@@ -1,4 +1,4 @@
-type WebScraperConfig = {
+export type WebScraperConfig = {
   threads: number;
 };
 
