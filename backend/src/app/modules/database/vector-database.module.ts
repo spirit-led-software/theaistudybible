@@ -1,13 +1,21 @@
-import { client, config } from '@configs/milvus';
+import { client, config } from '@configs/vector-database';
 import { Logger, Module } from '@nestjs/common';
 import { DataType } from '@zilliz/milvus2-sdk-node';
 
 @Module({})
-export class MilvusModule {
+export class VectorDatabaseModule {
   private readonly logger = new Logger(this.constructor.name);
 
   async onModuleInit() {
-    this.logger.log('Initializing Milvus collection');
+    this.logger.log('Initializing vector database collection');
+    const { data } = await client.listCollections();
+    const { name } =
+      data.find((collection) => collection.name === config.collectionName) ||
+      {};
+    if (name) {
+      this.logger.log('Milvus collection already exists.');
+      return;
+    }
     await client.createCollection({
       collection_name: config.collectionName,
       fields: [
@@ -29,6 +37,12 @@ export class MilvusModule {
           description: 'Vector field',
           data_type: DataType.FloatVector,
           dim: config.dimensions,
+        },
+        {
+          name: 'source',
+          description: 'Source field',
+          data_type: DataType.VarChar,
+          max_length: 256,
         },
       ],
     });

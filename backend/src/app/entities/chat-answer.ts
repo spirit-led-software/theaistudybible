@@ -17,7 +17,10 @@ export class ChatAnswer extends BaseEntity {
   @ManyToMany(
     () => SourceDocument,
     (sourceDocuments) => sourceDocuments.answers,
-    { eager: true },
+    {
+      cascade: true,
+      eager: true,
+    },
   )
   @JoinTable()
   sourceDocuments: SourceDocument[];

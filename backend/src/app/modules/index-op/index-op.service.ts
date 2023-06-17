@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { default as s3Config } from '@configs/aws-s3';
+import { default as s3Config } from '@configs/s3';
 import { CreateWebsiteIndexOperationDto } from '@dtos/index-operation';
 import { IndexOperation } from '@entities';
 import { FileScraperService } from '@modules/file-scraper/file-scraper.service';
@@ -29,14 +29,14 @@ export class IndexOpService {
     return operations;
   }
 
-  async getIndexOperation(id: number) {
+  async getIndexOperation(id: string) {
     const operation = await this.indexOperationRepository.findOneBy({
       id,
     });
     return operation;
   }
 
-  async cancelIndexOperation(id: number) {
+  async cancelIndexOperation(id: string) {
     const operation = await this.indexOperationRepository.findOneByOrFail({
       id,
     });
@@ -79,11 +79,11 @@ export class IndexOpService {
     name: 'indexWebsite',
     concurrency: 1,
   })
-  async indexWebsite(indexOperationJob: Job<number>): Promise<void> {
+  async indexWebsite(indexOperationJob: Job<string>): Promise<void> {
     let indexOperation: IndexOperation = null;
     try {
-      indexOperation = await this.indexOperationRepository.findOneOrFail({
-        where: { id: indexOperationJob.data },
+      indexOperation = await this.indexOperationRepository.findOneByOrFail({
+        id: indexOperationJob.data,
       });
       if (indexOperation.status !== 'queued') {
         throw new Error('Index operation is not in queued state');
@@ -156,11 +156,11 @@ export class IndexOpService {
     name: 'indexFile',
     concurrency: 1,
   })
-  async indexFile(indexOperationJob: Job<number>): Promise<void> {
+  async indexFile(indexOperationJob: Job<string>): Promise<void> {
     let indexOperation: IndexOperation = null;
     try {
-      indexOperation = await this.indexOperationRepository.findOneOrFail({
-        where: { id: indexOperationJob.data },
+      indexOperation = await this.indexOperationRepository.findOneByOrFail({
+        id: indexOperationJob.data,
       });
       if (indexOperation.status !== 'queued') {
         throw new Error('Index operation is not in queued state');

@@ -1,4 +1,4 @@
-import { getVectorStore } from '@configs/milvus';
+import { getVectorStore } from '@configs/vector-database';
 import {
   Page,
   PuppeteerWebBaseLoader,
@@ -33,12 +33,7 @@ const generatePageContentEmbeddings = async (url: string): Promise<void> => {
       );
       docs = docs.map((doc) => {
         doc.metadata = {
-          ...doc.metadata,
-          filetype: 'webpage',
-          page_number: 'N/A',
-          filename: 'N/A',
-          category: 'webpage',
-          // TODO: May need to add metadata for milvus client not to complain
+          source: `URL: ${url}`,
         };
         return doc;
       });

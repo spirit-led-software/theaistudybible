@@ -41,7 +41,7 @@ export class DevoController {
   })
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const devo = await this.devoService.findOne(+id);
+    const devo = await this.devoService.findOne(id);
     return devo;
   }
 
@@ -50,12 +50,12 @@ export class DevoController {
   })
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateDevoDto: UpdateDevoDto) {
-    const devo = await this.devoService.update(+id, updateDevoDto);
+    const devo = await this.devoService.update(id, updateDevoDto);
     return devo;
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return await this.devoService.remove(+id);
+    return await this.devoService.remove(id);
   }
 }

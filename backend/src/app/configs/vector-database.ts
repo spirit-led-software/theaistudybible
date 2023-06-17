@@ -1,8 +1,8 @@
 import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import { Milvus } from 'langchain/vectorstores/milvus';
-import { getEmbeddings } from './openai';
+import { getEmbeddings } from './llm';
 
-type MilvusConfig = {
+type VectorStoreConfig = {
   url: string;
   collectionName: string;
   dimensions: number;
@@ -13,7 +13,7 @@ type MilvusConfig = {
   vectorField: string;
 };
 
-export const config: MilvusConfig = {
+export const config: VectorStoreConfig = {
   url: process.env.MILVUS_URL || 'http://localhost:19530',
   collectionName: process.env.MILVUS_COLLECTION_NAME || 'septuagint',
   dimensions: parseInt(process.env.MILVUS_DIMENSIONS) || 1536,

@@ -31,7 +31,7 @@ export class ChatMessageController {
   })
   @Get(':id')
   async getMessage(@Param('id') id: string) {
-    const query = await this.queryService.getMessage(+id);
+    const query = await this.queryService.getMessage(id);
     if (!query) {
       throw new NotFoundException();
     }
@@ -43,7 +43,7 @@ export class ChatMessageController {
   })
   @Get(':id/result')
   async getAnswer(@Param('id') id: string) {
-    const query = await this.queryService.getMessage(+id);
+    const query = await this.queryService.getMessage(id);
     if (!query) {
       throw new NotFoundException();
     }

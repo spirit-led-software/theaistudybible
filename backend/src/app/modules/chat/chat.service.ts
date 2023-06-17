@@ -21,7 +21,7 @@ export class ChatService {
     return await this.chatRepository.save(chat);
   }
 
-  async externalUpdate(id: number, updateChatDto: CreateChatDto) {
+  async externalUpdate(id: string, updateChatDto: CreateChatDto) {
     let chat = await this.chatRepository.findOneByOrFail({ id });
     chat.subject = updateChatDto.subject;
     chat = await this.chatRepository.save(chat);
@@ -29,6 +29,7 @@ export class ChatService {
   }
 
   async internalUpdate(chat: Chat) {
+    await this.chatRepository.findOneByOrFail({ id: chat.id });
     return await this.chatRepository.save(chat);
   }
 
@@ -36,11 +37,11 @@ export class ChatService {
     return await this.chatRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return await this.chatRepository.findOneBy({ id });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.chatRepository.delete({ id });
   }
 }

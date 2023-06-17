@@ -9,6 +9,9 @@ export class Chat extends BaseEntity {
   subject: string;
 
   @Expose({ groups: ['chat'] })
-  @OneToMany(() => ChatMessage, (message) => message.chat, { eager: true })
+  @OneToMany(() => ChatMessage, (message) => message.chat, {
+    cascade: true,
+    eager: true,
+  })
   messages: ChatMessage[];
 }

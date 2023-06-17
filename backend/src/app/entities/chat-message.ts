@@ -15,6 +15,7 @@ export class ChatMessage extends BaseEntity {
 
   @Expose({ groups: ['chat-message'] })
   @OneToOne(() => ChatAnswer, (chatAnswer) => chatAnswer.message, {
+    cascade: true,
     eager: true,
   })
   @JoinColumn()

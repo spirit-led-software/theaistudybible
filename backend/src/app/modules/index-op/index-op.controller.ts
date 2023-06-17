@@ -26,7 +26,7 @@ export class IndexOpController {
 
   @Get(':id')
   async getOperation(@Param('id') id: string) {
-    const indexOperation = await this.indexService.getIndexOperation(+id);
+    const indexOperation = await this.indexService.getIndexOperation(id);
     if (!indexOperation) {
       throw new NotFoundException();
     }
@@ -35,7 +35,7 @@ export class IndexOpController {
 
   @Put(':id/cancel')
   async cancelOperation(@Param('id') id: string) {
-    const indexOperation = await this.indexService.cancelIndexOperation(+id);
+    const indexOperation = await this.indexService.cancelIndexOperation(id);
     return indexOperation;
   }
 

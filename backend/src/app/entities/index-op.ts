@@ -9,6 +9,6 @@ export class IndexOperation extends BaseEntity {
   @Column()
   status: 'running' | 'queued' | 'completed' | 'failed' | 'cancelled';
 
-  @Column({ nullable: true })
+  @Column()
   metadata: string;
 }

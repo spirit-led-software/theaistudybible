@@ -1,4 +1,4 @@
 export class CreateChatMessageDto {
   message: string;
-  chatId?: number;
+  chatId?: string;
 }

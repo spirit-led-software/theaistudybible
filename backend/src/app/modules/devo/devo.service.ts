@@ -1,6 +1,6 @@
 import { axios } from '@configs/axios';
-import { getVectorStore } from '@configs/milvus';
-import { getModel } from '@configs/openai';
+import { getModel } from '@configs/llm';
+import { getVectorStore } from '@configs/vector-database';
 import { CreateDevoDto, UpdateDevoDto } from '@dtos/devo';
 import { Devo, SourceDocument } from '@entities';
 import { Injectable, Logger } from '@nestjs/common';
@@ -96,17 +96,17 @@ Finally, write a prayer to wrap up the devotional.`);
     return await this.devoRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return await this.devoRepository.findOneBy({ id });
   }
 
-  async update(id: number, updateDevoDto: UpdateDevoDto) {
+  async update(id: string, updateDevoDto: UpdateDevoDto) {
     const devoEntity = await this.devoRepository.findOneByOrFail({ id });
     devoEntity.content = updateDevoDto.content;
     return await this.devoRepository.save(devoEntity);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.devoRepository.delete({ id });
   }
 }

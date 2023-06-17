@@ -1,7 +1,7 @@
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { awsS3Config, unstructuredConfig } from '@configs';
-import { client as s3Client } from '@configs/aws-s3';
-import { getVectorStore } from '@configs/milvus';
+import { client as s3Client } from '@configs/s3';
+import { getVectorStore } from '@configs/vector-database';
 import { Injectable, Logger } from '@nestjs/common';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
@@ -44,8 +44,7 @@ export class FileScraperService {
       docs = docs.map((doc) => {
         doc.pageContent = doc.pageContent.replace(/\n/g, ' ').trim();
         doc.metadata = {
-          ...doc.metadata,
-          // TODO - May need to add metadata for milvus client not to complain
+          source: `AWS S3: ${s3Key}`,
         };
         return doc;
       });
