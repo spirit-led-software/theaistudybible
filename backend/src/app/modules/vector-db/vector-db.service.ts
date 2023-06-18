@@ -41,7 +41,6 @@ export class VectorDBService {
     return await QdrantVectorStore.fromExistingCollection(
       this.llmService.getEmbeddings(),
       {
-        url: this.config.url,
         collectionName: this.config.collectionName,
         client: this.getClient(),
       },
@@ -50,7 +49,9 @@ export class VectorDBService {
 
   getClient = () => {
     return new QdrantClient({
-      url: this.config.url,
+      https: this.config.scheme === 'https',
+      host: this.config.host,
+      port: this.config.port,
       apiKey: this.config.apiKey,
     });
   };

@@ -1,18 +1,9 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1686908814924 implements MigrationInterface {
-    name = 'Migration1686908814924'
+export class Migration1687041010970 implements MigrationInterface {
+    name = 'Migration1687041010970'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
-            CREATE TABLE "chat" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "created" TIMESTAMP NOT NULL DEFAULT now(),
-                "updated" TIMESTAMP NOT NULL DEFAULT now(),
-                "subject" character varying NOT NULL,
-                CONSTRAINT "PK_9d0b2ba74336710fd31154738a5" PRIMARY KEY ("id")
-            )
-        `);
         await queryRunner.query(`
             CREATE TABLE "devo" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -52,6 +43,15 @@ export class Migration1686908814924 implements MigrationInterface {
                 "answerId" uuid,
                 CONSTRAINT "REL_4b80337f28a9a059862071699f" UNIQUE ("answerId"),
                 CONSTRAINT "PK_3cc0d85193aade457d3077dd06b" PRIMARY KEY ("id")
+            )
+        `);
+        await queryRunner.query(`
+            CREATE TABLE "chat" (
+                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+                "created" TIMESTAMP NOT NULL DEFAULT now(),
+                "updated" TIMESTAMP NOT NULL DEFAULT now(),
+                "subject" character varying NOT NULL,
+                CONSTRAINT "PK_9d0b2ba74336710fd31154738a5" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
@@ -158,6 +158,9 @@ export class Migration1686908814924 implements MigrationInterface {
             DROP TABLE "index_operation"
         `);
         await queryRunner.query(`
+            DROP TABLE "chat"
+        `);
+        await queryRunner.query(`
             DROP TABLE "chat_message"
         `);
         await queryRunner.query(`
@@ -168,9 +171,6 @@ export class Migration1686908814924 implements MigrationInterface {
         `);
         await queryRunner.query(`
             DROP TABLE "devo"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "chat"
         `);
     }
 

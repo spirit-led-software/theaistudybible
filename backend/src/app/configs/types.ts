@@ -33,7 +33,9 @@ export type UnstructuredConfig = {
 };
 
 export type VectorDbConfig = {
-  url: string;
+  scheme: 'http' | 'https';
+  host: string;
+  port: number;
   apiKey: string;
   collectionName: string;
   size: number;

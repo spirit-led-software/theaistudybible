@@ -39,7 +39,9 @@ export default () => ({
     apiUrl: process.env.UNSTRUCTURED_API_URL,
   },
   vectorDb: {
-    url: process.env.VECTOR_DB_URL,
+    scheme: process.env.VECTOR_DB_SCHEME,
+    host: process.env.VECTOR_DB_HOST,
+    port: parseInt(process.env.VECTOR_DB_PORT),
     apiKey: process.env.VECTOR_DB_API_KEY,
     collectionName: process.env.VECTOR_DB_COLLECTION_NAME,
     size: parseInt(process.env.VECTOR_DB_COLLECTION_SIZE),

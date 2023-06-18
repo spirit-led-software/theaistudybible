@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 const getConfig = (): DataSourceOptions => {
@@ -12,8 +13,8 @@ const getConfig = (): DataSourceOptions => {
     database: process.env.DATABASE_DB,
     synchronize: false,
     logging: true,
-    entities: [__dirname + '/../entities/*{.ts,.js}'],
-    migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+    entities: [path.join(__dirname, 'app/entities/*{.ts,.js}')],
+    migrations: [path.join(__dirname, 'app/migrations/*{.ts,.js}')],
     migrationsTableName: 'migrations',
     migrationsRun: true,
   };

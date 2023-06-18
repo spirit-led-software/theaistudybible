@@ -8,6 +8,7 @@ import { OpenAI } from 'langchain/llms/openai';
 @Injectable()
 export class LLMService {
   private readonly config: LLMConfig;
+
   constructor(private readonly configService: ConfigService) {
     this.config = this.configService.get('llm');
   }

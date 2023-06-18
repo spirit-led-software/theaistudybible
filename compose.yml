@@ -3,6 +3,10 @@ services:
     image: qdrant/qdrant:v1.2.2
     ports:
       - 6333:6333
+    volumes:
+      - ./volumes/qdrant:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__API_KEY=sk-septuagint
     profiles:
       - "default"
       - "backend-dev"

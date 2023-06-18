@@ -2,6 +2,7 @@ import { DatabaseConfig, RedisConfig } from '@configs/types';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import path from 'path';
 
 @Module({
   imports: [
@@ -18,8 +19,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           password: dbConfig.password,
           database: dbConfig.name,
           synchronize: false,
-          entities: [__dirname + '/../entities/*{.ts,.js}'],
-          migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+          entities: [path.join(__dirname, '../../entities/*{.ts,.js}')],
+          migrations: [path.join(__dirname, '../../migrations/*{.ts,.js}')],
           migrationsTableName: 'migrations',
           migrationsRun: dbConfig.runMigrations,
           cache: {

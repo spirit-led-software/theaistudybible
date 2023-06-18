@@ -43,7 +43,7 @@ export class FileScraperService {
         apiUrl: unstructuredConfig.apiUrl,
       });
 
-      this.logger.log(`Loading file '${s3Key}' to Milvus`);
+      this.logger.log(`Loading file '${s3Key}' to vector database`);
       let docs = await loader.loadAndSplit(
         new TokenTextSplitter({
           chunkSize: 400,
@@ -63,7 +63,7 @@ export class FileScraperService {
       );
       const vectorStore = await this.vectorDbService.getVectorStore();
       await vectorStore.addDocuments(docs);
-      this.logger.log(`File '${s3Key}' loaded into Milvus successfully`);
+      this.logger.log(`File '${s3Key}' loaded into vector store successfully`);
     } catch (err) {
       this.logger.error(`${err.stack}`);
       throw err;
