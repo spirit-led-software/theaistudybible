@@ -82,8 +82,10 @@ services:
       - DATABASE_USER=chatesv
       - DATABASE_PASSWORD=chatesv
       - DATABASE_NAME=chatesv
+      - RUN_DATABASE_MIGRATIONS=true
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - UNSTRUCTURED_API_URL=http://unstructured-api:8000/general/v0/general
     depends_on:
       - qdrant
       - postgres
