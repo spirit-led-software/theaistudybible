@@ -1,4 +1,4 @@
-import { VectorDbConfig } from '@configs/types';
+import { VectorDBConfig } from '@configs/types';
 import { LLMService } from '@modules/llm/llm.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -8,7 +8,7 @@ import { QdrantVectorStore } from 'langchain/vectorstores/qdrant';
 @Injectable()
 export class VectorDBService {
   private readonly logger = new Logger(this.constructor.name);
-  private readonly config: VectorDbConfig;
+  private readonly config: VectorDBConfig;
 
   constructor(
     private readonly configService: ConfigService,
@@ -30,7 +30,7 @@ export class VectorDBService {
     }
     await client.createCollection(this.config.collectionName, {
       vectors: {
-        size: this.config.size,
+        size: this.config.dimensions,
         distance: this.config.distance,
       },
     });

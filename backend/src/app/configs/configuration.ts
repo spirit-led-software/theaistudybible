@@ -39,12 +39,13 @@ export default () => ({
     apiUrl: process.env.UNSTRUCTURED_API_URL,
   },
   vectorDb: {
+    type: process.env.VECTOR_DB_TYPE,
     scheme: process.env.VECTOR_DB_SCHEME,
     host: process.env.VECTOR_DB_HOST,
     port: parseInt(process.env.VECTOR_DB_PORT),
     apiKey: process.env.VECTOR_DB_API_KEY,
     collectionName: process.env.VECTOR_DB_COLLECTION_NAME,
-    size: parseInt(process.env.VECTOR_DB_COLLECTION_SIZE),
+    dimensions: parseInt(process.env.VECTOR_DB_SIZE) || 1536,
     distance: 'Cosine',
   },
   webScraper: {

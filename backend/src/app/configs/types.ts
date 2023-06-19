@@ -32,14 +32,15 @@ export type UnstructuredConfig = {
   apiUrl: string;
 };
 
-export type VectorDbConfig = {
-  scheme: 'http' | 'https';
+export type VectorDBConfig = {
+  type: 'pinecone' | 'weaviate' | 'qdrant' | 'milvus';
+  scheme: 'http' | 'https' | 'grpc';
   host: string;
   port: number;
   apiKey: string;
   collectionName: string;
-  size: number;
-  distance: 'Euclid' | 'Cosine';
+  dimensions: number;
+  distance: 'Cosine' | 'Euclid';
 };
 
 export type WebScraperConfig = {

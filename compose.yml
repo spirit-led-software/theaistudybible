@@ -6,6 +6,9 @@ services:
     volumes:
       - ./volumes/qdrant:/qdrant/storage
     environment:
+      - QDRANT__DEBUG=1
+      - QDRANT__LOG_LEVEL=DEBUG
+      - QDRANT__SERVICE__MAX_REQUEST_SIZE_MB=500
       - QDRANT__SERVICE__API_KEY=sk-septuagint
     profiles:
       - "default"

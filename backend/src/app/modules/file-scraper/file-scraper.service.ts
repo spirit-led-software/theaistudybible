@@ -54,7 +54,7 @@ export class FileScraperService {
       docs = docs.map((doc) => {
         doc.pageContent = doc.pageContent.replace(/\n/g, ' ').trim();
         doc.metadata = {
-          source: `AWS S3: ${s3Key}`,
+          source: `S3: ${s3Key}`,
         };
         return doc;
       });

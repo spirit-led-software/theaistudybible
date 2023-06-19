@@ -5,6 +5,7 @@ import { LLMService } from '@modules/llm/llm.service';
 import { VectorDBService } from '@modules/vector-db/vector-db.service';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { Response } from 'express';
 import { ConversationalRetrievalQAChain } from 'langchain/chains';
 import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
 import {
@@ -41,7 +42,7 @@ export class ChatMessageService {
     });
   }
 
-  async message(message: CreateChatMessageDto) {
+  async saveMessage(message: CreateChatMessageDto) {
     this.logger.log(`Recieved chat message: ${JSON.stringify(message)}`);
     let chat: Chat;
     if (!message.chatId) {
@@ -56,15 +57,29 @@ export class ChatMessageService {
         throw new NotFoundException('Chat not found');
       }
     }
-    this.logger.debug(`Using chat: '${chat.id}' as history`);
+    let chatMessage = new ChatMessage();
+    chatMessage.chat = chat;
+    chatMessage.message = message.message;
+    chatMessage = await this.chatMessageRepository.save(chatMessage);
+    chat.messages
+      ? chat.messages.push(chatMessage)
+      : (chat.messages = [chatMessage]);
+    await this.chatService.internalUpdate(chat);
+    return chatMessage;
+  }
+
+  async executeMessage(message: ChatMessage, response: Response) {
     const vectorStore = await this.vectorDbService.getVectorStore();
     const history: BaseChatMessage[] =
-      chat.messages
+      message.chat.messages
         ?.map((q) => {
-          return [
-            new HumanChatMessage(q.message),
-            new AIChatMessage(q.answer.text),
-          ];
+          if (q.message !== message.message) {
+            return [
+              new HumanChatMessage(q.message),
+              new AIChatMessage(q.answer.text),
+            ];
+          }
+          return [];
         })
         .flat() || [];
     this.logger.debug(`Chat history: ${JSON.stringify(history)}`);
@@ -85,27 +100,43 @@ export class ChatMessageService {
         outputKey: 'answer',
       },
     );
-    const result = await chain.call({
-      message: message.message,
-    });
-    this.logger.debug(`Result for query: ${JSON.stringify(result)}`);
-    const queryEntity = await this.saveMessage(message, result, chat);
-    chat.messages
-      ? chat.messages.push(queryEntity)
-      : (chat.messages = [queryEntity]);
-    await this.chatService.internalUpdate(chat);
-    return queryEntity;
+    chain
+      .call(
+        {
+          message: message.message,
+        },
+        [
+          {
+            handleLLMNewToken: (token) => {
+              this.sendStreamedResponseData(token, response);
+            },
+          },
+        ],
+      )
+      .then(async (result) => {
+        let sources: string[] = result.sourceDocuments.map(
+          (s) => s.metadata.source,
+        );
+        sources = sources.filter(
+          (source, index) => sources.indexOf(source) === index,
+        );
+        const sourcesString = sources.join('\n');
+        this.sendStreamedResponseData(`Sources:\n`, response);
+        this.sendStreamedResponseData(sourcesString, response);
+        this.logger.debug(`Chat message result: ${JSON.stringify(result)}`);
+        await this.saveAnswer(message, result);
+        response.end();
+      })
+      .catch((err) => {
+        this.logger.error(`${err.stack}`);
+      });
   }
 
-  async saveMessage(
-    query: CreateChatMessageDto,
-    result: ChainValues,
-    chat: Chat,
-  ) {
-    let chatMessageEntity = new ChatMessage();
-    chatMessageEntity.message = query.message;
-    chatMessageEntity.answer = result.text;
-    chatMessageEntity.chat = chat;
+  sendStreamedResponseData(data: string, response: Response) {
+    response.write(`data: ${data}\n\n`);
+  }
+
+  async saveAnswer(chatMessage: ChatMessage, result: ChainValues) {
     let chatAnswerEntity = new ChatAnswer();
     chatAnswerEntity.text = result.text;
     chatAnswerEntity.sourceDocuments = [];
@@ -123,10 +154,8 @@ export class ChatMessageService {
       sourceDocuments.push(sourceDocumentEntity);
     }
     chatAnswerEntity.sourceDocuments = sourceDocuments;
-    chatMessageEntity.answer = chatAnswerEntity;
-    chatMessageEntity = await this.chatMessageRepository.save(
-      chatMessageEntity,
-    );
-    return chatMessageEntity;
+    chatMessage.answer = chatAnswerEntity;
+    chatMessage = await this.chatMessageRepository.save(chatMessage);
+    return chatMessage;
   }
 }

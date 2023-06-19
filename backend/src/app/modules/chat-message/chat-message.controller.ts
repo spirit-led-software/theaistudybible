@@ -7,9 +7,11 @@ import {
   NotFoundException,
   Param,
   Post,
+  Res,
   SerializeOptions,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { ChatMessageService } from './chat-message.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -55,8 +57,18 @@ export class ChatMessageController {
     groups: ['chat-message'],
   })
   @Post()
-  async newMessage(@Body() body: CreateChatMessageDto) {
-    const query = await this.queryService.message(body);
-    return query;
+  async newMessage(
+    @Body() body: CreateChatMessageDto,
+    @Res() response: Response,
+  ) {
+    const chatMessage = await this.queryService.saveMessage(body);
+    response.writeHead(206, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Chat-ID': chatMessage.chat.id,
+      'X-Chat-Message-ID': chatMessage.id,
+    });
+    await this.queryService.executeMessage(chatMessage, response);
   }
 }

@@ -36,6 +36,7 @@ export class LLMService {
       temperature: this.config.temperature,
       modelName: this.config.modelName,
       cache: true,
+      streaming: true,
     });
   };
 
