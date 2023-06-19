@@ -8,9 +8,11 @@ import {
   Param,
   Post,
   Put,
+  Query,
   SerializeOptions,
   UseInterceptors,
 } from '@nestjs/common';
+import { paginateEntityList } from '@utils/pagination';
 import { DevoService } from './devo.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -31,9 +33,9 @@ export class DevoController {
     groups: ['devo'],
   })
   @Get()
-  async findAll() {
+  async findAll(@Query('page') page: string, @Query('limit') limit: string) {
     const devos = await this.devoService.findAll();
-    return devos;
+    return paginateEntityList(devos, +page, +limit);
   }
 
   @SerializeOptions({

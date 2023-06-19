@@ -9,7 +9,7 @@ services:
       - QDRANT__DEBUG=1
       - QDRANT__LOG_LEVEL=DEBUG
       - QDRANT__SERVICE__MAX_REQUEST_SIZE_MB=500
-      - QDRANT__SERVICE__API_KEY=sk-septuagint
+      - QDRANT__SERVICE__API_KEY=sk-chatesv
     profiles:
       - "default"
       - "backend-dev"
@@ -22,9 +22,9 @@ services:
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=septuagint
+      - POSTGRES_USER=chatesv
+      - POSTGRES_PASSWORD=chatesv
+      - POSTGRES_DB=chatesv
     profiles:
       - "default"
       - "backend-dev"
@@ -63,21 +63,25 @@ services:
       - "local-ai"
 
   backend:
-    image: septuagint/backend:0.0.1
+    image: chatesv/backend:0.0.1
     ports:
       - 8080:8080
     env_file:
       - ./backend/.env
     environment:
-      - VECTOR_DB_URL=http://milvus:19530
-      - VECTOR_DB_COLLECTION_NAME=septuagint
-      - VECTOR_DB_COLLECTION_SIZE=1536
+      - VECTOR_DB_TYPE=qdrant
+      - VECTOR_DB_SCHEME=http
+      - VECTOR_DB_HOST=qdrant
+      - VECTOR_DB_PORT=6333
+      - VECTOR_DB_API_KEY=sk-chatesv
+      - VECTOR_DB_COLLECTION_NAME=chatesv
+      - VECTOR_DB_COLLECTION_DIMENSIONS=1536
       - DATABASE_TYPE=postgres
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_DB=septuagint
+      - DATABASE_USER=chatesv
+      - DATABASE_PASSWORD=chatesv
+      - DATABASE_NAME=chatesv
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     depends_on:

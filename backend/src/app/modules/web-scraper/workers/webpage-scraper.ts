@@ -36,6 +36,7 @@ const generatePageContentEmbeddings = async (
       );
       docs = docs.map((doc) => {
         doc.metadata = {
+          indexDate: new Date().toISOString(),
           source: url,
           type: 'Webpage',
         };

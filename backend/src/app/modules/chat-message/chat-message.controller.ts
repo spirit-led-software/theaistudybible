@@ -7,10 +7,12 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   Res,
   SerializeOptions,
   UseInterceptors,
 } from '@nestjs/common';
+import { paginateEntityList } from '@utils/pagination';
 import type { Response } from 'express';
 import { ChatMessageService } from './chat-message.service';
 
@@ -23,9 +25,12 @@ export class ChatMessageController {
     groups: ['chat-message'],
   })
   @Get()
-  async getMessages() {
-    const queries = await this.queryService.getAllMessages();
-    return queries;
+  async getMessages(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const messages = await this.queryService.getAllMessages();
+    return paginateEntityList(messages, +page, +limit);
   }
 
   @SerializeOptions({
@@ -33,11 +38,11 @@ export class ChatMessageController {
   })
   @Get(':id')
   async getMessage(@Param('id') id: string) {
-    const query = await this.queryService.getMessage(id);
-    if (!query) {
+    const message = await this.queryService.getMessage(id);
+    if (!message) {
       throw new NotFoundException();
     }
-    return query;
+    return message;
   }
 
   @SerializeOptions({
@@ -45,11 +50,11 @@ export class ChatMessageController {
   })
   @Get(':id/result')
   async getAnswer(@Param('id') id: string) {
-    const query = await this.queryService.getMessage(id);
-    if (!query) {
+    const message = await this.queryService.getMessage(id);
+    if (!message) {
       throw new NotFoundException();
     }
-    const result = query.answer;
+    const result = message.answer;
     return result;
   }
 

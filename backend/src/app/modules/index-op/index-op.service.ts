@@ -1,16 +1,13 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { CreateWebsiteIndexOperationDto } from '@dtos/index-operation';
 import { IndexOperation } from '@entities';
-import { FileScraperService } from '@modules/file-scraper/file-scraper.service';
 import { S3Service } from '@modules/s3/s3.service';
-import { WebScraperService } from '@modules/web-scraper/web-scraper.service';
-import { InjectQueue, Process, Processor } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Job, Queue } from 'bull';
+import { Queue } from 'bull';
 import { Repository } from 'typeorm';
 
-@Processor('indexOperations')
 @Injectable()
 export class IndexOpService {
   private readonly logger = new Logger(this.constructor.name);
@@ -20,8 +17,6 @@ export class IndexOpService {
     private readonly indexOperationRepository: Repository<IndexOperation>,
     @InjectQueue('indexOperations')
     private readonly indexOperationsQueue: Queue,
-    private readonly webScraperService: WebScraperService,
-    private readonly fileScraperService: FileScraperService,
     private readonly s3Service: S3Service,
   ) {}
 
@@ -76,50 +71,16 @@ export class IndexOpService {
     return { job, indexOperation };
   }
 
-  @Process({
-    name: 'indexWebsite',
-    concurrency: 1,
-  })
-  async indexWebsite(indexOperationJob: Job<string>): Promise<void> {
-    let indexOperation: IndexOperation = null;
-    try {
-      indexOperation = await this.indexOperationRepository.findOneByOrFail({
-        id: indexOperationJob.data,
-      });
-      if (indexOperation.status !== 'queued') {
-        throw new Error('Index operation is not in queued state');
-      }
-      if (indexOperation.type !== 'website') {
-        throw new Error('Unsupported index operation type for this processor');
-      }
-      indexOperation.status = 'running';
-      await this.indexOperationRepository.save(indexOperation);
-      const { url, pathRegex } = JSON.parse(indexOperation.metadata);
-      await this.webScraperService.scrapeSite(url, pathRegex);
-      indexOperation.status = 'completed';
-      await this.indexOperationRepository.save(indexOperation);
-    } catch (err) {
-      if (indexOperation) {
-        indexOperation.status = 'failed';
-        const existingMetadata = JSON.parse(indexOperation.metadata);
-        indexOperation.metadata = JSON.stringify({
-          error: `${err.stack}`,
-          ...existingMetadata,
-        });
-        await this.indexOperationRepository.save(indexOperation);
-      }
-      this.logger.error(`${err.stack}`);
-      throw err;
-    }
-  }
-
-  async queueIndexFileOperation(file: Express.Multer.File) {
+  async queueIndexFileOperation(file: Express.Multer.File, prettyName: string) {
     const s3Config = this.s3Service.getConfig();
     const s3Client = this.s3Service.getClient();
     const uploadCommand = new PutObjectCommand({
       Bucket: s3Config.bucketName,
       Key: file.originalname,
       Body: file.buffer,
+      Metadata: {
+        'pretty-name': prettyName,
+      },
     });
     await s3Client.send(uploadCommand);
 
@@ -146,42 +107,5 @@ export class IndexOpService {
       `Queued job ${job.id} for file index operation ${indexOperation.id}`,
     );
     return { job, indexOperation };
-  }
-
-  @Process({
-    name: 'indexFile',
-    concurrency: 1,
-  })
-  async indexFile(indexOperationJob: Job<string>): Promise<void> {
-    let indexOperation: IndexOperation = null;
-    try {
-      indexOperation = await this.indexOperationRepository.findOneByOrFail({
-        id: indexOperationJob.data,
-      });
-      if (indexOperation.status !== 'queued') {
-        throw new Error('Index operation is not in queued state');
-      }
-      if (indexOperation.type !== 'file') {
-        throw new Error('Unsupported index operation type for this processor');
-      }
-      indexOperation.status = 'running';
-      await this.indexOperationRepository.save(indexOperation);
-      const { s3Key } = JSON.parse(indexOperation.metadata);
-      await this.fileScraperService.scrapeFile(s3Key);
-      indexOperation.status = 'completed';
-      await this.indexOperationRepository.save(indexOperation);
-    } catch (err) {
-      if (indexOperation) {
-        indexOperation.status = 'failed';
-        const existingMetadata = JSON.parse(indexOperation.metadata);
-        indexOperation.metadata = JSON.stringify({
-          error: `${err.stack}`,
-          ...existingMetadata,
-        });
-        await this.indexOperationRepository.save(indexOperation);
-      }
-      this.logger.error(`${err.stack}`);
-      throw err;
-    }
   }
 }

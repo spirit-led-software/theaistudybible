@@ -55,4 +55,8 @@ export class VectorDBService {
       apiKey: this.config.apiKey,
     });
   };
+
+  getConfig = () => {
+    return this.config;
+  };
 }

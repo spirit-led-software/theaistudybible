@@ -27,6 +27,8 @@
       "@dtos/*": ["./src/app/dtos/*"],
       "@entities/*": ["src/app/entities/*"],
       "@entities": ["src/app/entities"],
+      "@utils/*": ["./src/app/utils/*"],
+      "@utils": ["./src/app/utils"],
       "@/*": ["./src/app/*"]
     }
   }

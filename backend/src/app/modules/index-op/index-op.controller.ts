@@ -8,10 +8,12 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { paginateEntityList } from '@utils/pagination';
 import { IndexOpService } from './index-op.service';
 
 @Controller('index-operations')
@@ -19,9 +21,12 @@ export class IndexOpController {
   constructor(private readonly indexService: IndexOpService) {}
 
   @Get()
-  async getIndexOperations() {
+  async getIndexOperations(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
     const indexOperations = await this.indexService.getIndexOperations();
-    return indexOperations;
+    return paginateEntityList(indexOperations, +page, +limit);
   }
 
   @Get(':id')
@@ -51,9 +56,12 @@ export class IndexOpController {
 
   @Post('file')
   @UseInterceptors(FileInterceptor('file'))
-  async indexFile(@UploadedFile() file: Express.Multer.File) {
+  async indexFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('prettyName') prettyName: string,
+  ) {
     const { job, indexOperation } =
-      await this.indexService.queueIndexFileOperation(file);
+      await this.indexService.queueIndexFileOperation(file, prettyName);
     return { job, indexOperation };
   }
 }

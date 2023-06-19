@@ -1,20 +1,65 @@
+import { IndexOperation } from '@entities/index-op';
 import { VectorDBService } from '@modules/vector-db/vector-db.service';
+import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
+import { Job } from 'bull';
 import { XMLParser } from 'fast-xml-parser';
 import { VectorStore } from 'langchain/vectorstores';
 import path from 'path';
+import { Repository } from 'typeorm';
 import { Worker } from 'worker_threads';
 
+@Processor('indexOperations')
 @Injectable()
 export class WebScraperService {
   private readonly logger = new Logger(this.constructor.name);
 
   constructor(
+    @InjectRepository(IndexOperation)
+    private readonly indexOperationRepository: Repository<IndexOperation>,
     private readonly configService: ConfigService,
     private readonly vectorDbService: VectorDBService,
   ) {}
+
+  @Process({
+    name: 'indexWebsite',
+    concurrency: 1,
+  })
+  async indexWebsite(indexOperationJob: Job<string>): Promise<void> {
+    let indexOperation: IndexOperation = null;
+    try {
+      indexOperation = await this.indexOperationRepository.findOneByOrFail({
+        id: indexOperationJob.data,
+      });
+      if (indexOperation.status !== 'queued') {
+        throw new Error('Index operation is not in queued state');
+      }
+      if (indexOperation.type !== 'website') {
+        throw new Error('Unsupported index operation type for this processor');
+      }
+      indexOperation.status = 'running';
+      await this.indexOperationRepository.save(indexOperation);
+      const { url, pathRegex } = JSON.parse(indexOperation.metadata);
+      await this.scrapeSite(url, pathRegex);
+      indexOperation.status = 'completed';
+      await this.indexOperationRepository.save(indexOperation);
+    } catch (err) {
+      if (indexOperation) {
+        indexOperation.status = 'failed';
+        const existingMetadata = JSON.parse(indexOperation.metadata);
+        indexOperation.metadata = JSON.stringify({
+          error: `${err.stack}`,
+          ...existingMetadata,
+        });
+        await this.indexOperationRepository.save(indexOperation);
+      }
+      this.logger.error(`${err.stack}`);
+      throw err;
+    }
+  }
 
   /**
    * This function retrieves sitemap URLs from a given website's robots.txt file.

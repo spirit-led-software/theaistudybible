@@ -7,9 +7,11 @@ import {
   Get,
   Param,
   Post,
+  Query,
   SerializeOptions,
   UseInterceptors,
 } from '@nestjs/common';
+import { paginateEntityList } from '@utils/pagination';
 import { ChatService } from './chat.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -21,28 +23,29 @@ export class ChatController {
     groups: ['chat'],
   })
   @Post()
-  create(@Body() createChatDto: CreateChatDto) {
-    return this.chatService.externalCreate(createChatDto);
+  async create(@Body() createChatDto: CreateChatDto) {
+    return await this.chatService.externalCreate(createChatDto);
   }
 
   @SerializeOptions({
     groups: ['chat'],
   })
   @Get()
-  findAll() {
-    return this.chatService.findAll();
+  async findAll(@Query('page') page: string, @Query('limit') limit: string) {
+    const chats = await this.chatService.findAll();
+    return paginateEntityList(chats, +page, +limit);
   }
 
   @SerializeOptions({
     groups: ['chat'],
   })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.chatService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatService.remove(id);
+  async remove(@Param('id') id: string) {
+    return await this.chatService.remove(id);
   }
 }
