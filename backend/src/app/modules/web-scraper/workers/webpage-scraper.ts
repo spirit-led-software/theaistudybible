@@ -36,7 +36,8 @@ const generatePageContentEmbeddings = async (
       );
       docs = docs.map((doc) => {
         doc.metadata = {
-          source: `URL: ${url}`,
+          source: url,
+          type: 'Webpage',
         };
         return doc;
       });

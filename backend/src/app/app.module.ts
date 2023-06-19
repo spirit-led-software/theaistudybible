@@ -15,6 +15,7 @@ import { S3Module } from './modules/s3/s3.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local'],
       load: [configuration],
     }),
     ScheduleModule.forRoot(),

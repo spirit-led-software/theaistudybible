@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { VectorStore } from 'langchain/vectorstores';
+import path from 'path';
 import { Worker } from 'worker_threads';
 
 @Injectable()
@@ -113,12 +114,15 @@ export class WebScraperService {
    */
   createPageScraperWorker(url: string, vectorStore: VectorStore) {
     return new Promise((resolve, reject) => {
-      const worker = new Worker(`${__dirname}/workers/webpage-scraper.js`, {
-        workerData: {
-          url,
-          vectorStore,
+      const worker = new Worker(
+        path.join(__dirname, '/workers/webpage-scraper.js'),
+        {
+          workerData: {
+            url,
+            vectorStore,
+          },
         },
-      });
+      );
       worker.on('message', (message) => {
         this.logger.debug(`Message from worker: ${message}`);
       });
