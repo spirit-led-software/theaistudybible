@@ -14,6 +14,20 @@
       "detail": "Start fresh backend development environment",
       "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile backend-dev up -d && sleep 5 && cd backend && npm run start:dev",
       "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "frontend-dev-env",
+      "detail": "Start frontend development environment",
+      "command": "docker compose down -v --remove-orphans && docker compose --profile frontend-dev up -d && sleep 5 && cd frontend && npm run dev",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "clean-frontend-dev-env",
+      "detail": "Start frontend development environment",
+      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile frontend-dev up -d && sleep 5 && cd frontend && npm run dev",
+      "problemMatcher": []
     }
   ]
 }

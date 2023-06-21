@@ -1,23 +1,21 @@
 FROM docker.io/node:20.2.0 AS builder
 
-ENV NODE_ENV=production
-
 WORKDIR /app
 
+# Install dependencies
 COPY package.json ./
+RUN npm i -g @nestjs/cli \
+  && npm i
+
+# Copy source files
 COPY nest-cli.json ./
 COPY tsconfig*.json ./
 COPY src ./src
 
-# Install node dependencies
-RUN npm i -g @nestjs/cli \
-  && npm i \
-  && npm cache clean --force
-
 # Build
 RUN npm run build
 
-FROM docker.io/node:20.2.0
+FROM docker.io/node:20.2.0 AS runner
 
 ENV HOST=0.0.0.0
 ENV PORT=8080
@@ -49,14 +47,16 @@ RUN apt-get update -y \
 RUN groupadd -r sept \
   && useradd -rm -g sept -G audio,video sept
 
-# Copy essential files
+# Install node dependencies
 COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev \
+  && npm cache clean --force
+
+# Copy source files
 COPY --from=builder /app/dist ./dist
 
-# Install node dependencies
-RUN npm ci --omit=dev \
-  && npm cache clean --force \
-  && chown -R sept:sept /app \
+# Set permissions
+RUN chown -R sept:sept /app \
   && chmod -R 755 /app
 
 USER sept

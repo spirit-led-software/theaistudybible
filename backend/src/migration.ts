@@ -3,7 +3,9 @@ import path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
 const getConfig = (): DataSourceOptions => {
-  dotenv.config();
+  dotenv.config({
+    path: path.join(__dirname, '/../.env.local'),
+  });
   return {
     type: process.env.DATABASE_TYPE as any,
     host: process.env.DATABASE_HOST,

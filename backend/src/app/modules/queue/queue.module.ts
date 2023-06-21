@@ -1,12 +1,11 @@
 import { RedisConfig } from '@configs/types';
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     BullModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const config: RedisConfig = configService.get('redis');
         return {

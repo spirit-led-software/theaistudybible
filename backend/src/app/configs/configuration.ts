@@ -45,7 +45,7 @@ export default () => ({
     port: parseInt(process.env.VECTOR_DB_PORT),
     apiKey: process.env.VECTOR_DB_API_KEY,
     collectionName: process.env.VECTOR_DB_COLLECTION_NAME,
-    dimensions: parseInt(process.env.VECTOR_DB_SIZE) || 1536,
+    dimensions: parseInt(process.env.VECTOR_DB_COLLECTION_DIMENSIONS) || 1536,
     distance: 'Cosine',
   },
   webScraper: {

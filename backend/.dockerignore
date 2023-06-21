@@ -5,6 +5,7 @@ test
 .eslintrc.js
 .gitignore
 .prettierrc
+.dockerignore
 Dockerfile
 README.md
 package-lock.json

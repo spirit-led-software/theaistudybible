@@ -81,11 +81,11 @@ Finally, write a prayer to wrap up the devotional.`);
     const sourceDocumentEntities = [];
     for (const sourceDocument of context) {
       let sourceDocumentEntity = await this.sourceDocumentRepository.findOne({
-        where: { pageContent: sourceDocument.pageContent },
+        where: { content: sourceDocument.pageContent },
       });
       if (!sourceDocumentEntity) {
         sourceDocumentEntity = new SourceDocument();
-        sourceDocumentEntity.pageContent = sourceDocument.pageContent;
+        sourceDocumentEntity.content = sourceDocument.pageContent;
         sourceDocumentEntity.metadata = JSON.stringify(sourceDocument.metadata);
         sourceDocumentEntity = await this.sourceDocumentRepository.save(
           sourceDocumentEntity,

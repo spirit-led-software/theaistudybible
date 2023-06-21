@@ -13,6 +13,7 @@ import {
   BaseChatMessage,
   ChainValues,
   HumanChatMessage,
+  SystemChatMessage,
 } from 'langchain/schema';
 import { Repository } from 'typeorm';
 
@@ -70,7 +71,7 @@ export class ChatMessageService {
 
   async executeMessage(message: ChatMessage, response: Response) {
     const vectorStore = await this.vectorDbService.getVectorStore();
-    const history: BaseChatMessage[] =
+    let history: BaseChatMessage[] =
       message.chat.messages
         ?.map((q) => {
           if (q.message !== message.message) {
@@ -82,13 +83,18 @@ export class ChatMessageService {
           return [];
         })
         .flat() || [];
+    history = [
+      new SystemChatMessage(
+        'You are a Christian chatbot who can answer questions about Christian faith and theology. Do not deviate from the topic of faith. Quote the bible as much as possible in your answers. If you are asked what your name is, it is ChatESV.',
+      ),
+      ...history,
+    ];
     this.logger.debug(`Chat history: ${JSON.stringify(history)}`);
     const memory = new BufferMemory({
       chatHistory: new ChatMessageHistory(history),
       memoryKey: 'chat_history',
       inputKey: 'message',
       outputKey: 'answer',
-      returnMessages: true,
     });
     const chain = ConversationalRetrievalQAChain.fromLLM(
       this.llmService.getChatModel(),
@@ -120,9 +126,11 @@ export class ChatMessageService {
         sources = sources.filter(
           (source, index) => sources.indexOf(source) === index,
         );
-        const sourcesString = sources.join('\n');
-        this.sendStreamedResponseData(`Sources:\n`, response);
-        this.sendStreamedResponseData(sourcesString, response);
+        if (sources.length > 0) {
+          const sourcesString = sources.join('\n');
+          this.sendStreamedResponseData('\n\nSources:\n', response);
+          this.sendStreamedResponseData(sourcesString, response);
+        }
         this.logger.debug(`Chat message result: ${JSON.stringify(result)}`);
         await this.saveAnswer(message, result);
         response.end();
@@ -133,7 +141,8 @@ export class ChatMessageService {
   }
 
   sendStreamedResponseData(data: string, response: Response) {
-    response.write(`data: ${data}\n\n`);
+    const chunk = { text: data };
+    response.write(`data: ${JSON.stringify(chunk)}\n\n`);
   }
 
   async saveAnswer(chatMessage: ChatMessage, result: ChainValues) {
@@ -141,19 +150,26 @@ export class ChatMessageService {
     chatAnswerEntity.text = result.text;
     chatAnswerEntity.sourceDocuments = [];
     chatAnswerEntity = await this.chatAnswerRepository.save(chatAnswerEntity);
-    const sourceDocuments: SourceDocument[] = [];
     for (const sourceDocument of result.sourceDocuments) {
       let sourceDocumentEntity = await this.sourceDocumentRepository.findOneBy({
-        pageContent: sourceDocument.pageContent,
+        content: sourceDocument.pageContent,
       });
       if (!sourceDocumentEntity) {
+        this.logger.debug(
+          'Could not find existing source document in database, creating new one.',
+        );
         sourceDocumentEntity = new SourceDocument();
-        sourceDocumentEntity.pageContent = sourceDocument.pageContent;
+        sourceDocumentEntity.content = sourceDocument.pageContent;
         sourceDocumentEntity.metadata = JSON.stringify(sourceDocument.metadata);
+      } else {
+        this.logger.debug(
+          `Found source document with id: ${sourceDocumentEntity.id}`,
+        );
       }
-      sourceDocuments.push(sourceDocumentEntity);
+      if (!chatAnswerEntity.sourceDocuments.includes(sourceDocument)) {
+        chatAnswerEntity.sourceDocuments.push(sourceDocumentEntity);
+      }
     }
-    chatAnswerEntity.sourceDocuments = sourceDocuments;
     chatMessage.answer = chatAnswerEntity;
     chatMessage = await this.chatMessageRepository.save(chatMessage);
     return chatMessage;

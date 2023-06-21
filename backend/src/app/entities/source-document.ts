@@ -6,7 +6,7 @@ import { Devo } from './devo';
 @Entity()
 export class SourceDocument extends BaseEntity {
   @Column({ unique: true })
-  pageContent: string;
+  content: string;
 
   @Column()
   metadata: string;

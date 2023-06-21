@@ -63,11 +63,9 @@ services:
       - "local-ai"
 
   backend:
-    image: chatesv/backend:0.0.1
+    image: chatesv/backend:0.1.0
     ports:
       - 8080:8080
-    env_file:
-      - ./backend/.env
     environment:
       - VECTOR_DB_TYPE=qdrant
       - VECTOR_DB_SCHEME=http
@@ -86,6 +84,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - UNSTRUCTURED_API_URL=http://unstructured-api:8000/general/v0/general
+    env_file:
+      - ./backend/.env.local
     depends_on:
       - qdrant
       - postgres

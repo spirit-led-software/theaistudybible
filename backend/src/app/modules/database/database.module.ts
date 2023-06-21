@@ -1,13 +1,12 @@
 import { DatabaseConfig, RedisConfig } from '@configs/types';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import path from 'path';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const dbConfig: DatabaseConfig = configService.get('database');
         const redisConfig: RedisConfig = configService.get('redis');
@@ -24,7 +23,7 @@ import path from 'path';
           migrationsTableName: 'migrations',
           migrationsRun: dbConfig.runMigrations,
           cache: {
-            type: 'redis',
+            type: 'ioredis',
             options: {
               host: redisConfig.host,
               port: redisConfig.port,
