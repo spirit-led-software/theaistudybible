@@ -1,14 +1,14 @@
 import { TbCross } from "react-icons/tb";
 
-type ChatMessageProps = {
+type MessageProps = {
   text: string;
   sender: string;
 };
 
-export default function ChatMessage({ text, sender }: ChatMessageProps) {
+export function Message({ text, sender }: MessageProps) {
   return (
     <div className="inline-flex w-full items-center px-2 py-4 bg-white border border-t-slate-300">
-      <div className="p-2 rounded-full bg-slate-800 text-white">
+      <div className="p-2 rounded-full bg-slate-700 text-white">
         {sender === "user" ? (
           <div className="text-sm">You</div>
         ) : (

@@ -1,9 +1,10 @@
 "use client";
 
-import ChatMessage from "@/components/ChatMessage";
+import { Message } from "@/components/chat";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
+import TextAreaAutosize from "react-textarea-autosize";
 
 type MessageData = {
   id: string;
@@ -13,12 +14,15 @@ type MessageData = {
 
 export default function ChatPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const [alert, setAlert] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [chatId, setChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentMessage, setCurrentMessage] = useState<string | null>(null);
   const [currentResponse, setCurrentResponse] = useState<string | null>(null);
+  const [showScrollToBottomButton, setShowScrollToBottomButton] =
+    useState<boolean>(false);
 
   const getAnswerId = async (messageId: string) => {
     const response = await fetch(`/api/chat-messages/${messageId}/result`, {
@@ -96,6 +100,18 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) =>
+      setShowScrollToBottomButton(!entry.isIntersecting)
+    );
+
+    observer.observe(endOfMessagesRef.current!);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [endOfMessagesRef]);
+
+  useEffect(() => {
     if (isLoading) {
       inputRef.current!.disabled = true;
     } else {
@@ -117,7 +133,7 @@ export default function ChatPage() {
   }, [isLoading, currentResponse]);
 
   return (
-    <div className="flex flex-1 flex-col-reverse relative overflow-y-auto">
+    <div className="flex flex-1 flex-col h-full relative">
       <div
         role="alert"
         className={`absolute top-1 left-0 right-0 flex justify-center duration-200 ${
@@ -132,27 +148,44 @@ export default function ChatPage() {
           {alert}
         </div>
       </div>
-      <div className="h-20 bg-slate-800 w-full" />
-      {currentMessage && <ChatMessage text={currentMessage} sender="user" />}
-      {currentResponse && <ChatMessage text={currentResponse} sender="bot" />}
-      {messages.map((message) => (
-        <ChatMessage
-          key={message.id}
-          text={message.text}
-          sender={message.sender}
-        />
-      ))}
-      <div className="absolute flex flex-col bottom-5 left-5 right-5 border rounded-lg opacity-90 z-50 bg-white">
-        <form className="flex flex-col w-full">
-          <div className="inline-flex h-fit items-center w-full mr-1">
+      <div className="h-full w-full overflow-y-auto">
+        <div className="flex flex-col-reverse flex-1 min-h-full place-content-end">
+          <div ref={endOfMessagesRef} className="w-full h-16" />
+          {currentMessage && <Message text={currentMessage} sender="user" />}
+          {currentResponse && <Message text={currentResponse} sender="bot" />}
+          {messages.map((message) => (
+            <Message
+              key={message.id}
+              text={message.text}
+              sender={message.sender}
+            />
+          ))}
+        </div>
+      </div>
+      <button
+        className={`${
+          showScrollToBottomButton ? "scale-100" : "scale-0"
+        } absolute bottom-16 right-5 rounded-full bg-white p-2 shadow-lg`}
+        onClick={() => {
+          endOfMessagesRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "nearest",
+          });
+        }}
+      >
+        <IoIosArrowDown className="text-2xl" />
+      </button>
+      <div className="absolute bottom-4 left-5 right-5 border rounded-lg opacity-90 z-50 overflow-hidden bg-white">
+        <form>
+          <div className="flex w-full items-center mr-1">
             <IoIosArrowForward className="ml-2 text-2xl" />
-            <textarea
+            <TextAreaAutosize
+              ref={inputRef}
               tabIndex={0}
               rows={1}
-              ref={inputRef}
-              onChange={() => setAlert(null)}
-              placeholder="Type a message"
-              className="m-0 py-1 w-full resize-none focus:outline-none overflow-hidden bg-transparent"
+              placeholder="Type a message..."
+              className="py-1 w-full overflow-hidden resize-none focus:outline-none bg-transparent"
             />
             <button type="submit" onClick={handleSubmit}>
               <AiOutlineSend className="text-2xl mr-1" />

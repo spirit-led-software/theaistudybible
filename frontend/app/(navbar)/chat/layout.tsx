@@ -1,4 +1,4 @@
-import ChatSidebar from "@/components/ChatSidebar";
+import { Sidebar } from "@/components/chat";
 
 export default function ChatPageLayout({
   children,
@@ -6,8 +6,8 @@ export default function ChatPageLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full">
-      <ChatSidebar />
+    <div className="flex flex-1 h-full max-w-full overflow-hidden">
+      <Sidebar />
       {children}
     </div>
   );

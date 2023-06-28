@@ -1,6 +1,25 @@
 import axiosRetry from 'axios-retry';
 
 export default () => ({
+  general: {
+    environment: process.env.NODE_ENV,
+    host: process.env.HOST,
+    port: parseInt(process.env.PORT),
+    apiUrl: process.env.API_URL,
+    apiBasePath: process.env.API_BASE_PATH,
+    websiteUrl: process.env.WEBSITE_URL,
+  },
+  auth: {
+    connectionURI: process.env.AUTH_CONNECTION_URI,
+    apiKey: process.env.AUTH_API_KEY,
+    appName: 'ChatESV',
+    adminUsername: process.env.AUTH_ADMIN_USERNAME,
+    adminPassword: process.env.AUTH_ADMIN_PASSWORD,
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    },
+  },
   axios: {
     'axios-retry': {
       retries: 5,

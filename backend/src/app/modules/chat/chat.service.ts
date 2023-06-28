@@ -2,6 +2,7 @@ import { CreateChatDto } from '@dtos/chat';
 import { Chat } from '@entities';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SessionContainer } from 'supertokens-node/recipe/session';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,9 +11,13 @@ export class ChatService {
     @InjectRepository(Chat) private readonly chatRepository: Repository<Chat>,
   ) {}
 
-  async externalCreate(createChatDto: CreateChatDto) {
+  async externalCreate(
+    session: SessionContainer,
+    createChatDto: CreateChatDto,
+  ) {
     let chat = new Chat();
     chat.subject = createChatDto.subject;
+    chat.userId = session.getUserId();
     chat = await this.chatRepository.save(chat);
     return chat;
   }

@@ -15,6 +15,7 @@ import {
   HumanChatMessage,
   SystemChatMessage,
 } from 'langchain/schema';
+import { SessionContainer } from 'supertokens-node/recipe/session';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -43,11 +44,12 @@ export class ChatMessageService {
     });
   }
 
-  async saveMessage(message: CreateChatMessageDto) {
+  async saveMessage(session: SessionContainer, message: CreateChatMessageDto) {
     this.logger.log(`Recieved chat message: ${JSON.stringify(message)}`);
     let chat: Chat;
     if (!message.chatId) {
       chat = new Chat();
+      chat.userId = session.getUserId();
       chat.subject = message.message;
       chat.messages = [];
       chat = await this.chatService.internalCreate(chat);
@@ -60,7 +62,7 @@ export class ChatMessageService {
     }
     let chatMessage = new ChatMessage();
     chatMessage.chat = chat;
-    chatMessage.message = message.message;
+    chatMessage.text = message.message;
     chatMessage = await this.chatMessageRepository.save(chatMessage);
     chat.messages
       ? chat.messages.push(chatMessage)
@@ -74,9 +76,9 @@ export class ChatMessageService {
     let history: BaseChatMessage[] =
       message.chat.messages
         ?.map((q) => {
-          if (q.message !== message.message) {
+          if (q.text !== message.text) {
             return [
-              new HumanChatMessage(q.message),
+              new HumanChatMessage(q.text),
               new AIChatMessage(q.answer.text),
             ];
           }
@@ -95,6 +97,7 @@ export class ChatMessageService {
       memoryKey: 'chat_history',
       inputKey: 'message',
       outputKey: 'answer',
+      returnMessages: true,
     });
     const chain = ConversationalRetrievalQAChain.fromLLM(
       this.llmService.getChatModel(),
@@ -104,12 +107,15 @@ export class ChatMessageService {
         memory,
         inputKey: 'message',
         outputKey: 'answer',
+        questionGeneratorChainOptions: {
+          llm: this.llmService.getModel(),
+        },
       },
     );
     chain
       .call(
         {
-          message: message.message,
+          message: message.text,
         },
         [
           {

@@ -14,4 +14,10 @@ export class Chat extends BaseEntity {
     eager: true,
   })
   messages: ChatMessage[];
+
+  @Column({ nullable: true })
+  userId: string;
+
+  @Column({ nullable: true })
+  ipAddress: string;
 }

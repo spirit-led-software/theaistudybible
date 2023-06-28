@@ -1,4 +1,5 @@
 import { CreateWebsiteIndexOperationDto } from '@dtos/index-operation';
+import { AdminGuard } from '@modules/auth/admin.guard';
 import {
   BadRequestException,
   Body,
@@ -10,6 +11,7 @@ import {
   Put,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -17,6 +19,7 @@ import { paginateEntityList } from '@utils/pagination';
 import { IndexOpService } from './index-op.service';
 
 @Controller('index-operations')
+@UseGuards(new AdminGuard())
 export class IndexOpController {
   constructor(private readonly indexService: IndexOpService) {}
 

@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { TbCross } from "react-icons/tb";
 
-export type LogoProps = {
+type Props = {
   className?: string;
 };
 
-export default function Logo(props: LogoProps) {
-  const { className = "" } = props;
+export function Logo({ className = "" }: Props) {
   return (
     <Link href={"/"} className={`inline-flex ${className}`}>
       <span className="text-white">cha</span>
-      <TbCross className="text-white -mx-1 mt-0.5" />
+      <TbCross className="text-white -ml-1 -mr-[0.2rem] mt-[.2rem]" />
       <span className="text-blue-300">ESV</span>
     </Link>
   );

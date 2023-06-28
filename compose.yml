@@ -41,6 +41,22 @@ services:
       - "backend-dev"
       - "frontend-dev"
 
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql
+    ports:
+      - 3567:3567
+    environment:
+      - API_KEYS=sk-chatesv1234567890
+      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_PORT=5432
+      - POSTGRESQL_DATABASE_NAME=chatesv
+      - POSTGRESQL_USER=chatesv
+      - POSTGRESQL_PASSWORD=chatesv
+    profiles:
+      - "default"
+      - "backend-dev"
+      - "frontend-dev"
+
   unstructured-api:
     image: quay.io/unstructured-io/unstructured-api:0.0.23
     ports:
@@ -67,6 +83,8 @@ services:
     ports:
       - 8080:8080
     environment:
+      - AUTH_CONNECTION_URI=http://supertokens:3567
+      - AUTH_API_KEY=sk-chatesv1234567890
       - VECTOR_DB_TYPE=qdrant
       - VECTOR_DB_SCHEME=http
       - VECTOR_DB_HOST=qdrant

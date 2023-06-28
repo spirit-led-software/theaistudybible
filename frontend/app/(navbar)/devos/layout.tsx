@@ -1,4 +1,4 @@
-export default function DevoPageLayout({
+export default function DevoPageRootLayout({
   children,
 }: {
   children: React.ReactNode;

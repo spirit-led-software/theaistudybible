@@ -11,7 +11,7 @@ export class ChatMessage extends BaseEntity {
   chat: Chat;
 
   @Column()
-  message: string;
+  text: string;
 
   @Expose({ groups: ['chat-message'] })
   @OneToOne(() => ChatAnswer, (chatAnswer) => chatAnswer.message, {

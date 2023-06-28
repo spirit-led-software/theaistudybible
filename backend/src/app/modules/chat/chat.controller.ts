@@ -1,17 +1,23 @@
 import { CreateChatDto } from '@dtos/chat';
+import { AuthGuard } from '@modules/auth/auth.guard';
+import { Session } from '@modules/auth/session.decorator';
 import {
   Body,
   ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Query,
   SerializeOptions,
+  UnauthorizedException,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { paginateEntityList } from '@utils/pagination';
+import { SessionContainer } from 'supertokens-node/recipe/session';
 import { ChatService } from './chat.service';
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -23,16 +29,25 @@ export class ChatController {
     groups: ['chat'],
   })
   @Post()
-  async create(@Body() createChatDto: CreateChatDto) {
-    return await this.chatService.externalCreate(createChatDto);
+  async create(
+    @Session() session: SessionContainer,
+    @Body() createChatDto: CreateChatDto,
+  ) {
+    return await this.chatService.externalCreate(session, createChatDto);
   }
 
   @SerializeOptions({
     groups: ['chat'],
   })
   @Get()
-  async findAll(@Query('page') page: string, @Query('limit') limit: string) {
+  @UseGuards(new AuthGuard())
+  async findAll(
+    @Session() session: SessionContainer,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
     const chats = await this.chatService.findAll();
+    chats.filter((chat) => chat.userId === session.getUserId());
     return paginateEntityList(chats, +page, +limit);
   }
 
@@ -40,12 +55,25 @@ export class ChatController {
     groups: ['chat'],
   })
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.chatService.findOne(id);
+  @UseGuards(new AuthGuard())
+  async findOne(@Session() session: SessionContainer, @Param('id') id: string) {
+    const chat = await this.chatService.findOne(id);
+    if (!chat) {
+      throw new NotFoundException();
+    }
+    if (chat.userId !== session.getUserId()) {
+      throw new UnauthorizedException();
+    }
+    return chat;
   }
 
+  @UseGuards(new AuthGuard())
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Session() session: SessionContainer, @Param('id') id: string) {
+    const chat = await this.chatService.findOne(id);
+    if (chat.userId !== session.getUserId()) {
+      throw new UnauthorizedException();
+    }
     return await this.chatService.remove(id);
   }
 }

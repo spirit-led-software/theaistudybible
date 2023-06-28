@@ -1,4 +1,4 @@
-import { NavBar } from "@/components";
+import { AuthProvider } from "@/components";
 import { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import "./globals.css";
@@ -21,10 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={kanit.className}>
-        <main className="flex flex-col h-screen">
-          <NavBar />
-          {children}
-        </main>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

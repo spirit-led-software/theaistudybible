@@ -1,3 +1,12 @@
+export type GeneralConfig = {
+  environment: string;
+  host: string;
+  port: number;
+  apiUrl: string;
+  apiBasePath: string;
+  websiteUrl: string;
+};
+
 export type DatabaseConfig = {
   type: string;
   host: string;
@@ -45,4 +54,16 @@ export type VectorDBConfig = {
 
 export type WebScraperConfig = {
   threads: number;
+};
+
+export type AuthConfig = {
+  connectionURI: string;
+  apiKey: string;
+  appName: string;
+  adminUsername: string;
+  adminPassword: string;
+  google: {
+    clientId: string;
+    clientSecret: string;
+  };
 };

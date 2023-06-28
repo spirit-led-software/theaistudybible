@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import Logo from "./Logo";
+import { usePathname, useRouter } from "next/navigation";
+import { Logo } from "./Logo";
 
-export default function NavBar() {
+export function NavBar() {
   const pathname = usePathname();
+  const router = useRouter();
   return (
-    <nav className="flex bg-slate-700 items-center h-12 relative">
+    <nav className="sticky top-0 flex h-12 items-center bg-slate-700">
       <Logo className="pl-3 text-2xl mr-2" />
       {[
         [1, "Chat", "/chat"],
@@ -28,7 +29,14 @@ export default function NavBar() {
           </Link>
         );
       })}
-      <div className="absolute py-2.5 text-white right-2">Login/Signup</div>
+      <div className="absolute py-2.5 right-2">
+        <button
+          className="px-2 py-1 rounded-lg text-slate-700 bg-blue-300 hover:bg-slate-600 hover:text-slate-300"
+          onClick={() => router.push("/login")}
+        >
+          Login
+        </button>
+      </div>
     </nav>
   );
 }
