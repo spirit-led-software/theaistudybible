@@ -1,0 +1,25 @@
+{
+  "name": "chatesv",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "sst dev",
+    "build": "sst build",
+    "deploy": "sst deploy",
+    "remove": "sst remove",
+    "console": "sst console",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^16.1.0",
+    "aws-cdk-lib": "2.84.0",
+    "constructs": "10.1.156",
+    "sst": "^2.17.6",
+    "typescript": "^5.1.5",
+    "cdk-ecr-deployment": "^2.5.23"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
