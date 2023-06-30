@@ -33,8 +33,6 @@ export type RedisConfig = {
 export type S3Config = {
   bucketName: string;
   region: string;
-  accessKeyId: string;
-  secretAccessKey: string;
 };
 
 export type VectorDBConfig = {

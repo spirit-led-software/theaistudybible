@@ -1,10 +1,8 @@
-import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { IndexOperation } from '@entities/index-op';
 import { S3Service } from '@modules/s3/s3.service';
 import { VectorDBService } from '@modules/vector-db/vector-db.service';
 import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Job } from 'bull';
 import { mkdtempSync, writeFileSync } from 'fs';
@@ -22,7 +20,6 @@ export class FileScraperService {
   constructor(
     @InjectRepository(IndexOperation)
     private readonly indexOperationRepository: Repository<IndexOperation>,
-    private readonly configService: ConfigService,
     private readonly s3Service: S3Service,
     private readonly vectorDbService: VectorDBService,
   ) {}
@@ -65,17 +62,8 @@ export class FileScraperService {
   }
 
   async scrapeFile(s3Key) {
-    const s3Config = this.s3Service.getConfig();
     try {
-      const getObjectCommand = new GetObjectCommand({
-        Bucket: s3Config.bucketName,
-        Key: s3Key,
-      });
-      const s3GetResult = await this.s3Service
-        .getClient()
-        .send(getObjectCommand);
-      this.logger.log(`File '${s3Key}' fetched from S3`);
-
+      const s3GetResult = await this.s3Service.downloadObject(s3Key);
       const filename = s3Key.split('/').pop();
       const prettyName = s3GetResult.Metadata['pretty-name'];
       const fileContent = await s3GetResult.Body.transformToByteArray();

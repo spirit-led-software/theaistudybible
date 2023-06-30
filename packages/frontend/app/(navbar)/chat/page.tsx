@@ -1,5 +1,6 @@
 "use client";
 
+import { getChatMessageResult, sendMessage } from "@/clients";
 import { Message } from "@/components/chat";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
@@ -17,23 +18,42 @@ export default function ChatPage() {
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const [alert, setAlert] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageData[]>([]);
-  const [chatId, setChatId] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentMessage, setCurrentMessage] = useState<string | null>(null);
   const [currentResponse, setCurrentResponse] = useState<string | null>(null);
   const [showScrollToBottomButton, setShowScrollToBottomButton] =
     useState<boolean>(false);
 
-  const getAnswerId = async (messageId: string) => {
-    const response = await fetch(`/api/chat-messages/${messageId}/result`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-    const data = await response.json();
-    console.log("Answer data:", data);
-    return data.id;
+  const readHandler = async (
+    reader: ReadableStreamDefaultReader<Uint8Array>
+  ) => {
+    const timeout = setTimeout(() => {
+      reader.cancel();
+      setIsLoading(false);
+      setAlert("Request timed out");
+    }, 20000);
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) {
+        const data = new TextDecoder()
+          .decode(value)
+          .replaceAll("data: ", "")
+          .split(/\n\n/);
+        for (const chunkData of data) {
+          if (chunkData === "") continue;
+          console.log("Chunk:", chunkData);
+          const chunk = JSON.parse(chunkData);
+          const text = chunk.text;
+          console.log("Text:", text);
+          setCurrentResponse((currentResponse) => {
+            return currentResponse ? currentResponse + text : text;
+          });
+        }
+      }
+    }
+    clearTimeout(timeout);
   };
 
   const handleSubmit = async (event: any) => {
@@ -44,50 +64,29 @@ export default function ChatPage() {
       setIsLoading(true);
       setAlert(null);
       setCurrentMessage(message);
-      const result = await fetch("/api/chat-messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, chatId }),
-      });
-      setChatId(result.headers.get("X-Chat-ID"));
+      setCurrentResponse(null);
+      const { chatId, chatMessageId, error } = await sendMessage(
+        {
+          message,
+          chatId: currentChatId!,
+        },
+        readHandler
+      );
+      if (error) {
+        setAlert(`Something went wrong: ${error.message}`);
+        setIsLoading(false);
+        return;
+      }
+      setCurrentChatId(chatId);
       setMessages((messages) => [
         {
-          id: result.headers.get("X-Chat-Message-ID") as string,
+          id: chatMessageId!,
           text: message,
           sender: "user",
         },
         ...messages,
       ]);
       setCurrentMessage(null);
-      const reader = result.body?.getReader();
-      if (reader) {
-        const timeout = setTimeout(() => {
-          reader.cancel();
-          setIsLoading(false);
-          setAlert("Request timed out");
-        }, 20000);
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          if (value) {
-            const data = new TextDecoder()
-              .decode(value)
-              .replaceAll("data: ", "")
-              .split(/\n\n/);
-            for (const chunkData of data) {
-              if (chunkData === "") continue;
-              console.log("Chunk:", chunkData);
-              const chunk = JSON.parse(chunkData);
-              const text = chunk.text;
-              console.log("Text:", text);
-              setCurrentResponse((currentResponse) => {
-                return currentResponse ? currentResponse + text : text;
-              });
-            }
-          }
-        }
-        clearTimeout(timeout);
-      }
     } else {
       inputRef.current!.focus();
       setAlert("Please enter a message");
@@ -103,9 +102,7 @@ export default function ChatPage() {
     const observer = new IntersectionObserver(([entry]) =>
       setShowScrollToBottomButton(!entry.isIntersecting)
     );
-
     observer.observe(endOfMessagesRef.current!);
-
     return () => {
       observer.disconnect();
     };
@@ -117,17 +114,23 @@ export default function ChatPage() {
     } else {
       inputRef.current!.disabled = false;
       if (currentResponse) {
-        getAnswerId(messages[0].id).then((id) => {
-          setMessages((messages) => [
-            {
-              id: id,
-              text: currentResponse,
-              sender: "bot",
-            },
-            ...messages,
-          ]);
-          setCurrentResponse(null);
-        });
+        getChatMessageResult(messages[0].id).then(
+          ({ messageResult, error }) => {
+            if (error) {
+              setAlert(`Something went wrong: ${error.message}`);
+              return;
+            }
+            setMessages((messages) => [
+              {
+                id: messageResult.id,
+                text: currentResponse,
+                sender: "bot",
+              },
+              ...messages,
+            ]);
+            setCurrentResponse(null);
+          }
+        );
       }
     }
   }, [isLoading, currentResponse]);

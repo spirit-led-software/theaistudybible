@@ -1,4 +1,10 @@
-import { AuthStack, BackendStack, SharedStack } from "@stacks";
+import {
+  BackendStack,
+  CacheStack,
+  DatabaseStack,
+  S3Stack,
+  SharedStack,
+} from "@stacks";
 import { SSTConfig } from "sst";
 
 const config: SSTConfig = {
@@ -16,11 +22,17 @@ const config: SSTConfig = {
       .stack(SharedStack, {
         id: "shared-stack",
       })
-      .stack(AuthStack, {
-        id: "auth-stack",
+      .stack(DatabaseStack, {
+        id: "database-stack",
+      })
+      .stack(CacheStack, {
+        id: "cache-stack",
+      })
+      .stack(S3Stack, {
+        id: "s3-stack",
       })
       .stack(BackendStack, {
-        id: "backend-stack",
+        id: "backend-stack-2",
       });
   },
 };

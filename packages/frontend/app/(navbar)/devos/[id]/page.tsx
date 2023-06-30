@@ -1,8 +1,11 @@
-import { DevoClient } from "@/clients";
+import { getDevo } from "@/clients";
 import Moment from "moment";
 
 export default async function DevoPage({ params }: { params: { id: string } }) {
-  const devo = await new DevoClient().getDevo(params.id);
+  const { devo, error } = await getDevo(params.id);
+  if (error) {
+    throw error;
+  }
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col overflow-y-auto py-2 px-5">

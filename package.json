@@ -12,12 +12,12 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@aws-cdk/aws-apprunner-alpha": "2.84.0-alpha.0",
     "@tsconfig/node16": "^16.1.0",
     "aws-cdk-lib": "2.84.0",
     "constructs": "10.1.156",
     "sst": "^2.17.6",
-    "typescript": "^5.1.5",
-    "cdk-ecr-deployment": "^2.5.23"
+    "typescript": "^5.1.5"
   },
   "workspaces": [
     "packages/*"

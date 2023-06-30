@@ -1,4 +1,3 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { CreateWebsiteIndexOperationDto } from '@dtos/index-operation';
 import { IndexOperation } from '@entities';
 import { S3Service } from '@modules/s3/s3.service';
@@ -72,20 +71,9 @@ export class IndexOpService {
   }
 
   async queueIndexFileOperation(file: Express.Multer.File, prettyName: string) {
-    const s3Config = this.s3Service.getConfig();
-    const s3Client = this.s3Service.getClient();
-    const uploadCommand = new PutObjectCommand({
-      Bucket: s3Config.bucketName,
-      Key: file.originalname,
-      Body: file.buffer,
-      Metadata: {
-        'pretty-name': prettyName,
-      },
+    this.s3Service.uploadObject(file.originalname, file.buffer, {
+      'pretty-name': prettyName,
     });
-    await s3Client.send(uploadCommand);
-
-    this.logger.log(`Uploaded file '${file.originalname}' to S3`);
-
     let indexOperation = new IndexOperation();
     indexOperation.type = 'file';
     indexOperation.metadata = JSON.stringify({
