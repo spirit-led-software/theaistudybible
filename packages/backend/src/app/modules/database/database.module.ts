@@ -1,4 +1,4 @@
-import { DatabaseConfig, RedisConfig } from '@configs/types';
+import { DatabaseConfig, GeneralConfig, RedisConfig } from '@configs/types';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,8 +10,13 @@ import path from 'path';
       useFactory: (configService: ConfigService) => {
         const dbConfig: DatabaseConfig = configService.get('database');
         const redisConfig: RedisConfig = configService.get('redis');
+        const generalConfig: GeneralConfig = configService.get('general');
+        const ssl =
+          generalConfig.environment === 'production'
+            ? { rejectUnauthorized: false }
+            : undefined;
         return {
-          type: dbConfig.type as any,
+          type: 'postgres',
           host: dbConfig.host,
           port: dbConfig.port,
           username: dbConfig.username,
@@ -30,6 +35,7 @@ import path from 'path';
               password: redisConfig.password,
             },
           },
+          ssl,
         };
       },
       inject: [ConfigService],

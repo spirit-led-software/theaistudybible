@@ -7,7 +7,7 @@ import {
 } from "@aws-cdk/aws-apprunner-alpha";
 import { CacheStack, DatabaseStack, S3Stack, SharedStack } from "@stacks";
 import { SecretValue } from "aws-cdk-lib";
-import { SecurityGroup } from "aws-cdk-lib/aws-ec2";
+import { SecurityGroup, SubnetType } from "aws-cdk-lib/aws-ec2";
 import { DockerImageAsset, Platform } from "aws-cdk-lib/aws-ecr-assets";
 import {
   PolicyDocument,
@@ -31,24 +31,12 @@ export default function BackendStack({ stack }: StackContext) {
       [`${stack.stackName}-policy`]: new PolicyDocument({
         statements: [
           new PolicyStatement({
-            actions: ["logs:*"],
+            actions: ["elasticache:*", "logs:*"],
             resources: ["*"],
           }),
           new PolicyStatement({
-            actions: ["secretsmanager:*"],
-            resources: ["*"],
-          }),
-          new PolicyStatement({
-            actions: ["elasticache:*"],
-            resources: ["*"],
-          }),
-          new PolicyStatement({
-            actions: ["ecr:*"],
-            resources: ["*"],
-          }),
-          new PolicyStatement({
-            actions: ["rds:*"],
-            resources: [database.clusterArn, `${database.clusterArn}/*`],
+            actions: ["rds-db:connect", "rds:*"],
+            resources: [database.instanceArn],
           }),
           new PolicyStatement({
             actions: ["s3:*"],
@@ -87,10 +75,23 @@ export default function BackendStack({ stack }: StackContext) {
     secretStringValue: SecretValue.unsafePlainText(process.env.AUTH_API_KEY),
   });
 
+  role.addToPrincipalPolicy(
+    new PolicyStatement({
+      actions: ["secretsmanager:GetSecretValue"],
+      resources: [
+        adminPassword.secretArn,
+        llmApiKey.secretArn,
+        vectorDbApiKey.secretArn,
+        authApiKey.secretArn,
+        database.secret?.secretArn,
+      ],
+    })
+  );
+
   const asset = new DockerImageAsset(stack, `${stack.stackName}-image`, {
     directory: "packages/backend",
+    file: "Dockerfile",
     platform: Platform.LINUX_AMD64,
-    exclude: ["node_modules", "dist"],
   });
 
   const securityGroup = new SecurityGroup(
@@ -108,6 +109,9 @@ export default function BackendStack({ stack }: StackContext) {
     {
       vpc,
       securityGroups: [securityGroup, dbSecurityGroup, cacheSecurityGroup],
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: SubnetType.PUBLIC,
+      }),
     }
   );
 
@@ -132,22 +136,20 @@ export default function BackendStack({ stack }: StackContext) {
           LLM_API_KEY: llmApiKey.secretValue.toString(),
           LLM_TEMPERATURE: process.env.LLM_TEMPERATURE,
           LLM_MODEL_NAME: process.env.LLM_MODEL_NAME,
-          VECTOR_DB_TYPE: "qdrant",
-          VECTOR_DB_SCHEME: "https",
-          VECTOR_DB_HOST: process.env.VECTOR_DB_HOST,
-          VECTOR_DB_PORT: process.env.VECTOR_DB_PORT,
+          VECTOR_DB_URL: process.env.VECTOR_DB_URL,
           VECTOR_DB_API_KEY: vectorDbApiKey.secretValue.toString(),
           VECTOR_DB_COLLECTION_NAME: stack.stackName,
           VECTOR_DB_COLLECTION_DIMENSIONS:
             process.env.VECTOR_DB_COLLECTION_DIMENSIONS,
-          DATABASE_TYPE: "postgres",
-          DATABASE_HOST: database.cdk.cluster.clusterEndpoint.hostname,
-          DATABASE_PORT: database.cdk.cluster.clusterEndpoint.port.toString(),
-          DATABASE_NAME: database.defaultDatabaseName,
-          DATABASE_USERNAME: database.cdk.cluster.secret
+          DATABASE_HOST: database.instanceEndpoint.hostname,
+          DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          DATABASE_NAME: database.secret
+            .secretValueFromJson("dbname")
+            .toString(),
+          DATABASE_USER: database.secret
             .secretValueFromJson("username")
             .toString(),
-          DATABASE_PASSWORD: database.cdk.cluster.secret
+          DATABASE_PASSWORD: database.secret
             .secretValueFromJson("password")
             .toString(),
           RUN_DATABASE_MIGRATIONS: "true",
@@ -174,7 +176,7 @@ export default function BackendStack({ stack }: StackContext) {
 
   const cnameRecord = new CnameRecord(stack, `${stack.stackName}-cname`, {
     zone: hostedZone,
-    recordName: stack.stage === "prod" ? "api" : `${stack.stage}.api`,
+    recordName: stack.stage === "prod" ? "api" : `${stack.stage}-api`,
     deleteExisting: true,
     domainName: backend.serviceUrl,
   });

@@ -54,7 +54,7 @@ services:
       - "frontend-dev"
 
   supertokens:
-    image: registry.supertokens.io/supertokens/supertokens-postgresql:v6.0.0
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:6.0
     ports:
       - 3567:3567
     environment:
@@ -64,16 +64,6 @@ services:
       - POSTGRESQL_DATABASE_NAME=chatesv
       - POSTGRESQL_USER=chatesv
       - POSTGRESQL_PASSWORD=chatesv
-    profiles:
-      - "default"
-      - "backend-dev"
-      - "frontend-dev"
-
-  unstructured-api:
-    image: quay.io/unstructured-io/unstructured-api:0.0.23
-    ports:
-      - 8000:8000
-    command: --host 0.0.0.0 --port 8000
     profiles:
       - "default"
       - "backend-dev"
@@ -97,14 +87,10 @@ services:
     environment:
       - AUTH_CONNECTION_URI=http://supertokens:3567
       - AUTH_API_KEY=sk-chatesv1234567890
-      - VECTOR_DB_TYPE=qdrant
-      - VECTOR_DB_SCHEME=http
-      - VECTOR_DB_HOST=qdrant
-      - VECTOR_DB_PORT=6333
+      - VECTOR_DB_URL=http://qdrant:6333
       - VECTOR_DB_API_KEY=sk-chatesv
       - VECTOR_DB_COLLECTION_NAME=chatesv
       - VECTOR_DB_COLLECTION_DIMENSIONS=1536
-      - DATABASE_TYPE=postgres
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_USER=chatesv
@@ -113,14 +99,12 @@ services:
       - RUN_DATABASE_MIGRATIONS=true
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - UNSTRUCTURED_API_URL=http://unstructured-api:8000/general/v0/general
     env_file:
       - ./backend/.env.local
     depends_on:
       - qdrant
       - postgres
       - redis
-      - unstructured-api
     profiles:
       - "default"
       - "frontend-dev"

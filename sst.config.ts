@@ -32,7 +32,7 @@ const config: SSTConfig = {
         id: "s3-stack",
       })
       .stack(BackendStack, {
-        id: "backend-stack-2",
+        id: "backend-stack",
       });
   },
 };

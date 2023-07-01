@@ -8,6 +8,7 @@ export default function SharedStack({ stack }: StackContext) {
         name: "public",
         subnetType: SubnetType.PUBLIC,
         cidrMask: 24,
+        mapPublicIpOnLaunch: true,
       },
       {
         name: "private-isolated",

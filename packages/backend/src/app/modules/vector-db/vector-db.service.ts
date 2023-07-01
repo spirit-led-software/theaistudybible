@@ -31,7 +31,7 @@ export class VectorDBService {
     await client.createCollection(this.config.collectionName, {
       vectors: {
         size: this.config.dimensions,
-        distance: this.config.distance,
+        distance: 'Cosine',
       },
     });
     this.logger.log('Vector db collection has been initialized.');
@@ -49,9 +49,7 @@ export class VectorDBService {
 
   getClient = () => {
     return new QdrantClient({
-      https: this.config.scheme === 'https',
-      host: this.config.host,
-      port: this.config.port,
+      url: this.config.url,
       apiKey: this.config.apiKey,
     });
   };

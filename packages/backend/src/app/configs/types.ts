@@ -8,7 +8,6 @@ export type GeneralConfig = {
 };
 
 export type DatabaseConfig = {
-  type: string;
   host: string;
   port: number;
   username: string;
@@ -36,14 +35,10 @@ export type S3Config = {
 };
 
 export type VectorDBConfig = {
-  type: 'pinecone' | 'weaviate' | 'qdrant' | 'milvus';
-  scheme: 'http' | 'https' | 'grpc';
-  host: string;
-  port: number;
+  url: string;
   apiKey: string;
   collectionName: string;
   dimensions: number;
-  distance: 'Cosine' | 'Euclid';
 };
 
 export type WebScraperConfig = {

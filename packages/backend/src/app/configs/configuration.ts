@@ -29,7 +29,6 @@ export default () => ({
     },
   },
   database: {
-    type: process.env.DATABASE_TYPE,
     host: process.env.DATABASE_HOST,
     port: parseInt(process.env.DATABASE_PORT),
     username: process.env.DATABASE_USER,
@@ -53,14 +52,10 @@ export default () => ({
     region: process.env.S3_REGION,
   },
   vectorDb: {
-    type: process.env.VECTOR_DB_TYPE,
-    scheme: process.env.VECTOR_DB_SCHEME,
-    host: process.env.VECTOR_DB_HOST,
-    port: parseInt(process.env.VECTOR_DB_PORT),
+    url: process.env.VECTOR_DB_URL,
     apiKey: process.env.VECTOR_DB_API_KEY,
     collectionName: process.env.VECTOR_DB_COLLECTION_NAME,
     dimensions: parseInt(process.env.VECTOR_DB_COLLECTION_DIMENSIONS) || 1536,
-    distance: 'Cosine',
   },
   webScraper: {
     threads: parseInt(process.env.WEB_SCRAPER_THREADS) || 4,
