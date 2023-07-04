@@ -12,8 +12,6 @@ services:
       - QDRANT__SERVICE__API_KEY=sk-chatesv
     profiles:
       - "default"
-      - "backend-dev"
-      - "frontend-dev"
 
   postgres:
     image: postgres:15.3
@@ -27,8 +25,6 @@ services:
       - POSTGRES_DB=chatesv
     profiles:
       - "default"
-      - "backend-dev"
-      - "frontend-dev"
 
   pgadmin:
     image: dpage/pgadmin4:7.3
@@ -39,8 +35,6 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=admin
     profiles:
       - "default"
-      - "backend-dev"
-      - "frontend-dev"
 
   redis:
     image: redis:7.0.11
@@ -50,24 +44,6 @@ services:
       - ./volumes/redis:/data
     profiles:
       - "default"
-      - "backend-dev"
-      - "frontend-dev"
-
-  supertokens:
-    image: registry.supertokens.io/supertokens/supertokens-postgresql:6.0
-    ports:
-      - 3567:3567
-    environment:
-      - API_KEYS=sk-chatesv1234567890
-      - POSTGRESQL_HOST=postgres
-      - POSTGRESQL_PORT=5432
-      - POSTGRESQL_DATABASE_NAME=chatesv
-      - POSTGRESQL_USER=chatesv
-      - POSTGRESQL_PASSWORD=chatesv
-    profiles:
-      - "default"
-      - "backend-dev"
-      - "frontend-dev"
 
   local-ai:
     image: quay.io/go-skynet/local-ai:latest
@@ -80,13 +56,14 @@ services:
     profiles:
       - "local-ai"
 
-  backend:
-    image: chatesv/backend:0.1.0
+  chatesv:
+    image: chatesv:1.0.0
+    build:
+      context: ./packages/web
+      dockerfile: Dockerfile
     ports:
       - 8080:8080
     environment:
-      - AUTH_CONNECTION_URI=http://supertokens:3567
-      - AUTH_API_KEY=sk-chatesv1234567890
       - VECTOR_DB_URL=http://qdrant:6333
       - VECTOR_DB_API_KEY=sk-chatesv
       - VECTOR_DB_COLLECTION_NAME=chatesv
@@ -100,11 +77,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     env_file:
-      - ./backend/.env.local
+      - ./packages/backend/.env.local
     depends_on:
       - qdrant
       - postgres
       - redis
-    profiles:
-      - "default"
-      - "frontend-dev"

@@ -1,9 +1,0 @@
-{
-  "name": "chatesv",
-  "version": "1.0.0",
-  "description": "Chat ESV Monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ]
-}
