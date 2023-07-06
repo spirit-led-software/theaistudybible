@@ -1,0 +1,9 @@
+{
+  "name": "chatesv",
+  "version": "1.0.0",
+  "description": "ChatESV MonoRepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
