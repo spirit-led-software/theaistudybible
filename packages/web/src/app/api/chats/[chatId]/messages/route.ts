@@ -1,4 +1,6 @@
-import { prisma } from "@server/database";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { getChat } from "@services/chat";
+import { getUserMessages } from "@services/user-message";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -8,38 +10,55 @@ export async function GET(
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "25");
+  const orderBy = searchParams.get("orderBy") ?? "createdAt";
+  const order = searchParams.get("order") ?? "desc";
 
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: params.chatId,
-    },
-  });
+  try {
+    const chat = await getChat(params.chatId, {
+      throwOnNotFound: true,
+    });
 
-  if (!chat) {
+    const messages = await getUserMessages({
+      query: {
+        chatId: chat!.id,
+      },
+      orderBy: {
+        [orderBy]: order,
+      },
+      offset: (page - 1) * limit,
+      limit,
+    });
+
     return new NextResponse(
       JSON.stringify({
-        error: `Chat with ID ${params.chatId} not found`,
+        entities: messages,
+        page,
+        perPage: limit,
       }),
       {
-        status: 404,
+        status: 200,
+      }
+    );
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return new NextResponse(
+          JSON.stringify({
+            error,
+          }),
+          {
+            status: 404,
+          }
+        );
+      }
+    }
+    return new NextResponse(
+      JSON.stringify({
+        error,
+      }),
+      {
+        status: 500,
       }
     );
   }
-
-  const messages = await prisma.chatMessage.findMany({
-    where: {
-      chatId: chat.id,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    skip: (page - 1) * limit,
-    take: limit,
-  });
-
-  return NextResponse.json({
-    entities: messages,
-    page,
-    perPage: limit,
-  });
 }

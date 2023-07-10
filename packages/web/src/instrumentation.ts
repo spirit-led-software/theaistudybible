@@ -1,23 +1,25 @@
-import * as vectorDb from "@server/vector-db";
+import * as vectorDb from "@/services/vector-db";
+import { generateDevotion } from "@services/devotion";
 import { CronJob } from "cron";
-import { websiteConfig } from "./configs";
 
 export async function register() {
   console.log("Initializing instrumentation");
 
   await vectorDb.initializeCollection();
 
-  new CronJob("0 10 * * * *", async () => {
-    const response = await fetch(`${websiteConfig.url}/api/devos`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (response.status !== 200) {
-      console.error("Failed to create devo");
-    }
-  });
+  const createDevoCron = new CronJob(
+    "0 10 * * * *",
+    () => {
+      generateDevotion().catch((err) => {
+        console.error("Failed to create devo", err);
+      });
+    },
+    () => console.log("Create devo cron job completed"),
+    false,
+    "America/New_York"
+  );
+
+  createDevoCron.start();
 
   console.log("Instrumentation initialized");
 }

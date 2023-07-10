@@ -1,3 +1,4 @@
+export { default as axios } from "./axios";
 export { default as envConfig } from "./env";
 export { default as llmConfig } from "./llm";
 export { default as unstructuredConfig } from "./unstructured";

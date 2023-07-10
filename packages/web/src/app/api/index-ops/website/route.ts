@@ -1,7 +1,7 @@
-import axios from "@client/axios";
+import { prisma } from "@/services/database";
+import { getVectorStore } from "@/services/vector-db";
+import axios from "@configs/axios";
 import { websiteConfig } from "@configs/index";
-import { prisma } from "@server/database";
-import { getVectorStore } from "@server/vector-db";
 import { XMLParser } from "fast-xml-parser";
 import {
   Page,

@@ -1,97 +1,102 @@
-import { prisma } from "@server/database";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { getChat } from "@services/chat";
+import { deleteUserMessage, getUserMessage } from "@services/user-message";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { chatId: string; messageId: string } }
 ): Promise<NextResponse> {
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: params.chatId,
-    },
-  });
+  try {
+    const chat = await getChat(params.chatId, {
+      throwOnNotFound: true,
+    });
 
-  if (!chat) {
-    return new NextResponse(
-      JSON.stringify({
-        error: `Chat with ID ${params.chatId} not found`,
-      }),
-      {
-        status: 404,
-      }
-    );
-  }
-
-  const message = await prisma.chatMessage.findUnique({
-    where: {
-      id: params.messageId,
-    },
-    include: {
-      sourceDocuments: {
-        include: {
-          sourceDocument: true,
+    const message = await getUserMessage(params.messageId, {
+      include: {
+        aiResponses: {
+          include: {
+            sourceDocuments: {
+              include: {
+                sourceDocument: true,
+              },
+            },
+          },
         },
       },
-    },
-  });
+      throwOnNotFound: true,
+    });
 
-  if (!message) {
+    return new NextResponse(JSON.stringify(message), {
+      status: 200,
+    });
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return new NextResponse(
+          JSON.stringify({
+            error,
+          }),
+          {
+            status: 404,
+          }
+        );
+      }
+    }
     return new NextResponse(
       JSON.stringify({
-        error: `Message with ID ${params.messageId} not found`,
+        error,
       }),
       {
-        status: 404,
+        status: 500,
       }
     );
   }
-
-  return NextResponse.json(message);
 }
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { chatId: string; messageId: string } }
 ): Promise<NextResponse> {
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: params.chatId,
-    },
-  });
+  try {
+    const chat = await getChat(params.chatId, {
+      throwOnNotFound: true,
+    });
 
-  if (!chat) {
+    const message = await getUserMessage(params.messageId, {
+      throwOnNotFound: true,
+    });
+
+    await deleteUserMessage(params.messageId);
+
     return new NextResponse(
       JSON.stringify({
-        error: `Chat with ID ${params.chatId} not found`,
+        message: `Message deleted`,
       }),
       {
-        status: 404,
+        status: 200,
+      }
+    );
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return new NextResponse(
+          JSON.stringify({
+            error,
+          }),
+          {
+            status: 404,
+          }
+        );
+      }
+    }
+    return new NextResponse(
+      JSON.stringify({
+        error,
+      }),
+      {
+        status: 500,
       }
     );
   }
-
-  const message = await prisma.chatMessage.findUnique({
-    where: {
-      id: params.messageId,
-    },
-  });
-
-  if (!message) {
-    return new NextResponse(
-      JSON.stringify({
-        error: `Message with ID ${params.messageId} not found`,
-      }),
-      {
-        status: 404,
-      }
-    );
-  }
-
-  await prisma.chatMessage.delete({
-    where: {
-      id: params.messageId,
-    },
-  });
-
-  return NextResponse.json(message);
 }

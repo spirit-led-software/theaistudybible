@@ -1,7 +1,6 @@
-import { prisma } from "@server/database";
-import { chatModel, model } from "@server/llm";
-import { getVectorStore } from "@server/vector-db";
-import { Chat } from "@types";
+import { prisma } from "@/services/database";
+import { chatModel, model } from "@/services/llm";
+import { getVectorStore } from "@/services/vector-db";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
@@ -12,15 +11,13 @@ import {
   HumanChatMessage,
   SystemChatMessage,
 } from "langchain/schema";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<Response> {
   const data = await request.json();
 
-  const { messages = [], chatId }: { messages: Message[]; chatId: string } =
-    data;
+  const { messages, chatId }: { messages: Message[]; chatId: string } = data;
 
-  let chat: Chat;
   if (!chatId) {
     return new Response(
       JSON.stringify({
@@ -30,23 +27,21 @@ export async function POST(request: NextRequest): Promise<Response> {
         status: 400,
       }
     );
-  } else {
-    const foundChat = await prisma.chat.findUnique({
-      where: {
-        id: chatId,
-      },
-    });
-    if (!foundChat) {
-      return new Response(
-        JSON.stringify({
-          error: `Chat with ID ${chatId} not found.`,
-        }),
-        {
-          status: 404,
-        }
-      );
-    }
-    chat = foundChat;
+  }
+  const chat = await prisma.chat.findUnique({
+    where: {
+      id: chatId,
+    },
+  });
+  if (!chat) {
+    return new Response(
+      JSON.stringify({
+        error: `Chat with ID ${chatId} not found.`,
+      }),
+      {
+        status: 404,
+      }
+    );
   }
 
   if (chat.name === "New Chat") {
@@ -62,9 +57,21 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const lastMessage = messages[messages.length - 1];
 
-  await prisma.chatMessage.create({
+  if (!lastMessage || lastMessage.role !== "user") {
+    return new NextResponse(
+      JSON.stringify({
+        error: `No message provided.`,
+      }),
+      {
+        status: 400,
+      }
+    );
+  }
+
+  const userMessage = await prisma.userMessage.create({
     data: {
-      type: "user",
+      aiId: lastMessage.id,
+      createdAt: lastMessage.createdAt,
       text: lastMessage.content,
       chatId: chat.id,
     },
@@ -92,7 +99,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   });
   const chain = ConversationalRetrievalQAChain.fromLLM(
     chatModel,
-    vectorStore.asRetriever(3),
+    vectorStore.asRetriever(),
     {
       returnSourceDocuments: true,
       memory,
@@ -112,11 +119,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       CallbackManager.fromHandlers(handlers)
     )
     .then(async (result) => {
-      await prisma.chatMessage.create({
+      await prisma.aiResponse.create({
         data: {
-          type: "bot",
           text: result.text,
-          chatId: chatId,
+          chatId: chat.id,
+          userMessageId: userMessage.id,
           sourceDocuments: {
             create: result.sourceDocuments.map((doc: any) => ({
               sourceDocument: {
@@ -139,5 +146,5 @@ export async function POST(request: NextRequest): Promise<Response> {
       console.error(`${err.stack}`);
     });
 
-  return new StreamingTextResponse(stream, {});
+  return new StreamingTextResponse(stream);
 }

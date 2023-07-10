@@ -1,31 +1,44 @@
-import { prisma } from "@server/database";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { deleteChat, getChat } from "@services/chat";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { chatId: string } }
 ): Promise<NextResponse> {
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: params.chatId,
-    },
-    include: {
-      messages: true,
-    },
-  });
-
-  if (!chat) {
+  try {
+    const chat = await getChat(params.chatId, {
+      include: {
+        userMessages: true,
+        aiResponses: true,
+      },
+      throwOnNotFound: true,
+    });
+    return new NextResponse(JSON.stringify(chat), {
+      status: 200,
+    });
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return new NextResponse(
+          JSON.stringify({
+            error,
+          }),
+          {
+            status: 404,
+          }
+        );
+      }
+    }
     return new NextResponse(
       JSON.stringify({
-        error: `Chat with ID ${params.chatId} not found`,
+        error,
       }),
       {
-        status: 404,
+        status: 500,
       }
     );
   }
-
-  return NextResponse.json(chat);
 }
 
 export async function DELETE(
@@ -36,30 +49,31 @@ export async function DELETE(
     params: { chatId: string };
   }
 ): Promise<NextResponse> {
-  const chat = await prisma.chat.findUnique({
-    where: {
-      id: params.chatId,
-    },
-  });
-
-  if (!chat) {
+  try {
+    await deleteChat(params.chatId);
+    return new NextResponse(JSON.stringify({ message: "Chat deleted" }), {
+      status: 200,
+    });
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return new NextResponse(
+          JSON.stringify({
+            error,
+          }),
+          {
+            status: 404,
+          }
+        );
+      }
+    }
     return new NextResponse(
       JSON.stringify({
-        error: `Chat with ID ${params.chatId} not found`,
+        error,
       }),
       {
-        status: 404,
+        status: 500,
       }
     );
   }
-
-  await prisma.chat.delete({
-    where: {
-      id: chat.id,
-    },
-  });
-
-  return new NextResponse(JSON.stringify({ message: "Deleted" }), {
-    status: 200,
-  });
 }

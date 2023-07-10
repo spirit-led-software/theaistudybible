@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,68 +8,80 @@ datasource db {
 }
 
 model Chat {
-  id        String        @id @default(uuid())
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  name      String
-  messages  ChatMessage[]
+  id           String        @id @default(uuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  name         String
+  userMessages UserMessage[]
+  aiResponses  AiResponse[]
 
   @@index([name])
 }
 
-model ChatMessage {
-  id              String                          @id @default(uuid())
-  createdAt       DateTime                        @default(now())
-  updatedAt       DateTime                        @updatedAt
-  type            ChatMessageType
-  text            String
-  chat            Chat                            @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chatId          String
-  sourceDocuments ChatMessagesOnSourceDocuments[]
+model UserMessage {
+  id          String       @id @default(uuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  aiId        String?
+  text        String
+  chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId      String
+  aiResponses AiResponse[]
+
+  @@index([aiId, text])
 }
 
-enum ChatMessageType {
-  user
-  bot
+model AiResponse {
+  id              String                         @id @default(uuid())
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+  text            String
+  failed          Boolean                        @default(false)
+  regenerated     Boolean                        @default(false)
+  sourceDocuments AiResponsesOnSourceDocuments[]
+  userMessage     UserMessage?                   @relation(fields: [userMessageId], references: [id], onDelete: Cascade)
+  userMessageId   String?
+  chat            Chat?                          @relation(fields: [chatId], references: [id])
+  chatId          String?
 }
 
 model SourceDocument {
-  id        String                          @id @default(uuid())
-  createdAt DateTime                        @default(now())
-  updatedAt DateTime                        @updatedAt
-  text      String                          @unique
-  metadata  Json
-  messages  ChatMessagesOnSourceDocuments[]
-  devos     DevosOnSourceDocuments[]
+  id          String                         @id @default(uuid())
+  createdAt   DateTime                       @default(now())
+  updatedAt   DateTime                       @updatedAt
+  text        String                         @unique
+  metadata    Json                           @default("{}")
+  devotions   DevotionsOnSourceDocuments[]
+  aiResponses AiResponsesOnSourceDocuments[]
 
   @@index([text, metadata])
 }
 
-model ChatMessagesOnSourceDocuments {
-  message          ChatMessage    @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  messageId        String
+model AiResponsesOnSourceDocuments {
+  aiResponse       AiResponse     @relation(fields: [aiResponseId], references: [id], onDelete: Cascade)
+  aiResponseId     String
   sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
   sourceDocumentId String
 
-  @@id([messageId, sourceDocumentId])
+  @@id([aiResponseId, sourceDocumentId])
 }
 
-model Devo {
-  id              String                   @id @default(uuid())
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+model Devotion {
+  id              String                       @id @default(uuid())
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
   subject         String
   content         String
-  sourceDocuments DevosOnSourceDocuments[]
+  sourceDocuments DevotionsOnSourceDocuments[]
 }
 
-model DevosOnSourceDocuments {
-  devo             Devo           @relation(fields: [devoId], references: [id], onDelete: Cascade)
-  devoId           String
+model DevotionsOnSourceDocuments {
+  devotion         Devotion       @relation(fields: [devotionId], references: [id], onDelete: Cascade)
+  devotionId       String
   sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
   sourceDocumentId String
 
-  @@id([devoId, sourceDocumentId])
+  @@id([devotionId, sourceDocumentId])
 }
 
 model IndexOperation {

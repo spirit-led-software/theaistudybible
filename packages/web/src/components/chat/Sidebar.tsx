@@ -1,23 +1,18 @@
 "use client";
 
-import { Chat } from "@types";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
+import { LightSolidLineSpinner } from "..";
+import { useChats } from "../../hooks/chats";
 
-export function Sidebar({
-  activeChatId,
-  initialChats,
-}: {
-  activeChatId: string;
-  initialChats: Chat[];
-}) {
+export function Sidebar({ activeChatId }: { activeChatId?: string }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
-  const [chats, setChats] = useState<Chat[]>(initialChats);
+  const { chats, mutate, isLoading, error } = useChats();
 
   const createChat = async () => {
     const response = await fetch("/api/chats", {
@@ -31,9 +26,8 @@ export function Sidebar({
     });
     const data = await response.json();
     const { chat } = data;
-    setChats([chat, ...chats]);
     router.push(`/chat/${chat.id}`);
-    router.refresh();
+    mutate([...chats!, chat]);
   };
 
   const deleteChat = (id: string) => {
@@ -41,11 +35,19 @@ export function Sidebar({
       fetch(`/api/chats/${id}`, {
         method: "DELETE",
       });
-      setChats(chats.filter((chat) => chat.id !== id));
-      router.push(`/chat`);
-      router.refresh();
+      setTimeout(() => {
+        mutate(chats!.filter((chat) => chat.id !== id));
+        if (activeChatId === id) {
+          router.push("/chat");
+          mutate();
+        }
+      }, 1000);
     }
   };
+
+  if (error) {
+    throw error;
+  }
 
   return (
     <div
@@ -74,20 +76,20 @@ export function Sidebar({
           >
             <BsPlus className="text-xl" />
           </div>
-          {chats.map((chat) => (
+          {isLoading && (
+            <div className="flex justify-center w-full mt-10 place-items-center">
+              <LightSolidLineSpinner size="md" />
+            </div>
+          )}
+          {chats?.map((chat) => (
             <div
               key={chat.id}
               className={`flex place-items-center p-2 rounded-lg mb-2 hover:bg-slate-900 ${
                 activeChatId === chat.id ? "bg-slate-800" : ""
               }`}
             >
-              <Link
-                href={`/chat/${chat.id}`}
-                className="flex flex-col w-5/6 overflow-x-clip"
-              >
-                <div className="text-white whitespace-nowrap overflow-ellipsis">
-                  {chat.name}
-                </div>
+              <Link href={`/chat/${chat.id}`} className="flex flex-col w-5/6">
+                <div className="text-white truncate">{chat.name}</div>
                 <div className="text-sm text-gray-400">
                   {Moment(chat.createdAt).format("M/D/YYYY h:mma")}
                 </div>

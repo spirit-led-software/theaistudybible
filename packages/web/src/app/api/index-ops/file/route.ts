@@ -1,6 +1,6 @@
+import { prisma } from "@/services/database";
+import { getVectorStore } from "@/services/vector-db";
 import { unstructuredConfig, websiteConfig } from "@configs/index";
-import { prisma } from "@server/database";
-import { getVectorStore } from "@server/vector-db";
 import { mkdtempSync, writeFileSync } from "fs";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
 import { TokenTextSplitter } from "langchain/text_splitter";

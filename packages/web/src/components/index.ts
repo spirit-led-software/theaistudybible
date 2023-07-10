@@ -7,4 +7,4 @@ export {
   Window as ChatWindow,
 } from "./chat";
 export { Sidebar as DevosSidebar } from "./devo";
-export { SolidLineSpinner } from "./loading";
+export * from "./loading";

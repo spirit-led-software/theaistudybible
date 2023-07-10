@@ -1,7 +1,11 @@
-export default function ChatRedirectPageLayout({
+export default function ChatPageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <div className="flex flex-1 h-full max-w-full overflow-hidden">
+      {children}
+    </div>
+  );
 }

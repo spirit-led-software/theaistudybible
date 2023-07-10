@@ -1,1 +1,4 @@
-export { SolidLine as SolidLineSpinner } from "./spinner";
+export {
+  LightSolidLine as LightSolidLineSpinner,
+  SolidLine as SolidLineSpinner,
+} from "./spinner";

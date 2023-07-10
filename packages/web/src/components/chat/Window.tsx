@@ -1,65 +1,68 @@
 "use client";
 
 import { Message as ChatMessage, useChat } from "ai/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
+import { useChats } from "../../hooks";
 import { Message } from "./Message";
 
 export function Window({
-  chatId,
+  initChatId,
   initialMessages,
 }: {
-  chatId: string;
-  initialMessages: ChatMessage[];
+  initChatId?: string;
+  initialMessages?: ChatMessage[];
 }) {
-  const router = useRouter();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const [showScrollToBottomButton, setShowScrollToBottomButton] =
     useState<boolean>(false);
-  const {
-    isLoading,
-    handleSubmit,
-    handleInputChange,
-    input,
-    messages,
-    setMessages,
-    error,
-  } = useChat({
-    api: "/api/chat",
-    body: {
-      chatId,
-    },
-    initialMessages,
-    onFinish() {
-      fetch(`/api/chats/${chatId}/messages`, {
-        method: "GET",
+  const [chatId, setChatId] = useState<string | null>(initChatId ?? null);
+  const { mutate } = useChats();
+
+  const { isLoading, handleSubmit, handleInputChange, input, messages, error } =
+    useChat({
+      api: "/api/chat",
+      initialMessages,
+      sendExtraMessageFields: true,
+      onFinish(message: ChatMessage) {
+        mutate();
+      },
+    });
+
+  const handleSubmitCustom = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+    let submitChatId = chatId;
+    if (!submitChatId) {
+      const chat = await fetch("/api/chats", {
+        method: "POST",
+        body: JSON.stringify({
+          name: "New Chat",
+        }),
       })
         .then(async (response) => {
           const data = await response.json();
-          const retrievedMessages = data.entities;
-          setMessages(
-            retrievedMessages
-              .map((message: any) => ({
-                id: message.id,
-                content: message.text,
-                role: message.type !== "user" ? "assistant" : message.type,
-              }))
-              .reverse()
-          );
+          return data.chat;
         })
         .catch((error) => {
           console.error(error);
         });
-
-      if (messages.length <= 3) {
-        router.refresh();
-      }
-    },
-  });
+      submitChatId = chat.id;
+      setChatId(chat.id);
+      mutate();
+    }
+    handleSubmit(event, {
+      options: {
+        body: {
+          chatId: submitChatId,
+        },
+      },
+    });
+  };
 
   useEffect(() => {
     if (inputRef.current) {
@@ -118,7 +121,7 @@ export function Window({
           {messages.map((message) => (
             <Message
               key={message.id}
-              chatId={chatId}
+              chatId={initChatId!}
               id={message.id}
               text={message.content}
               sender={message.role}
@@ -142,7 +145,7 @@ export function Window({
         <IoIosArrowDown className="text-2xl" />
       </button>
       <div className="absolute z-50 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmitCustom}>
           <div className="flex items-center w-full mr-1">
             <IoIosArrowForward className="ml-2 text-2xl" />
             <TextAreaAutosize

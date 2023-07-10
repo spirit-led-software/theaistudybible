@@ -1,6 +1,6 @@
 "use client";
 
-import { SourceDocument } from "@types";
+import { SourceDocument } from "@prisma/client";
 import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import { TbCross } from "react-icons/tb";
@@ -34,7 +34,9 @@ export function Message({
       setSources(
         sourceDocuments.filter((doc, index) => {
           const firstIndex = sourceDocuments.findIndex(
-            (d) => d.metadata.source === doc.metadata.source
+            (d) =>
+              JSON.parse(d.metadata!.toLocaleString()).source ===
+              JSON.parse(doc.metadata!.toLocaleString()).source
           );
           return firstIndex === index;
         })
@@ -81,7 +83,7 @@ export function Message({
               >
                 {sources.map((sourceDoc) => (
                   <li key={sourceDoc.id} className={`text-xs text-gray-400`}>
-                    {sourceDoc.metadata.source}
+                    {JSON.parse(sourceDoc.metadata!.toLocaleString()).source}
                   </li>
                 ))}
               </ul>

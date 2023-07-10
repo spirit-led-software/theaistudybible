@@ -1,33 +1,49 @@
-import { Window } from "@components/chat";
-import { prisma } from "@server/database";
+import { prisma } from "@/services/database";
+import { Sidebar, Window } from "@components/chat";
 import { Message } from "ai/react";
 
 async function getMessages(chatId: string) {
-  const messages = await prisma.chatMessage.findMany({
+  const userMessages = await prisma.userMessage.findMany({
     where: {
       chatId,
     },
-    orderBy: {
-      createdAt: "asc",
+    include: {
+      aiResponses: true,
     },
   });
+
+  const messages: Message[] = userMessages
+    .map((userMessage) => {
+      const message: Message = {
+        id: userMessage.id,
+        content: userMessage.text,
+        role: "user",
+      };
+      const aiResponses: Message[] = userMessage.aiResponses.map(
+        (aiResponse) => ({
+          id: aiResponse.id,
+          content: aiResponse.text,
+          role: "assistant",
+        })
+      );
+      return [message, ...aiResponses];
+    })
+    .flat();
+
   return messages;
 }
 
-export default async function ChatPage({ params }: { params: { id: string } }) {
+export default async function SpecificChatPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const messages = await getMessages(params.id);
+
   return (
     <>
-      <Window
-        chatId={params.id}
-        initialMessages={messages.map(
-          (message): Message => ({
-            id: message.id,
-            content: message.text,
-            role: message.type !== "user" ? "assistant" : message.type,
-          })
-        )}
-      />
+      <Sidebar activeChatId={params.id} />
+      <Window initChatId={params.id} initialMessages={messages} />
     </>
   );
 }
