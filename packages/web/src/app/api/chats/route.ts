@@ -1,7 +1,13 @@
-import { websiteConfig } from "@configs";
-import { Prisma } from "@prisma/client";
-import { PrismaClientValidationError } from "@prisma/client/runtime";
+import {
+  BadRequestResponse,
+  CreatedResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
+import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { createChat, getChats } from "@services/chat";
+import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -12,7 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const chats = await getChats({
+    let chats = await getChats({
       orderBy: {
         [orderBy]: order,
       },
@@ -20,53 +26,46 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       limit,
     });
 
-    return NextResponse.json({
+    const { isValid, user } = await validServerSession();
+    if (!isValid) {
+      return UnauthorizedResponse("You are not logged in.");
+    }
+
+    chats = chats.filter(async (chat) => {
+      return isAdmin(user) || isObjectOwner(chat, user);
+    });
+
+    return OkResponse({
       entities: chats,
       page,
       perPage: limit,
     });
-  } catch (error) {
-    return new NextResponse(
-      JSON.stringify({
-        error,
-      }),
-      {
-        status: 500,
-      }
-    );
+  } catch (error: any) {
+    return InternalServerErrorResponse(error.stack);
   }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
   try {
-    const chat = await createChat(
-      Prisma.validator<Prisma.ChatCreateInput>()(data)
-    );
-    return new NextResponse(
-      JSON.stringify({ chat, link: `${websiteConfig.url}/chats/${chat.id}` }),
-      {
-        status: 201,
-      }
-    );
-  } catch (error) {
-    if (error instanceof PrismaClientValidationError) {
-      return new NextResponse(
-        JSON.stringify({
-          error,
-        }),
-        {
-          status: 400,
-        }
-      );
+    const { isValid, user } = await validServerSession();
+    if (!isValid) {
+      return UnauthorizedResponse("You must be logged in");
     }
-    return new NextResponse(
-      JSON.stringify({
-        error,
-      }),
-      {
-        status: 500,
-      }
-    );
+    const chat = await createChat({
+      ...data,
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    });
+    return CreatedResponse(chat);
+  } catch (error: any) {
+    console.error(error);
+    if (error instanceof PrismaClientValidationError) {
+      return BadRequestResponse(error.message);
+    }
+    return InternalServerErrorResponse(error.stack);
   }
 }

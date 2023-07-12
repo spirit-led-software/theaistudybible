@@ -11,9 +11,7 @@ type GetUserMessagesOptions = {
   include?: Prisma.UserMessageInclude;
 };
 
-export async function getUserMessages(
-  options?: GetUserMessagesOptions
-): Promise<UserMessage[]> {
+export async function getUserMessages(options?: GetUserMessagesOptions) {
   const {
     query,
     limit = 25,
@@ -43,7 +41,7 @@ type GetUserMessageOptions = {
 export async function getUserMessage(
   id: string,
   options?: GetUserMessageOptions
-): Promise<UserMessage | null> {
+) {
   const {
     include = {
       chat: true,
@@ -70,9 +68,7 @@ export async function getUserMessage(
   return userMessage;
 }
 
-export async function createUserMessage(
-  data: Prisma.UserMessageCreateInput
-): Promise<UserMessage> {
+export async function createUserMessage(data: Prisma.UserMessageCreateInput) {
   const userMessage = await prisma.userMessage.create({
     data,
   });
@@ -83,7 +79,7 @@ export async function createUserMessage(
 export async function updateUserMessage(
   id: string,
   data: Prisma.UserMessageUpdateInput
-): Promise<UserMessage> {
+) {
   const userMessage = await prisma.userMessage.update({
     where: {
       id,
@@ -94,7 +90,7 @@ export async function updateUserMessage(
   return userMessage;
 }
 
-export async function deleteUserMessage(id: string): Promise<void> {
+export async function deleteUserMessage(id: string) {
   const userMessage = await prisma.userMessage.findUniqueOrThrow({
     where: {
       id,

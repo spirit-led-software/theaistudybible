@@ -1,18 +1,24 @@
 "use client";
 
+import { useChats } from "@hooks/chat";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
 import { LightSolidLineSpinner } from "..";
-import { useChats } from "../../hooks/chats";
 
-export function Sidebar({ activeChatId }: { activeChatId?: string }) {
+export function Sidebar({
+  activeChatId,
+  isOpen,
+  setIsOpen,
+}: {
+  activeChatId?: string;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(true);
-  const { chats, mutate, isLoading, error } = useChats();
+  const { chats, mutate, isLoading, isValidating, error } = useChats();
 
   const createChat = async () => {
     const response = await fetch("/api/chats", {
@@ -26,7 +32,6 @@ export function Sidebar({ activeChatId }: { activeChatId?: string }) {
     });
     const data = await response.json();
     const { chat } = data;
-    router.push(`/chat/${chat.id}`);
     mutate([...chats!, chat]);
   };
 
@@ -39,7 +44,6 @@ export function Sidebar({ activeChatId }: { activeChatId?: string }) {
         mutate(chats!.filter((chat) => chat.id !== id));
         if (activeChatId === id) {
           router.push("/chat");
-          mutate();
         }
       }, 1000);
     }
@@ -51,57 +55,61 @@ export function Sidebar({ activeChatId }: { activeChatId?: string }) {
 
   return (
     <div
-      className={`h-full max-h-full grow-0 bg-slate-700 border-t-2 relative duration-300 ${
-        isOpen ? "w-52" : "w-0"
+      className={`h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/3 ${
+        isOpen ? "w-full" : "w-0"
       }`}
     >
       <div
-        className={`absolute p-1 top-2 rounded-full border border-slate-400 shadow-lg bg-white cursor-pointer duration-300 z-50 ${
-          !isOpen ? "rotate-180 -right-10 opacity-70" : "-right-3.5"
+        className={`absolute p-1 top-2 rounded-full border border-slate-400 shadow-lg bg-white cursor-pointer duration-300 z-40 lg:hidden ${
+          !isOpen ? "rotate-180 -right-10 opacity-70" : "right-2"
         }`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <BsArrowLeftShort className="text-xl text-slate-700" />
       </div>
       <div
-        className={`h-full w-full overflow-y-scroll pt-4 px-3 text-white duration-300 ${
-          isOpen ? "scale-100" : "scale-0"
+        className={`h-full w-full overflow-y-scroll pt-4 px-3 text-white lg:px-6 lg:visible ${
+          isOpen ? "visible" : "invisible"
         }`}
       >
-        <h1 className="text-2xl">History</h1>
-        <div className="flex flex-col">
-          <div
-            className="flex justify-center py-2 my-2 border rounded-lg cursor-pointer hover:bg-slate-900"
-            onClick={() => createChat()}
-          >
-            <BsPlus className="text-xl" />
+        <h1 className="px-2 text-2xl">Chat History</h1>
+        <div className="flex flex-col content-center">
+          <div className="flex justify-center w-full">
+            <div
+              className="flex items-center justify-center w-full py-2 my-2 border rounded-lg cursor-pointer hover:bg-slate-900"
+              onClick={() => createChat()}
+            >
+              New chat
+              <BsPlus className="text-xl" />
+            </div>
           </div>
-          {isLoading && (
+          {isLoading || isValidating ? (
             <div className="flex justify-center w-full mt-10 place-items-center">
               <LightSolidLineSpinner size="md" />
             </div>
-          )}
-          {chats?.map((chat) => (
-            <div
-              key={chat.id}
-              className={`flex place-items-center p-2 rounded-lg mb-2 hover:bg-slate-900 ${
-                activeChatId === chat.id ? "bg-slate-800" : ""
-              }`}
-            >
-              <Link href={`/chat/${chat.id}`} className="flex flex-col w-5/6">
-                <div className="text-white truncate">{chat.name}</div>
-                <div className="text-sm text-gray-400">
-                  {Moment(chat.createdAt).format("M/D/YYYY h:mma")}
+          ) : (
+            chats?.map((chat) => (
+              <div
+                key={chat.id}
+                className={`flex place-items-center p-2 rounded-lg mb-2 hover:bg-slate-900 ${
+                  activeChatId === chat.id ? "bg-slate-800" : ""
+                }`}
+              >
+                <Link href={`/chat/${chat.id}`} className="flex flex-col w-5/6">
+                  <div className="text-white truncate">{chat.name}</div>
+                  <div className="text-sm text-gray-400 truncate">
+                    {Moment(chat.createdAt).format("M/D/YYYY h:mma")}
+                  </div>
+                </Link>
+                <div className="flex justify-center flex-1">
+                  <AiOutlineDelete
+                    className="text-lg cursor-pointer hover:text-red-500"
+                    onClick={() => deleteChat(chat.id)}
+                  />
                 </div>
-              </Link>
-              <div className="flex justify-center flex-1">
-                <AiOutlineDelete
-                  className="text-lg cursor-pointer hover:text-red-500"
-                  onClick={() => deleteChat(chat.id)}
-                />
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

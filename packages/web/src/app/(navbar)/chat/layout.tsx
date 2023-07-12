@@ -3,9 +3,5 @@ export default function ChatPageLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex flex-1 h-full max-w-full overflow-hidden">
-      {children}
-    </div>
-  );
+  return <div className="flex h-full overflow-hidden">{children}</div>;
 }

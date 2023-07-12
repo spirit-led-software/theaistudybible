@@ -6,5 +6,5 @@ export {
   Sidebar as ChatSidebar,
   Window as ChatWindow,
 } from "./chat";
-export { Sidebar as DevosSidebar } from "./devo";
+export { Sidebar as DevotionsSidebar } from "./devotion";
 export * from "./loading";

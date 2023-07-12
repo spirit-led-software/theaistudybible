@@ -1,12 +1,8 @@
 # dependencies
 node_modules
 
-# sst
-.sst
-.build
-
-# opennext
-.open-next
+# turborepo
+.turbo
 
 # misc
 .DS_Store

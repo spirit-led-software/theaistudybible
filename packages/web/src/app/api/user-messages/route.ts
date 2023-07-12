@@ -1,6 +1,11 @@
-import { prisma } from "@/services/database";
-import { websiteConfig } from "@configs/index";
-import { UserMessage } from "@prisma/client";
+import {
+  CreatedResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
+import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
+import { createUserMessage, getUserMessages } from "@services/user-message";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -9,52 +14,61 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const page = parseInt(searchParams.get("page") ?? "1");
   const orderBy = searchParams.get("orderBy") ?? "createdAt";
   const order = searchParams.get("order") ?? "desc";
+  const chatId = searchParams.get("chatId");
 
-  const messages = await prisma.userMessage.findMany({
-    orderBy: {
-      [orderBy]: order,
-    },
-    take: limit,
-    skip: (page - 1) * limit,
-  });
+  try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid) {
+      return UnauthorizedResponse("You must be logged in.");
+    }
 
-  return new NextResponse(
-    JSON.stringify({
+    let messages = await getUserMessages({
+      query: {
+        chatId: chatId ?? undefined,
+      },
+      limit,
+      offset: (page - 1) * limit,
+      orderBy: {
+        [orderBy]: order,
+      },
+    });
+
+    messages = messages.filter((message) => {
+      return isAdmin(user) || isObjectOwner(message, user);
+    });
+
+    return OkResponse({
       entities: messages,
       page,
       perPage: limit,
-    }),
-    {
-      status: 200,
-    }
-  );
+    });
+  } catch (error: any) {
+    console.error(error);
+    return InternalServerErrorResponse(error.stack);
+  }
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
-  let message: UserMessage;
-  try {
-    message = await prisma.userMessage.create({
-      data,
-    });
-  } catch (error) {
-    return new NextResponse(
-      JSON.stringify({
-        error,
-      }),
-      {
-        status: 400,
-      }
-    );
-  }
 
-  return new NextResponse(
-    JSON.stringify({
-      message,
-      link: `${websiteConfig.url}/api/user-messages/${message.id}`,
-    }),
-    {
-      status: 201,
+  try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid) {
+      return UnauthorizedResponse("You must be logged in.");
     }
-  );
+
+    const message = await createUserMessage({
+      ...data,
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    });
+
+    return CreatedResponse(message);
+  } catch (error: any) {
+    console.error(error);
+    return InternalServerErrorResponse(error.stack);
+  }
 }

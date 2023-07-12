@@ -1,22 +1,40 @@
-import { prisma } from "@/services/database";
+import {
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
+import { getIndexOperations } from "@services/index-op";
+import { isAdmin, validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") ?? "1");
   const limit = parseInt(searchParams.get("limit") ?? "25");
+  const orderBy = searchParams.get("orderBy") ?? "createdAt";
+  const order = searchParams.get("order") ?? "desc";
 
-  const indexOps = await prisma.indexOperation.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    skip: (page - 1) * limit,
-    take: limit,
-  });
+  try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid || isAdmin(user)) {
+      return UnauthorizedResponse();
+    }
 
-  return NextResponse.json({
-    entities: indexOps,
-    page,
-    perPage: limit,
-  });
+    const indexOps = await getIndexOperations({
+      offset: (page - 1) * limit,
+      limit,
+      orderBy: {
+        [orderBy]: order,
+      },
+    });
+
+    return OkResponse({
+      entities: indexOps,
+      page,
+      perPage: limit,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return InternalServerErrorResponse(error.stack);
+  }
 }

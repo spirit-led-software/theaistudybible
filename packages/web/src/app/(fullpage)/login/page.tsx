@@ -1,119 +1,62 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useUser } from "@hooks/user";
+import { signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React from "react";
+import { FaFacebookF } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const showPasswordRef = useRef<HTMLButtonElement>(null);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [invalidCredentials, setInvalidCredentials] = useState<boolean>(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [loginError, setLoginError] = useState<string | null>(null);
+  const user = useUser();
+  const emailInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleShowPassword = () => {
-    if (passwordRef.current?.type === 'password') {
-      passwordRef.current.type = 'text';
-      setShowPassword(true);
-    } else {
-      passwordRef.current!.type = 'password';
-      setShowPassword(false);
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-  };
-
-  const clearErrors = () => {
-    setFieldErrors({});
-    setInvalidCredentials(false);
-  };
-
-  useEffect(() => {
-    emailRef.current?.focus();
-  }, []);
+  if (user) {
+    router.replace(searchParams.get("redirect") ?? "/");
+  }
 
   return (
-    <div className="w-2/3 shadow-lg bg-white py-4 px-2">
-      <h2 className="text-center text-xl">Login</h2>
-      {loginError && (
-        <div className="bg-red-400 text-white text-sm text-center px-2 py-1 rounded-lg">
-          Oops! An error occurred signing in: {loginError}. Please try again
-          later.
-        </div>
-      )}
-      {invalidCredentials && (
-        <div className="text-red-500 text-sm text-center">
-          Invalid credentials
-        </div>
-      )}
-      <form className="flex flex-col px-3 space-y-3" onSubmit={handleSubmit}>
-        <label className="flex flex-col">
-          <span className="text-sm">Email</span>
-          <input
-            ref={emailRef}
-            className="border border-gray-300 rounded-md p-1 focus:outline-none"
-            type="email"
-            placeholder="Email"
-            onChange={clearErrors}
-          />
-          {fieldErrors.email && (
-            <div className="text-red-500 text-sm">{fieldErrors.email}</div>
-          )}
-        </label>
-        <label className="flex flex-col">
-          <span className="text-sm">Password</span>
-          <div className="flex w-full rounded-md p-1 border border-gray-300">
-            <input
-              ref={passwordRef}
-              className="w-full focus:outline-none"
-              type="password"
-              placeholder="Password"
-              onChange={clearErrors}
-            />
+    <div className="w-2/3 px-4 py-4 bg-white rounded-md shadow-lg lg:w-1/5">
+      <div className="flex flex-col">
+        <h1 className="mb-2 text-2xl font-bold text-center">Please Log In</h1>
+        <div className="divide-y divide-gray-600">
+          <div className="w-full pb-4 space-y-3">
             <button
-              ref={showPasswordRef}
-              onClick={handleShowPassword}
-              className="border-l pl-1 border-l-slate-300 text-xs"
+              className="w-full px-4 py-2 font-bold bg-white border rounded text-google hover:shadow-xl border-google"
+              onClick={() => signIn("google")}
             >
-              {showPassword ? 'Hide' : 'Show'}
+              <FcGoogle className="inline-block mr-2" />
+              Login with Google
+            </button>
+            <button
+              className="w-full px-4 py-2 font-bold text-white rounded bg-facebook hover:shadow-xl"
+              onClick={() => signIn("facebook")}
+            >
+              <FaFacebookF className="inline-block mr-2 text-white" />
+              Login with Facebook
             </button>
           </div>
-          {fieldErrors.password && (
-            <div className="text-red-500 text-sm">{fieldErrors.password}</div>
-          )}
-        </label>
-        <button
-          className="bg-blue-300 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded"
-          type="submit"
-        >
-          Login
-        </button>
-      </form>
-      <div className="text-center mt-2">OR</div>
-      <div className="flex flex-col p-3 space-y-3">
-        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-          Login with Google
-        </button>
-        <button className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">
-          Login with Facebook
-        </button>
-      </div>
-      <div className="px-3">
-        <p>
-          {"Don't have an account?"}
-          <Link
-            href={'/signup'}
-            className="text-blue-400 hover:text-blue-600 underline"
-          >
-            Signup
-          </Link>
-        </p>
+          <div className="container pt-4 space-y-3">
+            <input
+              className="w-full h-8 px-2 rounded-md outline outline-slate-400"
+              placeholder="Email"
+              ref={emailInputRef}
+            />
+            <button
+              className="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl"
+              onClick={() => {
+                if (!emailInputRef.current?.value) return;
+                signIn("email", {
+                  email: emailInputRef.current?.value ?? "",
+                });
+              }}
+            >
+              Login with Email
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

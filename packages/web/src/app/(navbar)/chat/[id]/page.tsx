@@ -1,10 +1,26 @@
-import { prisma } from "@/services/database";
-import { Sidebar, Window } from "@components/chat";
+import { Window } from "@components/chat";
+import { AiResponse } from "@prisma/client";
+import { getChat } from "@services/chat";
+import { isObjectOwner, validServerSession } from "@services/user";
+import { getUserMessages } from "@services/user-message";
 import { Message } from "ai/react";
+import { notFound, redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 async function getMessages(chatId: string) {
-  const userMessages = await prisma.userMessage.findMany({
-    where: {
+  const chat = await getChat(chatId);
+  if (!chat) {
+    notFound();
+  }
+
+  const { isValid, user } = await validServerSession();
+  if (!isValid || !isObjectOwner(chat, user)) {
+    redirect(`/login?redirect=/chat/${chatId}`);
+  }
+
+  const userMessages = await getUserMessages({
+    query: {
       chatId,
     },
     include: {
@@ -15,20 +31,21 @@ async function getMessages(chatId: string) {
   const messages: Message[] = userMessages
     .map((userMessage) => {
       const message: Message = {
-        id: userMessage.id,
+        id: userMessage.aiId!,
         content: userMessage.text,
         role: "user",
       };
-      const aiResponses: Message[] = userMessage.aiResponses.map(
-        (aiResponse) => ({
-          id: aiResponse.id,
+      const aiResponses: Message[] = (userMessage as any).aiResponses.map(
+        (aiResponse: AiResponse) => ({
+          id: aiResponse.aiId,
           content: aiResponse.text,
           role: "assistant",
         })
       );
-      return [message, ...aiResponses];
+      return [...aiResponses, message];
     })
-    .flat();
+    .flat()
+    .reverse();
 
   return messages;
 }
@@ -40,10 +57,5 @@ export default async function SpecificChatPage({
 }) {
   const messages = await getMessages(params.id);
 
-  return (
-    <>
-      <Sidebar activeChatId={params.id} />
-      <Window initChatId={params.id} initialMessages={messages} />
-    </>
-  );
+  return <Window initChatId={params.id} initialMessages={messages} />;
 }

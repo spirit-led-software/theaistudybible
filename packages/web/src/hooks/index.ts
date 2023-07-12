@@ -1,2 +1,2 @@
-export * from "./user-messages";
-export * from "./chats";
+export * from "./chat";
+export * from "./user-message";

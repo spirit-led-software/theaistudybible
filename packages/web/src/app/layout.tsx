@@ -1,16 +1,36 @@
-import { AuthProvider } from '@components';
-import { Metadata } from 'next';
-import { Kanit } from 'next/font/google';
-import './globals.css';
+import { AuthProvider } from "@components";
+import { Metadata } from "next";
+import { Kanit } from "next/font/google";
+import "./globals.css";
 
 const kanit = Kanit({
-  weight: '300',
-  subsets: ['latin'],
+  weight: "300",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: 'ChatESV',
-  description: 'Discover Jesus like never before',
+  title: "ChatESV",
+  description: "Discover Jesus like never before",
+  viewport: "width=device-width, initial-scale=1",
+  icons: [
+    {
+      rel: "apple-touch-icon",
+      sizes: "180x180",
+      url: "/apple-touch-icon.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "32x32",
+      url: "/favicon-32x32.png",
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "16x16",
+      url: "/favicon-16x16.png",
+    },
+  ],
 };
 
 export default function RootLayout({

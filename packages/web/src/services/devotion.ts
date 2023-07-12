@@ -64,6 +64,7 @@ export async function getDevotion(
       where: {
         id,
       },
+      include,
     });
   }
 
@@ -138,19 +139,20 @@ Finally, write a prayer to wrap up the devotional.`);
     subject: bibleVerse,
     content: result.text,
     sourceDocuments: {
-      create: context.map((c) => ({
-        sourceDocument: {
-          connectOrCreate: {
-            where: {
-              text: c.pageContent,
-            },
-            create: {
-              text: c.pageContent,
-              metadata: c.metadata,
-            },
+      connectOrCreate: context.map(
+        (c: {
+          pageContent: string;
+          metadata: any;
+        }): Prisma.SourceDocumentCreateOrConnectWithoutDevotionsInput => ({
+          where: {
+            text: c.pageContent,
           },
-        },
-      })),
+          create: {
+            text: c.pageContent,
+            metadata: c.metadata,
+          },
+        })
+      ),
     },
   });
 

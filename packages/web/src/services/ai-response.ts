@@ -25,7 +25,9 @@ export async function getAiResponses(
   } = options ?? {};
 
   const aiResponses = await prisma.aiResponse.findMany({
-    where: query,
+    where: {
+      ...query,
+    },
     take: limit,
     skip: offset,
     orderBy,
@@ -44,7 +46,7 @@ export async function getAiResponse(
   id: string,
   options?: GetAiResponseOptions
 ): Promise<AiResponse | null> {
-  const { include, throwOnNotFound = false } = options ?? {};
+  const { throwOnNotFound = false, include } = options ?? {};
 
   let aiResponse: AiResponse | null = null;
   if (throwOnNotFound) {

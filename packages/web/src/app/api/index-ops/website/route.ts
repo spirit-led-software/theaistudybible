@@ -1,7 +1,13 @@
-import { prisma } from "@/services/database";
 import { getVectorStore } from "@/services/vector-db";
 import axios from "@configs/axios";
 import { websiteConfig } from "@configs/index";
+import {
+  BadRequestResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+} from "@lib/api-responses";
+import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
+import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { XMLParser } from "fast-xml-parser";
 import {
   Page,
@@ -13,7 +19,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
-  const { url, pathRegex } = data;
+  const { name, url, pathRegex } = data;
+
+  if (!name || !url) {
+    return BadRequestResponse("Must supply name and url");
+  }
+
   let urlRegex: RegExp;
   if (pathRegex) {
     urlRegex = new RegExp(`${url}${pathRegex}`);
@@ -21,59 +32,48 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     urlRegex = new RegExp(`${url}/.*`);
   }
 
-  const indexOp = await prisma.indexOperation.create({
-    data: {
-      type: "website",
-      status: "running",
+  try {
+    const indexOp = await createIndexOperation({
+      type: IndexOpertationType.WEBSITE,
+      status: IndexOperationStatus.IN_PROGRESS,
       metadata: {
+        name,
         url,
         pathRegex,
       },
-    },
-  });
-
-  const vectorStore = await getVectorStore();
-  const sitemapUrls = await getSitemaps(url);
-  console.debug(`sitemapUrls: ${sitemapUrls}`);
-  Promise.all(
-    sitemapUrls.map(async (sitemapUrl) => {
-      const foundUrls = await navigateSitemap(sitemapUrl, urlRegex);
-      console.debug(`foundUrls: ${foundUrls}`);
-      await scrapePages(foundUrls, vectorStore);
-    })
-  )
-    .then(async () => {
-      await prisma.indexOperation.update({
-        where: {
-          id: indexOp.id,
-        },
-        data: {
-          status: "completed",
-        },
-      });
-    })
-    .catch(async (err) => {
-      console.error(err);
-      await prisma.indexOperation.update({
-        where: {
-          id: indexOp.id,
-        },
-        data: {
-          status: "failed",
-        },
-      });
     });
 
-  return new NextResponse(
-    JSON.stringify({
+    const vectorStore = await getVectorStore();
+    const sitemapUrls = await getSitemaps(url);
+    console.debug(`sitemapUrls: ${sitemapUrls}`);
+    Promise.all(
+      sitemapUrls.map(async (sitemapUrl) => {
+        const foundUrls = await navigateSitemap(sitemapUrl, urlRegex);
+        console.debug(`foundUrls: ${foundUrls}`);
+        await scrapePages(name, foundUrls, vectorStore);
+      })
+    )
+      .then(async () => {
+        await updateIndexOperation(indexOp.id, {
+          status: IndexOperationStatus.COMPLETED,
+        });
+      })
+      .catch(async (err) => {
+        console.error(err);
+        await updateIndexOperation(indexOp.id, {
+          status: IndexOperationStatus.FAILED,
+        });
+      });
+
+    return OkResponse({
       message: "Started website index",
       indexOp,
       link: `${websiteConfig.url}/api/index-ops/${indexOp.id}`,
-    }),
-    {
-      status: 200,
-    }
-  );
+    });
+  } catch (error: any) {
+    console.error(error);
+    return InternalServerErrorResponse(error.stack);
+  }
 }
 
 async function getSitemaps(url: string): Promise<string[]> {
@@ -146,6 +146,7 @@ async function navigateSitemap(
 }
 
 async function scrapePages(
+  name: string,
   urls: string[],
   vectorStore: VectorStore
 ): Promise<void> {
@@ -159,7 +160,7 @@ async function scrapePages(
       continue;
     }
     runningWorkers++;
-    const worker = generatePageContentEmbeddings(url!, vectorStore)
+    const worker = generatePageContentEmbeddings(name, url!, vectorStore)
       .then(() => {
         runningWorkers--;
       })
@@ -173,6 +174,7 @@ async function scrapePages(
 }
 
 async function generatePageContentEmbeddings(
+  name: string,
   url: string,
   vectorStore: VectorStore
 ): Promise<void> {
@@ -202,8 +204,10 @@ async function generatePageContentEmbeddings(
       );
       docs = docs.map((doc) => {
         doc.metadata = {
+          ...doc.metadata,
           indexDate: new Date().toISOString(),
-          source: url,
+          name,
+          url,
           type: "Webpage",
         };
         return doc;

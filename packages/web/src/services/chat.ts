@@ -11,7 +11,7 @@ type GetChatsOptions = {
   include?: Prisma.ChatInclude;
 };
 
-export async function getChats(options?: GetChatsOptions): Promise<Chat[]> {
+export async function getChats(options?: GetChatsOptions) {
   const {
     query,
     limit = 25,
@@ -36,10 +36,7 @@ type GetChatOptions = {
   throwOnNotFound?: boolean;
 };
 
-export async function getChat(
-  id: string,
-  options?: GetChatOptions
-): Promise<Chat | null> {
+export async function getChat(id: string, options?: GetChatOptions) {
   const { include, throwOnNotFound = false } = options ?? {};
 
   let chat: Chat | null = null;
@@ -62,17 +59,14 @@ export async function getChat(
   return chat;
 }
 
-export async function createChat(data: Prisma.ChatCreateInput): Promise<Chat> {
+export async function createChat(data: Prisma.ChatCreateInput) {
   const chat = await prisma.chat.create({
     data,
   });
   return chat;
 }
 
-export async function updateChat(
-  id: string,
-  data: Prisma.ChatUpdateInput
-): Promise<Chat> {
+export async function updateChat(id: string, data: Prisma.ChatUpdateInput) {
   const chat = await prisma.chat.update({
     where: {
       id,
@@ -82,7 +76,7 @@ export async function updateChat(
   return chat;
 }
 
-export async function deleteChat(id: string): Promise<void> {
+export async function deleteChat(id: string) {
   const chat = await prisma.chat.findUniqueOrThrow({
     where: {
       id,

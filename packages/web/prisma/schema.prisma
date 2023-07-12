@@ -14,6 +14,8 @@ model Chat {
   name         String
   userMessages UserMessage[]
   aiResponses  AiResponse[]
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
 
   @@index([name])
 }
@@ -27,70 +29,142 @@ model UserMessage {
   chat        Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId      String
   aiResponses AiResponse[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
 
   @@index([aiId, text])
 }
 
 model AiResponse {
-  id              String                         @id @default(uuid())
-  createdAt       DateTime                       @default(now())
-  updatedAt       DateTime                       @updatedAt
-  text            String
-  failed          Boolean                        @default(false)
-  regenerated     Boolean                        @default(false)
-  sourceDocuments AiResponsesOnSourceDocuments[]
-  userMessage     UserMessage?                   @relation(fields: [userMessageId], references: [id], onDelete: Cascade)
-  userMessageId   String?
-  chat            Chat?                          @relation(fields: [chatId], references: [id])
-  chatId          String?
+  id              String           @id @default(uuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  aiId            String?
+  text            String?
+  failed          Boolean          @default(false)
+  regenerated     Boolean          @default(false)
+  sourceDocuments SourceDocument[]
+  userMessage     UserMessage      @relation(fields: [userMessageId], references: [id], onDelete: Cascade)
+  userMessageId   String
+  chat            Chat             @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
 }
 
 model SourceDocument {
-  id          String                         @id @default(uuid())
-  createdAt   DateTime                       @default(now())
-  updatedAt   DateTime                       @updatedAt
-  text        String                         @unique
-  metadata    Json                           @default("{}")
-  devotions   DevotionsOnSourceDocuments[]
-  aiResponses AiResponsesOnSourceDocuments[]
+  id          String       @id @default(uuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  text        String       @unique
+  metadata    Json         @default("{}")
+  devotions   Devotion[]
+  aiResponses AiResponse[]
 
   @@index([text, metadata])
 }
 
-model AiResponsesOnSourceDocuments {
-  aiResponse       AiResponse     @relation(fields: [aiResponseId], references: [id], onDelete: Cascade)
-  aiResponseId     String
-  sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
-  sourceDocumentId String
-
-  @@id([aiResponseId, sourceDocumentId])
-}
-
 model Devotion {
-  id              String                       @id @default(uuid())
-  createdAt       DateTime                     @default(now())
-  updatedAt       DateTime                     @updatedAt
+  id              String           @id @default(uuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   subject         String
   content         String
-  sourceDocuments DevotionsOnSourceDocuments[]
-}
-
-model DevotionsOnSourceDocuments {
-  devotion         Devotion       @relation(fields: [devotionId], references: [id], onDelete: Cascade)
-  devotionId       String
-  sourceDocument   SourceDocument @relation(fields: [sourceDocumentId], references: [id], onDelete: Cascade)
-  sourceDocumentId String
-
-  @@id([devotionId, sourceDocumentId])
+  sourceDocuments SourceDocument[]
 }
 
 model IndexOperation {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  type      String
-  status    String
-  metadata  Json
+  id        String               @id @default(uuid())
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  type      IndexOpertationType
+  status    IndexOperationStatus
+  metadata  Json                 @default("{}")
 
   @@index([type, status])
+}
+
+enum IndexOpertationType {
+  WEBSITE
+  FILE
+}
+
+enum IndexOperationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model Role {
+  id        String         @id @default(cuid())
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  name      String         @unique
+  users     UsersOnRoles[]
+}
+
+model User {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  chats         Chat[]
+  UserMessage   UserMessage[]
+  AiResponse    AiResponse[]
+  roles         UsersOnRoles[]
+}
+
+model UsersOnRoles {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId String
+
+  @@id([userId, roleId])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

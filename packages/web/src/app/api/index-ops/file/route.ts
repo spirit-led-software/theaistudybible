@@ -1,79 +1,97 @@
-import { prisma } from "@/services/database";
 import { getVectorStore } from "@/services/vector-db";
 import { unstructuredConfig, websiteConfig } from "@configs/index";
+import {
+  BadRequestResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
+import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
+import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import { isAdmin, validServerSession } from "@services/user";
 import { mkdtempSync, writeFileSync } from "fs";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
 import { TokenTextSplitter } from "langchain/text_splitter";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { tmpdir } from "os";
 import { join } from "path";
 
 export async function POST(request: NextRequest): Promise<Response> {
   const data = await request.formData();
-  const file: File = data.get("file") as File;
+  const file = data.get("file") as File | undefined;
+  const url = data.get("url") as string | undefined;
+  const name = data.get("name") as string | undefined;
 
-  const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
-  const filePath = join(tmpDir, file.name);
-  writeFileSync(filePath, Buffer.from(await file.arrayBuffer()));
+  if (!file || !url || !name) {
+    return BadRequestResponse("Must supply file, url, and name");
+  }
 
-  const loader = new UnstructuredLoader(filePath, {
-    apiKey: unstructuredConfig.apiKey,
-  });
+  try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid || !isAdmin(user)) {
+      return UnauthorizedResponse();
+    }
 
-  const indexOp = await prisma.indexOperation.create({
-    data: {
-      status: "running",
-      type: "file",
+    const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
+    const filePath = join(tmpDir, file.name);
+    writeFileSync(filePath, Buffer.from(await file.arrayBuffer()));
+
+    const loader = new UnstructuredLoader(filePath, {
+      apiKey: unstructuredConfig.apiKey,
+    });
+
+    const indexOp = await createIndexOperation({
+      status: IndexOperationStatus.IN_PROGRESS,
+      type: IndexOpertationType.FILE,
       metadata: {
+        url,
         filename: file.name,
         tempFilePath: filePath,
       },
-    },
-  });
+    });
 
-  loader
-    .loadAndSplit(
-      new TokenTextSplitter({
-        chunkSize: 400,
-        chunkOverlap: 50,
-        encodingName: "cl100k_base",
+    loader
+      .loadAndSplit(
+        new TokenTextSplitter({
+          chunkSize: 400,
+          chunkOverlap: 50,
+          encodingName: "cl100k_base",
+        })
+      )
+      .then(async (docs) => {
+        docs = docs.map((doc) => {
+          doc.metadata = {
+            ...doc.metadata,
+            indexDate: new Date().toISOString(),
+            url,
+            name,
+            type: "File",
+          };
+          return doc;
+        });
+        const vectorStore = await getVectorStore();
+        await vectorStore.addDocuments(docs);
+        await updateIndexOperation(indexOp.id, {
+          status: IndexOperationStatus.COMPLETED,
+        });
       })
-    )
-    .then(async (docs) => {
-      const vectorStore = await getVectorStore();
-      await vectorStore.addDocuments(docs);
-      await prisma.indexOperation.update({
-        where: {
-          id: indexOp.id,
-        },
-        data: {
-          status: "completed",
-        },
-      });
-    })
-    .catch(async (err) => {
-      console.error(err);
-      await prisma.indexOperation.update({
-        where: {
-          id: indexOp.id,
-        },
-        data: {
-          status: "failed",
+      .catch(async (err) => {
+        console.error(err);
+        await updateIndexOperation(indexOp.id, {
+          status: IndexOperationStatus.FAILED,
           metadata: JSON.stringify({
             error: `${err.stack}`,
           }),
-        },
+        });
       });
-    });
 
-  return new NextResponse(
-    JSON.stringify({
+    return OkResponse({
       message: "Started file index",
       indexOp,
       link: `${websiteConfig.url}/api/index-ops/${indexOp.id}`,
-    }),
-    {
-      status: 200,
-    }
-  );
+    });
+  } catch (error: any) {
+    console.error(error);
+    return InternalServerErrorResponse(error.stack);
+  }
 }
