@@ -6,7 +6,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center w-full h-full bg-local bg-no-repeat bg-cover bg-homepage">
       <div className="flex flex-col w-full space-y-4 place-items-center">
         <div className="flex justify-center w-3/4 place-items-center lg:w-1/2">
-          <h1 className="text-3xl font-bold text-center text-slate-800 lg:text-5xl font-maven">
+          <h1 className="text-4xl font-extrabold text-center text-slate-800 lg:text-5xl font-kanit">
             Welcome to{" "}
             <span className="inline-flex px-2 py-1 bg-white rounded-xl bg-opacity-40">
               <div className="flex flex-col items-center bg-transparent opacity-100">
@@ -16,7 +16,7 @@ export default function HomePage() {
           </h1>
         </div>
         <div className="flex justify-center w-3/4 lg:w-1/2">
-          <h2 className="text-xl font-bold text-center text-white lg:text-3xl">
+          <h2 className="p-2 text-xl font-bold text-center text-white lg:text-3xl">
             An all new way to discover Jesus using the power of{" "}
             <span className="text-blue-300">AI</span>
           </h2>

@@ -1,16 +1,16 @@
 import { AuthProvider } from "@components";
 import { Metadata } from "next";
-import { Catamaran, Maven_Pro } from "next/font/google";
+import { Catamaran, Kanit } from "next/font/google";
 import "./globals.css";
 
-const maven = Maven_Pro({
-  weight: "500",
+const kanit = Kanit({
+  weight: "400",
   subsets: ["latin"],
-  variable: "--font-maven",
+  variable: "--font-kanit",
 });
 
 const catamaran = Catamaran({
-  weight: "400",
+  weight: "200",
   subsets: ["latin"],
   variable: "--font-catamaran",
 });
@@ -51,7 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${catamaran.variable} ${maven.variable}`}>
+      <body className={`${catamaran.variable} ${kanit.variable}`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

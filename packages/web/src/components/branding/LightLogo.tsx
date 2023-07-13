@@ -4,7 +4,7 @@ type Props = {
   size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 };
 
-export function Logo({ size = "md" }: Props) {
+export function LightLogo({ size = "md" }: Props) {
   const textSizeClass = {
     sm: "text-md",
     md: "text-lg",
@@ -15,7 +15,7 @@ export function Logo({ size = "md" }: Props) {
     "4xl": "text-5xl",
     "5xl": "text-6xl",
   }[size];
-  
+
   const iconSizeClass = {
     sm: "text-lg",
     md: "text-xl",
@@ -29,9 +29,9 @@ export function Logo({ size = "md" }: Props) {
 
   return (
     <div className={`inline-flex items-center logo ${textSizeClass}`}>
-      <span className="text-white">cha</span>
-      <TbCross className={`-mx-1.5 text-white ${iconSizeClass}`} />
-      <span className="text-blue-300">ESV</span>
+      <span className="text-white underline">cha</span>
+      <TbCross className={`-ml-2.5 -mr-2 text-white ${iconSizeClass}`} />
+      <span className="text-blue-300 underline">ESV</span>
     </div>
   );
 }

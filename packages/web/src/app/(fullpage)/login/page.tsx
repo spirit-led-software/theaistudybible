@@ -49,7 +49,7 @@ export default function LoginPage() {
   }, [alert]);
 
   return (
-    <div className="relative flex flex-col w-2/3 px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 bg-opacity-80 md:w-1/2">
+    <div className="relative flex flex-col w-full px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 bg-opacity-80 md:w-1/2">
       {alert && (
         <div className="absolute left-0 right-0 flex top-4 lg:top-20">
           <div className="px-4 py-2 mx-auto text-white bg-red-500 border border-red-500 rounded-xl lg:text-xl lg:bg-transparent lg:text-red-500">
@@ -81,7 +81,7 @@ export default function LoginPage() {
               Login with Facebook
             </button>
           </div>
-          <div className="container pt-4 space-y-3">
+          <div className="w-full pt-4 space-y-3">
             <input
               className="w-full h-8 px-2 rounded-md outline outline-slate-400"
               placeholder="Email"

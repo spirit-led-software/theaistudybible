@@ -11,7 +11,7 @@ module.exports = {
         homepage: "url('/background-home.jpg')",
       },
       fontFamily: {
-        maven: ["var(--font-maven)"],
+        kanit: ["var(--font-kanit)"],
         catamaran: ["var(--font-catamaran)"],
       },
     },

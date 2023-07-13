@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoIosArrowDown } from "react-icons/io";
-import { Logo } from "./branding";
+import { LightLogo } from "./branding";
 import { Avatar } from "./user";
 
 const navItems = [
@@ -47,7 +47,7 @@ export function NavBar() {
     <>
       <nav className="relative flex items-center justify-between h-16 px-4 py-4 bg-slate-700">
         <Link href="/">
-          <Logo size="2xl" />
+          <LightLogo size="2xl" />
         </Link>
         <div className="lg:hidden">
           <button

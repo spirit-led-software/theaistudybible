@@ -29,9 +29,9 @@ export function DarkLogo({ size = "md" }: Props) {
 
   return (
     <div className={`inline-flex items-center logo ${textSizeClass}`}>
-      <span className="text-slate-800">cha</span>
-      <TbCross className={`-mx-1.5 text-slate-800 ${iconSizeClass}`} />
-      <span className="text-blue-300">ESV</span>
+      <span className="underline text-slate-800">cha</span>
+      <TbCross className={`-ml-2.5 -mr-2 text-slate-800 ${iconSizeClass}`} />
+      <span className="text-blue-300 underline">ESV</span>
     </div>
   );
 }

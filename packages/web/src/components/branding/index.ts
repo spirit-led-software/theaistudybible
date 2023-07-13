@@ -1,2 +1,2 @@
 export * from "./DarkLogo";
-export * from "./Logo";
+export * from "./LightLogo";
