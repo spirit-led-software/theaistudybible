@@ -7,7 +7,11 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
-import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import {
+  createIndexOperation,
+  getIndexOperations,
+  updateIndexOperation,
+} from "@services/index-op";
 import { isAdmin, validServerSession } from "@services/user";
 import { getVectorStore } from "@services/vector-db";
 import { XMLParser } from "fast-xml-parser";
@@ -38,6 +42,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { isValid, user } = await validServerSession();
     if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
+    }
+
+    const runningOps = await getIndexOperations({
+      query: {
+        status: IndexOperationStatus.IN_PROGRESS,
+      },
+      limit: 1,
+    });
+    if (runningOps.length > 0) {
+      return BadRequestResponse(
+        "There is already an index operation running, try again later."
+      );
     }
 
     const indexOp = await createIndexOperation({
@@ -164,7 +180,7 @@ async function scrapePages(
   urls: string[],
   vectorStore: VectorStore
 ): Promise<void> {
-  const maxWorkers = 4;
+  const maxWorkers = 2;
   let runningWorkers = 0;
   const workers: Promise<void>[] = [];
   while (urls.length > 0) {
@@ -195,7 +211,7 @@ async function generatePageContentEmbeddings(
   let retries = 5;
   while (retries > 0) {
     try {
-      let pageTitle = "";
+      let pageTitle = `${url}`;
       const loader = new PuppeteerWebBaseLoader(url, {
         launchOptions: {
           headless: true,
@@ -205,7 +221,13 @@ async function generatePageContentEmbeddings(
           await page.waitForNetworkIdle();
           await page.waitForSelector("body");
           return await page.evaluate(() => {
-            pageTitle = document.title;
+            let foundTitle = document.querySelector("title")?.innerText;
+            if (!foundTitle) {
+              foundTitle = document.querySelector("h1")?.innerText;
+            }
+            if (foundTitle) {
+              pageTitle = foundTitle;
+            }
             const text = document.querySelector("body")!.innerText;
             return text.replace(/\n/g, " ").trim();
           });

@@ -6,7 +6,11 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
-import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import {
+  createIndexOperation,
+  getIndexOperations,
+  updateIndexOperation,
+} from "@services/index-op";
 import { isAdmin, validServerSession } from "@services/user";
 import { getVectorStore } from "@services/vector-db";
 import { mkdtempSync, writeFileSync } from "fs";
@@ -30,6 +34,18 @@ export async function POST(request: NextRequest): Promise<Response> {
     const { isValid, user } = await validServerSession();
     if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
+    }
+
+    const runningOps = await getIndexOperations({
+      query: {
+        status: IndexOperationStatus.IN_PROGRESS,
+      },
+      limit: 1,
+    });
+    if (runningOps.length > 0) {
+      return BadRequestResponse(
+        "There is already an index operation running, try again later."
+      );
     }
 
     const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
