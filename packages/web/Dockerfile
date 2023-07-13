@@ -56,6 +56,8 @@ RUN npm ci --omit=dev \
 # Copy source files
 COPY --from=builder --chown=chatesv:chatesv /app/.next/standalone ./
 COPY --from=builder --chown=chatesv:chatesv /app/.next/static ./.next/static
+COPY --from=builder --chown=chatesv:chatesv /app/md ./md
+COPY --from=builder --chown=chatesv:chatesv /app/public ./public
 
 # Copy Prisma files
 COPY --from=builder --chown=chatesv:chatesv /app/prisma ./prisma

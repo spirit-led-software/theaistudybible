@@ -1,6 +1,9 @@
 node_modules
 .turbo
 .next
+.env*
+
+.gitignore
 
 .dockerignore
 Dockerfile

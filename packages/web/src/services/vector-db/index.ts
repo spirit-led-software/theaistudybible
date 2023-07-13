@@ -1,25 +1,18 @@
 import { vectorDBConfig } from "@configs/index";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
-import { embeddings } from "../llm";
+import { getEmbeddingsModel } from "../llm";
 
-const globalForQdrant = globalThis as unknown as {
-  client: QdrantClient | undefined;
-};
-
-export const client =
-  globalForQdrant.client ??
+export const getQdrantClient = () =>
   new QdrantClient({
     url: vectorDBConfig.url,
     apiKey: vectorDBConfig.apiKey,
   });
 
-if (process.env.NODE_ENV !== "production") globalForQdrant.client = client;
-
 export async function getVectorStore() {
-  return await QdrantVectorStore.fromExistingCollection(embeddings, {
+  return await QdrantVectorStore.fromExistingCollection(getEmbeddingsModel(), {
     collectionName: vectorDBConfig.collectionName,
-    client: client,
+    client: getQdrantClient(),
   });
 }
 
@@ -27,6 +20,7 @@ export async function initializeCollection() {
   console.log(
     `Initializing vector db collection '${vectorDBConfig.collectionName}'`
   );
+  const client = getQdrantClient();
   const { collections } = await client.getCollections();
   const name = collections.find(
     (c) => c.name === vectorDBConfig.collectionName

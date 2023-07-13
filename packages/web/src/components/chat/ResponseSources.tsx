@@ -1,4 +1,6 @@
-import { SolidLineSpinner } from "@components/loading";
+"use client";
+
+import { DarkSolidLineSpinner } from "@components/loading";
 import { Prisma, SourceDocument } from "@prisma/client";
 import Link from "next/link";
 import { useState } from "react";
@@ -72,7 +74,7 @@ export function ResponseSources({
           }`}
         />
       </div>
-      {isLoading && <SolidLineSpinner size="sm" />}
+      {isLoading && <DarkSolidLineSpinner size="sm" />}
       {sources && (
         <ul
           className={`flex flex-col space-y-1 duration-300 ${

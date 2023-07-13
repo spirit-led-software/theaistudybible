@@ -1,0 +1,44 @@
+# fly.toml app configuration file generated for chatesv on 2023-07-13T12:10:23-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "chatesv"
+primary_region = "atl"
+
+[build]
+  dockerfile = "Dockerfile"
+  ignorefile = ".dockerignore"
+  build-target = "runner"
+
+[env]
+  ADMIN_EMAIL = "ian.g.pascoe@gmail.com"
+  EMAIL_FROM = "noreply@chatesv.com"
+  EMAIL_SERVER_HOST = "smtp.mailgun.org"
+  EMAIL_SERVER_PORT = "587"
+  EMAIL_SERVER_USERNAME = "postmaster@chatesv.com"
+  LLM_EMBEDDINGS_MODEL_NAME = "text-embedding-ada-002"
+  LLM_MODEL_NAME = "gpt-3.5-turbo"
+  LLM_TEMPERATURE = "0.7"
+  NEXTAUTH_URL = "https://chatesv.com"
+  NEXT_PUBLIC_WEBSITE_URL = "http://chatesv.com"
+  NODE_ENV = "production"
+  VECTOR_DB_COLLECTION_DIMENSIONS = "1536"
+  VECTOR_DB_COLLECTION_NAME = "chatesv"
+  VECTOR_DB_URL = "https://16d42bec-a2d0-4ea5-9694-a25378122c96.us-east-1-0.aws.cloud.qdrant.io:6333"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/"
+

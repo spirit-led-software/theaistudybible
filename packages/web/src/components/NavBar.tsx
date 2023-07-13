@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoIosArrowDown } from "react-icons/io";
-import { Logo } from "./Logo";
+import { Logo } from "./branding";
 import { Avatar } from "./user";
 
 const navItems = [

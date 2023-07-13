@@ -3,6 +3,8 @@ import { getChats } from "@services/chat";
 import { validServerSession } from "@services/user";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function ChatPage() {
   const { isValid } = await validServerSession();
   if (!isValid) {

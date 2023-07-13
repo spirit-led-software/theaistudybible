@@ -1,4 +1,4 @@
-export function SolidLine({ size }: { size: "sm" | "md" | "lg" }) {
+export function DarkSolidLine({ size }: { size: "sm" | "md" | "lg" }) {
   switch (size) {
     case "sm":
       return (

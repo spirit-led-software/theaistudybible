@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@services/database";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
-import { model } from "../llm";
+import { getCompletionsModel } from "../llm";
 import { getVectorStore } from "../vector-db";
 import { GetDevotionOptions, GetDevotionsOptions } from "./types";
 
@@ -97,7 +97,7 @@ Finally, write a prayer to wrap up the devotional.`);
   const vectorStore = await getVectorStore();
   const context = await vectorStore.similaritySearch(bibleVerse, 5);
   const chain = new LLMChain({
-    llm: model,
+    llm: getCompletionsModel(),
     prompt: fullPrompt,
   });
   const result = await chain.call({

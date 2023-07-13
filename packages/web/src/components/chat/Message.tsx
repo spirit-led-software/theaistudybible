@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { Avatar } from "@components/user";
 import { TbCross } from "react-icons/tb";
 import { ResponseSources } from "./ResponseSources";
 
@@ -15,22 +15,11 @@ export function Message({
   text: string;
   sender: string;
 }) {
-  const { data: session } = useSession();
-
-  const userImage = session?.user?.image ? (
-    <img
-      src={session.user.image}
-      className="border rounded-full shadow-lg h-9 w-9"
-    />
-  ) : (
-    <div className="text-sm">You</div>
-  );
-
   return (
     <div className="flex flex-row items-center w-full px-2 py-4 bg-white border border-t-slate-300">
       <div className="flex flex-col content-start">
         {sender === "user" ? (
-          userImage
+          <Avatar size="lg" />
         ) : (
           <div className="relative w-10 h-10 border rounded-full shadow-lg">
             <TbCross className="absolute text-xl top-[25%] left-[25%]" />

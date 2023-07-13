@@ -8,7 +8,7 @@ import {
 import { Chat, Prisma } from "@prisma/client";
 import { createAiResponse, updateAiResponse } from "@services/ai-responses";
 import { createChat, getChat } from "@services/chat";
-import { chatModel, model } from "@services/llm";
+import { getChatModel, getCompletionsModel } from "@services/llm";
 import { isObjectOwner, validServerSession } from "@services/user";
 import { createUserMessage } from "@services/user-messages";
 import { getVectorStore } from "@services/vector-db";
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       returnMessages: true,
     });
     const chain = ConversationalRetrievalQAChain.fromLLM(
-      chatModel,
+      getChatModel(),
       vectorStore.asRetriever(),
       {
         returnSourceDocuments: true,
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         inputKey: "message",
         outputKey: "answer",
         questionGeneratorChainOptions: {
-          llm: model,
+          llm: getCompletionsModel(),
         },
       }
     );

@@ -1,6 +1,6 @@
 export * from "./AuthProvider";
-export * from "./Logo";
 export * from "./NavBar";
+export * from "./branding";
 export {
   Message as ChatMessage,
   Sidebar as ChatSidebar,

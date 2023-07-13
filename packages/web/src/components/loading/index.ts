@@ -1,4 +1,4 @@
 export {
+  DarkSolidLine as DarkSolidLineSpinner,
   LightSolidLine as LightSolidLineSpinner,
-  SolidLine as SolidLineSpinner,
 } from "./spinner";
