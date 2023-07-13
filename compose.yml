@@ -11,8 +11,7 @@ services:
       - QDRANT__SERVICE__MAX_REQUEST_SIZE_MB=500
       - QDRANT__SERVICE__API_KEY=sk-chatesv
     profiles:
-      - "default"
-      - "dev"
+      - web-dev
 
   postgres:
     image: postgres:15.3
@@ -25,8 +24,7 @@ services:
       - POSTGRES_PASSWORD=chatesv
       - POSTGRES_DB=chatesv
     profiles:
-      - "default"
-      - "dev"
+      - web-dev
 
   pgadmin:
     image: dpage/pgadmin4:7.3
@@ -36,8 +34,7 @@ services:
       - PGADMIN_DEFAULT_EMAIL=admin@chatesv.com
       - PGADMIN_DEFAULT_PASSWORD=admin
     profiles:
-      - "default"
-      - "dev"
+      - web-dev
 
   local-ai:
     image: quay.io/go-skynet/local-ai:latest
@@ -48,7 +45,7 @@ services:
     volumes:
       - ./models:/models:cached
     profiles:
-      - "local-ai"
+      - local-ai
 
   chatesv:
     image: chatesv/web:1.0.0
@@ -67,3 +64,5 @@ services:
     depends_on:
       - qdrant
       - postgres
+    profiles:
+      - mobile-dev

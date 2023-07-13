@@ -3,30 +3,30 @@
   "tasks": [
     {
       "type": "shell",
-      "label": "backend-dev-env",
-      "detail": "Start backend development environment",
-      "command": "docker compose down -v --remove-orphans && docker compose --profile backend-dev up -d && sleep 5 && cd packages/backend && npm run start:dev",
+      "label": "web-dev-env",
+      "detail": "Start web development environment",
+      "command": "docker compose down -v --remove-orphans && docker compose --profile web-dev up -d && sleep 5 && turbo dev",
       "problemMatcher": []
     },
     {
       "type": "shell",
-      "label": "clean-backend-dev-env",
-      "detail": "Start fresh backend development environment",
-      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile backend-dev up -d && sleep 5 && cd packages/backend && npm run start:dev",
+      "label": "clean-web-dev-env",
+      "detail": "Start fresh web development environment",
+      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile web-dev up -d && sleep 5 && turbo dev",
       "problemMatcher": []
     },
     {
       "type": "shell",
-      "label": "frontend-dev-env",
-      "detail": "Start frontend development environment",
-      "command": "docker compose down -v --remove-orphans && docker compose --profile frontend-dev up -d && sleep 5 && cd packages/frontend && npm run dev",
+      "label": "mobile-dev-env",
+      "detail": "Start mobile development environment",
+      "command": "docker compose down -v --remove-orphans && docker compose --profile mobile-dev up -d && sleep 5 && turbo dev",
       "problemMatcher": []
     },
     {
       "type": "shell",
-      "label": "clean-frontend-dev-env",
-      "detail": "Start frontend development environment",
-      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile frontend-dev up -d && sleep 5 && cd packages/frontend && npm run dev",
+      "label": "clean-mobile-dev-env",
+      "detail": "Start mobile development environment",
+      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile mobile-dev up -d && sleep 5 && turbo dev",
       "problemMatcher": []
     }
   ]
