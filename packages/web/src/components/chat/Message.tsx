@@ -19,7 +19,7 @@ export function Message({
     <div className="flex flex-row items-center w-full px-2 py-4 bg-white border border-t-slate-300">
       <div className="flex flex-col content-start">
         {sender === "user" ? (
-          <Avatar size="lg" />
+          <Avatar size="md" className="border shadow-lg" />
         ) : (
           <div className="relative w-10 h-10 border rounded-full shadow-lg">
             <TbCross className="absolute text-xl top-[25%] left-[25%]" />

@@ -1,10 +1,10 @@
 import { TbCross } from "react-icons/tb";
 
-type Props = {
-  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
-};
-
-export function LightLogo({ size = "md" }: Props) {
+export function LightLogo({
+  size = "md",
+}: {
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl";
+}) {
   const textSizeClass = {
     sm: "text-md",
     md: "text-lg",

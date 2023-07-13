@@ -1,6 +1,12 @@
 import { useUser } from "@hooks/user";
 
-export function Avatar({ size }: { size?: "sm" | "md" | "lg" | "xl" }) {
+export function Avatar({
+  size,
+  className,
+}: {
+  size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+}) {
   const user = useUser();
 
   const dimensionClasses = {
@@ -20,7 +26,11 @@ export function Avatar({ size }: { size?: "sm" | "md" | "lg" | "xl" }) {
     );
   }
   return (
-    <div className={`relative rounded-full bg-gray-300 ${dimensionClasses}`}>
+    <div
+      className={`relative rounded-full bg-gray-300 ${dimensionClasses} ${
+        className ?? ""
+      }`}
+    >
       <div
         className={`absolute inset-0 flex items-center justify-center rounded-full text-white text-xl font-bold`}
       >
