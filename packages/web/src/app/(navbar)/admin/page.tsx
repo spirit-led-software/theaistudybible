@@ -1,7 +1,10 @@
-import { CreateDevoForm } from "@components/admin/CreateDevoForm";
-import { FileIndexForm } from "@components/admin/FileIndexForm";
-import { IndexOperationsDashboard } from "@components/admin/IndexOperationsDashboard";
-import { WebsiteIndexForm } from "@components/admin/WebsiteIndexForm";
+import {
+  CreateDevoForm,
+  DeleteDevoForm,
+  FileIndexForm,
+  IndexOperationsDashboard,
+  WebsiteIndexForm,
+} from "@components/admin";
 import { getIndexOperations } from "@services/index-op";
 
 export default async function AdminPage() {
@@ -16,6 +19,7 @@ export default async function AdminPage() {
         <FileIndexForm />
         <WebsiteIndexForm />
         <CreateDevoForm />
+        <DeleteDevoForm />
       </div>
     </div>
   );

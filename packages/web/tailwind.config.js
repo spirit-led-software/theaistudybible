@@ -10,6 +10,10 @@ module.exports = {
       backgroundImage: {
         homepage: "url('/background-home.jpg')",
       },
+      fontFamily: {
+        maven: ["var(--font-maven)"],
+        catamaran: ["var(--font-catamaran)"],
+      },
     },
   },
   plugins: [require("tailwindcss-brand-colors")],

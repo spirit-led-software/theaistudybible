@@ -3,5 +3,9 @@
 @tailwind utilities;
 
 body {
-  @apply text-slate-700;
+  @apply text-slate-700 font-catamaran;
+}
+
+.logo {
+  @apply font-maven;
 }

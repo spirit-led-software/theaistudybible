@@ -61,7 +61,9 @@ export default function LoginPage() {
         <div className="items-center px-3 py-2 mx-auto mb-5 text-center border rounded-full border-slate-400 lg:mb-10 lg:py-4 lg:px-6">
           <DarkLogo size="2xl" />
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-center">Please Log In</h1>
+        <h1 className="mb-2 text-2xl font-bold text-center font-maven">
+          Please Log In
+        </h1>
         <div className="divide-y divide-gray-600">
           <div className="w-full pb-4 space-y-3">
             <button

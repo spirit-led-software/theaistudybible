@@ -1,4 +1,4 @@
-import { Window } from "@components/devotion/Window";
+import { Window } from "@components/devotion";
 import { getDevotions } from "@services/devotion";
 
 export const dynamic = "force-dynamic";

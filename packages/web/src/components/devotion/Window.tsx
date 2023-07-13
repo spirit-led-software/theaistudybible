@@ -38,29 +38,32 @@ export function Window({
             {Moment(devo!.createdAt).format("MMMM Do YYYY")}
           </h1>
           <div className="">{devo!.content}</div>
-          {(devo as any).sourceDocuments && (
-            <>
-              <h2 className="mt-5 mb-2 text-xl font-bold">Sources</h2>
-              <ul className="flex flex-col space-y-2">
-                {(devo as any).sourceDocuments
-                  ?.filter((sourceDoc: SourceDocument, index: number) => {
-                    const firstIndex = (devo as any).sourceDocuments.findIndex(
-                      (otherSourceDoc: SourceDocument) =>
-                        (sourceDoc.metadata as any).name ===
-                        (otherSourceDoc.metadata as any).name
-                    );
-                    return firstIndex === index;
-                  })
-                  ?.map((sourceDoc: SourceDocument) => (
-                    <li key={sourceDoc.id}>
-                      <Link href={(sourceDoc.metadata as any).url}>
-                        {(sourceDoc.metadata as any).name}
-                      </Link>
-                    </li>
-                  ))}
-              </ul>
-            </>
-          )}
+          {(devo as any).sourceDocuments &&
+            (devo as any).sourceDocuments.length > 0 && (
+              <>
+                <h2 className="mt-5 mb-2 text-xl font-bold">Sources</h2>
+                <ul className="flex flex-col space-y-2">
+                  {(devo as any).sourceDocuments
+                    .filter((sourceDoc: SourceDocument, index: number) => {
+                      const firstIndex = (
+                        devo as any
+                      ).sourceDocuments.findIndex(
+                        (otherSourceDoc: SourceDocument) =>
+                          (sourceDoc.metadata as any).name ===
+                          (otherSourceDoc.metadata as any).name
+                      );
+                      return firstIndex === index;
+                    })
+                    ?.map((sourceDoc: SourceDocument) => (
+                      <li key={sourceDoc.id}>
+                        <Link href={(sourceDoc.metadata as any).url}>
+                          {(sourceDoc.metadata as any).name}
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+              </>
+            )}
         </div>
       </div>
     </>
