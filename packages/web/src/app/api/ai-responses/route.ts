@@ -6,7 +6,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
-import { createAiResponse, getAiResponses } from "@services/ai-response";
+import { createAiResponse, getAiResponses } from "@services/ai-responses";
 import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -31,8 +31,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return UnauthorizedResponse("You must be logged in");
     }
 
-    aiResponses = aiResponses.filter((response) => {
-      return isAdmin(user) || isObjectOwner(response, user);
+    aiResponses = aiResponses.filter(async (response) => {
+      return (await isAdmin(user.id)) || isObjectOwner(response, user);
     });
 
     return OkResponse({

@@ -5,33 +5,17 @@ type Props = {
 };
 
 export function Logo({ size = "md" }: Props) {
-  let fontSizeClass: string;
-  switch (size) {
-    case "sm":
-      fontSizeClass = "text-md";
-      break;
-    case "md":
-      fontSizeClass = "text-lg";
-      break;
-    case "lg":
-      fontSizeClass = "text-xl";
-      break;
-    case "xl":
-      fontSizeClass = "text-2xl";
-      break;
-    case "2xl":
-      fontSizeClass = "text-3xl";
-      break;
-    case "3xl":
-      fontSizeClass = "text-4xl";
-      break;
-    default:
-      fontSizeClass = "text-lg";
-      break;
-  }
+  const textSizeClass = {
+    sm: "text-md",
+    md: "text-lg",
+    lg: "text-xl",
+    xl: "text-2xl",
+    "2xl": "text-3xl",
+    "3xl": "text-4xl",
+  }[size];
 
   return (
-    <div className={`inline-flex items-center ${fontSizeClass}`}>
+    <div className={`inline-flex items-center ${textSizeClass}`}>
       <span className="text-white">cha</span>
       <TbCross className="text-white -ml-1 -mr-[0.2rem] mt-[.2rem]" />
       <span className="text-blue-300">ESV</span>

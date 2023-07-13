@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1",
   icons: [
     {
+      rel: "icon",
+      url: "/favicon.ico",
+    },
+    {
       rel: "apple-touch-icon",
       sizes: "180x180",
       url: "/apple-touch-icon.png",

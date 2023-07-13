@@ -48,7 +48,7 @@ export async function PUT(
     });
 
     const { isValid, user } = await validServerSession();
-    if (!isValid || !isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 
@@ -78,7 +78,7 @@ export async function DELETE(
     });
 
     const { isValid, user } = await validServerSession();
-    if (!isValid || !isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 

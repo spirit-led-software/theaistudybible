@@ -3,16 +3,8 @@ import { authConfig } from "@configs/index";
 import { Prisma, Role, User } from "@prisma/client";
 import { prisma } from "@services/database";
 import { getServerSession } from "next-auth";
-
-type GetUsersOptions = {
-  query?: Prisma.UserWhereInput;
-  limit?: number;
-  offset?: number;
-  orderBy?:
-    | Prisma.UserOrderByWithAggregationInput
-    | Prisma.UserOrderByWithRelationInput;
-  include?: Prisma.UserInclude;
-};
+import { addRoleToUser } from "../role";
+import { GetUserOptions, GetUsersOptions } from "./types";
 
 export async function getUsers(options?: GetUsersOptions) {
   const {
@@ -23,52 +15,29 @@ export async function getUsers(options?: GetUsersOptions) {
       createdAt: "desc",
     },
     include = {
-      roles: {
-        include: {
-          role: true,
-        },
-      },
+      roles: true,
     },
   } = options ?? {};
 
-  const users = await prisma.user.findMany({
+  return await prisma.user.findMany({
     where: query,
     take: limit,
     skip: offset,
     orderBy,
     include,
   });
-
-  return users;
 }
-
-type GetUserOptions = {
-  include?: Prisma.UserInclude;
-  throwOnNotFound?: boolean;
-};
 
 export async function getUser(id: string, options?: GetUserOptions) {
   const {
     throwOnNotFound = false,
     include = {
-      roles: {
-        include: {
-          role: true,
-        },
-      },
+      roles: true,
     },
   } = options ?? {};
 
-  let user: User | null = null;
   if (throwOnNotFound) {
-    user = await prisma.user.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
-  } else {
-    user = await prisma.user.findUnique({
+    return await prisma.user.findUniqueOrThrow({
       where: {
         id,
       },
@@ -76,31 +45,24 @@ export async function getUser(id: string, options?: GetUserOptions) {
     });
   }
 
-  return user;
+  return await prisma.user.findUnique({
+    where: {
+      id,
+    },
+    include,
+  });
 }
 
 export async function getUserByEmail(email: string, options?: GetUserOptions) {
   const {
     throwOnNotFound = false,
     include = {
-      roles: {
-        include: {
-          role: true,
-        },
-      },
+      roles: true,
     },
   } = options ?? {};
 
-  let user: User | null = null;
   if (throwOnNotFound) {
-    user = await prisma.user.findUniqueOrThrow({
-      where: {
-        email,
-      },
-      include,
-    });
-  } else {
-    user = await prisma.user.findUnique({
+    return await prisma.user.findUniqueOrThrow({
       where: {
         email,
       },
@@ -108,26 +70,27 @@ export async function getUserByEmail(email: string, options?: GetUserOptions) {
     });
   }
 
-  return user;
+  return await prisma.user.findUnique({
+    where: {
+      email,
+    },
+    include,
+  });
 }
 
 export async function createUser(data: Prisma.UserCreateInput) {
-  const user = await prisma.user.create({
+  return await prisma.user.create({
     data,
   });
-
-  return user;
 }
 
 export async function updateUser(id: string, data: Prisma.UserUpdateInput) {
-  const user = await prisma.user.update({
+  return await prisma.user.update({
     where: {
       id,
     },
     data,
   });
-
-  return user;
 }
 
 export async function deleteUser(id: string) {
@@ -144,10 +107,14 @@ export async function deleteUser(id: string) {
   });
 }
 
-export function isAdmin(user: User): boolean {
-  return (user as any).roles.some(
-    ({ role }: { role: Role }) => role.name === "admin"
-  );
+export async function isAdmin(userId: string) {
+  const user = await getUser(userId, {
+    throwOnNotFound: true,
+    include: {
+      roles: true,
+    },
+  });
+  return user!.roles?.some((role: Role) => role.name === "ADMIN") ?? false;
 }
 
 export async function validServerSession(): Promise<
@@ -176,7 +143,7 @@ export async function validServerSession(): Promise<
   };
 }
 
-export function isObjectOwner(object: { userId: string }, user: User): boolean {
+export function isObjectOwner(object: { userId: string }, user: User) {
   return object.userId === user.id;
 }
 
@@ -197,7 +164,7 @@ export async function validSessionAndObjectOwner(object: {
     return { isValid: false };
   }
 
-  if (!isObjectOwner(object, user) && !isAdmin(user)) {
+  if (!isObjectOwner(object, user) && !(await isAdmin(user.id))) {
     return { isValid: false, user };
   }
 
@@ -205,19 +172,25 @@ export async function validSessionAndObjectOwner(object: {
 }
 
 export async function createInitialAdminUser() {
+  console.log("Creating initial admin user");
   let adminUser = await getUserByEmail(authConfig.adminUser.email);
   if (!adminUser) {
     adminUser = await createUser({
       email: authConfig.adminUser.email,
-      roles: {
-        create: {
-          role: {
-            connect: {
-              name: "admin",
-            },
-          },
-        },
-      },
+      emailVerified: new Date(),
+      name: "Administrator",
     });
+    console.log("Initial admin user created");
+  } else {
+    console.log("Admin user already existed");
   }
+
+  console.log("Adding admin role to admin user");
+  if (!(await isAdmin(adminUser.id))) {
+    await addRoleToUser("ADMIN", adminUser);
+    console.log("Admin role added to admin user");
+  } else {
+    console.log("Admin role already added to admin user");
+  }
+  console.log("Initial admin user created");
 }

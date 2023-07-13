@@ -32,7 +32,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     chats = chats.filter(async (chat) => {
-      return isAdmin(user) || isObjectOwner(chat, user);
+      return (await isAdmin(user.id)) || isObjectOwner(chat, user);
     });
 
     return OkResponse({

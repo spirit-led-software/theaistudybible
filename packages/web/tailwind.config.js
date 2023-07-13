@@ -6,7 +6,11 @@ module.exports = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {
+        homepage: "url('/background-home.jpg')",
+      },
+    },
   },
   plugins: [require("tailwindcss-brand-colors")],
 };

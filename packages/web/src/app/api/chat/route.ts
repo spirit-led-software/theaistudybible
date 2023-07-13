@@ -1,6 +1,4 @@
 import { prisma } from "@/services/database";
-import { chatModel, model } from "@/services/llm";
-import { getVectorStore } from "@/services/vector-db";
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
@@ -8,10 +6,12 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { Chat, Prisma } from "@prisma/client";
-import { createAiResponse, updateAiResponse } from "@services/ai-response";
+import { createAiResponse, updateAiResponse } from "@services/ai-responses";
 import { createChat, getChat } from "@services/chat";
+import { chatModel, model } from "@services/llm";
 import { isObjectOwner, validServerSession } from "@services/user";
-import { createUserMessage } from "@services/user-message";
+import { createUserMessage } from "@services/user-messages";
+import { getVectorStore } from "@services/vector-db";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";

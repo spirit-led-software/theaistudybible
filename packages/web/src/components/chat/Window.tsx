@@ -1,7 +1,7 @@
 "use client";
 
 import useWindowDimensions from "@hooks/window";
-import { Prisma } from "@prisma/client";
+import { Chat, Prisma } from "@prisma/client";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
@@ -12,9 +12,11 @@ import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
 export function Window({
+  initChats,
   initChatId,
   initialMessages,
 }: {
+  initChats?: Chat[];
   initChatId?: string;
   initialMessages?: ChatMessage[];
 }) {
@@ -145,6 +147,7 @@ export function Window({
   return (
     <>
       <Sidebar
+        initChats={initChats}
         activeChatId={initChatId}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}

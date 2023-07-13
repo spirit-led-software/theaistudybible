@@ -78,6 +78,20 @@ export function NavBar() {
               </Link>
             </li>
           ))}
+          {user?.roles?.includes("ADMIN") && (
+            <li>
+              <Link
+                className={`block px-6 py-2 text-sm font-bold transition duration-200 rounded-xl ${
+                  isActive("/admin")
+                    ? "bg-white text-slate-800 hover:bg-gray-100 hover:text-slate-900"
+                    : "bg-transparent text-white hover:bg-gray-800 hover:text-white"
+                }`}
+                href={"/admin"}
+              >
+                Admin
+              </Link>
+            </li>
+          )}
         </ul>
         {!user ? (
           <Link
@@ -121,6 +135,20 @@ export function NavBar() {
                   </Link>
                 </li>
               ))}
+              {user?.roles?.includes("ADMIN") && (
+                <li>
+                  <Link
+                    className={`block px-4 py-3 mb-3 text-md font-semibold leading-none rounded-xl ${
+                      isActive("/admin")
+                        ? "text-slate-800 bg-slate-200"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                    href={`/admin`}
+                  >
+                    Administration
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
           <div className="mt-auto">

@@ -1,4 +1,3 @@
-import { getVectorStore } from "@/services/vector-db";
 import { unstructuredConfig, websiteConfig } from "@configs/index";
 import {
   BadRequestResponse,
@@ -9,6 +8,7 @@ import {
 import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { isAdmin, validServerSession } from "@services/user";
+import { getVectorStore } from "@services/vector-db";
 import { mkdtempSync, writeFileSync } from "fs";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
 import { TokenTextSplitter } from "langchain/text_splitter";
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   try {
     const { isValid, user } = await validServerSession();
-    if (!isValid || !isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       status: IndexOperationStatus.IN_PROGRESS,
       type: IndexOpertationType.FILE,
       metadata: {
+        name,
         url,
         filename: file.name,
         tempFilePath: filePath,
@@ -73,15 +74,19 @@ export async function POST(request: NextRequest): Promise<Response> {
         await vectorStore.addDocuments(docs);
         await updateIndexOperation(indexOp.id, {
           status: IndexOperationStatus.COMPLETED,
+          metadata: {
+            ...(indexOp.metadata as any),
+          },
         });
       })
       .catch(async (err) => {
         console.error(err);
         await updateIndexOperation(indexOp.id, {
           status: IndexOperationStatus.FAILED,
-          metadata: JSON.stringify({
+          metadata: {
+            ...(indexOp.metadata as any),
             error: `${err.stack}`,
-          }),
+          },
         });
       });
 

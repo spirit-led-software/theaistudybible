@@ -102,14 +102,6 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "UsersOnRoles" (
-    "userId" TEXT NOT NULL,
-    "roleId" TEXT NOT NULL,
-
-    CONSTRAINT "UsersOnRoles_pkey" PRIMARY KEY ("userId","roleId")
-);
-
--- CreateTable
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -162,6 +154,12 @@ CREATE TABLE "_DevotionToSourceDocument" (
     "B" TEXT NOT NULL
 );
 
+-- CreateTable
+CREATE TABLE "_RoleToUser" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL
+);
+
 -- CreateIndex
 CREATE INDEX "Chat_name_idx" ON "Chat"("name");
 
@@ -207,6 +205,12 @@ CREATE UNIQUE INDEX "_DevotionToSourceDocument_AB_unique" ON "_DevotionToSourceD
 -- CreateIndex
 CREATE INDEX "_DevotionToSourceDocument_B_index" ON "_DevotionToSourceDocument"("B");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "_RoleToUser_AB_unique" ON "_RoleToUser"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_RoleToUser_B_index" ON "_RoleToUser"("B");
+
 -- AddForeignKey
 ALTER TABLE "Chat" ADD CONSTRAINT "Chat_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -226,12 +230,6 @@ ALTER TABLE "AiResponse" ADD CONSTRAINT "AiResponse_chatId_fkey" FOREIGN KEY ("c
 ALTER TABLE "AiResponse" ADD CONSTRAINT "AiResponse_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UsersOnRoles" ADD CONSTRAINT "UsersOnRoles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UsersOnRoles" ADD CONSTRAINT "UsersOnRoles_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -248,3 +246,9 @@ ALTER TABLE "_DevotionToSourceDocument" ADD CONSTRAINT "_DevotionToSourceDocumen
 
 -- AddForeignKey
 ALTER TABLE "_DevotionToSourceDocument" ADD CONSTRAINT "_DevotionToSourceDocument_B_fkey" FOREIGN KEY ("B") REFERENCES "SourceDocument"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

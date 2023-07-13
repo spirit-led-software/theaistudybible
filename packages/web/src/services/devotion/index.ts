@@ -1,24 +1,13 @@
 import { axios } from "@configs";
-import { Devotion, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@services/database";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
-import { model } from "./llm";
-import { getVectorStore } from "./vector-db";
+import { model } from "../llm";
+import { getVectorStore } from "../vector-db";
+import { GetDevotionOptions, GetDevotionsOptions } from "./types";
 
-type GetDevotionsOptions = {
-  query?: Prisma.DevotionWhereInput;
-  limit?: number;
-  offset?: number;
-  orderBy?:
-    | Prisma.DevotionOrderByWithAggregationInput
-    | Prisma.DevotionOrderByWithRelationInput;
-  include?: Prisma.DevotionInclude;
-};
-
-export async function getDevotions(
-  options?: GetDevotionsOptions
-): Promise<Devotion[]> {
+export async function getDevotions(options?: GetDevotionsOptions) {
   const {
     query,
     limit = 25,
@@ -29,38 +18,20 @@ export async function getDevotions(
     include,
   } = options ?? {};
 
-  const devos = await prisma.devotion.findMany({
+  return await prisma.devotion.findMany({
     where: query,
     take: limit,
     skip: offset,
     orderBy,
     include,
   });
-
-  return devos;
 }
 
-type GetDevotionOptions = {
-  throwOnNotFound?: boolean;
-  include?: Prisma.DevotionInclude;
-};
-
-export async function getDevotion(
-  id: string,
-  options?: GetDevotionOptions
-): Promise<Devotion | null> {
+export async function getDevotion(id: string, options?: GetDevotionOptions) {
   const { throwOnNotFound = false, include } = options ?? {};
 
-  let devo: Devotion | null = null;
   if (throwOnNotFound) {
-    devo = await prisma.devotion.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
-  } else {
-    devo = await prisma.devotion.findUnique({
+    return await prisma.devotion.findUniqueOrThrow({
       where: {
         id,
       },
@@ -68,34 +39,33 @@ export async function getDevotion(
     });
   }
 
-  return devo;
+  return await prisma.devotion.findUnique({
+    where: {
+      id,
+    },
+    include,
+  });
 }
 
-export async function createDevotion(
-  data: Prisma.DevotionCreateInput
-): Promise<Devotion> {
-  const devo = await prisma.devotion.create({
+export async function createDevotion(data: Prisma.DevotionCreateInput) {
+  return await prisma.devotion.create({
     data,
   });
-
-  return devo;
 }
 
 export async function updateDevotion(
   id: string,
   data: Prisma.DevotionUpdateInput
-): Promise<Devotion> {
-  const devo = await prisma.devotion.update({
+) {
+  return await prisma.devotion.update({
     where: {
       id,
     },
     data,
   });
-
-  return devo;
 }
 
-export async function deleteDevotion(id: string): Promise<void> {
+export async function deleteDevotion(id: string) {
   const devo = await prisma.devotion.findUniqueOrThrow({
     where: {
       id,
@@ -159,7 +129,7 @@ Finally, write a prayer to wrap up the devotional.`);
   return devo;
 }
 
-async function getRandomBibleVerse(): Promise<string> {
+async function getRandomBibleVerse() {
   const response = await axios.get(
     "https://labs.bible.org/api?passage=random&type=json&formatting=plain",
     {

@@ -1,4 +1,5 @@
 import { Window } from "@components/chat";
+import { getChats } from "@services/chat";
 import { validServerSession } from "@services/user";
 import { redirect } from "next/navigation";
 
@@ -8,5 +9,9 @@ export default async function ChatPage() {
     redirect(`/login?redirect=/chat`);
   }
 
-  return <Window />;
+  const chats = await getChats({
+    limit: 7,
+  });
+
+  return <Window initChats={chats} />;
 }

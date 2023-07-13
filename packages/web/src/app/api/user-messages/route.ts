@@ -5,7 +5,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
-import { createUserMessage, getUserMessages } from "@services/user-message";
+import { createUserMessage, getUserMessages } from "@services/user-messages";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -33,8 +33,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    messages = messages.filter((message) => {
-      return isAdmin(user) || isObjectOwner(message, user);
+    messages = messages.filter(async (message) => {
+      return (await isAdmin(user.id)) || isObjectOwner(message, user);
     });
 
     return OkResponse({

@@ -1,13 +1,15 @@
-import { getVectorStore } from "@/services/vector-db";
 import axios from "@configs/axios";
 import { websiteConfig } from "@configs/index";
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   OkResponse,
+  UnauthorizedResponse,
 } from "@lib/api-responses";
 import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import { isAdmin, validServerSession } from "@services/user";
+import { getVectorStore } from "@services/vector-db";
 import { XMLParser } from "fast-xml-parser";
 import {
   Page,
@@ -33,6 +35,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid || !(await isAdmin(user.id))) {
+      return UnauthorizedResponse();
+    }
+
     const indexOp = await createIndexOperation({
       type: IndexOpertationType.WEBSITE,
       status: IndexOperationStatus.IN_PROGRESS,
@@ -56,12 +63,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .then(async () => {
         await updateIndexOperation(indexOp.id, {
           status: IndexOperationStatus.COMPLETED,
+          metadata: {
+            ...(indexOp.metadata as any),
+          },
         });
       })
       .catch(async (err) => {
         console.error(err);
         await updateIndexOperation(indexOp.id, {
           status: IndexOperationStatus.FAILED,
+          metadata: {
+            ...(indexOp.metadata as any),
+            error: `${err.stack}`,
+          },
         });
       });
 

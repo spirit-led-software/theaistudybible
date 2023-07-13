@@ -20,7 +20,7 @@ export async function GET(
 ): Promise<Response> {
   try {
     const { isValid, user } = await validServerSession();
-    if (!isValid || !isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 
@@ -48,7 +48,7 @@ export async function PUT(
 
   try {
     const { isValid, user } = await validServerSession();
-    if (!isValid || !isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 
@@ -76,7 +76,7 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { isValid, user } = await validServerSession();
-    if (!isValid || !isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 

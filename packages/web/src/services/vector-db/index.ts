@@ -1,12 +1,20 @@
 import { vectorDBConfig } from "@configs/index";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
-import { embeddings } from "./llm";
+import { embeddings } from "../llm";
 
-export const client = new QdrantClient({
-  url: vectorDBConfig.url,
-  apiKey: vectorDBConfig.apiKey,
-});
+const globalForQdrant = globalThis as unknown as {
+  client: QdrantClient | undefined;
+};
+
+export const client =
+  globalForQdrant.client ??
+  new QdrantClient({
+    url: vectorDBConfig.url,
+    apiKey: vectorDBConfig.apiKey,
+  });
+
+if (process.env.NODE_ENV !== "production") globalForQdrant.client = client;
 
 export async function getVectorStore() {
   return await QdrantVectorStore.fromExistingCollection(embeddings, {

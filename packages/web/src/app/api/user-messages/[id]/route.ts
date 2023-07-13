@@ -7,7 +7,7 @@ import {
 } from "@lib/api-responses";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { validSessionAndObjectOwner } from "@services/user";
-import { deleteUserMessage, getUserMessage } from "@services/user-message";
+import { deleteUserMessage, getUserMessage } from "@services/user-messages";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(

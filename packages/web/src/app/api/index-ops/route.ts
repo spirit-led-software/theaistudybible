@@ -16,7 +16,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   try {
     const { isValid, user } = await validServerSession();
-    if (!isValid || isAdmin(user)) {
+    if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 

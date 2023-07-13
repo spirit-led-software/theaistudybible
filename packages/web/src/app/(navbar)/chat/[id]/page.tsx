@@ -1,8 +1,8 @@
 import { Window } from "@components/chat";
 import { AiResponse } from "@prisma/client";
-import { getChat } from "@services/chat";
+import { getChat, getChats } from "@services/chat";
 import { isObjectOwner, validServerSession } from "@services/user";
-import { getUserMessages } from "@services/user-message";
+import { getUserMessages } from "@services/user-messages";
 import { Message } from "ai/react";
 import { notFound, redirect } from "next/navigation";
 
@@ -56,6 +56,15 @@ export default async function SpecificChatPage({
   params: { id: string };
 }) {
   const messages = await getMessages(params.id);
+  const chats = await getChats({
+    limit: 7,
+  });
 
-  return <Window initChatId={params.id} initialMessages={messages} />;
+  return (
+    <Window
+      initChats={chats}
+      initChatId={params.id}
+      initialMessages={messages}
+    />
+  );
 }

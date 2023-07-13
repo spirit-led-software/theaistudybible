@@ -1,5 +1,5 @@
 import { SolidLineSpinner } from "@components/loading";
-import { AiResponse, Prisma, SourceDocument } from "@prisma/client";
+import { Prisma, SourceDocument } from "@prisma/client";
 import Link from "next/link";
 import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
@@ -38,9 +38,8 @@ export function ResponseSources({
         }),
       });
       const { entities: aiResponses } = await response.json();
-      const aiResponse: AiResponse = aiResponses[0];
-      const sourceDocuments: SourceDocument[] = (aiResponse as any)
-        .sourceDocuments;
+      const aiResponse = aiResponses[0];
+      const sourceDocuments: SourceDocument[] = aiResponse.sourceDocuments;
       setSources(
         sourceDocuments.filter((sourceDoc, index) => {
           const firstIndex = sourceDocuments.findIndex(

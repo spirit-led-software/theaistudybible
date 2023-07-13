@@ -3,37 +3,29 @@ import { useUser } from "@hooks/user";
 export function Avatar({ size }: { size?: "sm" | "md" | "lg" | "xl" }) {
   const user = useUser();
 
-  let sizeClasses: string;
-  switch (size) {
-    case "sm":
-      sizeClasses = "h-8 w-8";
-      break;
-    case "md":
-      sizeClasses = "h-10 w-10";
-      break;
-    case "lg":
-      sizeClasses = "h-12 w-12";
-      break;
-    case "xl":
-      sizeClasses = "h-16 w-16";
-      break;
-    default:
-      sizeClasses = "h-10 w-10";
-      break;
-  }
+  const dimensionClasses = {
+    sm: "h-8 w-8",
+    md: "h-10 w-10",
+    lg: "h-12 w-12",
+    xl: "h-16 w-16",
+  }[size ?? "md"];
 
   if (user?.image) {
     return (
       <img
-        className={`w-10 h-10 rounded-full ${sizeClasses}`}
+        className={`rounded-full ${dimensionClasses}`}
         src={user.image}
         alt="avatar"
       />
     );
   }
   return (
-    <div className={`rounded-full bg-gray-300 ${sizeClasses}`}>
-      {user?.name?.[0] ?? ""}
+    <div className={`relative rounded-full bg-gray-300 ${dimensionClasses}`}>
+      <div
+        className={`absolute inset-0 flex items-center justify-center rounded-full text-white text-xl font-bold`}
+      >
+        {user?.name?.[0] ?? ""}
+      </div>
     </div>
   );
 }

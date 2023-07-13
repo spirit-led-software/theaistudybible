@@ -3,6 +3,7 @@
 import useWindowDimensions from "@hooks/window";
 import { Devotion, SourceDocument } from "@prisma/client";
 import Moment from "moment";
+import Link from "next/link";
 import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 
@@ -45,14 +46,16 @@ export function Window({
                   ?.filter((sourceDoc: SourceDocument, index: number) => {
                     const firstIndex = (devo as any).sourceDocuments.findIndex(
                       (otherSourceDoc: SourceDocument) =>
-                        (sourceDoc.metadata as any).url ===
-                        (otherSourceDoc.metadata as any).url
+                        (sourceDoc.metadata as any).name ===
+                        (otherSourceDoc.metadata as any).name
                     );
                     return firstIndex === index;
                   })
                   ?.map((sourceDoc: SourceDocument) => (
                     <li key={sourceDoc.id}>
-                      {(sourceDoc.metadata as any).url}
+                      <Link href={(sourceDoc.metadata as any).url}>
+                        {(sourceDoc.metadata as any).name}
+                      </Link>
                     </li>
                   ))}
               </ul>
