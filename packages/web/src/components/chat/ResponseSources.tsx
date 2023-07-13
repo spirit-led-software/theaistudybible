@@ -46,8 +46,8 @@ export function ResponseSources({
         sourceDocuments.filter((sourceDoc, index) => {
           const firstIndex = sourceDocuments.findIndex(
             (otherSourceDoc) =>
-              (sourceDoc.metadata as any).url ===
-              (otherSourceDoc.metadata as any).url
+              (sourceDoc.metadata as any).name ===
+              (otherSourceDoc.metadata as any).name
           );
           return firstIndex === index;
         })

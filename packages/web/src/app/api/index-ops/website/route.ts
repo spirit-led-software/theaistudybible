@@ -195,6 +195,7 @@ async function generatePageContentEmbeddings(
   let retries = 5;
   while (retries > 0) {
     try {
+      let pageTitle = "";
       const loader = new PuppeteerWebBaseLoader(url, {
         launchOptions: {
           headless: true,
@@ -204,6 +205,7 @@ async function generatePageContentEmbeddings(
           await page.waitForNetworkIdle();
           await page.waitForSelector("body");
           return await page.evaluate(() => {
+            pageTitle = document.title;
             const text = document.querySelector("body")!.innerText;
             return text.replace(/\n/g, " ").trim();
           });
@@ -220,7 +222,7 @@ async function generatePageContentEmbeddings(
         doc.metadata = {
           ...doc.metadata,
           indexDate: new Date().toISOString(),
-          name,
+          name: `${name} - ${pageTitle}`,
           url,
           type: "Webpage",
         };
