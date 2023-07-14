@@ -7,7 +7,7 @@ import {
 } from "@lib/api-responses";
 import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { createChat, getChats } from "@services/chat";
-import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
+import { isObjectOwner, validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -31,9 +31,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return UnauthorizedResponse("You are not logged in.");
     }
 
-    chats = chats.filter(async (chat) => {
-      return (await isAdmin(user.id)) || isObjectOwner(chat, user);
-    });
+    chats = chats.filter(async (chat) => isObjectOwner(chat, user));
 
     return OkResponse({
       entities: chats,
