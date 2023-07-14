@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       return BadRequestResponse("File size must be less than 50MB");
     }
 
-    let metadata: any = {
+    let indexOpMetadata: any = {
       name,
       url,
       filename: file.name,
@@ -82,8 +82,8 @@ export async function POST(request: NextRequest): Promise<Response> {
       loader = new UnstructuredLoader(filePath, {
         apiKey: unstructuredConfig.apiKey,
       });
-      metadata = {
-        ...metadata,
+      indexOpMetadata = {
+        ...indexOpMetadata,
         tempFilePath: filePath,
       };
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const indexOp = await createIndexOperation({
       status: IndexOperationStatus.IN_PROGRESS,
       type: IndexOpertationType.FILE,
-      metadata,
+      metadata: indexOpMetadata,
     });
 
     console.log("Starting load and split");
@@ -109,10 +109,9 @@ export async function POST(request: NextRequest): Promise<Response> {
         docs = docs.map((doc) => {
           doc.metadata = {
             ...doc.metadata,
-            indexDate: new Date().toISOString(),
-            url,
-            name,
+            ...indexOpMetadata,
             type: "File",
+            indexDate: new Date().toISOString(),
           };
           return doc;
         });

@@ -174,12 +174,12 @@ async function navigateSitemap(
 }
 
 async function scrapePages(name: string, urls: string[]): Promise<void> {
-  const maxWorkers = 2;
+  const maxConcurrentWorkers = 2;
   let runningWorkers = 0;
   const workers: Promise<void>[] = [];
   while (urls.length > 0) {
     const url = urls.pop();
-    if (runningWorkers >= maxWorkers) {
+    if (runningWorkers >= maxConcurrentWorkers) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       continue;
     }
