@@ -60,8 +60,6 @@ model SourceDocument {
   metadata    Json         @default("{}")
   devotions   Devotion[]
   aiResponses AiResponse[]
-
-  @@index([text, metadata])
 }
 
 model Devotion {
