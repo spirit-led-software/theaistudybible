@@ -34,7 +34,7 @@ export function Window({
         }`}
       >
         <div className="px-5 pt-5 pb-20 break-words whitespace-pre-wrap">
-          <h1 className="mb-2 text-2xl font-bold">
+          <h1 className="mb-2 text-2xl font-bold text-center lg:text-left">
             {Moment(devo!.createdAt).format("MMMM Do YYYY")}
           </h1>
           <div className="">{devo!.content}</div>

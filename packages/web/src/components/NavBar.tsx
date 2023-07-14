@@ -105,7 +105,7 @@ export function NavBar() {
             <div className="inline-flex items-center justify-center space-x-1">
               <Avatar size="sm" />
               <span className="ml-2 text-sm font-semibold text-white">
-                {user.name}
+                {user.name ?? user.email}
               </span>
             </div>
             <button
@@ -165,7 +165,7 @@ export function NavBar() {
                   <div className="inline-flex items-center justify-center">
                     <Avatar size="sm" />
                     <span className="ml-2 text-sm font-semibold text-gray-800">
-                      {user.name}
+                      {user.name ?? user.email}
                     </span>
                   </div>
                   <button

@@ -32,9 +32,9 @@ export function Avatar({
       }`}
     >
       <div
-        className={`absolute inset-0 flex items-center justify-center rounded-full text-white text-xl font-bold`}
+        className={`absolute inset-0 flex items-center justify-center rounded-full text-white text-xl font-bold uppercase`}
       >
-        {user?.name?.[0] ?? ""}
+        {user?.name ? user.name[0] : user?.email![0]}
       </div>
     </div>
   );
