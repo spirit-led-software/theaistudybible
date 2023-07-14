@@ -9,16 +9,6 @@ import { notFound, redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 async function getMessages(chatId: string) {
-  const chat = await getChat(chatId);
-  if (!chat) {
-    notFound();
-  }
-
-  const { isValid, user } = await validServerSession();
-  if (!isValid || !isObjectOwner(chat, user)) {
-    redirect(`/login?redirect=/chat/${chatId}`);
-  }
-
   const userMessages = await getUserMessages({
     query: {
       chatId,
@@ -55,10 +45,22 @@ export default async function SpecificChatPage({
 }: {
   params: { id: string };
 }) {
+  const chat = await getChat(params.id);
+  if (!chat) {
+    notFound();
+  }
+
+  const { isValid, user } = await validServerSession();
+  if (!isValid || !isObjectOwner(chat, user)) {
+    redirect(`/login?redirect=/chat/${chat.id}`);
+  }
+
   const messages = await getMessages(params.id);
-  const chats = await getChats({
+
+  let chats = await getChats({
     limit: 7,
   });
+  chats = chats.filter(async (chat) => isObjectOwner(chat, user));
 
   return (
     <Window
