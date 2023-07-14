@@ -14,6 +14,11 @@ import {
 import { isAdmin, validServerSession } from "@services/user";
 import { getVectorStore } from "@services/vector-db";
 import { mkdtempSync, writeFileSync } from "fs";
+import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
+import { DocxLoader } from "langchain/document_loaders/fs/docx";
+import { JSONLoader } from "langchain/document_loaders/fs/json";
+import { PDFLoader } from "langchain/document_loaders/fs/pdf";
+import { TextLoader } from "langchain/document_loaders/fs/text";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
 import { TokenTextSplitter } from "langchain/text_splitter";
 import { NextRequest } from "next/server";
@@ -48,25 +53,48 @@ export async function POST(request: NextRequest): Promise<Response> {
       );
     }
 
-    const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
-    const filePath = join(tmpDir, file.name);
-    writeFileSync(filePath, Buffer.from(await file.arrayBuffer()));
+    if (file.size > 50 * 1024 * 1024) {
+      return BadRequestResponse("File size must be less than 50MB");
+    }
 
-    const loader = new UnstructuredLoader(filePath, {
-      apiKey: unstructuredConfig.apiKey,
-    });
+    let metadata: any = {
+      name,
+      url,
+      filename: file.name,
+    };
+    let loader: BaseDocumentLoader;
+    if (file.type === "application/pdf") {
+      loader = new PDFLoader(file);
+    } else if (file.type === "text/plain") {
+      loader = new TextLoader(file);
+    } else if (file.type === "application/json" || file.type === "text/json") {
+      loader = new JSONLoader(file);
+    } else if (
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      loader = new DocxLoader(file);
+    } else {
+      const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
+      const filePath = join(tmpDir, file.name);
+      writeFileSync(filePath, Buffer.from(await file.arrayBuffer()));
+
+      loader = new UnstructuredLoader(filePath, {
+        apiKey: unstructuredConfig.apiKey,
+      });
+      metadata = {
+        ...metadata,
+        tempFilePath: filePath,
+      };
+    }
 
     const indexOp = await createIndexOperation({
       status: IndexOperationStatus.IN_PROGRESS,
       type: IndexOpertationType.FILE,
-      metadata: {
-        name,
-        url,
-        filename: file.name,
-        tempFilePath: filePath,
-      },
+      metadata,
     });
 
+    console.log("Starting load and split");
     loader
       .loadAndSplit(
         new TokenTextSplitter({
@@ -76,6 +104,8 @@ export async function POST(request: NextRequest): Promise<Response> {
         })
       )
       .then(async (docs) => {
+        console.log("Finished load and split");
+        console.log(`Loaded ${docs.length} documents`);
         docs = docs.map((doc) => {
           doc.metadata = {
             ...doc.metadata,
@@ -86,6 +116,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           };
           return doc;
         });
+        console.log("Adding documents to vector store");
         const vectorStore = await getVectorStore();
         await vectorStore.addDocuments(docs);
         await updateIndexOperation(indexOp.id, {
@@ -94,9 +125,10 @@ export async function POST(request: NextRequest): Promise<Response> {
             ...(indexOp.metadata as any),
           },
         });
+        console.log("Finished adding documents to vector store");
       })
       .catch(async (err) => {
-        console.error(err);
+        console.error("Error loading documents", err);
         await updateIndexOperation(indexOp.id, {
           status: IndexOperationStatus.FAILED,
           metadata: {
