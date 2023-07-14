@@ -13,14 +13,13 @@ import {
   updateIndexOperation,
 } from "@services/index-op";
 import { isAdmin, validServerSession } from "@services/user";
-import { getVectorStore } from "@services/vector-db";
+import { addDocumentsToVectorStore } from "@services/vector-db";
 import { XMLParser } from "fast-xml-parser";
 import {
   Page,
   PuppeteerWebBaseLoader,
 } from "langchain/document_loaders/web/puppeteer";
 import { TokenTextSplitter } from "langchain/text_splitter";
-import { VectorStore } from "langchain/vectorstores/base";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -66,14 +65,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    const vectorStore = await getVectorStore();
     const sitemapUrls = await getSitemaps(url);
     console.debug(`sitemapUrls: ${sitemapUrls}`);
     Promise.all(
       sitemapUrls.map(async (sitemapUrl) => {
         const foundUrls = await navigateSitemap(sitemapUrl, urlRegex);
         console.debug(`foundUrls: ${foundUrls}`);
-        await scrapePages(name, foundUrls, vectorStore);
+        await scrapePages(name, foundUrls);
       })
     )
       .then(async () => {
@@ -175,11 +173,7 @@ async function navigateSitemap(
   return urls.filter((url, index) => urls.indexOf(url) === index);
 }
 
-async function scrapePages(
-  name: string,
-  urls: string[],
-  vectorStore: VectorStore
-): Promise<void> {
+async function scrapePages(name: string, urls: string[]): Promise<void> {
   const maxWorkers = 2;
   let runningWorkers = 0;
   const workers: Promise<void>[] = [];
@@ -190,7 +184,7 @@ async function scrapePages(
       continue;
     }
     runningWorkers++;
-    const worker = generatePageContentEmbeddings(name, url!, vectorStore)
+    const worker = generatePageContentEmbeddings(name, url!)
       .then(() => {
         runningWorkers--;
       })
@@ -205,8 +199,7 @@ async function scrapePages(
 
 async function generatePageContentEmbeddings(
   name: string,
-  url: string,
-  vectorStore: VectorStore
+  url: string
 ): Promise<void> {
   let retries = 5;
   while (retries > 0) {
@@ -251,7 +244,7 @@ async function generatePageContentEmbeddings(
         return doc;
       });
       console.log(`Obtained ${docs.length} documents from url '${url}'`);
-      await vectorStore.addDocuments(docs);
+      await addDocumentsToVectorStore(docs);
       return;
     } catch (err: any) {
       console.error(`${err.stack}`);

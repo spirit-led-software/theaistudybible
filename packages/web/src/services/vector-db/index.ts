@@ -1,5 +1,6 @@
 import { vectorDBConfig } from "@configs/index";
 import { QdrantClient } from "@qdrant/js-client-rest";
+import { Document } from "langchain/document";
 import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
 import { getEmbeddingsModel } from "../llm";
 
@@ -14,6 +15,15 @@ export async function getVectorStore() {
     collectionName: vectorDBConfig.collectionName,
     client: getQdrantClient(),
   });
+}
+
+export async function addDocumentsToVectorStore(
+  documents: Document<Record<string, any>>[]
+) {
+  const vectorStore = await getVectorStore();
+  for (let i = 0; i < documents.length; i += 30) {
+    await vectorStore.addDocuments(documents.slice(i, i + 30));
+  }
 }
 
 export async function initializeCollection() {

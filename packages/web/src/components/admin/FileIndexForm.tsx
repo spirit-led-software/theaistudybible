@@ -33,6 +33,9 @@ export function FileIndexForm() {
 
       const response = await fetch("/api/index-ops/file", {
         method: "POST",
+        headers: {
+          connection: "keep-alive",
+        },
         body: formData,
       }).catch((error) => {
         throw new Error(error.message);

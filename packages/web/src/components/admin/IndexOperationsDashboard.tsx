@@ -19,7 +19,7 @@ export function IndexOperationsDashboard({
         : 100,
     },
     {
-      refreshInterval: 1000,
+      refreshInterval: 5000,
     }
   );
 

@@ -12,7 +12,7 @@ import {
   updateIndexOperation,
 } from "@services/index-op";
 import { isAdmin, validServerSession } from "@services/user";
-import { getVectorStore } from "@services/vector-db";
+import { addDocumentsToVectorStore } from "@services/vector-db";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -117,8 +117,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           return doc;
         });
         console.log("Adding documents to vector store");
-        const vectorStore = await getVectorStore();
-        await vectorStore.addDocuments(docs);
+        await addDocumentsToVectorStore(docs);
         await updateIndexOperation(indexOp.id, {
           status: IndexOperationStatus.COMPLETED,
           metadata: {
