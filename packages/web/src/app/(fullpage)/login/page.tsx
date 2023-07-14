@@ -13,7 +13,9 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const user = useUser();
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const [alert, setAlert] = useState<string | null>(null);
+
+  const urlError = searchParams.get("error");
+  const [alert, setAlert] = useState<string | null>(urlError);
 
   if (user) {
     router.replace(searchParams.get("redirect") ?? "/");

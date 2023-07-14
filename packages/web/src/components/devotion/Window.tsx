@@ -56,7 +56,12 @@ export function Window({
                     })
                     ?.map((sourceDoc: SourceDocument) => (
                       <li key={sourceDoc.id}>
-                        <Link href={(sourceDoc.metadata as any).url}>
+                        <Link
+                          href={(sourceDoc.metadata as any).url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-300 underline hover:text-blue-400"
+                        >
                           {(sourceDoc.metadata as any).name}
                         </Link>
                       </li>

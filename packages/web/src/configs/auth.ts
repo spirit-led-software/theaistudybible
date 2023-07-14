@@ -1,7 +1,7 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@services/database";
 import { addRoleToUser } from "@services/role";
-import { createUser, getUserByEmail } from "@services/user";
+import { getUser } from "@services/user";
 import { NextAuthOptions } from "next-auth";
 import { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
@@ -57,6 +57,17 @@ export const config: AuthConfig = {
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
+  events: {
+    createUser: async ({ user }) => {
+      const dbUser = await getUser(user.id, {
+        throwOnNotFound: true,
+      });
+      await addRoleToUser("USER", dbUser!);
+    },
+  },
+  pages: {
+    error: "/login?error=Something went wrong",
+  },
   providers: [
     EmailProvider({
       id: "email",
@@ -74,45 +85,24 @@ export const authOptions: NextAuthOptions = {
       id: "google",
       clientId: config.google.clientId,
       clientSecret: config.google.clientSecret,
+      allowDangerousEmailAccountLinking: true,
     }),
     FacebookProvider({
       id: "facebook",
       clientId: config.facebook.clientId,
       clientSecret: config.facebook.clientSecret,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
     session: async ({ session, user }) => {
-      let dbUser = await getUserByEmail(user.email, {
-        throwOnNotFound: false,
+      const dbUser = await getUser(user.id, {
+        throwOnNotFound: true,
         include: {
           roles: true,
         },
       });
-      if (!dbUser) {
-        await createUser({
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          roles: {
-            connect: [
-              {
-                name: "USER",
-              },
-            ],
-          },
-        });
-        dbUser = await getUserByEmail(user.email, {
-          include: {
-            roles: true,
-          },
-        });
-      }
-      if (!dbUser?.roles?.some((role) => role.name === "USER")) {
-        const { user: updatedDbUser } = await addRoleToUser("USER", dbUser!);
-        dbUser = updatedDbUser;
-      }
-      session.user.roles = dbUser.roles?.map((role) => role.name) ?? [];
+      session.user.roles = dbUser!.roles?.map((role) => role.name) ?? [];
       return session;
     },
   },

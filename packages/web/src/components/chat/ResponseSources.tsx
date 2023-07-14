@@ -85,6 +85,8 @@ export function ResponseSources({
             <li key={sourceDoc.id} className={`text-xs text-gray-400`}>
               <Link
                 href={(sourceDoc.metadata as any).url ?? "#"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:underline"
               >
                 {(sourceDoc.metadata as any).name}
