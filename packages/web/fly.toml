@@ -5,11 +5,16 @@
 
 app = "chatesv"
 primary_region = "atl"
+kill_signal = "SIGINT"
+kill_timeout = 120
 
 [build]
   dockerfile = "Dockerfile"
   ignorefile = ".dockerignore"
   build-target = "runner"
+
+[deploy]
+  release_command = "prisma migrate deploy"
 
 [env]
   ADMIN_EMAIL = "ian.g.pascoe@gmail.com"
@@ -28,17 +33,16 @@ primary_region = "atl"
   VECTOR_DB_URL = "https://16d42bec-a2d0-4ea5-9694-a25378122c96.us-east-1-0.aws.cloud.qdrant.io:6333"
 
 [http_service]
-  internal_port = 3000
+  internal_port = 8080
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
-  min_machines_running = 0
-  processes = ["app"]
+  min_machines_running = 1
 
 [[http_service.checks]]
   grace_period = "20s"
   interval = "30s"
   method = "GET"
-  timeout = "15s"
+  timeout = "5s"
   path = "/"
 

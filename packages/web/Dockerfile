@@ -19,7 +19,7 @@ RUN npm run build
 FROM docker.io/node:20.2.0 AS runner
 
 ENV HOST=0.0.0.0
-ENV PORT=3000
+ENV PORT=8080
 ENV NODE_ENV=production
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -51,6 +51,7 @@ RUN groupadd -r chatesv \
 # Install node dependencies
 COPY --from=builder /app/package*.json ./
 RUN npm ci --omit=dev \
+  && npm i -g prisma \
   && npm cache clean --force
 
 # Copy source files
@@ -68,6 +69,6 @@ RUN chown -R chatesv:chatesv /app \
 
 USER chatesv
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD [ "node", "server.js" ]

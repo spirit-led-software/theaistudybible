@@ -1,8 +1,12 @@
 # dependencies
 node_modules
 
-# turborepo
-.turbo
+# sst
+.sst
+.build
+
+# opennext
+.open-next
 
 # misc
 .DS_Store
@@ -11,5 +15,4 @@ node_modules
 .env*.local
 
 volumes
-
 .secret

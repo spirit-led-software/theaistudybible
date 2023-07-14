@@ -1,3 +1,5 @@
 {
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "search.exclude": {
+    "**/.sst": true
+  }
 }

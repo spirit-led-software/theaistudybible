@@ -38,7 +38,8 @@
     "remark": "^14.0.3",
     "remark-gfm": "^3.0.1",
     "swr": "^2.2.0",
-    "tailwindcss-brand-colors": "^0.3.3"
+    "tailwindcss-brand-colors": "^0.3.3",
+    "@chatesv/core": "*"
   },
   "devDependencies": {
     "@prisma/nextjs-monorepo-workaround-plugin": "^4.16.2",
