@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "typeRoots": ["./src/types"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "paths": {
+      "@configs/*": ["./src/configs/*"],
+      "@configs": ["./src/configs"],
+      "@services/*": ["./src/services/*"],
+      "@services": ["./src/services"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

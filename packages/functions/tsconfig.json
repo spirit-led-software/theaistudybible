@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@chatesv/core/*": ["../core/src/*"],
+      "@configs/*": ["../core/src/configs/*"],
+      "@configs": ["../core/src/configs"],
+      "@services/*": ["../core/src/services/*"],
+      "@types/*": ["../core/src/types/types/*"]
+    }
+  }
+}

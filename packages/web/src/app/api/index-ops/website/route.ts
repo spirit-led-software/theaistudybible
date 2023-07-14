@@ -12,12 +12,6 @@ import {
   updateIndexOperation,
 } from "@services//index-op";
 import { isAdmin, validServerSession } from "@services//user";
-import { addDocumentsToVectorStore } from "@services//vector-db";
-import {
-  Page,
-  PuppeteerWebBaseLoader,
-} from "langchain/document_loaders/web/puppeteer";
-import { TokenTextSplitter } from "langchain/text_splitter";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -100,85 +94,4 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.error(error);
     return InternalServerErrorResponse(error.stack);
   }
-}
-
-async function scrapePages(name: string, urls: string[]): Promise<void> {
-  const maxConcurrentWorkers = 2;
-  let runningWorkers = 0;
-  const workers: Promise<void>[] = [];
-  while (urls.length > 0) {
-    const url = urls.pop();
-    if (runningWorkers >= maxConcurrentWorkers) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      continue;
-    }
-    runningWorkers++;
-    const worker = generatePageContentEmbeddings(name, url!)
-      .then(() => {
-        runningWorkers--;
-      })
-      .catch((err) => {
-        console.error(`${err.stack}`);
-        runningWorkers--;
-      });
-    workers.push(worker);
-  }
-  await Promise.all(workers);
-}
-
-async function generatePageContentEmbeddings(
-  name: string,
-  url: string
-): Promise<void> {
-  let retries = 5;
-  while (retries > 0) {
-    try {
-      let pageTitle = `${url}`;
-      const loader = new PuppeteerWebBaseLoader(url, {
-        launchOptions: {
-          headless: true,
-          args: ["--no-sandbox"],
-        },
-        evaluate: async (page: Page) => {
-          await page.waitForNetworkIdle();
-          await page.waitForSelector("body");
-          return await page.evaluate(() => {
-            let foundTitle = document.querySelector("title")?.innerText;
-            if (!foundTitle) {
-              foundTitle = document.querySelector("h1")?.innerText;
-            }
-            if (foundTitle) {
-              pageTitle = foundTitle;
-            }
-            const text = document.querySelector("body")!.innerText;
-            return text.replace(/\n/g, " ").trim();
-          });
-        },
-      });
-      let docs = await loader.loadAndSplit(
-        new TokenTextSplitter({
-          chunkSize: 400,
-          chunkOverlap: 50,
-          encodingName: "cl100k_base",
-        })
-      );
-      docs = docs.map((doc) => {
-        doc.metadata = {
-          ...doc.metadata,
-          indexDate: new Date().toISOString(),
-          name: `${name} - ${pageTitle}`,
-          url,
-          type: "Webpage",
-        };
-        return doc;
-      });
-      console.log(`Obtained ${docs.length} documents from url '${url}'`);
-      await addDocumentsToVectorStore(docs);
-      return;
-    } catch (err: any) {
-      console.error(`${err.stack}`);
-      retries--;
-    }
-  }
-  throw new Error("Failed to generate page content embeddings");
 }

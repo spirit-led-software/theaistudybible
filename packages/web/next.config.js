@@ -13,6 +13,7 @@ const nextConfig = {
     return config;
   },
   output: "standalone",
+  transpilePackages: ["@chatesv/core"],
 };
 
 module.exports = nextConfig;
