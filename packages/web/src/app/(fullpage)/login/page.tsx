@@ -12,6 +12,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useUser();
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
 
   const urlError = searchParams.get("error");
@@ -84,6 +85,9 @@ export default function LoginPage() {
             </button>
           </div>
           <div className="w-full pt-4 space-y-3">
+            <div>
+              <input className="w-full h-8 px-2 rounded-md outline outline-slate-400" />
+            </div>
             <input
               className="w-full h-8 px-2 rounded-md outline outline-slate-400"
               placeholder="Email"

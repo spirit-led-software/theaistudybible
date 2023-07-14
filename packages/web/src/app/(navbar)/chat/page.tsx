@@ -11,10 +11,15 @@ export default async function ChatPage() {
     redirect(`/login?redirect=/chat`);
   }
 
-  let chats = await getChats({
+  const chats = await getChats({
     limit: 7,
-  });
-  chats = chats.filter(async (chat) => isObjectOwner(chat, user));
+  })
+    .then((chats) => {
+      return chats.filter((chat) => isObjectOwner(chat, user));
+    })
+    .catch((error) => {
+      throw new Error(error);
+    });
 
   return <Window initChats={chats} />;
 }

@@ -18,20 +18,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    let chats = await getChats({
-      orderBy: {
-        [orderBy]: order,
-      },
-      offset: (page - 1) * limit,
-      limit,
-    });
-
     const { isValid, user } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }
 
-    chats = chats.filter(async (chat) => isObjectOwner(chat, user));
+    const chats = await getChats({
+      orderBy: {
+        [orderBy]: order,
+      },
+      offset: (page - 1) * limit,
+      limit,
+    })
+      .then((chats) => {
+        return chats.filter((chat) => isObjectOwner(chat, user));
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
 
     return OkResponse({
       entities: chats,
