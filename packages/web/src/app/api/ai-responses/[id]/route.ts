@@ -11,7 +11,7 @@ import {
   deleteAiResponse,
   getAiResponse,
   updateAiResponse,
-} from "@services/ai-responses";
+} from "@services/ai-response";
 import { validSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

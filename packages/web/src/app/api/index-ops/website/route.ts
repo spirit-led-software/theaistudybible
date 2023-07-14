@@ -1,4 +1,3 @@
-import axios from "@configs/axios";
 import { websiteConfig } from "@configs/index";
 import {
   BadRequestResponse,
@@ -11,10 +10,9 @@ import {
   createIndexOperation,
   getIndexOperations,
   updateIndexOperation,
-} from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/user";
-import { addDocumentsToVectorStore } from "@services/vector-db";
-import { XMLParser } from "fast-xml-parser";
+} from "@services//index-op";
+import { isAdmin, validServerSession } from "@services//user";
+import { addDocumentsToVectorStore } from "@services//vector-db";
 import {
   Page,
   PuppeteerWebBaseLoader,
@@ -102,75 +100,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.error(error);
     return InternalServerErrorResponse(error.stack);
   }
-}
-
-async function getSitemaps(url: string): Promise<string[]> {
-  const response = await axios.get(`${url}/robots.txt`, {});
-  if (response.status === 200) {
-    const text: string = response.data;
-    const lines = text.split("\n");
-    const sitemapLines = lines.filter((line) =>
-      line.toLowerCase().includes("sitemap")
-    );
-    const sitemapUrls = sitemapLines.map((line) => {
-      const url = line.split(": ")[1].trim();
-      return url;
-    });
-    return sitemapUrls.filter(
-      (url, index) => sitemapUrls.indexOf(url) === index
-    );
-  }
-  return [];
-}
-
-async function navigateSitemap(
-  initialUrl: string,
-  urlRegex: RegExp
-): Promise<string[]> {
-  const urls: string[] = [];
-  const stack = [initialUrl];
-  while (stack.length > 0) {
-    const url = stack.pop();
-    try {
-      // Fetch the sitemap XML content
-      const { data: sitemapXml } = await axios.get(url!);
-
-      // Parse the XML string to an XML Object
-      const parser = new XMLParser();
-      const sitemapXmlObj = parser.parse(sitemapXml);
-
-      const urlMapper = async (foundUrlObj: any) => {
-        const foundUrl = foundUrlObj.loc;
-        if (foundUrl) {
-          if (foundUrl.endsWith(".xml")) {
-            stack.push(foundUrl);
-          } else if (foundUrl.match(urlRegex)) {
-            urls.push(foundUrl);
-          } else {
-            console.debug(`Skipping URL: ${foundUrl}`);
-          }
-        }
-      };
-
-      let sitemapUrls = [];
-      if (sitemapXmlObj.urlset) {
-        sitemapUrls = sitemapXmlObj.urlset.url;
-      } else if (sitemapXmlObj.sitemapindex) {
-        sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
-      } else {
-        console.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
-      }
-
-      if (Array.isArray(sitemapUrls)) {
-        await Promise.all(sitemapUrls.map(urlMapper));
-      } else {
-        await urlMapper(sitemapUrls);
-      }
-    } catch (err: any) {
-      console.error(`${err.stack}`);
-    }
-  }
-  return urls.filter((url, index) => urls.indexOf(url) === index);
 }
 
 async function scrapePages(name: string, urls: string[]): Promise<void> {

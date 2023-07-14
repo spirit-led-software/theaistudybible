@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "typeRoots": ["./src/types"],
+    "declaration": false,
+    "declarationMap": false,
+    "typeRoots": ["../core/src/types"],
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -21,14 +23,17 @@
       }
     ],
     "paths": {
-      "@configs/*": ["./src/configs/*"],
-      "@configs": ["./src/configs"],
+      "@chatesv/core/*": ["../core/src/*"],
+      "@configs/*": ["../core/src/configs/*"],
+      "@configs": ["../core/src/configs"],
       "@components/*": ["./src/components/*"],
       "@components": ["./src/components"],
       "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./src/lib/*"],
-      "@types/*": ["./src/types/*"],
-      "@types": ["./src/types"],
+      "@services/*": ["../core/src/services/*"],
+      "@services": ["../core/src/services"],
+      "@types/*": ["../core/src/types/*"],
+      "@types": ["../core/src/types"],
       "@/*": ["./src/*"]
     }
   },

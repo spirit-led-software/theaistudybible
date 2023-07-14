@@ -1,4 +1,3 @@
-import { prisma } from "@/services/database";
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
@@ -6,8 +5,9 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { Chat, Prisma } from "@prisma/client";
-import { createAiResponse, updateAiResponse } from "@services/ai-responses";
+import { createAiResponse, updateAiResponse } from "@services/ai-response";
 import { createChat, getChat } from "@services/chat";
+import { prisma } from "@services/database";
 import { getChatModel, getCompletionsModel } from "@services/llm";
 import { isObjectOwner, validServerSession } from "@services/user";
 import { createUserMessage } from "@services/user-messages";

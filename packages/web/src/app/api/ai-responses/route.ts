@@ -1,8 +1,4 @@
 import {
-  createAiResponse,
-  getAiResponses,
-} from "@chatesv/core/services/ai-responses";
-import {
   BadRequestResponse,
   CreatedResponse,
   InternalServerErrorResponse,
@@ -10,6 +6,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
+import { createAiResponse, getAiResponses } from "@services/ai-response";
 import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

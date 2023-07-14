@@ -4,7 +4,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
-import { getAiResponses } from "@services/ai-responses";
+import { getAiResponses } from "@services/ai-response";
 import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
