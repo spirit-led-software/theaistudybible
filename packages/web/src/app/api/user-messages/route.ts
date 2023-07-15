@@ -1,11 +1,16 @@
+import { isAdmin, isObjectOwner } from "@core/services/user";
+import {
+  createUserMessage,
+  getUserMessages,
+} from "@core/services/user-message";
 import {
   CreatedResponse,
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
-import { createUserMessage, getUserMessages } from "@services/user-messages";
+
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {

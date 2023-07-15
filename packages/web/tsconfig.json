@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "typeRoots": ["./src/types", "../core/src/types"],
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -20,26 +21,25 @@
       }
     ],
     "paths": {
+      "@core/configs/*": ["../core/src/configs/*"],
+      "@core/configs": ["../core/src/configs"],
+      "@core/services/*": ["../core/src/services/*"],
+      "@core/services": ["../core/src/services"],
+      "@core/types/*": ["../core/src/types/*"],
+      "@core/types": ["../core/src/types"],
       "@chatesv/core/*": ["../core/src/*"],
-      "@configs/*": ["../core/src/configs/*"],
-      "@configs": ["../core/src/configs"],
       "@components/*": ["./src/components/*"],
       "@components": ["./src/components"],
+      "@configs/*": ["./src/configs/*"],
+      "@configs": ["./src/configs"],
       "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./src/lib/*"],
-      "@services/*": ["../core/src/services/*"],
-      "@services": ["../core/src/services"],
-      "@types/*": ["../core/src/types/*"],
-      "@types": ["../core/src/types"],
+      "@lib": ["./src/lib"],
+      "@services/*": ["./src/services/*"],
+      "@services": ["./src/services"],
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "../core/src/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

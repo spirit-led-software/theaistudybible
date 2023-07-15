@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "../database";
-import { GetAiResponseOptions, GetAiResponsesOptions } from "./types";
+import { GetAiResponseOptions, GetAiResponsesOptions } from "ai-response";
+import { prisma } from "./database";
 
 export async function getAiResponses(options?: GetAiResponsesOptions) {
   const {

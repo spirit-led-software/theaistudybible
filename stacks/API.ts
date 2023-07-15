@@ -1,4 +1,4 @@
-import { Database, STATIC_ENV_VARS } from "@stacks";
+import { Database, S3, STATIC_ENV_VARS } from "@stacks";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext, use } from "sst/constructs";
 
@@ -6,6 +6,7 @@ const chromeLayerArn =
   "arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:22";
 
 export function API({ stack }: StackContext) {
+  const { bucket } = use(S3);
   const { database, databaseUrl } = use(Database);
 
   const chromeLayer = LayerVersion.fromLayerVersionArn(
@@ -19,8 +20,8 @@ export function API({ stack }: StackContext) {
       "POST /website": "packages/functions/src/scraper/website.handler",
       "POST /webpage": {
         function: {
+          runtime: "nodejs16.x",
           handler: "packages/functions/src/scraper/webpage.handler",
-          timeout: 15,
           layers: [chromeLayer],
           nodejs: {
             install: ["chrome-aws-lambda"],
@@ -30,11 +31,20 @@ export function API({ stack }: StackContext) {
     },
     defaults: {
       function: {
+        runtime: "nodejs18.x",
+        nodejs: {
+          install: ["prisma"],
+        },
+        copyFiles: [
+          {
+            from: "prisma",
+          },
+        ],
         environment: {
           DATABASE_URL: databaseUrl,
           ...STATIC_ENV_VARS,
         },
-        bind: [database],
+        bind: [database, bucket],
       },
     },
     customDomain: {

@@ -1,8 +1,9 @@
 import { Window } from "@components/chat";
+import { getChat, getChats } from "@core/services/chat";
+import { isObjectOwner } from "@core/services/user";
+import { getUserMessages } from "@core/services/user-message";
 import { AiResponse } from "@prisma/client";
-import { getChat, getChats } from "@services/chat";
-import { isObjectOwner, validServerSession } from "@services/user";
-import { getUserMessages } from "@services/user-messages";
+import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
 import { notFound, redirect } from "next/navigation";
 

@@ -1,13 +1,11 @@
-import { unstructuredConfig } from "@configs/index";
-import { IndexOperationStatus, IndexOperationType } from "@prisma/client";
+import { unstructuredConfig } from "@core/configs";
 import {
   createIndexOperation,
   getIndexOperations,
   updateIndexOperation,
-} from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/user";
-import { addDocumentsToVectorStore } from "@services/vector-db";
-import * as busboy from "busboy";
+} from "@core/services/index-op";
+import { addDocumentsToVectorStore } from "@core/services/vector-db";
+import { IndexOperationStatus, IndexOperationType } from "@prisma/client";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -30,32 +28,7 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  let file: File | null = null;
-  let url: string | null = null;
-  let name: string | null = null;
-
-  const bb = busboy({
-    headers: event.headers,
-  });
-
-  bb.on("file", (fieldname, fileStream, filename, encoding, mimetype) => {
-    file = fileStream;
-  });
-
-  bb.on("field", (fieldname, val) => {
-    if (fieldname === "url") {
-      url = val;
-    } else if (fieldname === "name") {
-      name = val;
-    }
-  });
-
-  await new Promise((resolve, reject) => {
-    bb.on("finish", resolve);
-    bb.on("error", reject);
-    bb.write(event.body, event.isBase64Encoded ? "base64" : "binary");
-    bb.end();
-  });
+  const { file, url, name } = JSON.parse(event.body);
 
   if (!file || !url || !name) {
     return {
@@ -67,22 +40,13 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
-    const { isValid, user } = await validServerSession();
-    if (!isValid || !(await isAdmin(user.id))) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({
-          error: "Unauthorized",
-        }),
-      };
-    }
-
     const runningOps = await getIndexOperations({
       query: {
         status: IndexOperationStatus.IN_PROGRESS,
       },
       limit: 1,
     });
+
     if (runningOps.length > 0) {
       return {
         statusCode: 400,

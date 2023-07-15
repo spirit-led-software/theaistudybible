@@ -1,11 +1,11 @@
-import { axios } from "@configs";
 import { Prisma } from "@prisma/client";
-import { prisma } from "@services/database";
+import { GetDevotionOptions, GetDevotionsOptions } from "devotion";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
-import { getCompletionsModel } from "../llm";
-import { getVectorStore } from "../vector-db";
-import { GetDevotionOptions, GetDevotionsOptions } from "./types";
+import { axios } from "../configs";
+import { prisma } from "./database";
+import { getCompletionsModel } from "./llm";
+import { getVectorStore } from "./vector-db";
 
 export async function getDevotions(options?: GetDevotionsOptions) {
   const {

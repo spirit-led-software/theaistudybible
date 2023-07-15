@@ -1,11 +1,13 @@
-import { axios } from "@configs/axios";
+import { axios } from "@core/configs/axios";
+import {
+  createIndexOperation,
+  updateIndexOperation,
+} from "@core/services/index-op";
 import {
   IndexOperation,
   IndexOperationStatus,
   IndexOperationType,
 } from "@prisma/client";
-import { createIndexOperation, updateIndexOperation } from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/user";
 import { XMLParser } from "fast-xml-parser";
 import { Api, ApiHandler } from "sst/node/api";
 
@@ -39,16 +41,6 @@ export const handler = ApiHandler(async (event) => {
 
   let indexOp: IndexOperation | null = null;
   try {
-    const { isValid, user } = await validServerSession();
-    if (!isValid || !(await isAdmin(user.id))) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({
-          error: "Unauthorized",
-        }),
-      };
-    }
-
     indexOp = await createIndexOperation({
       type: IndexOperationType.WEBSITE,
       status: IndexOperationStatus.IN_PROGRESS,
@@ -75,7 +67,7 @@ export const handler = ApiHandler(async (event) => {
     }
 
     foundUrls.forEach((url) => {
-      fetch(Api["webpage-scraper-api"].url, {
+      fetch(Api.ScraperApi.url, {
         method: "POST",
         body: JSON.stringify({
           url,

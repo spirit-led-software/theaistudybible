@@ -1,4 +1,10 @@
 import {
+  deleteIndexOperation,
+  getIndexOperation,
+  updateIndexOperation,
+} from "@core/services/index-op";
+import { isAdmin } from "@core/services/user";
+import {
   DeletedResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
@@ -6,12 +12,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import {
-  deleteIndexOperation,
-  getIndexOperation,
-  updateIndexOperation,
-} from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(

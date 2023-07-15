@@ -1,5 +1,6 @@
 export * from "./API";
 export * from "./Database";
+export * from "./DatabaseMigrations";
 export * from "./S3";
 export * from "./Website";
 

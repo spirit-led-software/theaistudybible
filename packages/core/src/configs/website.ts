@@ -1,6 +1,4 @@
-export type WebsiteConfig = {
-  url: string;
-};
+import { WebsiteConfig } from "website";
 
 export const config: WebsiteConfig = {
   url: process.env.WEBSITE_URL as string,

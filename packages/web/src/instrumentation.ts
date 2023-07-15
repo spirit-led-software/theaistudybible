@@ -10,13 +10,13 @@ export async function register() {
 
   console.log("Initializing instrumentation");
 
-  const vectorDbService = await import("@chatesv/core/services/vector-db");
+  const vectorDbService = await import("@core/services/vector-db");
   await vectorDbService.initializeCollection();
 
-  const roleService = await import("@chatesv/core/services/role");
+  const roleService = await import("@core/services/role");
   await roleService.createInitialRoles();
 
-  const userService = await import("@chatesv/core/services/user");
+  const userService = await import("@core/services/user");
   await userService.createInitialAdminUser();
 
   console.log("Instrumentation initialized");

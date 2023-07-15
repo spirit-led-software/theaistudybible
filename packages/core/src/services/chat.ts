@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "@services/database";
-import { GetChatOptions, GetChatsOptions } from "./types";
+import { GetChatOptions, GetChatsOptions } from "chat";
+import { prisma } from "./database";
 
 export async function getChats(options?: GetChatsOptions) {
   const {

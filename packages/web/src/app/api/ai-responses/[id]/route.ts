@@ -1,4 +1,9 @@
 import {
+  deleteAiResponse,
+  getAiResponse,
+  updateAiResponse,
+} from "@core/services/ai-response";
+import {
   DeletedResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
@@ -7,11 +12,6 @@ import {
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import {
-  deleteAiResponse,
-  getAiResponse,
-  updateAiResponse,
-} from "@services/ai-response";
 import { validSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

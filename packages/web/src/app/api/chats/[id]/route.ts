@@ -1,3 +1,5 @@
+import { deleteChat, getChat, updateChat } from "@core/services/chat";
+
 import {
   DeletedResponse,
   InternalServerErrorResponse,
@@ -7,7 +9,6 @@ import {
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { deleteChat, getChat, updateChat } from "@services/chat";
 import { validSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

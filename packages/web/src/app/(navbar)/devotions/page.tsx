@@ -1,4 +1,4 @@
-import { getDevotions } from "@services/devotion";
+import { getDevotions } from "@core/services/devotion";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";

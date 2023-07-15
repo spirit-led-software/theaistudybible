@@ -1,7 +1,4 @@
-export type EnvironmentConfig = {
-  env: string;
-  development: boolean;
-};
+import { EnvironmentConfig } from "env";
 
 export const config: EnvironmentConfig = {
   env: process.env.NODE_ENV || "development",

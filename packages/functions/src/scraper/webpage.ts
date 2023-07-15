@@ -1,7 +1,9 @@
+import {
+  getIndexOperation,
+  updateIndexOperation,
+} from "@core/services/index-op";
+import { addDocumentsToVectorStore } from "@core/services/vector-db";
 import { IndexOperation, IndexOperationStatus } from "@prisma/client";
-import { getIndexOperation, updateIndexOperation } from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/user";
-import { addDocumentsToVectorStore } from "@services/vector-db";
 import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
 import { TokenTextSplitter } from "langchain/text_splitter";
 import { ApiHandler } from "sst/node/api";
@@ -31,16 +33,6 @@ export const handler = ApiHandler(async (event) => {
   let indexOp: IndexOperation | null = null;
   let indexOpMetadata: any = null;
   try {
-    const { isValid, user } = await validServerSession();
-    if (!isValid || !(await isAdmin(user.id))) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({
-          error: "Unauthorized",
-        }),
-      };
-    }
-
     indexOp = await getIndexOperation(indexOpId, {
       throwOnNotFound: true,
     });

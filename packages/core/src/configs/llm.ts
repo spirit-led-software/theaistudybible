@@ -1,9 +1,4 @@
-export type LLMConfig = {
-  apiKey: string;
-  modelName: string;
-  embeddingsModelName: string;
-  temperature: number;
-};
+import { LLMConfig } from "llm";
 
 export const config: LLMConfig = {
   apiKey: process.env.LLM_API_KEY as string,

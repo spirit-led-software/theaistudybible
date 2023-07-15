@@ -1,4 +1,10 @@
 import {
+  deleteDevotion,
+  getDevotion,
+  updateDevotion,
+} from "@core/services/devotion";
+import { isAdmin } from "@core/services/user";
+import {
   DeletedResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
@@ -7,12 +13,7 @@ import {
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import {
-  deleteDevotion,
-  getDevotion,
-  updateDevotion,
-} from "@services/devotion";
-import { isAdmin, validServerSession } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(

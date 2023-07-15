@@ -1,3 +1,5 @@
+import { createChat, getChats } from "@core/services/chat";
+import { isObjectOwner } from "@core/services/user";
 import {
   BadRequestResponse,
   CreatedResponse,
@@ -6,8 +8,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { PrismaClientValidationError } from "@prisma/client/runtime/library";
-import { createChat, getChats } from "@services/chat";
-import { isObjectOwner, validServerSession } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {

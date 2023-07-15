@@ -1,4 +1,4 @@
-import { API, Database, S3, Website } from "@stacks";
+import { API, Database, DatabaseMigrations, S3, Website } from "@stacks";
 import { SSTConfig } from "sst";
 
 export default {
@@ -9,6 +9,11 @@ export default {
     };
   },
   stacks(app) {
-    app.stack(Database).stack(S3).stack(API).stack(Website);
+    app
+      .stack(S3)
+      .stack(Database)
+      .stack(DatabaseMigrations)
+      .stack(API)
+      .stack(Website);
   },
 } satisfies SSTConfig;

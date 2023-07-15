@@ -5,7 +5,7 @@ import {
   IndexOperationsDashboard,
   WebsiteIndexForm,
 } from "@components/admin";
-import { getIndexOperations } from "@services/index-op";
+import { getIndexOperations } from "@core/services/index-op";
 
 export default async function AdminPage() {
   const indexOps = await getIndexOperations({

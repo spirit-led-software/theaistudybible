@@ -1,6 +1,8 @@
 import { Window } from "@components/chat";
-import { getChats } from "@services/chat";
-import { isObjectOwner, validServerSession } from "@services/user";
+import { getChats } from "@core/services/chat";
+import { isObjectOwner } from "@core/services/user";
+import { validServerSession } from "@services/user";
+
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";

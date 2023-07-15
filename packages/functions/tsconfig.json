@@ -5,10 +5,10 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@configs/*": ["../core/src/configs/*"],
-      "@configs": ["../core/src/configs"],
-      "@services/*": ["../core/src/services/*"],
-      "@types/*": ["../core/src/types/types/*"],
+      "@core/configs/*": ["../core/src/configs/*"],
+      "@core/configs": ["../core/src/configs"],
+      "@core/services/*": ["../core/src/services/*"],
+      "@core/services": ["../core/src/services"],
       "@chatesv/core/*": ["../core/src/*"]
     }
   }

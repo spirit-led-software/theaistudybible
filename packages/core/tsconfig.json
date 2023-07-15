@@ -3,14 +3,7 @@
   "compilerOptions": {
     "typeRoots": ["./src/types"],
     "module": "esnext",
-    "moduleResolution": "node",
-    "paths": {
-      "@configs/*": ["./src/configs/*"],
-      "@configs": ["./src/configs"],
-      "@services/*": ["./src/services/*"],
-      "@services": ["./src/services"],
-      "@/*": ["./src/*"]
-    }
+    "moduleResolution": "node"
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"]

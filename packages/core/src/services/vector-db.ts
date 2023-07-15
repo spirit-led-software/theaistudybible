@@ -1,8 +1,8 @@
-import { vectorDBConfig } from "@configs/index";
 import { QdrantClient } from "@qdrant/js-client-rest";
 import { Document } from "langchain/document";
 import { QdrantVectorStore } from "langchain/vectorstores/qdrant";
-import { getEmbeddingsModel } from "../llm";
+import { vectorDBConfig } from "../configs/index";
+import { getEmbeddingsModel } from "./llm";
 
 export const getQdrantClient = () =>
   new QdrantClient({

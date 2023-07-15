@@ -1,3 +1,5 @@
+import { createAiResponse, getAiResponses } from "@core/services/ai-response";
+import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
   BadRequestResponse,
   CreatedResponse,
@@ -6,8 +8,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { Prisma } from "@prisma/client";
-import { createAiResponse, getAiResponses } from "@services/ai-response";
-import { isAdmin, isObjectOwner, validServerSession } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {

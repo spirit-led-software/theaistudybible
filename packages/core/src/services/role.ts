@@ -1,6 +1,6 @@
 import { Prisma, User } from "@prisma/client";
-import { prisma } from "@services/database";
-import { GetRoleOptions, GetRolesOptions } from "./types";
+import { GetRoleOptions, GetRolesOptions } from "role";
+import { prisma } from "../services/database";
 
 export async function getRoles(options?: GetRolesOptions) {
   const {

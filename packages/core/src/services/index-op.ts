@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "@services/database";
-import { GetIndexOperationOptions, GetIndexOperationsOptions } from "./types";
+import { GetIndexOperationOptions, GetIndexOperationsOptions } from "index-op";
+import { prisma } from "./database";
 
 export async function getIndexOperations(options?: GetIndexOperationsOptions) {
   const {

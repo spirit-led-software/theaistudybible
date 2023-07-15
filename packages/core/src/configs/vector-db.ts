@@ -1,9 +1,4 @@
-export type VectorDBConfig = {
-  url: string;
-  apiKey: string;
-  collectionName: string;
-  collectionDimensions: number;
-};
+import { VectorDBConfig } from "vector-db";
 
 export const config: VectorDBConfig = {
   url: process.env.VECTOR_DB_URL as string,

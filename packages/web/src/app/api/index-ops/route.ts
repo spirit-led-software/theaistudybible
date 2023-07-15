@@ -1,10 +1,11 @@
+import { getIndexOperations } from "@core/services/index-op";
+import { isAdmin } from "@core/services/user";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getIndexOperations } from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {

@@ -1,4 +1,5 @@
-import { isAdmin, validServerSession } from "@services/user";
+import { isAdmin } from "@core/services/user";
+import { validServerSession } from "@services/user";
 import { redirect } from "next/navigation";
 
 export default async function AdminPageLayout({

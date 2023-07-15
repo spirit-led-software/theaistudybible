@@ -1,10 +1,8 @@
-import { authOptions } from "@configs/auth";
-import { authConfig } from "@configs/index";
 import { Prisma, Role, User } from "@prisma/client";
-import { prisma } from "@services/database";
-import { getServerSession } from "next-auth";
-import { addRoleToUser } from "../role";
-import { GetUserOptions, GetUsersOptions } from "./types";
+import { GetUserOptions, GetUsersOptions } from "user";
+import config from "../configs/auth";
+import { prisma } from "../services/database";
+import { addRoleToUser } from "../services/role";
 
 export async function getUsers(options?: GetUsersOptions) {
   const {
@@ -117,66 +115,16 @@ export async function isAdmin(userId: string) {
   return user!.roles?.some((role: Role) => role.name === "ADMIN") ?? false;
 }
 
-export async function validServerSession(): Promise<
-  | {
-      isValid: false;
-      user?: User;
-    }
-  | {
-      isValid: true;
-      user: User;
-    }
-> {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user || !session.user.email) {
-    return { isValid: false };
-  }
-
-  const user = await getUserByEmail(session.user.email);
-  if (!user) {
-    return { isValid: false };
-  }
-
-  return {
-    isValid: true,
-    user,
-  };
-}
-
 export function isObjectOwner(object: { userId: string }, user: User) {
   return object.userId === user.id;
 }
 
-export async function validSessionAndObjectOwner(object: {
-  userId: string;
-}): Promise<
-  | {
-      isValid: false;
-      user?: User;
-    }
-  | {
-      isValid: true;
-      user: User;
-    }
-> {
-  const { isValid, user } = await validServerSession();
-  if (!isValid) {
-    return { isValid: false };
-  }
-
-  if (!isObjectOwner(object, user) && !(await isAdmin(user.id))) {
-    return { isValid: false, user };
-  }
-
-  return { isValid: true, user };
-}
-
 export async function createInitialAdminUser() {
   console.log("Creating initial admin user");
-  let adminUser = await getUserByEmail(authConfig.adminUser.email);
+  let adminUser = await getUserByEmail(config.adminUser.email);
   if (!adminUser) {
     adminUser = await createUser({
-      email: authConfig.adminUser.email,
+      email: config.adminUser.email,
       emailVerified: new Date(),
       name: "Administrator",
     });

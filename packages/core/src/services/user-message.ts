@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "@services/database";
-import { GetUserMessageOptions, GetUserMessagesOptions } from "./types";
+import { GetUserMessageOptions, GetUserMessagesOptions } from "user-message";
+import { prisma } from "./database";
 
 export async function getUserMessages(options?: GetUserMessagesOptions) {
   const {
