@@ -1,11 +1,5 @@
-import { unstructuredConfig, websiteConfig } from "@configs/index";
-import {
-  BadRequestResponse,
-  InternalServerErrorResponse,
-  OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { IndexOperationStatus, IndexOpertationType } from "@prisma/client";
+import { unstructuredConfig } from "@configs/index";
+import { IndexOperationStatus, IndexOperationType } from "@prisma/client";
 import {
   createIndexOperation,
   getIndexOperations,
@@ -13,6 +7,7 @@ import {
 } from "@services/index-op";
 import { isAdmin, validServerSession } from "@services/user";
 import { addDocumentsToVectorStore } from "@services/vector-db";
+import * as busboy from "busboy";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -21,24 +16,65 @@ import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
 import { TokenTextSplitter } from "langchain/text_splitter";
-import { NextRequest } from "next/server";
 import { tmpdir } from "os";
 import { join } from "path";
+import { ApiHandler } from "sst/node/api";
 
-export async function POST(request: NextRequest): Promise<Response> {
-  const data = await request.formData();
-  const file = data.get("file") as File | undefined;
-  const url = data.get("url") as string | undefined;
-  const name = data.get("name") as string | undefined;
+export const handler = ApiHandler(async (event) => {
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error: "Missing body",
+      }),
+    };
+  }
+
+  let file: File | null = null;
+  let url: string | null = null;
+  let name: string | null = null;
+
+  const bb = busboy({
+    headers: event.headers,
+  });
+
+  bb.on("file", (fieldname, fileStream, filename, encoding, mimetype) => {
+    file = fileStream;
+  });
+
+  bb.on("field", (fieldname, val) => {
+    if (fieldname === "url") {
+      url = val;
+    } else if (fieldname === "name") {
+      name = val;
+    }
+  });
+
+  await new Promise((resolve, reject) => {
+    bb.on("finish", resolve);
+    bb.on("error", reject);
+    bb.write(event.body, event.isBase64Encoded ? "base64" : "binary");
+    bb.end();
+  });
 
   if (!file || !url || !name) {
-    return BadRequestResponse("Must supply file, url, and name");
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        error: "Missing required fields",
+      }),
+    };
   }
 
   try {
     const { isValid, user } = await validServerSession();
     if (!isValid || !(await isAdmin(user.id))) {
-      return UnauthorizedResponse();
+      return {
+        statusCode: 401,
+        body: JSON.stringify({
+          error: "Unauthorized",
+        }),
+      };
     }
 
     const runningOps = await getIndexOperations({
@@ -48,13 +84,21 @@ export async function POST(request: NextRequest): Promise<Response> {
       limit: 1,
     });
     if (runningOps.length > 0) {
-      return BadRequestResponse(
-        "There is already an index operation running, try again later."
-      );
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: "Index operation already in progress",
+        }),
+      };
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      return BadRequestResponse("File size must be less than 50MB");
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: "File too large",
+        }),
+      };
     }
 
     let indexOpMetadata: any = {
@@ -90,7 +134,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     const indexOp = await createIndexOperation({
       status: IndexOperationStatus.IN_PROGRESS,
-      type: IndexOpertationType.FILE,
+      type: IndexOperationType.FILE,
       metadata: indexOpMetadata,
     });
 
@@ -136,13 +180,19 @@ export async function POST(request: NextRequest): Promise<Response> {
         });
       });
 
-    return OkResponse({
-      message: "Started file index",
-      indexOp,
-      link: `${websiteConfig.url}/api/index-ops/${indexOp.id}`,
-    });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "Index operation started",
+      }),
+    };
   } catch (error: any) {
     console.error(error);
-    return InternalServerErrorResponse(error.stack);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: `${error.stack}`,
+      }),
+    };
   }
-}
+});

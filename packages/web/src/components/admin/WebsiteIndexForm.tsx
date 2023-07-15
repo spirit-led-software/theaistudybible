@@ -25,7 +25,7 @@ export function WebsiteIndexForm() {
     }
 
     try {
-      const response = await fetch("/api/index-ops/website", {
+      const response = await fetch(process.env.NEXT_PUBLIC_SCRAPER_API_URL!, {
         method: "POST",
         body: JSON.stringify({ name, url, pathRegex }),
       }).catch((error) => {

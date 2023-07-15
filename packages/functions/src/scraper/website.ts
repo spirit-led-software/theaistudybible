@@ -5,8 +5,9 @@ import {
   IndexOperationType,
 } from "@prisma/client";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import { isAdmin, validServerSession } from "@services/user";
 import { XMLParser } from "fast-xml-parser";
-import { ApiHandler } from "sst/node/api";
+import { Api, ApiHandler } from "sst/node/api";
 
 type RequestBody = {
   url: string;
@@ -36,8 +37,18 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  let indexOp: IndexOperation | undefined = undefined;
+  let indexOp: IndexOperation | null = null;
   try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid || !(await isAdmin(user.id))) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({
+          error: "Unauthorized",
+        }),
+      };
+    }
+
     indexOp = await createIndexOperation({
       type: IndexOperationType.WEBSITE,
       status: IndexOperationStatus.IN_PROGRESS,
@@ -62,6 +73,38 @@ export const handler = ApiHandler(async (event) => {
       const urls = await navigateSitemap(sitemapUrl, urlRegex);
       foundUrls.push(...urls);
     }
+
+    foundUrls.forEach((url) => {
+      fetch(Api["webpage-scraper-api"].url, {
+        method: "POST",
+        body: JSON.stringify({
+          url,
+          name,
+        }),
+      }).catch((err) => {
+        console.error(`${err.stack}`);
+        updateIndexOperation(indexOp!.id, {
+          status: IndexOperationStatus.FAILED,
+          metadata: {
+            ...(indexOp!.metadata as any),
+            errors: [
+              ...((indexOp!.metadata as any).errors ?? []),
+              {
+                message: err.message,
+                stack: err.stack,
+              },
+            ],
+            failed: [
+              ...((indexOp!.metadata as any).failed ?? []),
+              {
+                name,
+                url,
+              },
+            ],
+          },
+        });
+      });
+    });
 
     return {
       statusCode: 200,

@@ -17,10 +17,10 @@ import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import {
-  AIChatMessage,
-  BaseChatMessage,
-  HumanChatMessage,
-  SystemChatMessage,
+  AIMessage,
+  BaseMessage,
+  HumanMessage,
+  SystemMessage,
 } from "langchain/schema";
 import { NextRequest } from "next/server";
 
@@ -107,13 +107,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     });
 
     const vectorStore = await getVectorStore();
-    const history: BaseChatMessage[] = messages.map((message) => {
+    const history: BaseMessage[] = messages.map((message) => {
       return message.role === "user"
-        ? new HumanChatMessage(message.content)
-        : new AIChatMessage(message.content);
+        ? new HumanMessage(message.content)
+        : new AIMessage(message.content);
     });
     history.unshift(
-      new SystemChatMessage(
+      new SystemMessage(
         "You are a Christian chatbot who can answer questions about Christian faith and theology. Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of faith. Quote the bible as much as possible in your answers. If you are asked what your name is, it is ChatESV."
       )
     );

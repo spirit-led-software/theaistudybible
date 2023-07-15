@@ -31,7 +31,7 @@ export function FileIndexForm() {
       formData.append("name", name);
       formData.append("url", url);
 
-      const response = await fetch("/api/index-ops/file", {
+      const response = await fetch(process.env.NEXT_PUBLIC_SCRAPER_API_URL!, {
         method: "POST",
         headers: {
           connection: "keep-alive",

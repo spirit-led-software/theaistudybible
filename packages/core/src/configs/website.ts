@@ -3,7 +3,7 @@ export type WebsiteConfig = {
 };
 
 export const config: WebsiteConfig = {
-  url: process.env.NEXT_PUBLIC_WEBSITE_URL as string,
+  url: process.env.WEBSITE_URL as string,
 };
 
 export default config;

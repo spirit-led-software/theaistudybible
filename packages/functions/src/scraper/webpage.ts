@@ -1,3 +1,6 @@
+import { IndexOperation, IndexOperationStatus } from "@prisma/client";
+import { getIndexOperation, updateIndexOperation } from "@services/index-op";
+import { isAdmin, validServerSession } from "@services/user";
 import { addDocumentsToVectorStore } from "@services/vector-db";
 import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
 import { TokenTextSplitter } from "langchain/text_splitter";
@@ -15,8 +18,8 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  const { name, url } = JSON.parse(event.body);
-  if (!url || !name) {
+  const { name, url, indexOpId } = JSON.parse(event.body);
+  if (!url || !name || !indexOpId) {
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -25,12 +28,104 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: "Hello world!",
-    }),
-  };
+  let indexOp: IndexOperation | null = null;
+  let indexOpMetadata: any = null;
+  try {
+    const { isValid, user } = await validServerSession();
+    if (!isValid || !(await isAdmin(user.id))) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({
+          error: "Unauthorized",
+        }),
+      };
+    }
+
+    indexOp = await getIndexOperation(indexOpId, {
+      throwOnNotFound: true,
+    });
+
+    indexOpMetadata = (indexOp!.metadata as any) ?? {};
+
+    generatePageContentEmbeddings(name, url)
+      .then(() => {
+        updateIndexOperation(indexOpId, {
+          metadata: {
+            ...indexOpMetadata,
+            completed: [
+              ...(indexOpMetadata.completed ?? []),
+              {
+                name,
+                url,
+              },
+            ],
+          },
+        });
+      })
+      .catch((err) => {
+        updateIndexOperation(indexOpId, {
+          status: IndexOperationStatus.FAILED,
+          metadata: {
+            ...indexOpMetadata,
+
+            errors: [
+              ...(indexOpMetadata.errors ?? []),
+              {
+                message: err.message,
+                stack: err.stack,
+              },
+            ],
+            failed: [
+              ...(indexOpMetadata.failed ?? []),
+              {
+                name,
+                url,
+              },
+            ],
+          },
+        });
+      });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "Started indexing url",
+        url,
+      }),
+    };
+  } catch (err: any) {
+    console.error(err.stack);
+
+    if (indexOp) {
+      await updateIndexOperation(indexOp.id, {
+        status: IndexOperationStatus.FAILED,
+        metadata: {
+          ...indexOpMetadata,
+          errors: [
+            ...(indexOpMetadata.errors ?? []),
+            {
+              message: err.message,
+              stack: err.stack,
+            },
+          ],
+          failed: [
+            ...(indexOpMetadata.failed ?? []),
+            {
+              name,
+              url,
+            },
+          ],
+        },
+      });
+    }
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: err.stack,
+      }),
+    };
+  }
 });
 
 async function generatePageContentEmbeddings(

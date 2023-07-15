@@ -1,6 +1,6 @@
+import { Database, STATIC_ENV_VARS } from "@stacks";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext, use } from "sst/constructs";
-import { Database } from "./Database";
 
 const chromeLayerArn =
   "arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:22";
@@ -13,8 +13,10 @@ export function API({ stack }: StackContext) {
     "Layer",
     chromeLayerArn
   );
-  const webpageScraperApi = new Api(stack, "webpage-scraper-api", {
+  const scraperApi = new Api(stack, "ScraperApi", {
     routes: {
+      "POST /file": "packages/functions/src/scraper/file.handler",
+      "POST /website": "packages/functions/src/scraper/website.handler",
       "POST /webpage": {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
@@ -30,37 +32,25 @@ export function API({ stack }: StackContext) {
       function: {
         environment: {
           DATABASE_URL: databaseUrl,
+          ...STATIC_ENV_VARS,
         },
         bind: [database],
       },
     },
     customDomain: {
-      domainName: `${stack.stage}.chatesv.com`,
-      path: "api/scraper",
-    },
-  });
-
-  const websiteScraperApi = new Api(stack, "website-scraper-api", {
-    routes: {
-      "POST /website": "packages/functions/src/scraper/website.handler",
-    },
-    defaults: {
-      function: {
-        environment: {
-          DATABASE_URL: databaseUrl,
-        },
-        bind: [webpageScraperApi, database],
-      },
-    },
-    customDomain: {
-      domainName: `${stack.stage}.chatesv.com`,
+      domainName: `${
+        stack.stage !== "prod" ? `${stack.stage}.` : ""
+      }chatesv.com`,
+      hostedZone: "chatesv.com",
       path: "api/scraper",
     },
   });
 
   stack.addOutputs({
-    DatabaseEndpoint: JSON.stringify(database.clusterEndpoint),
-    WebsiteScraperApiUrl: websiteScraperApi.url,
-    WebpageScraperApiUrl: webpageScraperApi.url,
+    ScraperApiUrl: scraperApi.url,
   });
+
+  return {
+    scraperApi,
+  };
 }

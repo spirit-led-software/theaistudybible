@@ -1,10 +1,9 @@
 import { RDS, StackContext } from "sst/constructs";
 
 export function Database({ stack }: StackContext) {
-  const database = new RDS(stack, `${stack.stackName}-database`, {
+  const database = new RDS(stack, "Database", {
     defaultDatabaseName: "chatesv",
     engine: "postgresql13.9",
-    migrations: "prisma/migrations",
   });
 
   const databaseUrl = `postgresql://${database.cdk.cluster.secret?.secretValueFromJson(
@@ -12,6 +11,10 @@ export function Database({ stack }: StackContext) {
   )}:${database.cdk.cluster.secret?.secretValueFromJson("password")}@${
     database.clusterEndpoint.hostname
   }:${database.clusterEndpoint.port}/chatesv?sslmode=require`;
+
+  stack.addOutputs({
+    DatabaseUrl: databaseUrl,
+  });
 
   return {
     database,
