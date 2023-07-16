@@ -1,20 +1,19 @@
+import { db } from "@chatesv/core/database";
+import { userMessages as userMessagesTable } from "@chatesv/core/database/schema";
 import { Window } from "@components/chat";
 import { getChat, getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
-import { getUserMessages } from "@core/services/user-message";
-import { AiResponse } from "@prisma/client";
 import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
+import { eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 async function getMessages(chatId: string) {
-  const userMessages = await getUserMessages({
-    query: {
-      chatId,
-    },
-    include: {
+  const userMessages = await db.query.userMessages.findMany({
+    where: eq(userMessagesTable.chatId, chatId),
+    with: {
       aiResponses: true,
     },
   });
@@ -26,10 +25,10 @@ async function getMessages(chatId: string) {
         content: userMessage.text,
         role: "user",
       };
-      const aiResponses: Message[] = (userMessage as any).aiResponses.map(
-        (aiResponse: AiResponse) => ({
-          id: aiResponse.aiId,
-          content: aiResponse.text,
+      const aiResponses: Message[] = userMessage.aiResponses.map(
+        (aiResponse) => ({
+          id: aiResponse.aiId!,
+          content: aiResponse.text!,
           role: "assistant",
         })
       );

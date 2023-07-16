@@ -1,3 +1,4 @@
+import { indexOperations } from "@chatesv/core/database/schema";
 import { unstructuredConfig } from "@core/configs";
 import {
   createIndexOperation,
@@ -5,7 +6,7 @@ import {
   updateIndexOperation,
 } from "@core/services/index-op";
 import { addDocumentsToVectorStore } from "@core/services/vector-db";
-import { IndexOperationStatus, IndexOperationType } from "@prisma/client";
+import { eq } from "drizzle-orm";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -41,9 +42,7 @@ export const handler = ApiHandler(async (event) => {
 
   try {
     const runningOps = await getIndexOperations({
-      query: {
-        status: IndexOperationStatus.IN_PROGRESS,
-      },
+      where: eq(indexOperations.status, "IN_PROGRESS"),
       limit: 1,
     });
 
@@ -97,8 +96,8 @@ export const handler = ApiHandler(async (event) => {
     }
 
     const indexOp = await createIndexOperation({
-      status: IndexOperationStatus.IN_PROGRESS,
-      type: IndexOperationType.FILE,
+      status: "IN_PROGRESS",
+      type: "FILE",
       metadata: indexOpMetadata,
     });
 
@@ -126,7 +125,7 @@ export const handler = ApiHandler(async (event) => {
         console.log("Adding documents to vector store");
         await addDocumentsToVectorStore(docs);
         await updateIndexOperation(indexOp.id, {
-          status: IndexOperationStatus.COMPLETED,
+          status: "COMPLETED",
           metadata: {
             ...(indexOp.metadata as any),
           },
@@ -136,7 +135,7 @@ export const handler = ApiHandler(async (event) => {
       .catch(async (err) => {
         console.error("Error loading documents", err);
         await updateIndexOperation(indexOp.id, {
-          status: IndexOperationStatus.FAILED,
+          status: "FAILED",
           metadata: {
             ...(indexOp.metadata as any),
             error: `${err.stack}`,

@@ -1,72 +1,60 @@
-import { Prisma } from "@prisma/client";
-import { GetChatOptions, GetChatsOptions } from "chat";
-import { prisma } from "./database";
+import { SQL, desc, eq } from "drizzle-orm";
+import { db } from "../database";
+import { CreateChatData, UpdateChatData } from "../database/model";
+import { chats } from "../database/schema";
 
-export async function getChats(options?: GetChatsOptions) {
+export async function getChats(
+  options: {
+    where?: SQL<unknown>;
+    limit?: number;
+    offset?: number;
+    orderBy?: SQL<unknown>;
+  } = {}
+) {
   const {
-    query,
+    where,
     limit = 25,
     offset = 0,
-    orderBy = {
-      createdAt: "desc",
-    },
-    include,
-  } = options ?? {};
+    orderBy = desc(chats.createdAt),
+  } = options;
 
-  return await prisma.chat.findMany({
-    where: query,
-    take: limit,
-    skip: offset,
+  return await db.query.chats.findMany({
+    where,
+    limit,
+    offset,
     orderBy,
-    include,
   });
 }
 
-export async function getChat(id: string, options?: GetChatOptions) {
-  const { include, throwOnNotFound = false } = options ?? {};
+export async function getChat(id: string) {
+  return await db.query.chats.findFirst({
+    where: eq(chats.id, id),
+    with: {
+      userMessages: true,
+      aiResponses: true,
+      user: true,
+    },
+  });
+}
 
-  if (throwOnNotFound) {
-    return await prisma.chat.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
+export async function getChatOrThrow(id: string) {
+  const chat = await getChat(id);
+  if (!chat) {
+    throw new Error(`Chat with id ${id} not found`);
   }
-
-  return await prisma.chat.findUnique({
-    where: {
-      id,
-    },
-    include,
-  });
+  return chat;
 }
 
-export async function createChat(data: Prisma.ChatCreateInput) {
-  return await prisma.chat.create({
-    data,
-  });
+export async function createChat(data: CreateChatData) {
+  return (await db.insert(chats).values(data).returning())[0];
 }
 
-export async function updateChat(id: string, data: Prisma.ChatUpdateInput) {
-  return await prisma.chat.update({
-    where: {
-      id,
-    },
-    data,
-  });
+export async function updateChat(id: string, data: UpdateChatData) {
+  return (
+    await db.update(chats).set(data).where(eq(chats.id, id)).returning()
+  )[0];
 }
 
 export async function deleteChat(id: string) {
-  const chat = await prisma.chat.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  await prisma.chat.delete({
-    where: {
-      id: chat.id,
-    },
-  });
+  return (await db.delete(chats).where(eq(chats.id, id)).returning())[0];
 }

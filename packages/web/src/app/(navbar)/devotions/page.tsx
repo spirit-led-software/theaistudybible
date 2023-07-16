@@ -7,9 +7,6 @@ export default async function DevoPageRoot() {
   const devos = await getDevotions({
     limit: 1,
     offset: 0,
-    orderBy: {
-      createdAt: "desc",
-    },
   });
 
   if (devos.length !== 0) {

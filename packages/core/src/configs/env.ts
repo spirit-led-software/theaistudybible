@@ -1,4 +1,7 @@
-import { EnvironmentConfig } from "env";
+interface EnvironmentConfig {
+  env: string;
+  development: boolean;
+}
 
 export const config: EnvironmentConfig = {
   env: process.env.NODE_ENV || "development",

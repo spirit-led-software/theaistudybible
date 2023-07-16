@@ -1,4 +1,6 @@
 export * from "./API";
+export * from "./Auth";
+export * from "./Crons";
 export * from "./Database";
 export * from "./DatabaseMigrations";
 export * from "./S3";

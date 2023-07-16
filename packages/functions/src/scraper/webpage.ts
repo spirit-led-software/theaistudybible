@@ -1,9 +1,9 @@
+import { IndexOperation } from "@chatesv/core/database/model";
 import {
   getIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
 import { addDocumentsToVectorStore } from "@core/services/vector-db";
-import { IndexOperation, IndexOperationStatus } from "@prisma/client";
 import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
 import { TokenTextSplitter } from "langchain/text_splitter";
 import { ApiHandler } from "sst/node/api";
@@ -30,12 +30,18 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  let indexOp: IndexOperation | null = null;
-  let indexOpMetadata: any = null;
+  let indexOp: IndexOperation | undefined;
+  let indexOpMetadata: any = undefined;
   try {
-    indexOp = await getIndexOperation(indexOpId, {
-      throwOnNotFound: true,
-    });
+    indexOp = await getIndexOperation(indexOpId);
+    if (!indexOp) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          error: `Index operation with id ${indexOpId} not found`,
+        }),
+      };
+    }
 
     indexOpMetadata = (indexOp!.metadata as any) ?? {};
 
@@ -56,7 +62,7 @@ export const handler = ApiHandler(async (event) => {
       })
       .catch((err) => {
         updateIndexOperation(indexOpId, {
-          status: IndexOperationStatus.FAILED,
+          status: "FAILED",
           metadata: {
             ...indexOpMetadata,
 
@@ -90,7 +96,7 @@ export const handler = ApiHandler(async (event) => {
 
     if (indexOp) {
       await updateIndexOperation(indexOp.id, {
-        status: IndexOperationStatus.FAILED,
+        status: "FAILED",
         metadata: {
           ...indexOpMetadata,
           errors: [

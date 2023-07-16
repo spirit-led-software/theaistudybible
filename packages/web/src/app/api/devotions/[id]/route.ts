@@ -1,3 +1,4 @@
+import { Devotion } from "@chatesv/core/database/model";
 import {
   deleteDevotion,
   getDevotion,
@@ -7,12 +8,10 @@ import { isAdmin } from "@core/services/user";
 import {
   DeletedResponse,
   InternalServerErrorResponse,
-  NotFoundResponse,
+  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,18 +20,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const devo = await getDevotion(params.id, {
-      throwOnNotFound: true,
-    });
+    const devo = await getDevotion(params.id);
+    if (!devo) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     return OkResponse(devo);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -44,27 +39,21 @@ export async function PUT(
   const data = await request.json();
 
   try {
-    let devo = await getDevotion(params.id, {
-      throwOnNotFound: true,
-    });
+    let devo: Devotion | undefined = await getDevotion(params.id);
+    if (!devo) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid, user } = await validServerSession();
     if (!isValid || !(await isAdmin(user.id))) {
       return UnauthorizedResponse();
     }
 
-    Prisma.validator<Prisma.DevotionUpdateInput>()(data);
-
     devo = await updateDevotion(devo!.id, data);
 
     return OkResponse(devo);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -74,9 +63,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const devo = await getDevotion(params.id, {
-      throwOnNotFound: true,
-    });
+    const devo = await getDevotion(params.id);
+    if (!devo) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid, user } = await validServerSession();
     if (!isValid || !(await isAdmin(user.id))) {
@@ -87,11 +77,6 @@ export async function DELETE(
     return DeletedResponse(devo!.id);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }

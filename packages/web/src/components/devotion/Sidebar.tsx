@@ -1,7 +1,8 @@
 "use client";
 
+import { devotions } from "@chatesv/core/database/schema";
 import { useDevotions } from "@hooks/devotion";
-import { Devotion } from "@prisma/client";
+import { InferModel } from "drizzle-orm";
 import Moment from "moment";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,7 +16,7 @@ export function Sidebar({
   setIsOpen,
 }: {
   activeDevoId: string;
-  initDevos?: Devotion[];
+  initDevos?: InferModel<typeof devotions>[];
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
@@ -51,7 +52,7 @@ export function Sidebar({
     } else {
       setIsLoadingMore(false);
     }
-  }, [devos, isLoading]);
+  }, [devos, isLoading, limit]);
 
   return (
     <div

@@ -1,3 +1,5 @@
+import { buildOrderBy, buildQuery } from "@chatesv/core/database/helpers";
+import { aiResponses } from "@chatesv/core/database/schema";
 import { getAiResponses } from "@core/services/ai-response";
 import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
@@ -5,7 +7,6 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Prisma } from "@prisma/client";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,17 +19,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { query, include } = await request.json();
 
   try {
-    Prisma.validator<Prisma.AiResponseWhereInput>()(query);
-    Prisma.validator<Prisma.AiResponseInclude>()(include);
-
     let responses = await getAiResponses({
-      query,
-      orderBy: {
-        [orderBy]: order,
-      },
-      offset: (page - 1) * limit,
+      where: buildQuery(aiResponses, query),
       limit,
-      include,
+      offset: (page - 1) * limit,
+      orderBy: buildOrderBy(aiResponses, orderBy, order),
     });
 
     const { isValid, user } = await validServerSession();

@@ -1,76 +1,70 @@
-import { Prisma } from "@prisma/client";
-import { GetIndexOperationOptions, GetIndexOperationsOptions } from "index-op";
-import { prisma } from "./database";
+import { SQL, desc, eq } from "drizzle-orm";
+import { db } from "../database";
+import {
+  CreateIndexOperationData,
+  UpdateIndexOperationData,
+} from "../database/model";
+import { indexOperations } from "../database/schema/schema";
 
-export async function getIndexOperations(options?: GetIndexOperationsOptions) {
+export async function getIndexOperations(
+  options: {
+    where?: SQL<unknown>;
+    limit?: number;
+    offset?: number;
+    orderBy?: SQL<unknown>;
+  } = {}
+) {
   const {
-    query,
+    where,
     limit = 25,
     offset = 0,
-    orderBy = {
-      createdAt: "desc",
-    },
-  } = options ?? {};
+    orderBy = desc(indexOperations.createdAt),
+  } = options;
 
-  return await prisma.indexOperation.findMany({
-    where: query,
-    take: limit,
-    skip: offset,
+  return await db.query.indexOperations.findMany({
+    where,
     orderBy,
+    limit,
+    offset,
   });
 }
 
-export async function getIndexOperation(
-  id: string,
-  options?: GetIndexOperationOptions
-) {
-  const { throwOnNotFound = false } = options ?? {};
+export async function getIndexOperation(id: string) {
+  return await db.query.indexOperations.findFirst({
+    where: eq(indexOperations.id, id),
+  });
+}
 
-  if (throwOnNotFound) {
-    return await prisma.indexOperation.findUniqueOrThrow({
-      where: {
-        id,
-      },
-    });
+export async function getIndexOperationOrThrow(id: string) {
+  const indexOperation = await getIndexOperation(id);
+  if (!indexOperation) {
+    throw new Error(`IndexOperation with id ${id} not found`);
   }
-
-  return await prisma.indexOperation.findUnique({
-    where: {
-      id,
-    },
-  });
+  return indexOperation;
 }
 
-export async function createIndexOperation(
-  data: Prisma.IndexOperationCreateInput
-) {
-  return await prisma.indexOperation.create({
-    data,
-  });
+export async function createIndexOperation(data: CreateIndexOperationData) {
+  return (await db.insert(indexOperations).values(data).returning())[0];
 }
 
 export async function updateIndexOperation(
   id: string,
-  data: Prisma.IndexOperationUpdateInput
+  data: UpdateIndexOperationData
 ) {
-  return await prisma.indexOperation.update({
-    where: {
-      id,
-    },
-    data,
-  });
+  return (
+    await db
+      .update(indexOperations)
+      .set(data)
+      .where(eq(indexOperations.id, id))
+      .returning()
+  )[0];
 }
 
 export async function deleteIndexOperation(id: string) {
-  const indexOperation = await prisma.indexOperation.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  await prisma.indexOperation.delete({
-    where: {
-      id: indexOperation.id,
-    },
-  });
+  return (
+    await db
+      .delete(indexOperations)
+      .where(eq(indexOperations.id, id))
+      .returning()
+  )[0];
 }

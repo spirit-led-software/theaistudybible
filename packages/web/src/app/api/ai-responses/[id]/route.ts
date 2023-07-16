@@ -6,12 +6,10 @@ import {
 import {
   DeletedResponse,
   InternalServerErrorResponse,
-  NotFoundResponse,
+  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { validSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,9 +18,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const aiResponse = await getAiResponse(params.id, {
-      throwOnNotFound: true,
-    });
+    const aiResponse = await getAiResponse(params.id);
+    if (!aiResponse) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(aiResponse!);
     if (!isValid) {
@@ -31,11 +30,7 @@ export async function GET(
 
     return OkResponse(aiResponse);
   } catch (error: any) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
+    console.error(error);
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -47,27 +42,21 @@ export async function PUT(
   const data = await request.json();
 
   try {
-    const aiResponse = await getAiResponse(params.id, {
-      throwOnNotFound: true,
-    });
+    const aiResponse = await getAiResponse(params.id);
+    if (!aiResponse) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(aiResponse!);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this AI Response");
     }
 
-    Prisma.validator<Prisma.AiResponseUpdateInput>()(data);
-
     const updatedAiResponse = await updateAiResponse(aiResponse!.id, data);
 
     return NextResponse.json(updatedAiResponse);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -77,9 +66,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const aiResponse = await getAiResponse(params.id, {
-      throwOnNotFound: true,
-    });
+    const aiResponse = await getAiResponse(params.id);
+    if (!aiResponse) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(aiResponse!);
 
@@ -91,11 +81,6 @@ export async function DELETE(
     return DeletedResponse(params.id);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }

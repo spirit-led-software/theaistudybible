@@ -1,7 +1,8 @@
 "use client";
 
+import { Query } from "@chatesv/core/database/helpers";
+import { SourceDocument } from "@chatesv/core/database/model";
 import { DarkSolidLineSpinner } from "@components/loading";
-import { Prisma, SourceDocument } from "@prisma/client";
 import Link from "next/link";
 import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
@@ -28,15 +29,23 @@ export function ResponseSources({
         },
         body: JSON.stringify({
           query: {
-            aiId: aiResponseId,
-            chatId,
-          },
-          include: {
-            sourceDocuments: true,
+            AND: [
+              {
+                eq: {
+                  column: "aiId",
+                  value: aiResponseId,
+                },
+              },
+              {
+                eq: {
+                  column: "chatId",
+                  value: chatId,
+                },
+              },
+            ],
           },
         } satisfies {
-          query: Prisma.AiResponseWhereInput;
-          include: Prisma.AiResponseInclude;
+          query: Query;
         }),
       });
       const { entities: aiResponses } = await response.json();

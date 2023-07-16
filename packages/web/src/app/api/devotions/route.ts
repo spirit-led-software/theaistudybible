@@ -1,3 +1,5 @@
+import { buildOrderBy } from "@chatesv/core/database/helpers";
+import { devotions } from "@chatesv/core/database/schema";
 import { generateDevotion, getDevotions } from "@core/services/devotion";
 import { isAdmin } from "@core/services/user";
 import {
@@ -18,9 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   try {
     const devos = await getDevotions({
-      orderBy: {
-        [orderBy]: order,
-      },
+      orderBy: buildOrderBy(devotions, orderBy, order),
       offset: (page - 1) * limit,
       limit,
     });

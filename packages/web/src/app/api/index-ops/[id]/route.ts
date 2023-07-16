@@ -1,17 +1,17 @@
 import {
   deleteIndexOperation,
   getIndexOperation,
+  getIndexOperationOrThrow,
   updateIndexOperation,
 } from "@core/services/index-op";
 import { isAdmin } from "@core/services/user";
 import {
   DeletedResponse,
   InternalServerErrorResponse,
-  NotFoundResponse,
+  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -25,18 +25,11 @@ export async function GET(
       return UnauthorizedResponse();
     }
 
-    const indexOp = await getIndexOperation(params.id, {
-      throwOnNotFound: true,
-    });
+    const indexOp = await getIndexOperationOrThrow(params.id);
 
     return OkResponse(indexOp);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -53,20 +46,13 @@ export async function PUT(
       return UnauthorizedResponse();
     }
 
-    let indexOp = await getIndexOperation(params.id, {
-      throwOnNotFound: true,
-    });
+    let indexOp = await getIndexOperationOrThrow(params.id);
 
     indexOp = await updateIndexOperation(indexOp!.id, data);
 
     return OkResponse(indexOp);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -81,20 +67,16 @@ export async function DELETE(
       return UnauthorizedResponse();
     }
 
-    const indexOp = await getIndexOperation(params.id, {
-      throwOnNotFound: true,
-    });
+    const indexOp = await getIndexOperation(params.id);
+    if (!indexOp) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     await deleteIndexOperation(indexOp!.id);
 
     return DeletedResponse();
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }

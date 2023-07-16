@@ -1,22 +1,17 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { getUser } from "@chatesv/core/services/user";
+import { db } from "@chatesv/core/database";
+import { users } from "@chatesv/core/database/schema";
 import { config as coreConfig } from "@core/configs/auth";
-import { prisma } from "@core/services/database";
 import { addRoleToUser } from "@core/services/role";
+import { eq } from "drizzle-orm";
 import { NextAuthOptions } from "next-auth";
-import { Adapter } from "next-auth/adapters";
 import EmailProvider from "next-auth/providers/email";
 import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
 
 export const config: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
   events: {
     createUser: async ({ user }) => {
-      const dbUser = await getUser(user.id, {
-        throwOnNotFound: true,
-      });
-      await addRoleToUser("USER", dbUser!);
+      await addRoleToUser("USER", user.id);
     },
   },
   pages: {
@@ -50,9 +45,9 @@ export const config: NextAuthOptions = {
   ],
   callbacks: {
     session: async ({ session, user }) => {
-      const dbUser = await getUser(user.id, {
-        throwOnNotFound: true,
-        include: {
+      const dbUser = await db.query.users.findFirst({
+        where: eq(users.id, user.id),
+        with: {
           roles: true,
         },
       });

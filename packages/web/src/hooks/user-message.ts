@@ -1,4 +1,4 @@
-import { UserMessage } from "@prisma/client";
+import { UserMessage } from "@chatesv/core/database/model";
 import useSWR from "swr";
 import {
   entitiesFetcher,

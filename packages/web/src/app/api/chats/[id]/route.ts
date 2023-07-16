@@ -1,14 +1,13 @@
+import { Chat } from "@chatesv/core/database/model";
 import { deleteChat, getChat, updateChat } from "@core/services/chat";
 
 import {
   DeletedResponse,
   InternalServerErrorResponse,
-  NotFoundResponse,
+  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { validSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,13 +16,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const chat = await getChat(params.id, {
-      include: {
-        userMessages: true,
-        aiResponses: true,
-      },
-      throwOnNotFound: true,
-    });
+    const chat = await getChat(params.id);
+    if (!chat) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(chat!);
     if (!isValid) {
@@ -32,11 +28,7 @@ export async function GET(
 
     return OkResponse(chat);
   } catch (error: any) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
+    console.error(error);
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -48,26 +40,20 @@ export async function PUT(
   const data = await request.json();
 
   try {
-    const chat = await getChat(params.id, {
-      throwOnNotFound: true,
-    });
+    let chat: Chat | undefined = await getChat(params.id);
+    if (!chat) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(chat!);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this chat.");
     }
 
-    Prisma.validator<Prisma.ChatUpdateInput>()(data);
+    chat = await updateChat(chat!.id, data);
 
-    const updatedChat = await updateChat(chat!.id, data);
-
-    return NextResponse.json(updatedChat);
+    return OkResponse(chat);
   } catch (error: any) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -81,9 +67,10 @@ export async function DELETE(
   }
 ): Promise<NextResponse> {
   try {
-    const chat = await getChat(params.id, {
-      throwOnNotFound: true,
-    });
+    const chat = await getChat(params.id);
+    if (!chat) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(chat!);
     if (!isValid) {
@@ -94,11 +81,6 @@ export async function DELETE(
     return DeletedResponse(chat!.id);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }

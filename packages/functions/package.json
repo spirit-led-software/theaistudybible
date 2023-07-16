@@ -10,19 +10,19 @@
     "@types/aws-lambda": "^8.10.119",
     "@types/busboy": "^1.5.0",
     "@types/node": "^20.4.2",
-    "prisma": "^5.0.0",
+    "@types/nodemailer": "^6.4.8",
     "sst": "^2.21.7",
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@chatesv/core": "^1.0.0",
-    "@prisma/migrate": "^5.0.0",
+    "@chatesv/core": "workspace:*",
     "busboy": "^1.6.0",
     "chrome-aws-lambda": "^10.1.0",
     "fast-xml-parser": "^4.2.5",
     "langchain": "^0.0.109",
     "mammoth": "^1.6.0",
+    "nodemailer": "^6.9.3",
     "pdf-parse": "^1.1.1",
-    "puppeteer": "^20.8.2"
+    "puppeteer": "^19.7.2"
   }
 }

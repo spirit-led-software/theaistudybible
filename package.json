@@ -14,14 +14,19 @@
   "devDependencies": {
     "@tsconfig/node16": "^16.1.0",
     "@types/node": "^20.4.2",
+    "@types/pg": "^8.10.2",
     "aws-cdk-lib": "2.84.0",
     "constructs": "10.1.156",
-    "prisma": "^5.0.0",
+    "drizzle-kit": "^0.19.5",
     "sst": "^2.21.7",
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0"
+    "drizzle-orm": "^0.27.2",
+    "drizzle-zod": "^0.4.4",
+    "pg": "^8.11.1",
+    "postgres": "^3.3.5",
+    "zod": "^3.21.4"
   },
   "workspaces": [
     "packages/*"

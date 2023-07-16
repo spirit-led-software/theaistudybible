@@ -1,128 +1,100 @@
-import { Prisma, User } from "@prisma/client";
-import { GetRoleOptions, GetRolesOptions } from "role";
-import { prisma } from "../services/database";
+import { SQL, desc, eq } from "drizzle-orm";
+import { db } from "../database";
+import { CreateRoleData, UpdateRoleData } from "../database/model";
+import { roles, usersToRoles } from "../database/schema";
+import { getUser } from "./user";
 
-export async function getRoles(options?: GetRolesOptions) {
+export async function getRoles(
+  options: {
+    where?: SQL<unknown>;
+    limit?: number;
+    offset?: number;
+    orderBy?: SQL<unknown>;
+  } = {}
+) {
   const {
-    query,
+    where,
     limit = 25,
     offset = 0,
-    orderBy = {
-      createdAt: "desc",
-    },
-    include = {
-      users: true,
-    },
-  } = options ?? {};
+    orderBy = desc(roles.createdAt),
+  } = options;
 
-  return await prisma.role.findMany({
-    where: query,
-    take: limit,
-    skip: offset,
+  return await db.query.roles.findMany({
+    where,
+    limit,
+    offset,
     orderBy,
-    include,
   });
 }
 
-export async function getRole(id: string, options?: GetRoleOptions) {
-  const {
-    throwOnNotFound = false,
-    include = {
-      users: true,
-    },
-  } = options ?? {};
-
-  if (throwOnNotFound) {
-    return await prisma.role.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
-  }
-
-  return await prisma.role.findUnique({
-    where: {
-      id,
-    },
-    include,
-  });
-}
-
-export async function getRoleByName(name: string, options?: GetRoleOptions) {
-  const {
-    throwOnNotFound = false,
-    include = {
-      users: true,
-    },
-  } = options ?? {};
-
-  if (throwOnNotFound) {
-    return await prisma.role.findUniqueOrThrow({
-      where: {
-        name,
-      },
-      include,
-    });
-  }
-
-  return await prisma.role.findUnique({
-    where: {
-      name,
-    },
-    include,
-  });
-}
-
-export async function createRole(data: Prisma.RoleCreateInput) {
-  return await prisma.role.create({
-    data,
-  });
-}
-
-export async function updateRole(id: string, data: Prisma.RoleUpdateInput) {
-  return await prisma.role.update({
-    where: {
-      id,
-    },
-    data,
-  });
-}
-
-export async function deleteRole(id: string) {
-  const role = await prisma.role.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  await prisma.role.delete({
-    where: {
-      id: role.id,
-    },
-  });
-}
-
-export async function addRoleToUser(roleName: string, user: User) {
-  const role = await getRoleByName(roleName, {
-    throwOnNotFound: true,
-  });
-
-  const updatedUser = await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      roles: {
-        connect: {
-          id: role!.id,
+export async function getRole(id: string) {
+  return await db.query.roles.findFirst({
+    where: eq(roles.id, id),
+    with: {
+      users: {
+        columns: {
+          id: true,
         },
       },
     },
   });
+}
+
+export async function getRoleOrThrow(id: string) {
+  const role = await getRole(id);
+  if (!role) {
+    throw new Error(`Role with id ${id} not found`);
+  }
+  return role;
+}
+
+export async function getRoleByName(name: string) {
+  return await db.query.roles.findFirst({
+    where: eq(roles.name, name),
+  });
+}
+
+export async function getRoleByNameOrThrow(name: string) {
+  const role = await getRoleByName(name);
+  if (!role) {
+    throw new Error(`Role with name ${name} not found`);
+  }
+  return role;
+}
+
+export async function createRole(data: CreateRoleData) {
+  return (await db.insert(roles).values(data).returning())[0];
+}
+
+export async function updateRole(id: string, data: UpdateRoleData) {
+  return (
+    await db.update(roles).set(data).where(eq(roles.id, id)).returning()
+  )[0];
+}
+
+export async function deleteRole(id: string) {
+  return (await db.delete(roles).where(eq(roles.id, id)).returning())[0];
+}
+
+export async function addRoleToUser(roleName: string, userId: string) {
+  const role = await getRoleByNameOrThrow(roleName);
+  const user = await getUser(userId);
+
+  if (!user) {
+    throw new Error(`User with id ${userId} not found`);
+  }
+
+  if (user.roles?.some((r) => r.id === role.id)) {
+    throw new Error(`User already has role ${roleName}`);
+  }
+
+  await db.insert(usersToRoles).values({
+    userId: user.id,
+    roleId: role.id,
+  });
 
   return {
-    user: updatedUser,
+    user,
     role,
   };
 }

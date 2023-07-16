@@ -1,4 +1,4 @@
-import { IndexOperation } from "@prisma/client";
+import { IndexOperation } from "@chatesv/core/database/model";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 import {

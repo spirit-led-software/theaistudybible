@@ -1,8 +1,10 @@
 "use client";
 
+import { UpdateAiResponseData } from "@chatesv/core/database/model";
+import { chats } from "@chatesv/core/database/schema";
 import useWindowDimensions from "@hooks/window";
-import { Chat, Prisma } from "@prisma/client";
 import { Message as ChatMessage, useChat } from "ai/react";
+import { InferModel } from "drizzle-orm";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -16,7 +18,7 @@ export function Window({
   initChatId,
   initialMessages,
 }: {
-  initChats?: Chat[];
+  initChats?: InferModel<typeof chats>[];
   initChatId?: string;
   initialMessages?: ChatMessage[];
 }) {
@@ -130,7 +132,7 @@ export function Window({
         },
         body: JSON.stringify({
           aiId: lastChatMessage.id,
-        } satisfies Prisma.AiResponseUpdateInput),
+        } satisfies UpdateAiResponseData),
       })
         .then((response) => {
           if (!response.ok) {

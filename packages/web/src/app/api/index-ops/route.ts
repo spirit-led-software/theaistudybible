@@ -1,3 +1,5 @@
+import { buildOrderBy } from "@chatesv/core/database/helpers";
+import { indexOperations } from "@chatesv/core/database/schema";
 import { getIndexOperations } from "@core/services/index-op";
 import { isAdmin } from "@core/services/user";
 import {
@@ -24,9 +26,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const indexOps = await getIndexOperations({
       offset: (page - 1) * limit,
       limit,
-      orderBy: {
-        [orderBy]: order,
-      },
+      orderBy: buildOrderBy(indexOperations, orderBy, order),
     });
 
     return OkResponse({

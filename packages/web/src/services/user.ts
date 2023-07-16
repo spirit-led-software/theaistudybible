@@ -1,16 +1,17 @@
+import { users } from "@chatesv/core/database/schema";
 import config from "@configs/next-auth";
 import { getUserByEmail, isAdmin, isObjectOwner } from "@core/services/user";
-import { User } from "@prisma/client";
+import { InferModel } from "drizzle-orm";
 import { getServerSession } from "next-auth";
 
 export async function validServerSession(): Promise<
   | {
       isValid: false;
-      user?: User;
+      user?: InferModel<typeof users>;
     }
   | {
       isValid: true;
-      user: User;
+      user: InferModel<typeof users>;
     }
 > {
   const session = await getServerSession(config);
@@ -34,11 +35,11 @@ export async function validSessionAndObjectOwner(object: {
 }): Promise<
   | {
       isValid: false;
-      user?: User;
+      user?: InferModel<typeof users>;
     }
   | {
       isValid: true;
-      user: User;
+      user: InferModel<typeof users>;
     }
 > {
   const { isValid, user } = await validServerSession();

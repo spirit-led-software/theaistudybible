@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1689475290664,
+      "tag": "0000_powerful_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1689477140614,
+      "tag": "0001_tidy_spectrum",
+      "breakpoints": true
+    }
+  ]
+}

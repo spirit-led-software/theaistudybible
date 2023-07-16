@@ -1,13 +1,9 @@
+import { IndexOperation } from "@chatesv/core/database/model";
 import { axios } from "@core/configs/axios";
 import {
   createIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
-import {
-  IndexOperation,
-  IndexOperationStatus,
-  IndexOperationType,
-} from "@prisma/client";
 import { XMLParser } from "fast-xml-parser";
 import { Api, ApiHandler } from "sst/node/api";
 
@@ -42,8 +38,8 @@ export const handler = ApiHandler(async (event) => {
   let indexOp: IndexOperation | null = null;
   try {
     indexOp = await createIndexOperation({
-      type: IndexOperationType.WEBSITE,
-      status: IndexOperationStatus.IN_PROGRESS,
+      type: "WEBSITE",
+      status: "IN_PROGRESS",
       metadata: {
         name,
         url,
@@ -67,35 +63,37 @@ export const handler = ApiHandler(async (event) => {
     }
 
     foundUrls.forEach((url) => {
-      fetch(Api.ScraperApi.url, {
-        method: "POST",
-        body: JSON.stringify({
-          url,
-          name,
-        }),
-      }).catch((err) => {
-        console.error(`${err.stack}`);
-        updateIndexOperation(indexOp!.id, {
-          status: IndexOperationStatus.FAILED,
-          metadata: {
-            ...(indexOp!.metadata as any),
-            errors: [
-              ...((indexOp!.metadata as any).errors ?? []),
-              {
-                message: err.message,
-                stack: err.stack,
-              },
-            ],
-            failed: [
-              ...((indexOp!.metadata as any).failed ?? []),
-              {
-                name,
-                url,
-              },
-            ],
-          },
+      axios
+        .post(Api.ScraperApi.url, {
+          method: "POST",
+          body: JSON.stringify({
+            url,
+            name,
+          }),
+        })
+        .catch((err) => {
+          console.error(`${err.stack}`);
+          updateIndexOperation(indexOp!.id, {
+            status: "FAILED",
+            metadata: {
+              ...(indexOp!.metadata as any),
+              errors: [
+                ...((indexOp!.metadata as any).errors ?? []),
+                {
+                  message: err.message,
+                  stack: err.stack,
+                },
+              ],
+              failed: [
+                ...((indexOp!.metadata as any).failed ?? []),
+                {
+                  name,
+                  url,
+                },
+              ],
+            },
+          });
         });
-      });
     });
 
     return {
@@ -110,7 +108,7 @@ export const handler = ApiHandler(async (event) => {
 
     if (indexOp) {
       await updateIndexOperation(indexOp.id, {
-        status: IndexOperationStatus.FAILED,
+        status: "FAILED",
         metadata: {
           ...(indexOp.metadata as any),
           error: err.message,

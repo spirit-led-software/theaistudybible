@@ -1,82 +1,71 @@
-import { Prisma } from "@prisma/client";
-import { GetDevotionOptions, GetDevotionsOptions } from "devotion";
+import { InferModel, SQL, desc, eq } from "drizzle-orm";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { axios } from "../configs";
-import { prisma } from "./database";
+import { db } from "../database";
+import { CreateDevotionData, UpdateDevotionData } from "../database/model";
+import {
+  devotions,
+  devotionsToSourceDocuments,
+  sourceDocuments,
+} from "../database/schema";
 import { getCompletionsModel } from "./llm";
 import { getVectorStore } from "./vector-db";
 
-export async function getDevotions(options?: GetDevotionsOptions) {
+export async function getDevotions(
+  options: {
+    where?: SQL<unknown>;
+    limit?: number;
+    offset?: number;
+    orderBy?: SQL<unknown>;
+  } = {}
+) {
   const {
-    query,
+    where,
     limit = 25,
     offset = 0,
-    orderBy = {
-      createdAt: "desc",
-    },
-    include,
-  } = options ?? {};
+    orderBy = desc(devotions.createdAt),
+  } = options;
 
-  return await prisma.devotion.findMany({
-    where: query,
-    take: limit,
-    skip: offset,
+  return await db.query.devotions.findMany({
+    where,
     orderBy,
-    include,
+    limit,
+    offset,
   });
 }
 
-export async function getDevotion(id: string, options?: GetDevotionOptions) {
-  const { throwOnNotFound = false, include } = options ?? {};
+export async function getDevotion(id: string) {
+  return await db.query.devotions.findFirst({
+    where: eq(devotions.id, id),
+    with: {
+      sourceDocuments: true,
+    },
+  });
+}
 
-  if (throwOnNotFound) {
-    return await prisma.devotion.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
+export async function getDevotionOrThrow(id: string) {
+  const devotion = await getDevotion(id);
+  if (!devotion) {
+    throw new Error(`Devotion with id ${id} not found`);
   }
-
-  return await prisma.devotion.findUnique({
-    where: {
-      id,
-    },
-    include,
-  });
+  return devotion;
 }
 
-export async function createDevotion(data: Prisma.DevotionCreateInput) {
-  return await prisma.devotion.create({
-    data,
-  });
+export async function createDevotion(data: CreateDevotionData) {
+  return (await db.insert(devotions).values(data).returning())[0];
 }
 
-export async function updateDevotion(
-  id: string,
-  data: Prisma.DevotionUpdateInput
-) {
-  return await prisma.devotion.update({
-    where: {
-      id,
-    },
-    data,
-  });
+export async function updateDevotion(id: string, data: UpdateDevotionData) {
+  return (
+    await db.update(devotions).set(data).where(eq(devotions.id, id)).returning()
+  )[0];
 }
 
 export async function deleteDevotion(id: string) {
-  const devo = await prisma.devotion.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  await prisma.devotion.delete({
-    where: {
-      id: devo.id,
-    },
-  });
+  return (
+    await db.delete(devotions).where(eq(devotions.id, id)).returning()
+  )[0];
 }
 
 export async function generateDevotion(bibleVerse?: string) {
@@ -108,22 +97,32 @@ Finally, write a prayer to wrap up the devotional.`);
   const devo = await createDevotion({
     subject: bibleVerse,
     content: result.text,
-    sourceDocuments: {
-      connectOrCreate: context.map(
-        (c: {
-          pageContent: string;
-          metadata: any;
-        }): Prisma.SourceDocumentCreateOrConnectWithoutDevotionsInput => ({
-          where: {
-            text: c.pageContent,
-          },
-          create: {
+  });
+
+  context.forEach(async (c) => {
+    let sourceDoc: InferModel<typeof sourceDocuments, "select">;
+    const existingSourceDoc = await db.query.sourceDocuments.findFirst({
+      where: eq(sourceDocuments.text, c.pageContent),
+    });
+
+    if (existingSourceDoc) {
+      sourceDoc = existingSourceDoc;
+    } else {
+      sourceDoc = (
+        await db
+          .insert(sourceDocuments)
+          .values({
             text: c.pageContent,
             metadata: c.metadata,
-          },
-        })
-      ),
-    },
+          })
+          .returning()
+      )[0];
+    }
+
+    await db.insert(devotionsToSourceDocuments).values({
+      devotionId: devo.id,
+      sourceDocumentId: sourceDoc.id,
+    });
   });
 
   return devo;

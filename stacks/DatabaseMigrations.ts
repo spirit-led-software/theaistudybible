@@ -12,13 +12,10 @@ export function DatabaseMigrations({ stack, app }: StackContext) {
     },
     copyFiles: [
       {
-        from: "prisma",
+        from: "migrations",
       },
     ],
-    nodejs: {
-      install: ["prisma"],
-    },
-    runtime: "nodejs18.x",
+    enableLiveDev: false,
   });
 
   const dbMigrationsScript = new Script(stack, "DbMigrationsScript", {

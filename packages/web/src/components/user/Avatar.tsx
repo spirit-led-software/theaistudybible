@@ -1,4 +1,5 @@
 import { useUser } from "@hooks/user";
+import Image from "next/image";
 
 export function Avatar({
   size,
@@ -18,7 +19,7 @@ export function Avatar({
 
   if (user?.image) {
     return (
-      <img
+      <Image
         className={`rounded-full ${dimensionClasses}`}
         src={user.image}
         alt="avatar"

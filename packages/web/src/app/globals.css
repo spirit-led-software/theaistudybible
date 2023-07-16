@@ -9,3 +9,15 @@ body {
 .logo {
   @apply font-kanit;
 }
+
+@supports (-webkit-touch-callout: none) {
+  .h-screen {
+    height: 100vh;
+    max-height: -webkit-fill-available !important;
+  }
+
+  .max-h-screen {
+    max-height: 100vh;
+    max-height: -webkit-fill-available !important;
+  }
+}

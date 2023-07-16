@@ -9,7 +9,6 @@ import { getIndexOperations } from "@core/services/index-op";
 
 export default async function AdminPage() {
   const indexOps = await getIndexOperations({
-    orderBy: { createdAt: "desc" },
     limit: 100,
   });
   return (

@@ -1,7 +1,9 @@
 "use client";
 
+import { SourceDocument } from "@chatesv/core/database/model";
+import { devotions } from "@chatesv/core/database/schema";
 import useWindowDimensions from "@hooks/window";
-import { Devotion, SourceDocument } from "@prisma/client";
+import { InferModel } from "drizzle-orm";
 import Moment from "moment";
 import Link from "next/link";
 import { useState } from "react";
@@ -11,7 +13,7 @@ export function Window({
   devos,
   activeDevoId,
 }: {
-  devos: Devotion[];
+  devos: InferModel<typeof devotions>[];
   activeDevoId: string;
 }) {
   const windowDimensions = useWindowDimensions();

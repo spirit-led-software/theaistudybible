@@ -6,22 +6,22 @@ export function Website({ stack }: StackContext) {
   const { bucket } = use(S3);
   const { scraperApi } = use(API);
 
+  const domainName = `${
+    stack.stage !== "prod" ? `${stack.stage}.` : ""
+  }chatesv.com`;
+
   const website = new NextjsSite(stack, "Website", {
     path: "packages/web",
     bind: [database, scraperApi, bucket],
     environment: {
       DATABASE_URL: databaseUrl,
-      NEXT_PUBLIC_WEBSITE_URL: `https://${
-        stack.stage !== "prod" ? `${stack.stage}.` : ""
-      }chatesv.com`,
+      NEXT_PUBLIC_WEBSITE_URL: domainName,
       NEXT_PUBLIC_SCRAPER_API_URL: scraperApi.url,
-      NEXT_AUTH_URL: scraperApi.url,
+      NEXT_AUTH_URL: domainName,
       ...STATIC_ENV_VARS,
     },
     customDomain: {
-      domainName: `${
-        stack.stage !== "prod" ? `${stack.stage}.` : ""
-      }chatesv.com`,
+      domainName: domainName,
       hostedZone: "chatesv.com",
     },
   });

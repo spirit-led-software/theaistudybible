@@ -1,7 +1,7 @@
 "use client";
 
+import { IndexOperation } from "@chatesv/core/database/model";
 import { useIndexOps } from "@hooks/index-ops";
-import { IndexOperation } from "@prisma/client";
 import Moment from "moment";
 
 export function IndexOperationsDashboard({

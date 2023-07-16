@@ -1,132 +1,106 @@
-import { Prisma, Role, User } from "@prisma/client";
-import { GetUserOptions, GetUsersOptions } from "user";
+import { InferModel, SQL, desc, eq } from "drizzle-orm";
 import config from "../configs/auth";
-import { prisma } from "../services/database";
-import { addRoleToUser } from "../services/role";
+import { db } from "../database";
+import { CreateUserData, UpdateUserData, User } from "../database/model";
+import { users } from "../database/schema";
+import { addRoleToUser } from "./role";
 
-export async function getUsers(options?: GetUsersOptions) {
+export async function getUsers(
+  options: {
+    where?: SQL<unknown>;
+    limit?: number;
+    offset?: number;
+    orderBy?: SQL<unknown>;
+  } = {}
+) {
   const {
-    query,
+    where,
     limit = 25,
     offset = 0,
-    orderBy = {
-      createdAt: "desc",
-    },
-    include = {
-      roles: true,
-    },
-  } = options ?? {};
+    orderBy = desc(users.createdAt),
+  } = options;
 
-  return await prisma.user.findMany({
-    where: query,
-    take: limit,
-    skip: offset,
+  return await db.query.users.findMany({
+    where,
     orderBy,
-    include,
+    limit,
+    offset,
   });
 }
 
-export async function getUser(id: string, options?: GetUserOptions) {
-  const {
-    throwOnNotFound = false,
-    include = {
+export async function getUser(id: string) {
+  return await db.query.users.findFirst({
+    where: eq(users.id, id),
+    with: {
       roles: true,
     },
-  } = options ?? {};
-
-  if (throwOnNotFound) {
-    return await prisma.user.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
-  }
-
-  return await prisma.user.findUnique({
-    where: {
-      id,
-    },
-    include,
   });
 }
 
-export async function getUserByEmail(email: string, options?: GetUserOptions) {
-  const {
-    throwOnNotFound = false,
-    include = {
+export async function getUserOrThrow(id: string) {
+  const user = await getUser(id);
+  if (!user) {
+    throw new Error(`User with id ${id} not found`);
+  }
+  return user;
+}
+
+export async function getUserByEmail(email: string) {
+  return await db.query.users.findFirst({
+    where: eq(users.email, email),
+    with: {
       roles: true,
     },
-  } = options ?? {};
+  });
+}
 
-  if (throwOnNotFound) {
-    return await prisma.user.findUniqueOrThrow({
-      where: {
-        email,
-      },
-      include,
-    });
+export async function getUserByEmailOrThrow(email: string) {
+  const user = await getUserByEmail(email);
+  if (!user) {
+    throw new Error(`User with email ${email} not found`);
   }
-
-  return await prisma.user.findUnique({
-    where: {
-      email,
-    },
-    include,
-  });
+  return user;
 }
 
-export async function createUser(data: Prisma.UserCreateInput) {
-  return await prisma.user.create({
-    data,
-  });
+export async function createUser(data: CreateUserData) {
+  return (await db.insert(users).values(data).returning())[0];
 }
 
-export async function updateUser(id: string, data: Prisma.UserUpdateInput) {
-  return await prisma.user.update({
-    where: {
-      id,
-    },
-    data,
-  });
+export async function updateUser(id: string, data: UpdateUserData) {
+  return (
+    await db.update(users).set(data).where(eq(users.id, id)).returning()
+  )[0];
 }
 
 export async function deleteUser(id: string) {
-  const user = await prisma.user.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  await prisma.user.delete({
-    where: {
-      id: user.id,
-    },
-  });
+  return await db.delete(users).where(eq(users.id, id)).returning();
 }
 
 export async function isAdmin(userId: string) {
-  const user = await getUser(userId, {
-    throwOnNotFound: true,
-    include: {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+    with: {
       roles: true,
     },
   });
-  return user!.roles?.some((role: Role) => role.name === "ADMIN") ?? false;
+  return user!.roles?.some((role) => role.name === "ADMIN") ?? false;
 }
 
-export function isObjectOwner(object: { userId: string }, user: User) {
+export function isObjectOwner(
+  object: { userId: string },
+  user: InferModel<typeof users>
+) {
   return object.userId === user.id;
 }
 
 export async function createInitialAdminUser() {
   console.log("Creating initial admin user");
-  let adminUser = await getUserByEmail(config.adminUser.email);
+  let adminUser: User | undefined = await getUserByEmail(
+    config.adminUser.email
+  );
   if (!adminUser) {
     adminUser = await createUser({
       email: config.adminUser.email,
-      emailVerified: new Date(),
-      name: "Administrator",
     });
     console.log("Initial admin user created");
   } else {
@@ -135,7 +109,7 @@ export async function createInitialAdminUser() {
 
   console.log("Adding admin role to admin user");
   if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("ADMIN", adminUser);
+    await addRoleToUser("ADMIN", adminUser.id);
     console.log("Admin role added to admin user");
   } else {
     console.log("Admin role already added to admin user");

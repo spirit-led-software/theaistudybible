@@ -1,13 +1,13 @@
+import { buildOrderBy } from "@chatesv/core/database/helpers";
+import { aiResponses as aiResponsesTable } from "@chatesv/core/database/schema";
 import { createAiResponse, getAiResponses } from "@core/services/ai-response";
 import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
-  BadRequestResponse,
   CreatedResponse,
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Prisma } from "@prisma/client";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,9 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   try {
     let aiResponses = await getAiResponses({
-      orderBy: {
-        [orderBy]: order,
-      },
+      orderBy: buildOrderBy(aiResponsesTable, orderBy, order),
       offset: (page - 1) * limit,
       limit,
     });
@@ -66,9 +64,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return CreatedResponse(aiResponse);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof Prisma.PrismaClientValidationError) {
-      return BadRequestResponse(error.message);
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }

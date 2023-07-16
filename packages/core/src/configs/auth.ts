@@ -1,4 +1,25 @@
-import { AuthConfig } from "auth";
+interface AuthConfig {
+  google: {
+    clientId: string;
+    clientSecret: string;
+  };
+  facebook: {
+    clientId: string;
+    clientSecret: string;
+  };
+  email: {
+    from: string;
+    host: string;
+    port: number;
+    credentials: {
+      username: string;
+      password: string;
+    };
+  };
+  adminUser: {
+    email: string;
+  };
+}
 
 export const config: AuthConfig = {
   google: {
@@ -20,7 +41,6 @@ export const config: AuthConfig = {
   },
   adminUser: {
     email: process.env.ADMIN_EMAIL!,
-    password: process.env.ADMIN_PASSWORD!,
   },
 };
 

@@ -1,3 +1,5 @@
+import { buildOrderBy } from "@chatesv/core/database/helpers";
+import { userMessages } from "@chatesv/core/database/schema";
 import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
   createUserMessage,
@@ -19,7 +21,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const page = parseInt(searchParams.get("page") ?? "1");
   const orderBy = searchParams.get("orderBy") ?? "createdAt";
   const order = searchParams.get("order") ?? "desc";
-  const chatId = searchParams.get("chatId");
 
   try {
     const { isValid, user } = await validServerSession();
@@ -28,14 +29,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     let messages = await getUserMessages({
-      query: {
-        chatId: chatId ?? undefined,
-      },
       limit,
       offset: (page - 1) * limit,
-      orderBy: {
-        [orderBy]: order,
-      },
+      orderBy: buildOrderBy(userMessages, orderBy, order),
     });
 
     messages = messages.filter(async (message) => {

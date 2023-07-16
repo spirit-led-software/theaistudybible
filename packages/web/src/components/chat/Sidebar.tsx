@@ -1,7 +1,8 @@
 "use client";
 
+import { chats as chatsTable } from "@chatesv/core/database/schema";
 import { useChats } from "@hooks/chat";
-import { Chat } from "@prisma/client";
+import { InferModel } from "drizzle-orm";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ export function Sidebar({
   isOpen,
   setIsOpen,
 }: {
-  initChats?: Chat[];
+  initChats?: InferModel<typeof chatsTable>[];
   activeChatId?: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -85,7 +86,7 @@ export function Sidebar({
     } else {
       setIsLoadingMore(false);
     }
-  }, [chats, isLoading]);
+  }, [chats, isLoading, limit]);
 
   if (error) {
     throw error;

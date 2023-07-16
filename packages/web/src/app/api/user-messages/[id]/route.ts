@@ -2,11 +2,10 @@ import { deleteUserMessage, getUserMessage } from "@core/services/user-message";
 import {
   DeletedResponse,
   InternalServerErrorResponse,
-  NotFoundResponse,
+  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { validSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,9 +14,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const userMessage = await getUserMessage(params.id, {
-      throwOnNotFound: true,
-    });
+    const userMessage = await getUserMessage(params.id);
+    if (!userMessage) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(userMessage!);
     if (!isValid) {
@@ -29,11 +29,6 @@ export async function GET(
     return OkResponse(userMessage);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }
@@ -43,9 +38,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const userMessage = await getUserMessage(params.id, {
-      throwOnNotFound: true,
-    });
+    const userMessage = await getUserMessage(params.id);
+    if (!userMessage) {
+      return ObjectNotFoundResponse(params.id);
+    }
 
     const { isValid } = await validSessionAndObjectOwner(userMessage!);
     if (!isValid) {
@@ -58,11 +54,6 @@ export async function DELETE(
     return DeletedResponse(userMessage!.id);
   } catch (error: any) {
     console.error(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === "P2025") {
-        return NotFoundResponse(error.message);
-      }
-    }
     return InternalServerErrorResponse(error.stack);
   }
 }

@@ -1,77 +1,65 @@
-import { Prisma } from "@prisma/client";
-import { GetAiResponseOptions, GetAiResponsesOptions } from "ai-response";
-import { prisma } from "./database";
+import { SQL, desc, eq } from "drizzle-orm";
+import { db } from "../database";
+import { CreateAiResponseData, UpdateAiResponseData } from "../database/model";
+import { aiResponses } from "../database/schema";
 
-export async function getAiResponses(options?: GetAiResponsesOptions) {
+export async function getAiResponses(
+  options: {
+    where?: SQL<unknown>;
+    limit?: number;
+    offset?: number;
+    orderBy?: SQL<unknown>;
+  } = {}
+) {
   const {
-    query,
+    where,
     limit = 25,
     offset = 0,
-    orderBy = {
-      createdAt: "desc",
-    },
-    include,
-  } = options ?? {};
+    orderBy = desc(aiResponses.createdAt),
+  } = options;
 
-  return await prisma.aiResponse.findMany({
-    where: query,
-    take: limit,
-    skip: offset,
+  return await db.query.aiResponses.findMany({
+    where,
+    limit,
+    offset,
     orderBy,
-    include,
   });
 }
 
-export async function getAiResponse(
-  id: string,
-  options?: GetAiResponseOptions
-) {
-  const { throwOnNotFound = false, include } = options ?? {};
+export async function getAiResponse(id: string) {
+  return await db.query.aiResponses.findFirst({
+    where: eq(aiResponses.id, id),
+    with: {
+      sourceDocuments: true,
+      userMessage: true,
+    },
+  });
+}
 
-  if (throwOnNotFound) {
-    return prisma.aiResponse.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include,
-    });
+export async function getAiResponseOrThrow(id: string) {
+  const aiResponse = await getAiResponse(id);
+  if (!aiResponse) {
+    throw new Error(`AiResponse with id ${id} not found`);
   }
-
-  return await prisma.aiResponse.findUnique({
-    where: {
-      id,
-    },
-  });
+  return aiResponse;
 }
 
-export async function createAiResponse(data: Prisma.AiResponseCreateInput) {
-  return await prisma.aiResponse.create({
-    data,
-  });
+export async function createAiResponse(data: CreateAiResponseData) {
+  return (await db.insert(aiResponses).values(data).returning())[0];
 }
 
-export async function updateAiResponse(
-  id: string,
-  data: Prisma.AiResponseUpdateInput
-) {
-  return await prisma.aiResponse.update({
-    where: {
-      id,
-    },
-    data,
-  });
+export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
+  return (
+    await db
+      .update(aiResponses)
+      .set(data)
+      .where(eq(aiResponses.id, id))
+      .returning()
+  )[0];
 }
 
-export async function deleteAiResponse(id: string): Promise<void> {
-  const aiResponse = await prisma.aiResponse.findUniqueOrThrow({
-    where: {
-      id,
-    },
-  });
-
-  await prisma.aiResponse.delete({
-    where: {
-      id: aiResponse.id,
-    },
-  });
+export async function deleteAiResponse(id: string) {
+  return (
+    await db.delete(aiResponses).where(eq(aiResponses.id, id)).returning()
+  )[0];
 }

@@ -1,16 +1,11 @@
+import { db } from "@chatesv/core/database";
 import { Window } from "@components/devotion";
-import { getDevotions } from "@core/services/devotion";
 
 export const dynamic = "force-dynamic";
 
 export default async function DevoPage({ params }: { params: { id: string } }) {
-  const devos = await getDevotions({
-    limit: 25,
-    offset: 0,
-    orderBy: {
-      createdAt: "desc",
-    },
-    include: {
+  const devos = await db.query.devotions.findMany({
+    with: {
       sourceDocuments: true,
     },
   });

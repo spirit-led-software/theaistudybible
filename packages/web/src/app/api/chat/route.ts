@@ -1,7 +1,11 @@
+import { chats, sourceDocuments } from "@chatesv/core/database/schema";
 import { createAiResponse, updateAiResponse } from "@core/services/ai-response";
-import { createChat, getChat } from "@core/services/chat";
-import { prisma } from "@core/services/database";
+import { createChat, getChat, updateChat } from "@core/services/chat";
 import { getChatModel, getCompletionsModel } from "@core/services/llm";
+import {
+  createSourceDocument,
+  getSourceDocumentByText,
+} from "@core/services/source-doc";
 import { isObjectOwner } from "@core/services/user";
 import { createUserMessage } from "@core/services/user-message";
 import { getVectorStore } from "@core/services/vector-db";
@@ -11,9 +15,9 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Chat, Prisma } from "@prisma/client";
 import { validServerSession } from "@services/user";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
+import { InferModel } from "drizzle-orm";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
@@ -40,15 +44,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       return UnauthorizedResponse("You must be logged in");
     }
 
-    let chat: Chat | null;
+    let chat: InferModel<typeof chats, "select"> | undefined;
     if (!chatId) {
       chat = await createChat({
         name: messages[0].content,
-        user: {
-          connect: {
-            id: user!.id,
-          },
-        },
+        userId: user.id,
       });
     } else {
       chat = await getChat(chatId);
@@ -63,48 +63,24 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     if (chat.name === "New Chat") {
-      await prisma.chat.update({
-        where: {
-          id: chat.id,
-        },
-        data: {
-          name: messages[0].content,
-        },
+      await updateChat(chat.id, {
+        name: messages[0].content,
       });
     }
 
     const userMessage = await createUserMessage({
       aiId: lastMessage.id,
-      createdAt: lastMessage.createdAt,
+      createdAt:
+        lastMessage.createdAt?.toISOString() ?? new Date().toISOString(),
       text: lastMessage.content,
-      chat: {
-        connect: {
-          id: chat.id,
-        },
-      },
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
+      chatId: chat.id,
+      userId: user.id,
     });
 
     const aiResponse = await createAiResponse({
-      chat: {
-        connect: {
-          id: chat.id,
-        },
-      },
-      userMessage: {
-        connect: {
-          id: userMessage.id,
-        },
-      },
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
+      chatId: chat.id,
+      userMessageId: userMessage.id,
+      userId: user.id,
     });
 
     const vectorStore = await getVectorStore();
@@ -151,25 +127,27 @@ export async function POST(request: NextRequest): Promise<Response> {
       .then(async (result) => {
         await updateAiResponse(aiResponse.id, {
           text: result.text,
-          sourceDocuments: {
-            connectOrCreate: result.sourceDocuments.map(
-              (sourceDocument: {
-                pageContent: string;
-                metadata: any;
-              }): Prisma.SourceDocumentCreateOrConnectWithoutDevotionsInput => {
-                return {
-                  where: {
-                    text: sourceDocument.pageContent,
-                  },
-                  create: {
-                    text: sourceDocument.pageContent,
-                    metadata: sourceDocument.metadata,
-                  },
-                };
-              }
-            ),
-          },
         });
+
+        result.sourceDocuments.forEach(
+          async (sd: { pageContent: string; metadata: any }) => {
+            let sourceDocument:
+              | InferModel<typeof sourceDocuments, "insert">
+              | undefined;
+            const existingSourceDoc = await getSourceDocumentByText(
+              sd.pageContent
+            );
+
+            if (existingSourceDoc) {
+              sourceDocument = existingSourceDoc;
+            } else {
+              sourceDocument = await createSourceDocument({
+                text: sd.pageContent,
+                metadata: sd.metadata,
+              });
+            }
+          }
+        );
       })
       .catch(async (err) => {
         console.error(`${err.stack}`);

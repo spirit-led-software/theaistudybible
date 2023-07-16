@@ -1,4 +1,6 @@
-import { WebsiteConfig } from "website";
+interface WebsiteConfig {
+  url: string;
+}
 
 export const config: WebsiteConfig = {
   url: process.env.WEBSITE_URL as string,
