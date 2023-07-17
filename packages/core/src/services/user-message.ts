@@ -21,32 +21,19 @@ export async function getUserMessages(
     orderBy = desc(userMessages.createdAt),
   } = options;
 
-  return await db.query.userMessages.findMany({
-    where,
-    orderBy,
-    limit,
-    offset,
-  });
+  return await db
+    .select()
+    .from(userMessages)
+    .where(where)
+    .limit(limit)
+    .offset(offset)
+    .orderBy(orderBy);
 }
 
 export async function getUserMessage(id: string) {
-  return await db.query.userMessages.findFirst({
-    where: eq(userMessages.id, id),
-    with: {
-      user: {
-        columns: {
-          id: true,
-          email: true,
-        },
-      },
-      aiResponses: true,
-      chat: {
-        columns: {
-          id: true,
-        },
-      },
-    },
-  });
+  return (
+    await db.select().from(userMessages).where(eq(userMessages.id, id))
+  ).at(0);
 }
 
 export async function getUserMessageOrThrow(id: string) {
@@ -58,23 +45,10 @@ export async function getUserMessageOrThrow(id: string) {
 }
 
 export async function getUserMessagesByChatId(chatId: string) {
-  return await db.query.userMessages.findMany({
-    where: eq(userMessages.chatId, chatId),
-    with: {
-      user: {
-        columns: {
-          id: true,
-          email: true,
-        },
-      },
-      aiResponses: true,
-      chat: {
-        columns: {
-          id: true,
-        },
-      },
-    },
-  });
+  return await db
+    .select()
+    .from(userMessages)
+    .where(eq(userMessages.chatId, chatId));
 }
 
 export async function createUserMessage(data: CreateUserMessageData) {

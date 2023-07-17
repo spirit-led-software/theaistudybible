@@ -8,7 +8,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSessionFromRequest } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    const { isValid, userInfo } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
   try {
-    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    const { isValid, userInfo } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }

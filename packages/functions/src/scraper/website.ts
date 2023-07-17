@@ -4,6 +4,7 @@ import {
   createIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
+import { isAdmin, validApiSession } from "@core/services/user";
 import { XMLParser } from "fast-xml-parser";
 import { Api, ApiHandler } from "sst/node/api";
 
@@ -14,7 +15,24 @@ type RequestBody = {
 };
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Event received:", event);
+  const { isValid, userInfo } = await validApiSession();
+  if (!isValid) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({
+        error: "Unauthorized",
+      }),
+    };
+  }
+
+  if (!(await isAdmin(userInfo.id))) {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        error: "Forbidden",
+      }),
+    };
+  }
 
   if (!event.body) {
     return {
@@ -39,7 +57,7 @@ export const handler = ApiHandler(async (event) => {
   try {
     indexOp = await createIndexOperation({
       type: "WEBSITE",
-      status: "IN_PROGRESS",
+      status: "PENDING",
       metadata: {
         name,
         url,

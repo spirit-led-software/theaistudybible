@@ -8,7 +8,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSessionFromRequest } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { bibleVerse } = data;
 
   try {
-    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    const { isValid, userInfo } = await validServerSession();
     if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }

@@ -1,4 +1,9 @@
-import { chats, sourceDocuments } from "@chatesv/core/database/schema";
+import { db } from "@chatesv/core/database";
+import {
+  aiResponsesToSourceDocuments,
+  chats,
+  sourceDocuments,
+} from "@chatesv/core/database/schema";
 import { createAiResponse, updateAiResponse } from "@core/services/ai-response";
 import { createChat, getChat, updateChat } from "@core/services/chat";
 import { getChatModel, getCompletionsModel } from "@core/services/llm";
@@ -15,7 +20,7 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSessionFromRequest } from "@services/user";
+import { validServerSession } from "@services/user";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
 import { InferModel } from "drizzle-orm";
 import { CallbackManager } from "langchain/callbacks";
@@ -39,7 +44,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       return BadRequestResponse("Invalid message");
     }
 
-    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    const { isValid, userInfo } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
@@ -70,14 +75,12 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     const userMessage = await createUserMessage({
       aiId: lastMessage.id,
-      createdAt:
-        lastMessage.createdAt?.toISOString() ?? new Date().toISOString(),
       text: lastMessage.content,
       chatId: chat.id,
       userId: userInfo.id,
     });
 
-    const aiResponse = await createAiResponse({
+    let aiResponse = await createAiResponse({
       chatId: chat.id,
       userMessageId: userMessage.id,
       userId: userInfo.id,
@@ -96,21 +99,18 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
     console.debug(`Chat history: ${JSON.stringify(history)}`);
 
-    const memory = new BufferMemory({
-      chatHistory: new ChatMessageHistory(history),
-      memoryKey: "chat_history",
-      inputKey: "message",
-      outputKey: "answer",
-      returnMessages: true,
-    });
     const chain = ConversationalRetrievalQAChain.fromLLM(
       getChatModel(),
       vectorStore.asRetriever(),
       {
         returnSourceDocuments: true,
-        memory,
-        inputKey: "message",
-        outputKey: "answer",
+        memory: new BufferMemory({
+          chatHistory: new ChatMessageHistory(history),
+          memoryKey: "chat_history",
+          inputKey: "question",
+          outputKey: "text",
+          returnMessages: true,
+        }),
         questionGeneratorChainOptions: {
           llm: getCompletionsModel(),
         },
@@ -120,12 +120,12 @@ export async function POST(request: NextRequest): Promise<Response> {
     chain
       .call(
         {
-          message: lastMessage.content,
+          question: lastMessage.content,
         },
         CallbackManager.fromHandlers(handlers)
       )
       .then(async (result) => {
-        await updateAiResponse(aiResponse.id, {
+        aiResponse = await updateAiResponse(aiResponse.id, {
           text: result.text,
         });
 
@@ -146,6 +146,11 @@ export async function POST(request: NextRequest): Promise<Response> {
                 metadata: sd.metadata,
               });
             }
+
+            await db.insert(aiResponsesToSourceDocuments).values({
+              aiResponseId: aiResponse.id,
+              sourceDocumentId: sourceDocument.id!,
+            });
           }
         );
       })

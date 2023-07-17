@@ -1,6 +1,7 @@
 import { SessionProvider } from "@components/SessionProvider";
 import { Metadata } from "next";
 import { Catamaran, Kanit } from "next/font/google";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 const kanit = Kanit({
@@ -49,8 +50,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const sessionToken = cookies().get("session");
+
   return (
-    <SessionProvider>
+    <SessionProvider sessionToken={sessionToken?.value}>
       <html lang="en">
         <body className={`${catamaran.variable} ${kanit.variable}`}>
           {children}

@@ -6,14 +6,10 @@ export function Database({ stack }: StackContext) {
     engine: "postgresql13.9",
   });
 
-  const databaseUrl = `postgresql://${database.cdk.cluster.secret?.secretValueFromJson(
-    "username"
-  )}:${database.cdk.cluster.secret?.secretValueFromJson("password")}@${
-    database.clusterEndpoint.hostname
-  }:${database.clusterEndpoint.port}/chatesv?sslmode=require`;
-
   stack.addOutputs({
-    "Database ID": database.clusterIdentifier,
+    "Database Resource ARN": database.clusterArn,
+    "Database Secret ARN": database.secretArn,
+    "Database Name": database.defaultDatabaseName,
   });
 
   return {

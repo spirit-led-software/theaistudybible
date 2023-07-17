@@ -1,8 +1,9 @@
 import { SQL, desc, eq } from "drizzle-orm";
+import { useSession } from "sst/node/auth";
 import config from "../configs/auth";
 import { db } from "../database";
 import { CreateUserData, UpdateUserData, User } from "../database/model";
-import { users } from "../database/schema";
+import { roles, users, usersToRoles } from "../database/schema";
 import { addRoleToUser } from "./role";
 
 export async function getUsers(
@@ -20,21 +21,17 @@ export async function getUsers(
     orderBy = desc(users.createdAt),
   } = options;
 
-  return await db.query.users.findMany({
-    where,
-    orderBy,
-    limit,
-    offset,
-  });
+  return await db
+    .select()
+    .from(users)
+    .where(where)
+    .limit(limit)
+    .offset(offset)
+    .orderBy(orderBy);
 }
 
 export async function getUser(id: string) {
-  return await db.query.users.findFirst({
-    where: eq(users.id, id),
-    with: {
-      roles: true,
-    },
-  });
+  return (await db.select().from(users).where(eq(users.id, id))).at(0);
 }
 
 export async function getUserOrThrow(id: string) {
@@ -46,12 +43,7 @@ export async function getUserOrThrow(id: string) {
 }
 
 export async function getUserByEmail(email: string) {
-  return await db.query.users.findFirst({
-    where: eq(users.email, email),
-    with: {
-      roles: true,
-    },
-  });
+  return (await db.select().from(users).where(eq(users.email, email))).at(0);
 }
 
 export async function getUserByEmailOrThrow(email: string) {
@@ -73,17 +65,25 @@ export async function updateUser(id: string, data: UpdateUserData) {
 }
 
 export async function deleteUser(id: string) {
-  return await db.delete(users).where(eq(users.id, id)).returning();
+  return (await db.delete(users).where(eq(users.id, id)).returning())[0];
 }
 
 export async function isAdmin(userId: string) {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-    with: {
-      roles: true,
-    },
-  });
-  return user!.roles?.some((role) => role.name === "ADMIN") ?? false;
+  const userRolesRelation = await db
+    .select()
+    .from(usersToRoles)
+    .where(eq(usersToRoles.userId, userId));
+
+  const userRoleNames: string[] = [];
+  for (const userRoleRelation of userRolesRelation) {
+    const userRoles = await db
+      .select()
+      .from(roles)
+      .where(eq(roles.id, userRoleRelation.roleId));
+    userRoles.forEach((userRole) => userRoleNames.push(userRole.name));
+  }
+
+  return userRoleNames.some((roleName) => roleName === "ADMIN") ?? false;
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {
@@ -106,10 +106,36 @@ export async function createInitialAdminUser() {
 
   console.log("Adding admin role to admin user");
   if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("ADMIN", adminUser.id);
+    await addRoleToUser("ADMIN", adminUser!.id);
     console.log("Admin role added to admin user");
   } else {
     console.log("Admin role already added to admin user");
   }
   console.log("Initial admin user created");
+}
+
+export async function validApiSession(): Promise<
+  | {
+      isValid: false;
+      userInfo?: never;
+    }
+  | {
+      isValid: true;
+      userInfo: User;
+    }
+> {
+  const session = useSession();
+  if (!session || session.type !== "user") {
+    return { isValid: false };
+  }
+
+  const userInfo = await getUser(session.properties.id);
+  if (!userInfo) {
+    return { isValid: false };
+  }
+
+  return {
+    isValid: true,
+    userInfo,
+  };
 }

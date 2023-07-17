@@ -1,12 +1,10 @@
-import { indexOperations } from "@chatesv/core/database/schema";
 import { unstructuredConfig } from "@core/configs";
 import {
   createIndexOperation,
-  getIndexOperations,
   updateIndexOperation,
 } from "@core/services/index-op";
+import { isAdmin, validApiSession } from "@core/services/user";
 import { addDocumentsToVectorStore } from "@core/services/vector-db";
-import { eq } from "drizzle-orm";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -20,6 +18,25 @@ import { join } from "path";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
+  const { isValid, userInfo } = await validApiSession();
+  if (!isValid) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({
+        error: "Unauthorized",
+      }),
+    };
+  }
+
+  if (!(await isAdmin(userInfo.id))) {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        error: "Forbidden",
+      }),
+    };
+  }
+
   if (!event.body) {
     return {
       statusCode: 400,
@@ -41,20 +58,6 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
-    const runningOps = await getIndexOperations({
-      where: eq(indexOperations.status, "IN_PROGRESS"),
-      limit: 1,
-    });
-
-    if (runningOps.length > 0) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: "Index operation already in progress",
-        }),
-      };
-    }
-
     if (file.size > 50 * 1024 * 1024) {
       return {
         statusCode: 400,
@@ -96,7 +99,7 @@ export const handler = ApiHandler(async (event) => {
     }
 
     const indexOp = await createIndexOperation({
-      status: "IN_PROGRESS",
+      status: "PENDING",
       type: "FILE",
       metadata: indexOpMetadata,
     });
@@ -125,7 +128,7 @@ export const handler = ApiHandler(async (event) => {
         console.log("Adding documents to vector store");
         await addDocumentsToVectorStore(docs);
         await updateIndexOperation(indexOp.id, {
-          status: "COMPLETED",
+          status: "PENDING",
           metadata: {
             ...(indexOp.metadata as any),
           },

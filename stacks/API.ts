@@ -1,4 +1,4 @@
-import { Auth, Database, S3, STATIC_ENV_VARS } from "@stacks";
+import { Database, S3, STATIC_ENV_VARS } from "@stacks";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext, use } from "sst/constructs";
 
@@ -8,7 +8,6 @@ const chromeLayerArn =
 export function API({ stack }: StackContext) {
   const { bucket } = use(S3);
   const { database } = use(Database);
-  const { auth } = use(Auth);
 
   const chromeLayer = LayerVersion.fromLayerVersionArn(
     stack,
@@ -19,6 +18,15 @@ export function API({ stack }: StackContext) {
   const domainName = `${
     stack.stage !== "prod" ? `${stack.stage}.` : ""
   }api.chatesv.com`;
+  const apiUrl = `https://${domainName}`;
+
+  const websiteDomainName = `${
+    stack.stage !== "prod" ? `${stack.stage}.` : ""
+  }chatesv.com`;
+  const websiteUrl =
+    stack.stage === "prod"
+      ? `https://${websiteDomainName}`
+      : `http://localhost:3000`;
 
   const api = new Api(stack, "api", {
     routes: {
@@ -26,11 +34,18 @@ export function API({ stack }: StackContext) {
       "POST /scraper/website": "packages/functions/src/scraper/website.handler",
       "POST /scraper/webpage": {
         function: {
-          runtime: "nodejs16.x",
           handler: "packages/functions/src/scraper/webpage.handler",
           layers: [chromeLayer],
           nodejs: {
             install: ["chrome-aws-lambda"],
+          },
+          environment: {
+            DATABASE_RESOURCE_ARN: database.clusterArn,
+            DATABASE_SECRET_ARN: database.secretArn,
+            DATABASE_NAME: database.defaultDatabaseName,
+            WEBSITE_URL: websiteUrl,
+            API_URL: `https://${domainName}`,
+            ...STATIC_ENV_VARS,
           },
           bind: [bucket, database],
         },
@@ -39,11 +54,12 @@ export function API({ stack }: StackContext) {
     },
     defaults: {
       function: {
-        runtime: "nodejs18.x",
         environment: {
           DATABASE_RESOURCE_ARN: database.clusterArn,
           DATABASE_SECRET_ARN: database.secretArn,
           DATABASE_NAME: database.defaultDatabaseName,
+          WEBSITE_URL: `https://${websiteDomainName}`,
+          API_URL: `https://${domainName}`,
           ...STATIC_ENV_VARS,
         },
         bind: [database, bucket],
@@ -53,17 +69,19 @@ export function API({ stack }: StackContext) {
       domainName: domainName,
       hostedZone: "chatesv.com",
     },
-  });
-
-  auth.attach(stack, {
-    api,
+    cors: {
+      allowOrigins: [`${websiteUrl}`],
+      allowHeaders: ["*"],
+      allowCredentials: true,
+    },
   });
 
   stack.addOutputs({
-    "API URL": `https://${domainName}`,
+    "API URL": apiUrl,
   });
 
   return {
     api,
+    apiUrl,
   };
 }

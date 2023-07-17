@@ -8,7 +8,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validObjectOwnerFromRequest } from "@services/user";
+import { validObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -21,7 +21,7 @@ export async function GET(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid } = await validObjectOwnerFromRequest(request, chat);
+    const { isValid } = await validObjectOwner(chat);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this chat.");
     }
@@ -45,7 +45,7 @@ export async function PUT(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid } = await validObjectOwnerFromRequest(request, chat);
+    const { isValid } = await validObjectOwner(chat);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this chat.");
     }
@@ -72,7 +72,7 @@ export async function DELETE(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid } = await validObjectOwnerFromRequest(request, chat);
+    const { isValid } = await validObjectOwner(chat);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this chat.");
     }

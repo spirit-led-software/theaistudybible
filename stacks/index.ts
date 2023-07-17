@@ -2,7 +2,7 @@ export * from "./API";
 export * from "./Auth";
 export * from "./Crons";
 export * from "./Database";
-export * from "./DatabaseMigrations";
+export * from "./DatabaseScripts";
 export * from "./S3";
 export * from "./Website";
 

@@ -5,7 +5,7 @@ export function Crons({ stack }: StackContext) {
   const { database } = use(Database);
 
   const dailyDevotionCron = new Cron(stack, "DailyDevotionCron", {
-    schedule: "cron(0 10 * * *)",
+    schedule: "cron(0 10 * * ? *)",
     job: {
       function: {
         handler: "packages/functions/src/daily-devo.handler",

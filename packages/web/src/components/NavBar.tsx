@@ -1,12 +1,12 @@
 "use client";
 
-import { useSession } from "@hooks/session";
 import { useUser } from "@hooks/user";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoIosArrowDown } from "react-icons/io";
+import { SessionContext } from "./SessionProvider";
 import { LightLogo } from "./branding";
 import { Avatar } from "./user";
 
@@ -31,8 +31,9 @@ const navItems = [
 
 export function NavBar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useUser();
-  const { setSession } = useSession();
+  const { setSession } = useContext(SessionContext);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -46,6 +47,8 @@ export function NavBar() {
 
   const signOut = async () => {
     setSession(null);
+    await fetch("/api/auth/logout");
+    router.push("/");
   };
 
   return (

@@ -19,7 +19,7 @@ export function IndexOperationsDashboard({
         : 100,
     },
     {
-      refreshInterval: 5000,
+      refreshInterval: 20000,
     }
   );
 
@@ -45,7 +45,7 @@ export function IndexOperationsDashboard({
                     className={`px-2 py-1 ${
                       indexOp.status === "FAILED"
                         ? "text-red-500"
-                        : indexOp.status === "COMPLETED"
+                        : indexOp.status === "SUCCEEDED"
                         ? "text-green-500"
                         : "text-yellow-500"
                     }`}

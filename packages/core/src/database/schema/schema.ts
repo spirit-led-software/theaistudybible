@@ -1,45 +1,23 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  date,
   index,
-  integer,
-  jsonb,
-  pgEnum,
+  json,
   pgTable,
   text,
-  timestamp,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-
-export const indexOperationType = pgEnum("index_operation_type", [
-  "FILE",
-  "WEBSITE",
-  "WEBPAGE",
-]);
-
-export const indexOperationStatus = pgEnum("index_operation_status", [
-  "FAILED",
-  "COMPLETED",
-  "IN_PROGRESS",
-  "PENDING",
-]);
 
 export const sourceDocuments = pgTable(
   "source_documents",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
+    createdAt: date("created_at").defaultNow().notNull(),
+    updatedAt: date("updated_at").notNull().defaultNow(),
     text: text("text").notNull(),
-    metadata: jsonb("metadata").default({}).notNull(),
+    metadata: json("metadata").default({}).notNull(),
   },
   (table) => {
     return {
@@ -62,43 +40,10 @@ export const sourceDocumentsRelations = relations(
   }
 );
 
-export const verificationTokens = pgTable(
-  "verification_tokens",
-  {
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
-    identifier: text("identifier").notNull(),
-    token: text("token").notNull(),
-    expires: timestamp("expires", { precision: 3, mode: "string" }).notNull(),
-  },
-  (table) => {
-    return {
-      identifierTokenKey: uniqueIndex(
-        "verification_tokens_identifier_token_key"
-      ).on(table.identifier, table.token),
-      tokenKey: uniqueIndex("verification_tokens_token_key").on(table.token),
-    };
-  }
-);
-
 export const aiResponses = pgTable("ai_responses", {
   id: uuid("id").primaryKey().defaultRandom(),
-  createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", {
-    precision: 3,
-    mode: "string",
-  })
-    .notNull()
-    .defaultNow(),
+  createdAt: date("created_at").defaultNow().notNull(),
+  updatedAt: date("updated_at").notNull().defaultNow(),
   aiId: text("ai_id"),
   text: text("text"),
   failed: boolean("failed").notNull().default(false),
@@ -139,15 +84,8 @@ export const roles = pgTable(
   "roles",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
+    createdAt: date("created_at").defaultNow().notNull(),
+    updatedAt: date("updated_at").notNull().defaultNow(),
     name: text("name").notNull(),
   },
   (table) => {
@@ -167,21 +105,11 @@ export const users = pgTable(
   "users",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
+    createdAt: date("created_at").notNull().defaultNow(),
+    updatedAt: date("updated_at").notNull().defaultNow(),
     name: text("name"),
     email: text("email"),
-    emailVerified: timestamp("email_verified", {
-      precision: 3,
-      mode: "string",
-    }),
+    emailVerified: date("email_verified"),
     image: text("image"),
   },
   (table) => {
@@ -194,21 +122,13 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
-    accounts: many(accounts),
   };
 });
 
 export const devotions = pgTable("devotions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", {
-    precision: 3,
-    mode: "string",
-  })
-    .notNull()
-    .defaultNow(),
+  createdAt: date("created_at").notNull().defaultNow(),
+  updatedAt: date("updated_at").notNull().defaultNow(),
   subject: text("subject").notNull(),
   content: text("content").notNull(),
 });
@@ -223,15 +143,8 @@ export const userMessages = pgTable(
   "user_messages",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
+    createdAt: date("created_at").defaultNow().notNull(),
+    updatedAt: date("updated_at").defaultNow().notNull(),
     aiId: text("ai_id"),
     text: text("text").notNull(),
     chatId: uuid("chat_id")
@@ -270,20 +183,13 @@ export const sessions = pgTable(
   "sessions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
+    createdAt: date("created_at").defaultNow().notNull(),
+    updatedAt: date("updated_at").notNull().defaultNow(),
     sessionToken: text("session_token").notNull(),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    expires: timestamp("expires", { precision: 3, mode: "string" }).notNull(),
+    expires: date("expires").notNull(),
   },
   (table) => {
     return {
@@ -301,67 +207,19 @@ export const sessionRelations = relations(sessions, ({ one }) => {
   };
 });
 
-export const accounts = pgTable(
-  "accounts",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
-    type: text("type").notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("provider_account_id").notNull(),
-    refreshToken: text("refresh_token"),
-    accessToken: text("access_token"),
-    expiresAt: integer("expires_at"),
-    tokenType: text("token_type"),
-    scope: text("scope"),
-    idToken: text("id_token"),
-    sessionState: text("session_state"),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
-  },
-  (table) => {
-    return {
-      providerProviderAccountIdKey: uniqueIndex(
-        "provider_provider_account_id_key"
-      ).on(table.provider, table.providerAccountId),
-    };
-  }
-);
-
-export const accountsRelations = relations(accounts, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [accounts.userId],
-      references: [users.id],
-    }),
-  };
-});
-
 export const indexOperations = pgTable(
   "index_operations",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
-    type: indexOperationType("type").notNull(),
-    status: indexOperationStatus("status").notNull(),
-    metadata: jsonb("metadata").default({}).notNull(),
+    createdAt: date("created_at").defaultNow().notNull(),
+    updatedAt: date("updated_at").notNull().defaultNow(),
+    type: text("type", {
+      enum: ["WEBSITE", "FILE", "WEBPAGE"],
+    }).notNull(),
+    status: text("status", {
+      enum: ["FAILED", "SUCCEEDED", "PENDING"],
+    }).notNull(),
+    metadata: json("metadata").default({}).notNull(),
   },
   (table) => {
     return {
@@ -375,15 +233,8 @@ export const chats = pgTable(
   "chats",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at", { precision: 3, mode: "string" })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      precision: 3,
-      mode: "string",
-    })
-      .notNull()
-      .defaultNow(),
+    createdAt: date("created_at").defaultNow().notNull(),
+    updatedAt: date("updated_at").notNull().defaultNow(),
     name: text("name").notNull(),
     userId: uuid("user_id")
       .notNull()

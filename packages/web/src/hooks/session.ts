@@ -2,10 +2,9 @@ import { SessionContext } from "@components/SessionProvider";
 import { useContext } from "react";
 
 export const useSession = () => {
-  const { session, setSession } = useContext(SessionContext);
+  const { session } = useContext(SessionContext);
 
   return {
     session,
-    setSession,
   };
 };

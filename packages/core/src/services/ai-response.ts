@@ -1,7 +1,16 @@
 import { SQL, desc, eq } from "drizzle-orm";
 import { db } from "../database";
-import { CreateAiResponseData, UpdateAiResponseData } from "../database/model";
-import { aiResponses } from "../database/schema";
+import {
+  AiResponse,
+  CreateAiResponseData,
+  SourceDocument,
+  UpdateAiResponseData,
+} from "../database/model";
+import {
+  aiResponses,
+  aiResponsesToSourceDocuments,
+  sourceDocuments,
+} from "../database/schema";
 
 export async function getAiResponses(
   options: {
@@ -18,22 +27,19 @@ export async function getAiResponses(
     orderBy = desc(aiResponses.createdAt),
   } = options;
 
-  return await db.query.aiResponses.findMany({
-    where,
-    limit,
-    offset,
-    orderBy,
-  });
+  return await db
+    .select()
+    .from(aiResponses)
+    .where(where)
+    .orderBy(orderBy)
+    .limit(limit)
+    .offset(offset);
 }
 
 export async function getAiResponse(id: string) {
-  return await db.query.aiResponses.findFirst({
-    where: eq(aiResponses.id, id),
-    with: {
-      sourceDocuments: true,
-      userMessage: true,
-    },
-  });
+  return (await db.select().from(aiResponses).where(eq(aiResponses.id, id))).at(
+    0
+  );
 }
 
 export async function getAiResponseOrThrow(id: string) {
@@ -42,6 +48,30 @@ export async function getAiResponseOrThrow(id: string) {
     throw new Error(`AiResponse with id ${id} not found`);
   }
   return aiResponse;
+}
+
+export async function getAiResponseRelatedSourceDocuments(
+  aiResponse: AiResponse
+) {
+  const sourceDocumentIds = (
+    await db
+      .select()
+      .from(aiResponsesToSourceDocuments)
+      .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
+  ).map((d) => d.sourceDocumentId);
+
+  const foundSourceDocuments: SourceDocument[] = [];
+  for (const sourceDocumentId of sourceDocumentIds) {
+    const sourceDocument = (
+      await db
+        .select()
+        .from(sourceDocuments)
+        .where(eq(sourceDocuments.id, sourceDocumentId))
+    )[0];
+    foundSourceDocuments.push(sourceDocument);
+  }
+
+  return foundSourceDocuments;
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {

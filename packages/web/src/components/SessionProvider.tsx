@@ -1,20 +1,31 @@
 "use client";
 
-import React, { createContext, useState } from "react";
+import { ReactNode, createContext, useState } from "react";
 
 export const SessionContext = createContext<{
   session: string | null;
-  setSession: React.Dispatch<React.SetStateAction<string | null>>;
+  setSession: (sessionToken: string | null) => void;
 }>({
   session: null,
-  setSession: () => null,
+  setSession: (sessionToken: string | null) => {},
 });
 
-export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<string | null>(null);
+export function SessionProvider({
+  children,
+  sessionToken,
+}: {
+  children: ReactNode;
+  sessionToken?: string;
+}) {
+  const [session, setSession] = useState<string | null>(sessionToken ?? null);
 
   return (
-    <SessionContext.Provider value={{ session, setSession }}>
+    <SessionContext.Provider
+      value={{
+        session,
+        setSession,
+      }}
+    >
       {children}
     </SessionContext.Provider>
   );

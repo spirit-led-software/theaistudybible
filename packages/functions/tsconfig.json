@@ -3,9 +3,7 @@
   "compilerOptions": {
     "typeRoots": ["./src/types", "../core/src/types"],
     "lib": ["dom", "dom.iterable", "ES2021"],
-    "module": "Node16",
     "moduleResolution": "Node",
-    "baseUrl": ".",
     "paths": {
       "@core/configs/*": ["../core/src/configs/*"],
       "@core/configs": ["../core/src/configs"],

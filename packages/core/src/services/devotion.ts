@@ -3,7 +3,12 @@ import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { axios } from "../configs";
 import { db } from "../database";
-import { CreateDevotionData, UpdateDevotionData } from "../database/model";
+import {
+  CreateDevotionData,
+  Devotion,
+  SourceDocument,
+  UpdateDevotionData,
+} from "../database/model";
 import {
   devotions,
   devotionsToSourceDocuments,
@@ -27,21 +32,17 @@ export async function getDevotions(
     orderBy = desc(devotions.createdAt),
   } = options;
 
-  return await db.query.devotions.findMany({
-    where,
-    orderBy,
-    limit,
-    offset,
-  });
+  return await db
+    .select()
+    .from(devotions)
+    .where(where)
+    .limit(limit)
+    .offset(offset)
+    .orderBy(orderBy);
 }
 
 export async function getDevotion(id: string) {
-  return await db.query.devotions.findFirst({
-    where: eq(devotions.id, id),
-    with: {
-      sourceDocuments: true,
-    },
-  });
+  return (await db.select().from(devotions).where(eq(devotions.id, id))).at(0);
 }
 
 export async function getDevotionOrThrow(id: string) {
@@ -50,6 +51,28 @@ export async function getDevotionOrThrow(id: string) {
     throw new Error(`Devotion with id ${id} not found`);
   }
   return devotion;
+}
+
+export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
+  const sourceDocumentIds = (
+    await db
+      .select()
+      .from(devotionsToSourceDocuments)
+      .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
+  ).map((d) => d.sourceDocumentId);
+
+  const foundSourceDocuments: SourceDocument[] = [];
+  for (const sourceDocumentId of sourceDocumentIds) {
+    const sourceDocument = (
+      await db
+        .select()
+        .from(sourceDocuments)
+        .where(eq(sourceDocuments.id, sourceDocumentId))
+    )[0];
+    foundSourceDocuments.push(sourceDocument);
+  }
+
+  return foundSourceDocuments;
 }
 
 export async function createDevotion(data: CreateDevotionData) {

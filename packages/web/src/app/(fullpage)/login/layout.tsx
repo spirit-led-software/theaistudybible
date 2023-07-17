@@ -1,4 +1,4 @@
-export default function LoginPageLayout({
+export default async function LoginPageLayout({
   children,
 }: {
   children: React.ReactNode;

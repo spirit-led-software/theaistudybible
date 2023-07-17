@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1689475290664,
-      "tag": "0000_powerful_reavers",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1689477140614,
-      "tag": "0001_tidy_spectrum",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1689597858524,
-      "tag": "0002_adorable_senator_kelly",
+      "when": 1689635645936,
+      "tag": "0000_eager_retro_girl",
       "breakpoints": true
     }
   ]

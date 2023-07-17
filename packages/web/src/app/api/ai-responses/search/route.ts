@@ -7,7 +7,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSessionFromRequest } from "@services/user";
+import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -16,7 +16,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const page = parseInt(searchParams.get("page") ?? "1");
   const orderBy = searchParams.get("orderBy") ?? "createdAt";
   const order = searchParams.get("order") ?? "desc";
-  const { query, include } = await request.json();
+  const { query } = await request.json();
+
+  console.log("Received AI response search request: ", {
+    query,
+    limit,
+    page,
+    orderBy,
+    order,
+  });
 
   try {
     let responses = await getAiResponses({
@@ -26,7 +34,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       orderBy: buildOrderBy(aiResponses, orderBy, order),
     });
 
-    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    const { isValid, userInfo } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }

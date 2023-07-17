@@ -4,14 +4,31 @@ import {
   getIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
+import { isAdmin, validApiSession } from "@core/services/user";
 import { addDocumentsToVectorStore } from "@core/services/vector-db";
 import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
 import { TokenTextSplitter } from "langchain/text_splitter";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Event received:", event);
-  console.log(process.env);
+  const { isValid, userInfo } = await validApiSession();
+  if (!isValid) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({
+        error: "Unauthorized",
+      }),
+    };
+  }
+
+  if (!(await isAdmin(userInfo.id))) {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        error: "Forbidden",
+      }),
+    };
+  }
 
   if (!event.body) {
     return {
@@ -39,7 +56,7 @@ export const handler = ApiHandler(async (event) => {
       indexOp = await getIndexOperation(indexOpId);
     } else {
       indexOp = await createIndexOperation({
-        status: "IN_PROGRESS",
+        status: "PENDING",
         type: "WEBPAGE",
         metadata: {
           name,
@@ -57,44 +74,19 @@ export const handler = ApiHandler(async (event) => {
       };
     }
 
-    indexOpMetadata = (indexOp!.metadata as any) ?? {};
-
     generatePageContentEmbeddings(name, url)
-      .then(() => {
-        updateIndexOperation(indexOpId, {
-          metadata: {
-            ...indexOpMetadata,
-            completed: [
-              ...(indexOpMetadata.completed ?? []),
-              {
-                name,
-                url,
-              },
-            ],
-          },
+      .then(async () => {
+        console.log(
+          `Successfully indexed url '${url}'. Updating index op status.`
+        );
+        indexOp = await updateIndexOperation(indexOpId, {
+          status: "SUCCEEDED",
         });
       })
       .catch((err) => {
+        console.error(err.stack);
         updateIndexOperation(indexOpId, {
           status: "FAILED",
-          metadata: {
-            ...indexOpMetadata,
-
-            errors: [
-              ...(indexOpMetadata.errors ?? []),
-              {
-                message: err.message,
-                stack: err.stack,
-              },
-            ],
-            failed: [
-              ...(indexOpMetadata.failed ?? []),
-              {
-                name,
-                url,
-              },
-            ],
-          },
         });
       });
 

@@ -22,7 +22,7 @@ export function ResponseSources({
     if (sources.length > 0) return;
     try {
       setIsLoading(true);
-      const response = await fetch("/api/ai-responses/search", {
+      const fetchAiResponsesResponse = await fetch("/api/ai-responses/search", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,12 +48,23 @@ export function ResponseSources({
           query: Query;
         }),
       });
-      const { entities: aiResponses } = await response.json();
+      const { entities: aiResponses } = await fetchAiResponsesResponse.json();
       const aiResponse = aiResponses[0];
-      const sourceDocuments: SourceDocument[] = aiResponse.sourceDocuments;
+
+      const fetchSourceDocsResponse = await fetch(
+        `/api/ai-responses/${aiResponse.id}/source-documents`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const foundSourceDocuments: SourceDocument[] =
+        await fetchSourceDocsResponse.json();
       setSources(
-        sourceDocuments.filter((sourceDoc, index) => {
-          const firstIndex = sourceDocuments.findIndex(
+        foundSourceDocuments.filter((sourceDoc, index) => {
+          const firstIndex = foundSourceDocuments.findIndex(
             (otherSourceDoc) =>
               (sourceDoc.metadata as any).name ===
               (otherSourceDoc.metadata as any).name

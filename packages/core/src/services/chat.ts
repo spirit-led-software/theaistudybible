@@ -18,23 +18,17 @@ export async function getChats(
     orderBy = desc(chats.createdAt),
   } = options;
 
-  return await db.query.chats.findMany({
-    where,
-    limit,
-    offset,
-    orderBy,
-  });
+  return await db
+    .select()
+    .from(chats)
+    .where(where)
+    .limit(limit)
+    .offset(offset)
+    .orderBy(orderBy);
 }
 
 export async function getChat(id: string) {
-  return await db.query.chats.findFirst({
-    where: eq(chats.id, id),
-    with: {
-      userMessages: true,
-      aiResponses: true,
-      user: true,
-    },
-  });
+  return (await db.select().from(chats).where(eq(chats.id, id))).at(0);
 }
 
 export async function getChatOrThrow(id: string) {

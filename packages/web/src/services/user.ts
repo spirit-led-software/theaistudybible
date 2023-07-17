@@ -1,24 +1,9 @@
 import { User } from "@chatesv/core/database/model";
 import { apiConfig } from "@configs/index";
 import { isAdmin, isObjectOwner } from "@core/services/user";
+import { cookies } from "next/headers";
 
-export function getSessionTokenFromRequest(
-  request: Request
-): string | undefined {
-  const authorization = request.headers.get("Authorization");
-  if (!authorization) {
-    return undefined;
-  }
-
-  const [type, token] = authorization.split(" ");
-  if (type !== "Bearer") {
-    return undefined;
-  }
-
-  return token;
-}
-
-export async function validServerSession(sessionToken: string): Promise<
+export async function validServerSession(): Promise<
   | {
       isValid: false;
       userInfo?: never;
@@ -28,14 +13,20 @@ export async function validServerSession(sessionToken: string): Promise<
       userInfo: User;
     }
 > {
+  const sessionToken = cookies().get("session");
+  if (!sessionToken?.value) {
+    console.error("Could not find session token in cookies.");
+    return { isValid: false };
+  }
+
   const response = await fetch(`${apiConfig.url}/session`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${sessionToken}`,
+      Authorization: `Bearer ${sessionToken.value}`,
     },
   });
-
   if (response.status !== 200) {
+    console.error("Invalid session token received: ", sessionToken.value);
     return { isValid: false };
   }
 
@@ -47,26 +38,7 @@ export async function validServerSession(sessionToken: string): Promise<
   };
 }
 
-export async function validServerSessionFromRequest(request: Request): Promise<
-  | {
-      isValid: false;
-      userInfo?: never;
-    }
-  | {
-      isValid: true;
-      userInfo: User;
-    }
-> {
-  const sessionToken = getSessionTokenFromRequest(request);
-  return sessionToken ? validServerSession(sessionToken) : { isValid: false };
-}
-
-export async function validObjectOwner(
-  sessionToken: string,
-  object: {
-    userId: string;
-  }
-): Promise<
+export async function validObjectOwner(object: { userId: string }): Promise<
   | {
       isValid: false;
       userInfo?: User;
@@ -76,34 +48,7 @@ export async function validObjectOwner(
       userInfo: User;
     }
 > {
-  const { isValid, userInfo } = await validServerSession(sessionToken);
-  if (!isValid) {
-    return { isValid: false };
-  }
-
-  if (!isObjectOwner(object, userInfo.id) && !(await isAdmin(userInfo.id))) {
-    return { isValid: false, userInfo };
-  }
-
-  return { isValid: true, userInfo };
-}
-
-export async function validObjectOwnerFromRequest(
-  request: Request,
-  object: {
-    userId: string;
-  }
-): Promise<
-  | {
-      isValid: false;
-      userInfo?: User;
-    }
-  | {
-      isValid: true;
-      userInfo: User;
-    }
-> {
-  const { isValid, userInfo } = await validServerSessionFromRequest(request);
+  const { isValid, userInfo } = await validServerSession();
   if (!isValid) {
     return { isValid: false };
   }

@@ -21,30 +21,19 @@ export async function getSourceDocuments(
     orderBy = desc(sourceDocuments.createdAt),
   } = options;
 
-  return await db.query.sourceDocuments.findMany({
-    where,
-    limit,
-    offset,
-    orderBy,
-  });
+  return await db
+    .select()
+    .from(sourceDocuments)
+    .limit(limit)
+    .offset(offset)
+    .where(where)
+    .orderBy(orderBy);
 }
 
 export async function getSourceDocument(id: string) {
-  return await db.query.sourceDocuments.findFirst({
-    where: eq(sourceDocuments.id, id),
-    with: {
-      devotions: {
-        columns: {
-          id: true,
-        },
-      },
-      aiResponses: {
-        columns: {
-          id: true,
-        },
-      },
-    },
-  });
+  return (
+    await db.select().from(sourceDocuments).where(eq(sourceDocuments.id, id))
+  ).at(0);
 }
 
 export async function getSourceDocumentOrThrow(id: string) {
@@ -56,9 +45,12 @@ export async function getSourceDocumentOrThrow(id: string) {
 }
 
 export async function getSourceDocumentByText(text: string) {
-  return await db.query.sourceDocuments.findFirst({
-    where: eq(sourceDocuments.text, text),
-  });
+  return (
+    await db
+      .select()
+      .from(sourceDocuments)
+      .where(eq(sourceDocuments.text, text))
+  ).at(0);
 }
 
 export async function createSourceDocument(data: CreateSourceDocumentData) {

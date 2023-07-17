@@ -1,40 +1,43 @@
-import { db } from "@chatesv/core/database";
-import { userMessages as userMessagesTable } from "@chatesv/core/database/schema";
+import { aiResponses, userMessages } from "@chatesv/core/database/schema";
 import { Window } from "@components/chat";
+import { getAiResponses } from "@core/services/ai-response";
 import { getChat, getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
+import { getUserMessages } from "@core/services/user-message";
 import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 async function getMessages(chatId: string) {
-  const userMessages = await db.query.userMessages.findMany({
-    where: eq(userMessagesTable.chatId, chatId),
-    with: {
-      aiResponses: true,
-    },
+  const foundUserMessages = await getUserMessages({
+    where: eq(userMessages.chatId, chatId),
   });
 
-  const messages: Message[] = userMessages
-    .map((userMessage) => {
-      const message: Message = {
-        id: userMessage.aiId!,
-        content: userMessage.text,
-        role: "user",
-      };
-      const aiResponses: Message[] = userMessage.aiResponses.map(
-        (aiResponse) => ({
+  const messages: Message[] = (
+    await Promise.all(
+      foundUserMessages.map(async (userMessage) => {
+        const message: Message = {
+          id: userMessage.aiId!,
+          content: userMessage.text,
+          role: "user",
+        };
+
+        const foundAiResponses = await getAiResponses({
+          where: eq(aiResponses.userMessageId, userMessage.id),
+        });
+
+        const responses: Message[] = foundAiResponses.map((aiResponse) => ({
           id: aiResponse.aiId!,
           content: aiResponse.text!,
           role: "assistant",
-        })
-      );
-      return [...aiResponses, message];
-    })
+        }));
+        return [...responses, message];
+      })
+    )
+  )
     .flat()
     .reverse();
 
@@ -51,10 +54,7 @@ export default async function SpecificChatPage({
     notFound();
   }
 
-  const sessionToken = headers().get("Authorization");
-  if (!sessionToken) redirect(`/login?redirect=/chat/${chat.id}`);
-
-  const { isValid, userInfo } = await validServerSession(sessionToken);
+  const { isValid, userInfo } = await validServerSession();
   if (!isValid || !isObjectOwner(chat, userInfo.id)) {
     redirect(`/login?redirect=/chat/${chat.id}`);
   }

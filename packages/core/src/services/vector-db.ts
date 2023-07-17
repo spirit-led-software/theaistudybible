@@ -22,6 +22,11 @@ export async function addDocumentsToVectorStore(
 ) {
   const vectorStore = await getVectorStore();
   for (let i = 0; i < documents.length; i += 30) {
+    if (i + 30 > documents.length) {
+      console.log(`Adding slice: ${i} to ${documents.length}`);
+      await vectorStore.addDocuments(documents.slice(i, documents.length));
+      break;
+    }
     console.log(`Adding slice: ${i} to ${i + 30}`);
     await vectorStore.addDocuments(documents.slice(i, i + 30));
   }

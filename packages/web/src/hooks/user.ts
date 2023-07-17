@@ -1,41 +1,39 @@
 import { User } from "@chatesv/core/database/model";
 import { apiConfig } from "@configs/index";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
 import { useSession } from "./session";
 
-const fetcher = ([url, token]: [string, string]): Promise<User> =>
-  fetch(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }).then((r) => r.json());
-
 export const useUser = () => {
-  const { session } = useSession();
   const [user, setUser] = useState<User | null>(null);
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
-    [`${apiConfig.url}/session`, session],
-    fetcher
-  );
+  const [isLoading, setIsLoading] = useState(false);
+  const { session } = useSession();
 
   useEffect(() => {
-    mutate();
-  }, [session, mutate]);
-
-  useEffect(() => {
-    if (data) {
-      setUser(data);
+    if (session) {
+      setIsLoading(true);
+      fetch(`${apiConfig.url}/session`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
+      })
+        .then((r) => {
+          if (r.status === 200) {
+            r.json().then((u) => setUser(u));
+          }
+          setIsLoading(false);
+        })
+        .catch((e) => {
+          console.error(e);
+          setIsLoading(false);
+        });
+    } else {
+      setUser(null);
     }
-  }, [data]);
+  }, [session]);
 
   return {
     user,
-    setUser,
     isLoading,
-    isValidating,
-    error,
-    mutate,
   };
 };

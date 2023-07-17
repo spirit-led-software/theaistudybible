@@ -21,18 +21,19 @@ export async function getIndexOperations(
     orderBy = desc(indexOperations.createdAt),
   } = options;
 
-  return await db.query.indexOperations.findMany({
-    where,
-    orderBy,
-    limit,
-    offset,
-  });
+  return await db
+    .select()
+    .from(indexOperations)
+    .limit(limit)
+    .offset(offset)
+    .where(where)
+    .orderBy(orderBy);
 }
 
 export async function getIndexOperation(id: string) {
-  return await db.query.indexOperations.findFirst({
-    where: eq(indexOperations.id, id),
-  });
+  return (
+    await db.select().from(indexOperations).where(eq(indexOperations.id, id))
+  ).at(0);
 }
 
 export async function getIndexOperationOrThrow(id: string) {

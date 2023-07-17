@@ -1,6 +1,6 @@
 import { SQL, desc, eq } from "drizzle-orm";
 import { db } from "../database";
-import { CreateRoleData, UpdateRoleData } from "../database/model";
+import { CreateRoleData, Role, UpdateRoleData } from "../database/model";
 import { roles, usersToRoles } from "../database/schema";
 import { getUser } from "./user";
 
@@ -19,25 +19,17 @@ export async function getRoles(
     orderBy = desc(roles.createdAt),
   } = options;
 
-  return await db.query.roles.findMany({
-    where,
-    limit,
-    offset,
-    orderBy,
-  });
+  return await db
+    .select()
+    .from(roles)
+    .where(where)
+    .limit(limit)
+    .offset(offset)
+    .orderBy(orderBy);
 }
 
 export async function getRole(id: string) {
-  return await db.query.roles.findFirst({
-    where: eq(roles.id, id),
-    with: {
-      users: {
-        columns: {
-          id: true,
-        },
-      },
-    },
-  });
+  return (await db.select().from(roles).where(eq(roles.id, id))).at(0);
 }
 
 export async function getRoleOrThrow(id: string) {
@@ -49,9 +41,7 @@ export async function getRoleOrThrow(id: string) {
 }
 
 export async function getRoleByName(name: string) {
-  return await db.query.roles.findFirst({
-    where: eq(roles.name, name),
-  });
+  return (await db.select().from(roles).where(eq(roles.name, name))).at(0);
 }
 
 export async function getRoleByNameOrThrow(name: string) {
@@ -84,7 +74,20 @@ export async function addRoleToUser(roleName: string, userId: string) {
     throw new Error(`User with id ${userId} not found`);
   }
 
-  if (user.roles?.some((r) => r.id === role.id)) {
+  const userRolesRelation = await db
+    .select()
+    .from(usersToRoles)
+    .where(eq(usersToRoles.userId, userId));
+
+  const userRoles: Role[] = [];
+  for (const userRoleRelation of userRolesRelation) {
+    const userRole = (
+      await db.select().from(roles).where(eq(roles.id, userRoleRelation.roleId))
+    )[0];
+    userRoles.push(userRole);
+  }
+
+  if (userRoles.some((r) => r.id === role.id)) {
     throw new Error(`User already has role ${roleName}`);
   }
 
