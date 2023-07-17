@@ -6,6 +6,7 @@ import { isObjectOwner } from "@core/services/user";
 import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -50,8 +51,11 @@ export default async function SpecificChatPage({
     notFound();
   }
 
-  const { isValid, userId } = await validServerSession();
-  if (!isValid || !isObjectOwner(chat, userId)) {
+  const sessionToken = headers().get("Authorization");
+  if (!sessionToken) redirect(`/login?redirect=/chat/${chat.id}`);
+
+  const { isValid, userInfo } = await validServerSession(sessionToken);
+  if (!isValid || !isObjectOwner(chat, userInfo.id)) {
     redirect(`/login?redirect=/chat/${chat.id}`);
   }
 
@@ -61,7 +65,7 @@ export default async function SpecificChatPage({
     limit: 7,
   })
     .then((chats) => {
-      return chats.filter((chat) => isObjectOwner(chat, userId));
+      return chats.filter((chat) => isObjectOwner(chat, userInfo.id));
     })
     .catch((error) => {
       throw new Error(error);

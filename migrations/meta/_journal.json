@@ -15,6 +15,13 @@
       "when": 1689477140614,
       "tag": "0001_tidy_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1689597858524,
+      "tag": "0002_adorable_senator_kelly",
+      "breakpoints": true
     }
   ]
 }

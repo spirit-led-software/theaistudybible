@@ -13,11 +13,10 @@ export function Database({ stack }: StackContext) {
   }:${database.clusterEndpoint.port}/chatesv?sslmode=require`;
 
   stack.addOutputs({
-    DatabaseUrl: databaseUrl,
+    "Database ID": database.clusterIdentifier,
   });
 
   return {
     database,
-    databaseUrl,
   };
 }

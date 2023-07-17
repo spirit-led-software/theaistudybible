@@ -15,7 +15,7 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSession } from "@services/user";
+import { validServerSessionFromRequest } from "@services/user";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
 import { InferModel } from "drizzle-orm";
 import { CallbackManager } from "langchain/callbacks";
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       return BadRequestResponse("Invalid message");
     }
 
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     if (!chatId) {
       chat = await createChat({
         name: messages[0].content,
-        userId: userId,
+        userId: userInfo.id,
       });
     } else {
       chat = await getChat(chatId);
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         return ObjectNotFoundResponse(chatId);
       }
 
-      if (!isObjectOwner(chat, userId)) {
+      if (!isObjectOwner(chat, userInfo.id)) {
         return UnauthorizedResponse("You do not own this chat");
       }
     }
@@ -74,13 +74,13 @@ export async function POST(request: NextRequest): Promise<Response> {
         lastMessage.createdAt?.toISOString() ?? new Date().toISOString(),
       text: lastMessage.content,
       chatId: chat.id,
-      userId: userId,
+      userId: userInfo.id,
     });
 
     const aiResponse = await createAiResponse({
       chatId: chat.id,
       userMessageId: userMessage.id,
-      userId: userId,
+      userId: userInfo.id,
     });
 
     const vectorStore = await getVectorStore();

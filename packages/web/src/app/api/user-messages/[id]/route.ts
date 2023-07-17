@@ -7,7 +7,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSessionAndObjectOwner } from "@services/user";
+import { validObjectOwnerFromRequest } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -20,10 +20,11 @@ export async function GET(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid, userId } = await validServerSessionAndObjectOwner(
-      userMessage!
+    const { isValid, userInfo } = await validObjectOwnerFromRequest(
+      request,
+      userMessage
     );
-    if (!isValid && isObjectOwner(userMessage!, userId)) {
+    if (!isValid || !isObjectOwner(userMessage, userInfo.id)) {
       return UnauthorizedResponse(
         "You are not the owner of this user message."
       );
@@ -46,10 +47,11 @@ export async function DELETE(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid, userId } = await validServerSessionAndObjectOwner(
-      userMessage!
+    const { isValid, userInfo } = await validObjectOwnerFromRequest(
+      request,
+      userMessage
     );
-    if (!isValid && isObjectOwner(userMessage!, userId)) {
+    if (!isValid || !isObjectOwner(userMessage, userInfo.id)) {
       return UnauthorizedResponse(
         "You are not the owner of this user message."
       );

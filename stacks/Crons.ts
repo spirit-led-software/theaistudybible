@@ -5,15 +5,17 @@ export function Crons({ stack }: StackContext) {
   const { database } = use(Database);
 
   const dailyDevotionCron = new Cron(stack, "DailyDevotionCron", {
-    schedule: "cron(0 0 * * ? *)",
+    schedule: "cron(0 10 * * *)",
     job: {
       function: {
-        handler: "src/functions/src/daily-devo.handler",
+        handler: "packages/functions/src/daily-devo.handler",
         environment: {
+          DATABASE_RESOURCE_ARN: database.clusterArn,
+          DATABASE_SECRET_ARN: database.secretArn,
+          DATABASE_NAME: database.defaultDatabaseName,
           ...STATIC_ENV_VARS,
         },
         bind: [database],
-        permissions: [database],
       },
     },
   });

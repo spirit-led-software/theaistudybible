@@ -8,7 +8,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSession } from "@services/user";
+import { validServerSessionFromRequest } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       limit,
     })
       .then((chats) => {
-        return chats.filter((chat) => isObjectOwner(chat, userId));
+        return chats.filter((chat) => isObjectOwner(chat, userInfo.id));
       })
       .catch((error) => {
         throw new Error(error);
@@ -49,17 +49,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
   try {
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
     const chat = await createChat({
       ...data,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      userId: userInfo.id,
     });
     return CreatedResponse(chat);
   } catch (error: any) {

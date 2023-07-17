@@ -8,7 +8,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSession } from "@services/user";
+import { validServerSessionFromRequest } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -25,13 +25,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       limit,
     });
 
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
 
     aiResponses = aiResponses.filter(async (response) => {
-      return (await isAdmin(userId)) || isObjectOwner(response, userId);
+      return (
+        (await isAdmin(userInfo.id)) || isObjectOwner(response, userInfo.id)
+      );
     });
 
     return OkResponse({
@@ -48,17 +50,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
   try {
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
     const aiResponse = await createAiResponse({
       ...data,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      userId: userInfo.id,
     });
 
     return CreatedResponse(aiResponse);

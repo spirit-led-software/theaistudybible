@@ -14,7 +14,6 @@ export function DatabaseMigrations({ stack, app }: StackContext) {
     ],
     enableLiveDev: false,
     bind: [database],
-    permissions: [database],
   });
 
   const dbMigrationsScript = new Script(stack, "DbMigrationsScript", {

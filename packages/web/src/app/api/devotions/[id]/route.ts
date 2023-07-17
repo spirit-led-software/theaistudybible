@@ -12,7 +12,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validServerSession } from "@services/user";
+import { validServerSessionFromRequest } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -44,8 +44,8 @@ export async function PUT(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid, userId } = await validServerSession();
-    if (!isValid || !(await isAdmin(userId))) {
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }
 
@@ -68,13 +68,13 @@ export async function DELETE(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid, userId } = await validServerSession();
-    if (!isValid || !(await isAdmin(userId))) {
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
+    if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }
 
-    await deleteDevotion(devo!.id);
-    return DeletedResponse(devo!.id);
+    await deleteDevotion(devo.id);
+    return DeletedResponse(devo.id);
   } catch (error: any) {
     console.error(error);
     return InternalServerErrorResponse(error.stack);

@@ -27,9 +27,9 @@ export const handler = AuthHandler({
           });
         }
 
-        return Session.cookie({
+        return Session.parameter({
           type: "user",
-          redirect: NextjsSite.Website.url,
+          redirect: `${NextjsSite.Website.url}/callback`,
           properties: {
             id: user.id,
           },
@@ -54,9 +54,9 @@ export const handler = AuthHandler({
           });
         }
 
-        return Session.cookie({
+        return Session.parameter({
           type: "user",
-          redirect: NextjsSite.Website.url,
+          redirect: `${NextjsSite.Website.url}/callback`,
           properties: {
             id: user.id,
           },

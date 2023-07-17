@@ -7,7 +7,7 @@ const chromeLayerArn =
 
 export function API({ stack }: StackContext) {
   const { bucket } = use(S3);
-  const { database, databaseUrl } = use(Database);
+  const { database } = use(Database);
   const { auth } = use(Auth);
 
   const chromeLayer = LayerVersion.fromLayerVersionArn(
@@ -15,6 +15,11 @@ export function API({ stack }: StackContext) {
     "Layer",
     chromeLayerArn
   );
+
+  const domainName = `${
+    stack.stage !== "prod" ? `${stack.stage}.` : ""
+  }api.chatesv.com`;
+
   const api = new Api(stack, "api", {
     routes: {
       "POST /scraper/file": "packages/functions/src/scraper/file.handler",
@@ -36,16 +41,16 @@ export function API({ stack }: StackContext) {
       function: {
         runtime: "nodejs18.x",
         environment: {
-          DATABASE_URL: databaseUrl,
+          DATABASE_RESOURCE_ARN: database.clusterArn,
+          DATABASE_SECRET_ARN: database.secretArn,
+          DATABASE_NAME: database.defaultDatabaseName,
           ...STATIC_ENV_VARS,
         },
         bind: [database, bucket],
       },
     },
     customDomain: {
-      domainName: `${
-        stack.stage !== "prod" ? `${stack.stage}.` : ""
-      }api.chatesv.com`,
+      domainName: domainName,
       hostedZone: "chatesv.com",
     },
   });
@@ -55,7 +60,7 @@ export function API({ stack }: StackContext) {
   });
 
   stack.addOutputs({
-    ApiUrl: api.url,
+    "API URL": `https://${domainName}`,
   });
 
   return {

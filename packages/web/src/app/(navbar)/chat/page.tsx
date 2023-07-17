@@ -2,13 +2,16 @@ import { Window } from "@components/chat";
 import { getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
 import { validServerSession } from "@services/user";
+import { headers } from "next/headers";
 
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function ChatPage() {
-  const { isValid, userId } = await validServerSession();
+  const sessionToken = headers().get("Authorization");
+  if (!sessionToken) redirect("/login?redirect=/chat");
+  const { isValid, userInfo } = await validServerSession(sessionToken);
   if (!isValid) {
     redirect(`/login?redirect=/chat`);
   }
@@ -17,7 +20,7 @@ export default async function ChatPage() {
     limit: 7,
   })
     .then((chats) => {
-      return chats.filter((chat) => isObjectOwner(chat, userId));
+      return chats.filter((chat) => isObjectOwner(chat, userInfo.id));
     })
     .catch((error) => {
       throw new Error(error);

@@ -1,6 +1,6 @@
 import { buildOrderBy } from "@chatesv/core/database/helpers";
 import { userMessages } from "@chatesv/core/database/schema";
-import { isAdmin, isObjectOwner } from "@core/services/user";
+import { isObjectOwner } from "@core/services/user";
 import {
   createUserMessage,
   getUserMessages,
@@ -12,7 +12,7 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 
-import { validServerSession } from "@services/user";
+import { validServerSessionFromRequest } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }
@@ -34,8 +34,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       orderBy: buildOrderBy(userMessages, orderBy, order),
     });
 
-    messages = messages.filter(async (message) => {
-      return (await isAdmin(userId)) || isObjectOwner(message, userId);
+    messages = messages.filter((message) => {
+      return isObjectOwner(message, userInfo.id);
     });
 
     return OkResponse({
@@ -53,18 +53,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
 
   try {
-    const { isValid, userId } = await validServerSession();
+    const { isValid, userInfo } = await validServerSessionFromRequest(request);
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }
 
     const message = await createUserMessage({
       ...data,
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
+      userId: userInfo.id,
     });
 
     return CreatedResponse(message);

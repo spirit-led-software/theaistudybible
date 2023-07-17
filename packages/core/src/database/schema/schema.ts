@@ -103,16 +103,16 @@ export const aiResponses = pgTable("ai_responses", {
   text: text("text"),
   failed: boolean("failed").notNull().default(false),
   regenerated: boolean("regenerated").notNull().default(false),
-  userMessageId: text("user_message_id")
+  userMessageId: uuid("user_message_id")
     .notNull()
     .references(() => userMessages.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  chatId: text("chat_id")
+  chatId: uuid("chat_id")
     .notNull()
     .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
-  userId: text("user_id")
+  userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
 });
@@ -234,10 +234,10 @@ export const userMessages = pgTable(
       .defaultNow(),
     aiId: text("ai_id"),
     text: text("text").notNull(),
-    chatId: text("chat_id")
+    chatId: uuid("chat_id")
       .notNull()
       .references(() => chats.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    userId: text("user_id")
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
@@ -280,7 +280,7 @@ export const sessions = pgTable(
       .notNull()
       .defaultNow(),
     sessionToken: text("session_token").notNull(),
-    userId: text("user_id")
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
     expires: timestamp("expires", { precision: 3, mode: "string" }).notNull(),
@@ -324,7 +324,7 @@ export const accounts = pgTable(
     scope: text("scope"),
     idToken: text("id_token"),
     sessionState: text("session_state"),
-    userId: text("user_id")
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
@@ -385,7 +385,7 @@ export const chats = pgTable(
       .notNull()
       .defaultNow(),
     name: text("name").notNull(),
-    userId: text("user_id")
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   },
