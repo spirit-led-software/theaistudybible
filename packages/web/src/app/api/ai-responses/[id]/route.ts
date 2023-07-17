@@ -10,7 +10,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { validSessionAndObjectOwner } from "@services/user";
+import { validServerSessionAndObjectOwner } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -23,7 +23,7 @@ export async function GET(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid } = await validSessionAndObjectOwner(aiResponse!);
+    const { isValid } = await validServerSessionAndObjectOwner(aiResponse!);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this AI Response");
     }
@@ -47,7 +47,7 @@ export async function PUT(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid } = await validSessionAndObjectOwner(aiResponse!);
+    const { isValid } = await validServerSessionAndObjectOwner(aiResponse!);
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this AI Response");
     }
@@ -71,7 +71,7 @@ export async function DELETE(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid } = await validSessionAndObjectOwner(aiResponse!);
+    const { isValid } = await validServerSessionAndObjectOwner(aiResponse!);
 
     if (!isValid) {
       return UnauthorizedResponse("You are not the owner of this AI Response");

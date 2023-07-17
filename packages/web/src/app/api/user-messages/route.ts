@@ -23,7 +23,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
     messages = messages.filter(async (message) => {
-      return (await isAdmin(user.id)) || isObjectOwner(message, user);
+      return (await isAdmin(userId)) || isObjectOwner(message, userId);
     });
 
     return OkResponse({
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
 
   try {
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ...data,
       user: {
         connect: {
-          id: user.id,
+          id: userId,
         },
       },
     });

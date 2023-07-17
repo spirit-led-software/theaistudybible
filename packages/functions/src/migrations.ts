@@ -4,7 +4,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 export const handler: Handler = async (event, _) => {
   try {
-    migrate(migration, {
+    await migrate(migration, {
       migrationsFolder: "./migrations",
     });
   } catch (e) {

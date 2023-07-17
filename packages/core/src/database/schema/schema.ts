@@ -15,6 +15,7 @@ import {
 export const indexOperationType = pgEnum("index_operation_type", [
   "FILE",
   "WEBSITE",
+  "WEBPAGE",
 ]);
 
 export const indexOperationStatus = pgEnum("index_operation_status", [

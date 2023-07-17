@@ -1,42 +1,66 @@
-import config from "@core/configs/auth";
-import nodemailer from "nodemailer";
-import { AuthHandler, LinkAdapter } from "sst/node/auth";
+import { User } from "@chatesv/core/database/model";
+import { createUser, getUserByEmail } from "@core/services/user";
+import {
+  AuthHandler,
+  FacebookAdapter,
+  GoogleAdapter,
+  Session,
+} from "sst/node/auth";
+import { NextjsSite } from "sst/node/site";
 
 export const handler = AuthHandler({
   providers: {
-    link: LinkAdapter({
-      onLink: async (link, claims) => {
-        const transporter = nodemailer.createTransport({
-          host: config.email.host,
-          port: config.email.port,
-          auth: {
-            user: config.email.credentials.username,
-            pass: config.email.credentials.password,
+    facebook: FacebookAdapter({
+      clientID: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+      scope: "email, profile",
+      onSuccess: async (tokenSet) => {
+        console.log(tokenSet);
+        let user: User | undefined = await getUserByEmail(
+          tokenSet.claims().email!
+        );
+        if (!user) {
+          user = await createUser({
+            email: tokenSet.claims().email!,
+            name: tokenSet.claims().name!,
+            image: tokenSet.claims().picture!,
+          });
+        }
+
+        return Session.cookie({
+          type: "user",
+          redirect: NextjsSite.Website.url,
+          properties: {
+            id: user.id,
           },
-          from: config.email.from,
         });
+      },
+    }),
+    google: GoogleAdapter({
+      mode: "oauth",
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      scope: "email",
+      onSuccess: async (tokenSet) => {
+        console.log(tokenSet);
+        let user: User | undefined = await getUserByEmail(
+          tokenSet.claims().email!
+        );
+        if (!user) {
+          user = await createUser({
+            email: tokenSet.claims().email!,
+            name: tokenSet.claims().name!,
+            image: tokenSet.claims().picture!,
+          });
+        }
 
-        transporter.sendMail({
-          to: claims.email,
-          subject: "Login Link",
-          text: link,
+        return Session.cookie({
+          type: "user",
+          redirect: NextjsSite.Website.url,
+          properties: {
+            id: user.id,
+          },
         });
-
-        return {
-          statusCode: 200,
-          body: "OK",
-        };
-      },
-      onSuccess: async (claims) => {
-        return {
-          statusCode: 200,
-        };
-      },
-      onError: async () => {
-        return {
-          statusCode: 500,
-          body: "Internal Server Error",
-        };
       },
     }),
   },

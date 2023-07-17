@@ -1,4 +1,4 @@
-import { AuthProvider } from "@components";
+import { SessionProvider } from "@components/SessionProvider";
 import { Metadata } from "next";
 import { Catamaran, Kanit } from "next/font/google";
 import "./globals.css";
@@ -50,10 +50,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${catamaran.variable} ${kanit.variable}`}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    <SessionProvider>
+      <html lang="en">
+        <body className={`${catamaran.variable} ${kanit.variable}`}>
+          {children}
+        </body>
+      </html>
+    </SessionProvider>
   );
 }

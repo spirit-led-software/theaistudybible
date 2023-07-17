@@ -1,5 +1,6 @@
 "use client";
 
+import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
 import { useEffect, useRef, useState } from "react";
 
@@ -31,7 +32,7 @@ export function FileIndexForm() {
       formData.append("name", name);
       formData.append("url", url);
 
-      const response = await fetch(process.env.NEXT_PUBLIC_SCRAPER_API_URL!, {
+      const response = await fetch(`${apiConfig.url}/scraper/website`, {
         method: "POST",
         headers: {
           connection: "keep-alive",

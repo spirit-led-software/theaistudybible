@@ -1,4 +1,4 @@
-import { InferModel, SQL, desc, eq } from "drizzle-orm";
+import { SQL, desc, eq } from "drizzle-orm";
 import config from "../configs/auth";
 import { db } from "../database";
 import { CreateUserData, UpdateUserData, User } from "../database/model";
@@ -86,11 +86,8 @@ export async function isAdmin(userId: string) {
   return user!.roles?.some((role) => role.name === "ADMIN") ?? false;
 }
 
-export function isObjectOwner(
-  object: { userId: string },
-  user: InferModel<typeof users>
-) {
-  return object.userId === user.id;
+export function isObjectOwner(object: { userId: string }, userId: string) {
+  return object.userId === userId;
 }
 
 export async function createInitialAdminUser() {

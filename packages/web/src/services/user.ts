@@ -1,55 +1,59 @@
-import { users } from "@chatesv/core/database/schema";
-import config from "@configs/next-auth";
-import { getUserByEmail, isAdmin, isObjectOwner } from "@core/services/user";
-import { InferModel } from "drizzle-orm";
-import { getServerSession } from "next-auth";
+import { User } from "@chatesv/core/database/model";
+import { apiConfig } from "@configs/index";
+import { isAdmin, isObjectOwner } from "@core/services/user";
 
-export async function validServerSession(): Promise<
+export async function validServerSession(sessionToken: string): Promise<
   | {
       isValid: false;
-      user?: InferModel<typeof users>;
+      userId?: never;
     }
   | {
       isValid: true;
-      user: InferModel<typeof users>;
+      userId: string;
     }
 > {
-  const session = await getServerSession(config);
-  if (!session || !session.user || !session.user.email) {
+  const response = await fetch(`${apiConfig.url}/session`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  });
+
+  if (response.status !== 200) {
     return { isValid: false };
   }
 
-  const user = await getUserByEmail(session.user.email);
-  if (!user) {
-    return { isValid: false };
-  }
+  const user: User = await response.json();
 
   return {
     isValid: true,
-    user,
+    userId: user.id,
   };
 }
 
-export async function validSessionAndObjectOwner(object: {
-  userId: string;
-}): Promise<
+export async function validServerSessionAndObjectOwner(
+  sessionToken,
+  object: {
+    userId: string;
+  }
+): Promise<
   | {
       isValid: false;
-      user?: InferModel<typeof users>;
+      userId?: string;
     }
   | {
       isValid: true;
-      user: InferModel<typeof users>;
+      userId: string;
     }
 > {
-  const { isValid, user } = await validServerSession();
+  const { isValid, userId } = await validServerSession(sessionToken);
   if (!isValid) {
     return { isValid: false };
   }
 
-  if (!isObjectOwner(object, user) && !(await isAdmin(user.id))) {
-    return { isValid: false, user };
+  if (!isObjectOwner(object, userId) && !(await isAdmin(userId))) {
+    return { isValid: false, userId };
   }
 
-  return { isValid: true, user };
+  return { isValid: true, userId };
 }

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       limit,
     })
       .then((chats) => {
-        return chats.filter((chat) => isObjectOwner(chat, user));
+        return chats.filter((chat) => isObjectOwner(chat, userId));
       })
       .catch((error) => {
         throw new Error(error);
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
   try {
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ...data,
       user: {
         connect: {
-          id: user.id,
+          id: userId,
         },
       },
     });

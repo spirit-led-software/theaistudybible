@@ -2,7 +2,6 @@
 
 import { DarkLogo } from "@components/branding";
 import { useUser } from "@hooks/user";
-import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaFacebookF } from "react-icons/fa";
@@ -20,6 +19,8 @@ export default function LoginPage() {
   if (user) {
     router.replace(searchParams.get("redirect") ?? "/");
   }
+
+  const signIn = async (id: string, data?: any) => {};
 
   const handleLogin = async (id: string) => {
     try {

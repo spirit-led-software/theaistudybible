@@ -35,7 +35,7 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  let indexOp: IndexOperation | null = null;
+  let indexOp: IndexOperation | undefined;
   try {
     indexOp = await createIndexOperation({
       type: "WEBSITE",
@@ -64,11 +64,12 @@ export const handler = ApiHandler(async (event) => {
 
     foundUrls.forEach((url) => {
       axios
-        .post(Api.ScraperApi.url, {
+        .post(`${Api.api.url}/scraper/webpage`, {
           method: "POST",
           body: JSON.stringify({
             url,
             name,
+            indexOpId: indexOp?.id,
           }),
         })
         .catch((err) => {

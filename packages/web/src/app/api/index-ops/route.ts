@@ -18,8 +18,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const order = searchParams.get("order") ?? "desc";
 
   try {
-    const { isValid, user } = await validServerSession();
-    if (!isValid || !(await isAdmin(user.id))) {
+    const { isValid, userId } = await validServerSession();
+    if (!isValid || !(await isAdmin(userId))) {
       return UnauthorizedResponse();
     }
 

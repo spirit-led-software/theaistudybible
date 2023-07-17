@@ -26,13 +26,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       orderBy: buildOrderBy(aiResponses, orderBy, order),
     });
 
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
 
     responses = responses.filter(async (response) => {
-      return (await isAdmin(user.id)) || isObjectOwner(response, user);
+      return (await isAdmin(userId)) || isObjectOwner(response, userId);
     });
 
     return OkResponse({

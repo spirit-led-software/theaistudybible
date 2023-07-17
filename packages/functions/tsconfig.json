@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
+    "typeRoots": ["./src/types", "../core/src/types"],
     "lib": ["dom", "dom.iterable", "ES2021"],
     "module": "Node16",
     "moduleResolution": "Node",
@@ -12,5 +13,7 @@
       "@core/services": ["../core/src/services"],
       "@chatesv/core/*": ["../core/src/*"]
     }
-  }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

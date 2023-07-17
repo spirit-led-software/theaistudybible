@@ -7,8 +7,8 @@ export default async function AdminPageLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isValid, user } = await validServerSession();
-  if (!isValid || !(await isAdmin(user.id))) {
+  const { isValid, userId } = await validServerSession();
+  if (!isValid || !(await isAdmin(userId))) {
     redirect("/");
   }
   return (

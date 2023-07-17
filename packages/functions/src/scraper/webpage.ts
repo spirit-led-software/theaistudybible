@@ -1,5 +1,6 @@
 import { IndexOperation } from "@chatesv/core/database/model";
 import {
+  createIndexOperation,
   getIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
@@ -10,6 +11,7 @@ import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
   console.log("Event received:", event);
+  console.log(process.env);
 
   if (!event.body) {
     return {
@@ -21,7 +23,7 @@ export const handler = ApiHandler(async (event) => {
   }
 
   const { name, url, indexOpId } = JSON.parse(event.body);
-  if (!url || !name || !indexOpId) {
+  if (!url || !name) {
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -33,7 +35,19 @@ export const handler = ApiHandler(async (event) => {
   let indexOp: IndexOperation | undefined;
   let indexOpMetadata: any = undefined;
   try {
-    indexOp = await getIndexOperation(indexOpId);
+    if (indexOpId) {
+      indexOp = await getIndexOperation(indexOpId);
+    } else {
+      indexOp = await createIndexOperation({
+        status: "IN_PROGRESS",
+        type: "WEBPAGE",
+        metadata: {
+          name,
+          url,
+        },
+      });
+    }
+
     if (!indexOp) {
       return {
         statusCode: 404,

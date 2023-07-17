@@ -1,3 +1,5 @@
+"use client";
+
 import { useUser } from "@hooks/user";
 import Image from "next/image";
 
@@ -8,7 +10,7 @@ export function Avatar({
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
 }) {
-  const user = useUser();
+  const { user } = useUser();
 
   const dimensionClasses = {
     sm: "h-8 w-8",
@@ -26,6 +28,7 @@ export function Avatar({
       />
     );
   }
+
   return (
     <div
       className={`relative rounded-full bg-gray-300 ${dimensionClasses} ${

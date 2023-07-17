@@ -39,7 +39,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       return BadRequestResponse("Invalid message");
     }
 
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     if (!chatId) {
       chat = await createChat({
         name: messages[0].content,
-        userId: user.id,
+        userId: userId,
       });
     } else {
       chat = await getChat(chatId);
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         return ObjectNotFoundResponse(chatId);
       }
 
-      if (!isObjectOwner(chat, user)) {
+      if (!isObjectOwner(chat, userId)) {
         return UnauthorizedResponse("You do not own this chat");
       }
     }
@@ -74,13 +74,13 @@ export async function POST(request: NextRequest): Promise<Response> {
         lastMessage.createdAt?.toISOString() ?? new Date().toISOString(),
       text: lastMessage.content,
       chatId: chat.id,
-      userId: user.id,
+      userId: userId,
     });
 
     const aiResponse = await createAiResponse({
       chatId: chat.id,
       userMessageId: userMessage.id,
-      userId: user.id,
+      userId: userId,
     });
 
     const vectorStore = await getVectorStore();

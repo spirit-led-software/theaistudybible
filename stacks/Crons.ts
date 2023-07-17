@@ -1,8 +1,8 @@
-import { STATIC_ENV_VARS, Website } from "@stacks";
+import { Database, STATIC_ENV_VARS } from "@stacks";
 import { Cron, StackContext, use } from "sst/constructs";
 
 export function Crons({ stack }: StackContext) {
-  const { website } = use(Website);
+  const { database } = use(Database);
 
   const dailyDevotionCron = new Cron(stack, "DailyDevotionCron", {
     schedule: "cron(0 0 * * ? *)",
@@ -10,10 +10,10 @@ export function Crons({ stack }: StackContext) {
       function: {
         handler: "src/functions/src/daily-devo.handler",
         environment: {
-          WEBSITE_URL: website.url!,
           ...STATIC_ENV_VARS,
         },
-        bind: [website],
+        bind: [database],
+        permissions: [database],
       },
     },
   });

@@ -44,8 +44,8 @@ export async function PUT(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid, user } = await validServerSession();
-    if (!isValid || !(await isAdmin(user.id))) {
+    const { isValid, userId } = await validServerSession();
+    if (!isValid || !(await isAdmin(userId))) {
       return UnauthorizedResponse();
     }
 
@@ -68,8 +68,8 @@ export async function DELETE(
       return ObjectNotFoundResponse(params.id);
     }
 
-    const { isValid, user } = await validServerSession();
-    if (!isValid || !(await isAdmin(user.id))) {
+    const { isValid, userId } = await validServerSession();
+    if (!isValid || !(await isAdmin(userId))) {
       return UnauthorizedResponse();
     }
 

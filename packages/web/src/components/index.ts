@@ -1,4 +1,4 @@
-export * from "./AuthProvider";
+export * from "./SessionProvider";
 export * from "./NavBar";
 export * from "./branding";
 export {
@@ -6,5 +6,9 @@ export {
   Sidebar as ChatSidebar,
   Window as ChatWindow,
 } from "./chat";
-export { Sidebar as DevotionsSidebar } from "./devotion";
+export {
+  Sidebar as DevotionsSidebar,
+  Window as DevotionsWindow,
+} from "./devotion";
 export * from "./loading";
+export * from "./user";

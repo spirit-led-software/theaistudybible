@@ -4,6 +4,6 @@
     "typeRoots": ["./src/types"],
     "moduleResolution": "node"
   },
-  "include": ["./src/**/*.ts"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"]
 }

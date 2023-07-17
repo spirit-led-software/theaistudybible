@@ -50,8 +50,8 @@ export default async function SpecificChatPage({
     notFound();
   }
 
-  const { isValid, user } = await validServerSession();
-  if (!isValid || !isObjectOwner(chat, user)) {
+  const { isValid, userId } = await validServerSession();
+  if (!isValid || !isObjectOwner(chat, userId)) {
     redirect(`/login?redirect=/chat/${chat.id}`);
   }
 
@@ -61,7 +61,7 @@ export default async function SpecificChatPage({
     limit: 7,
   })
     .then((chats) => {
-      return chats.filter((chat) => isObjectOwner(chat, user));
+      return chats.filter((chat) => isObjectOwner(chat, userId));
     })
     .catch((error) => {
       throw new Error(error);

@@ -25,13 +25,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       limit,
     });
 
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
 
     aiResponses = aiResponses.filter(async (response) => {
-      return (await isAdmin(user.id)) || isObjectOwner(response, user);
+      return (await isAdmin(userId)) || isObjectOwner(response, userId);
     });
 
     return OkResponse({
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.json();
   try {
-    const { isValid, user } = await validServerSession();
+    const { isValid, userId } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ...data,
       user: {
         connect: {
-          id: user.id,
+          id: userId,
         },
       },
     });

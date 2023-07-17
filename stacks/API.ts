@@ -1,4 +1,4 @@
-import { Database, S3, STATIC_ENV_VARS } from "@stacks";
+import { Auth, Database, S3, STATIC_ENV_VARS } from "@stacks";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext, use } from "sst/constructs";
 
@@ -8,17 +8,18 @@ const chromeLayerArn =
 export function API({ stack }: StackContext) {
   const { bucket } = use(S3);
   const { database, databaseUrl } = use(Database);
+  const { auth } = use(Auth);
 
   const chromeLayer = LayerVersion.fromLayerVersionArn(
     stack,
     "Layer",
     chromeLayerArn
   );
-  const scraperApi = new Api(stack, "ScraperApi", {
+  const api = new Api(stack, "api", {
     routes: {
-      "POST /file": "packages/functions/src/scraper/file.handler",
-      "POST /website": "packages/functions/src/scraper/website.handler",
-      "POST /webpage": {
+      "POST /scraper/file": "packages/functions/src/scraper/file.handler",
+      "POST /scraper/website": "packages/functions/src/scraper/website.handler",
+      "POST /scraper/webpage": {
         function: {
           runtime: "nodejs16.x",
           handler: "packages/functions/src/scraper/webpage.handler",
@@ -26,20 +27,14 @@ export function API({ stack }: StackContext) {
           nodejs: {
             install: ["chrome-aws-lambda"],
           },
+          bind: [bucket, database],
         },
       },
+      "GET /session": "packages/functions/src/session.handler",
     },
     defaults: {
       function: {
         runtime: "nodejs18.x",
-        nodejs: {
-          install: ["prisma"],
-        },
-        copyFiles: [
-          {
-            from: "prisma",
-          },
-        ],
         environment: {
           DATABASE_URL: databaseUrl,
           ...STATIC_ENV_VARS,
@@ -50,17 +45,20 @@ export function API({ stack }: StackContext) {
     customDomain: {
       domainName: `${
         stack.stage !== "prod" ? `${stack.stage}.` : ""
-      }chatesv.com`,
+      }api.chatesv.com`,
       hostedZone: "chatesv.com",
-      path: "api/scraper",
     },
   });
 
+  auth.attach(stack, {
+    api,
+  });
+
   stack.addOutputs({
-    ScraperApiUrl: scraperApi.url,
+    ApiUrl: api.url,
   });
 
   return {
-    scraperApi,
+    api,
   };
 }

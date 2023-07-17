@@ -1,4 +1,12 @@
-import { API, Database, DatabaseMigrations, S3, Website } from "@stacks";
+import {
+  API,
+  Auth,
+  Crons,
+  Database,
+  DatabaseMigrations,
+  S3,
+  Website,
+} from "@stacks";
 import { SSTConfig } from "sst";
 
 export default {
@@ -13,7 +21,9 @@ export default {
       .stack(S3)
       .stack(Database)
       .stack(DatabaseMigrations)
+      .stack(Auth)
       .stack(API)
-      .stack(Website);
+      .stack(Website)
+      .stack(Crons);
   },
 } satisfies SSTConfig;
