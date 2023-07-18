@@ -1,7 +1,7 @@
 import { buildOrderBy, buildQuery } from "@chatesv/core/database/helpers";
 import { aiResponses } from "@chatesv/core/database/schema";
 import { getAiResponses } from "@core/services/ai-response";
-import { isAdmin, isObjectOwner } from "@core/services/user";
+import { isObjectOwner } from "@core/services/user";
 import {
   InternalServerErrorResponse,
   OkResponse,
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { query } = await request.json();
 
   console.log("Received AI response search request: ", {
-    query,
+    query: JSON.stringify(query),
     limit,
     page,
     orderBy,
@@ -39,10 +39,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return UnauthorizedResponse("You must be logged in");
     }
 
-    responses = responses.filter(async (response) => {
-      return (
-        (await isAdmin(userInfo.id)) || isObjectOwner(response, userInfo.id)
-      );
+    responses = responses.filter((response) => {
+      return isObjectOwner(response, userInfo.id);
     });
 
     return OkResponse({

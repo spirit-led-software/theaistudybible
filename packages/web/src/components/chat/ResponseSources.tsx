@@ -20,6 +20,29 @@ export function ResponseSources({
 
   async function getSources() {
     if (sources.length > 0) return;
+
+    let query: Query = {
+      AND: [],
+    };
+
+    if (aiResponseId) {
+      query.AND!.push({
+        eq: {
+          column: "aiId",
+          value: aiResponseId,
+        },
+      });
+    }
+
+    if (chatId) {
+      query.AND!.push({
+        eq: {
+          column: "chatId",
+          value: chatId,
+        },
+      });
+    }
+
     try {
       setIsLoading(true);
       const fetchAiResponsesResponse = await fetch("/api/ai-responses/search", {
@@ -28,22 +51,7 @@ export function ResponseSources({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: {
-            AND: [
-              {
-                eq: {
-                  column: "aiId",
-                  value: aiResponseId,
-                },
-              },
-              {
-                eq: {
-                  column: "chatId",
-                  value: chatId,
-                },
-              },
-            ],
-          },
+          query,
         } satisfies {
           query: Query;
         }),

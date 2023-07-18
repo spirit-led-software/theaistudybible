@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar } from "@components/user";
+import { dimensionClasses } from "@lib/sizing";
 import { TbCross } from "react-icons/tb";
 import { ResponseSources } from "./ResponseSources";
 
@@ -21,9 +22,9 @@ export function Message({
         {sender === "user" ? (
           <Avatar size="md" className="border shadow-lg" />
         ) : (
-          <div className="relative w-10 h-10 border rounded-full shadow-lg">
-            <TbCross className="absolute text-xl top-[25%] left-[25%]" />
-          </div>
+          <TbCross
+            className={`${dimensionClasses["md"]} p-1 text-md text-center border rounded-full shadow-lg`}
+          />
         )}
       </div>
       <div className="flex flex-col pl-5 pr-3">

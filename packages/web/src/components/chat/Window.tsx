@@ -5,6 +5,7 @@ import { chats } from "@chatesv/core/database/schema";
 import useWindowDimensions from "@hooks/window";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -17,11 +18,14 @@ export function Window({
   initChats,
   initChatId,
   initialMessages,
+  initQuery,
 }: {
   initChats?: InferModel<typeof chats>[];
   initChatId?: string;
   initialMessages?: ChatMessage[];
+  initQuery?: string;
 }) {
+  const router = useRouter();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
@@ -31,31 +35,37 @@ export function Window({
   const [showScrollToBottomButton, setShowScrollToBottomButton] =
     useState<boolean>(false);
   const [chatId, setChatId] = useState<string | null>(initChatId ?? null);
-  const [lastUserMessageId, setLastUserMessageId] = useState<string | null>(
-    null
-  );
+  const [, setLastUserMessageId] = useState<string | null>(null);
   const [lastAiResponseId, setLastAiResponseId] = useState<string | null>(null);
   const { mutate } = useChats();
   const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
     null
   );
   const [alert, setAlert] = useState<string | null>(null);
-  const { handleSubmit, input, handleInputChange, messages, isLoading, error } =
-    useChat({
-      api: "/api/chat",
-      initialMessages,
-      sendExtraMessageFields: true,
-      onResponse: (response) => {
-        setChatId(response.headers.get("x-chat-id"));
+  const {
+    handleSubmit,
+    input,
+    handleInputChange,
+    messages,
+    isLoading,
+    error,
+    setMessages,
+    reload,
+  } = useChat({
+    api: "/api/chat",
+    initialMessages,
+    sendExtraMessageFields: true,
+    onResponse: (response) => {
+      setChatId(response.headers.get("x-chat-id"));
 
-        setLastUserMessageId(response.headers.get("x-user-message-id"));
+      setLastUserMessageId(response.headers.get("x-user-message-id"));
 
-        setLastAiResponseId(response.headers.get("x-ai-response-id"));
-      },
-      onFinish: (message: ChatMessage) => {
-        setLastChatMessage(message);
-      },
-    });
+      setLastAiResponseId(response.headers.get("x-ai-response-id"));
+    },
+    onFinish: (message: ChatMessage) => {
+      setLastChatMessage(message);
+    },
+  });
 
   const handleSubmitCustom = async (
     event: React.FormEvent<HTMLFormElement>
@@ -74,10 +84,24 @@ export function Window({
   };
 
   useEffect(() => {
+    if (initQuery) {
+      setMessages([
+        {
+          id: "1",
+          content: initQuery,
+          role: "user",
+        },
+      ]);
+      reload();
+      router.replace("/chat", undefined, { shallow: true });
+    }
+  }, []);
+
+  useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [inputRef.current]);
+  }, [inputRef]);
 
   useEffect(() => {
     if (endOfMessagesRef.current) {
@@ -89,17 +113,17 @@ export function Window({
         observer.disconnect();
       };
     }
-  }, [endOfMessagesRef.current]);
+  }, [endOfMessagesRef]);
 
   useEffect(() => {
     if (inputRef.current) {
-      if (isLoading && inputRef.current) {
+      if (isLoading) {
         inputRef.current.disabled = true;
       } else {
         inputRef.current.disabled = false;
       }
     }
-  }, [isLoading, inputRef.current]);
+  }, [isLoading, inputRef]);
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({
