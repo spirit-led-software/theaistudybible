@@ -45,7 +45,7 @@ export function IndexOperationsDashboard({
                     className={`px-2 py-1 ${
                       indexOp.status === "FAILED"
                         ? "text-red-500"
-                        : indexOp.status === "SUCCEEDED"
+                        : indexOp.status === "COMPLETED"
                         ? "text-green-500"
                         : "text-yellow-500"
                     }`}

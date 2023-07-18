@@ -4,7 +4,7 @@ import { Cron, StackContext, use } from "sst/constructs";
 export function Crons({ stack }: StackContext) {
   const { database } = use(Database);
 
-  const dailyDevotionCron = new Cron(stack, "DailyDevotionCron", {
+  const dailyDevotionCron = new Cron(stack, "dailyDevoCron", {
     schedule: "cron(0 10 * * ? *)",
     job: {
       function: {

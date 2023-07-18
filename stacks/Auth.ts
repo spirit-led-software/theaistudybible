@@ -6,7 +6,7 @@ export function Auth({ stack }: StackContext) {
   const { websiteUrl } = use(Website);
   const { api, apiUrl } = use(API);
 
-  const auth = new AuthConstruct(stack, "Auth", {
+  const auth = new AuthConstruct(stack, "auth", {
     authenticator: {
       handler: "packages/functions/src/auth.handler",
       environment: {

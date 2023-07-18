@@ -1,15 +1,15 @@
-import { Database, S3, STATIC_ENV_VARS } from "@stacks";
+import { Constants, Database, Queues, S3, STATIC_ENV_VARS } from "@stacks";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext, use } from "sst/constructs";
-import { Queue } from "./Queue";
 
 const chromeLayerArn =
   "arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:22";
 
 export function API({ stack }: StackContext) {
-  const { bucket } = use(S3);
+  const { indexFileBucket: bucket } = use(S3);
   const { database } = use(Database);
-  const { webpageIndexQueue } = use(Queue);
+  const { webpageIndexQueue } = use(Queues);
+  const { hostedZone, domainName, websiteUrl } = use(Constants);
 
   const chromeLayer = LayerVersion.fromLayerVersionArn(
     stack,
@@ -17,22 +17,11 @@ export function API({ stack }: StackContext) {
     chromeLayerArn
   );
 
-  const domainName = `${
-    stack.stage !== "prod" ? `${stack.stage}.` : ""
-  }api.chatesv.com`;
-  const apiUrl = `https://${domainName}`;
-
-  const websiteDomainName = `${
-    stack.stage !== "prod" ? `${stack.stage}.` : ""
-  }chatesv.com`;
-  const websiteUrl =
-    stack.stage === "prod"
-      ? `https://${websiteDomainName}`
-      : `http://localhost:3000`;
+  const apiDomainName = `api.${domainName}`;
+  const apiUrl = `https://${apiDomainName}`;
 
   const api = new Api(stack, "api", {
     routes: {
-      "POST /scraper/file": "packages/functions/src/scraper/file.handler",
       "POST /scraper/website": "packages/functions/src/scraper/website.handler",
       "POST /scraper/webpage": {
         function: {
@@ -46,7 +35,7 @@ export function API({ stack }: StackContext) {
             DATABASE_SECRET_ARN: database.secretArn,
             DATABASE_NAME: database.defaultDatabaseName,
             WEBSITE_URL: websiteUrl,
-            API_URL: `https://${domainName}`,
+            API_URL: apiUrl,
             ...STATIC_ENV_VARS,
           },
           bind: [bucket, database],
@@ -60,19 +49,19 @@ export function API({ stack }: StackContext) {
           DATABASE_RESOURCE_ARN: database.clusterArn,
           DATABASE_SECRET_ARN: database.secretArn,
           DATABASE_NAME: database.defaultDatabaseName,
-          WEBSITE_URL: `https://${websiteDomainName}`,
-          API_URL: `https://${domainName}`,
+          WEBSITE_URL: websiteUrl,
+          API_URL: apiUrl,
           ...STATIC_ENV_VARS,
         },
         bind: [database, bucket, webpageIndexQueue],
       },
     },
     customDomain: {
-      domainName: domainName,
-      hostedZone: "chatesv.com",
+      domainName: apiDomainName,
+      hostedZone: hostedZone.zoneName,
     },
     cors: {
-      allowOrigins: [`${websiteUrl}`],
+      allowOrigins: [websiteUrl],
       allowHeaders: ["*"],
       allowCredentials: true,
     },
@@ -84,6 +73,7 @@ export function API({ stack }: StackContext) {
 
   return {
     api,
+    apiDomainName,
     apiUrl,
   };
 }

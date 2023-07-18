@@ -1,28 +1,27 @@
 "use client";
 
 import { useUser } from "@hooks/user";
+import { ComponentSize, dimensionClasses } from "@lib/sizing";
 import Image from "next/image";
 
 export function Avatar({
-  size,
+  size = "md",
+  largeSize = "md",
   className,
 }: {
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: ComponentSize;
+  largeSize?: ComponentSize;
   className?: string;
 }) {
   const { user } = useUser();
 
-  const dimensionClasses = {
-    sm: "h-8 w-8",
-    md: "h-10 w-10",
-    lg: "h-12 w-12",
-    xl: "h-16 w-16",
-  }[size ?? "md"];
+  const dimensions = dimensionClasses[size];
+  const largeDimensions = dimensionClasses[largeSize];
 
   if (user?.image) {
     return (
       <Image
-        className={`rounded-full ${dimensionClasses}`}
+        className={`rounded-full ${dimensions} lg:${largeDimensions}`}
         src={user.image}
         alt="avatar"
       />
@@ -31,7 +30,7 @@ export function Avatar({
 
   return (
     <div
-      className={`relative rounded-full bg-gray-300 ${dimensionClasses} ${
+      className={`relative rounded-full bg-gray-300 ${dimensions} lg:${largeDimensions} ${
         className ?? ""
       }`}
     >

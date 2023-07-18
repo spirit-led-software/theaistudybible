@@ -1,11 +1,10 @@
-import { Queue as QueueConstruct, StackContext, use } from "sst/constructs";
-import { STATIC_ENV_VARS } from ".";
-import { Database } from "./Database";
+import { Database, STATIC_ENV_VARS } from "@stacks";
+import { Queue, StackContext, use } from "sst/constructs";
 
-export function Queue({ stack }: StackContext) {
+export function Queues({ stack, app }: StackContext) {
   const { database } = use(Database);
 
-  const webpageIndexQueue = new QueueConstruct(stack, "WebpageIndexQueue", {
+  const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     consumer: {
       function: {
         handler: "packages/functions/src/scraper/webpage-queue.consumer",
@@ -15,6 +14,9 @@ export function Queue({ stack }: StackContext) {
           DATABASE_NAME: database.defaultDatabaseName,
           ...STATIC_ENV_VARS,
         },
+        bind: [database],
+        reservedConcurrentExecutions:
+          stack.stage !== "prod" && app.mode === "dev" ? 4 : undefined,
       },
     },
   });

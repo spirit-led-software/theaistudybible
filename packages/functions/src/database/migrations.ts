@@ -8,9 +8,9 @@ import { RDS } from "sst/node/rds";
 export const handler: Handler = async (event, _) => {
   try {
     const migration = drizzle(new RDSDataClient({}), {
-      resourceArn: RDS.Database.clusterArn,
-      secretArn: RDS.Database.secretArn,
-      database: RDS.Database.defaultDatabaseName,
+      resourceArn: RDS.database.clusterArn,
+      secretArn: RDS.database.secretArn,
+      database: RDS.database.defaultDatabaseName,
       schema,
     });
     await migrate(migration, {

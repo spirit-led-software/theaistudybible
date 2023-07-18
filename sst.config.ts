@@ -1,13 +1,14 @@
 import {
   API,
   Auth,
+  Constants,
   Crons,
   Database,
   DatabaseMigrations,
+  Queues,
   S3,
   Website,
 } from "@stacks";
-import { Queue } from "@stacks/Queue";
 import { SSTConfig } from "sst";
 
 export default {
@@ -19,10 +20,11 @@ export default {
   },
   stacks(app) {
     app
-      .stack(S3)
+      .stack(Constants)
       .stack(Database)
       .stack(DatabaseMigrations)
-      .stack(Queue)
+      .stack(S3)
+      .stack(Queues)
       .stack(API)
       .stack(Website)
       .stack(Auth)

@@ -1,3 +1,4 @@
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { IndexOperation } from "@chatesv/core/database/model";
 import { axios } from "@core/configs/axios";
 import {
@@ -5,7 +6,6 @@ import {
   updateIndexOperation,
 } from "@core/services/index-op";
 import { isAdmin, validApiSession } from "@core/services/user";
-import AWS from "aws-sdk";
 import { XMLParser } from "fast-xml-parser";
 import { ApiHandler } from "sst/node/api";
 import { Queue } from "sst/node/queue";
@@ -15,6 +15,8 @@ type RequestBody = {
   pathRegex: string;
   name: string;
 };
+
+const sqsClient = new SQSClient({});
 
 export const handler = ApiHandler(async (event) => {
   const { isValid, userInfo, sessionToken } = await validApiSession();
@@ -90,27 +92,25 @@ export const handler = ApiHandler(async (event) => {
     });
 
     foundUrls.forEach((url) => {
-      new AWS.SQS()
-        .sendMessage({
-          QueueUrl: Queue.WebpageIndexQueue.queueUrl,
-          MessageBody: JSON.stringify({
-            url,
-            name,
-            indexOpId: indexOp!.id,
-          }),
-        })
-        .promise()
-        .catch(async (err) => {
-          console.error(`${err.stack}`);
-          indexOp = await updateIndexOperation(indexOp!.id, {
-            status: "FAILED",
-            metadata: {
-              ...(indexOp!.metadata as any),
-              errors: [...((indexOp!.metadata as any).errors ?? []), err.stack],
-              failed: [...((indexOp!.metadata as any).failed ?? []), url],
-            },
-          });
+      const sendMessageCommand = new SendMessageCommand({
+        QueueUrl: Queue.webpageIndexQueue.queueUrl,
+        MessageBody: JSON.stringify({
+          name,
+          url,
+          indexOpId: indexOp!.id,
+        }),
+      });
+      sqsClient.send(sendMessageCommand).catch(async (err) => {
+        console.error(`${err.stack}`);
+        indexOp = await updateIndexOperation(indexOp!.id, {
+          status: "FAILED",
+          metadata: {
+            ...(indexOp!.metadata as any),
+            errors: [...((indexOp!.metadata as any).errors ?? []), err.stack],
+            failed: [...((indexOp!.metadata as any).failed ?? []), url],
+          },
         });
+      });
     });
 
     return {

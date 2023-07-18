@@ -1,10 +1,10 @@
 import { Database, STATIC_ENV_VARS } from "@stacks";
 import { Function, Script, StackContext, use } from "sst/constructs";
 
-export function DatabaseMigrations({ stack, app }: StackContext) {
+export function DatabaseMigrations({ stack }: StackContext) {
   const { database } = use(Database);
 
-  const dbMigrationsFunction = new Function(stack, "DbMigrations", {
+  const dbMigrationsFunction = new Function(stack, "dbMigrationsFunction", {
     handler: "packages/functions/src/database/migrations.handler",
     copyFiles: [
       {
@@ -15,12 +15,12 @@ export function DatabaseMigrations({ stack, app }: StackContext) {
     bind: [database],
     timeout: 60,
   });
-  const dbMigrationsScript = new Script(stack, "DbMigrationsScript", {
+  const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
     onCreate: dbMigrationsFunction,
     onUpdate: dbMigrationsFunction,
   });
 
-  const dbSeedFunction = new Function(stack, "DbSeedFunction", {
+  const dbSeedFunction = new Function(stack, "dbSeedFunction", {
     handler: "packages/functions/src/database/seed.handler",
     enableLiveDev: false,
     bind: [database],
@@ -29,10 +29,10 @@ export function DatabaseMigrations({ stack, app }: StackContext) {
       DATABASE_RESOURCE_ARN: database.clusterArn,
       DATABASE_SECRET_ARN: database.secretArn,
       DATABASE_NAME: database.defaultDatabaseName,
-      ADMIN_EMAIL: STATIC_ENV_VARS.ADMIN_EMAIL,
+      ...STATIC_ENV_VARS,
     },
   });
-  const dbSeedScript = new Script(stack, "DbSeedScript", {
+  const dbSeedScript = new Script(stack, "dbSeedScript", {
     onCreate: dbSeedFunction,
     onUpdate: dbSeedFunction,
   });

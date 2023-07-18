@@ -7,12 +7,8 @@ import { SQSHandler } from "aws-lambda";
 import { generatePageContentEmbeddings } from "../lib/scraper";
 
 export const consumer: SQSHandler = async (event) => {
-  console.log("Received event:", event);
   const records = event.Records;
-  const { attributes, body } = records[0];
-
-  console.log("Message Attributes", attributes);
-  console.log("Message Body", body);
+  const { body } = records[0];
 
   const { url, name, indexOpId } = JSON.parse(body);
   if (!url || !name || !indexOpId) {

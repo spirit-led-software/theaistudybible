@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: true,
+  },
   output: "standalone",
   transpilePackages: ["@chatesv/core"],
   webpack: (webpackConfig, { webpack }) => {

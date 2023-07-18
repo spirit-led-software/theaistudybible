@@ -1,9 +1,9 @@
 "use client";
 
-import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
-import { useSession } from "@hooks/session";
-import { useEffect, useRef, useState } from "react";
+import { uploadIndexFileToS3 } from "@lib/server-actions";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { DarkSolidLineSpinner } from "..";
 
 export function FileIndexForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -13,8 +13,8 @@ export function FileIndexForm() {
     message: string;
     type: "error" | "success";
   } | null>(null);
-  const { session } = useSession();
   const { mutate } = useIndexOps();
+  const [isPending, startTransition] = useTransition();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,28 +26,12 @@ export function FileIndexForm() {
       setAlert({ message: "Please fill out all fields.", type: "error" });
       return;
     }
-
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("name", name);
       formData.append("url", url);
-
-      const response = await fetch(`${apiConfig.url}/scraper/website`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Connection: "keep-alive",
-          Authorization: `Bearer ${session}`,
-        },
-        body: formData,
-      }).catch((error) => {
-        throw new Error(error.message);
-      });
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      await uploadIndexFileToS3(formData);
       setAlert({ message: "File index started.", type: "success" });
     } catch (error: any) {
       setAlert({
@@ -55,7 +39,6 @@ export function FileIndexForm() {
         type: "error",
       });
     }
-    mutate();
   };
 
   useEffect(() => {
@@ -66,8 +49,22 @@ export function FileIndexForm() {
     }
   }, [alert]);
 
+  useEffect(() => {
+    if (!isPending) {
+      mutate();
+    }
+  }, [isPending, mutate]);
+
   return (
-    <form className="relative flex-col w-full" onSubmit={handleSubmit}>
+    <form
+      className="relative flex-col w-full"
+      onSubmit={(event) => startTransition(() => handleSubmit(event))}
+    >
+      {isPending && (
+        <div className="absolute left-0 right-0 flex justify-center">
+          <DarkSolidLineSpinner size="md" />
+        </div>
+      )}
       <div
         className={`absolute left-0 right-0 flex justify-center duration-300 ${
           alert ? "scale-100" : "scale-0"
