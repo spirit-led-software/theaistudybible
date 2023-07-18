@@ -68,8 +68,8 @@ export const handler = AuthHandler({
           transport.sendMail({
             to: claims.email,
             from: authConfig.email.from,
-            subject: "Login to Chatesv",
-            text: `Click this link to login to Chatesv: ${link}`,
+            subject: "Login to revelationsai",
+            text: `Click this link to login to revelationsAI: ${link}`,
           });
 
           return {
