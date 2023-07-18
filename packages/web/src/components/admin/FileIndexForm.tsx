@@ -2,6 +2,7 @@
 
 import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
+import { useSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
 
 export function FileIndexForm() {
@@ -12,7 +13,7 @@ export function FileIndexForm() {
     message: string;
     type: "error" | "success";
   } | null>(null);
-
+  const { session } = useSession();
   const { mutate } = useIndexOps();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -35,7 +36,9 @@ export function FileIndexForm() {
       const response = await fetch(`${apiConfig.url}/scraper/website`, {
         method: "POST",
         headers: {
-          connection: "keep-alive",
+          "Content-Type": "multipart/form-data",
+          Connection: "keep-alive",
+          Authorization: `Bearer ${session}`,
         },
         body: formData,
       }).catch((error) => {

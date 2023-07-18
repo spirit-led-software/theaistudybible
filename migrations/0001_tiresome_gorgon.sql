@@ -1,0 +1,20 @@
+ALTER TABLE "ai_responses" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "ai_responses" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "chats" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "chats" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "devotions" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "devotions" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "index_operations" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "index_operations" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "roles" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "roles" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "sessions" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "sessions" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "sessions" ALTER COLUMN "expires" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "source_documents" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "source_documents" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "user_messages" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "user_messages" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "updated_at" SET DATA TYPE timestamp;--> statement-breakpoint
+ALTER TABLE "users" ALTER COLUMN "email_verified" SET DATA TYPE timestamp;

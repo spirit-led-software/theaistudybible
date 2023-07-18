@@ -2,6 +2,7 @@
 
 import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
+import { useSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
 
 export function WebsiteIndexForm() {
@@ -12,6 +13,7 @@ export function WebsiteIndexForm() {
     message: string;
     type: "error" | "success";
   } | null>(null);
+  const { session } = useSession();
   const { mutate } = useIndexOps();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -28,6 +30,10 @@ export function WebsiteIndexForm() {
     try {
       const response = await fetch(`${apiConfig.url}/scraper/website`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session}`,
+        },
         body: JSON.stringify({ name, url, pathRegex }),
       }).catch((error) => {
         throw new Error(error.message);

@@ -103,7 +103,6 @@ CREATE INDEX IF NOT EXISTS "index_operation_status" ON "index_operations" ("stat
 CREATE UNIQUE INDEX IF NOT EXISTS "roles_name_key" ON "roles" ("name");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "session_token_key" ON "sessions" ("session_token");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "source_document_text_key" ON "source_documents" ("text");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "source_document_text_metadata_idx" ON "source_documents" ("text","metadata");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "ai_id" ON "user_messages" ("ai_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "text" ON "user_messages" ("text");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_key" ON "users" ("email");--> statement-breakpoint

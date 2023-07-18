@@ -5,8 +5,10 @@ import {
   updateIndexOperation,
 } from "@core/services/index-op";
 import { isAdmin, validApiSession } from "@core/services/user";
+import AWS from "aws-sdk";
 import { XMLParser } from "fast-xml-parser";
-import { Api, ApiHandler } from "sst/node/api";
+import { ApiHandler } from "sst/node/api";
+import { Queue } from "sst/node/queue";
 
 type RequestBody = {
   url: string;
@@ -15,7 +17,7 @@ type RequestBody = {
 };
 
 export const handler = ApiHandler(async (event) => {
-  const { isValid, userInfo } = await validApiSession();
+  const { isValid, userInfo, sessionToken } = await validApiSession();
   if (!isValid) {
     return {
       statusCode: 401,
@@ -57,7 +59,7 @@ export const handler = ApiHandler(async (event) => {
   try {
     indexOp = await createIndexOperation({
       type: "WEBSITE",
-      status: "PENDING",
+      status: "RUNNING",
       metadata: {
         name,
         url,
@@ -80,36 +82,32 @@ export const handler = ApiHandler(async (event) => {
       foundUrls.push(...urls);
     }
 
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      metadata: {
+        ...(indexOp!.metadata as any),
+        numberOfUrls: foundUrls.length,
+      },
+    });
+
     foundUrls.forEach((url) => {
-      axios
-        .post(`${Api.api.url}/scraper/webpage`, {
-          method: "POST",
-          body: JSON.stringify({
+      new AWS.SQS()
+        .sendMessage({
+          QueueUrl: Queue.WebpageIndexQueue.queueUrl,
+          MessageBody: JSON.stringify({
             url,
             name,
-            indexOpId: indexOp?.id,
+            indexOpId: indexOp!.id,
           }),
         })
-        .catch((err) => {
+        .promise()
+        .catch(async (err) => {
           console.error(`${err.stack}`);
-          updateIndexOperation(indexOp!.id, {
+          indexOp = await updateIndexOperation(indexOp!.id, {
             status: "FAILED",
             metadata: {
               ...(indexOp!.metadata as any),
-              errors: [
-                ...((indexOp!.metadata as any).errors ?? []),
-                {
-                  message: err.message,
-                  stack: err.stack,
-                },
-              ],
-              failed: [
-                ...((indexOp!.metadata as any).failed ?? []),
-                {
-                  name,
-                  url,
-                },
-              ],
+              errors: [...((indexOp!.metadata as any).errors ?? []), err.stack],
+              failed: [...((indexOp!.metadata as any).failed ?? []), url],
             },
           });
         });
@@ -186,8 +184,6 @@ async function navigateSitemap(
             stack.push(foundUrl);
           } else if (foundUrl.match(urlRegex)) {
             urls.push(foundUrl);
-          } else {
-            console.debug(`Skipping URL: ${foundUrl}`);
           }
         }
       };

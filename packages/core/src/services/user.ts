@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { useSession } from "sst/node/auth";
+import { SessionValue, useSession } from "sst/node/auth";
 import config from "../configs/auth";
 import { db } from "../database";
 import { CreateUserData, UpdateUserData, User } from "../database/model";
@@ -117,25 +117,28 @@ export async function createInitialAdminUser() {
 export async function validApiSession(): Promise<
   | {
       isValid: false;
+      sessionToken?: SessionValue;
       userInfo?: never;
     }
   | {
       isValid: true;
+      sessionToken: SessionValue;
       userInfo: User;
     }
 > {
-  const session = useSession();
-  if (!session || session.type !== "user") {
-    return { isValid: false };
+  const sessionToken = useSession();
+  if (!sessionToken || sessionToken.type !== "user") {
+    return { isValid: false, sessionToken };
   }
 
-  const userInfo = await getUser(session.properties.id);
+  const userInfo = await getUser(sessionToken.properties.id);
   if (!userInfo) {
-    return { isValid: false };
+    return { isValid: false, sessionToken };
   }
 
   return {
     isValid: true,
+    sessionToken,
     userInfo,
   };
 }

@@ -7,6 +7,7 @@ import {
   S3,
   Website,
 } from "@stacks";
+import { Queue } from "@stacks/Queue";
 import { SSTConfig } from "sst";
 
 export default {
@@ -21,6 +22,7 @@ export default {
       .stack(S3)
       .stack(Database)
       .stack(DatabaseMigrations)
+      .stack(Queue)
       .stack(API)
       .stack(Website)
       .stack(Auth)
