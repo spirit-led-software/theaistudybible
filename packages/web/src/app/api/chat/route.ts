@@ -1,9 +1,3 @@
-import { db } from "@chatesv/core/database";
-import {
-  aiResponsesToSourceDocuments,
-  chats,
-  sourceDocuments,
-} from "@chatesv/core/database/schema";
 import { createAiResponse, updateAiResponse } from "@core/services/ai-response";
 import { createChat, getChat, updateChat } from "@core/services/chat";
 import { getChatModel, getCompletionsModel } from "@core/services/llm";
@@ -20,6 +14,12 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { db } from "@revelationsai/core/database";
+import {
+  aiResponsesToSourceDocuments,
+  chats,
+  sourceDocuments,
+} from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
 import { InferModel } from "drizzle-orm";
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     });
     history.unshift(
       new SystemMessage(
-        "You are a Christian chatbot who can answer questions about Christian faith and theology. Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of faith. Quote the bible as much as possible in your answers. If you are asked what your name is, it is ChatESV."
+        "You are a Christian chatbot who can answer questions about Christian faith and theology. Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of faith. Quote the bible as much as possible in your answers. If you are asked what your name is, it is revelationsAI."
       )
     );
     console.debug(`Chat history: ${JSON.stringify(history)}`);

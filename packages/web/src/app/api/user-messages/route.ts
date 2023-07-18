@@ -1,5 +1,3 @@
-import { buildOrderBy } from "@chatesv/core/database/helpers";
-import { userMessages } from "@chatesv/core/database/schema";
 import { isObjectOwner } from "@core/services/user";
 import {
   createUserMessage,
@@ -11,6 +9,8 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { buildOrderBy } from "@revelationsai/core/database/helpers";
+import { userMessages } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

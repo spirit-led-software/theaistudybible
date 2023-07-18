@@ -3,7 +3,7 @@ import { StackContext } from "sst/constructs";
 
 export function Constants({ stack }: StackContext) {
   const hostedZone = HostedZone.fromLookup(stack, "hostedZone", {
-    domainName: "chatesv.com",
+    domainName: "revelationsai.com",
   });
 
   const domainName = `${stack.stage !== "prod" ? `${stack.stage}.` : ""}${

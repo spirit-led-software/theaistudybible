@@ -1,5 +1,3 @@
-import { buildOrderBy } from "@chatesv/core/database/helpers";
-import { chats as chatsTable } from "@chatesv/core/database/schema";
 import { createChat, getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
 import {
@@ -8,6 +6,8 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { buildOrderBy } from "@revelationsai/core/database/helpers";
+import { chats as chatsTable } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

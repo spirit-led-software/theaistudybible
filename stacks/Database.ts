@@ -2,7 +2,7 @@ import { RDS, StackContext } from "sst/constructs";
 
 export function Database({ stack }: StackContext) {
   const database = new RDS(stack, "database", {
-    defaultDatabaseName: "chatesv",
+    defaultDatabaseName: "revelationsai",
     engine: "postgresql13.9",
   });
 

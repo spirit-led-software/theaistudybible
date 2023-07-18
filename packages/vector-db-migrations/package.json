@@ -1,5 +1,5 @@
 {
-  "name": "@chatesv/vector-db-migrations",
+  "name": "@revelationsai/vector-db-migrations",
   "version": "1.0.0",
   "description": "Chat ESV Vector DB Migrations",
   "private": true,

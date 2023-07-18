@@ -1,5 +1,5 @@
 import { RDSDataClient } from "@aws-sdk/client-rds-data";
-import * as schema from "@chatesv/core/database/schema";
+import * as schema from "@revelationsai/core/database/schema";
 import { Handler } from "aws-lambda";
 import { drizzle } from "drizzle-orm/aws-data-api/pg";
 import { migrate } from "drizzle-orm/aws-data-api/pg/migrator";

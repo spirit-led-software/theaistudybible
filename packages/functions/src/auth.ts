@@ -1,6 +1,6 @@
-import { User } from "@chatesv/core/database/model";
 import { authConfig } from "@core/configs/index";
 import { createUser, getUserByEmail } from "@core/services/user";
+import { User } from "@revelationsai/core/database/model";
 import nodemailer from "nodemailer";
 import { TokenSet } from "openid-client";
 import {

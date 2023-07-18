@@ -1,7 +1,7 @@
 "use client";
 
-import { chats as chatsTable } from "@chatesv/core/database/schema";
 import { useChats } from "@hooks/chat";
+import { chats as chatsTable } from "@revelationsai/core/database/schema";
 import { InferModel } from "drizzle-orm";
 import Moment from "moment";
 import Link from "next/link";

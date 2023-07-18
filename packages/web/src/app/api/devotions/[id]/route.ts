@@ -1,4 +1,3 @@
-import { Devotion } from "@chatesv/core/database/model";
 import {
   deleteDevotion,
   getDevotion,
@@ -12,6 +11,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { Devotion } from "@revelationsai/core/database/model";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

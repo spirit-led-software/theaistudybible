@@ -25,7 +25,7 @@
       "@core/configs": ["../core/src/configs"],
       "@core/services/*": ["../core/src/services/*"],
       "@core/services": ["../core/src/services"],
-      "@chatesv/core/*": ["../core/src/*"],
+      "@revelationsai/core/*": ["../core/src/*"],
       "@components/*": ["./src/components/*"],
       "@components": ["./src/components"],
       "@configs/*": ["./src/configs/*"],

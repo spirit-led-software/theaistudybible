@@ -1,5 +1,5 @@
-import { Chat } from "@chatesv/core/database/model";
 import { deleteChat, getChat, updateChat } from "@core/services/chat";
+import { Chat } from "@revelationsai/core/database/model";
 
 import {
   DeletedResponse,

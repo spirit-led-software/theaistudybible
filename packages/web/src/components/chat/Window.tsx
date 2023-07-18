@@ -1,8 +1,8 @@
 "use client";
 
-import { UpdateAiResponseData } from "@chatesv/core/database/model";
-import { chats } from "@chatesv/core/database/schema";
 import useWindowDimensions from "@hooks/window";
+import { UpdateAiResponseData } from "@revelationsai/core/database/model";
+import { chats } from "@revelationsai/core/database/schema";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";

@@ -1,5 +1,5 @@
 {
-  "name": "@chatesv/functions",
+  "name": "@revelationsai/functions",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@chatesv/core": "*",
+    "@revelationsai/core": "*",
     "busboy": "^1.6.0",
     "chrome-aws-lambda": "^10.1.0",
     "fast-xml-parser": "^4.2.5",

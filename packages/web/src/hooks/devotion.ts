@@ -1,4 +1,4 @@
-import { Devotion } from "@chatesv/core/database/model";
+import { Devotion } from "@revelationsai/core/database/model";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 import {

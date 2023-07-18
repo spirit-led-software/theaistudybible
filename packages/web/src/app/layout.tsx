@@ -17,7 +17,7 @@ const catamaran = Catamaran({
 });
 
 export const metadata: Metadata = {
-  title: "ChatESV",
+  title: "revelationsAI",
   description: "Discover Jesus like never before",
   viewport: "width=device-width, initial-scale=1",
   icons: [

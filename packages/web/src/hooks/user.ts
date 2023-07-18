@@ -1,5 +1,5 @@
-import { User } from "@chatesv/core/database/model";
 import { apiConfig } from "@configs/index";
+import { User } from "@revelationsai/core/database/model";
 import { useEffect, useState } from "react";
 import { useSession } from "./session";
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { devotions } from "@chatesv/core/database/schema";
 import { useDevotions } from "@hooks/devotion";
+import { devotions } from "@revelationsai/core/database/schema";
 import { InferModel } from "drizzle-orm";
 import Moment from "moment";
 import Link from "next/link";

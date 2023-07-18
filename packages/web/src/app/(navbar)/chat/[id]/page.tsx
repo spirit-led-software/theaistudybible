@@ -1,9 +1,9 @@
-import { aiResponses, userMessages } from "@chatesv/core/database/schema";
 import { Window } from "@components/chat";
 import { getAiResponses } from "@core/services/ai-response";
 import { getChat, getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
 import { getUserMessages } from "@core/services/user-message";
+import { aiResponses, userMessages } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
 import { eq } from "drizzle-orm";

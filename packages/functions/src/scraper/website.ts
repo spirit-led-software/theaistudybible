@@ -1,11 +1,11 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
-import { IndexOperation } from "@chatesv/core/database/model";
 import { axios } from "@core/configs/axios";
 import {
   createIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
 import { isAdmin, validApiSession } from "@core/services/user";
+import { IndexOperation } from "@revelationsai/core/database/model";
 import { XMLParser } from "fast-xml-parser";
 import { ApiHandler } from "sst/node/api";
 import { Queue } from "sst/node/queue";

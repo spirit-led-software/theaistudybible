@@ -1,4 +1,4 @@
-import { Chat } from "@chatesv/core/database/model";
+import { Chat } from "@revelationsai/core/database/model";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 import {

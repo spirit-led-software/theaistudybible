@@ -1,6 +1,6 @@
 FROM docker.io/node:20.2.0 AS builder
 
-ARG DATABASE_URL="postgres://chatesv:chatesv@localhost:5432/chatesv"
+ARG DATABASE_URL="postgres://revelationsai:revelationsai@localhost:5432/revelationsai"
 
 WORKDIR /app
 
@@ -44,9 +44,9 @@ RUN apt-get update -y \
   && apt-get clean all \
   && rm -rf /var/lib/apt/lists/*
 
-# Add chatesv user
-RUN groupadd -r chatesv \
-  && useradd -rm -g chatesv -G audio,video chatesv
+# Add revelationsai user
+RUN groupadd -r revelationsai \
+  && useradd -rm -g revelationsai -G audio,video revelationsai
 
 # Install node dependencies
 COPY --from=builder /app/package*.json ./
@@ -55,19 +55,19 @@ RUN npm ci --omit=dev \
   && npm cache clean --force
 
 # Copy source files
-COPY --from=builder --chown=chatesv:chatesv /app/.next/standalone ./
-COPY --from=builder --chown=chatesv:chatesv /app/.next/static ./.next/static
-COPY --from=builder --chown=chatesv:chatesv /app/md ./md
-COPY --from=builder --chown=chatesv:chatesv /app/public ./public
+COPY --from=builder --chown=revelationsai:revelationsai /app/.next/standalone ./
+COPY --from=builder --chown=revelationsai:revelationsai /app/.next/static ./.next/static
+COPY --from=builder --chown=revelationsai:revelationsai /app/md ./md
+COPY --from=builder --chown=revelationsai:revelationsai /app/public ./public
 
 # Copy Prisma files
-COPY --from=builder --chown=chatesv:chatesv /app/prisma ./prisma
+COPY --from=builder --chown=revelationsai:revelationsai /app/prisma ./prisma
 
 # Set permissions
-RUN chown -R chatesv:chatesv /app \
+RUN chown -R revelationsai:revelationsai /app \
   && chmod -R 755 /app
 
-USER chatesv
+USER revelationsai
 
 EXPOSE 8080
 

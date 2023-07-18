@@ -1,5 +1,3 @@
-import { buildOrderBy } from "@chatesv/core/database/helpers";
-import { indexOperations } from "@chatesv/core/database/schema";
 import { getIndexOperations } from "@core/services/index-op";
 import { isAdmin } from "@core/services/user";
 import {
@@ -7,6 +5,8 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { buildOrderBy } from "@revelationsai/core/database/helpers";
+import { indexOperations } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { NextRequest, NextResponse } from "next/server";
 

@@ -14,7 +14,7 @@ import { SSTConfig } from "sst";
 export default {
   config(_input) {
     return {
-      name: "chatesv",
+      name: "revelationsai",
       region: "us-east-1",
     };
   },

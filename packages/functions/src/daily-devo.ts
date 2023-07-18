@@ -1,4 +1,4 @@
-import { generateDevotion } from "@chatesv/core/services/devotion";
+import { generateDevotion } from "@revelationsai/core/services/devotion";
 import { Handler } from "aws-lambda";
 
 export const handler: Handler = async (event, _) => {

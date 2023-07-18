@@ -9,7 +9,7 @@ services:
       - QDRANT__DEBUG=1
       - QDRANT__LOG_LEVEL=DEBUG
       - QDRANT__SERVICE__MAX_REQUEST_SIZE_MB=500
-      - QDRANT__SERVICE__API_KEY=sk-chatesv
+      - QDRANT__SERVICE__API_KEY=sk-revelationsai
     profiles:
       - web-dev
 
@@ -20,9 +20,9 @@ services:
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=chatesv
-      - POSTGRES_PASSWORD=chatesv
-      - POSTGRES_DB=chatesv
+      - POSTGRES_USER=revelationsai
+      - POSTGRES_PASSWORD=revelationsai
+      - POSTGRES_DB=revelationsai
     profiles:
       - web-dev
 
@@ -31,7 +31,7 @@ services:
     ports:
       - 5050:80
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@chatesv.com
+      - PGADMIN_DEFAULT_EMAIL=admin@revelationsai.com
       - PGADMIN_DEFAULT_PASSWORD=admin
     profiles:
       - web-dev
@@ -47,8 +47,8 @@ services:
     profiles:
       - local-ai
 
-  chatesv:
-    image: chatesv/web:1.0.0
+  revelationsai:
+    image: revelationsai/web:1.0.0
     build:
       context: ./packages/web
       dockerfile: Dockerfile
@@ -56,8 +56,8 @@ services:
       - 3000:3000
     environment:
       - VECTOR_DB_URL=http://qdrant:6333
-      - VECTOR_DB_API_KEY=sk-chatesv
-      - DATABASE_URL=postgres://chatesv:chatesv@postgres:5432/chatesv
+      - VECTOR_DB_API_KEY=sk-revelationsai
+      - DATABASE_URL=postgres://revelationsai:revelationsai@postgres:5432/revelationsai
     env_file:
       - ./packages/web/.env.local
       - ./packages/web/.env.development

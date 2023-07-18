@@ -1,6 +1,6 @@
-import { User } from "@chatesv/core/database/model";
 import { apiConfig } from "@configs/index";
 import { isAdmin, isObjectOwner } from "@core/services/user";
+import { User } from "@revelationsai/core/database/model";
 import { cookies } from "next/headers";
 
 export async function validServerSession(): Promise<

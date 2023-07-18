@@ -4,7 +4,7 @@ const nextConfig = {
     serverActions: true,
   },
   output: "standalone",
-  transpilePackages: ["@chatesv/core"],
+  transpilePackages: ["@revelationsai/core"],
   webpack: (webpackConfig, { webpack }) => {
     webpackConfig.plugins.push(
       new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {

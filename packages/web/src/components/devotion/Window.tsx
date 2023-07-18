@@ -1,7 +1,7 @@
 "use client";
 
-import { Devotion, SourceDocument } from "@chatesv/core/database/model";
 import useWindowDimensions from "@hooks/window";
+import { Devotion, SourceDocument } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
 import { useState } from "react";

@@ -1,8 +1,8 @@
 "use client";
 
-import { Query } from "@chatesv/core/database/helpers";
-import { SourceDocument } from "@chatesv/core/database/model";
 import { DarkSolidLineSpinner } from "@components/loading";
+import { Query } from "@revelationsai/core/database/helpers";
+import { SourceDocument } from "@revelationsai/core/database/model";
 import Link from "next/link";
 import { useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
