@@ -23,7 +23,7 @@ export function Message({
           <Avatar size="md" className="border shadow-lg" />
         ) : (
           <TbCross
-            className={`${dimensionClasses["md"]} p-1 text-md text-center border rounded-full shadow-lg`}
+            className={`${dimensionClasses["md"]} p-2 text-md text-center border rounded-full shadow-lg`}
           />
         )}
       </div>

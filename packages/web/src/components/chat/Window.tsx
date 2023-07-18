@@ -5,7 +5,7 @@ import { chats } from "@chatesv/core/database/schema";
 import useWindowDimensions from "@hooks/window";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -25,7 +25,6 @@ export function Window({
   initialMessages?: ChatMessage[];
   initQuery?: string;
 }) {
-  const router = useRouter();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
@@ -41,6 +40,7 @@ export function Window({
   const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
     null
   );
+  const router = useRouter();
   const [alert, setAlert] = useState<string | null>(null);
   const {
     handleSubmit,
@@ -93,9 +93,11 @@ export function Window({
         },
       ]);
       reload();
-      router.replace("/chat", undefined, { shallow: true });
+      router.replace("/chat", {
+        shallow: true,
+      });
     }
-  }, []);
+  }, [initQuery]);
 
   useEffect(() => {
     if (inputRef.current) {
