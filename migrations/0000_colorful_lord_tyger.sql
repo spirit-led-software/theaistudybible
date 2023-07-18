@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS "ai_responses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"ai_id" text,
 	"text" text,
 	"failed" boolean DEFAULT false NOT NULL,
@@ -18,16 +18,16 @@ CREATE TABLE IF NOT EXISTS "ai_responses_to_source_documents" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "chats" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"name" text NOT NULL,
 	"user_id" uuid NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "devotions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"subject" text NOT NULL,
 	"content" text NOT NULL
 );
@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS "devotions_to_source_documents" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "index_operations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"type" text NOT NULL,
 	"status" text NOT NULL,
 	"metadata" json DEFAULT '{}'::json NOT NULL
@@ -48,32 +48,23 @@ CREATE TABLE IF NOT EXISTS "index_operations" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "roles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"name" text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "sessions" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
-	"session_token" text NOT NULL,
-	"user_id" uuid NOT NULL,
-	"expires" date NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "source_documents" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"text" text NOT NULL,
 	"metadata" json DEFAULT '{}'::json NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_messages" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"ai_id" text,
 	"text" text NOT NULL,
 	"chat_id" uuid NOT NULL,
@@ -82,11 +73,11 @@ CREATE TABLE IF NOT EXISTS "user_messages" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"created_at" date DEFAULT now() NOT NULL,
-	"updated_at" date DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"name" text,
 	"email" text,
-	"email_verified" date,
+	"email_verified" timestamp,
 	"image" text
 );
 --> statement-breakpoint
@@ -101,7 +92,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS "devotion_source_document_key" ON "devotions_t
 CREATE INDEX IF NOT EXISTS "index_operation_type" ON "index_operations" ("type");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "index_operation_status" ON "index_operations" ("status");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "roles_name_key" ON "roles" ("name");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "session_token_key" ON "sessions" ("session_token");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "source_document_text_key" ON "source_documents" ("text");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "ai_id" ON "user_messages" ("ai_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "text" ON "user_messages" ("text");--> statement-breakpoint
@@ -151,12 +141,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "devotions_to_source_documents" ADD CONSTRAINT "devotions_to_source_documents_source_document_id_source_documents_id_fk" FOREIGN KEY ("source_document_id") REFERENCES "source_documents"("id") ON DELETE cascade ON UPDATE cascade;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

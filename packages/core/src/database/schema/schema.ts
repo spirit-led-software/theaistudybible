@@ -175,34 +175,6 @@ export const userMessagesRelations = relations(
   }
 );
 
-export const sessions = pgTable(
-  "sessions",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    sessionToken: text("session_token").notNull(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
-    expires: timestamp("expires").notNull(),
-  },
-  (table) => {
-    return {
-      sessionTokenKey: uniqueIndex("session_token_key").on(table.sessionToken),
-    };
-  }
-);
-
-export const sessionRelations = relations(sessions, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [sessions.userId],
-      references: [users.id],
-    }),
-  };
-});
-
 export const indexOperations = pgTable(
   "index_operations",
   {
