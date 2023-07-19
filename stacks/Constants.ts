@@ -1,7 +1,8 @@
+import { STATIC_ENV_VARS } from "@stacks";
 import { HostedZone } from "aws-cdk-lib/aws-route53";
 import { StackContext } from "sst/constructs";
 
-export function Constants({ stack }: StackContext) {
+export function Constants({ stack, app }: StackContext) {
   const hostedZone = HostedZone.fromLookup(stack, "hostedZone", {
     domainName: "revelationsai.com",
   });
@@ -12,6 +13,14 @@ export function Constants({ stack }: StackContext) {
 
   const websiteUrl =
     stack.stage === "prod" ? `https://${domainName}` : `http://localhost:3000`;
+
+  app.setDefaultFunctionProps({
+    environment: {
+      WEBSITE_URL: websiteUrl,
+      ...STATIC_ENV_VARS,
+    },
+    timeout: 60,
+  });
 
   return {
     hostedZone,

@@ -17,6 +17,7 @@ export function Queues({ stack, app }: StackContext) {
         bind: [database],
         reservedConcurrentExecutions:
           stack.stage !== "prod" && app.mode === "dev" ? 4 : undefined,
+        timeout: 60,
       },
     },
   });

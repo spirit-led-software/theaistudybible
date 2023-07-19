@@ -27,6 +27,7 @@ export function Website({ stack, app }: StackContext) {
     dev: {
       url: websiteUrl,
     },
+    timeout: 60,
   });
 
   api.bind([website]);

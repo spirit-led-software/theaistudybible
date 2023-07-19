@@ -16,6 +16,7 @@ export function S3({ stack }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         permissions: ["s3"],
+        timeout: 60,
       },
     },
     notifications: {

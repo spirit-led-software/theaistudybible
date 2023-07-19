@@ -36,6 +36,7 @@ export function API({ stack }: StackContext) {
             ...STATIC_ENV_VARS,
           },
           bind: [bucket, database],
+          timeout: 60,
         },
       },
       "GET /session": "packages/functions/src/session.handler",
@@ -51,6 +52,7 @@ export function API({ stack }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         bind: [database, bucket, webpageIndexQueue],
+        timeout: 60,
       },
     },
     customDomain: {

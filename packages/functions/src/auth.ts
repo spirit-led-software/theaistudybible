@@ -45,7 +45,7 @@ export const handler = AuthHandler({
     facebook: FacebookAdapter({
       clientID: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-      scope: "email, profile",
+      scope: "openid email",
       onSuccess: async (tokenSet) => {
         return checkForUserOrCreateFromTokenSet(tokenSet);
       },
@@ -54,7 +54,7 @@ export const handler = AuthHandler({
       mode: "oauth",
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      scope: "email",
+      scope: "openid email",
       onSuccess: async (tokenSet) => {
         return checkForUserOrCreateFromTokenSet(tokenSet);
       },

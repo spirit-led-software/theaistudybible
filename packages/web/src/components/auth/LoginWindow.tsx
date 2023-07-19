@@ -50,11 +50,8 @@ export function LoginWindow() {
       })
         .then(async (res) => {
           if (!res.ok) {
-            const errorMessage =
-              (await res.json()).error ??
-              (await res.text()) ??
-              "Something went wrong";
-            throw new Error(res.statusText);
+            const errorMessage = (await res.text()) ?? "Something went wrong";
+            throw new Error(errorMessage);
           }
           return await res.json();
         })

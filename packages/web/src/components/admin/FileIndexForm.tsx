@@ -36,7 +36,6 @@ export function FileIndexForm() {
       });
       if (!response.ok) {
         const errorMessage =
-          (await response.json()).error ??
           (await response.text()) ??
           "Something went wrong";
         throw new Error(errorMessage);
