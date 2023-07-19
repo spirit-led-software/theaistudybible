@@ -25,16 +25,13 @@ export function Sidebar({
   const router = useRouter();
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const { chats, mutate, isLoading, error, limit, setLimit } = useChats(
-    initChats,
-    {
-      limit: initChats?.length
-        ? initChats.length < 7
-          ? 7
-          : initChats.length
-        : 7,
-    }
-  );
+  const { chats, mutate, isLoading, limit, setLimit } = useChats(initChats, {
+    limit: initChats?.length
+      ? initChats.length < 7
+        ? 7
+        : initChats.length
+      : 7,
+  });
 
   const createChat = async () => {
     const response = await fetch("/api/chats", {
@@ -88,13 +85,9 @@ export function Sidebar({
     }
   }, [chats, isLoading, limit]);
 
-  if (error) {
-    throw error;
-  }
-
   return (
     <div
-      className={`h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/3 ${
+      className={`fixed h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/3 lg:relative ${
         isOpen ? "w-full" : "w-0"
       }`}
     >

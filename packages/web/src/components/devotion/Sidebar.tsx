@@ -22,7 +22,7 @@ export function Sidebar({
 }) {
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const { devos, error, isLoading, limit, setLimit, mutate } = useDevotions(
+  const { devos, isLoading, limit, setLimit, mutate } = useDevotions(
     initDevos,
     {
       limit: initDevos?.length
@@ -56,7 +56,7 @@ export function Sidebar({
 
   return (
     <div
-      className={`flex flex-col max-h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/3 ${
+      className={`flex flex-col max-h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/3 z-30 ${
         isOpen ? "w-full" : "w-0"
       }`}
     >

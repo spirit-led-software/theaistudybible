@@ -52,7 +52,7 @@ export function NavBar() {
   };
 
   return (
-    <>
+    <div className="flex flex-col">
       <nav className="relative flex items-center justify-between h-16 px-4 py-4 bg-slate-700">
         <Link href="/">
           <LightLogo size="2xl" />
@@ -111,8 +111,16 @@ export function NavBar() {
           </div>
         )}
       </nav>
-      <div className={`relative z-50 ${!isOpen ? "hidden" : ""}`}>
-        <nav className="fixed bottom-0 left-0 flex flex-col w-full px-6 py-6 overflow-y-auto bg-white border-r md:w-1/2 top-16">
+      <div
+        className={`fixed z-50 bottom-0 left-0 flex flex-col w-full  bg-white border-r md:w-1/2 top-16 transition-all duration-300 ${
+          isOpen ? "h-100" : "h-0"
+        } overflow-y-hidden lg:hidden`}
+      >
+        <nav
+          className={`flex flex-col h-full w-full px-6 py-6 overflow-y-hidden transition duration-300 ease-in-out ${
+            isOpen ? "" : "-top-full"
+          }`}
+        >
           <div>
             <ul>
               {navItems.map((navItem) => (
@@ -163,6 +171,6 @@ export function NavBar() {
           </div>
         </nav>
       </div>
-    </>
+    </div>
   );
 }

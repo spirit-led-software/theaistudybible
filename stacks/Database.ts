@@ -10,7 +10,7 @@ export function Database({ stack }: StackContext) {
   const prodConfig: RDSProps["scaling"] = {
     minCapacity: "ACU_2",
     maxCapacity: "ACU_64",
-    autoPause: 30, // TODO: Change this to false when we have more consistent traffic
+    autoPause: false,
   };
 
   const database = new RDS(stack, "database", {

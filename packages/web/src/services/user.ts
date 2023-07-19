@@ -15,7 +15,6 @@ export async function validServerSession(): Promise<
 > {
   const sessionToken = cookies().get("session");
   if (!sessionToken?.value) {
-    console.error("Could not find session token in cookies.");
     return { isValid: false };
   }
 
@@ -26,7 +25,6 @@ export async function validServerSession(): Promise<
     },
   });
   if (response.status !== 200) {
-    console.error("Invalid session token received: ", sessionToken.value);
     return { isValid: false };
   }
 

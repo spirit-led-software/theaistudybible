@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaFacebookF } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { DarkSolidLineSpinner } from "..";
 
 export function LoginWindow() {
   const searchParams = useSearchParams();
@@ -16,6 +17,7 @@ export function LoginWindow() {
   const [checkEmailMessage, setCheckEmailMessage] = useState<string | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (alert) {
@@ -26,47 +28,69 @@ export function LoginWindow() {
   }, [alert]);
 
   const handleLogin = async (id: string) => {
-    const email = emailInputRef.current?.value;
-    if (!email && id === "email") {
-      setAlert("Please enter an email");
-      return;
-    }
+    setIsLoading(true);
 
-    const { loginUrl } = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id,
-        email,
-        redirectPath: searchParams.get("redirect"),
-      }),
-    })
-      .then((res) => res.json())
-      .catch((err) => {
-        console.error(err);
-        setAlert(err.message);
-      });
-
-    if (loginUrl) {
-      if (id === "email") {
-        await fetch(loginUrl, {
-          method: "GET",
-        });
-        setCheckEmailMessage(
-          "Check your email for a link to login! Don't see it? Check your spam folder."
-        );
+    try {
+      const email = emailInputRef.current?.value;
+      if (!email && id === "email") {
+        setAlert("Please enter an email");
         return;
       }
-      router.push(loginUrl);
-    } else {
-      setAlert("Something went wrong");
+
+      const { loginUrl } = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          email,
+          redirectPath: searchParams.get("redirect"),
+        }),
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const errorMessage =
+              (await res.json()).error ??
+              (await res.text()) ??
+              "Something went wrong";
+            throw new Error(res.statusText);
+          }
+          return await res.json();
+        })
+        .catch((err) => {
+          console.error(err);
+          throw new Error(err.message);
+        });
+
+      if (loginUrl) {
+        if (id === "email") {
+          await fetch(loginUrl, {
+            method: "GET",
+          });
+          setCheckEmailMessage(
+            "Check your email for a link to login! Don't see it? Check your spam folder."
+          );
+          return;
+        }
+        router.push(loginUrl);
+      } else {
+        setAlert("Something went wrong");
+      }
+    } catch (error: any) {
+      console.error(error);
+      setAlert(error.message);
     }
+    setIsLoading(false);
   };
 
   return (
     <div className="relative flex flex-col w-full px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 bg-opacity-80 md:w-1/2">
+      {isLoading && (
+        <div className="absolute left-0 right-0 flex top-4 lg:top-20">
+          <DarkSolidLineSpinner size="md" />
+        </div>
+      )}
       {alert && (
         <div className="absolute left-0 right-0 flex top-4 lg:top-20">
           <div className="px-4 py-2 mx-auto text-white bg-red-500 border border-red-500 rounded-xl lg:text-xl lg:bg-transparent lg:text-red-500">
@@ -107,6 +131,7 @@ export function LoginWindow() {
           </div>
           <div className="w-full pt-4 space-y-3">
             <input
+              type="email"
               className="w-full h-8 px-2 rounded-md outline outline-slate-400"
               placeholder="Email"
               ref={emailInputRef}

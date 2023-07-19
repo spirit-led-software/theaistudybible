@@ -22,12 +22,10 @@ export function FileIndexForm() {
     const file = fileInputRef.current?.files?.[0];
     const name = nameInputRef.current?.value;
     const url = urlInputRef.current?.value;
-
-    if (!file || !name || !url) {
-      setAlert({ message: "Please fill out all fields.", type: "error" });
-      return;
-    }
     try {
+      if (!file || !name || !url) {
+        throw new Error("Please fill out all fields");
+      }
       const formData = new FormData();
       formData.append("file", file);
       formData.append("name", name);
@@ -37,7 +35,11 @@ export function FileIndexForm() {
         body: formData,
       });
       if (!response.ok) {
-        throw new Error((await response.json()).error);
+        const errorMessage =
+          (await response.json()).error ??
+          (await response.text()) ??
+          "Something went wrong";
+        throw new Error(errorMessage);
       }
       mutate();
       setAlert({ message: "File index started.", type: "success" });

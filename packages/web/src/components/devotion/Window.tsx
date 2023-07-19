@@ -30,9 +30,7 @@ export function Window({
         setIsOpen={setIsSidebarOpen}
       />
       <div
-        className={`flex flex-col h-full overflow-y-scroll lg:visible lg:w-full ${
-          isSidebarOpen ? "invisible w-0" : "visible w-full"
-        }`}
+        className={`fixed flex flex-col h-full overflow-y-scroll lg:visible lg:w-full lg:relative`}
       >
         <div className="px-5 pt-5 pb-20 break-words whitespace-pre-wrap">
           <h1 className="mb-2 text-2xl font-bold text-center lg:text-left">

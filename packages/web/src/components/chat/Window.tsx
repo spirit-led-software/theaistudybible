@@ -181,9 +181,7 @@ export function Window({
         setIsOpen={setIsSidebarOpen}
       />
       <div
-        className={`relative flex flex-col h-full lg:visible lg:w-full ${
-          isSidebarOpen ? "invisible w-0" : "visible w-full"
-        }`}
+        className={`relative flex flex-col h-full lg:visible lg:w-full w-full z-0`}
       >
         <div
           role="alert"
@@ -195,20 +193,40 @@ export function Window({
             {alert}
           </div>
         </div>
-        <div className="w-full h-full overflow-y-scroll">
-          <div className="flex flex-col flex-1 min-h-full place-content-end">
-            {messages.map((message) => (
-              <Message
-                key={message.id}
-                chatId={initChatId!}
-                id={message.id}
-                text={message.content}
-                sender={message.role}
-              />
-            ))}
-            <div ref={endOfMessagesRef} className="w-full h-16" />
+        {messages && messages.length > 0 ? (
+          <div className="w-full h-full overflow-y-scroll">
+            <div className="flex flex-col flex-1 min-h-full place-content-end">
+              {messages.map((message) => (
+                <Message
+                  key={message.id}
+                  chatId={initChatId!}
+                  id={message.id}
+                  text={message.content}
+                  sender={message.role}
+                />
+              ))}
+              <div ref={endOfMessagesRef} className="w-full h-16" />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-center w-full h-full place-items-center justify-items-center">
+            <div className="flex flex-col w-3/4 px-10 py-5 space-y-2 rounded-lg h-fit bg-slate-200 md:w-1/2">
+              <h1 className="self-center text-xl font-bold md:text-2xl">
+                Don{`'`}t know what to say?
+              </h1>
+              <h2 className="text-lg font-bold">Try asking:</h2>
+              <ul className="space-y-1 list-disc list-inside">
+                <li>Who is Jesus Christ?</li>
+                <li>
+                  How does Jesus dying on the cross mean that I can be saved?
+                </li>
+                <li>What is the Trinity?</li>
+                <li>Can you find me a random Bible verse about grief?</li>
+                <li>What does the Bible say about marriage?</li>
+              </ul>
+            </div>
+          </div>
+        )}
         <button
           className={`${
             showScrollToBottomButton ? "scale-100" : "scale-0"
