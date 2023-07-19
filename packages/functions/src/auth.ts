@@ -62,13 +62,26 @@ export const handler = AuthHandler({
     email: LinkAdapter({
       onLink: async (link, claims) => {
         try {
-          emailTransport.sendMail({
+          const sendMessageInfo = await emailTransport.sendMail({
             to: claims.email,
             from: authConfig.email.from,
             subject: "Login to revelationsAI",
             text: `Click this link to login to revelationsAI: ${link}`,
             replyTo: authConfig.email.replyTo,
           });
+
+          if (sendMessageInfo.rejected.length > 0) {
+            return {
+              statusCode: 500,
+              body: JSON.stringify({
+                error: `Failed to send email to ${sendMessageInfo.rejected.join(
+                  ", "
+                )}`,
+              }),
+            };
+          }
+
+          console.log("Send message response:", sendMessageInfo.response);
 
           return {
             statusCode: 200,
