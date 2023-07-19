@@ -1,6 +1,6 @@
 export * from "./API";
 export * from "./Auth";
-export * from "./Constants"
+export * from "./Constants";
 export * from "./Crons";
 export * from "./Database";
 export * from "./DatabaseScripts";
@@ -23,9 +23,6 @@ export const STATIC_ENV_VARS: Record<string, string> = {
 
   // Unstructured
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
-
-  // Next Auth
-  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
 
   // Google Auth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
