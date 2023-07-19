@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const s3Client = new S3Client({});
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.formData();
   const name = data.get("name") as string;
   const url = data.get("url") as string;
