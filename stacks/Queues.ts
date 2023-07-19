@@ -15,9 +15,10 @@ export function Queues({ stack, app }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         bind: [database],
+        permissions: ["sqs"],
         reservedConcurrentExecutions:
           stack.stage !== "prod" && app.mode === "dev" ? 4 : undefined,
-        timeout: 60,
+        timeout: "90 seconds",
       },
     },
   });

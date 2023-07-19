@@ -16,12 +16,11 @@ export function S3({ stack }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         permissions: ["s3"],
-        timeout: 60,
+        timeout: "60 seconds",
       },
     },
     notifications: {
       indexFile: {
-        events: ["object_created"],
         function: {
           handler: "packages/functions/src/scraper/file.handler",
         },

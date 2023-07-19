@@ -19,7 +19,7 @@ type RequestBody = {
 const sqsClient = new SQSClient({});
 
 export const handler = ApiHandler(async (event) => {
-  const { isValid, userInfo, sessionToken } = await validApiSession();
+  const { isValid, userInfo } = await validApiSession();
   if (!isValid) {
     return {
       statusCode: 401,
@@ -91,27 +91,37 @@ export const handler = ApiHandler(async (event) => {
       },
     });
 
-    foundUrls.forEach((url) => {
+    for (const foundUrl in foundUrls) {
       const sendMessageCommand = new SendMessageCommand({
         QueueUrl: Queue.webpageIndexQueue.queueUrl,
         MessageBody: JSON.stringify({
           name,
-          url,
+          foundUrl,
           indexOpId: indexOp!.id,
         }),
       });
-      sqsClient.send(sendMessageCommand).catch(async (err) => {
-        console.error(`${err.stack}`);
+
+      const sendMessageResponse = await sqsClient.send(sendMessageCommand);
+      if (sendMessageResponse.$metadata.httpStatusCode !== 200) {
+        console.error(
+          "Failed to send message to SQS:",
+          JSON.stringify(sendMessageResponse)
+        );
         indexOp = await updateIndexOperation(indexOp!.id, {
           status: "FAILED",
           metadata: {
             ...(indexOp!.metadata as any),
-            errors: [...((indexOp!.metadata as any).errors ?? []), err.stack],
-            failed: [...((indexOp!.metadata as any).failed ?? []), url],
+            errors: [
+              ...((indexOp!.metadata as any).errors ?? []),
+              {
+                url: foundUrl,
+                error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,
+              },
+            ],
           },
         });
-      });
-    });
+      }
+    }
 
     return {
       statusCode: 200,
@@ -124,19 +134,26 @@ export const handler = ApiHandler(async (event) => {
     console.error(`${err.stack}`);
 
     if (indexOp) {
-      await updateIndexOperation(indexOp.id, {
+      indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
         metadata: {
           ...(indexOp.metadata as any),
-          error: err.message,
+          error: err.stack,
         },
       });
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: err.stack,
+          indexOp,
+        }),
+      };
     }
 
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: err.message,
+        error: err.stack,
       }),
     };
   }

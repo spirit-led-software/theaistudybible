@@ -19,7 +19,7 @@ export function Constants({ stack, app }: StackContext) {
       WEBSITE_URL: websiteUrl,
       ...STATIC_ENV_VARS,
     },
-    timeout: 60,
+    timeout: "60 seconds",
   });
 
   return {

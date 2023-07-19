@@ -19,24 +19,24 @@ export function API({ stack }: StackContext) {
 
   const api = new Api(stack, "api", {
     routes: {
-      "POST /scraper/website": "packages/functions/src/scraper/website.handler",
+      "POST /scraper/website": {
+        function: {
+          handler: "packages/functions/src/scraper/website.handler",
+          bind: [bucket, database, webpageIndexQueue],
+          permissions: [bucket, database, webpageIndexQueue],
+          timeout: "15 minutes",
+        },
+      },
       "POST /scraper/webpage": {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
-          layers: [chromeLayer],
           nodejs: {
             install: ["chrome-aws-lambda"],
           },
-          environment: {
-            DATABASE_RESOURCE_ARN: database.clusterArn,
-            DATABASE_SECRET_ARN: database.secretArn,
-            DATABASE_NAME: database.defaultDatabaseName,
-            WEBSITE_URL: websiteUrl,
-            API_URL: apiUrl,
-            ...STATIC_ENV_VARS,
-          },
+          layers: [chromeLayer],
           bind: [bucket, database],
-          timeout: 60,
+          permissions: [bucket, database],
+          timeout: "60 seconds",
         },
       },
       "GET /session": "packages/functions/src/session.handler",
@@ -51,8 +51,9 @@ export function API({ stack }: StackContext) {
           API_URL: apiUrl,
           ...STATIC_ENV_VARS,
         },
-        bind: [database, bucket, webpageIndexQueue],
-        timeout: 60,
+        bind: [database, bucket],
+        permissions: [database, bucket],
+        timeout: "60 seconds",
       },
     },
     customDomain: {

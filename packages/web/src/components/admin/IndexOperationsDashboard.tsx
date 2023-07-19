@@ -63,8 +63,8 @@ export function IndexOperationsDashboard({
                             ([key, value]) => (
                               <tr key={key} className="divide-x-2">
                                 <td className="pr-2">{key}</td>
-                                <td className="pl-2">
-                                  {(value as any).toString()}
+                                <td className="w-20 pl-2 truncate">
+                                  {JSON.stringify(value as any)}
                                 </td>
                               </tr>
                             )
