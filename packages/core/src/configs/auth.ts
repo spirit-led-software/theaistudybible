@@ -9,6 +9,7 @@ interface AuthConfig {
   };
   email: {
     from: string;
+    replyTo: string;
     host: string;
     port: number;
     credentials: {
@@ -32,6 +33,7 @@ export const config: AuthConfig = {
   },
   email: {
     from: process.env.EMAIL_FROM!,
+    replyTo: process.env.EMAIL_REPLY_TO!,
     host: process.env.EMAIL_SERVER_HOST!,
     port: parseInt(process.env.EMAIL_SERVER_PORT!),
     credentials: {

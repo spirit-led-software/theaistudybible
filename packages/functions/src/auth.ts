@@ -11,6 +11,16 @@ import {
   Session,
 } from "sst/node/auth";
 
+const emailTransport = nodemailer.createTransport({
+  host: authConfig.email.host,
+  port: authConfig.email.port,
+  auth: {
+    user: authConfig.email.credentials.username,
+    pass: authConfig.email.credentials.password,
+  },
+  from: authConfig.email.from,
+});
+
 const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
   let user: User | undefined = await getUserByEmail(tokenSet.claims().email!);
   if (!user) {
@@ -23,9 +33,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
 
   return Session.parameter({
     type: "user",
-    redirect: `${
-      process.env.WEBSITE_URL ?? "http://localhost:3000"
-    }/api/auth/callback`,
+    redirect: `${process.env.WEBSITE_URL}/api/auth/callback`,
     properties: {
       id: user.id,
     },
@@ -53,23 +61,13 @@ export const handler = AuthHandler({
     }),
     email: LinkAdapter({
       onLink: async (link, claims) => {
-        console.log("Claims", claims);
         try {
-          const transport = nodemailer.createTransport({
-            host: authConfig.email.host,
-            port: authConfig.email.port,
-            auth: {
-              user: authConfig.email.credentials.username,
-              pass: authConfig.email.credentials.password,
-            },
-            from: authConfig.email.from,
-          });
-
-          transport.sendMail({
+          emailTransport.sendMail({
             to: claims.email,
             from: authConfig.email.from,
-            subject: "Login to revelationsai",
+            subject: "Login to revelationsAI",
             text: `Click this link to login to revelationsAI: ${link}`,
+            replyTo: authConfig.email.replyTo,
           });
 
           return {
@@ -99,9 +97,7 @@ export const handler = AuthHandler({
 
         return Session.parameter({
           type: "user",
-          redirect: `${
-            process.env.WEBSITE_URL ?? "http://localhost:3000"
-          }/api/auth/callback`,
+          redirect: `${process.env.WEBSITE_URL}/api/auth/callback`,
           properties: {
             id: user.id,
           },

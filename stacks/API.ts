@@ -2,9 +2,6 @@ import { Constants, Database, Queues, S3, STATIC_ENV_VARS } from "@stacks";
 import { LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { Api, StackContext, use } from "sst/constructs";
 
-const chromeLayerArn =
-  "arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:22";
-
 export function API({ stack }: StackContext) {
   const { indexFileBucket: bucket } = use(S3);
   const { database } = use(Database);
@@ -14,7 +11,7 @@ export function API({ stack }: StackContext) {
   const chromeLayer = LayerVersion.fromLayerVersionArn(
     stack,
     "Layer",
-    chromeLayerArn
+    "arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:22"
   );
 
   const apiDomainName = `api.${domainName}`;

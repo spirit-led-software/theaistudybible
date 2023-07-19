@@ -17,6 +17,7 @@ export function Auth({ stack }: StackContext) {
         API_URL: apiUrl,
         ...STATIC_ENV_VARS,
       },
+      timeout: 30,
     },
   });
 

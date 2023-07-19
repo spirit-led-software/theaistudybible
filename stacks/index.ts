@@ -34,6 +34,7 @@ export const STATIC_ENV_VARS: Record<string, string> = {
 
   // Email Auth
   EMAIL_FROM: process.env.EMAIL_FROM!,
+  EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO!,
   EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST!,
   EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT!,
   EMAIL_SERVER_USERNAME: process.env.EMAIL_SERVER_USERNAME!,

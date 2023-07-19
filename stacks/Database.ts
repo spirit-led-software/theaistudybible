@@ -2,14 +2,14 @@ import { RDS, RDSProps, StackContext } from "sst/constructs";
 
 export function Database({ stack }: StackContext) {
   const devConfig: RDSProps["scaling"] = {
-    minCapacity: "ACU_1",
+    minCapacity: "ACU_2",
     maxCapacity: "ACU_2",
     autoPause: true,
   };
 
   const prodConfig: RDSProps["scaling"] = {
-    minCapacity: "ACU_1",
-    maxCapacity: "ACU_32",
+    minCapacity: "ACU_2",
+    maxCapacity: "ACU_64",
     autoPause: 30, // TODO: Change this to false when we have more consistent traffic
   };
 
