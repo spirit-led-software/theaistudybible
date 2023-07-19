@@ -75,20 +75,16 @@
   body {
     @apply bg-background text-foreground font-catamaran;
   }
-}
 
-.logo {
-  @apply font-catamaran;
-}
+  @supports (-webkit-touch-callout: none) {
+    .h-screen {
+      height: 100vh;
+      max-height: -webkit-fill-available !important;
+    }
 
-@supports (-webkit-touch-callout: none) {
-  .h-screen {
-    height: 100vh;
-    max-height: -webkit-fill-available !important;
-  }
-
-  .max-h-screen {
-    max-height: 100vh;
-    max-height: -webkit-fill-available !important;
+    .max-h-screen {
+      max-height: 100vh;
+      max-height: -webkit-fill-available !important;
+    }
   }
 }

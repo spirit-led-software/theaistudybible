@@ -12,7 +12,7 @@ export function DarkLogo({
 
   return (
     <div
-      className={`inline-flex items-center logo ${sizeClass} lg:${largeSizeClass}`}
+      className={`inline-flex items-center font-catamaran ${sizeClass} lg:${largeSizeClass}`}
     >
       <span className="text-slate-800">revelations</span>
       <span className="text-blue-300">AI</span>

@@ -55,9 +55,7 @@ export default function RootLayout({
   return (
     <SessionProvider sessionToken={sessionToken?.value}>
       <html lang="en">
-        <body
-          className={`${catamaran.variable} ${kanit.variable} w-screen min-h-screen`}
-        >
+        <body className={`${catamaran.variable} ${kanit.variable}`}>
           {children}
         </body>
       </html>
