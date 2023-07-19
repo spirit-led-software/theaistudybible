@@ -91,7 +91,7 @@ export const handler = ApiHandler(async (event) => {
       },
     });
 
-    for (const foundUrl in foundUrls) {
+    for (const foundUrl of foundUrls) {
       const sendMessageCommand = new SendMessageCommand({
         QueueUrl: Queue.webpageIndexQueue.queueUrl,
         MessageBody: JSON.stringify({

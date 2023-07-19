@@ -31,6 +31,7 @@ export function API({ stack }: StackContext) {
       "POST /scraper/webpage": {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
+          runtime: "nodejs18.x",
           nodejs: {
             esbuild: {
               external: ["@sparticuz/chromium"],

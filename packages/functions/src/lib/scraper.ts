@@ -13,7 +13,7 @@ export async function generatePageContentEmbeddings(
       let pageTitle = `${url}`;
       const loader = new PuppeteerWebBaseLoader(url, {
         launchOptions: {
-          headless: true,
+          headless: chromium.headless,
           args: ["--no-sandbox"],
           defaultViewport: chromium.defaultViewport,
           executablePath: process.env.IS_LOCAL
