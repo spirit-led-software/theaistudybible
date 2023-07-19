@@ -63,7 +63,7 @@ export function IndexOperationsDashboard({
                             ([key, value]) => (
                               <tr key={key} className="divide-x-2">
                                 <td className="pr-2">{key}</td>
-                                <td className="w-20 pl-2 truncate">
+                                <td className="w-20 overflow-x-hidden truncate over">
                                   {JSON.stringify(value as any)}
                                 </td>
                               </tr>

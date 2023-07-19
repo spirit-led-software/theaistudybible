@@ -96,8 +96,8 @@ export const handler = ApiHandler(async (event) => {
         QueueUrl: Queue.webpageIndexQueue.queueUrl,
         MessageBody: JSON.stringify({
           name,
-          foundUrl,
-          indexOpId: indexOp!.id,
+          url: foundUrl,
+          indexOpId: indexOp.id,
         }),
       });
 
@@ -107,12 +107,12 @@ export const handler = ApiHandler(async (event) => {
           "Failed to send message to SQS:",
           JSON.stringify(sendMessageResponse)
         );
-        indexOp = await updateIndexOperation(indexOp!.id, {
+        indexOp = await updateIndexOperation(indexOp.id, {
           status: "FAILED",
           metadata: {
-            ...(indexOp!.metadata as any),
+            ...(indexOp.metadata as any),
             errors: [
-              ...((indexOp!.metadata as any).errors ?? []),
+              ...((indexOp.metadata as any).errors ?? []),
               {
                 url: foundUrl,
                 error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,

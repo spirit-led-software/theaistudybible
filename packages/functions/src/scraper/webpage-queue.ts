@@ -9,6 +9,7 @@ import { generatePageContentEmbeddings } from "../lib/scraper";
 export const consumer: SQSHandler = async (event) => {
   const records = event.Records;
   const { body } = records[0];
+  console.log("Received event: ", JSON.stringify(body));
 
   const { url, name, indexOpId } = JSON.parse(body);
   if (!url || !name || !indexOpId) {
