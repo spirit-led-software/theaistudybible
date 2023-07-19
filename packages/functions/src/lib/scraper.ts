@@ -1,4 +1,5 @@
 import { addDocumentsToVectorStore } from "@core/services/vector-db";
+import chromium from "@sparticuz/chromium";
 import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
 import { TokenTextSplitter } from "langchain/text_splitter";
 
@@ -14,6 +15,10 @@ export async function generatePageContentEmbeddings(
         launchOptions: {
           headless: true,
           args: ["--no-sandbox"],
+          defaultViewport: chromium.defaultViewport,
+          executablePath: process.env.IS_LOCAL
+            ? undefined
+            : await chromium.executablePath(),
         },
         evaluate: async (page) => {
           await page.waitForNetworkIdle();

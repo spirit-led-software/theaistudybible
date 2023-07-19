@@ -5,6 +5,7 @@ import {
   Crons,
   Database,
   DatabaseMigrations,
+  Layers,
   Queues,
   S3,
   Website,
@@ -24,6 +25,7 @@ export default {
       .stack(Database)
       .stack(DatabaseMigrations)
       .stack(S3)
+      .stack(Layers)
       .stack(Queues)
       .stack(API)
       .stack(Website)

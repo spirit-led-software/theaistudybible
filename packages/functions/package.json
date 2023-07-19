@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@revelationsai/core": "*",
+    "@sparticuz/chromium": "^114.0.0",
     "busboy": "^1.6.0",
     "chrome-aws-lambda": "^10.1.0",
     "fast-xml-parser": "^4.2.5",

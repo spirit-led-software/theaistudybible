@@ -1,8 +1,9 @@
-import { Database, STATIC_ENV_VARS } from "@stacks";
+import { Database, Layers, STATIC_ENV_VARS } from "@stacks";
 import { Queue, StackContext, use } from "sst/constructs";
 
 export function Queues({ stack, app }: StackContext) {
   const { database } = use(Database);
+  const { chromiumLayer } = use(Layers);
 
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     consumer: {
@@ -16,6 +17,7 @@ export function Queues({ stack, app }: StackContext) {
         },
         bind: [database],
         permissions: ["sqs"],
+        layers: [chromiumLayer],
         reservedConcurrentExecutions:
           stack.stage !== "prod" && app.mode === "dev" ? 4 : undefined,
         timeout: "90 seconds",

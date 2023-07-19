@@ -1,5 +1,11 @@
-import { Constants, Database, Queues, S3, STATIC_ENV_VARS } from "@stacks";
-import { LayerVersion } from "aws-cdk-lib/aws-lambda";
+import {
+  Constants,
+  Database,
+  Layers,
+  Queues,
+  S3,
+  STATIC_ENV_VARS,
+} from "@stacks";
 import { Api, StackContext, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
@@ -7,12 +13,7 @@ export function API({ stack }: StackContext) {
   const { database } = use(Database);
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
-
-  const chromeLayer = LayerVersion.fromLayerVersionArn(
-    stack,
-    "Layer",
-    "arn:aws:lambda:us-east-1:764866452798:layer:chrome-aws-lambda:22"
-  );
+  const { chromiumLayer } = use(Layers);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
@@ -31,9 +32,11 @@ export function API({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
           nodejs: {
-            install: ["chrome-aws-lambda"],
+            esbuild: {
+              external: ["@sparticuz/chromium"],
+            },
           },
-          layers: [chromeLayer],
+          layers: [chromiumLayer],
           bind: [bucket, database],
           permissions: [bucket, database],
           timeout: "60 seconds",
