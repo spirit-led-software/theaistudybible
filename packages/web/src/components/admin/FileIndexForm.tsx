@@ -1,8 +1,7 @@
 "use client";
 
 import { useIndexOps } from "@hooks/index-ops";
-import { uploadIndexFileToS3 } from "@lib/server-actions";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DarkSolidLineSpinner } from "..";
 
 export function FileIndexForm() {
@@ -14,10 +13,12 @@ export function FileIndexForm() {
     type: "error" | "success";
   } | null>(null);
   const { mutate } = useIndexOps();
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+
     const file = fileInputRef.current?.files?.[0];
     const name = nameInputRef.current?.value;
     const url = urlInputRef.current?.value;
@@ -31,7 +32,14 @@ export function FileIndexForm() {
       formData.append("file", file);
       formData.append("name", name);
       formData.append("url", url);
-      await uploadIndexFileToS3(formData);
+      const response = await fetch("/api/index-ops/file", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error((await response.json()).error);
+      }
+      mutate();
       setAlert({ message: "File index started.", type: "success" });
     } catch (error: any) {
       setAlert({
@@ -39,6 +47,7 @@ export function FileIndexForm() {
         type: "error",
       });
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -49,18 +58,9 @@ export function FileIndexForm() {
     }
   }, [alert]);
 
-  useEffect(() => {
-    if (!isPending) {
-      mutate();
-    }
-  }, [isPending, mutate]);
-
   return (
-    <form
-      className="relative flex-col w-full"
-      onSubmit={(event) => startTransition(() => handleSubmit(event))}
-    >
-      {isPending && (
+    <form className="relative flex-col w-full" onSubmit={handleSubmit}>
+      {isLoading && (
         <div className="absolute left-0 right-0 flex justify-center">
           <DarkSolidLineSpinner size="md" />
         </div>

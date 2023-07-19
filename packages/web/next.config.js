@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: true,
-  },
-  output: "standalone",
   transpilePackages: ["@revelationsai/core"],
   webpack: (webpackConfig, { webpack }) => {
     webpackConfig.plugins.push(
