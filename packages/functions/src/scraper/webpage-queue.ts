@@ -4,7 +4,7 @@ import {
 } from "@core/services/index-op";
 import { IndexOperation } from "@revelationsai/core/database/model";
 import { SQSHandler } from "aws-lambda";
-import { generatePageContentEmbeddings } from "../lib/scraper";
+import { generatePageContentEmbeddings } from "../lib/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {
   const records = event.Records;

@@ -31,14 +31,14 @@ export function API({ stack }: StackContext) {
       "POST /scraper/webpage": {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
+          layers: [chromiumLayer],
+          bind: [database],
+          permissions: [database],
           nodejs: {
             esbuild: {
               external: ["@sparticuz/chromium"],
             },
           },
-          layers: [chromiumLayer],
-          bind: [database],
-          permissions: [database],
           timeout: "60 seconds",
         },
       },

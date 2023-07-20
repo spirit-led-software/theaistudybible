@@ -16,14 +16,13 @@ export function Queues({ stack, app }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         bind: [database],
-        runtime: "nodejs18.x",
+        permissions: ["sqs"],
+        layers: [chromiumLayer],
         nodejs: {
           esbuild: {
             external: ["@sparticuz/chromium"],
           },
         },
-        permissions: ["sqs"],
-        layers: [chromiumLayer],
         reservedConcurrentExecutions:
           stack.stage !== "prod" && app.mode === "dev" ? 4 : 20,
         timeout: "90 seconds",

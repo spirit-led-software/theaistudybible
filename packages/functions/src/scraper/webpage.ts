@@ -5,7 +5,7 @@ import {
 import { isAdmin, validApiSession } from "@core/services/user";
 import { IndexOperation } from "@revelationsai/core/database/model";
 import { ApiHandler } from "sst/node/api";
-import { generatePageContentEmbeddings } from "../lib/scraper";
+import { generatePageContentEmbeddings } from "../lib/web-scraper";
 
 export const handler = ApiHandler(async (event) => {
   const { isValid, userInfo } = await validApiSession();
