@@ -13,7 +13,6 @@ export function DatabaseMigrations({ stack }: StackContext) {
     ],
     enableLiveDev: false,
     bind: [database],
-    timeout: 60,
   });
   const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
     onCreate: dbMigrationsFunction,
@@ -24,7 +23,6 @@ export function DatabaseMigrations({ stack }: StackContext) {
     handler: "packages/functions/src/database/seed.handler",
     enableLiveDev: false,
     bind: [database],
-    timeout: 60,
     environment: {
       DATABASE_RESOURCE_ARN: database.clusterArn,
       DATABASE_SECRET_ARN: database.secretArn,

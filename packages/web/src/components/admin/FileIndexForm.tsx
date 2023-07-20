@@ -34,11 +34,9 @@ export function FileIndexForm() {
         method: "POST",
         body: formData,
       });
-      if (!response.ok) {
-        const errorMessage =
-          (await response.text()) ??
-          "Something went wrong";
-        throw new Error(errorMessage);
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
       }
       mutate();
       setAlert({ message: "File index started.", type: "success" });

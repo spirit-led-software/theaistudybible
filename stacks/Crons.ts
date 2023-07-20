@@ -16,7 +16,6 @@ export function Crons({ stack }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         bind: [database],
-        timeout: 60,
       },
     },
   });

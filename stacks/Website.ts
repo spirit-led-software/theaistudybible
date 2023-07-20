@@ -23,11 +23,9 @@ export function Website({ stack, app }: StackContext) {
       domainName: domainName,
       hostedZone: hostedZone.zoneName,
     },
-    warm: 20,
     dev: {
       url: websiteUrl,
     },
-    timeout: 60,
   });
 
   api.bind([website]);

@@ -1,11 +1,16 @@
-import { Database, Layers, STATIC_ENV_VARS } from "@stacks";
+import { Database, STATIC_ENV_VARS } from "@stacks";
+import { Duration } from "aws-cdk-lib/core";
 import { Queue, StackContext, use } from "sst/constructs";
 
 export function Queues({ stack, app }: StackContext) {
   const { database } = use(Database);
-  const { chromiumLayer } = use(Layers);
 
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
+    cdk: {
+      queue: {
+        visibilityTimeout: Duration.minutes(1),
+      },
+    },
     consumer: {
       function: {
         handler: "packages/functions/src/scraper/webpage-queue.consumer",
@@ -17,15 +22,14 @@ export function Queues({ stack, app }: StackContext) {
         },
         bind: [database],
         permissions: ["sqs"],
-        layers: [chromiumLayer],
         nodejs: {
+          install: ["@sparticuz/chromium"],
           esbuild: {
             external: ["@sparticuz/chromium"],
           },
         },
-        reservedConcurrentExecutions:
-          stack.stage !== "prod" && app.mode === "dev" ? 4 : 20,
-        timeout: "90 seconds",
+        reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 20,
+        timeout: "1 minute",
       },
     },
   });

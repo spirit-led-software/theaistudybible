@@ -1,5 +1,6 @@
 "use client";
 
+import { DarkSolidLineSpinner } from "@components";
 import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
 import { useSession } from "@hooks/session";
@@ -14,18 +15,18 @@ export function WebpageIndexForm() {
   } | null>(null);
   const { mutate } = useIndexOps();
   const { session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+
     const name = nameInputRef.current?.value;
     const url = urlInputRef.current?.value;
-
-    if (!name || !url) {
-      setAlert({ message: "Please fill out all fields.", type: "error" });
-      return;
-    }
-
     try {
+      if (!name || !url) {
+        throw new Error("Name and URL are required.");
+      }
       const response = await fetch(`${apiConfig.url}/scraper/webpage`, {
         method: "POST",
         headers: {
@@ -33,14 +34,12 @@ export function WebpageIndexForm() {
           Authorization: `Bearer ${session}`,
         },
         body: JSON.stringify({ name, url }),
-      }).catch((error) => {
-        throw new Error(error.message);
       });
       const data = await response.json();
       if (data.error) {
         throw new Error(data.error);
       }
-      setAlert({ message: "Webpage index started.", type: "success" });
+      setAlert({ message: "Webpage index completed.", type: "success" });
     } catch (error: any) {
       setAlert({
         message: `Error: ${error.message}`,
@@ -48,6 +47,7 @@ export function WebpageIndexForm() {
       });
     }
     mutate();
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -60,6 +60,11 @@ export function WebpageIndexForm() {
 
   return (
     <form className="relative flex-col w-full" onSubmit={handleSubmit}>
+      {isLoading && (
+        <div className="absolute left-0 right-0 flex justify-center">
+          <DarkSolidLineSpinner size="md" />
+        </div>
+      )}
       <div
         className={`absolute left-0 right-0 flex justify-center duration-300 ${
           alert ? "scale-100" : "scale-0"

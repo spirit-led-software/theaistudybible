@@ -4,7 +4,8 @@ import {
   createIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
-import { isAdmin, validApiSession } from "@core/services/user";
+import { validApiSession } from "@core/services/session";
+import { isAdmin } from "@core/services/user";
 import { IndexOperation } from "@revelationsai/core/database/model";
 import { XMLParser } from "fast-xml-parser";
 import { ApiHandler } from "sst/node/api";
@@ -128,6 +129,7 @@ export const handler = ApiHandler(async (event) => {
       body: JSON.stringify({
         message: "Started indexing urls",
         urls: foundUrls,
+        indexOp,
       }),
     };
   } catch (err: any) {

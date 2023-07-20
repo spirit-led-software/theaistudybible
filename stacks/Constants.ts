@@ -12,7 +12,7 @@ export function Constants({ stack, app }: StackContext) {
   }`;
 
   const websiteUrl =
-    stack.stage === "prod" ? `https://${domainName}` : `http://localhost:3000`;
+    app.mode === "dev" ? `http://localhost:3000` : `https://${domainName}`;
 
   app.setDefaultFunctionProps({
     environment: {

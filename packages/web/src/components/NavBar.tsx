@@ -46,9 +46,13 @@ export function NavBar() {
   };
 
   const signOut = async () => {
+    const response = await fetch("/api/auth/logout");
+    if (!response.ok) {
+      throw new Error("Failed to sign out.");
+    }
     setSession(null);
-    await fetch("/api/auth/logout");
     router.push("/");
+    router.refresh();
   };
 
   return (

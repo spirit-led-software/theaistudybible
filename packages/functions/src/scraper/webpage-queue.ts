@@ -29,34 +29,16 @@ export const consumer: SQSHandler = async (event) => {
     }
 
     indexOpMetadata = indexOp.metadata ?? {};
-    generatePageContentEmbeddings(name, url)
-      .then(async () => {
-        console.log(`Successfully indexed url '${url}'. Updating index op.`);
-        indexOp = await updateIndexOperation(indexOp!.id, {
-          metadata: {
-            ...indexOpMetadata,
-            succeeded: [...(indexOpMetadata.succeeded ?? []), url],
-          },
-        });
-        indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
-      })
-      .catch(async (err) => {
-        console.error(err.stack);
-        indexOp = await updateIndexOperation(indexOp!.id, {
-          status: "FAILED",
-          metadata: {
-            ...indexOpMetadata,
-            failed: [
-              ...(indexOpMetadata.failed ?? []),
-              {
-                url,
-                error: err.stack,
-              },
-            ],
-          },
-        });
-        indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
-      });
+    await generatePageContentEmbeddings(name, url);
+
+    console.log(`Successfully indexed url '${url}'. Updating index op.`);
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      metadata: {
+        ...indexOpMetadata,
+        succeeded: [...(indexOpMetadata.succeeded ?? []), url],
+      },
+    });
+    indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
 

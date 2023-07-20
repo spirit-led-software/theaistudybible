@@ -1,5 +1,6 @@
 "use client";
 
+import { DarkSolidLineSpinner } from "@components";
 import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
 import { useSession } from "@hooks/session";
@@ -15,19 +16,19 @@ export function WebsiteIndexForm() {
   } | null>(null);
   const { session } = useSession();
   const { mutate } = useIndexOps();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+
     const name = nameInputRef.current?.value;
     const url = urlInputRef.current?.value;
     const pathRegex = pathRegexRef.current?.value;
-
-    if (!name || !url || !pathRegex) {
-      setAlert({ message: "Please fill out all fields.", type: "error" });
-      return;
-    }
-
     try {
+      if (!name || !url || !pathRegex) {
+        throw new Error("Name, URL, and Path Regular Expression are required.");
+      }
       const response = await fetch(`${apiConfig.url}/scraper/website`, {
         method: "POST",
         headers: {
@@ -50,6 +51,7 @@ export function WebsiteIndexForm() {
       });
     }
     mutate();
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -62,6 +64,11 @@ export function WebsiteIndexForm() {
 
   return (
     <form className="relative flex-col w-full" onSubmit={handleSubmit}>
+      {isLoading && (
+        <div className="absolute left-0 right-0 flex justify-center">
+          <DarkSolidLineSpinner size="md" />
+        </div>
+      )}
       <div
         className={`absolute left-0 right-0 flex justify-center duration-300 ${
           alert ? "scale-100" : "scale-0"

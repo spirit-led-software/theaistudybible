@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaFacebookF } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { DarkSolidLineSpinner } from "..";
+import { LightSolidLineSpinner } from "..";
 
 export function LoginWindow() {
   const searchParams = useSearchParams();
@@ -27,14 +27,21 @@ export function LoginWindow() {
     }
   }, [alert]);
 
+  useEffect(() => {
+    if (checkEmailMessage) {
+      setTimeout(() => {
+        setCheckEmailMessage(null);
+      }, 10000);
+    }
+  }, [checkEmailMessage]);
+
   const handleLogin = async (id: string) => {
     setIsLoading(true);
 
     try {
       const email = emailInputRef.current?.value;
       if (!email && id === "email") {
-        setAlert("Please enter an email");
-        return;
+        throw new Error("Email is required");
       }
 
       const { loginUrl } = await fetch("/api/auth/login", {
@@ -68,9 +75,9 @@ export function LoginWindow() {
           setCheckEmailMessage(
             "Check your email for a link to login! Don't see it? Check your spam folder."
           );
-          return;
+        } else {
+          router.push(loginUrl);
         }
-        router.push(loginUrl);
       } else {
         setAlert("Something went wrong");
       }
@@ -84,19 +91,19 @@ export function LoginWindow() {
   return (
     <div className="relative flex flex-col w-full px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 bg-opacity-80 md:w-1/2">
       {isLoading && (
-        <div className="absolute left-0 right-0 flex top-4 lg:top-20">
-          <DarkSolidLineSpinner size="md" />
+        <div className="absolute left-0 right-0 flex justify-center -top-20 lg:top-20">
+          <LightSolidLineSpinner size="md" />
         </div>
       )}
       {alert && (
-        <div className="absolute left-0 right-0 flex top-4 lg:top-20">
+        <div className="absolute left-0 right-0 flex -top-20 lg:top-20">
           <div className="px-4 py-2 mx-auto text-white bg-red-500 border border-red-500 rounded-xl lg:text-xl lg:bg-transparent lg:text-red-500">
             {alert}
           </div>
         </div>
       )}
       {checkEmailMessage && (
-        <div className="absolute left-0 right-0 flex top-4 lg:top-20">
+        <div className="absolute left-0 right-0 flex text-center -top-20 lg:top-20">
           <div className="px-4 py-2 mx-auto text-white bg-green-500 border border-green-500 rounded-xl lg:text-xl lg:bg-transparent lg:text-green-500">
             {checkEmailMessage}
           </div>

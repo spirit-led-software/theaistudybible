@@ -1,5 +1,4 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { SessionValue, useSession } from "sst/node/auth";
 import config from "../configs/auth";
 import { db } from "../database";
 import { CreateUserData, UpdateUserData, User } from "../database/model";
@@ -112,33 +111,4 @@ export async function createInitialAdminUser() {
     console.log("Admin role already added to admin user");
   }
   console.log("Initial admin user created");
-}
-
-export async function validApiSession(): Promise<
-  | {
-      isValid: false;
-      sessionToken?: SessionValue;
-      userInfo?: never;
-    }
-  | {
-      isValid: true;
-      sessionToken: SessionValue;
-      userInfo: User;
-    }
-> {
-  const sessionToken = useSession();
-  if (!sessionToken || sessionToken.type !== "user") {
-    return { isValid: false, sessionToken };
-  }
-
-  const userInfo = await getUser(sessionToken.properties.id);
-  if (!userInfo) {
-    return { isValid: false, sessionToken };
-  }
-
-  return {
-    isValid: true,
-    sessionToken,
-    userInfo,
-  };
 }

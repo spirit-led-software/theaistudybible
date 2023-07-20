@@ -11,6 +11,7 @@ import { AiOutlineSend } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
 import { useChats } from "../../hooks";
+import { LoadingMessage } from "./LoadingMessage";
 import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
@@ -92,10 +93,10 @@ export function Window({
           role: "user",
         },
       ]);
-      reload();
       router.replace("/chat", {
         shallow: true,
       });
+      reload();
     }
   }, [initQuery]);
 
@@ -205,6 +206,7 @@ export function Window({
                   sender={message.role}
                 />
               ))}
+              {isLoading && <LoadingMessage />}
               <div ref={endOfMessagesRef} className="w-full h-16" />
             </div>
           </div>

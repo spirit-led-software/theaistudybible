@@ -9,6 +9,8 @@ export function Auth({ stack }: StackContext) {
   const auth = new AuthConstruct(stack, "auth", {
     authenticator: {
       handler: "packages/functions/src/auth.handler",
+      bind: [database],
+      permissions: [database],
       environment: {
         DATABASE_RESOURCE_ARN: database.clusterArn,
         DATABASE_SECRET_ARN: database.secretArn,

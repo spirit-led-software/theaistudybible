@@ -4,7 +4,6 @@ export * from "./Constants";
 export * from "./Crons";
 export * from "./Database";
 export * from "./DatabaseScripts";
-export * from "./Layers";
 export * from "./Queues";
 export * from "./S3";
 export * from "./Website";

@@ -2,7 +2,8 @@ import {
   createIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
-import { isAdmin, validApiSession } from "@core/services/user";
+import { validApiSession } from "@core/services/session";
+import { isAdmin } from "@core/services/user";
 import { IndexOperation } from "@revelationsai/core/database/model";
 import { ApiHandler } from "sst/node/api";
 import { generatePageContentEmbeddings } from "../lib/web-scraper";
@@ -58,44 +59,39 @@ export const handler = ApiHandler(async (event) => {
       },
     });
 
-    generatePageContentEmbeddings(name, url)
-      .then(async () => {
-        console.log(
-          `Successfully indexed url '${url}'. Updating index op status.`
-        );
-        indexOp = await updateIndexOperation(indexOp?.id!, {
-          status: "SUCCEEDED",
-        });
-      })
-      .catch((err) => {
-        console.error(err.stack);
-        updateIndexOperation(indexOp?.id!, {
-          status: "FAILED",
-          metadata: {
-            ...indexOpMetadata,
-            error: err.stack,
-          },
-        });
-      });
+    console.log(`Started indexing url '${url}'.`);
+    await generatePageContentEmbeddings(name, url);
+
+    console.log(`Successfully indexed url '${url}'. Updating index op status.`);
+    indexOp = await updateIndexOperation(indexOp?.id!, {
+      status: "SUCCEEDED",
+    });
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: "Started indexing url",
-        url,
+        message: "Index successful!",
+        indexOp,
       }),
     };
   } catch (err: any) {
     console.error(err.stack);
 
     if (indexOp) {
-      await updateIndexOperation(indexOp.id, {
+      indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
         metadata: {
           ...indexOpMetadata,
           error: err.stack,
         },
       });
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: err.stack,
+          indexOp,
+        }),
+      };
     }
 
     return {
