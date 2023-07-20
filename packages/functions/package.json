@@ -11,19 +11,18 @@
     "@types/busboy": "^1.5.0",
     "@types/node": "^20.4.2",
     "@types/nodemailer": "^6.4.8",
+    "@sparticuz/chromium": "^114.0.0",
     "sst": "^2.22.1",
     "vitest": "^0.33.0"
   },
   "dependencies": {
     "@revelationsai/core": "*",
-    "@sparticuz/chromium": "^114.0.0",
     "busboy": "^1.6.0",
     "fast-xml-parser": "^4.2.5",
     "langchain": "^0.0.112",
     "mammoth": "^1.6.0",
     "nodemailer": "^6.9.3",
     "pdf-parse": "^1.1.1",
-    "puppeteer": "^20.8.3",
-    "puppeteer-core": "^20.8.3"
+    "puppeteer": "^20.8.3"
   }
 }

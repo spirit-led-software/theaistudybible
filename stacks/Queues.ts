@@ -25,7 +25,7 @@ export function Queues({ stack, app }: StackContext) {
         permissions: ["sqs"],
         layers: [chromiumLayer],
         reservedConcurrentExecutions:
-          stack.stage !== "prod" && app.mode === "dev" ? 4 : undefined,
+          stack.stage !== "prod" && app.mode === "dev" ? 4 : 20,
         timeout: "90 seconds",
       },
     },

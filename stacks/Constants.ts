@@ -20,6 +20,8 @@ export function Constants({ stack, app }: StackContext) {
       ...STATIC_ENV_VARS,
     },
     timeout: "60 seconds",
+    runtime: "nodejs18.x",
+    architecture: "x86_64",
   });
 
   return {
