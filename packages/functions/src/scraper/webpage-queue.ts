@@ -43,12 +43,13 @@ export const consumer: SQSHandler = async (event) => {
     console.error(err.stack);
 
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
+      indexOp = await getIndexOperation(indexOp.id);
+      indexOp = await updateIndexOperation(indexOp!.id, {
         status: "FAILED",
         metadata: {
-          ...(indexOp.metadata as any),
+          ...(indexOp?.metadata as any),
           failed: [
-            ...((indexOp.metadata as any)?.failed ?? []),
+            ...((indexOp?.metadata as any)?.failed ?? []),
             {
               url,
               error: err.stack,
