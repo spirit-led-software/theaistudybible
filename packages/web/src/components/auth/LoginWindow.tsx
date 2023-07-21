@@ -89,7 +89,7 @@ export function LoginWindow() {
   };
 
   return (
-    <div className="relative flex flex-col w-full px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 bg-opacity-80 md:w-1/2">
+    <div className="relative flex flex-col w-full px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2">
       {isLoading && (
         <div className="absolute left-0 right-0 flex justify-center -top-20 lg:top-20">
           <LightSolidLineSpinner size="md" />

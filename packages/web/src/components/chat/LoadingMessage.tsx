@@ -1,6 +1,6 @@
 "use client";
 
-import { DarkSolidLineSpinner } from "@components";
+import { BouncingDots } from "@components/loading/BouncingDots";
 import { dimensionClasses } from "@lib/sizing";
 import { TbCross } from "react-icons/tb";
 
@@ -14,7 +14,9 @@ export function LoadingMessage() {
       </div>
       <div className="flex flex-col pl-5 pr-3">
         <div className="justify-center w-full">
-          <DarkSolidLineSpinner size={"md"} />
+          <div className="px-2 py-3 rounded-xl bg-slate-200">
+            <BouncingDots size="sm" className="bg-slate-800" />
+          </div>
         </div>
       </div>
     </div>

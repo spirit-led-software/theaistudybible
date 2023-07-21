@@ -75,16 +75,25 @@
   body {
     @apply bg-background text-foreground font-catamaran;
   }
+}
 
-  @supports (-webkit-touch-callout: none) {
-    .h-screen {
-      height: 100vh;
-      max-height: -webkit-fill-available !important;
-    }
+@supports (-webkit-touch-callout: none) {
+  .h-screen {
+    height: 100vh;
+    max-height: -webkit-fill-available !important;
+  }
 
-    .max-h-screen {
-      max-height: 100vh;
-      max-height: -webkit-fill-available !important;
-    }
+  .max-h-screen {
+    max-height: 100vh;
+    max-height: -webkit-fill-available !important;
+  }
+}
+
+@layer utilities {
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  .animation-delay-400 {
+    animation-delay: 0.4s;
   }
 }

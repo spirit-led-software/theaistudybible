@@ -32,9 +32,9 @@ export const textSizeClasses = {
 };
 
 export const dimensionClasses = {
-  "3xs": "w-2 h-3",
+  "3xs": "w-2 h-2",
   "2xs": "w-3 h-3",
-  xs: "w-6 h-6",
+  xs: "w-4 h-4",
   sm: "w-8 h-8",
   md: "w-10 h-10",
   lg: "w-12 h-12",

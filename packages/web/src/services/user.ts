@@ -23,6 +23,10 @@ export async function validServerSession(): Promise<
     headers: {
       Authorization: `Bearer ${sessionToken.value}`,
     },
+    next: {
+      revalidate: 30 * 60, // 30 minutes
+      tags: ["session"],
+    },
   });
   if (response.status !== 200) {
     return { isValid: false };

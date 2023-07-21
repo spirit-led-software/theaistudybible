@@ -102,7 +102,7 @@ export function ResponseSources({
           }`}
         />
       </div>
-      {isLoading && <DarkSolidLineSpinner size="xs" />}
+      {isLoading && <DarkSolidLineSpinner size="2xs" />}
       {sources && (
         <ul
           className={`flex flex-col space-y-1 duration-300 ${

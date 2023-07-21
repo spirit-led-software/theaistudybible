@@ -22,5 +22,4 @@ export const getCompletionsModel = () =>
     openAIApiKey: config.apiKey,
     temperature: config.temperature,
     modelName: config.modelName,
-    cache: true,
   });
