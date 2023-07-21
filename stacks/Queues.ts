@@ -8,7 +8,7 @@ export function Queues({ stack, app }: StackContext) {
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     cdk: {
       queue: {
-        visibilityTimeout: Duration.minutes(1),
+        visibilityTimeout: Duration.minutes(2),
       },
     },
     consumer: {
@@ -28,8 +28,8 @@ export function Queues({ stack, app }: StackContext) {
             external: ["@sparticuz/chromium"],
           },
         },
-        reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 20,
-        timeout: "1 minute",
+        reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : undefined,
+        timeout: "2 minutes",
       },
     },
   });

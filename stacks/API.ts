@@ -43,7 +43,7 @@ export function API({ stack }: StackContext) {
             },
           },
           environment: lambdaEnv,
-          timeout: "1 minute",
+          timeout: "2 minutes",
         },
       },
       "GET /session": {

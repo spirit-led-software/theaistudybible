@@ -48,7 +48,6 @@ export const handler = ApiHandler(async (event) => {
   }
 
   let indexOp: IndexOperation | undefined;
-  let indexOpMetadata: any = undefined;
   try {
     indexOp = await createIndexOperation({
       status: "RUNNING",
@@ -81,7 +80,7 @@ export const handler = ApiHandler(async (event) => {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
         metadata: {
-          ...indexOpMetadata,
+          ...(indexOp.metadata as any),
           error: err.stack,
         },
       });
