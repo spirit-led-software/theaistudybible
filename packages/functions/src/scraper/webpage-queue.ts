@@ -63,18 +63,23 @@ export const consumer: SQSHandler = async (event) => {
   }
 };
 
-const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
-  const indexOpMetadata = indexOp.metadata as any;
-  if (
-    indexOpMetadata.succeeded &&
-    indexOpMetadata.failed &&
-    indexOpMetadata.numberOfUrls &&
-    indexOpMetadata.succeeded.length + indexOpMetadata.failed.length ===
-      indexOpMetadata.numberOfUrls
-  ) {
-    await updateIndexOperation(indexOp.id, {
-      status: "COMPLETED",
-    });
+const checkIfIndexOpIsCompletedAndUpdate = async (
+  indexOp: IndexOperation | undefined
+) => {
+  if (indexOp) {
+    indexOp = await getIndexOperation(indexOp.id);
+    const indexOpMetadata = indexOp!.metadata as any;
+    if (
+      indexOpMetadata.succeeded &&
+      indexOpMetadata.failed &&
+      indexOpMetadata.numberOfUrls &&
+      indexOpMetadata.succeeded.length + indexOpMetadata.failed.length ===
+        indexOpMetadata.numberOfUrls
+    ) {
+      await updateIndexOperation(indexOp!.id, {
+        status: "COMPLETED",
+      });
+    }
   }
 
   return indexOp;

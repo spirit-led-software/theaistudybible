@@ -28,6 +28,7 @@ export function API({ stack }: StackContext) {
           runtime: "nodejs18.x",
           environment: lambdaEnv,
           timeout: "5 minutes",
+          memorySize: 2048,
         },
       },
       "POST /scraper/webpage": {

@@ -80,8 +80,8 @@ export const handler = ApiHandler(async (event) => {
     const sitemapUrls = await getSitemaps(url);
     console.debug(`sitemapUrls: ${sitemapUrls}`);
     const foundUrls: string[] = [];
-    for (const sitemapUrl of sitemapUrls) {
-      const urls = await navigateSitemap(sitemapUrl, urlRegex);
+    for (let i = 0; i < sitemapUrls.length; i++) {
+      const urls = await navigateSitemap(sitemapUrls[i], urlRegex);
       foundUrls.push(...urls);
     }
 
@@ -92,12 +92,12 @@ export const handler = ApiHandler(async (event) => {
       },
     });
 
-    for (const foundUrl of foundUrls) {
+    for (let i = 0; i < foundUrls.length; i++) {
       const sendMessageCommand = new SendMessageCommand({
         QueueUrl: Queue.webpageIndexQueue.queueUrl,
         MessageBody: JSON.stringify({
           name,
-          url: foundUrl,
+          url: foundUrls[i],
           indexOpId: indexOp.id,
         }),
       });
@@ -115,7 +115,7 @@ export const handler = ApiHandler(async (event) => {
             errors: [
               ...((indexOp.metadata as any).errors ?? []),
               {
-                url: foundUrl,
+                url: foundUrls[i],
                 error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,
               },
             ],
@@ -169,13 +169,13 @@ async function getSitemaps(url: string): Promise<string[]> {
     const sitemapLines = lines.filter((line) =>
       line.toLowerCase().includes("sitemap")
     );
-    const sitemapUrls = sitemapLines.map((line) => {
-      const url = line.split(": ")[1].trim();
-      return url;
-    });
-    return sitemapUrls.filter(
-      (url, index) => sitemapUrls.indexOf(url) === index
+    const sitemapUrls: Set<string> = new Set<string>(
+      sitemapLines.map((line) => {
+        const url = line.split(": ")[1].trim();
+        return url;
+      })
     );
+    return Array.from(sitemapUrls);
   }
   return [];
 }
@@ -184,7 +184,7 @@ async function navigateSitemap(
   initialUrl: string,
   urlRegex: RegExp
 ): Promise<string[]> {
-  const urls: string[] = [];
+  const urls: Set<string> = new Set();
   const stack = [initialUrl];
   while (stack.length > 0) {
     const url = stack.pop();
@@ -202,7 +202,7 @@ async function navigateSitemap(
           if (foundUrl.endsWith(".xml")) {
             stack.push(foundUrl);
           } else if (foundUrl.match(urlRegex)) {
-            urls.push(foundUrl);
+            urls.add(foundUrl);
           }
         }
       };
@@ -216,14 +216,19 @@ async function navigateSitemap(
         console.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
       }
 
+      let siteMapUrlsArray = [];
       if (Array.isArray(sitemapUrls)) {
-        sitemapUrls.forEach(urlMapper);
+        siteMapUrlsArray = sitemapUrls;
       } else {
-        urlMapper(sitemapUrls);
+        siteMapUrlsArray = [sitemapUrls];
+      }
+
+      for (let i = 0; i < siteMapUrlsArray.length; i++) {
+        urlMapper(sitemapUrls[i]);
       }
     } catch (err: any) {
       console.error(`${err.stack}`);
     }
   }
-  return urls.filter((url, index) => urls.indexOf(url) === index);
+  return Array.from(urls);
 }
