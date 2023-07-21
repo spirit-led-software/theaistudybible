@@ -3,8 +3,7 @@
 import { DarkLogo } from "@components/branding";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { FaFacebookF } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import { FaFacebookF, FaGoogle } from "react-icons/fa";
 import { LightSolidLineSpinner } from "..";
 
 export function LoginWindow() {
@@ -89,7 +88,7 @@ export function LoginWindow() {
   };
 
   return (
-    <div className="relative flex flex-col w-full px-5 pt-6 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2">
+    <div className="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2">
       {isLoading && (
         <div className="absolute left-0 right-0 flex justify-center -top-20 lg:top-20">
           <LightSolidLineSpinner size="md" />
@@ -110,43 +109,49 @@ export function LoginWindow() {
         </div>
       )}
       <div className="flex flex-col">
-        <div className="items-center px-3 py-2 mx-auto mb-5 text-center border rounded-full border-slate-400 lg:mb-10 lg:py-4 lg:px-6">
+        <div className="items-center px-3 py-2 mx-auto my-8 text-center border rounded-lg border-slate-400 lg:mb-10 lg:py-4 lg:px-6">
           <DarkLogo size="2xl" />
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-center font-maven">
-          Please Log In
-        </h1>
         <div className="divide-y divide-gray-600">
           <div className="flex flex-col w-full pb-4 space-y-3 text-center">
             <button
               onClick={() => handleLogin("google")}
-              className="w-full px-4 py-2 font-bold bg-white border rounded text-google hover:shadow-xl border-google"
+              disabled={isLoading}
+              className="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
             >
-              <FcGoogle className="inline-block mr-2" />
+              <FaGoogle className="inline-block mr-2 text-white" />
               Login with Google
             </button>
             <button
               onClick={() => handleLogin("facebook")}
-              className="w-full px-4 py-2 font-bold text-white rounded bg-facebook hover:shadow-xl"
+              disabled={isLoading}
+              className="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
             >
               <FaFacebookF className="inline-block mr-2 text-white" />
               Login with Facebook
             </button>
           </div>
-          <div className="w-full pt-4 space-y-3">
+          <form
+            className="w-full pt-4 space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleLogin("email");
+            }}
+          >
             <input
               type="email"
-              className="w-full h-8 px-2 rounded-md outline outline-slate-400"
-              placeholder="Email"
+              className="w-full px-2 py-2 border shadow-xl outline-none focus:outline-none"
+              placeholder="Email address"
               ref={emailInputRef}
             />
             <button
-              onClick={() => handleLogin("email")}
-              className="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl"
+              type="submit"
+              disabled={isLoading}
+              className="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
             >
               Login with Email
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ export default async function HomePage() {
   const { isValid } = await validServerSession();
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b to-slate-600 from-slate-900">
+    <div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-slate-400 to-slate-900 ">
       <div className="flex flex-col w-full space-y-4 place-items-center">
         <div className="flex justify-center w-3/4 place-items-center md:w-1/2">
           <h1 className="text-5xl font-extrabold text-center text-white md:text-6xl lg:text-7xl font-kanit">
