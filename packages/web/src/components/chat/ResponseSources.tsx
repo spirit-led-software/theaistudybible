@@ -1,6 +1,6 @@
 "use client";
 
-import { DarkSolidLineSpinner } from "@components/loading";
+import { SolidLineSpinner } from "@components/loading";
 import { Query } from "@revelationsai/core/database/helpers";
 import { SourceDocument } from "@revelationsai/core/database/model";
 import Link from "next/link";
@@ -102,7 +102,7 @@ export function ResponseSources({
           }`}
         />
       </div>
-      {isLoading && <DarkSolidLineSpinner size="2xs" />}
+      {isLoading && <SolidLineSpinner size="xs" colorscheme={"dark"} />}
       {sources && (
         <ul
           className={`flex flex-col space-y-1 duration-300 ${

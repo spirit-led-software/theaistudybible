@@ -2,6 +2,7 @@ import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { axios } from "@core/configs/axios";
 import {
   createIndexOperation,
+  getIndexOperation,
   updateIndexOperation,
 } from "@core/services/index-op";
 import { validApiSession } from "@core/services/session";
@@ -79,56 +80,15 @@ export const handler = ApiHandler(async (event) => {
 
     const sitemapUrls = await getSitemaps(url);
     console.debug(`sitemapUrls: ${sitemapUrls}`);
-    const foundUrls: string[] = [];
-    for (let i = 0; i < sitemapUrls.length; i++) {
-      const urls = await navigateSitemap(sitemapUrls[i], urlRegex);
-      foundUrls.push(...urls);
+    for (const sitemapUrl of sitemapUrls) {
+      await navigateSitemap(sitemapUrl, urlRegex, name, indexOp.id);
     }
-
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      metadata: {
-        ...(indexOp!.metadata as any),
-        numberOfUrls: foundUrls.length,
-      },
-    });
-
-    for (let i = 0; i < foundUrls.length; i++) {
-      const sendMessageCommand = new SendMessageCommand({
-        QueueUrl: Queue.webpageIndexQueue.queueUrl,
-        MessageBody: JSON.stringify({
-          name,
-          url: foundUrls[i],
-          indexOpId: indexOp.id,
-        }),
-      });
-
-      const sendMessageResponse = await sqsClient.send(sendMessageCommand);
-      if (sendMessageResponse.$metadata.httpStatusCode !== 200) {
-        console.error(
-          "Failed to send message to SQS:",
-          JSON.stringify(sendMessageResponse)
-        );
-        indexOp = await updateIndexOperation(indexOp.id, {
-          status: "FAILED",
-          metadata: {
-            ...(indexOp.metadata as any),
-            errors: [
-              ...((indexOp.metadata as any).errors ?? []),
-              {
-                url: foundUrls[i],
-                error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,
-              },
-            ],
-          },
-        });
-      }
-    }
+    indexOp = await getIndexOperation(indexOp.id);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "Started indexing urls",
-        urls: foundUrls,
         indexOp,
       }),
     };
@@ -182,9 +142,10 @@ async function getSitemaps(url: string): Promise<string[]> {
 
 async function navigateSitemap(
   initialUrl: string,
-  urlRegex: RegExp
-): Promise<string[]> {
-  const urls: Set<string> = new Set();
+  urlRegex: RegExp,
+  name: string,
+  indexOpId: string
+): Promise<void> {
   const stack = [initialUrl];
   while (stack.length > 0) {
     const url = stack.pop();
@@ -195,17 +156,6 @@ async function navigateSitemap(
       // Parse the XML string to an XML Object
       const parser = new XMLParser();
       const sitemapXmlObj = parser.parse(sitemapXml);
-
-      const urlMapper = (foundUrlObj: any) => {
-        const foundUrl = foundUrlObj.loc;
-        if (foundUrl) {
-          if (foundUrl.endsWith(".xml")) {
-            stack.push(foundUrl);
-          } else if (foundUrl.match(urlRegex)) {
-            urls.add(foundUrl);
-          }
-        }
-      };
 
       let sitemapUrls = [];
       if (sitemapXmlObj.urlset) {
@@ -224,11 +174,50 @@ async function navigateSitemap(
       }
 
       for (let i = 0; i < siteMapUrlsArray.length; i++) {
-        urlMapper(sitemapUrls[i]);
+        const foundUrl = sitemapUrls[i].loc;
+        if (foundUrl) {
+          if (foundUrl.endsWith(".xml")) {
+            stack.push(foundUrl);
+          } else if (foundUrl.match(urlRegex)) {
+            sendUrlToQueue(name, foundUrl, indexOpId);
+          }
+        }
       }
     } catch (err: any) {
       console.error(`${err.stack}`);
     }
   }
-  return Array.from(urls);
+}
+
+async function sendUrlToQueue(name: string, url: string, indexOpId: string) {
+  const sendMessageCommand = new SendMessageCommand({
+    QueueUrl: Queue.webpageIndexQueue.queueUrl,
+    MessageBody: JSON.stringify({
+      name,
+      url,
+      indexOpId,
+    }),
+  });
+
+  const sendMessageResponse = await sqsClient.send(sendMessageCommand);
+  if (sendMessageResponse.$metadata.httpStatusCode !== 200) {
+    console.error(
+      "Failed to send message to SQS:",
+      JSON.stringify(sendMessageResponse)
+    );
+    let indexOp = await getIndexOperation(indexOpId);
+    await updateIndexOperation(indexOp!.id, {
+      status: "FAILED",
+      metadata: {
+        ...(indexOp!.metadata as any),
+        errors: [
+          ...((indexOp!.metadata as any).errors ?? []),
+          {
+            url,
+            error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,
+          },
+        ],
+      },
+    });
+  }
 }

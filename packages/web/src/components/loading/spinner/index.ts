@@ -1,2 +1,1 @@
-export * from "./DarkSolidLine";
-export * from "./LightSolidLine";
+export * from "./SolidLine";

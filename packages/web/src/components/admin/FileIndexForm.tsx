@@ -2,7 +2,7 @@
 
 import { useIndexOps } from "@hooks/index-ops";
 import { useEffect, useRef, useState } from "react";
-import { DarkSolidLineSpinner } from "..";
+import { SolidLineSpinner } from "..";
 
 export function FileIndexForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +61,7 @@ export function FileIndexForm() {
     <form className="relative flex-col w-full" onSubmit={handleSubmit}>
       {isLoading && (
         <div className="absolute left-0 right-0 flex justify-center">
-          <DarkSolidLineSpinner size="md" />
+          <SolidLineSpinner size="md" colorscheme={"dark"} />
         </div>
       )}
       <div

@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
-import { LightSolidLineSpinner } from "..";
+import { SolidLineSpinner } from "..";
 
 export function Sidebar({
   initChats,
@@ -118,7 +118,7 @@ export function Sidebar({
           {isLoadingInitial && (
             <div className="flex justify-center w-full">
               <div className="flex items-center justify-center py-5">
-                <LightSolidLineSpinner size="lg" />
+                <SolidLineSpinner size="lg" colorscheme={"light"} />
               </div>
             </div>
           )}
@@ -146,7 +146,7 @@ export function Sidebar({
           {isLoadingMore && (
             <div className="flex justify-center w-full">
               <div className="flex items-center justify-center py-5">
-                <LightSolidLineSpinner size="md" />
+                <SolidLineSpinner size="md" colorscheme={"light"} />
               </div>
             </div>
           )}

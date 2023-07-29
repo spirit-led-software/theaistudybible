@@ -3,6 +3,7 @@
 import { Button } from "@components/ui/button";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { AiOutlineArrowRight } from "react-icons/ai";
 
 const potentialQuestions = [
   "Why does Jesus love me?",
@@ -45,7 +46,7 @@ export function AskQuestionBar() {
         <input
           ref={inputRef}
           type="text"
-          className="w-full px-2 py-1 rounded-r-none focus:outline-none rounded-xl"
+          className="w-full px-2 py-1 border rounded-lg rounded-r-none focus:outline-none focus:border-slate-800 border-slate-300"
           placeholder={potentialQuestions[Math.floor(Math.random() * 5)]}
         />
         <Button
@@ -53,7 +54,7 @@ export function AskQuestionBar() {
           variant={"outline"}
           className="font-bold rounded-l-none"
         >
-          Go!
+          <AiOutlineArrowRight />
         </Button>
       </div>
     </div>

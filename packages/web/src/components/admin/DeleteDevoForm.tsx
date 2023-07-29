@@ -2,6 +2,7 @@
 
 import { useIndexOps } from "@hooks/index-ops";
 import { useEffect, useRef, useState } from "react";
+import { SolidLineSpinner } from "..";
 
 export function DeleteDevoForm() {
   const idInputRef = useRef<HTMLInputElement>(null);
@@ -9,11 +10,14 @@ export function DeleteDevoForm() {
     message: string;
     type: "error" | "success";
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { mutate } = useIndexOps();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+
     try {
       if (!idInputRef.current?.value) {
         throw new Error("ID input is empty");
@@ -26,9 +30,7 @@ export function DeleteDevoForm() {
             "Content-Type": "application/json",
           },
         }
-      ).catch((error) => {
-        throw new Error(error.message);
-      });
+      );
       const data = await response.json();
       if (data.error) {
         throw new Error(data.error);
@@ -41,6 +43,7 @@ export function DeleteDevoForm() {
       });
     }
     mutate();
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -53,6 +56,11 @@ export function DeleteDevoForm() {
 
   return (
     <form className="relative flex-col w-full" onSubmit={handleSubmit}>
+      {isLoading && (
+        <div className="absolute left-0 right-0 flex justify-center">
+          <SolidLineSpinner size="md" colorscheme={"light"} />
+        </div>
+      )}
       <div
         className={`absolute left-0 right-0 flex justify-center duration-300 ${
           alert ? "scale-100" : "scale-0"

@@ -13,5 +13,9 @@ export default async function DevoPageRoot() {
     redirect(`/devotions/${devos[0].id}`);
   }
 
-  return <div>Coming Soon!</div>;
+  return (
+    <div className="flex flex-col justify-center w-full h-full text-xl font-extrabold place-items-center">
+      Coming Soon!
+    </div>
+  );
 }

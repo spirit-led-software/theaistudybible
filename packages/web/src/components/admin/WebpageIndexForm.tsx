@@ -1,10 +1,10 @@
 "use client";
 
-import { DarkSolidLineSpinner } from "@components";
 import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
 import { useSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
+import { SolidLineSpinner } from "..";
 
 export function WebpageIndexForm() {
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +62,7 @@ export function WebpageIndexForm() {
     <form className="relative flex-col w-full" onSubmit={handleSubmit}>
       {isLoading && (
         <div className="absolute left-0 right-0 flex justify-center">
-          <DarkSolidLineSpinner size="md" />
+          <SolidLineSpinner size="md" colorscheme={"dark"} />
         </div>
       )}
       <div

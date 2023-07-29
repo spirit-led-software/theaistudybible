@@ -1,5 +1,6 @@
 "use client";
 
+import { Logo } from "@components/branding";
 import { useUser } from "@hooks/user";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -7,7 +8,6 @@ import { useContext, useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoIosArrowDown } from "react-icons/io";
 import { SessionContext } from "./SessionProvider";
-import { LightLogo } from "./branding";
 import { Avatar } from "./user";
 
 const navItems = [
@@ -59,7 +59,7 @@ export function NavBar() {
     <div className="flex flex-col">
       <nav className="relative flex items-center justify-between h-16 px-4 py-4 bg-slate-700">
         <Link href="/">
-          <LightLogo size="2xl" />
+          <Logo size="2xl" colorscheme="light" />
         </Link>
         <div className="lg:hidden">
           <button

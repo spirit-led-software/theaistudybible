@@ -1,6 +1,6 @@
 import { cn } from "@lib/utils";
 import { VariantProps, cva } from "class-variance-authority";
-import React, { BaseHTMLAttributes } from "react";
+import { BaseHTMLAttributes, forwardRef } from "react";
 
 const bouncingDotsVariants = cva("rounded-full animate-bounce", {
   variants: {
@@ -19,7 +19,7 @@ export interface BouncingDotsProps
   extends BaseHTMLAttributes<HTMLDivElement>,
     VariantProps<typeof bouncingDotsVariants> {}
 
-const BouncingDots = React.forwardRef<HTMLDivElement, BouncingDotsProps>(
+const BouncingDots = forwardRef<HTMLDivElement, BouncingDotsProps>(
   ({ className, size, ...props }, ref) => {
     return (
       <div className="flex flex-row" ref={ref} {...props}>

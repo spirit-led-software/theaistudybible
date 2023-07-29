@@ -1,10 +1,9 @@
 "use client";
 
-import { DarkLogo } from "@components/branding";
+import { Logo, SolidLineSpinner } from "@components";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
-import { LightSolidLineSpinner } from "..";
 
 export function LoginWindow() {
   const searchParams = useSearchParams();
@@ -88,15 +87,15 @@ export function LoginWindow() {
   };
 
   return (
-    <div className="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-lg lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2">
+    <div className="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2">
       {isLoading && (
-        <div className="absolute left-0 right-0 flex justify-center -top-20 lg:top-20">
-          <LightSolidLineSpinner size="md" />
+        <div className="absolute left-0 right-0 flex justify-center -top-20 lg:top-32">
+          <SolidLineSpinner size="xl" colorscheme={"dark"} />
         </div>
       )}
       {alert && (
         <div className="absolute left-0 right-0 flex -top-20 lg:top-20">
-          <div className="px-4 py-2 mx-auto text-white bg-red-500 border border-red-500 rounded-xl lg:text-xl lg:bg-transparent lg:text-red-500">
+          <div className="px-4 py-2 mx-auto text-white bg-red-500 border border-red-500 rounded-xl lg:text-xl">
             {alert}
           </div>
         </div>
@@ -110,7 +109,7 @@ export function LoginWindow() {
       )}
       <div className="flex flex-col">
         <div className="items-center px-3 py-2 mx-auto my-8 text-center border rounded-lg border-slate-400 lg:mb-10 lg:py-4 lg:px-6">
-          <DarkLogo size="2xl" />
+          <Logo size="2xl" colorscheme={"dark"} />
         </div>
         <div className="divide-y divide-gray-600">
           <div className="flex flex-col w-full pb-4 space-y-3 text-center">

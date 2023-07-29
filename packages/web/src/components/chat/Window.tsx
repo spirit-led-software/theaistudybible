@@ -190,7 +190,7 @@ export function Window({
             alert ? "scale-100 top-1" : "scale-0 -top-20"
           }`}
         >
-          <div className="w-1/3 py-2 text-center text-red-400 border border-red-400 rounded-lg">
+          <div className="w-1/3 py-2 overflow-hidden text-center text-red-400 truncate border border-red-400 rounded-lg">
             {alert}
           </div>
         </div>
