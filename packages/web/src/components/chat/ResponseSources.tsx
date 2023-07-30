@@ -87,9 +87,9 @@ export function ResponseSources({
   }
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full overflow-x-hidden grow-0">
       <div
-        className="flex flex-row items-center mt-2 space-x-1 cursor-pointer"
+        className="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer"
         onClick={() => {
           setShowSources(!showSources);
           getSources();
@@ -102,15 +102,15 @@ export function ResponseSources({
           }`}
         />
       </div>
-      {isLoading && <SolidLineSpinner size="xs" colorscheme={"dark"} />}
+      {isLoading && <SolidLineSpinner size="sm" colorscheme={"dark"} />}
       {sources && (
         <ul
-          className={`flex flex-col space-y-1 duration-300 overflow-hidden truncate ${
+          className={`flex flex-col w-full space-y-1 duration-300 ${
             showSources ? "" : "hidden"
           }`}
         >
           {sources.map((sourceDoc) => (
-            <li key={sourceDoc.id} className={`text-xs text-gray-400`}>
+            <li key={sourceDoc.id} className={`text-xs text-gray-400 truncate`}>
               <Link
                 href={(sourceDoc.metadata as any).url ?? "#"}
                 target="_blank"
