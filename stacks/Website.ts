@@ -26,6 +26,7 @@ export function Website({ stack, app }: StackContext) {
     dev: {
       url: websiteUrl,
     },
+    warm: 5,
   });
 
   api.bind([website]);

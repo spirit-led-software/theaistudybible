@@ -28,7 +28,7 @@ export function API({ stack }: StackContext) {
           runtime: "nodejs18.x",
           environment: lambdaEnv,
           timeout: "15 minutes",
-          memorySize: 2048,
+          memorySize: "4 GB",
         },
       },
       "POST /scraper/webpage": {
@@ -45,6 +45,7 @@ export function API({ stack }: StackContext) {
           },
           environment: lambdaEnv,
           timeout: "15 minutes",
+          memorySize: "2 GB",
         },
       },
       "GET /session": {

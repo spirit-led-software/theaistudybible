@@ -2,7 +2,7 @@ import { Database, STATIC_ENV_VARS } from "@stacks";
 import { Duration } from "aws-cdk-lib/core";
 import { Queue, StackContext, use } from "sst/constructs";
 
-export function Queues({ stack, app }: StackContext) {
+export function Queues({ stack }: StackContext) {
   const { database } = use(Database);
 
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
@@ -30,6 +30,7 @@ export function Queues({ stack, app }: StackContext) {
         },
         reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 100,
         timeout: "15 minutes",
+        memorySize: "2 GB",
       },
     },
   });
