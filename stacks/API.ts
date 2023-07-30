@@ -27,7 +27,7 @@ export function API({ stack }: StackContext) {
           permissions: [database, webpageIndexQueue],
           runtime: "nodejs18.x",
           environment: lambdaEnv,
-          timeout: "5 minutes",
+          timeout: "15 minutes",
           memorySize: 2048,
         },
       },
@@ -44,7 +44,7 @@ export function API({ stack }: StackContext) {
             },
           },
           environment: lambdaEnv,
-          timeout: "2 minutes",
+          timeout: "15 minutes",
         },
       },
       "GET /session": {

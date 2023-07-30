@@ -1,4 +1,4 @@
-import { InferModel, SQL, desc, eq } from "drizzle-orm";
+import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { axios } from "../configs";
@@ -106,8 +106,9 @@ Write a daily devotional between 800 to 1000 words. Start by reciting the Bible 
 then write a summary of the verse which should include other related Bible verses.
 The summary can include a story or an analogy. Then, write a reflection on the verse.
 Finally, write a prayer to wrap up the devotional.`);
+
   const vectorStore = await getVectorStore();
-  const context = await vectorStore.similaritySearch(bibleVerse, 5);
+  const context = await vectorStore.similaritySearch(bibleVerse, 10);
   const chain = new LLMChain({
     llm: getCompletionsModel(),
     prompt: fullPrompt,
@@ -123,10 +124,13 @@ Finally, write a prayer to wrap up the devotional.`);
   });
 
   context.forEach(async (c) => {
-    let sourceDoc: InferModel<typeof sourceDocuments, "select">;
-    const existingSourceDoc = await db.query.sourceDocuments.findFirst({
-      where: eq(sourceDocuments.text, c.pageContent),
-    });
+    let sourceDoc: SourceDocument;
+    const existingSourceDoc = (
+      await db
+        .select()
+        .from(sourceDocuments)
+        .where(eq(sourceDocuments.text, c.pageContent))
+    )[0];
 
     if (existingSourceDoc) {
       sourceDoc = existingSourceDoc;

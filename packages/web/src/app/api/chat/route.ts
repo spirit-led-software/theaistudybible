@@ -101,7 +101,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     const chain = ConversationalRetrievalQAChain.fromLLM(
       getChatModel(),
-      vectorStore.asRetriever(),
+      vectorStore.asRetriever(10),
       {
         returnSourceDocuments: true,
         memory: new BufferMemory({

@@ -141,51 +141,47 @@ async function getSitemaps(url: string): Promise<string[]> {
 }
 
 async function navigateSitemap(
-  initialUrl: string,
+  url: string,
   urlRegex: RegExp,
   name: string,
   indexOpId: string
 ): Promise<void> {
-  const stack = [initialUrl];
-  while (stack.length > 0) {
-    const url = stack.pop();
-    try {
-      // Fetch the sitemap XML content
-      const { data: sitemapXml } = await axios.get(url!);
+  try {
+    // Fetch the sitemap XML content
+    const { data: sitemapXml } = await axios.get(url!);
 
-      // Parse the XML string to an XML Object
-      const parser = new XMLParser();
-      const sitemapXmlObj = parser.parse(sitemapXml);
+    // Parse the XML string to an XML Object
+    const parser = new XMLParser();
+    const sitemapXmlObj = parser.parse(sitemapXml);
 
-      let sitemapUrls = [];
-      if (sitemapXmlObj.urlset) {
-        sitemapUrls = sitemapXmlObj.urlset.url;
-      } else if (sitemapXmlObj.sitemapindex) {
-        sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
-      } else {
-        console.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
-      }
+    let sitemapUrls = [];
+    if (sitemapXmlObj.urlset) {
+      sitemapUrls = sitemapXmlObj.urlset.url;
+    } else if (sitemapXmlObj.sitemapindex) {
+      sitemapUrls = sitemapXmlObj.sitemapindex.sitemap;
+    } else {
+      console.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
+    }
 
-      let siteMapUrlsArray = [];
-      if (Array.isArray(sitemapUrls)) {
-        siteMapUrlsArray = sitemapUrls;
-      } else {
-        siteMapUrlsArray = [sitemapUrls];
-      }
+    let siteMapUrlsArray = [];
+    if (Array.isArray(sitemapUrls)) {
+      siteMapUrlsArray = sitemapUrls;
+    } else {
+      siteMapUrlsArray = [sitemapUrls];
+    }
 
-      for (let i = 0; i < siteMapUrlsArray.length; i++) {
-        const foundUrl = sitemapUrls[i].loc;
-        if (foundUrl) {
-          if (foundUrl.endsWith(".xml")) {
-            stack.push(foundUrl);
-          } else if (foundUrl.match(urlRegex)) {
-            sendUrlToQueue(name, foundUrl, indexOpId);
-          }
+    for (let i = 0; i < siteMapUrlsArray.length; i++) {
+      const foundUrl = sitemapUrls[i].loc;
+      if (foundUrl) {
+        if (foundUrl.endsWith(".xml")) {
+          await navigateSitemap(foundUrl, urlRegex, name, indexOpId);
+        } else if (foundUrl.match(urlRegex)) {
+          await sendUrlToQueue(name, foundUrl, indexOpId);
         }
       }
-    } catch (err: any) {
-      console.error(`${err.stack}`);
     }
+  } catch (err: any) {
+    console.error(`Error navigating sitemap: ${err.stack}`);
   }
 }
 

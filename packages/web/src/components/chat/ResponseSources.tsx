@@ -87,7 +87,7 @@ export function ResponseSources({
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <div
         className="flex flex-row items-center mt-2 space-x-1 cursor-pointer"
         onClick={() => {
@@ -105,7 +105,7 @@ export function ResponseSources({
       {isLoading && <SolidLineSpinner size="xs" colorscheme={"dark"} />}
       {sources && (
         <ul
-          className={`flex flex-col space-y-1 duration-300 ${
+          className={`flex flex-col space-y-1 duration-300 overflow-hidden truncate ${
             showSources ? "" : "hidden"
           }`}
         >

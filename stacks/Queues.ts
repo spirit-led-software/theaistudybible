@@ -8,7 +8,7 @@ export function Queues({ stack, app }: StackContext) {
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     cdk: {
       queue: {
-        visibilityTimeout: Duration.minutes(2),
+        visibilityTimeout: Duration.minutes(15),
       },
     },
     consumer: {
@@ -29,7 +29,7 @@ export function Queues({ stack, app }: StackContext) {
           },
         },
         reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 100,
-        timeout: "2 minutes",
+        timeout: "15 minutes",
       },
     },
   });
