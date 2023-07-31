@@ -15,6 +15,7 @@ import {
   sourceDocuments,
 } from "../database/schema";
 import { getCompletionsModel } from "./llm";
+import { createSourceDocument, getSourceDocumentByText } from "./source-doc";
 import { getVectorStore } from "./vector-db";
 
 export async function getDevotions(
@@ -124,26 +125,16 @@ Finally, write a prayer to wrap up the devotional.`);
   });
 
   context.forEach(async (c) => {
-    let sourceDoc: SourceDocument;
-    const existingSourceDoc = (
-      await db
-        .select()
-        .from(sourceDocuments)
-        .where(eq(sourceDocuments.text, c.pageContent))
-    )[0];
+    let sourceDoc: SourceDocument | undefined;
+    const existingSourceDoc = await getSourceDocumentByText(c.pageContent);
 
     if (existingSourceDoc) {
       sourceDoc = existingSourceDoc;
     } else {
-      sourceDoc = (
-        await db
-          .insert(sourceDocuments)
-          .values({
-            text: c.pageContent,
-            metadata: c.metadata,
-          })
-          .returning()
-      )[0];
+      sourceDoc = await createSourceDocument({
+        text: c.pageContent,
+        metadata: c.metadata,
+      });
     }
 
     await db.insert(devotionsToSourceDocuments).values({

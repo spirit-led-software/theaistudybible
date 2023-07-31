@@ -15,10 +15,10 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { db } from "@revelationsai/core/database";
+import { SourceDocument } from "@revelationsai/core/database/model";
 import {
   aiResponsesToSourceDocuments,
   chats,
-  sourceDocuments,
 } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
@@ -131,17 +131,15 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         result.sourceDocuments.forEach(
           async (sd: { pageContent: string; metadata: any }) => {
-            let sourceDocument:
-              | InferModel<typeof sourceDocuments, "insert">
-              | undefined;
+            let sourceDoc: SourceDocument | undefined;
             const existingSourceDoc = await getSourceDocumentByText(
               sd.pageContent
             );
 
             if (existingSourceDoc) {
-              sourceDocument = existingSourceDoc;
+              sourceDoc = existingSourceDoc;
             } else {
-              sourceDocument = await createSourceDocument({
+              sourceDoc = await createSourceDocument({
                 text: sd.pageContent,
                 metadata: sd.metadata,
               });
@@ -149,7 +147,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
             await db.insert(aiResponsesToSourceDocuments).values({
               aiResponseId: aiResponse.id,
-              sourceDocumentId: sourceDocument.id!,
+              sourceDocumentId: sourceDoc.id,
             });
           }
         );
