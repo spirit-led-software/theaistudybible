@@ -257,7 +257,13 @@ export function Window({
               />
               <button
                 onClick={() => {
-                  reload();
+                  reload({
+                    options: {
+                      body: {
+                        chatId: chatId ?? undefined,
+                      },
+                    },
+                  });
                 }}
               >
                 <AiOutlineRedo className="mr-1 text-2xl" />
