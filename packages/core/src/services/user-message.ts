@@ -1,4 +1,4 @@
-import { SQL, desc, eq } from "drizzle-orm";
+import { SQL, and, desc, eq } from "drizzle-orm";
 import { db } from "../database";
 import {
   CreateUserMessageData,
@@ -48,7 +48,19 @@ export async function getUserMessagesByChatId(chatId: string) {
   return await db
     .select()
     .from(userMessages)
-    .where(eq(userMessages.chatId, chatId));
+    .where(eq(userMessages.chatId, chatId))
+    .orderBy(desc(userMessages.createdAt));
+}
+
+export async function getUserMessagesByChatIdAndText(
+  chatId: string,
+  text: string
+) {
+  return await db
+    .select()
+    .from(userMessages)
+    .where(and(eq(userMessages.chatId, chatId), eq(userMessages.text, text)))
+    .orderBy(desc(userMessages.createdAt));
 }
 
 export async function createUserMessage(data: CreateUserMessageData) {

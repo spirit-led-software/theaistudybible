@@ -30,10 +30,16 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
       image: tokenSet.claims().picture!,
     });
   } else {
-    user = await updateUser(user.id, {
-      name: tokenSet.claims().name!,
-      image: tokenSet.claims().picture!,
-    });
+    if (tokenSet.claims().name && user.name !== tokenSet.claims().name) {
+      user = await updateUser(user.id, {
+        name: tokenSet.claims().name!,
+      });
+    }
+    if (tokenSet.claims().picture && user.image !== tokenSet.claims().picture) {
+      user = await updateUser(user.id, {
+        image: tokenSet.claims().picture!,
+      });
+    }
   }
 
   return Session.parameter({

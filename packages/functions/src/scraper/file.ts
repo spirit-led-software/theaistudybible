@@ -5,6 +5,7 @@ import {
   updateIndexOperation,
 } from "@core/services/index-op";
 import { addDocumentsToVectorStore } from "@core/services/vector-db";
+import { IndexOperation } from "@revelationsai/core/database/model";
 import { S3Handler } from "aws-lambda";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
@@ -29,6 +30,7 @@ export const handler: S3Handler = async (event) => {
 
   const { key, size } = object;
 
+  let indexOp: IndexOperation | undefined;
   try {
     const sanitizedKey = decodeURIComponent(key).replace(/\+/g, " ");
     const getObjectCommand = new GetObjectCommand({
@@ -89,56 +91,60 @@ export const handler: S3Handler = async (event) => {
       };
     }
 
-    let indexOp = await createIndexOperation({
+    indexOp = await createIndexOperation({
       status: "RUNNING",
       type: "FILE",
       metadata: indexOpMetadata,
     });
 
     console.log("Starting load and split");
-    loader
-      .loadAndSplit(
-        new TokenTextSplitter({
-          chunkSize: 400,
-          chunkOverlap: 50,
-          encodingName: "cl100k_base",
-        })
-      )
-      .then(async (docs) => {
-        console.log("Finished load and split");
-        console.log(`Loaded ${docs.length} documents`);
-        docs = docs.map((doc) => {
-          doc.metadata = {
-            ...doc.metadata,
-            ...indexOpMetadata,
-            type: "File",
-            indexDate: new Date().toISOString(),
-          };
-          return doc;
-        });
-        console.log("Adding documents to vector store");
-        await addDocumentsToVectorStore(docs);
-        indexOp = await updateIndexOperation(indexOp.id, {
-          status: "COMPLETED",
-          metadata: {
-            ...(indexOp.metadata as any),
-            numDocuments: docs.length,
-          },
-        });
-        console.log("Finished adding documents to vector store");
+    let docs = await loader.loadAndSplit(
+      new TokenTextSplitter({
+        chunkSize: 400,
+        chunkOverlap: 50,
+        encodingName: "cl100k_base",
       })
-      .catch(async (err) => {
-        console.error("Error loading documents", err);
-        indexOp = await updateIndexOperation(indexOp.id, {
-          status: "FAILED",
-          metadata: {
-            ...(indexOp.metadata as any),
-            error: `${err.stack}`,
-          },
-        });
-      });
+    );
+
+    console.log("Finished load and split");
+    console.log(`Loaded ${docs.length} documents`);
+    docs = docs.map((doc) => {
+      doc.metadata = {
+        ...doc.metadata,
+        ...indexOpMetadata,
+        type: "File",
+        indexDate: new Date().toISOString(),
+      };
+      return doc;
+    });
+    console.log("Adding documents to vector store");
+    await addDocumentsToVectorStore(docs);
+    indexOp = await updateIndexOperation(indexOp.id, {
+      status: "SUCCEEDED",
+      metadata: {
+        ...(indexOp.metadata as any),
+        numDocuments: docs.length,
+      },
+    });
+    console.log("Finished adding documents to vector store");
   } catch (error: any) {
     console.error(error);
+
+    if (indexOp) {
+      indexOp = await updateIndexOperation(indexOp.id, {
+        status: "FAILED",
+        metadata: {
+          ...(indexOp.metadata as any),
+          errors: [
+            ...((indexOp.metadata as any).errors ?? []),
+            {
+              error: error.stack,
+            },
+          ],
+        },
+      });
+    }
+
     throw error;
   }
 };

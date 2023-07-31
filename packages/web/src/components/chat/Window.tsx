@@ -7,7 +7,7 @@ import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AiOutlineSend } from "react-icons/ai";
+import { AiOutlineRedo, AiOutlineSend } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
 import { useChats } from "../../hooks";
@@ -138,7 +138,7 @@ export function Window({
 
   useEffect(() => {
     if (error) {
-      setAlert(error.message);
+      setAlert(`Something went wrong: ${error.message}`);
     }
   }, [error]);
 
@@ -167,7 +167,7 @@ export function Window({
           }
         })
         .catch((error) => {
-          setAlert(error.message);
+          setAlert(`Something went wrong: ${error.message}`);
         });
       mutate();
     }
@@ -255,6 +255,13 @@ export function Window({
                 onChange={handleInputChange}
                 value={input}
               />
+              <button
+                onClick={() => {
+                  reload();
+                }}
+              >
+                <AiOutlineRedo className="mr-1 text-2xl" />
+              </button>
               <button type="submit">
                 <AiOutlineSend className="mr-1 text-2xl" />
               </button>

@@ -50,6 +50,14 @@ export async function getAiResponseOrThrow(id: string) {
   return aiResponse;
 }
 
+export async function getAiResponsesByUserMessageId(userMessageId: string) {
+  return await db
+    .select()
+    .from(aiResponses)
+    .where(eq(aiResponses.userMessageId, userMessageId))
+    .orderBy(desc(aiResponses.createdAt));
+}
+
 export async function getAiResponseRelatedSourceDocuments(
   aiResponse: AiResponse
 ) {

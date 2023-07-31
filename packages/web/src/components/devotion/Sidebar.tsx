@@ -56,7 +56,7 @@ export function Sidebar({
 
   return (
     <div
-      className={`flex flex-col max-h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/3 z-30 ${
+      className={`flex flex-col max-h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/4 z-30 ${
         isOpen ? "w-full" : "w-0"
       }`}
     >

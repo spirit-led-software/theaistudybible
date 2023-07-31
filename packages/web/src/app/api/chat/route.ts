@@ -1,4 +1,8 @@
-import { createAiResponse, updateAiResponse } from "@core/services/ai-response";
+import {
+  createAiResponse,
+  getAiResponsesByUserMessageId,
+  updateAiResponse,
+} from "@core/services/ai-response";
 import { createChat, getChat, updateChat } from "@core/services/chat";
 import { getChatModel, getCompletionsModel } from "@core/services/llm";
 import {
@@ -6,7 +10,10 @@ import {
   getSourceDocumentByText,
 } from "@core/services/source-doc";
 import { isObjectOwner } from "@core/services/user";
-import { createUserMessage } from "@core/services/user-message";
+import {
+  createUserMessage,
+  getUserMessagesByChatIdAndText,
+} from "@core/services/user-message";
 import { getVectorStore } from "@core/services/vector-db";
 import {
   BadRequestResponse,
@@ -15,14 +22,14 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { db } from "@revelationsai/core/database";
-import { SourceDocument } from "@revelationsai/core/database/model";
 import {
-  aiResponsesToSourceDocuments,
-  chats,
-} from "@revelationsai/core/database/schema";
+  Chat,
+  SourceDocument,
+  UserMessage,
+} from "@revelationsai/core/database/model";
+import { aiResponsesToSourceDocuments } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { LangChainStream, Message, StreamingTextResponse } from "ai";
-import { InferModel } from "drizzle-orm";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
@@ -49,7 +56,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       return UnauthorizedResponse("You must be logged in");
     }
 
-    let chat: InferModel<typeof chats, "select"> | undefined;
+    let chat: Chat | undefined;
     if (!chatId) {
       chat = await createChat({
         name: messages[0].content,
@@ -68,17 +75,32 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     if (chat.name === "New Chat") {
-      await updateChat(chat.id, {
+      chat = await updateChat(chat.id, {
         name: messages[0].content,
       });
     }
 
-    const userMessage = await createUserMessage({
-      aiId: lastMessage.id,
-      text: lastMessage.content,
-      chatId: chat.id,
-      userId: userInfo.id,
-    });
+    let userMessage: UserMessage | undefined = (
+      await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
+    )[0];
+
+    if (!userMessage) {
+      userMessage = await createUserMessage({
+        aiId: lastMessage.id,
+        text: lastMessage.content,
+        chatId: chat.id,
+        userId: userInfo.id,
+      });
+    } else {
+      const oldAiResponse = (
+        await getAiResponsesByUserMessageId(userMessage.id)
+      )[0];
+      if (oldAiResponse) {
+        await updateAiResponse(oldAiResponse.id, {
+          regenerated: true,
+        });
+      }
+    }
 
     let aiResponse = await createAiResponse({
       chatId: chat.id,

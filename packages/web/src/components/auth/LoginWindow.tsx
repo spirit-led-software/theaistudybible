@@ -95,14 +95,14 @@ export function LoginWindow() {
       )}
       {alert && (
         <div className="absolute left-0 right-0 flex -top-20 lg:top-20">
-          <div className="px-4 py-2 mx-auto text-white bg-red-500 border border-red-500 rounded-xl lg:text-xl">
+          <div className="px-4 py-2 mx-auto text-white bg-red-500 rounded-xl lg:text-xl">
             {alert}
           </div>
         </div>
       )}
       {checkEmailMessage && (
         <div className="absolute left-0 right-0 flex text-center -top-20 lg:top-20">
-          <div className="px-4 py-2 mx-auto text-white bg-green-500 border border-green-500 rounded-xl lg:text-xl lg:bg-transparent lg:text-green-500">
+          <div className="px-4 py-2 mx-auto text-white bg-green-500 rounded-xl lg:text-xl">
             {checkEmailMessage}
           </div>
         </div>

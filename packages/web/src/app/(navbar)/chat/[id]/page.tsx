@@ -29,12 +29,14 @@ async function getMessages(chatId: string) {
           where: eq(aiResponses.userMessageId, userMessage.id),
         });
 
-        const responses: Message[] = foundAiResponses.map((aiResponse) => ({
-          id: aiResponse.aiId!,
-          content: aiResponse.text!,
-          role: "assistant",
-        }));
-        return [...responses, message];
+        const responses: Message[] = foundAiResponses
+          .filter((aiResponse) => !aiResponse.failed && !aiResponse.regenerated)
+          .map((aiResponse) => ({
+            id: aiResponse.aiId!,
+            content: aiResponse.text!,
+            role: "assistant",
+          }));
+        return [responses[0], message];
       })
     )
   )
