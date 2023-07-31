@@ -256,6 +256,7 @@ export function Window({
                 value={input}
               />
               <button
+                type="button"
                 onClick={() => {
                   reload({
                     options: {
