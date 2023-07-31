@@ -1,5 +1,5 @@
 import { authConfig } from "@core/configs/index";
-import { createUser, getUserByEmail } from "@core/services/user";
+import { createUser, getUserByEmail, updateUser } from "@core/services/user";
 import { User } from "@revelationsai/core/database/model";
 import nodemailer from "nodemailer";
 import { TokenSet } from "openid-client";
@@ -22,10 +22,15 @@ const emailTransport = nodemailer.createTransport({
 });
 
 const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
-  let user: User | undefined = await getUserByEmail(tokenSet.claims().email!);
+  let user = await getUserByEmail(tokenSet.claims().email!);
   if (!user) {
     user = await createUser({
       email: tokenSet.claims().email!,
+      name: tokenSet.claims().name!,
+      image: tokenSet.claims().picture!,
+    });
+  } else {
+    user = await updateUser(user.id, {
       name: tokenSet.claims().name!,
       image: tokenSet.claims().picture!,
     });

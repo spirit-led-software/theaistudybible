@@ -69,7 +69,7 @@ export function Sidebar({
         <BsArrowLeftShort className="text-xl" />
       </div>
       <div
-        className={`px-4 py-3 lg:px-6 lg:visible text-white ${
+        className={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${
           isOpen ? "visible" : "invisible"
         }`}
       >

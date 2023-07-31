@@ -15,6 +15,7 @@ export const getChatModel = () =>
     temperature: config.temperature,
     modelName: config.modelName,
     streaming: true,
+    maxTokens: -1,
   });
 
 export const getCompletionsModel = () =>
@@ -22,4 +23,5 @@ export const getCompletionsModel = () =>
     openAIApiKey: config.apiKey,
     temperature: config.temperature,
     modelName: config.modelName,
+    maxTokens: -1,
   });
