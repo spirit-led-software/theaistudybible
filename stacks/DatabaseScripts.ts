@@ -9,20 +9,12 @@ export function DatabaseMigrations({ stack }: StackContext) {
     copyFiles: [
       {
         from: "migrations",
+        to: "migrations",
       },
     ],
-    enableLiveDev: false,
     bind: [database],
-  });
-  const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
-    onCreate: dbMigrationsFunction,
-    onUpdate: dbMigrationsFunction,
-  });
-
-  const dbSeedFunction = new Function(stack, "dbSeedFunction", {
-    handler: "packages/functions/src/database/seed.handler",
+    permissions: [database],
     enableLiveDev: false,
-    bind: [database],
     environment: {
       DATABASE_RESOURCE_ARN: database.clusterArn,
       DATABASE_SECRET_ARN: database.secretArn,
@@ -30,12 +22,30 @@ export function DatabaseMigrations({ stack }: StackContext) {
       ...STATIC_ENV_VARS,
     },
   });
+  const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
+    onCreate: dbMigrationsFunction,
+    onUpdate: dbMigrationsFunction,
+    onDelete: dbMigrationsFunction,
+  });
+
+  const dbSeedFunction = new Function(stack, "dbSeedFunction", {
+    handler: "packages/functions/src/database/seed.handler",
+    enableLiveDev: false,
+    bind: [database],
+    permissions: [database],
+    environment: {
+      DATABASE_RESOURCE_ARN: database.clusterArn,
+      DATABASE_SECRET_ARN: database.secretArn,
+      DATABASE_NAME: database.defaultDatabaseName,
+      ...STATIC_ENV_VARS,
+    },
+  });
+  dbSeedFunction.node.addDependency(dbMigrationsScript);
   const dbSeedScript = new Script(stack, "dbSeedScript", {
     onCreate: dbSeedFunction,
     onUpdate: dbSeedFunction,
+    onDelete: dbSeedFunction,
   });
-
-  dbSeedScript.node.addDependency(dbMigrationsScript);
 
   return {
     dbMigrationsScript,
