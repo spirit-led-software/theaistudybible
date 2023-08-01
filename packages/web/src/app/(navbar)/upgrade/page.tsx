@@ -1,6 +1,8 @@
 import { PricingCard } from "@components/PricingCard";
+import { Button } from "@components/ui/button";
 import { getUserDailyQueryCountByUserIdAndDate } from "@core/services/user-daily-query-count";
 import { validServerSession } from "@services/user";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function UpgradePage() {
@@ -37,6 +39,13 @@ export default async function UpgradePage() {
           </span>{" "}
           of {user.maxDailyQueryCount}
         </h2>
+        <Link
+          href={"https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288"}
+        >
+          <Button className="bg-slate-700 hover:bg-slate-900">
+            View Current Plan
+          </Button>
+        </Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3">
         <PricingCard
