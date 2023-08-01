@@ -7,7 +7,7 @@ import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { CgRedo } from "react-icons/cg";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
@@ -78,23 +78,24 @@ export function Window({
     },
   });
 
-  const handleSubmitCustom = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    if (inputRef.current?.value === "") {
-      setAlert("Please enter a message");
-    }
-    handleSubmit(event, {
-      options: {
-        body: {
-          chatId: chatId ?? undefined,
+  const handleSubmitCustom = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (inputRef.current?.value === "") {
+        setAlert("Please enter a message");
+      }
+      handleSubmit(event, {
+        options: {
+          body: {
+            chatId: chatId ?? undefined,
+          },
         },
-      },
-    });
-  };
+      });
+    },
+    [chatId, handleSubmit]
+  );
 
-  const handleReload = async () => {
+  const handleReload = useCallback(async () => {
     await reload({
       options: {
         body: {
@@ -103,7 +104,7 @@ export function Window({
       },
     });
     mutate();
-  };
+  }, [chatId, mutate, reload]);
 
   useEffect(() => {
     if (initQuery) {
@@ -119,7 +120,7 @@ export function Window({
       });
       handleReload();
     }
-  }, [initQuery]);
+  }, [initQuery, setMessages, router, handleReload]);
 
   useEffect(() => {
     if (inputRef.current) {
