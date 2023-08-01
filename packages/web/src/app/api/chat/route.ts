@@ -11,6 +11,11 @@ import {
 } from "@core/services/source-doc";
 import { isObjectOwner } from "@core/services/user";
 import {
+  createUserDailyQueryCount,
+  getUserDailyQueryCountByUserIdAndDate,
+  updateUserDailyQueryCount,
+} from "@core/services/user-daily-query-count";
+import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@core/services/user-message";
@@ -19,6 +24,7 @@ import {
   BadRequestResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
+  TooManyRequestsResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { db } from "@revelationsai/core/database";
@@ -54,6 +60,26 @@ export async function POST(request: NextRequest): Promise<Response> {
     const { isValid, userInfo } = await validServerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
+    }
+
+    const userDailyQueryCount = await getUserDailyQueryCountByUserIdAndDate(
+      userInfo.id,
+      new Date()
+    );
+
+    if (!userDailyQueryCount) {
+      await createUserDailyQueryCount({
+        userId: userInfo.id,
+        count: 1,
+      });
+    } else if (userDailyQueryCount.count >= userInfo.maxDailyQueryCount) {
+      return TooManyRequestsResponse(
+        `You have exceeded your daily query limit of ${userInfo.maxDailyQueryCount}`
+      );
+    } else {
+      await updateUserDailyQueryCount(userDailyQueryCount.id, {
+        count: userDailyQueryCount.count + 1,
+      });
     }
 
     let chat: Chat | undefined;

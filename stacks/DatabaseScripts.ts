@@ -34,6 +34,7 @@ export function DatabaseMigrations({ stack }: StackContext) {
     onCreate: dbSeedFunction,
     onUpdate: dbSeedFunction,
   });
+
   dbSeedScript.node.addDependency(dbMigrationsScript);
 
   return {

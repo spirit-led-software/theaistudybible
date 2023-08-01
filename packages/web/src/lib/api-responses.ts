@@ -36,6 +36,17 @@ export const DeletedResponse = (identifier?: string) => {
   );
 };
 
+export const TooManyRequestsResponse = (message?: string) => {
+  return NextResponse.json(
+    {
+      error: message ?? "Too many requests",
+    },
+    {
+      status: 429,
+    }
+  );
+};
+
 export const BadRequestResponse = (message?: string) => {
   return NextResponse.json(
     {

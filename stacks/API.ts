@@ -58,6 +58,16 @@ export function API({ stack }: StackContext) {
           timeout: "30 seconds",
         },
       },
+      "POST /stripe/webhook": {
+        function: {
+          handler: "packages/functions/src/stripe/webhook.handler",
+          bind: [database],
+          permissions: [database],
+          runtime: "nodejs18.x",
+          environment: lambdaEnv,
+          timeout: "60 seconds",
+        },
+      },
     },
     customDomain: {
       domainName: apiDomainName,

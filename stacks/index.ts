@@ -42,4 +42,9 @@ export const STATIC_ENV_VARS: Record<string, string> = {
 
   // Admin User
   ADMIN_EMAIL: process.env.ADMIN_EMAIL!,
+
+  // Stripe
+  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
+  STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
 };

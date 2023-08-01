@@ -7,7 +7,8 @@ import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AiOutlineRedo, AiOutlineSend } from "react-icons/ai";
+import { AiOutlineSend } from "react-icons/ai";
+import { CgRedo } from "react-icons/cg";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
 import { useChats } from "../../hooks";
@@ -57,6 +58,14 @@ export function Window({
     initialMessages,
     sendExtraMessageFields: true,
     onResponse: (response) => {
+      if (response.status === 429) {
+        setAlert("You have reached your daily query limit. Upgrade for more!");
+        return;
+      } else if (!response.ok) {
+        setAlert("Something went wrong. Please try again.");
+        return;
+      }
+
       setChatId(response.headers.get("x-chat-id"));
 
       setLastUserMessageId(response.headers.get("x-user-message-id"));
@@ -267,7 +276,7 @@ export function Window({
                   });
                 }}
               >
-                <AiOutlineRedo className="mr-1 text-2xl" />
+                <CgRedo className="mr-1 text-2xl" />
               </button>
               <button type="submit">
                 <AiOutlineSend className="mr-1 text-2xl" />

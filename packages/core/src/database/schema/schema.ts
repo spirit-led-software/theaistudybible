@@ -1,7 +1,9 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  date,
   index,
+  integer,
   json,
   pgTable,
   text,
@@ -104,13 +106,17 @@ export const users = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name"),
-    email: text("email"),
-    emailVerified: timestamp("email_verified"),
+    email: text("email").notNull(),
+    maxDailyQueryCount: integer("max_daily_query_count").notNull().default(25),
+    stripeCustomerId: text("stripe_customer_id"),
     image: text("image"),
   },
   (table) => {
     return {
       emailKey: uniqueIndex("users_email_key").on(table.email),
+      stripeCustomerIdIdx: index("users_stripe_customer_id").on(
+        table.stripeCustomerId
+      ),
     };
   }
 );
@@ -118,8 +124,42 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
+    userDailyQueryCounts: many(userDailyQueryCounts),
   };
 });
+
+export const userDailyQueryCounts = pgTable(
+  "user_daily_query_counts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    date: date("date", { mode: "date" }).notNull().defaultNow(),
+    count: integer("count").notNull().default(0),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  },
+  (table) => {
+    return {
+      userIdKey: uniqueIndex("user_daily_query_counts_user_id_key").on(
+        table.userId
+      ),
+    };
+  }
+);
+
+export const userDailyQueryCountsRelations = relations(
+  userDailyQueryCounts,
+  ({ one }) => {
+    return {
+      user: one(users, {
+        fields: [userDailyQueryCounts.userId],
+        references: [users.id],
+      }),
+    };
+  }
+);
 
 export const devotions = pgTable("devotions", {
   id: uuid("id").primaryKey().defaultRandom(),

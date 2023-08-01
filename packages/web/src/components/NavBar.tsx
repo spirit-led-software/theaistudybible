@@ -10,7 +10,12 @@ import { IoIosArrowDown } from "react-icons/io";
 import { SessionContext } from "./SessionProvider";
 import { Avatar } from "./user";
 
-const navItems = [
+type NavItem = {
+  label: string;
+  href: string;
+};
+
+const navItems: NavItem[] = [
   {
     label: "Home",
     href: "/",
@@ -90,6 +95,14 @@ export function NavBar() {
               </Link>
             </li>
           ))}
+          <li>
+            <Link
+              className="block px-6 py-2 text-sm font-extrabold text-white bg-blue-300 rounded-lg hover:bg-blue-400"
+              href={"/upgrade"}
+            >
+              Upgrade
+            </Link>
+          </li>
         </ul>
         {!user ? (
           <Link
@@ -102,9 +115,6 @@ export function NavBar() {
           <div className="hidden space-x-2 lg:flex">
             <div className="inline-flex items-center justify-center space-x-1">
               <Avatar size="sm" />
-              <span className="ml-2 text-sm font-semibold text-white">
-                {user.name ?? user.email}
-              </span>
             </div>
             <button
               className="hidden px-6 py-2 text-sm font-bold text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
@@ -141,6 +151,14 @@ export function NavBar() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  className="block px-4 py-3 mb-3 font-extrabold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
+                  href={"/upgrade"}
+                >
+                  Upgrade
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="mt-auto">
