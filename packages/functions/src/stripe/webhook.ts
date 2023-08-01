@@ -41,43 +41,41 @@ const validateUser = async (
   return { isValid: true, user };
 };
 
-const fulfillOrder = async (session: Stripe.Checkout.Session, user: User) => {
-  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
-    limit: 1,
-  });
-
-  const lineItem = lineItems.data[0];
+const fulfillOrder = async (
+  item: Stripe.LineItem | Stripe.SubscriptionItem,
+  user: User
+) => {
   // Serve staff plan - 50 queries per day
-  if (lineItem.price?.product === "prod_OMn5NPjXcAqi4t") {
+  if (item.price?.product === "prod_OMn5NPjXcAqi4t") {
     await updateUser(user.id, {
       maxDailyQueryCount: 50,
     });
   }
   // Youth Pastor plan - 100 queries per day
-  else if (lineItem.price?.product === "prod_OMnEB3M89FhxAU") {
+  else if (item.price?.product === "prod_OMnEB3M89FhxAU") {
     await updateUser(user.id, {
       maxDailyQueryCount: 100,
     });
   }
   // Worship leader plan - 250 queries per day
-  else if (lineItem.price?.product === "prod_OMnFtE1Y58Fk3s") {
+  else if (item.price?.product === "prod_OMnFtE1Y58Fk3s") {
     await updateUser(user.id, {
       maxDailyQueryCount: 250,
     });
   }
   // Lead pastor plan - 500 queries per day
-  else if (lineItem.price?.product === "prod_OMnFfbim0KFFpo") {
+  else if (item.price?.product === "prod_OMnFfbim0KFFpo") {
     await updateUser(user.id, {
       maxDailyQueryCount: 500,
     });
   }
   // Church plant plan - unlimited queries per day
-  else if (lineItem.price?.product === "prod_OMnGHj22JmMhxm") {
+  else if (item.price?.product === "prod_OMnGHj22JmMhxm") {
     await updateUser(user.id, {
       maxDailyQueryCount: Infinity,
     });
   } else {
-    console.error(`Unknown product: ${lineItem.price?.product}`);
+    console.error(`Unknown product: ${item.price?.product}`);
   }
 };
 
@@ -134,7 +132,16 @@ export const handler = ApiHandler(async (event, context) => {
       }
 
       if (checkoutSession.payment_status === "paid") {
-        await fulfillOrder(checkoutSession, user);
+        const lineItems = await stripe.checkout.sessions.listLineItems(
+          checkoutSession.id,
+          {
+            limit: 1,
+          }
+        );
+
+        const lineItem = lineItems.data[0];
+
+        await fulfillOrder(lineItem, user);
       }
 
       break;
@@ -171,17 +178,23 @@ export const handler = ApiHandler(async (event, context) => {
         });
       }
 
-      await fulfillOrder(checkoutSession, user);
+      const lineItems = await stripe.checkout.sessions.listLineItems(
+        checkoutSession.id,
+        {
+          limit: 1,
+        }
+      );
+      const lineItem = lineItems.data[0];
+      await fulfillOrder(lineItem, user);
 
       break;
     }
-    case "subscription_schedule.canceled": {
-      const subscriptionSchedule = stripeEvent.data
-        .object as Stripe.SubscriptionSchedule;
+    case "customer.subscription.updated": {
+      const subscriptionUpdate = stripeEvent.data.object as Stripe.Subscription;
 
-      console.log("Subscription schedule canceled!", subscriptionSchedule);
+      console.log("Subscription schedule updated!", subscriptionUpdate);
 
-      const customerId = subscriptionSchedule.customer.toString();
+      const customerId = subscriptionUpdate.customer.toString();
       const { isValid, user } = await validateUser(undefined, customerId);
       if (!isValid) {
         console.error(`User not found for customer id: ${customerId}`);
@@ -191,9 +204,14 @@ export const handler = ApiHandler(async (event, context) => {
         };
       }
 
-      await updateUser(user.id, {
-        maxDailyQueryCount: 25,
-      });
+      if (subscriptionUpdate.status === "active") {
+        const subItem = subscriptionUpdate.items.data[0];
+        await fulfillOrder(subItem, user);
+      } else {
+        await updateUser(user.id, {
+          maxDailyQueryCount: 25,
+        });
+      }
 
       break;
     }

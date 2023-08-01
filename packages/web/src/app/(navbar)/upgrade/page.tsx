@@ -23,7 +23,7 @@ export default async function UpgradePage() {
 
   return (
     <div className="flex flex-col w-full h-full py-5 space-y-4 place-items-center">
-      <div className="flex flex-col text-xl text-center">
+      <div className="flex flex-col space-y-2 text-xl text-center">
         <h1>Remaining Queries:</h1>
         <h2 className="text-md">
           <span
