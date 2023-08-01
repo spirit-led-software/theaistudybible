@@ -106,6 +106,7 @@ export function Window({
         shallow: true,
       });
       reload();
+      mutate();
     }
   }, [initQuery]);
 
@@ -274,6 +275,7 @@ export function Window({
                       },
                     },
                   });
+                  mutate();
                 }}
               >
                 <CgRedo className="mr-1 text-2xl" />
