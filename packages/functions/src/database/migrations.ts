@@ -23,6 +23,7 @@ export const handler: Handler = async () => {
     console.log("Running database migrations...");
     await migrate(migration, {
       migrationsFolder: "migrations",
+      migrationsTable: "drizzle_migrations",
     });
     console.log("Database migrations complete!");
   } catch (e) {

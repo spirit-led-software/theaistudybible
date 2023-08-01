@@ -9,7 +9,7 @@ import {
   createSourceDocument,
   getSourceDocumentByText,
 } from "@core/services/source-doc";
-import { isObjectOwner } from "@core/services/user";
+import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
   createUserDailyQueryCount,
   getUserDailyQueryCountByUserIdAndDate,
@@ -72,7 +72,10 @@ export async function POST(request: NextRequest): Promise<Response> {
         userId: userInfo.id,
         count: 1,
       });
-    } else if (userDailyQueryCount.count >= userInfo.maxDailyQueryCount) {
+    } else if (
+      userDailyQueryCount.count >= userInfo.maxDailyQueryCount &&
+      !(await isAdmin(userInfo.id))
+    ) {
       return TooManyRequestsResponse(
         `You have exceeded your daily query limit of ${userInfo.maxDailyQueryCount}`
       );
