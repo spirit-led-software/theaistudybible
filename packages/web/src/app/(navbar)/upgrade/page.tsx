@@ -41,6 +41,7 @@ export default async function UpgradePage() {
         </h2>
         <Link
           href={"https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288"}
+          target="_blank"
         >
           <Button className="text-white bg-slate-700 hover:bg-slate-900">
             View Current Plan

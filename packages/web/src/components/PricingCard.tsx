@@ -24,7 +24,7 @@ export function PricingCard({
         ))}
       </ul>
       {!currentLevel && price !== "Free" && (
-        <Link href={purchaseLink ?? ""}>
+        <Link href={purchaseLink ?? ""} target="_blank">
           <Button className="bg-blue-300 hover:bg-blue-400">Purchase</Button>
         </Link>
       )}
