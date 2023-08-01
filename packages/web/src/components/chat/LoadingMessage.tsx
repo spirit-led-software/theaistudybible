@@ -1,6 +1,6 @@
 "use client";
 
-import { BouncingDots } from "@components/loading/BouncingDots";
+import { LoadingDots } from "@components/loading";
 import { dimensionClasses } from "@lib/sizing";
 import { TbCross } from "react-icons/tb";
 
@@ -15,7 +15,7 @@ export function LoadingMessage() {
       <div className="flex flex-col pl-5 pr-3">
         <div className="justify-center w-full">
           <div className="px-2 py-3 rounded-xl bg-slate-200">
-            <BouncingDots size="sm" className="bg-slate-800" />
+            <LoadingDots size="sm" className="bg-slate-800" />
           </div>
         </div>
       </div>

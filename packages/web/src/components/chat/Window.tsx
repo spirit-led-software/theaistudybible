@@ -105,8 +105,9 @@ export function Window({
       router.replace("/chat", {
         shallow: true,
       });
-      reload();
-      mutate();
+      reload().then(() => {
+        mutate();
+      });
     }
   }, [initQuery]);
 
@@ -274,8 +275,9 @@ export function Window({
                         chatId: chatId ?? undefined,
                       },
                     },
+                  }).then(() => {
+                    mutate();
                   });
-                  mutate();
                 }}
               >
                 <CgRedo className="mr-1 text-2xl" />

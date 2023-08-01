@@ -124,24 +124,26 @@ Finally, write a prayer to wrap up the devotional.`);
     content: result.text,
   });
 
-  context.forEach(async (c) => {
-    let sourceDoc: SourceDocument | undefined;
-    const existingSourceDoc = await getSourceDocumentByText(c.pageContent);
+  await Promise.all(
+    context.map(async (c) => {
+      let sourceDoc: SourceDocument | undefined;
+      const existingSourceDoc = await getSourceDocumentByText(c.pageContent);
 
-    if (existingSourceDoc) {
-      sourceDoc = existingSourceDoc;
-    } else {
-      sourceDoc = await createSourceDocument({
-        text: c.pageContent,
-        metadata: c.metadata,
+      if (existingSourceDoc) {
+        sourceDoc = existingSourceDoc;
+      } else {
+        sourceDoc = await createSourceDocument({
+          text: c.pageContent,
+          metadata: c.metadata,
+        });
+      }
+
+      await db.insert(devotionsToSourceDocuments).values({
+        devotionId: devo.id,
+        sourceDocumentId: sourceDoc.id,
       });
-    }
-
-    await db.insert(devotionsToSourceDocuments).values({
-      devotionId: devo.id,
-      sourceDocumentId: sourceDoc.id,
-    });
-  });
+    })
+  );
 
   return devo;
 }

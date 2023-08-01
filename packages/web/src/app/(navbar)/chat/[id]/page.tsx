@@ -1,9 +1,9 @@
 import { Window } from "@components/chat";
-import { getAiResponses } from "@core/services/ai-response";
+import { getAiResponsesByUserMessageId } from "@core/services/ai-response";
 import { getChat, getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
 import { getUserMessages } from "@core/services/user-message";
-import { aiResponses, userMessages } from "@revelationsai/core/database/schema";
+import { userMessages } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
 import { eq } from "drizzle-orm";
@@ -25,9 +25,9 @@ async function getMessages(chatId: string) {
           role: "user",
         };
 
-        const foundAiResponses = await getAiResponses({
-          where: eq(aiResponses.userMessageId, userMessage.id),
-        });
+        const foundAiResponses = await getAiResponsesByUserMessageId(
+          userMessage.id
+        );
 
         const responses: Message[] = foundAiResponses
           .filter((aiResponse) => !aiResponse.failed && !aiResponse.regenerated)
