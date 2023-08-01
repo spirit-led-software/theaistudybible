@@ -1,11 +1,9 @@
 "use client";
 
 import useWindowDimensions from "@hooks/window";
-import { UpdateAiResponseData } from "@revelationsai/core/database/model";
-import { chats } from "@revelationsai/core/database/schema";
+import { Chat, UpdateAiResponseData } from "@revelationsai/core/database/model";
 import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
-import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
@@ -23,7 +21,7 @@ export function Window({
   initialMessages,
   initQuery,
 }: {
-  initChats?: InferModel<typeof chats>[];
+  initChats?: Chat[];
   initChatId?: string;
   initialMessages?: ChatMessage[];
   initQuery?: string;
@@ -37,9 +35,25 @@ export function Window({
   const [showScrollToBottomButton, setShowScrollToBottomButton] =
     useState<boolean>(false);
   const [chatId, setChatId] = useState<string | null>(initChatId ?? null);
-  const [, setLastUserMessageId] = useState<string | null>(null);
+  const [lastUserMessageId, setLastUserMessageId] = useState<string | null>(
+    null
+  );
   const [lastAiResponseId, setLastAiResponseId] = useState<string | null>(null);
-  const { mutate } = useChats();
+
+  const {
+    chats,
+    mutate,
+    isLoading: isChatsLoading,
+    limit,
+    setLimit,
+  } = useChats(initChats, {
+    limit: initChats?.length
+      ? initChats.length < 7
+        ? 7
+        : initChats.length
+      : 7,
+  });
+
   const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
     null
   );
@@ -84,7 +98,7 @@ export function Window({
       if (inputRef.current?.value === "") {
         setAlert("Please enter a message");
       }
-      handleSubmit(event, {
+      await handleSubmit(event, {
         options: {
           body: {
             chatId: chatId ?? undefined,
@@ -103,8 +117,32 @@ export function Window({
         },
       },
     });
-    mutate();
+    await mutate();
   }, [chatId, mutate, reload]);
+
+  const handleAiResponse = useCallback(
+    async (chatMessage: ChatMessage, aiResponseId: string) => {
+      try {
+        const response = await fetch(`/api/ai-responses/${aiResponseId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            aiId: chatMessage.id,
+          } satisfies UpdateAiResponseData),
+        });
+        if (!response.ok) {
+          setAlert("Something went wrong");
+        }
+      } catch (err: any) {
+        setAlert(`Something went wrong: ${err.message}`);
+      } finally {
+        mutate();
+      }
+    },
+    [mutate]
+  );
 
   useEffect(() => {
     if (initQuery) {
@@ -174,34 +212,21 @@ export function Window({
 
   useEffect(() => {
     if (!isLoading && lastChatMessage && lastAiResponseId) {
-      fetch(`/api/ai-responses/${lastAiResponseId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          aiId: lastChatMessage.id,
-        } satisfies UpdateAiResponseData),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            setAlert("Something went wrong");
-          }
-        })
-        .catch((error) => {
-          setAlert(`Something went wrong: ${error.message}`);
-        });
-      mutate();
+      handleAiResponse(lastChatMessage, lastAiResponseId);
     }
-  }, [isLoading, lastChatMessage]);
+  }, [isLoading, lastChatMessage, handleAiResponse]);
 
   return (
     <>
       <Sidebar
-        initChats={initChats}
         activeChatId={initChatId}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        chats={chats}
+        mutate={mutate}
+        isLoading={isChatsLoading}
+        limit={limit}
+        setLimit={setLimit}
       />
       <div
         className={`relative flex flex-col h-full lg:visible lg:w-full w-full z-0`}
