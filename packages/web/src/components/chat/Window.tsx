@@ -3,6 +3,7 @@
 import useWindowDimensions from "@hooks/window";
 import { UpdateAiResponseData } from "@revelationsai/core/database/model";
 import { chats } from "@revelationsai/core/database/schema";
+import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";
@@ -93,11 +94,22 @@ export function Window({
     });
   };
 
+  const handleReload = async () => {
+    await reload({
+      options: {
+        body: {
+          chatId: chatId ?? undefined,
+        },
+      },
+    });
+    mutate();
+  };
+
   useEffect(() => {
     if (initQuery) {
       setMessages([
         {
-          id: "1",
+          id: nanoid(),
           content: initQuery,
           role: "user",
         },
@@ -105,9 +117,7 @@ export function Window({
       router.replace("/chat", {
         shallow: true,
       });
-      reload().then(() => {
-        mutate();
-      });
+      handleReload();
     }
   }, [initQuery]);
 
@@ -266,20 +276,7 @@ export function Window({
                 onChange={handleInputChange}
                 value={input}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  reload({
-                    options: {
-                      body: {
-                        chatId: chatId ?? undefined,
-                      },
-                    },
-                  }).then(() => {
-                    mutate();
-                  });
-                }}
-              >
+              <button type="button" onClick={handleReload}>
                 <CgRedo className="mr-1 text-2xl" />
               </button>
               <button type="submit">

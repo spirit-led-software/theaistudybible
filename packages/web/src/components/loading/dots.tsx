@@ -28,10 +28,10 @@ const Dots = forwardRef<HTMLDivElement, DotsProps>(
       <div className="flex flex-row" ref={ref} {...props}>
         <div className={cn(dotsVariants({ size, className }))}></div>
         <div
-          className={cn(dotsVariants({ size, className }), "delay-500")}
+          className={cn(dotsVariants({ size, className }), "delay-300")}
         ></div>
         <div
-          className={cn(dotsVariants({ size, className }), "delay-700")}
+          className={cn(dotsVariants({ size, className }), "delay-500")}
         ></div>
       </div>
     );
