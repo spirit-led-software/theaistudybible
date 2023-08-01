@@ -7,7 +7,7 @@ import { User } from "@revelationsai/core/database/model";
 import { ApiHandler } from "sst/node/api";
 import Stripe from "stripe";
 
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY!) as Stripe;
+const stripe = require("stripe")(process.env.STRIPE_API_KEY!) as Stripe;
 
 const validateUser = async (
   email?: string,
@@ -15,7 +15,7 @@ const validateUser = async (
 ): Promise<
   | {
       isValid: false;
-      user?: User | undefined;
+      user?: User;
     }
   | {
       isValid: true;
@@ -107,21 +107,27 @@ export const handler = ApiHandler(async (event, context) => {
 
       console.log("Checkout complete!", checkoutSession);
 
-      const email = checkoutSession.customer_email ?? undefined;
-      const { isValid, user } = await validateUser(email);
+      const email =
+        checkoutSession.customer_email ??
+        checkoutSession.customer_details?.email ??
+        undefined;
+      const customerId = checkoutSession.customer?.toString();
+
+      const { isValid, user } = await validateUser(email, customerId);
       if (!isValid) {
-        console.error(`User not found for email: ${email}`);
+        console.error(
+          `User not found for email: ${email} or customer id: ${customerId}`
+        );
         await stripe.refunds.create({
           payment_intent: checkoutSession.payment_intent?.toString(),
         });
         return {
           statusCode: 400,
-          body: `User not found for email: ${email}`,
+          body: `User not found for email: ${email} or customer id: ${customerId}`,
         };
       }
 
-      const customerId = checkoutSession.customer?.toString();
-      if (customerId) {
+      if (customerId && user.stripeCustomerId !== customerId) {
         await updateUser(user.id, {
           stripeCustomerId: customerId,
         });
@@ -139,20 +145,35 @@ export const handler = ApiHandler(async (event, context) => {
 
       console.log("Async payment succeeded!", checkoutSession);
 
-      const email = checkoutSession.customer_email ?? undefined;
-      const { isValid, user } = await validateUser(email);
+      const email =
+        checkoutSession.customer_email ??
+        checkoutSession.customer_details?.email ??
+        undefined;
+      const customerId = checkoutSession.customer?.toString();
+
+      const { isValid, user } = await validateUser(email, customerId);
       if (!isValid) {
-        console.error(`User not found for email: ${email}`);
+        console.error(
+          `User not found for email: ${email} or customer id: ${customerId}`
+        );
         await stripe.refunds.create({
           payment_intent: checkoutSession.payment_intent?.toString(),
         });
         return {
           statusCode: 400,
-          body: `User not found for email: ${email}`,
+          body: `User not found for email: ${email} or customer id: ${customerId}`,
         };
       }
 
+      if (customerId && user.stripeCustomerId !== customerId) {
+        await updateUser(user.id, {
+          stripeCustomerId: customerId,
+        });
+      }
+
       await fulfillOrder(checkoutSession, user);
+
+      break;
     }
     case "subscription_schedule.canceled": {
       const subscriptionSchedule = stripeEvent.data
@@ -160,7 +181,7 @@ export const handler = ApiHandler(async (event, context) => {
 
       console.log("Subscription schedule canceled!", subscriptionSchedule);
 
-      const customerId = subscriptionSchedule.customer?.toString();
+      const customerId = subscriptionSchedule.customer.toString();
       const { isValid, user } = await validateUser(undefined, customerId);
       if (!isValid) {
         console.error(`User not found for customer id: ${customerId}`);
@@ -173,14 +194,18 @@ export const handler = ApiHandler(async (event, context) => {
       await updateUser(user.id, {
         maxDailyQueryCount: 25,
       });
+
+      break;
     }
     default: {
       console.warn(`Unhandled event type: ${stripeEvent.type}`);
+
+      break;
     }
   }
 
   return {
     statusCode: 200,
-    body: "Hello World",
+    body: "Stripe Webhook Received",
   };
 });
