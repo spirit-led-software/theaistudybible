@@ -17,7 +17,3 @@ Not only do you get responses and devotions that were crafted by the top LLM mod
 ### What can I use revelationsAI for?
 
 You can use revelationsAI for anything as long as you have an account. If you are using revelationsAI to write sermons or devotions of your own please cite our website. If you would like to get access to our API, please [contact us](mailto:admin@revelationsai.com) for more information.
-
-### What does revelationsAI stand for?
-
-revelationsAI is just a play on words in relation to [OpenAI&#39;s](https://openai.com) ChatGPT. ESV stands for **E**nglish **S**tandard **V**ersion
