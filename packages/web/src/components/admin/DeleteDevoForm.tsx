@@ -1,6 +1,5 @@
 "use client";
 
-import { useIndexOps } from "@hooks/index-ops";
 import { useEffect, useRef, useState } from "react";
 import { SolidLineSpinner } from "..";
 
@@ -11,8 +10,6 @@ export function DeleteDevoForm() {
     type: "error" | "success";
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const { mutate } = useIndexOps();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,14 +32,13 @@ export function DeleteDevoForm() {
       if (data.error) {
         throw new Error(data.error);
       }
-      setAlert({ message: "Devotion created.", type: "success" });
+      setAlert({ message: "Devotion deleted.", type: "success" });
     } catch (error: any) {
       setAlert({
         message: `Error: ${error.message}`,
         type: "error",
       });
     }
-    mutate();
     setIsLoading(false);
   };
 

@@ -22,6 +22,20 @@
       "when": 1690903767367,
       "tag": "0002_breezy_vision",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1690976086979,
+      "tag": "0003_elite_cable",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1690976630120,
+      "tag": "0004_stormy_living_tribunal",
+      "breakpoints": true
     }
   ]
 }

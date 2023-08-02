@@ -142,9 +142,8 @@ export const userDailyQueryCounts = pgTable(
   },
   (table) => {
     return {
-      userIdKey: uniqueIndex("user_daily_query_counts_user_id_key").on(
-        table.userId
-      ),
+      dateIdx: index("user_daily_query_counts_date").on(table.date),
+      userIdIdx: index("user_daily_query_counts_user_id").on(table.userId),
     };
   }
 );

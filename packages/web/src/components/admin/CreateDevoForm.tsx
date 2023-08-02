@@ -1,6 +1,5 @@
 "use client";
 
-import { useIndexOps } from "@hooks/index-ops";
 import { useEffect, useState } from "react";
 import { SolidLineSpinner } from "..";
 
@@ -10,8 +9,6 @@ export function CreateDevoForm() {
     type: "error" | "success";
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const { mutate } = useIndexOps();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,7 +32,6 @@ export function CreateDevoForm() {
         type: "error",
       });
     }
-    mutate();
     setIsLoading(false);
   };
 
