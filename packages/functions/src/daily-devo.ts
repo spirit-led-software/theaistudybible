@@ -1,10 +1,17 @@
-import { generateDevotion } from "@revelationsai/core/services/devotion";
+import {
+  generateDevotion,
+  getDevotionByDate,
+} from "@revelationsai/core/services/devotion";
 import { Handler } from "aws-lambda";
 
 export const handler: Handler = async (event, _) => {
   console.log(event);
 
-  const devo = await generateDevotion();
+  let devo = await getDevotionByDate(new Date());
+
+  if (!devo) {
+    devo = await generateDevotion();
+  }
 
   return {
     statusCode: 200,

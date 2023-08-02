@@ -54,6 +54,12 @@ export async function getDevotionOrThrow(id: string) {
   return devotion;
 }
 
+export async function getDevotionByDate(date: Date) {
+  return (await db.select().from(devotions).where(eq(devotions.date, date))).at(
+    0
+  );
+}
+
 export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
   const sourceDocumentIds = (
     await db

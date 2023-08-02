@@ -160,13 +160,22 @@ export const userDailyQueryCountsRelations = relations(
   }
 );
 
-export const devotions = pgTable("devotions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  subject: text("subject").notNull(),
-  content: text("content").notNull(),
-});
+export const devotions = pgTable(
+  "devotions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    date: date("date", { mode: "date" }).notNull().defaultNow(),
+    subject: text("subject").notNull(),
+    content: text("content").notNull(),
+  },
+  (table) => {
+    return {
+      dateIdx: index("devotions_date").on(table.date),
+    };
+  }
+);
 
 export const devotionsRelations = relations(devotions, ({ many }) => {
   return {
