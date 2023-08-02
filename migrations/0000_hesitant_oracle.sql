@@ -61,6 +61,15 @@ CREATE TABLE IF NOT EXISTS "source_documents" (
 	"metadata" json DEFAULT '{}'::json NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "user_daily_query_counts" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"date" date DEFAULT now() NOT NULL,
+	"count" integer DEFAULT 0 NOT NULL,
+	"user_id" uuid NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_messages" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -76,8 +85,9 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"name" text,
-	"email" text,
-	"email_verified" timestamp,
+	"email" text NOT NULL,
+	"max_daily_query_count" integer DEFAULT 25 NOT NULL,
+	"stripe_customer_id" text,
 	"image" text
 );
 --> statement-breakpoint
@@ -93,9 +103,12 @@ CREATE INDEX IF NOT EXISTS "index_operation_type" ON "index_operations" ("type")
 CREATE INDEX IF NOT EXISTS "index_operation_status" ON "index_operations" ("status");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "roles_name_key" ON "roles" ("name");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "source_document_text_key" ON "source_documents" ("text");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "user_daily_query_counts_date" ON "user_daily_query_counts" ("date");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "user_daily_query_counts_user_id" ON "user_daily_query_counts" ("user_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "ai_id" ON "user_messages" ("ai_id");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "text" ON "user_messages" ("text");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_key" ON "users" ("email");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "users_stripe_customer_id" ON "users" ("stripe_customer_id");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "user_role_key" ON "users_to_roles" ("user_id","role_id");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "ai_responses" ADD CONSTRAINT "ai_responses_user_message_id_user_messages_id_fk" FOREIGN KEY ("user_message_id") REFERENCES "user_messages"("id") ON DELETE cascade ON UPDATE cascade;
@@ -141,6 +154,12 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "devotions_to_source_documents" ADD CONSTRAINT "devotions_to_source_documents_source_document_id_source_documents_id_fk" FOREIGN KEY ("source_document_id") REFERENCES "source_documents"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "user_daily_query_counts" ADD CONSTRAINT "user_daily_query_counts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

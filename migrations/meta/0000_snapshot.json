@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "57f16273-d8fa-494f-9a97-4d79c6b9dd24",
+  "id": "99dbdb54-59ed-45b6-8440-ccd0a02b235c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "ai_responses": {
@@ -505,6 +505,86 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "user_daily_query_counts": {
+      "name": "user_daily_query_counts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "user_daily_query_counts_date": {
+          "name": "user_daily_query_counts_date",
+          "columns": [
+            "date"
+          ],
+          "isUnique": false
+        },
+        "user_daily_query_counts_user_id": {
+          "name": "user_daily_query_counts_user_id",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "user_daily_query_counts_user_id_users_id_fk": {
+          "name": "user_daily_query_counts_user_id_users_id_fk",
+          "tableFrom": "user_daily_query_counts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "user_messages": {
       "name": "user_messages",
       "schema": "",
@@ -637,11 +717,18 @@
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "timestamp",
+        "max_daily_query_count": {
+          "name": "max_daily_query_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 25
+        },
+        "stripe_customer_id": {
+          "name": "stripe_customer_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -659,6 +746,13 @@
             "email"
           ],
           "isUnique": true
+        },
+        "users_stripe_customer_id": {
+          "name": "users_stripe_customer_id",
+          "columns": [
+            "stripe_customer_id"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},

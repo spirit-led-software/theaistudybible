@@ -1,13 +1,13 @@
 "use client";
 
 import useWindowDimensions from "@hooks/window";
-import { UpdateAiResponseData } from "@revelationsai/core/database/model";
-import { chats } from "@revelationsai/core/database/schema";
+import { Chat, UpdateAiResponseData } from "@revelationsai/core/database/model";
+import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
-import { InferModel } from "drizzle-orm";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { AiOutlineRedo, AiOutlineSend } from "react-icons/ai";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AiOutlineSend } from "react-icons/ai";
+import { CgRedo } from "react-icons/cg";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
 import { useChats } from "../../hooks";
@@ -21,7 +21,7 @@ export function Window({
   initialMessages,
   initQuery,
 }: {
-  initChats?: InferModel<typeof chats>[];
+  initChats?: Chat[];
   initChatId?: string;
   initialMessages?: ChatMessage[];
   initQuery?: string;
@@ -35,9 +35,25 @@ export function Window({
   const [showScrollToBottomButton, setShowScrollToBottomButton] =
     useState<boolean>(false);
   const [chatId, setChatId] = useState<string | null>(initChatId ?? null);
-  const [, setLastUserMessageId] = useState<string | null>(null);
+  const [lastUserMessageId, setLastUserMessageId] = useState<string | null>(
+    null
+  );
   const [lastAiResponseId, setLastAiResponseId] = useState<string | null>(null);
-  const { mutate } = useChats();
+
+  const {
+    chats,
+    mutate,
+    isLoading: isChatsLoading,
+    limit,
+    setLimit,
+  } = useChats(initChats, {
+    limit: initChats?.length
+      ? initChats.length < 7
+        ? 7
+        : initChats.length
+      : 7,
+  });
+
   const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
     null
   );
@@ -57,6 +73,14 @@ export function Window({
     initialMessages,
     sendExtraMessageFields: true,
     onResponse: (response) => {
+      if (response.status === 429) {
+        setAlert("You have reached your daily query limit. Upgrade for more!");
+        return;
+      } else if (!response.ok) {
+        setAlert("Something went wrong. Please try again.");
+        return;
+      }
+
       setChatId(response.headers.get("x-chat-id"));
 
       setLastUserMessageId(response.headers.get("x-user-message-id"));
@@ -68,27 +92,63 @@ export function Window({
     },
   });
 
-  const handleSubmitCustom = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-    if (inputRef.current?.value === "") {
-      setAlert("Please enter a message");
-    }
-    handleSubmit(event, {
+  const handleSubmitCustom = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (inputRef.current?.value === "") {
+        setAlert("Please enter a message");
+      }
+      await handleSubmit(event, {
+        options: {
+          body: {
+            chatId: chatId ?? undefined,
+          },
+        },
+      });
+    },
+    [chatId, handleSubmit]
+  );
+
+  const handleReload = useCallback(async () => {
+    await reload({
       options: {
         body: {
           chatId: chatId ?? undefined,
         },
       },
     });
-  };
+    await mutate();
+  }, [chatId, mutate, reload]);
+
+  const handleAiResponse = useCallback(
+    async (chatMessage: ChatMessage, aiResponseId: string) => {
+      try {
+        const response = await fetch(`/api/ai-responses/${aiResponseId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            aiId: chatMessage.id,
+          } satisfies UpdateAiResponseData),
+        });
+        if (!response.ok) {
+          setAlert("Something went wrong");
+        }
+      } catch (err: any) {
+        setAlert(`Something went wrong: ${err.message}`);
+      } finally {
+        mutate();
+      }
+    },
+    [mutate]
+  );
 
   useEffect(() => {
     if (initQuery) {
       setMessages([
         {
-          id: "1",
+          id: nanoid(),
           content: initQuery,
           role: "user",
         },
@@ -96,9 +156,9 @@ export function Window({
       router.replace("/chat", {
         shallow: true,
       });
-      reload();
+      handleReload();
     }
-  }, [initQuery]);
+  }, [initQuery, setMessages, router, handleReload]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -152,34 +212,21 @@ export function Window({
 
   useEffect(() => {
     if (!isLoading && lastChatMessage && lastAiResponseId) {
-      fetch(`/api/ai-responses/${lastAiResponseId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          aiId: lastChatMessage.id,
-        } satisfies UpdateAiResponseData),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            setAlert("Something went wrong");
-          }
-        })
-        .catch((error) => {
-          setAlert(`Something went wrong: ${error.message}`);
-        });
-      mutate();
+      handleAiResponse(lastChatMessage, lastAiResponseId);
     }
-  }, [isLoading, lastChatMessage]);
+  }, [isLoading, lastChatMessage, handleAiResponse]);
 
   return (
     <>
       <Sidebar
-        initChats={initChats}
         activeChatId={initChatId}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        chats={chats}
+        mutate={mutate}
+        isLoading={isChatsLoading}
+        limit={limit}
+        setLimit={setLimit}
       />
       <div
         className={`relative flex flex-col h-full lg:visible lg:w-full w-full z-0`}
@@ -255,19 +302,8 @@ export function Window({
                 onChange={handleInputChange}
                 value={input}
               />
-              <button
-                type="button"
-                onClick={() => {
-                  reload({
-                    options: {
-                      body: {
-                        chatId: chatId ?? undefined,
-                      },
-                    },
-                  });
-                }}
-              >
-                <AiOutlineRedo className="mr-1 text-2xl" />
+              <button type="button" onClick={handleReload}>
+                <CgRedo className="mr-1 text-2xl" />
               </button>
               <button type="submit">
                 <AiOutlineSend className="mr-1 text-2xl" />

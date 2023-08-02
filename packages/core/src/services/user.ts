@@ -53,6 +53,15 @@ export async function getUserByEmailOrThrow(email: string) {
   return user;
 }
 
+export async function getUserByStripeCustomerId(stripeCustomerId: string) {
+  return (
+    await db
+      .select()
+      .from(users)
+      .where(eq(users.stripeCustomerId, stripeCustomerId))
+  ).at(0);
+}
+
 export async function createUser(data: CreateUserData) {
   return (await db.insert(users).values(data).returning())[0];
 }

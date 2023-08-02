@@ -1,18 +1,16 @@
-import { RDSDataClient } from "@aws-sdk/client-rds-data";
-import { drizzle as drizzleAws } from "drizzle-orm/aws-data-api/pg";
+import { neon, neonConfig } from "@neondatabase/serverless";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzleLocal } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import config from "../configs/database";
 import * as schema from "./schema";
 
-export const db =
-  config.isLocal && config.url
-    ? drizzleLocal(postgres(config.url), {
-        schema,
-      })
-    : drizzleAws(new RDSDataClient({}), {
-        resourceArn: config.resourceArn!,
-        secretArn: config.secretArn!,
-        database: config.database!,
-        schema,
-      });
+neonConfig.fetchConnectionCache = true;
+
+export const db = config.isLocal
+  ? drizzleLocal(postgres(config.url), {
+      schema,
+    })
+  : drizzleNeon(neon(config.url), {
+      schema,
+    });

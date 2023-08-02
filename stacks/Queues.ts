@@ -1,13 +1,15 @@
-import { Database, STATIC_ENV_VARS } from "@stacks";
+import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { Duration } from "aws-cdk-lib/core";
-import { Queue, StackContext, use } from "sst/constructs";
+import { Queue, StackContext, dependsOn } from "sst/constructs";
 
 export function Queues({ stack }: StackContext) {
-  const { database } = use(Database);
-
+  dependsOn(DatabaseScripts);
+  
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     cdk: {
       queue: {
+        // TODO: Fix this once SST gets their ish together
+        /// @ts-ignore
         visibilityTimeout: Duration.minutes(15),
       },
     },
@@ -15,12 +17,8 @@ export function Queues({ stack }: StackContext) {
       function: {
         handler: "packages/functions/src/scraper/webpage-queue.consumer",
         environment: {
-          DATABASE_RESOURCE_ARN: database.clusterArn,
-          DATABASE_SECRET_ARN: database.secretArn,
-          DATABASE_NAME: database.defaultDatabaseName,
           ...STATIC_ENV_VARS,
         },
-        bind: [database],
         permissions: ["sqs"],
         nodejs: {
           install: ["@sparticuz/chromium"],

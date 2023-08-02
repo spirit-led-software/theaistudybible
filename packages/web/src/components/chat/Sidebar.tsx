@@ -1,37 +1,39 @@
 "use client";
 
-import { useChats } from "@hooks/chat";
-import { chats as chatsTable } from "@revelationsai/core/database/schema";
-import { InferModel } from "drizzle-orm";
+import { Chat } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
+import { KeyedMutator } from "swr";
 import { SolidLineSpinner } from "..";
 
-export function Sidebar({
-  initChats,
-  activeChatId,
-  isOpen,
-  setIsOpen,
-}: {
-  initChats?: InferModel<typeof chatsTable>[];
+type SidebarProps = {
   activeChatId?: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-}) {
+  chats: Chat[];
+  mutate: KeyedMutator<Chat[]>;
+  isLoading: boolean;
+  limit: number;
+  setLimit: (limit: number) => void;
+};
+
+export function Sidebar({
+  activeChatId,
+  isOpen,
+  setIsOpen,
+  chats,
+  mutate,
+  isLoading,
+  limit,
+  setLimit,
+}: SidebarProps) {
   const router = useRouter();
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const { chats, mutate, isLoading, limit, setLimit } = useChats(initChats, {
-    limit: initChats?.length
-      ? initChats.length < 7
-        ? 7
-        : initChats.length
-      : 7,
-  });
 
   const createChat = async () => {
     const response = await fetch("/api/chats", {

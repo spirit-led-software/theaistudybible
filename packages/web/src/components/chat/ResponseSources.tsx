@@ -4,7 +4,7 @@ import { SolidLineSpinner } from "@components/loading";
 import { Query } from "@revelationsai/core/database/helpers";
 import { SourceDocument } from "@revelationsai/core/database/model";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
 
 export function ResponseSources({
@@ -18,33 +18,29 @@ export function ResponseSources({
   const [sources, setSources] = useState<SourceDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function getSources() {
+  const getSources = useCallback(async () => {
     if (sources.length > 0) return;
-
-    let query: Query = {
-      AND: [],
-    };
-
-    if (aiResponseId) {
-      query.AND!.push({
-        eq: {
-          column: "aiId",
-          value: aiResponseId,
-        },
-      });
-    }
-
-    if (chatId) {
-      query.AND!.push({
-        eq: {
-          column: "chatId",
-          value: chatId,
-        },
-      });
-    }
-
     try {
       setIsLoading(true);
+      let query: Query = {
+        AND: [],
+      };
+      if (aiResponseId) {
+        query.AND!.push({
+          eq: {
+            column: "aiId",
+            value: aiResponseId,
+          },
+        });
+      }
+      if (chatId) {
+        query.AND!.push({
+          eq: {
+            column: "chatId",
+            value: chatId,
+          },
+        });
+      }
       const fetchAiResponsesResponse = await fetch("/api/ai-responses/search", {
         method: "POST",
         headers: {
@@ -59,7 +55,7 @@ export function ResponseSources({
       const { entities: aiResponses } = await fetchAiResponsesResponse.json();
       const aiResponse = aiResponses[0];
 
-      const fetchSourceDocsResponse = await fetch(
+      const response = await fetch(
         `/api/ai-responses/${aiResponse.id}/source-documents`,
         {
           method: "GET",
@@ -68,8 +64,7 @@ export function ResponseSources({
           },
         }
       );
-      const foundSourceDocuments: SourceDocument[] =
-        await fetchSourceDocsResponse.json();
+      const foundSourceDocuments: SourceDocument[] = await response.json();
       setSources(
         foundSourceDocuments.filter((sourceDoc, index) => {
           const firstIndex = foundSourceDocuments.findIndex(
@@ -84,7 +79,13 @@ export function ResponseSources({
       console.error(error);
     }
     setIsLoading(false);
-  }
+  }, [sources, aiResponseId, chatId]);
+
+  useEffect(() => {
+    if (showSources) {
+      getSources();
+    }
+  }, [showSources, getSources]);
 
   return (
     <div className="flex flex-col w-full overflow-x-hidden grow-0">
@@ -92,7 +93,6 @@ export function ResponseSources({
         className="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer"
         onClick={() => {
           setShowSources(!showSources);
-          getSources();
         }}
       >
         <div className="text-sm text-blue-400">Sources</div>
