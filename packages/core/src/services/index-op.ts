@@ -55,7 +55,10 @@ export async function updateIndexOperation(
   return (
     await db
       .update(indexOperations)
-      .set(data)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
       .where(eq(indexOperations.id, id))
       .returning()
   )[0];

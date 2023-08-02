@@ -64,7 +64,10 @@ export async function updateSourceDocument(
   return (
     await db
       .update(sourceDocuments)
-      .set(data)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
       .where(eq(sourceDocuments.id, id))
       .returning()
   )[0];

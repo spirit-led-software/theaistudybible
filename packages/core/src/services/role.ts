@@ -58,7 +58,14 @@ export async function createRole(data: CreateRoleData) {
 
 export async function updateRole(id: string, data: UpdateRoleData) {
   return (
-    await db.update(roles).set(data).where(eq(roles.id, id)).returning()
+    await db
+      .update(roles)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(roles.id, id))
+      .returning()
   )[0];
 }
 

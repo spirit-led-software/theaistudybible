@@ -82,7 +82,14 @@ export async function createDevotion(data: CreateDevotionData) {
 
 export async function updateDevotion(id: string, data: UpdateDevotionData) {
   return (
-    await db.update(devotions).set(data).where(eq(devotions.id, id)).returning()
+    await db
+      .update(devotions)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(devotions.id, id))
+      .returning()
   )[0];
 }
 

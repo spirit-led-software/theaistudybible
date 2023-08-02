@@ -68,7 +68,14 @@ export async function createUser(data: CreateUserData) {
 
 export async function updateUser(id: string, data: UpdateUserData) {
   return (
-    await db.update(users).set(data).where(eq(users.id, id)).returning()
+    await db
+      .update(users)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning()
   )[0];
 }
 
