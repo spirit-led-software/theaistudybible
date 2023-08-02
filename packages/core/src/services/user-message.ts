@@ -74,7 +74,10 @@ export async function updateUserMessage(
   return (
     await db
       .update(userMessages)
-      .set(data)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
       .where(eq(userMessages.id, id))
       .returning()
   )[0];

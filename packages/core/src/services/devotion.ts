@@ -54,6 +54,12 @@ export async function getDevotionOrThrow(id: string) {
   return devotion;
 }
 
+export async function getDevotionByDate(date: Date) {
+  return (await db.select().from(devotions).where(eq(devotions.date, date))).at(
+    0
+  );
+}
+
 export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
   const sourceDocumentIds = (
     await db
@@ -82,7 +88,14 @@ export async function createDevotion(data: CreateDevotionData) {
 
 export async function updateDevotion(id: string, data: UpdateDevotionData) {
   return (
-    await db.update(devotions).set(data).where(eq(devotions.id, id)).returning()
+    await db
+      .update(devotions)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(devotions.id, id))
+      .returning()
   )[0];
 }
 

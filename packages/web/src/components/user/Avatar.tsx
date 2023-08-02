@@ -20,7 +20,9 @@ export function Avatar({
   if (user?.image) {
     return (
       <img
-        className={`rounded-full ${dimensions} lg:${largeDimensions}`}
+        className={`rounded-full ${dimensions} lg:${largeDimensions} ${
+          className ?? ""
+        }`}
         src={user.image}
         alt="avatar"
       />

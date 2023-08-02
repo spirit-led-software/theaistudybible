@@ -90,7 +90,10 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
   return (
     await db
       .update(aiResponses)
-      .set(data)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
       .where(eq(aiResponses.id, id))
       .returning()
   )[0];

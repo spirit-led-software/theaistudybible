@@ -45,7 +45,14 @@ export async function createChat(data: CreateChatData) {
 
 export async function updateChat(id: string, data: UpdateChatData) {
   return (
-    await db.update(chats).set(data).where(eq(chats.id, id)).returning()
+    await db
+      .update(chats)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(chats.id, id))
+      .returning()
   )[0];
 }
 

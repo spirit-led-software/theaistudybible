@@ -21,7 +21,6 @@
     "ai": "^2.1.22",
     "busboy": "^1.6.0",
     "fast-xml-parser": "^4.2.5",
-    "langchain": "^0.0.112",
     "mammoth": "^1.6.0",
     "nodemailer": "^6.9.3",
     "pdf-parse": "^1.1.1",

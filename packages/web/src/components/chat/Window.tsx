@@ -4,7 +4,7 @@ import useWindowDimensions from "@hooks/window";
 import { Chat, UpdateAiResponseData } from "@revelationsai/core/database/model";
 import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { CgRedo } from "react-icons/cg";
@@ -18,14 +18,15 @@ import { Sidebar } from "./Sidebar";
 export function Window({
   initChats,
   initChatId,
-  initialMessages,
-  initQuery,
+  initMessages,
 }: {
   initChats?: Chat[];
   initChatId?: string;
-  initialMessages?: ChatMessage[];
-  initQuery?: string;
+  initMessages?: ChatMessage[];
 }) {
+  const searchParams = useSearchParams();
+  const searchParamsQuery = searchParams.get("query");
+
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
@@ -53,12 +54,11 @@ export function Window({
         : initChats.length
       : 7,
   });
-
   const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
     null
   );
-  const router = useRouter();
   const [alert, setAlert] = useState<string | null>(null);
+
   const {
     handleSubmit,
     input,
@@ -70,7 +70,7 @@ export function Window({
     reload,
   } = useChat({
     api: "/api/chat",
-    initialMessages,
+    initialMessages: initMessages,
     sendExtraMessageFields: true,
     onResponse: (response) => {
       if (response.status === 429) {
@@ -93,12 +93,12 @@ export function Window({
   });
 
   const handleSubmitCustom = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (inputRef.current?.value === "") {
         setAlert("Please enter a message");
       }
-      await handleSubmit(event, {
+      handleSubmit(event, {
         options: {
           body: {
             chatId: chatId ?? undefined,
@@ -108,17 +108,6 @@ export function Window({
     },
     [chatId, handleSubmit]
   );
-
-  const handleReload = useCallback(async () => {
-    await reload({
-      options: {
-        body: {
-          chatId: chatId ?? undefined,
-        },
-      },
-    });
-    await mutate();
-  }, [chatId, mutate, reload]);
 
   const handleAiResponse = useCallback(
     async (chatMessage: ChatMessage, aiResponseId: string) => {
@@ -144,21 +133,30 @@ export function Window({
     [mutate]
   );
 
+  const handleReload = useCallback(async () => {
+    await reload({
+      options: {
+        body: {
+          chatId: chatId ?? undefined,
+        },
+      },
+    });
+    await mutate();
+  }, [chatId, mutate, reload]);
+
   useEffect(() => {
-    if (initQuery) {
+    if (searchParamsQuery) {
       setMessages([
+        ...messages,
         {
           id: nanoid(),
-          content: initQuery,
+          content: searchParamsQuery,
           role: "user",
         },
       ]);
-      router.replace("/chat", {
-        shallow: true,
-      });
       handleReload();
     }
-  }, [initQuery, setMessages, router, handleReload]);
+  }, [searchParamsQuery]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -189,11 +187,13 @@ export function Window({
   }, [isLoading, inputRef]);
 
   useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({
-      behavior: "instant",
-      block: "end",
-      inline: "end",
-    });
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({
+        behavior: "instant",
+        block: "end",
+        inline: "end",
+      });
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -214,7 +214,7 @@ export function Window({
     if (!isLoading && lastChatMessage && lastAiResponseId) {
       handleAiResponse(lastChatMessage, lastAiResponseId);
     }
-  }, [isLoading, lastChatMessage, handleAiResponse]);
+  }, [isLoading, lastChatMessage]);
 
   return (
     <>

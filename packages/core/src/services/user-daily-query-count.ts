@@ -36,7 +36,19 @@ export async function updateUserDailyQueryCount(
   return (
     await db
       .update(userDailyQueryCounts)
-      .set(data)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(userDailyQueryCounts.id, id))
+      .returning()
+  )[0];
+}
+
+export async function deleteUserDailyQueryCount(id: string) {
+  return (
+    await db
+      .delete(userDailyQueryCounts)
       .where(eq(userDailyQueryCounts.id, id))
       .returning()
   )[0];
