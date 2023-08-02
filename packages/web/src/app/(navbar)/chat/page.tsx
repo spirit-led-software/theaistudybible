@@ -7,11 +7,7 @@ import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default async function ChatPage({
-  searchParams,
-}: {
-  searchParams: any;
-}) {
+export default async function ChatPage() {
   const { isValid, userInfo } = await validServerSession();
   if (!isValid) {
     redirect(`/login?redirect=/chat`);
@@ -27,5 +23,5 @@ export default async function ChatPage({
       throw new Error(error);
     });
 
-  return <Window initChats={chats} initQuery={searchParams.query} />;
+  return <Window initChats={chats} />;
 }

@@ -4,7 +4,7 @@ import useWindowDimensions from "@hooks/window";
 import { Chat, UpdateAiResponseData } from "@revelationsai/core/database/model";
 import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { CgRedo } from "react-icons/cg";
@@ -19,19 +19,17 @@ export function Window({
   initChats,
   initChatId,
   initMessages,
-  initQuery,
 }: {
   initChats?: Chat[];
   initChatId?: string;
   initMessages?: ChatMessage[];
-  initQuery?: string;
 }) {
+  const searchParams = useSearchParams();
+  const searchParamsQuery = searchParams.get("query");
+
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
-  const [initialQuery, setInitialQuery] = useState<string | null>(
-    initQuery ?? null
-  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     windowDimensions.width! > 1024
   );
@@ -42,8 +40,6 @@ export function Window({
     null
   );
   const [lastAiResponseId, setLastAiResponseId] = useState<string | null>(null);
-  const [hasHandledInitQuery, setHasHandledInitQuery] =
-    useState<boolean>(false);
 
   const {
     chats,
@@ -58,12 +54,11 @@ export function Window({
         : initChats.length
       : 7,
   });
-
   const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
     null
   );
-  const router = useRouter();
   const [alert, setAlert] = useState<string | null>(null);
+
   const {
     handleSubmit,
     input,
@@ -98,7 +93,7 @@ export function Window({
   });
 
   const handleSubmitCustom = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (inputRef.current?.value === "") {
         setAlert("Please enter a message");
@@ -150,19 +145,18 @@ export function Window({
   }, [chatId, mutate, reload]);
 
   useEffect(() => {
-    if (!hasHandledInitQuery && initialQuery) {
-      setHasHandledInitQuery(true);
-      setInitialQuery(null);
+    if (searchParamsQuery) {
       setMessages([
+        ...messages,
         {
           id: nanoid(),
-          content: initialQuery,
+          content: searchParamsQuery,
           role: "user",
         },
       ]);
       handleReload();
     }
-  }, [initialQuery, hasHandledInitQuery, setMessages, router, handleReload]);
+  }, [searchParamsQuery]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -220,7 +214,7 @@ export function Window({
     if (!isLoading && lastChatMessage && lastAiResponseId) {
       handleAiResponse(lastChatMessage, lastAiResponseId);
     }
-  }, [isLoading, lastChatMessage, handleAiResponse]);
+  }, [isLoading, lastChatMessage]);
 
   return (
     <>
