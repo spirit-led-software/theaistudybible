@@ -1,2 +1,0 @@
-CREATE INDEX IF NOT EXISTS "user_daily_query_counts_date" ON "user_daily_query_counts" ("date");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "user_daily_query_counts_user_id" ON "user_daily_query_counts" ("user_id");

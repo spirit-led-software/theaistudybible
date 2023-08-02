@@ -2,13 +2,15 @@ export * from "./API";
 export * from "./Auth";
 export * from "./Constants";
 export * from "./Crons";
-export * from "./Database";
 export * from "./DatabaseScripts";
 export * from "./Queues";
 export * from "./S3";
 export * from "./Website";
 
 export const STATIC_ENV_VARS: Record<string, string> = {
+  // Database (Neon)
+  DATABASE_URL: process.env.DATABASE_URL!,
+
   // Vector DB
   VECTOR_DB_URL: process.env.VECTOR_DB_URL!,
   VECTOR_DB_API_KEY: process.env.VECTOR_DB_API_KEY!,

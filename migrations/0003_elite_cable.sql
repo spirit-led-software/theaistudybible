@@ -1,1 +1,0 @@
-DROP INDEX IF EXISTS "user_daily_query_counts_user_id_key";

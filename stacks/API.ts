@@ -1,8 +1,7 @@
-import { Constants, Database, Queues, STATIC_ENV_VARS } from "@stacks";
+import { Constants, Queues, STATIC_ENV_VARS } from "@stacks";
 import { Api, StackContext, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
-  const { database } = use(Database);
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
 
@@ -10,9 +9,6 @@ export function API({ stack }: StackContext) {
   const apiUrl = `https://${apiDomainName}`;
 
   const lambdaEnv: Record<string, string> = {
-    DATABASE_RESOURCE_ARN: database.clusterArn,
-    DATABASE_SECRET_ARN: database.secretArn,
-    DATABASE_NAME: database.defaultDatabaseName,
     WEBSITE_URL: websiteUrl,
     API_URL: apiUrl,
     ...STATIC_ENV_VARS,
@@ -23,8 +19,8 @@ export function API({ stack }: StackContext) {
       "POST /scraper/website": {
         function: {
           handler: "packages/functions/src/scraper/website.handler",
-          bind: [database, webpageIndexQueue],
-          permissions: [database, webpageIndexQueue],
+          bind: [webpageIndexQueue],
+          permissions: [webpageIndexQueue],
           runtime: "nodejs18.x",
           environment: lambdaEnv,
           timeout: "15 minutes",
@@ -34,8 +30,6 @@ export function API({ stack }: StackContext) {
       "POST /scraper/webpage": {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
-          bind: [database],
-          permissions: [database],
           runtime: "nodejs18.x",
           nodejs: {
             install: ["@sparticuz/chromium"],
@@ -51,8 +45,6 @@ export function API({ stack }: StackContext) {
       "GET /session": {
         function: {
           handler: "packages/functions/src/session.handler",
-          bind: [database],
-          permissions: [database],
           runtime: "nodejs18.x",
           environment: lambdaEnv,
           timeout: "30 seconds",
@@ -61,8 +53,6 @@ export function API({ stack }: StackContext) {
       "POST /stripe/webhook": {
         function: {
           handler: "packages/functions/src/stripe/webhook.handler",
-          bind: [database],
-          permissions: [database],
           runtime: "nodejs18.x",
           environment: lambdaEnv,
           timeout: "60 seconds",

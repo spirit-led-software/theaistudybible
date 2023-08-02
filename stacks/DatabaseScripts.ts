@@ -1,9 +1,7 @@
-import { Database, STATIC_ENV_VARS } from "@stacks";
-import { Function, Script, StackContext, use } from "sst/constructs";
+import { STATIC_ENV_VARS } from "@stacks";
+import { Function, Script, StackContext } from "sst/constructs";
 
-export function DatabaseMigrations({ stack }: StackContext) {
-  const { database } = use(Database);
-
+export function DatabaseScripts({ stack }: StackContext) {
   const dbMigrationsFunction = new Function(stack, "dbMigrationsFunction", {
     handler: "packages/functions/src/database/migrations.handler",
     copyFiles: [
@@ -12,13 +10,8 @@ export function DatabaseMigrations({ stack }: StackContext) {
         to: "migrations",
       },
     ],
-    bind: [database],
-    permissions: [database],
     enableLiveDev: false,
     environment: {
-      DATABASE_RESOURCE_ARN: database.clusterArn,
-      DATABASE_SECRET_ARN: database.secretArn,
-      DATABASE_NAME: database.defaultDatabaseName,
       ...STATIC_ENV_VARS,
     },
   });
@@ -31,12 +24,7 @@ export function DatabaseMigrations({ stack }: StackContext) {
   const dbSeedFunction = new Function(stack, "dbSeedFunction", {
     handler: "packages/functions/src/database/seed.handler",
     enableLiveDev: false,
-    bind: [database],
-    permissions: [database],
     environment: {
-      DATABASE_RESOURCE_ARN: database.clusterArn,
-      DATABASE_SECRET_ARN: database.secretArn,
-      DATABASE_NAME: database.defaultDatabaseName,
       ...STATIC_ENV_VARS,
     },
   });
