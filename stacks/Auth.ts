@@ -1,7 +1,14 @@
-import { API, STATIC_ENV_VARS, Website } from "@stacks";
-import { Auth as AuthConstruct, StackContext, use } from "sst/constructs";
+import { API, DatabaseScripts, STATIC_ENV_VARS, Website } from "@stacks";
+import {
+  Auth as AuthConstruct,
+  StackContext,
+  dependsOn,
+  use,
+} from "sst/constructs";
 
 export function Auth({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+
   const { websiteUrl } = use(Website);
   const { api, apiUrl } = use(API);
 

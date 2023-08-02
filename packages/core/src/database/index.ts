@@ -8,7 +8,9 @@ import * as schema from "./schema";
 neonConfig.fetchConnectionCache = true;
 
 export const db = config.isLocal
-  ? drizzleLocal(postgres(config.url!), {
+  ? drizzleLocal(postgres(config.url), {
       schema,
     })
-  : drizzleNeon(neon(config.url!));
+  : drizzleNeon(neon(config.url), {
+      schema,
+    });

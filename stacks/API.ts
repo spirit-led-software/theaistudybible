@@ -1,7 +1,9 @@
-import { Constants, Queues, STATIC_ENV_VARS } from "@stacks";
-import { Api, StackContext, use } from "sst/constructs";
+import { Constants, DatabaseScripts, Queues, STATIC_ENV_VARS } from "@stacks";
+import { Api, StackContext, dependsOn, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
 

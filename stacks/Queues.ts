@@ -1,11 +1,15 @@
-import { STATIC_ENV_VARS } from "@stacks";
+import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { Duration } from "aws-cdk-lib/core";
-import { Queue, StackContext } from "sst/constructs";
+import { Queue, StackContext, dependsOn } from "sst/constructs";
 
 export function Queues({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+  
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     cdk: {
       queue: {
+        // TODO: Fix this once SST gets their ish together
+        /// @ts-ignore
         visibilityTimeout: Duration.minutes(15),
       },
     },

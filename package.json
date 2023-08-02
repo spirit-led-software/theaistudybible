@@ -7,7 +7,7 @@
     "dev": "sst dev",
     "build": "sst build",
     "deploy": "sst deploy --stage",
-    "remove": "sst remove",
+    "remove": "sst remove --stage",
     "console": "sst console",
     "typecheck": "tsc --noEmit"
   },
