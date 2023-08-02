@@ -74,10 +74,6 @@ export default async function SpecificChatPage({
     });
 
   return (
-    <Window
-      initChats={chats}
-      initChatId={params.id}
-      initialMessages={messages}
-    />
+    <Window initChats={chats} initChatId={params.id} initMessages={messages} />
   );
 }

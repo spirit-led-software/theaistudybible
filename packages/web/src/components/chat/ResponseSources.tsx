@@ -17,9 +17,10 @@ export function ResponseSources({
   const [showSources, setShowSources] = useState(false);
   const [sources, setSources] = useState<SourceDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasFetchedSources, setHasFetchedSources] = useState(false);
 
   const getSources = useCallback(async () => {
-    if (sources.length > 0) return;
+    if (hasFetchedSources) return;
     try {
       setIsLoading(true);
       let query: Query = {
@@ -75,11 +76,12 @@ export function ResponseSources({
           return firstIndex === index;
         })
       );
+      setHasFetchedSources(true);
     } catch (error) {
       console.error(error);
     }
     setIsLoading(false);
-  }, [sources, aiResponseId, chatId]);
+  }, [hasFetchedSources, aiResponseId, chatId]);
 
   useEffect(() => {
     if (showSources) {

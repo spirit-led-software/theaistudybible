@@ -18,17 +18,20 @@ import { Sidebar } from "./Sidebar";
 export function Window({
   initChats,
   initChatId,
-  initialMessages,
+  initMessages,
   initQuery,
 }: {
   initChats?: Chat[];
   initChatId?: string;
-  initialMessages?: ChatMessage[];
+  initMessages?: ChatMessage[];
   initQuery?: string;
 }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
+  const [initialQuery, setInitialQuery] = useState<string | null>(
+    initQuery ?? null
+  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     windowDimensions.width! > 1024
   );
@@ -39,6 +42,8 @@ export function Window({
     null
   );
   const [lastAiResponseId, setLastAiResponseId] = useState<string | null>(null);
+  const [hasHandledInitQuery, setHasHandledInitQuery] =
+    useState<boolean>(false);
 
   const {
     chats,
@@ -70,7 +75,7 @@ export function Window({
     reload,
   } = useChat({
     api: "/api/chat",
-    initialMessages,
+    initialMessages: initMessages,
     sendExtraMessageFields: true,
     onResponse: (response) => {
       if (response.status === 429) {
@@ -98,7 +103,7 @@ export function Window({
       if (inputRef.current?.value === "") {
         setAlert("Please enter a message");
       }
-      await handleSubmit(event, {
+      handleSubmit(event, {
         options: {
           body: {
             chatId: chatId ?? undefined,
@@ -108,17 +113,6 @@ export function Window({
     },
     [chatId, handleSubmit]
   );
-
-  const handleReload = useCallback(async () => {
-    await reload({
-      options: {
-        body: {
-          chatId: chatId ?? undefined,
-        },
-      },
-    });
-    await mutate();
-  }, [chatId, mutate, reload]);
 
   const handleAiResponse = useCallback(
     async (chatMessage: ChatMessage, aiResponseId: string) => {
@@ -144,21 +138,31 @@ export function Window({
     [mutate]
   );
 
+  const handleReload = useCallback(async () => {
+    await reload({
+      options: {
+        body: {
+          chatId: chatId ?? undefined,
+        },
+      },
+    });
+    await mutate();
+  }, [chatId, mutate, reload]);
+
   useEffect(() => {
-    if (initQuery) {
+    if (!hasHandledInitQuery && initialQuery) {
+      setHasHandledInitQuery(true);
+      setInitialQuery(null);
       setMessages([
         {
           id: nanoid(),
-          content: initQuery,
+          content: initialQuery,
           role: "user",
         },
       ]);
-      router.replace("/chat", {
-        shallow: true,
-      });
       handleReload();
     }
-  }, [initQuery, setMessages, router, handleReload]);
+  }, [initialQuery, hasHandledInitQuery, setMessages, router, handleReload]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -189,11 +193,13 @@ export function Window({
   }, [isLoading, inputRef]);
 
   useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({
-      behavior: "instant",
-      block: "end",
-      inline: "end",
-    });
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({
+        behavior: "instant",
+        block: "end",
+        inline: "end",
+      });
+    }
   }, [messages]);
 
   useEffect(() => {
