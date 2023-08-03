@@ -10,7 +10,7 @@ We are not trying to diminishing the Word of God or even enhance it. But we are 
 
 ### How does revelationsAI work?
 
-revelationsAI uses [OpenAI&#39;s](https://openai.com/) large language models (LLMs) to generate daily devotions and chat responses. These devotions and responses are based off of various contexts that are search for using a [QDrant&#39;s](https://qdrant.tech/) vector search. That way you know that your answers are based on the Truth (God's Word) and vetted sources.
+revelationsAI uses [OpenAI&#39;s](https://openai.com/) large language models (LLMs) to generate daily devotions and chat responses. These devotions and responses are based off of various contexts that are searched for using vector search. That way you know that your answers are based on the Truth (God's Word) and vetted sources.
 
 Not only do you get responses and devotions that were crafted by the top LLM models, but we return the sources of their answers to you as well so that you can trust in it's accuracy, or, you could explore the sources on your own.
 
