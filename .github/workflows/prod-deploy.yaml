@@ -22,14 +22,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - name: Install dependencies
+      - name: Install Node.js dependencies
         run: npm ci
-      - name: Install SST
-        run: npm i sst
       - name: Deploy
-        run: npm run deploy prod
+        run: npx sst deploy --stage prod
