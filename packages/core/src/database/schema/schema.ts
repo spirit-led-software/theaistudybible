@@ -169,6 +169,9 @@ export const devotions = pgTable(
     date: date("date", { mode: "date" }).notNull().defaultNow(),
     subject: text("subject").notNull(),
     content: text("content").notNull(),
+    imageCaption: text("image_caption"),
+    imageUrl: text("image_url"),
+    failed: boolean("failed").notNull().default(false),
   },
   (table) => {
     return {

@@ -54,7 +54,7 @@ export function DeleteDevoForm() {
     <form className="relative flex-col w-full" onSubmit={handleSubmit}>
       {isLoading && (
         <div className="absolute left-0 right-0 flex justify-center">
-          <SolidLineSpinner size="md" colorscheme={"light"} />
+          <SolidLineSpinner size="md" colorscheme={"dark"} />
         </div>
       )}
       <div

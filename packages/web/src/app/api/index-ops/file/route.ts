@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { s3Config } from "@configs";
+import { s3Config } from "@core/configs";
 import {
   BadRequestResponse,
   InternalServerErrorResponse,

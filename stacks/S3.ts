@@ -31,11 +31,23 @@ export function S3({ stack }: StackContext) {
     },
   });
 
+  const devotionImageBucket = new Bucket(stack, "devotionImageBucket", {
+    cdk: {
+      bucket: {
+        autoDeleteObjects: stack.stage !== "prod",
+        removalPolicy:
+          stack.stage === "prod" ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
+      },
+    },
+  });
+
   stack.addOutputs({
-    "S3 Bucket Name": indexFileBucket.bucketName,
+    "Index File Bucket Name": indexFileBucket.bucketName,
+    "Devotion Image Bucket Name": devotionImageBucket.bucketName,
   });
 
   return {
     indexFileBucket,
+    devotionImageBucket,
   };
 }
