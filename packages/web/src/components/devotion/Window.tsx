@@ -61,8 +61,8 @@ export function Window({
           )}
           {sourceDocuments.length > 0 && (
             <>
-              <h2 className="mt-10 mb-2 text-xl font-bold">Sources</h2>
-              <ul className="flex flex-col space-y-2 list-decimal list-inside">
+              <h2 className="mt-10 mb-2 font-bold">Sources</h2>
+              <ul className="flex flex-col space-y-2 text-xs list-decimal list-inside text-slate-400">
                 {sourceDocuments
                   .filter((sourceDoc: SourceDocument, index: number) => {
                     const firstIndex = sourceDocuments.findIndex(
@@ -78,7 +78,7 @@ export function Window({
                         href={(sourceDoc.metadata as any).url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-slate-500 hover:underline"
+                        className="hover:text-slate-500 hover:underline"
                       >
                         {(sourceDoc.metadata as any).name}
                       </Link>
