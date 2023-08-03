@@ -14,6 +14,7 @@ import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
 import { LoadingDots } from "..";
 import { useChats } from "../../hooks";
+import { AdMessage } from "./AdMessage";
 import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
@@ -266,6 +267,7 @@ export function Window({
                   sender={message.role}
                 />
               ))}
+              {isLoading && <LoadingMessage />}
               <div ref={endOfMessagesRef} className="w-full h-16" />
             </div>
           </div>

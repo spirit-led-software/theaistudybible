@@ -2,6 +2,7 @@ import { SessionProvider } from "@components/SessionProvider";
 import { Metadata } from "next";
 import { Catamaran, Kanit } from "next/font/google";
 import { cookies } from "next/headers";
+import Script from "next/script";
 import "./globals.css";
 
 const kanit = Kanit({
@@ -55,6 +56,12 @@ export default function RootLayout({
   return (
     <SessionProvider sessionToken={sessionToken?.value}>
       <html lang="en">
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209"
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
         <body className={`${catamaran.variable} ${kanit.variable}`}>
           {children}
         </body>
