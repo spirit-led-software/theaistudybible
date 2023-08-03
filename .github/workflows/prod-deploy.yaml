@@ -1,20 +1,45 @@
-name: Production deployment
+name: Production Deployment
 concurrency: prod
 on:
   push:
     branches: [master]
+
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
   VECTOR_DB_URL: ${{ secrets.VECTOR_DB_URL }}
+  VECTOR_DB_COLLECTION_NAME: ${{ vars.VECTOR_DB_COLLECTION_NAME }}
+
   LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+  LLM_PROMPT_MODEL_NAME: ${{ vars.LLM_PROMPT_MODEL_NAME }}
+  LLM_COMPLETIONS_MODEL_NAME: ${{ vars.LLM_COMPLETIONS_MODEL_NAME }}
+  LLM_EMBEDDINGS_MODEL_NAME: ${{ vars.LLM_EMBEDDINGS_MODEL_NAME }}
+  LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE }}
+
   UNSTRUCTURED_API_KEY: ${{ secrets.UNSTRUCTURED_API_KEY }}
+
+  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
   GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+  FACEBOOK_CLIENT_ID: ${{ vars.FACEBOOK_CLIENT_ID }}
   FACEBOOK_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET }}
+
+  EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+  EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
+  EMAIL_SERVER_HOST: ${{ vars.EMAIL_SERVER_HOST }}
+  EMAIL_SERVER_PORT: ${{ vars.EMAIL_SERVER_PORT }}
+  EMAIL_SERVER_USERNAME: ${{ vars.EMAIL_SERVER_USERNAME }}
   EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
+
+  ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+
+  STRIPE_PUBLIC_KEY: ${{ vars.STRIPE_PUBLIC_KEY }}
   STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
   STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -28,5 +53,5 @@ jobs:
           cache: 'npm'
       - name: Install Node.js dependencies
         run: npm ci
-      - name: Deploy
+      - name: Deploy to AWS
         run: npm run deploy prod
