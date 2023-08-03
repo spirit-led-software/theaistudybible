@@ -4,7 +4,7 @@ import { NextjsSite, StackContext, dependsOn, use } from "sst/constructs";
 export function Website({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { indexFileBucket } = use(S3);
+  const { indexFileBucket, devotionImageBucket } = use(S3);
   const { api, apiUrl } = use(API);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
 
@@ -16,6 +16,7 @@ export function Website({ stack, app }: StackContext) {
       NEXT_PUBLIC_WEBSITE_URL: websiteUrl,
       NEXT_PUBLIC_API_URL: apiUrl,
       INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+      DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
       ...STATIC_ENV_VARS,
     },
     customDomain: {

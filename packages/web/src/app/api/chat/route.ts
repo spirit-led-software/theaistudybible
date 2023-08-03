@@ -4,7 +4,7 @@ import {
   updateAiResponse,
 } from "@core/services/ai-response";
 import { createChat, getChat, updateChat } from "@core/services/chat";
-import { getChatModel, getCompletionsModel } from "@core/services/llm";
+import { getChatModel, getPromptModel } from "@core/services/llm";
 import {
   createSourceDocument,
   getSourceDocumentByText,
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           returnMessages: true,
         }),
         questionGeneratorChainOptions: {
-          llm: getCompletionsModel(),
+          llm: getPromptModel(),
         },
       }
     );

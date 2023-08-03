@@ -10,6 +10,11 @@ neonConfig.fetchConnectionCache = true;
 export const db = config.isLocal
   ? drizzleLocal(postgres(config.url), {
       schema,
+      logger: {
+        logQuery(query, params) {
+          console.log("Executing query:", query, params);
+        },
+      },
     })
   : drizzleNeon(neon(config.url), {
       schema,

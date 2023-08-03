@@ -18,7 +18,6 @@ export function DatabaseScripts({ stack }: StackContext) {
   const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
     onCreate: dbMigrationsFunction,
     onUpdate: dbMigrationsFunction,
-    onDelete: dbMigrationsFunction,
   });
 
   const dbSeedFunction = new Function(stack, "dbSeedFunction", {
@@ -32,7 +31,6 @@ export function DatabaseScripts({ stack }: StackContext) {
   const dbSeedScript = new Script(stack, "dbSeedScript", {
     onCreate: dbSeedFunction,
     onUpdate: dbSeedFunction,
-    onDelete: dbSeedFunction,
   });
 
   return {
