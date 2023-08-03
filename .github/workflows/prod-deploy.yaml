@@ -1,0 +1,31 @@
+name: Production deployment
+concurrency: prod
+on:
+  push:
+    branches:
+      - master
+env:
+  IS_LOCAL: false
+  NODE_ENV: production
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  VECTOR_DB_URL: ${{ secrets.VECTOR_DB_URL }}
+  LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+  UNSTRUCTURED_API_KEY: ${{ secrets.UNSTRUCTURED_API_KEY }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  FACEBOOK_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET }}
+  EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
+  STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+  STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: npm ci
+      - run: npm run deploy prod
