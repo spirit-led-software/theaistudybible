@@ -10,8 +10,8 @@ export function Website({ stack, app }: StackContext) {
 
   const website = new NextjsSite(stack, "website", {
     path: "packages/web",
-    bind: [api, indexFileBucket],
-    permissions: [api, indexFileBucket],
+    bind: [api, indexFileBucket, devotionImageBucket],
+    permissions: [api, indexFileBucket, devotionImageBucket],
     environment: {
       NEXT_PUBLIC_WEBSITE_URL: websiteUrl,
       NEXT_PUBLIC_API_URL: apiUrl,

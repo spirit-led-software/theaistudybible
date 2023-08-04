@@ -11,6 +11,8 @@ export function Crons({ stack }: StackContext) {
     job: {
       function: {
         handler: "packages/functions/src/daily-devo.handler",
+        bind: [devotionImageBucket],
+        permissions: [devotionImageBucket],
         environment: {
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           ...STATIC_ENV_VARS,
