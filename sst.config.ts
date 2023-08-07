@@ -23,9 +23,9 @@ export default {
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(Queues)
+      .stack(Auth)
       .stack(API)
       .stack(Website)
-      .stack(Auth)
       .stack(Crons);
   },
 } satisfies SSTConfig;

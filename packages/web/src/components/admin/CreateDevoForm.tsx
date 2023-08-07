@@ -1,9 +1,12 @@
 "use client";
 
+import { apiConfig } from "@configs/index";
+import { useSession } from "@hooks/session";
 import { useEffect, useState } from "react";
 import { SolidLineSpinner } from "..";
 
 export function CreateDevoForm() {
+  const { session } = useSession();
   const [alert, setAlert] = useState<{
     message: string;
     type: "error" | "success";
@@ -14,10 +17,11 @@ export function CreateDevoForm() {
     event.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch("/api/devotions", {
+      const response = await fetch(`${apiConfig.url}/devotions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session}`,
         },
         body: JSON.stringify({}),
       });

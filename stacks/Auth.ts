@@ -1,4 +1,4 @@
-import { API, DatabaseScripts, STATIC_ENV_VARS, Website } from "@stacks";
+import { Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import {
   Auth as AuthConstruct,
   StackContext,
@@ -9,23 +9,17 @@ import {
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { websiteUrl } = use(Website);
-  const { api, apiUrl } = use(API);
+  const { websiteUrl } = use(Constants);
 
   const auth = new AuthConstruct(stack, "auth", {
     authenticator: {
       handler: "packages/functions/src/auth.handler",
       environment: {
         WEBSITE_URL: websiteUrl,
-        API_URL: apiUrl,
         ...STATIC_ENV_VARS,
       },
       timeout: "30 seconds",
     },
-  });
-
-  auth.attach(stack, {
-    api,
   });
 
   return {

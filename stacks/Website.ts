@@ -5,7 +5,7 @@ export function Website({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { indexFileBucket, devotionImageBucket } = use(S3);
-  const { api, apiUrl } = use(API);
+  const { api, apiUrl, chatApiUrl } = use(API);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
 
   const website = new NextjsSite(stack, "website", {
@@ -15,6 +15,7 @@ export function Website({ stack, app }: StackContext) {
     environment: {
       NEXT_PUBLIC_WEBSITE_URL: websiteUrl,
       NEXT_PUBLIC_API_URL: apiUrl,
+      NEXT_PUBLIC_CHAT_API_URL: chatApiUrl,
       INDEX_FILE_BUCKET: indexFileBucket.bucketName,
       DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
       ...STATIC_ENV_VARS,
@@ -32,7 +33,7 @@ export function Website({ stack, app }: StackContext) {
   api.bind([website]);
 
   stack.addOutputs({
-    "Website URL": websiteUrl,
+    WebsiteUrl: websiteUrl,
   });
 
   return {

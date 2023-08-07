@@ -1,5 +1,7 @@
 "use client";
 
+import { apiConfig } from "@configs/index";
+import { useSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
 import { Chat, UpdateAiResponseData } from "@revelationsai/core/database/model";
 import { nanoid } from "ai";
@@ -10,8 +12,8 @@ import { AiOutlineSend } from "react-icons/ai";
 import { CgRedo } from "react-icons/cg";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
+import { LoadingDots } from "..";
 import { useChats } from "../../hooks";
-import { LoadingMessage } from "./LoadingMessage";
 import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
@@ -26,6 +28,7 @@ export function Window({
 }) {
   const searchParams = useSearchParams();
   const searchParamsQuery = searchParams.get("query");
+  const { session } = useSession();
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
@@ -69,7 +72,7 @@ export function Window({
     setMessages,
     reload,
   } = useChat({
-    api: "/api/chat",
+    api: apiConfig.chatUrl,
     initialMessages: initMessages,
     sendExtraMessageFields: true,
     onResponse: (response) => {
@@ -100,6 +103,9 @@ export function Window({
       }
       handleSubmit(event, {
         options: {
+          headers: {
+            Authorization: `Bearer ${session}`,
+          },
           body: {
             chatId: chatId ?? undefined,
           },
@@ -112,15 +118,19 @@ export function Window({
   const handleAiResponse = useCallback(
     async (chatMessage: ChatMessage, aiResponseId: string) => {
       try {
-        const response = await fetch(`/api/ai-responses/${aiResponseId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            aiId: chatMessage.id,
-          } satisfies UpdateAiResponseData),
-        });
+        const response = await fetch(
+          `${apiConfig.url}/ai-responses/${aiResponseId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session}`,
+            },
+            body: JSON.stringify({
+              aiId: chatMessage.id,
+            } satisfies UpdateAiResponseData),
+          }
+        );
         if (!response.ok) {
           setAlert("Something went wrong");
         }
@@ -136,6 +146,9 @@ export function Window({
   const handleReload = useCallback(async () => {
     await reload({
       options: {
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
         body: {
           chatId: chatId ?? undefined,
         },
@@ -253,7 +266,6 @@ export function Window({
                   sender={message.role}
                 />
               ))}
-              {isLoading && <LoadingMessage />}
               <div ref={endOfMessagesRef} className="w-full h-16" />
             </div>
           </div>
@@ -302,6 +314,11 @@ export function Window({
                 onChange={handleInputChange}
                 value={input}
               />
+              {isLoading && (
+                <div className="flex mr-1">
+                  <LoadingDots size={"sm"} />
+                </div>
+              )}
               <button type="button" onClick={handleReload}>
                 <CgRedo className="mr-1 text-2xl" />
               </button>

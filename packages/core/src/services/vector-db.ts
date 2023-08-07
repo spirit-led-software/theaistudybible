@@ -1,6 +1,7 @@
 import { Document } from "langchain/document";
 import { TypeORMVectorStore } from "langchain/vectorstores/typeorm";
 import { vectorDBConfig } from "../configs/index";
+import { SourceDocument } from "../database/model";
 import { getEmbeddingsModel } from "./llm";
 
 export async function getVectorStore() {
@@ -31,4 +32,17 @@ export async function addDocumentsToVectorStore(
     console.log(`Adding slice: ${i} to ${i + 30}`);
     await vectorStore.addDocuments(documents.slice(i, i + 30));
   }
+}
+
+export async function getSourceDocument(
+  sourceDocumentId: string
+): Promise<SourceDocument | undefined> {
+  const vectorStore = await getVectorStore();
+  const queryString = `
+SELECT * FROM ${vectorStore.tableName} 
+WHERE id = $1;`;
+  const sourceDocuments = await vectorStore.appDataSource.query(queryString, [
+    sourceDocumentId,
+  ]);
+  return sourceDocuments[0];
 }

@@ -11,9 +11,14 @@ const dotsVariants = cva(
         md: "h-2 w-2 mx-1",
         lg: "h-4 w-4 mx-2",
       },
+      colorScheme: {
+        dark: "bg-slate-800",
+        light: "bg-slate-200",
+      },
     },
     defaultVariants: {
       size: "md",
+      colorScheme: "dark",
     },
   }
 );

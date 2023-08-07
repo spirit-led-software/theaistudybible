@@ -1,6 +1,8 @@
 "use client";
 
 import { SolidLineSpinner } from "@components/loading";
+import { apiConfig } from "@configs/index";
+import { useSession } from "@hooks/session";
 import { Query } from "@revelationsai/core/database/helpers";
 import { SourceDocument } from "@revelationsai/core/database/model";
 import Link from "next/link";
@@ -14,6 +16,7 @@ export function ResponseSources({
   aiResponseId: string;
   chatId: string;
 }) {
+  const { session } = useSession();
   const [showSources, setShowSources] = useState(false);
   const [sources, setSources] = useState<SourceDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,26 +45,30 @@ export function ResponseSources({
           },
         });
       }
-      const fetchAiResponsesResponse = await fetch("/api/ai-responses/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query,
-        } satisfies {
-          query: Query;
-        }),
-      });
+      const fetchAiResponsesResponse = await fetch(
+        `${apiConfig.url}/ai-responses/search`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session}`,
+          },
+          body: JSON.stringify({
+            query,
+          } satisfies {
+            query: Query;
+          }),
+        }
+      );
       const { entities: aiResponses } = await fetchAiResponsesResponse.json();
       const aiResponse = aiResponses[0];
 
       const response = await fetch(
-        `/api/ai-responses/${aiResponse.id}/source-documents`,
+        `${apiConfig.url}/ai-responses/${aiResponse.id}/source-documents`,
         {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${session}`,
           },
         }
       );

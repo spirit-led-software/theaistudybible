@@ -1,11 +1,23 @@
-import { Constants, DatabaseScripts, Queues, STATIC_ENV_VARS } from "@stacks";
-import { Api, StackContext, dependsOn, use } from "sst/constructs";
+import {
+  Auth,
+  Constants,
+  DatabaseScripts,
+  Queues,
+  STATIC_ENV_VARS,
+} from "@stacks";
+import {
+  FunctionUrlAuthType,
+  HttpMethod,
+  InvokeMode,
+} from "aws-cdk-lib/aws-lambda";
+import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
+  const { auth } = use(Auth);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
@@ -16,6 +28,25 @@ export function API({ stack }: StackContext) {
     ...STATIC_ENV_VARS,
   };
 
+  const chatApiFunction = new Function(stack, "chatApiFunction", {
+    handler: "packages/functions/src/chat.handler",
+    environment: lambdaEnv,
+    timeout: "60 seconds",
+    runtime: "nodejs18.x",
+    enableLiveDev: false, // Cannot live dev with response stream
+  });
+  const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
+    invokeMode: InvokeMode.RESPONSE_STREAM,
+    cors: {
+      allowCredentials: true,
+      allowedHeaders: ["*"],
+      allowedMethods: [HttpMethod.ALL],
+      allowedOrigins: [websiteUrl],
+      exposedHeaders: ["*"],
+    },
+    authType: FunctionUrlAuthType.NONE,
+  });
+
   const api = new Api(stack, "api", {
     routes: {
       "POST /scraper/website": {
@@ -23,8 +54,6 @@ export function API({ stack }: StackContext) {
           handler: "packages/functions/src/scraper/website.handler",
           bind: [webpageIndexQueue],
           permissions: [webpageIndexQueue],
-          runtime: "nodejs18.x",
-          environment: lambdaEnv,
           timeout: "15 minutes",
           memorySize: "4 GB",
         },
@@ -32,14 +61,12 @@ export function API({ stack }: StackContext) {
       "POST /scraper/webpage": {
         function: {
           handler: "packages/functions/src/scraper/webpage.handler",
-          runtime: "nodejs18.x",
           nodejs: {
             install: ["@sparticuz/chromium"],
             esbuild: {
               external: ["@sparticuz/chromium"],
             },
           },
-          environment: lambdaEnv,
           timeout: "15 minutes",
           memorySize: "2 GB",
         },
@@ -47,18 +74,78 @@ export function API({ stack }: StackContext) {
       "GET /session": {
         function: {
           handler: "packages/functions/src/session.handler",
-          runtime: "nodejs18.x",
-          environment: lambdaEnv,
-          timeout: "30 seconds",
         },
       },
       "POST /stripe/webhook": {
         function: {
-          handler: "packages/functions/src/stripe/webhook.handler",
-          runtime: "nodejs18.x",
-          environment: lambdaEnv,
+          handler: "packages/functions/src/webhook/stripe.handler",
           timeout: "60 seconds",
         },
+      },
+      // REST API
+      // AI Responses
+      "GET /ai-responses":
+        "packages/functions/src/rest/ai-responses/get.handler",
+      "POST /ai-responses":
+        "packages/functions/src/rest/ai-responses/post.handler",
+      "POST /ai-responses/search":
+        "packages/functions/src/rest/ai-responses/search/post.handler",
+      "GET /ai-responses/{id}":
+        "packages/functions/src/rest/ai-responses/[id]/get.handler",
+      "PUT /ai-responses/{id}":
+        "packages/functions/src/rest/ai-responses/[id]/put.handler",
+      "DELETE /ai-responses/{id}":
+        "packages/functions/src/rest/ai-responses/[id]/delete.handler",
+      "GET /ai-responses/{id}/source-documents":
+        "packages/functions/src/rest/ai-responses/[id]/source-documents/get.handler",
+
+      // Chats
+      "GET /chats": "packages/functions/src/rest/chats/get.handler",
+      "POST /chats": "packages/functions/src/rest/chats/post.handler",
+      "GET /chats/{id}": "packages/functions/src/rest/chats/[id]/get.handler",
+      "PUT /chats/{id}": "packages/functions/src/rest/chats/[id]/put.handler",
+      "DELETE /chats/{id}":
+        "packages/functions/src/rest/chats/[id]/delete.handler",
+
+      // Devotions
+      "GET /devotions": "packages/functions/src/rest/devotions/get.handler",
+      "POST /devotions": "packages/functions/src/rest/devotions/post.handler",
+      "GET /devotions/{id}":
+        "packages/functions/src/rest/devotions/[id]/get.handler",
+      "PUT /devotions/{id}":
+        "packages/functions/src/rest/devotions/[id]/put.handler",
+      "DELETE /devotions/{id}":
+        "packages/functions/src/rest/devotions/[id]/delete.handler",
+      "GET /devotions/{id}/source-documents":
+        "packages/functions/src/rest/devotions/[id]/source-documents/get.handler",
+
+      // Index Operations
+      "GET /index-operations":
+        "packages/functions/src/rest/index-operations/get.handler",
+      "GET /index-operations/{id}":
+        "packages/functions/src/rest/index-operations/[id]/get.handler",
+      "PUT /index-operations/{id}":
+        "packages/functions/src/rest/index-operations/[id]/put.handler",
+      "DELETE /index-operations/{id}":
+        "packages/functions/src/rest/index-operations/[id]/delete.handler",
+
+      // User Messages
+      "GET /user-messages":
+        "packages/functions/src/rest/user-messages/get.handler",
+      "POST /user-messages":
+        "packages/functions/src/rest/user-messages/post.handler",
+      "GET /user-messages/{id}":
+        "packages/functions/src/rest/user-messages/[id]/get.handler",
+      "PUT /user-messages/{id}":
+        "packages/functions/src/rest/user-messages/[id]/put.handler",
+      "DELETE /user-messages/{id}":
+        "packages/functions/src/rest/user-messages/[id]/delete.handler",
+    },
+    defaults: {
+      function: {
+        environment: lambdaEnv,
+        runtime: "nodejs18.x",
+        timeout: "30 seconds",
       },
     },
     customDomain: {
@@ -68,15 +155,25 @@ export function API({ stack }: StackContext) {
     cors: {
       allowOrigins: [websiteUrl],
       allowHeaders: ["*"],
+      allowMethods: ["ANY"],
       allowCredentials: true,
+      exposeHeaders: ["*"],
     },
   });
 
+  auth.attach(stack, {
+    api,
+  });
+
   stack.addOutputs({
-    "API URL": apiUrl,
+    ChatApiUrl: chatApiFunctionUrl.url,
+    ApiUrl: apiUrl,
   });
 
   return {
+    chatApiFunction,
+    chatApiFunctionUrl,
+    chatApiUrl: chatApiFunctionUrl.url,
     api,
     apiDomainName,
     apiUrl,

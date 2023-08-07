@@ -1,3 +1,4 @@
+import { apiConfig } from "@configs/index";
 import { Devotion } from "@revelationsai/core/database/model";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
@@ -37,7 +38,7 @@ export const useDevotions = (
   });
 
   const { data, error, isLoading, mutate, isValidating } = useSWR(
-    `/api/devotions?${searchParams.toString()}`,
+    `${apiConfig.url}/devotions?${searchParams.toString()}`,
     devosFetcher,
     swrOptions
   );

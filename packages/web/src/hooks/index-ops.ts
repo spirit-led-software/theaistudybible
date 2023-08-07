@@ -1,14 +1,20 @@
+import { apiConfig } from "@configs/index";
 import { IndexOperation } from "@revelationsai/core/database/model";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
+import { useSession } from "./session";
 import {
+  ProtectedApiHookParams,
   entitiesFetcher,
   setOrderSearchParams,
   setPaginationSearchParams,
 } from "./shared";
 
-const indexOpsFetcher = async (url: string): Promise<IndexOperation[]> => {
-  return entitiesFetcher(url);
+const indexOpsFetcher = async ({
+  url,
+  token,
+}: ProtectedApiHookParams): Promise<IndexOperation[]> => {
+  return entitiesFetcher(url, token);
 };
 
 export const useIndexOps = (
@@ -21,6 +27,7 @@ export const useIndexOps = (
   },
   swrOptions?: SWRConfiguration
 ) => {
+  const { session } = useSession();
   const [indexOps, setIndexOps] = useState<IndexOperation[]>(
     initIndexOps ?? []
   );
@@ -39,7 +46,10 @@ export const useIndexOps = (
   });
 
   const { data, error, mutate, isLoading, isValidating } = useSWR(
-    `/api/index-ops?${searchParams.toString()}`,
+    {
+      url: `${apiConfig.url}/index-operations?${searchParams.toString()}`,
+      token: session,
+    },
     indexOpsFetcher,
     swrOptions
   );

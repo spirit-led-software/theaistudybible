@@ -5,6 +5,8 @@
     "lib": ["dom", "dom.iterable", "ES2021"],
     "moduleResolution": "node",
     "paths": {
+      "@lib/*": ["./src/lib/*"],
+      "@lib": ["./src/lib"],
       "@core/configs/*": ["../core/src/configs/*"],
       "@core/configs": ["../core/src/configs"],
       "@core/services/*": ["../core/src/services/*"],
