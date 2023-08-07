@@ -1,9 +1,12 @@
 "use client";
 
+import { apiConfig } from "@configs/index";
+import { useSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
 import { SolidLineSpinner } from "..";
 
 export function DeleteDevoForm() {
+  const { session } = useSession();
   const idInputRef = useRef<HTMLInputElement>(null);
   const [alert, setAlert] = useState<{
     message: string;
@@ -20,11 +23,11 @@ export function DeleteDevoForm() {
         throw new Error("ID input is empty");
       }
       const response = await fetch(
-        `/api/devotions/${idInputRef.current.value}`,
+        `${apiConfig.url}/devotions/${idInputRef.current.value}`,
         {
           method: "DELETE",
           headers: {
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${session}`,
           },
         }
       );

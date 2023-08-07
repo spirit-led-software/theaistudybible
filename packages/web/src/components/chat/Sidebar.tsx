@@ -1,5 +1,7 @@
 "use client";
 
+import { apiConfig } from "@configs/index";
+import { useSession } from "@hooks/session";
 import { Chat } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
@@ -32,14 +34,16 @@ export function Sidebar({
   setLimit,
 }: SidebarProps) {
   const router = useRouter();
+  const { session } = useSession();
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const createChat = async () => {
-    const response = await fetch("/api/chats", {
+    const response = await fetch(`${apiConfig.url}/chats`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${session}`,
       },
       body: JSON.stringify({
         name: "New Chat",
@@ -54,8 +58,11 @@ export function Sidebar({
 
   const deleteChat = (id: string) => {
     if (confirm("Are you sure you want to delete this chat?")) {
-      fetch(`/api/chats/${id}`, {
+      fetch(`${apiConfig.url}/chats/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
       });
       setTimeout(() => {
         mutate(chats!.filter((chat) => chat.id !== id));
