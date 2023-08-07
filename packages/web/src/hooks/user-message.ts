@@ -1,3 +1,4 @@
+import { apiConfig } from "@configs/index";
 import { UserMessage } from "@revelationsai/core/database/model";
 import useSWR from "swr";
 import { useSession } from "./session";
@@ -38,7 +39,10 @@ export const useUserMessages = (options?: {
   }
 
   const { data, error, isLoading, mutate } = useSWR(
-    { url: `/api/user-messages?${searchParams.toString()}`, token: session },
+    {
+      url: `${apiConfig.url}/user-messages?${searchParams.toString()}`,
+      token: session,
+    },
     messagesFetcher
   );
 
@@ -51,8 +55,9 @@ export const useUserMessages = (options?: {
 };
 
 export const useUserMessage = (messageId: string) => {
+  const { session } = useSession();
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/user-messages/${messageId}`,
+    { url: `${apiConfig.url}/user-messages/${messageId}`, token: session },
     messagesFetcher
   );
 

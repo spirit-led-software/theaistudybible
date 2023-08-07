@@ -118,15 +118,19 @@ export function Window({
   const handleAiResponse = useCallback(
     async (chatMessage: ChatMessage, aiResponseId: string) => {
       try {
-        const response = await fetch(`/api/ai-responses/${aiResponseId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            aiId: chatMessage.id,
-          } satisfies UpdateAiResponseData),
-        });
+        const response = await fetch(
+          `${apiConfig.url}/ai-responses/${aiResponseId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session}`,
+            },
+            body: JSON.stringify({
+              aiId: chatMessage.id,
+            } satisfies UpdateAiResponseData),
+          }
+        );
         if (!response.ok) {
           setAlert("Something went wrong");
         }

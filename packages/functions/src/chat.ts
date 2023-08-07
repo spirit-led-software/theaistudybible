@@ -263,27 +263,6 @@ export const handler = middy({ streamifyResponse: true }).handler(
         });
 
       const reader = stream.getReader();
-      const readable = new Readable({
-        read() {
-          reader
-            .read()
-            .then(({ done, value }: { done: boolean; value?: any }) => {
-              if (done) {
-                console.log("Finished chat stream response");
-                this.push(null);
-                return;
-              }
-              this.push(value);
-              this.read();
-            })
-            .catch((err) => {
-              console.error(`${err.stack}`);
-              this.push(null);
-            });
-        },
-      });
-
-      console.log("Beginning chat stream response");
       return {
         statusCode: 200,
         headers: {
@@ -292,7 +271,25 @@ export const handler = middy({ streamifyResponse: true }).handler(
           "x-user-message-id": userMessage.id,
           "x-ai-response-id": aiResponse.id,
         },
-        body: readable,
+        body: new Readable({
+          read() {
+            reader
+              .read()
+              .then(({ done, value }: { done: boolean; value?: any }) => {
+                if (done) {
+                  console.log("Finished chat stream response");
+                  this.push(null);
+                  return;
+                }
+                this.push(value);
+                this.read();
+              })
+              .catch((err) => {
+                console.error(`${err.stack}`);
+                this.push(null);
+              });
+          },
+        }),
       };
     } catch (error: any) {
       console.error("Caught error:", error);
