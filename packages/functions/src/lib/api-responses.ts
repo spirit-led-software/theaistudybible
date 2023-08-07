@@ -1,6 +1,8 @@
-export const OkResponse = (data?: any) => {
+import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+
+export const OkResponse = (data?: any): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 200,
+    statusCode: 200,
     headers: {
       "Content-Type": "application/json",
     },
@@ -12,9 +14,11 @@ export const OkResponse = (data?: any) => {
   };
 };
 
-export const CreatedResponse = (data?: any) => {
+export const CreatedResponse = (
+  data?: any
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 201,
+    statusCode: 201,
     headers: {
       "Content-Type": "application/json",
     },
@@ -26,12 +30,14 @@ export const CreatedResponse = (data?: any) => {
   };
 };
 
-export const DeletedResponse = (identifier?: string) => {
+export const DeletedResponse = (
+  identifier?: string
+): APIGatewayProxyStructuredResultV2 => {
   const message = identifier
     ? `Deleted ${identifier} successfully`
     : "Deleted successfully";
   return {
-    status: 200,
+    statusCode: 200,
     headers: {
       "Content-Type": "application/json",
     },
@@ -41,9 +47,11 @@ export const DeletedResponse = (identifier?: string) => {
   };
 };
 
-export const TooManyRequestsResponse = (message?: string) => {
+export const TooManyRequestsResponse = (
+  message?: string
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 429,
+    statusCode: 429,
     headers: {
       "Content-Type": "application/json",
     },
@@ -53,9 +61,11 @@ export const TooManyRequestsResponse = (message?: string) => {
   };
 };
 
-export const BadRequestResponse = (message?: string) => {
+export const BadRequestResponse = (
+  message?: string
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 400,
+    statusCode: 400,
     headers: {
       "Content-Type": "application/json",
     },
@@ -65,9 +75,11 @@ export const BadRequestResponse = (message?: string) => {
   };
 };
 
-export const UnauthorizedResponse = (message?: string) => {
+export const UnauthorizedResponse = (
+  message?: string
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 401,
+    statusCode: 401,
     headers: {
       "Content-Type": "application/json",
     },
@@ -77,9 +89,11 @@ export const UnauthorizedResponse = (message?: string) => {
   };
 };
 
-export const NotFoundResponse = (message?: string) => {
+export const NotFoundResponse = (
+  message?: string
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 404,
+    statusCode: 404,
     headers: {
       "Content-Type": "application/json",
     },
@@ -89,9 +103,11 @@ export const NotFoundResponse = (message?: string) => {
   };
 };
 
-export const ObjectNotFoundResponse = (identifier: string) => {
+export const ObjectNotFoundResponse = (
+  identifier: string
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 404,
+    statusCode: 404,
     headers: {
       "Content-Type": "application/json",
     },
@@ -101,9 +117,11 @@ export const ObjectNotFoundResponse = (identifier: string) => {
   };
 };
 
-export const InternalServerErrorResponse = (message?: string) => {
+export const InternalServerErrorResponse = (
+  message?: string
+): APIGatewayProxyStructuredResultV2 => {
   return {
-    status: 500,
+    statusCode: 500,
     headers: {
       "Content-Type": "application/json",
     },

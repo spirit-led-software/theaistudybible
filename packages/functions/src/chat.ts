@@ -39,7 +39,7 @@ import {
 import { Readable } from "stream";
 
 export const handler = middy({ streamifyResponse: true }).handler(
-  async (event: APIGatewayProxyEventV2) => {
+  async (event: APIGatewayProxyEventV2): Promise<any | void> => {
     console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
 
     if (!event.body) {
