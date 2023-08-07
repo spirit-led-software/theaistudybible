@@ -1,13 +1,18 @@
 import { UserMessage } from "@revelationsai/core/database/model";
 import useSWR from "swr";
+import { useSession } from "./session";
 import {
+  ProtectedApiHookParams,
   entitiesFetcher,
   setOrderSearchParams,
   setPaginationSearchParams,
 } from "./shared";
 
-const messagesFetcher = async (url: string): Promise<UserMessage> => {
-  return entitiesFetcher(url);
+const messagesFetcher = async ({
+  url,
+  token,
+}: ProtectedApiHookParams): Promise<UserMessage> => {
+  return entitiesFetcher(url, token);
 };
 
 export const useUserMessages = (options?: {
@@ -17,6 +22,7 @@ export const useUserMessages = (options?: {
   orderBy: string;
   order: string;
 }) => {
+  const { session } = useSession();
   const { chatId, limit, page, orderBy, order } = options ?? {};
   let searchParams = new URLSearchParams();
   searchParams = setPaginationSearchParams(searchParams, {
@@ -32,7 +38,7 @@ export const useUserMessages = (options?: {
   }
 
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/user-messages?${searchParams.toString()}`,
+    { url: `/api/user-messages?${searchParams.toString()}`, token: session },
     messagesFetcher
   );
 

@@ -1,5 +1,28 @@
-export const entitiesFetcher = async (url: string): Promise<any> => {
-  const res = await fetch(url);
+export type ProtectedApiHookParams = {
+  url: string;
+  token: string;
+};
+
+export const entitiesFetcher = async (
+  url: string,
+  token?: string
+): Promise<any> => {
+  let options: RequestInit = {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  };
+  if (token) {
+    options = {
+      ...options,
+      headers: {
+        ...options.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  }
+  const res = await fetch(url, options);
   const data = await res.json();
   const { entities } = data;
   return entities;

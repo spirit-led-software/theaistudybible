@@ -78,10 +78,68 @@ export function API({ stack }: StackContext) {
       },
       "POST /stripe/webhook": {
         function: {
-          handler: "packages/functions/src/stripe/webhook.handler",
+          handler: "packages/functions/src/webhook/stripe.handler",
           timeout: "60 seconds",
         },
       },
+      // REST API
+      // AI Responses
+      "GET /ai-responses":
+        "packages/functions/src/rest/ai-responses/get.handler",
+      "POST /ai-responses":
+        "packages/functions/src/rest/ai-responses/post.handler",
+      "POST /ai-responses/search":
+        "packages/functions/src/rest/ai-responses/search/post.handler",
+      "GET /ai-responses/{id}":
+        "packages/functions/src/rest/ai-responses/[id]/get.handler",
+      "PUT /ai-responses/{id}":
+        "packages/functions/src/rest/ai-responses/[id]/put.handler",
+      "DELETE /ai-responses/{id}":
+        "packages/functions/src/rest/ai-responses/[id]/delete.handler",
+      "GET /ai-responses/{id}/source-documents":
+        "packages/functions/src/rest/ai-responses/[id]/source-documents/get.handler",
+
+      // Chats
+      "GET /chats": "packages/functions/src/rest/chats/get.handler",
+      "POST /chats": "packages/functions/src/rest/chats/post.handler",
+      "GET /chats/{id}": "packages/functions/src/rest/chats/[id]/get.handler",
+      "PUT /chats/{id}": "packages/functions/src/rest/chats/[id]/put.handler",
+      "DELETE /chats/{id}":
+        "packages/functions/src/rest/chats/[id]/delete.handler",
+
+      // Devotions
+      "GET /devotions": "packages/functions/src/rest/devotions/get.handler",
+      "POST /devotions": "packages/functions/src/rest/devotions/post.handler",
+      "GET /devotions/{id}":
+        "packages/functions/src/rest/devotions/[id]/get.handler",
+      "PUT /devotions/{id}":
+        "packages/functions/src/rest/devotions/[id]/put.handler",
+      "DELETE /devotions/{id}":
+        "packages/functions/src/rest/devotions/[id]/delete.handler",
+      "GET /devotions/{id}/source-documents":
+        "packages/functions/src/rest/devotions/[id]/source-documents/get.handler",
+
+      // Index Operations
+      "GET /index-operations":
+        "packages/functions/src/rest/index-operations/get.handler",
+      "GET /index-operations/{id}":
+        "packages/functions/src/rest/index-operations/[id]/get.handler",
+      "PUT /index-operations/{id}":
+        "packages/functions/src/rest/index-operations/[id]/put.handler",
+      "DELETE /index-operations/{id}":
+        "packages/functions/src/rest/index-operations/[id]/delete.handler",
+
+      // User Messages
+      "GET /user-messages":
+        "packages/functions/src/rest/user-messages/get.handler",
+      "POST /user-messages":
+        "packages/functions/src/rest/user-messages/post.handler",
+      "GET /user-messages/{id}":
+        "packages/functions/src/rest/user-messages/[id]/get.handler",
+      "PUT /user-messages/{id}":
+        "packages/functions/src/rest/user-messages/[id]/put.handler",
+      "DELETE /user-messages/{id}":
+        "packages/functions/src/rest/user-messages/[id]/delete.handler",
     },
     defaults: {
       function: {
