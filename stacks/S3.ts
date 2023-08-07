@@ -42,8 +42,8 @@ export function S3({ stack }: StackContext) {
   });
 
   stack.addOutputs({
-    "Index File Bucket Name": indexFileBucket.bucketName,
-    "Devotion Image Bucket Name": devotionImageBucket.bucketName,
+    IndexFileBucket: indexFileBucket.bucketName,
+    DevotionImageBucket: devotionImageBucket.bucketName,
   });
 
   return {

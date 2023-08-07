@@ -11,14 +11,9 @@ import {
   SourceDocument,
   UpdateDevotionData,
 } from "../database/model";
-import {
-  devotions,
-  devotionsToSourceDocuments,
-  sourceDocuments,
-} from "../database/schema";
+import { devotions, devotionsToSourceDocuments } from "../database/schema";
 import { getCompletionsModel, getOpenAiClient, getPromptModel } from "./llm";
-import { createSourceDocument, getSourceDocumentByText } from "./source-doc";
-import { getVectorStore } from "./vector-db";
+import { getSourceDocument, getVectorStore } from "./vector-db";
 
 export async function getDevotions(
   options: {
@@ -72,13 +67,10 @@ export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
 
   const foundSourceDocuments: SourceDocument[] = [];
   for (const sourceDocumentId of sourceDocumentIds) {
-    const sourceDocument = (
-      await db
-        .select()
-        .from(sourceDocuments)
-        .where(eq(sourceDocuments.id, sourceDocumentId))
-    )[0];
-    foundSourceDocuments.push(sourceDocument);
+    const sourceDocument = await getSourceDocument(sourceDocumentId);
+    if (sourceDocument) {
+      foundSourceDocuments.push(sourceDocument);
+    }
   }
 
   return foundSourceDocuments;
@@ -142,22 +134,11 @@ Finally, write a prayer to wrap up the devotional.`);
     });
 
     await Promise.all(
-      context.map(async (c) => {
-        let sourceDoc: SourceDocument | undefined;
-        const existingSourceDoc = await getSourceDocumentByText(c.pageContent);
-
-        if (existingSourceDoc) {
-          sourceDoc = existingSourceDoc;
-        } else {
-          sourceDoc = await createSourceDocument({
-            text: c.pageContent,
-            metadata: c.metadata,
-          });
-        }
-
+      // @ts-ignore
+      context.map(async (c: SourceDocument) => {
         await db.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
-          sourceDocumentId: sourceDoc.id,
+          sourceDocumentId: c.id,
         });
       })
     );

@@ -6,11 +6,8 @@ import {
   SourceDocument,
   UpdateAiResponseData,
 } from "../database/model";
-import {
-  aiResponses,
-  aiResponsesToSourceDocuments,
-  sourceDocuments,
-} from "../database/schema";
+import { aiResponses, aiResponsesToSourceDocuments } from "../database/schema";
+import { getSourceDocument } from "./vector-db";
 
 export async function getAiResponses(
   options: {
@@ -70,13 +67,10 @@ export async function getAiResponseRelatedSourceDocuments(
 
   const foundSourceDocuments: SourceDocument[] = [];
   for (const sourceDocumentId of sourceDocumentIds) {
-    const sourceDocument = (
-      await db
-        .select()
-        .from(sourceDocuments)
-        .where(eq(sourceDocuments.id, sourceDocumentId))
-    )[0];
-    foundSourceDocuments.push(sourceDocument);
+    const sourceDocument = await getSourceDocument(sourceDocumentId);
+    if (sourceDocument) {
+      foundSourceDocuments.push(sourceDocument);
+    }
   }
 
   return foundSourceDocuments;

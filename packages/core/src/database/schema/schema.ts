@@ -12,32 +12,6 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-export const sourceDocuments = pgTable(
-  "source_documents",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    text: text("text").notNull(),
-    metadata: json("metadata").default({}).notNull(),
-  },
-  (table) => {
-    return {
-      textKey: uniqueIndex("source_document_text_key").on(table.text),
-    };
-  }
-);
-
-export const sourceDocumentsRelations = relations(
-  sourceDocuments,
-  ({ many }) => {
-    return {
-      aiResponses: many(aiResponses),
-      devotions: many(devotions),
-    };
-  }
-);
-
 export const aiResponses = pgTable("ai_responses", {
   id: uuid("id").primaryKey().defaultRandom(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -74,7 +48,6 @@ export const aiResponsesRelations = relations(aiResponses, ({ one, many }) => {
       fields: [aiResponses.userMessageId],
       references: [userMessages.id],
     }),
-    sourceDocuments: many(sourceDocuments),
   };
 });
 
@@ -180,12 +153,6 @@ export const devotions = pgTable(
   }
 );
 
-export const devotionsRelations = relations(devotions, ({ many }) => {
-  return {
-    sourceDocuments: many(sourceDocuments),
-  };
-});
-
 export const userMessages = pgTable(
   "user_messages",
   {
@@ -286,12 +253,7 @@ export const aiResponsesToSourceDocuments = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    sourceDocumentId: uuid("source_document_id")
-      .notNull()
-      .references(() => sourceDocuments.id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
+    sourceDocumentId: uuid("source_document_id").notNull(),
   },
   (table) => {
     return {
@@ -311,12 +273,7 @@ export const devotionsToSourceDocuments = pgTable(
         onDelete: "cascade",
         onUpdate: "cascade",
       }),
-    sourceDocumentId: uuid("source_document_id")
-      .notNull()
-      .references(() => sourceDocuments.id, {
-        onDelete: "cascade",
-        onUpdate: "cascade",
-      }),
+    sourceDocumentId: uuid("source_document_id").notNull(),
   },
   (table) => {
     return {
