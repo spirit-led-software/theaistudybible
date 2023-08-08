@@ -55,7 +55,7 @@ export function IndexOperationsDashboard({
                   <td className="px-2 py-1">
                     {Moment(indexOp.createdAt).format("M/d/Y h:mma")}
                   </td>
-                  <td className="px-2 py-1 overflow-x-scroll">
+                  <td className="px-2 py-1 overflow-x-scroll whitespace-nowrap">
                     {indexOp.metadata ? (
                       <table className="table-fixed">
                         <tbody>
