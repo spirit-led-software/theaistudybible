@@ -3,6 +3,7 @@ import {
   Constants,
   DatabaseScripts,
   Queues,
+  S3,
   STATIC_ENV_VARS,
 } from "@stacks";
 import {
@@ -18,6 +19,7 @@ export function API({ stack }: StackContext) {
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
   const { auth } = use(Auth);
+  const { devotionImageBucket } = use(S3);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
@@ -109,7 +111,17 @@ export function API({ stack }: StackContext) {
 
       // Devotions
       "GET /devotions": "packages/functions/src/rest/devotions/get.handler",
-      "POST /devotions": "packages/functions/src/rest/devotions/post.handler",
+      "POST /devotions": {
+        function: {
+          handler: "packages/functions/src/rest/devotions/post.handler",
+          bind: [devotionImageBucket],
+          permissions: [devotionImageBucket],
+          environment: {
+            ...lambdaEnv,
+            DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
+          },
+        },
+      },
       "GET /devotions/{id}":
         "packages/functions/src/rest/devotions/[id]/get.handler",
       "PUT /devotions/{id}":

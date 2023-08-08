@@ -159,24 +159,26 @@ async function generateDevotionImage(devo: Devotion) {
   const imagePromptChain = new LLMChain({
     llm: getCompletionsModel(),
     prompt: PromptTemplate.fromTemplate(
-      `Generate a prompt under 1000 characters that will create an image for the following devotion:
+      `Create an image generation prompt within 1000 characters. Do not be verbose. Try to only use adjectives and nouns if possible. Base it on the following devotion:
 {devotion}`
     ),
   });
   const imagePrompt = await imagePromptChain.call({
     devotion: devo.content,
   });
+  console.log("Image prompt:", imagePrompt.text);
 
   const negativeImagePromptChain = new LLMChain({
     llm: getCompletionsModel(),
     prompt: PromptTemplate.fromTemplate(
-      `Generate a negative prompt (things that the AI model should avoid including in the image) under 1000 characters that will create an image for the following devotion:
+      `Create a negative image generation prompt (things that the AI model should avoid including in the image) within 1000 characters. Do not be verbose. Try to only use adjectives and nouns if possible. Base it on the following devotion:
 {devotion}`
     ),
   });
   const negativeImagePrompt = await negativeImagePromptChain.call({
     devotion: devo.content,
   });
+  console.log("Negative image prompt:", negativeImagePrompt.text);
 
   const imageCaptionChain = new LLMChain({
     llm: getPromptModel(),
@@ -187,24 +189,27 @@ async function generateDevotionImage(devo: Devotion) {
   const imageCaption = await imageCaptionChain.call({
     imagePrompt: imagePrompt.text,
   });
+  console.log("Image caption:", imageCaption.text);
 
   const replicate = new Replicate({
     auth: replicateConfig.apiKey,
   });
-
-  const output = (await replicate.run(replicateConfig.imageModel, {
+  const output = await replicate.run(replicateConfig.imageModel, {
     input: {
-      prompt: `${imagePrompt.text}. 8k, beautiful, high quality, realistic.`,
-      negative_prompt: `${negativeImagePrompt.text}. Ugly, low quality, unrealistic, blurry.`,
+      prompt: `${imagePrompt.text}. 8k, beautiful, high-quality, realistic.`,
+      negative_prompt: `${negativeImagePrompt.text}. Ugly, unrealistic, blurry, fake, cartoon, text, words.`,
       width: 512,
       height: 512,
       num_outputs: 1,
-      num_inference_steps: 100,
+      num_inference_steps: 75,
       refine: "expert_ensemble_refiner",
     },
-  })) as string[];
+    wait: true,
+  });
+  console.log("Output from replicate:", output);
 
-  const image = await axios.get(output[0], {
+  const urlArray = output as string[];
+  const image = await axios.get(urlArray[0], {
     responseType: "arraybuffer",
   });
 

@@ -22,6 +22,10 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   LLM_EMBEDDINGS_MODEL_NAME: process.env.LLM_EMBEDDINGS_MODEL_NAME!,
   LLM_TEMPERATURE: process.env.LLM_TEMPERATURE!,
 
+  // Replicate
+  REPLICATE_API_KEY: process.env.REPLICATE_API_KEY!,
+  REPLICATE_IMAGE_MODEL: process.env.REPLICATE_IMAGE_MODEL!,
+
   // Unstructured
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
 
