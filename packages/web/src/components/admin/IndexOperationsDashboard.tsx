@@ -55,7 +55,7 @@ export function IndexOperationsDashboard({
                   <td className="px-2 py-1">
                     {Moment(indexOp.createdAt).format("M/d/Y h:mma")}
                   </td>
-                  <td className="px-2 py-1">
+                  <td className="w-32 px-2 py-1 overflow-x-hidden truncate grow-0">
                     {indexOp.metadata ? (
                       <table className="table-fixed">
                         <tbody>
@@ -63,7 +63,7 @@ export function IndexOperationsDashboard({
                             ([key, value]) => (
                               <tr key={key} className="divide-x-2">
                                 <td className="pr-2">{key}</td>
-                                <td className="w-20 overflow-x-hidden truncate over">
+                                <td className="pr-2">
                                   {JSON.stringify(value as any)}
                                 </td>
                               </tr>
