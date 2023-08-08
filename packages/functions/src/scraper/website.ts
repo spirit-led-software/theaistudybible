@@ -72,13 +72,24 @@ export const handler = ApiHandler(async (event) => {
     });
 
     let urlRegex: RegExp;
-    if (pathRegex) {
-      urlRegex = new RegExp(`${url}${pathRegex}`);
+    let sitemapUrls: string[];
+    if (url.endsWith(".xml")) {
+      const baseUrl = `${url.substring(0, url.lastIndexOf("/"))}/.*`;
+      if (pathRegex) {
+        urlRegex = new RegExp(`${baseUrl}/${pathRegex}`);
+      } else {
+        urlRegex = new RegExp(`${baseUrl}/.*`);
+      }
+      sitemapUrls = [url];
     } else {
-      urlRegex = new RegExp(`${url}/.*`);
+      if (pathRegex) {
+        urlRegex = new RegExp(`${url}/${pathRegex}`);
+      } else {
+        urlRegex = new RegExp(`${url}/.*`);
+      }
+      sitemapUrls = await getSitemaps(url);
     }
 
-    const sitemapUrls = await getSitemaps(url);
     console.debug(`sitemapUrls: ${sitemapUrls}`);
     for (const sitemapUrl of sitemapUrls) {
       await navigateSitemap(sitemapUrl, urlRegex, name, indexOp.id);
@@ -171,17 +182,20 @@ async function navigateSitemap(
     }
 
     for (let i = 0; i < siteMapUrlsArray.length; i++) {
-      const foundUrl = sitemapUrls[i].loc;
+      const foundUrl: string = sitemapUrls[i].loc;
       if (foundUrl) {
         if (foundUrl.endsWith(".xml")) {
           await navigateSitemap(foundUrl, urlRegex, name, indexOpId);
         } else if (foundUrl.match(urlRegex)) {
           await sendUrlToQueue(name, foundUrl, indexOpId);
+        } else {
+          console.log(`Skipping url: ${foundUrl}`);
         }
       }
     }
   } catch (err: any) {
     console.error(`Error navigating sitemap: ${err.stack}`);
+    throw err;
   }
 }
 

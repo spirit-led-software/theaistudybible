@@ -207,6 +207,9 @@ async function generateDevotionImage(devo: Devotion) {
     wait: true,
   });
   console.log("Output from replicate:", output);
+  if (!Array.isArray(output)) {
+    throw new Error("Replicate output not formatted as expected");
+  }
 
   const urlArray = output as string[];
   const image = await axios.get(urlArray[0], {

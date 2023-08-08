@@ -26,8 +26,8 @@ export function WebsiteIndexForm() {
     const url = urlInputRef.current?.value;
     const pathRegex = pathRegexRef.current?.value;
     try {
-      if (!name || !url || !pathRegex) {
-        throw new Error("Name, URL, and Path Regular Expression are required.");
+      if (!name || !url) {
+        throw new Error("Name and URL are required.");
       }
       const response = await fetch(`${apiConfig.url}/scraper/website`, {
         method: "POST",
@@ -36,12 +36,11 @@ export function WebsiteIndexForm() {
           Authorization: `Bearer ${session}`,
         },
         body: JSON.stringify({ name, url, pathRegex }),
-      }).catch((error) => {
-        throw new Error(error.message);
       });
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error ?? "Something went wrong.");
       }
       setAlert({ message: "Website index started.", type: "success" });
     } catch (error: any) {
