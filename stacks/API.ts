@@ -73,17 +73,9 @@ export function API({ stack }: StackContext) {
           memorySize: "2 GB",
         },
       },
-      "GET /session": {
-        function: {
-          handler: "packages/functions/src/session.handler",
-        },
-      },
-      "POST /stripe/webhook": {
-        function: {
-          handler: "packages/functions/src/webhook/stripe.handler",
-          timeout: "60 seconds",
-        },
-      },
+      "GET /session": "packages/functions/src/session.handler",
+      "POST /stripe/webhook": "packages/functions/src/webhook/stripe.handler",
+
       // REST API
       // AI Responses
       "GET /ai-responses":
@@ -120,6 +112,7 @@ export function API({ stack }: StackContext) {
             ...lambdaEnv,
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           },
+          timeout: "2 minutes",
         },
       },
       "GET /devotions/{id}":
@@ -157,7 +150,7 @@ export function API({ stack }: StackContext) {
       function: {
         environment: lambdaEnv,
         runtime: "nodejs18.x",
-        timeout: "30 seconds",
+        timeout: "60 seconds",
       },
     },
     customDomain: {
