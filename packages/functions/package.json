@@ -20,6 +20,7 @@
     "@revelationsai/core": "*",
     "ai": "^2.1.22",
     "busboy": "^1.6.0",
+    "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.2.5",
     "lambda-stream": "^0.5.0",
     "mammoth": "^1.6.0",

@@ -7,7 +7,15 @@ import {
 } from "@core/services/index-op";
 import { validApiSession } from "@core/services/session";
 import { isAdmin } from "@core/services/user";
+import {
+  BadRequestResponse,
+  ForbiddenResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
 import { IndexOperation } from "@revelationsai/core/database/model";
+import escapeStringRegexp from "escape-string-regexp";
 import { XMLParser } from "fast-xml-parser";
 import { ApiHandler } from "sst/node/api";
 import { Queue } from "sst/node/queue";
@@ -23,30 +31,15 @@ const sqsClient = new SQSClient({});
 export const handler = ApiHandler(async (event) => {
   const { isValid, userInfo } = await validApiSession();
   if (!isValid) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({
-        error: "Unauthorized",
-      }),
-    };
+    return UnauthorizedResponse("You must be logged in to perform this action");
   }
 
   if (!(await isAdmin(userInfo.id))) {
-    return {
-      statusCode: 403,
-      body: JSON.stringify({
-        error: "Forbidden",
-      }),
-    };
+    return ForbiddenResponse("You must be an admin to perform this action");
   }
 
   if (!event.body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: "Missing body",
-      }),
-    };
+    return BadRequestResponse("Missing request body");
   }
 
   const {
@@ -55,12 +48,19 @@ export const handler = ApiHandler(async (event) => {
     name,
   }: RequestBody = JSON.parse(event.body);
   if (!name || !url) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: "Missing required fields name and url",
-      }),
-    };
+    return BadRequestResponse("Name and url are required");
+  }
+
+  if (
+    pathRegexString &&
+    (pathRegexString.startsWith("/") ||
+      pathRegexString.startsWith("\\/") ||
+      pathRegexString.endsWith("/") ||
+      pathRegexString.endsWith("\\/"))
+  ) {
+    return BadRequestResponse(
+      "Path regex cannot start or end with a forward slash"
+    );
   }
 
   let indexOp: IndexOperation | undefined;
@@ -68,25 +68,23 @@ export const handler = ApiHandler(async (event) => {
     let baseUrl = url;
     let urlRegex: RegExp | undefined = undefined;
     let sitemapUrls: string[] | undefined = undefined;
+
+    // if sitemap was provided, use that
     if (url.endsWith(".xml")) {
       sitemapUrls = [url];
       baseUrl = `${url.substring(0, url.lastIndexOf("/"))}`;
     }
-
-    let regexString: string = `${baseUrl}/.*`;
-    if (pathRegexString) {
-      regexString = `${baseUrl}/${
-        pathRegexString.startsWith("/")
-          ? pathRegexString.substring(1)
-          : pathRegexString
-      }`;
+    // remove trailing slash
+    if (baseUrl.endsWith("/")) {
+      baseUrl = baseUrl.substring(0, baseUrl.length - 1);
     }
-    const flags = regexString.replace(/.*\/([gimy]*)$/, "$1");
-    const pattern = regexString.replace(
-      new RegExp("^/(.*?)/" + flags + "$"),
-      "$1"
-    );
-    urlRegex = new RegExp(pattern, flags);
+    baseUrl = escapeStringRegexp(baseUrl);
+
+    let regexString: string = `${baseUrl}\\/.*`;
+    if (pathRegexString) {
+      regexString = `${baseUrl}\\/${pathRegexString}`;
+    }
+    urlRegex = new RegExp(regexString);
 
     indexOp = await createIndexOperation({
       type: "WEBSITE",
@@ -115,13 +113,10 @@ export const handler = ApiHandler(async (event) => {
       },
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Started indexing urls",
-        indexOp,
-      }),
-    };
+    return OkResponse({
+      message: "Website index operation started",
+      indexOp,
+    });
   } catch (err: any) {
     console.error(`${err.stack}`);
 
@@ -142,12 +137,7 @@ export const handler = ApiHandler(async (event) => {
       };
     }
 
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: err.stack,
-      }),
-    };
+    return InternalServerErrorResponse(err.stack);
   }
 });
 
@@ -211,7 +201,7 @@ async function navigateSitemap(
             name,
             indexOpId
           );
-        } else if (RegExp(urlRegex).exec(foundUrl)) {
+        } else if (urlRegex.test(foundUrl)) {
           await sendUrlToQueue(name, foundUrl, indexOpId);
           urlCount++;
         } else {

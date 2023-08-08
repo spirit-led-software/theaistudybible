@@ -89,6 +89,20 @@ export const UnauthorizedResponse = (
   };
 };
 
+export const ForbiddenResponse = (
+  message?: string
+): APIGatewayProxyStructuredResultV2 => {
+  return {
+    statusCode: 403,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      error: message ?? "Forbidden",
+    }),
+  };
+};
+
 export const NotFoundResponse = (
   message?: string
 ): APIGatewayProxyStructuredResultV2 => {

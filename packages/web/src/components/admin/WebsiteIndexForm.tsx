@@ -107,6 +107,13 @@ export function WebsiteIndexForm() {
         </div>
         <div className="flex flex-col space-y-1">
           <label htmlFor="file">Path Regular Expression</label>
+          <label className="text-gray-400 text-2xs">
+            Example: <span className="text-gray-600">bible-commentary\/.*</span>
+          </label>
+          <label className="text-gray-400 text-2xs">
+            Cannot start with <span className="text-gray-600">/</span> or{" "}
+            <span className="text-gray-600">\/</span>
+          </label>
           <input
             ref={pathRegexRef}
             id="file"
