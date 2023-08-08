@@ -72,9 +72,9 @@ const checkIfIndexOpIsCompletedAndUpdate = async (
     if (
       indexOpMetadata.succeeded &&
       indexOpMetadata.failed &&
-      indexOpMetadata.numberOfUrls &&
+      indexOpMetadata.urlCount &&
       indexOpMetadata.succeeded.length + indexOpMetadata.failed.length ===
-        indexOpMetadata.numberOfUrls
+        indexOpMetadata.urlCount
     ) {
       await updateIndexOperation(indexOp!.id, {
         status: "COMPLETED",

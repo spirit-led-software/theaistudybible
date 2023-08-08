@@ -91,10 +91,17 @@ export const handler = ApiHandler(async (event) => {
     }
 
     console.debug(`sitemapUrls: ${sitemapUrls}`);
+    let urlCount = 0;
     for (const sitemapUrl of sitemapUrls) {
-      await navigateSitemap(sitemapUrl, urlRegex, name, indexOp.id);
+      urlCount += await navigateSitemap(sitemapUrl, urlRegex, name, indexOp.id);
     }
     indexOp = await getIndexOperation(indexOp.id);
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      metadata: {
+        ...(indexOp!.metadata as any),
+        urlCount,
+      },
+    });
 
     return {
       statusCode: 200,
@@ -156,7 +163,8 @@ async function navigateSitemap(
   urlRegex: RegExp,
   name: string,
   indexOpId: string
-): Promise<void> {
+): Promise<number> {
+  let urlCount = 0;
   try {
     // Fetch the sitemap XML content
     const { data: sitemapXml } = await axios.get(url!);
@@ -185,9 +193,15 @@ async function navigateSitemap(
       const foundUrl: string = sitemapUrls[i].loc;
       if (foundUrl) {
         if (foundUrl.endsWith(".xml")) {
-          await navigateSitemap(foundUrl, urlRegex, name, indexOpId);
+          urlCount += await navigateSitemap(
+            foundUrl,
+            urlRegex,
+            name,
+            indexOpId
+          );
         } else if (foundUrl.match(urlRegex)) {
           await sendUrlToQueue(name, foundUrl, indexOpId);
+          urlCount++;
         } else {
           console.log(`Skipping url: ${foundUrl}`);
         }
@@ -197,6 +211,7 @@ async function navigateSitemap(
     console.error(`Error navigating sitemap: ${err.stack}`);
     throw err;
   }
+  return urlCount;
 }
 
 async function sendUrlToQueue(name: string, url: string, indexOpId: string) {
