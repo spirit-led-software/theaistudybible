@@ -28,7 +28,7 @@ export function IndexOperationsDashboard({
       <h1 className="text-xl font-bold">Index Operation Status</h1>
       {indexOps.length > 0 ? (
         <div className="w-full overflow-scroll border max-h-96">
-          <table className="text-left divide-y table-fixed divide-slate-800 whitespace-nowrap">
+          <table className="w-full text-left whitespace-normal divide-y table-fixed divide-slate-800">
             <thead>
               <tr className="divide-x divide-slate-800 bg-slate-200">
                 <th className="px-2 py-1">ID</th>
@@ -55,7 +55,7 @@ export function IndexOperationsDashboard({
                   <td className="px-2 py-1">
                     {Moment(indexOp.createdAt).format("M/d/Y h:mma")}
                   </td>
-                  <td className="w-32 px-2 py-1 overflow-x-hidden truncate grow-0">
+                  <td className="px-2 py-1 overflow-x-scroll">
                     {indexOp.metadata ? (
                       <table className="table-fixed">
                         <tbody>
