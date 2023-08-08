@@ -4,7 +4,7 @@ import { Queue, StackContext, dependsOn } from "sst/constructs";
 
 export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
-  
+
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     cdk: {
       queue: {
@@ -26,7 +26,7 @@ export function Queues({ stack }: StackContext) {
             external: ["@sparticuz/chromium"],
           },
         },
-        reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 100,
+        reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 20,
         timeout: "15 minutes",
         memorySize: "2 GB",
       },

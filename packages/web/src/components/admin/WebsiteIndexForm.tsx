@@ -106,7 +106,7 @@ export function WebsiteIndexForm() {
           />
         </div>
         <div className="flex flex-col space-y-1">
-          <label htmlFor="file">Path Regular Expression</label>
+          <label htmlFor="file">Path Regular Expression (Optional)</label>
           <label className="text-gray-400 text-2xs">
             Example: <span className="text-gray-600">bible-commentary\/.*</span>
           </label>
