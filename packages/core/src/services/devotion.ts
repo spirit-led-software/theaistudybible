@@ -3,7 +3,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
-import { axios, s3Config } from "../configs";
+import Replicate from "replicate";
+import { axios, replicateConfig, s3Config } from "../configs";
 import { db } from "../database";
 import {
   CreateDevotionData,
@@ -12,7 +13,7 @@ import {
   UpdateDevotionData,
 } from "../database/model";
 import { devotions, devotionsToSourceDocuments } from "../database/schema";
-import { getCompletionsModel, getOpenAiClient, getPromptModel } from "./llm";
+import { getCompletionsModel, getPromptModel } from "./llm";
 import { getSourceDocument, getVectorStore } from "./vector-db";
 
 export async function getDevotions(
@@ -166,6 +167,17 @@ async function generateDevotionImage(devo: Devotion) {
     devotion: devo.content,
   });
 
+  const negativeImagePromptChain = new LLMChain({
+    llm: getCompletionsModel(),
+    prompt: PromptTemplate.fromTemplate(
+      `Generate a negative prompt (things that the AI model should avoid including in the image) under 1000 characters that will create an image for the following devotion:
+{devotion}`
+    ),
+  });
+  const negativeImagePrompt = await negativeImagePromptChain.call({
+    devotion: devo.content,
+  });
+
   const imageCaptionChain = new LLMChain({
     llm: getPromptModel(),
     prompt:
@@ -176,26 +188,23 @@ async function generateDevotionImage(devo: Devotion) {
     imagePrompt: imagePrompt.text,
   });
 
-  const openai = getOpenAiClient();
-  const imageResponse = await openai.createImage({
-    prompt: imagePrompt.text,
-    n: 1,
-    response_format: "url",
-    size: "512x512",
+  const replicate = new Replicate({
+    auth: replicateConfig.apiKey,
   });
 
-  if (imageResponse.status !== 200) {
-    throw new Error(
-      `Failed to create image: ${imageResponse.status} ${imageResponse.statusText}`
-    );
-  }
+  const output = (await replicate.run(replicateConfig.imageModel, {
+    input: {
+      prompt: `${imagePrompt.text}. 8k, beautiful, high quality, realistic.`,
+      negative_prompt: `${negativeImagePrompt.text}. Ugly, low quality, unrealistic, blurry.`,
+      width: 512,
+      height: 512,
+      num_outputs: 1,
+      num_inference_steps: 100,
+      refine: "expert_ensemble_refiner",
+    },
+  })) as string[];
 
-  const imageUrl = imageResponse.data.data[0].url;
-  if (!imageUrl) {
-    throw new Error("No image url returned from OpenAI");
-  }
-
-  const image = await axios.get(imageUrl, {
+  const image = await axios.get(output[0], {
     responseType: "arraybuffer",
   });
 
