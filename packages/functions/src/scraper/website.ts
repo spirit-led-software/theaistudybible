@@ -49,48 +49,60 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  const { url, pathRegex, name }: RequestBody = JSON.parse(event.body);
-  if (!url || !pathRegex || !name) {
+  const {
+    url,
+    pathRegex: pathRegexString,
+    name,
+  }: RequestBody = JSON.parse(event.body);
+  if (!name || !url) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        error: "Missing required fields",
+        error: "Missing required fields name and url",
       }),
     };
   }
 
   let indexOp: IndexOperation | undefined;
   try {
+    let baseUrl = url;
+    let urlRegex: RegExp | undefined = undefined;
+    let sitemapUrls: string[] | undefined = undefined;
+    if (url.endsWith(".xml")) {
+      sitemapUrls = [url];
+      baseUrl = `${url.substring(0, url.lastIndexOf("/"))}`;
+    }
+
+    let regexString: string = `${baseUrl}/.*`;
+    if (pathRegexString) {
+      regexString = `${baseUrl}/${
+        pathRegexString.startsWith("/")
+          ? pathRegexString.substring(1)
+          : pathRegexString
+      }`;
+    }
+    const flags = regexString.replace(/.*\/([gimy]*)$/, "$1");
+    const pattern = regexString.replace(
+      new RegExp("^/(.*?)/" + flags + "$"),
+      "$1"
+    );
+    urlRegex = new RegExp(pattern, flags);
+
     indexOp = await createIndexOperation({
       type: "WEBSITE",
       status: "RUNNING",
       metadata: {
         name,
-        url,
-        pathRegex,
+        baseUrl,
+        urlRegex: urlRegex.source,
       },
     });
 
-    let urlRegex: RegExp;
-    let sitemapUrls: string[];
-    if (url.endsWith(".xml")) {
-      const baseUrl = `${url.substring(0, url.lastIndexOf("/"))}/.*`;
-      if (pathRegex) {
-        urlRegex = new RegExp(`${baseUrl}/${pathRegex}`);
-      } else {
-        urlRegex = new RegExp(`${baseUrl}/.*`);
-      }
-      sitemapUrls = [url];
-    } else {
-      if (pathRegex) {
-        urlRegex = new RegExp(`${url}/${pathRegex}`);
-      } else {
-        urlRegex = new RegExp(`${url}/.*`);
-      }
-      sitemapUrls = await getSitemaps(url);
+    if (!sitemapUrls) {
+      sitemapUrls = await getSitemaps(baseUrl);
     }
-
     console.debug(`sitemapUrls: ${sitemapUrls}`);
+
     let urlCount = 0;
     for (const sitemapUrl of sitemapUrls) {
       urlCount += await navigateSitemap(sitemapUrl, urlRegex, name, indexOp.id);
@@ -199,7 +211,7 @@ async function navigateSitemap(
             name,
             indexOpId
           );
-        } else if (foundUrl.match(urlRegex)) {
+        } else if (RegExp(urlRegex).exec(foundUrl)) {
           await sendUrlToQueue(name, foundUrl, indexOpId);
           urlCount++;
         } else {
