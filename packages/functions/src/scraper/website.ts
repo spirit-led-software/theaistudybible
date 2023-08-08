@@ -72,17 +72,19 @@ export const handler = ApiHandler(async (event) => {
     // if sitemap was provided, use that
     if (url.endsWith(".xml")) {
       sitemapUrls = [url];
-      baseUrl = `${url.substring(0, url.lastIndexOf("/"))}`;
+
+      const urlObject = new URL(baseUrl);
+      baseUrl = urlObject.origin;
     }
     // remove trailing slash
     if (baseUrl.endsWith("/")) {
       baseUrl = baseUrl.substring(0, baseUrl.length - 1);
     }
-    baseUrl = escapeStringRegexp(baseUrl);
 
-    let regexString: string = `${baseUrl}\\/.*`;
+    const baseUrlRegex = escapeStringRegexp(baseUrl);
+    let regexString: string = `${baseUrlRegex}\\/.*`;
     if (pathRegexString) {
-      regexString = `${baseUrl}\\/${pathRegexString}`;
+      regexString = `${baseUrlRegex}\\/${pathRegexString}`;
     }
     urlRegex = new RegExp(regexString);
 
