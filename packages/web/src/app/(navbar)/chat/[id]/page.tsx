@@ -61,9 +61,8 @@ export default async function SpecificChatPage({
     redirect(`/login?redirect=/chat/${chat.id}`);
   }
 
-  const messages = await getMessages(params.id);
-
-  const chats = await getChats({
+  const messagesPromise = getMessages(params.id);
+  const chatsPromise = getChats({
     limit: 7,
   })
     .then((chats) => {
@@ -72,6 +71,8 @@ export default async function SpecificChatPage({
     .catch((error) => {
       throw new Error(error);
     });
+
+  const [messages, chats] = await Promise.all([messagesPromise, chatsPromise]);
 
   return (
     <Window initChats={chats} initChatId={params.id} initMessages={messages} />

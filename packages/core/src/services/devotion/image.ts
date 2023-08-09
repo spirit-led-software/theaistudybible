@@ -1,10 +1,10 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { db } from "../database";
+import { db } from "../../database";
 import {
   CreateDevotionImageData,
   UpdateDevotionImageData,
-} from "../database/model/devotion-image";
-import { devotionImages } from "../database/schema";
+} from "../../database/model/devotion";
+import { devotionImages } from "../../database/schema";
 
 export async function getDevotionImages(
   options: {

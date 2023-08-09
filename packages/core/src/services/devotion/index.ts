@@ -6,18 +6,18 @@ import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
 import Replicate from "replicate";
 import { z } from "zod";
-import { axios, replicateConfig, s3Config } from "../configs";
-import { db } from "../database";
+import { axios, replicateConfig, s3Config } from "../../configs";
+import { db } from "../../database";
 import {
   CreateDevotionData,
   Devotion,
   SourceDocument,
   UpdateDevotionData,
-} from "../database/model";
-import { devotions, devotionsToSourceDocuments } from "../database/schema";
-import { createDevotionImage } from "./devotion-image";
-import { getCompletionsModel, getPromptModel } from "./llm";
-import { getSourceDocument, getVectorStore } from "./vector-db";
+} from "../../database/model";
+import { devotions, devotionsToSourceDocuments } from "../../database/schema";
+import { getCompletionsModel, getPromptModel } from "../llm";
+import { getSourceDocument, getVectorStore } from "../vector-db";
+import { createDevotionImage } from "./image";
 
 export async function getDevotions(
   options: {
@@ -114,15 +114,23 @@ export async function generateDevotion(bibleReading?: string) {
       z.object({
         summary: z
           .string()
-          .max(1000)
-          .describe("A summary of the bible reading"),
+          .describe(
+            "A summary of the bible reading. Between 1500 and 3000 characters in length."
+          ),
         reflection: z
           .string()
-          .min(100)
-          .max(1000)
-          .describe("A reflection on the bible reading and summary"),
-        prayer: z.string().max(500).describe("A prayer to end the devotion"),
+          .describe(
+            "A reflection on the bible reading and summary. Between 1500 and 3000 characters in length."
+          ),
+        prayer: z
+          .string()
+          .describe(
+            "A prayer to end the devotion. Between 500 and 1500 characters in length."
+          ),
       })
+    );
+    console.log(
+      `Devotion format instructions: ${outputParser.getFormatInstructions()}`
     );
 
     const fullPrompt = PromptTemplate.fromTemplate(
@@ -147,9 +155,7 @@ export async function generateDevotion(bibleReading?: string) {
       bibleReading,
       context: context.map((c) => c.pageContent).join("\n"),
     });
-
     const output = await outputParser.parse(result.text);
-
     devo = await createDevotion({
       bibleReading,
       summary: output.summary,
@@ -181,15 +187,20 @@ export async function generateDevotion(bibleReading?: string) {
 async function generateDevotionImages(devo: Devotion) {
   const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
     z.object({
-      prompt: z.string().max(1000).describe("The image generation prompt"),
+      prompt: z
+        .string()
+        .describe(
+          "The image generation prompt. Between 800 and 1000 characters in length."
+        ),
       negativePrompt: z
         .string()
-        .max(1000)
-        .describe("The negative image generation prompt"),
+        .describe(
+          "The negative image generation prompt. Between 800 and 1000 characters in length."
+        ),
     })
   );
   const imagePromptChain = new LLMChain({
-    llm: getCompletionsModel(),
+    llm: getCompletionsModel(1.5),
     prompt: PromptTemplate.fromTemplate(
       `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Try to only use adjectives and nouns if possible in each. Base it on the following devotion:\n
       Bible Reading:\n{bibleReading}\n\n
@@ -283,9 +294,10 @@ async function generateDevotionImages(devo: Devotion) {
         );
       }
 
+      const imageUrl = s3Url.split("?")[0];
       await createDevotionImage({
         devotionId: devo.id,
-        url: s3Url,
+        url: imageUrl,
         caption: imageCaption.text,
         prompt: imagePrompts.prompt,
         negativePrompt: imagePrompts.negativePrompt,
@@ -299,8 +311,8 @@ async function generateDevotionImages(devo: Devotion) {
 async function getRandomBibleReading() {
   const vectorStore = await getVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
-    getCompletionsModel(),
-    vectorStore.asRetriever(5),
+    getCompletionsModel(1.5),
+    vectorStore.asRetriever(10),
     {
       returnSourceDocuments: true,
       inputKey: "prompt",
@@ -313,22 +325,26 @@ async function getRandomBibleReading() {
       chapter: z.string().describe("The chapter number from within the book"),
       verseRange: z
         .string()
-        .regex(/(\d+)-(\d+)/)
+        .regex(/(\d+)(-(\d+))?/)
         .describe("The verse range"),
       text: z.string().describe("The text of the bible reading"),
     })
   );
 
   const topic = getRandomTopic();
+  console.log(`Devotion topic: ${topic}`);
+  const formatInstructions = bibleReadingOutputParser.getFormatInstructions();
+  console.log(`Format instructions: ${formatInstructions}`);
   const bibleReading = await bibleReadingChain.call({
-    prompt: `Find a bible passage that is between 1 and 15 verses long about ${topic}\n\n{format_instructions}`,
+    prompt: `Find a bible passage that is between 1 and 15 verses long about ${topic}\n\n${formatInstructions}`,
   });
-
   const bibleReadingOutput = await bibleReadingOutputParser.parse(
     bibleReading.text
   );
+  const bibleReadingText = `${bibleReadingOutput.book} ${bibleReadingOutput.chapter}:${bibleReadingOutput.verseRange} - ${bibleReadingOutput.text}`;
+  console.log(`Bible reading: ${bibleReadingText}`);
 
-  return `${bibleReadingOutput.book} ${bibleReadingOutput.chapter}:${bibleReadingOutput.verseRange} - ${bibleReadingOutput.text}`;
+  return bibleReadingText;
 }
 
 function getRandomTopic() {
@@ -353,7 +369,15 @@ function getRandomTopic() {
     "hell",
     "baptism",
     "communion",
+    "money",
+    "work",
+    "marriage",
+    "children",
+    "family",
   ];
 
   return topics[Math.floor(Math.random() * topics.length)];
 }
+
+export * from "./image";
+export * from "./reaction";

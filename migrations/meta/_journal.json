@@ -43,6 +43,13 @@
       "when": 1691583996454,
       "tag": "0005_graceful_electro",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1691596222568,
+      "tag": "0006_steady_eternity",
+      "breakpoints": true
     }
   ]
 }

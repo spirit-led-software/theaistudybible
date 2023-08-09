@@ -10,29 +10,31 @@ export const getEmbeddingsModel = () =>
     modelName: config.embeddingsModelName,
   });
 
-export const getChatModel = () =>
+export const getChatModel = (temperature?: number) =>
   new ChatOpenAI({
     openAIApiKey: config.apiKey,
-    temperature: config.temperature,
+    temperature: temperature ?? config.temperature,
     modelName: config.completionsModelName,
     streaming: true,
-    maxTokens: -1,
+    maxTokens: 256,
   });
 
-export const getPromptModel = () =>
+export const getPromptModel = (temperature?: number) =>
   new OpenAI({
     openAIApiKey: config.apiKey,
-    temperature: config.temperature,
+    temperature: temperature ?? config.temperature,
     modelName: config.promptModelName,
     maxTokens: -1,
+    cache: true,
   });
 
-export const getCompletionsModel = () =>
+export const getCompletionsModel = (temperature?: number) =>
   new OpenAI({
     openAIApiKey: config.apiKey,
-    temperature: config.temperature,
+    temperature: temperature ?? config.temperature,
     modelName: config.completionsModelName,
     maxTokens: -1,
+    cache: true,
   });
 
 export const getOpenAiClient = () =>

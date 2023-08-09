@@ -1,6 +1,6 @@
 import { InferModel } from "drizzle-orm";
 import { PgUpdateSetSource } from "drizzle-orm/pg-core";
-import { devotionImages } from "../schema";
+import { devotionImages } from "../../schema";
 
 export type DevotionImage = InferModel<typeof devotionImages, "select">;
 
