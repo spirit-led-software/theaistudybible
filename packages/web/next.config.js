@@ -7,6 +7,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "*.s3.*.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "**.fbsbx.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.googleusercontent.com",
+      },
     ],
   },
   webpack: (webpackConfig, { webpack }) => {
