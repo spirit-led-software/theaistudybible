@@ -148,7 +148,7 @@ export async function generateDevotion(bibleReading?: string) {
     const vectorStore = await getVectorStore();
     const context = await vectorStore.similaritySearch(bibleReading, 10);
     const chain = new LLMChain({
-      llm: getCompletionsModel(),
+      llm: getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
       prompt: fullPrompt,
     });
     const result = await chain.call({
