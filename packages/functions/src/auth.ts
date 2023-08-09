@@ -1,7 +1,8 @@
-import { authConfig } from "@core/configs/index";
+import { emailConfig, websiteConfig } from "@core/configs";
+import { emailTransport } from "@core/configs/email";
 import { createUser, getUserByEmail, updateUser } from "@core/services/user";
+import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
 import { User } from "@revelationsai/core/database/model";
-import nodemailer from "nodemailer";
 import { TokenSet } from "openid-client";
 import {
   AuthHandler,
@@ -11,15 +12,18 @@ import {
   Session,
 } from "sst/node/auth";
 
-const emailTransport = nodemailer.createTransport({
-  host: authConfig.email.host,
-  port: authConfig.email.port,
-  auth: {
-    user: authConfig.email.credentials.username,
-    pass: authConfig.email.credentials.password,
-  },
-  from: authConfig.email.from,
-});
+const SessionParameter = (user: User) =>
+  Session.parameter({
+    type: "user",
+    options: {
+      expiresIn: 60 * 60 * 24 * 30, // 30 days
+      sub: user.id,
+    },
+    redirect: `${websiteConfig.url}/api/auth/callback`,
+    properties: {
+      id: user.id,
+    },
+  });
 
 const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
   let user = await getUserByEmail(tokenSet.claims().email!);
@@ -41,14 +45,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
       });
     }
   }
-
-  return Session.parameter({
-    type: "user",
-    redirect: `${process.env.WEBSITE_URL}/api/auth/callback`,
-    properties: {
-      id: user.id,
-    },
-  });
+  return user;
 };
 
 export const handler = AuthHandler({
@@ -58,7 +55,8 @@ export const handler = AuthHandler({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
       scope: "openid email",
       onSuccess: async (tokenSet) => {
-        return checkForUserOrCreateFromTokenSet(tokenSet);
+        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
+        return SessionParameter(user);
       },
     }),
     google: GoogleAdapter({
@@ -67,7 +65,8 @@ export const handler = AuthHandler({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       scope: "openid email",
       onSuccess: async (tokenSet) => {
-        return checkForUserOrCreateFromTokenSet(tokenSet);
+        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
+        return SessionParameter(user);
       },
     }),
     email: LinkAdapter({
@@ -75,40 +74,25 @@ export const handler = AuthHandler({
         try {
           const sendMessageInfo = await emailTransport.sendMail({
             to: claims.email,
-            from: authConfig.email.from,
+            from: emailConfig.from,
             subject: "Login to revelationsAI",
-            text: `Click this link to login to revelationsAI: ${link}`,
-            replyTo: authConfig.email.replyTo,
+            replyTo: emailConfig.replyTo,
+            html: emailLinkHtml(link),
           });
-
           if (sendMessageInfo.rejected.length > 0) {
-            return {
-              statusCode: 500,
-              body: JSON.stringify({
-                error: `Failed to send email to ${sendMessageInfo.rejected.join(
-                  ", "
-                )}`,
-              }),
-            };
+            throw new Error(
+              `Failed to send email to ${sendMessageInfo.rejected.join(", ")}`
+            );
           }
-
           console.log("Send message response:", sendMessageInfo.response);
 
-          return {
-            statusCode: 200,
-            body: JSON.stringify({
-              link,
-              claims,
-            }),
-          };
-        } catch (error) {
+          return OkResponse({
+            message: "Login link email sent",
+            claims,
+          });
+        } catch (error: any) {
           console.error(error);
-          return {
-            statusCode: 500,
-            body: JSON.stringify({
-              error: "Something went wrong",
-            }),
-          };
+          return InternalServerErrorResponse(error.stack);
         }
       },
       onSuccess: async (claims) => {
@@ -118,23 +102,28 @@ export const handler = AuthHandler({
             email: claims.email,
           });
         }
-
-        return Session.parameter({
-          type: "user",
-          redirect: `${process.env.WEBSITE_URL}/api/auth/callback`,
-          properties: {
-            id: user.id,
-          },
-        });
+        return SessionParameter(user);
       },
       onError: async () => {
-        return {
-          statusCode: 500,
-          body: JSON.stringify({
-            error: "Something went wrong",
-          }),
-        };
+        return InternalServerErrorResponse("Failed to login with email link");
       },
     }),
   },
 });
+
+const emailLinkHtml = (link: string) => `
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>revelationsAI</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Click this link to login to revelationsAI: <a href="${link}">${link}</a></p>
+  </body>
+</html>
+`;
