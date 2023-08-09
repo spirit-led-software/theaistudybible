@@ -94,7 +94,9 @@ export function Sidebar({
                 className="flex flex-col text-lg truncate"
               >
                 <div>{Moment(devo.createdAt).format("MMMM Do YYYY")}</div>
-                <div className="text-xs">{devo.subject.split(" - ")[0]}</div>
+                <div className="text-xs">
+                  {devo.bibleReading.split(" - ")[0]}
+                </div>
               </Link>
             </div>
           ))}

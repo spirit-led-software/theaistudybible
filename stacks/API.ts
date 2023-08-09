@@ -90,6 +90,8 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/ai-responses/[id]/put.handler",
       "DELETE /ai-responses/{id}":
         "packages/functions/src/rest/ai-responses/[id]/delete.handler",
+
+      // AI Response Source Documents
       "GET /ai-responses/{id}/source-documents":
         "packages/functions/src/rest/ai-responses/[id]/source-documents/get.handler",
 
@@ -121,8 +123,18 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/devotions/[id]/put.handler",
       "DELETE /devotions/{id}":
         "packages/functions/src/rest/devotions/[id]/delete.handler",
+
+      // Devotion Source Documents
       "GET /devotions/{id}/source-documents":
         "packages/functions/src/rest/devotions/[id]/source-documents/get.handler",
+
+      // Devotion Reactions
+      "GET /devotions/{id}/reactions":
+        "packages/functions/src/rest/devotions/[id]/reactions/get.handler",
+      "GET /devotions/{id}/reactions/count":
+        "packages/functions/src/rest/devotions/[id]/reactions/count/get.handler",
+      "POST /devotions/{id}/reactions":
+        "packages/functions/src/rest/devotions/[id]/reactions/post.handler",
 
       // Index Operations
       "GET /index-operations":

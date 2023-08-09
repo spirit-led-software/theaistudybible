@@ -2,6 +2,7 @@
 
 import { useUser } from "@hooks/user";
 import { ComponentSize, dimensionClasses } from "@lib/sizing";
+import Image from "next/image";
 
 export function Avatar({
   size = "md",
@@ -19,7 +20,7 @@ export function Avatar({
 
   if (user?.image) {
     return (
-      <img
+      <Image
         className={`rounded-full ${dimensions} lg:${largeDimensions} ${
           className ?? ""
         }`}
