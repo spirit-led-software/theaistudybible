@@ -11,7 +11,7 @@ import { devotionReactions } from "@revelationsai/core/database/schema";
 import Moment from "moment";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineWarning } from "react-icons/ai";
 import { FaThumbsDown, FaThumbsUp } from "react-icons/fa";
 import { Sidebar } from "./Sidebar";
@@ -36,9 +36,6 @@ export function Window({
   );
   const [alert, setAlert] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const likeButtonRef = useRef<HTMLButtonElement>(null);
-  const dislikeButtonRef = useRef<HTMLButtonElement>(null);
   const [likeCount, setLikeCount] = useState(reactionCounts.LIKE ?? 0);
   const [dislikeCount, setDislikeCount] = useState(reactionCounts.DISLIKE ?? 0);
 
@@ -47,6 +44,12 @@ export function Window({
   ) => {
     setIsLoading(true);
     try {
+      if (reaction === "LIKE") {
+        setLikeCount((prevCount) => prevCount + 1);
+      } else if (reaction === "DISLIKE") {
+        setDislikeCount((prevCount) => prevCount + 1);
+      }
+
       const response = await fetch(
         `${apiConfig.url}/devotions/${activeDevo.id}/reactions`,
         {
@@ -61,19 +64,19 @@ export function Window({
         }
       );
       if (!response.ok) {
+        // Revert reaction count
+        if (reaction === "LIKE") {
+          setLikeCount((prevCount) => prevCount - 1);
+        } else if (reaction === "DISLIKE") {
+          setDislikeCount((prevCount) => prevCount - 1);
+        }
+
         const { error } = await response.json();
         throw new Error(error);
       }
-      if (response.status === 201) {
-        if (reaction === "LIKE") {
-          setLikeCount(likeCount + 1);
-        } else {
-          setDislikeCount(dislikeCount + 1);
-        }
-      }
     } catch (error: any) {
       console.error(error);
-      setAlert(`Something went wrong: ${error.message}`);
+      setAlert(error.message);
     }
     setIsLoading(false);
   };
@@ -97,21 +100,23 @@ export function Window({
       <div
         className={`fixed flex flex-col h-full overflow-y-scroll lg:visible lg:w-full lg:relative`}
       >
-        <div className="relative flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
-          <div className="absolute z-20 flex justify-between p-3 space-x-1 rounded-xl bottom-2 right-2 bg-slate-400">
+        <div className="flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
+          <div className="fixed z-30 flex justify-between space-x-1 bottom-3 right-3">
             <Button
-              ref={likeButtonRef}
               disabled={isLoading}
               onClick={() => handleReaction("LIKE")}
+              className="text-center rounded-full group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
             >
-              <FaThumbsUp />
+              <span className="mr-2">{likeCount}</span>
+              <FaThumbsUp className="text-white group-hover:text-green-400" />
             </Button>
             <Button
-              ref={dislikeButtonRef}
               disabled={isLoading}
               onClick={() => handleReaction("DISLIKE")}
+              className="text-center rounded-full group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
             >
-              <FaThumbsDown />
+              <span className="mr-2">{dislikeCount}</span>
+              <FaThumbsDown className="text-white group-hover:text-red-400" />
             </Button>
           </div>
           <div

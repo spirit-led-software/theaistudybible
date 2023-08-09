@@ -243,11 +243,11 @@ async function generateDevotionImages(devo: Devotion) {
   const output = await replicate.run(replicateConfig.imageModel, {
     input: {
       prompt: `${imagePrompts.prompt}. 8k, beautiful, high-quality, realistic.`,
-      negative_prompt: `${imagePrompts.negativePrompt}. Ugly, unrealistic, blurry, fake, cartoon, text, words.`,
+      negative_prompt: `${imagePrompts.negativePrompt}. Ugly, unrealistic, blurry, fake, cartoon, text, words, extra fingers, extra toes, extra limbs.`,
       width: 512,
       height: 512,
       num_outputs: 2,
-      num_inference_steps: 75,
+      num_inference_steps: 100,
       refine: "expert_ensemble_refiner",
     },
     wait: true,

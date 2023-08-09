@@ -42,7 +42,7 @@ export const handler = ApiHandler(async (event) => {
 
     const { isValid, userInfo } = await validApiSession();
     if (!isValid) {
-      return UnauthorizedResponse("You must be signed in!");
+      return UnauthorizedResponse("You must be signed in.");
     }
 
     let devoReaction = (
@@ -57,7 +57,9 @@ export const handler = ApiHandler(async (event) => {
 
     if (devoReaction) {
       if (devoReaction.reaction === reaction) {
-        return OkResponse(devoReaction);
+        return BadRequestResponse(
+          "You have already reacted with this reaction."
+        );
       } else {
         devoReaction.reaction = reaction;
         devoReaction = await updateDevotionReaction(devoReaction.id, {
