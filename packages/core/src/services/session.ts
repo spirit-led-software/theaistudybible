@@ -15,21 +15,26 @@ export async function validApiSession(): Promise<
       userInfo: User;
     }
 > {
-  const sessionToken = useSession();
-  if (!sessionToken || sessionToken.type !== "user") {
-    return { isValid: false, sessionToken };
-  }
+  try {
+    const sessionToken = useSession();
+    if (!sessionToken || sessionToken.type !== "user") {
+      return { isValid: false, sessionToken };
+    }
 
-  const userInfo = await getUser(sessionToken.properties.id);
-  if (!userInfo) {
-    return { isValid: false, sessionToken };
-  }
+    const userInfo = await getUser(sessionToken.properties.id);
+    if (!userInfo) {
+      return { isValid: false, sessionToken };
+    }
 
-  return {
-    isValid: true,
-    sessionToken,
-    userInfo,
-  };
+    return {
+      isValid: true,
+      sessionToken,
+      userInfo,
+    };
+  } catch (err: any) {
+    console.error("Error validating token:", err);
+    return { isValid: false };
+  }
 }
 
 export async function validSessionToken(token: string): Promise<
