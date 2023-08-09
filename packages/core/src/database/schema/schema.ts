@@ -140,10 +140,10 @@ export const devotions = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     date: date("date", { mode: "date" }).notNull().defaultNow(),
-    subject: text("subject").notNull(),
-    content: text("content").notNull(),
-    imageCaption: text("image_caption"),
-    imageUrl: text("image_url"),
+    bibleReading: text("bible_reading").notNull(),
+    summary: text("summary").notNull(),
+    reflection: text("reflection"),
+    prayer: text("prayer"),
     failed: boolean("failed").notNull().default(false),
   },
   (table) => {
@@ -152,6 +152,45 @@ export const devotions = pgTable(
     };
   }
 );
+
+export const devotionsRelations = relations(devotions, ({ many }) => {
+  return {
+    images: many(devotionImages),
+  };
+});
+
+export const devotionImages = pgTable(
+  "devotion_images",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    devotionId: uuid("devotion_id")
+      .notNull()
+      .references(() => devotions.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    url: text("url").notNull(),
+    caption: text("caption"),
+    prompt: text("prompt"),
+    negativePrompt: text("negative_prompt"),
+  },
+  (table) => {
+    return {
+      devotionIdIdx: index("devotion_images_devotion_id").on(table.devotionId),
+    };
+  }
+);
+
+export const devotionImagesRelations = relations(devotionImages, ({ one }) => {
+  return {
+    devotion: one(devotions, {
+      fields: [devotionImages.devotionId],
+      references: [devotions.id],
+    }),
+  };
+});
 
 export const userMessages = pgTable(
   "user_messages",

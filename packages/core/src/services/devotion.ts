@@ -1,9 +1,11 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { SQL, desc, eq } from "drizzle-orm";
-import { LLMChain } from "langchain/chains";
+import { LLMChain, RetrievalQAChain } from "langchain/chains";
+import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
 import Replicate from "replicate";
+import { z } from "zod";
 import { axios, replicateConfig, s3Config } from "../configs";
 import { db } from "../database";
 import {
@@ -13,6 +15,7 @@ import {
   UpdateDevotionData,
 } from "../database/model";
 import { devotions, devotionsToSourceDocuments } from "../database/schema";
+import { createDevotionImage } from "./devotion-image";
 import { getCompletionsModel, getPromptModel } from "./llm";
 import { getSourceDocument, getVectorStore } from "./vector-db";
 
@@ -100,38 +103,58 @@ export async function deleteDevotion(id: string) {
   )[0];
 }
 
-export async function generateDevotion(bibleVerse?: string) {
+export async function generateDevotion(bibleReading?: string) {
   let devo: Devotion | undefined;
   try {
-    if (!bibleVerse) {
-      bibleVerse = await getRandomBibleVerse();
+    if (!bibleReading) {
+      bibleReading = await getRandomBibleReading();
     }
 
-    const fullPrompt = PromptTemplate.fromTemplate(`Given the context:
-{context}
+    const outputParser = StructuredOutputParser.fromZodSchema(
+      z.object({
+        summary: z
+          .string()
+          .max(1000)
+          .describe("A summary of the bible reading"),
+        reflection: z
+          .string()
+          .min(100)
+          .max(1000)
+          .describe("A reflection on the bible reading and summary"),
+        prayer: z.string().max(500).describe("A prayer to end the devotion"),
+      })
+    );
 
-And the following Bible verse:
-{bibleVerse}
-
-Write a daily devotional between 800 to 1000 words. Start by reciting the Bible verse,
-then write a summary of the verse which should include other related Bible verses.
-The summary can include a story or an analogy. Then, write a reflection on the verse.
-Finally, write a prayer to wrap up the devotional.`);
+    const fullPrompt = PromptTemplate.fromTemplate(
+      `Given the context:\n{context}\n\n
+      And the following Bible reading:\n{bibleReading}\n\n
+      Write a non-denominational Christian devotion.\n\n
+      {format_instructions}`,
+      {
+        partialVariables: {
+          format_instructions: outputParser.getFormatInstructions(),
+        },
+      }
+    );
 
     const vectorStore = await getVectorStore();
-    const context = await vectorStore.similaritySearch(bibleVerse, 10);
+    const context = await vectorStore.similaritySearch(bibleReading, 10);
     const chain = new LLMChain({
       llm: getCompletionsModel(),
       prompt: fullPrompt,
     });
     const result = await chain.call({
-      bibleVerse: bibleVerse,
+      bibleReading,
       context: context.map((c) => c.pageContent).join("\n"),
     });
 
+    const output = await outputParser.parse(result.text);
+
     devo = await createDevotion({
-      subject: bibleVerse,
-      content: result.text,
+      bibleReading,
+      summary: output.summary,
+      reflection: output.reflection,
+      prayer: output.prayer,
     });
 
     await Promise.all(
@@ -144,7 +167,7 @@ Finally, write a prayer to wrap up the devotional.`);
       })
     );
 
-    devo = await generateDevotionImage(devo);
+    await generateDevotionImages(devo);
   } catch (e) {
     console.error(e);
     if (devo) {
@@ -155,30 +178,42 @@ Finally, write a prayer to wrap up the devotional.`);
   return devo;
 }
 
-async function generateDevotionImage(devo: Devotion) {
+async function generateDevotionImages(devo: Devotion) {
+  const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
+    z.object({
+      prompt: z.string().max(1000).describe("The image generation prompt"),
+      negativePrompt: z
+        .string()
+        .max(1000)
+        .describe("The negative image generation prompt"),
+    })
+  );
   const imagePromptChain = new LLMChain({
     llm: getCompletionsModel(),
     prompt: PromptTemplate.fromTemplate(
-      `Create an image generation prompt within 1000 characters. Do not be verbose. Try to only use adjectives and nouns if possible. Base it on the following devotion:
-{devotion}`
+      `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Try to only use adjectives and nouns if possible in each. Base it on the following devotion:\n
+      Bible Reading:\n{bibleReading}\n\n
+      Summary:\n{summary}\n\n
+      Reflection:\n{reflection}\n\n
+      Prayer:\n{prayer}\n\n
+      {format_instructions}`,
+      {
+        partialVariables: {
+          format_instructions: imagePromptOutputParser.getFormatInstructions(),
+        },
+      }
     ),
   });
-  const imagePrompt = await imagePromptChain.call({
-    devotion: devo.content,
+  const imagePromptText = await imagePromptChain.call({
+    bibleReading: devo.bibleReading,
+    summary: devo.summary,
+    reflection: devo.reflection,
+    prayer: devo.prayer,
   });
-  console.log("Image prompt:", imagePrompt.text);
-
-  const negativeImagePromptChain = new LLMChain({
-    llm: getCompletionsModel(),
-    prompt: PromptTemplate.fromTemplate(
-      `Create a negative image generation prompt (things that the AI model should avoid including in the image) within 1000 characters. Do not be verbose. Try to only use adjectives and nouns if possible. Base it on the following devotion:
-{devotion}`
-    ),
-  });
-  const negativeImagePrompt = await negativeImagePromptChain.call({
-    devotion: devo.content,
-  });
-  console.log("Negative image prompt:", negativeImagePrompt.text);
+  console.log("Image prompts:", imagePromptText.text);
+  const imagePrompts = await imagePromptOutputParser.parse(
+    imagePromptText.text
+  );
 
   const imageCaptionChain = new LLMChain({
     llm: getPromptModel(),
@@ -187,7 +222,7 @@ async function generateDevotionImage(devo: Devotion) {
 {imagePrompt}`),
   });
   const imageCaption = await imageCaptionChain.call({
-    imagePrompt: imagePrompt.text,
+    imagePrompt: imagePrompts.prompt,
   });
   console.log("Image caption:", imageCaption.text);
 
@@ -196,11 +231,11 @@ async function generateDevotionImage(devo: Devotion) {
   });
   const output = await replicate.run(replicateConfig.imageModel, {
     input: {
-      prompt: `${imagePrompt.text}. 8k, beautiful, high-quality, realistic.`,
-      negative_prompt: `${negativeImagePrompt.text}. Ugly, unrealistic, blurry, fake, cartoon, text, words.`,
+      prompt: `${imagePrompts.prompt}. 8k, beautiful, high-quality, realistic.`,
+      negative_prompt: `${imagePrompts.negativePrompt}. Ugly, unrealistic, blurry, fake, cartoon, text, words.`,
       width: 512,
       height: 512,
-      num_outputs: 1,
+      num_outputs: 2,
       num_inference_steps: 75,
       refine: "expert_ensemble_refiner",
     },
@@ -212,54 +247,113 @@ async function generateDevotionImage(devo: Devotion) {
   }
 
   const urlArray = output as string[];
-  const image = await axios.get(urlArray[0], {
-    responseType: "arraybuffer",
-  });
 
-  const s3Client = new S3Client({});
-  const s3Url = await getSignedUrl(
-    s3Client,
-    new PutObjectCommand({
-      ACL: "public-read",
-      ContentType: "image/png",
-      Bucket: s3Config.devotionImageBucket,
-      Key: `${devo.id}.png`,
+  for (let i = 0; i < urlArray.length; i++) {
+    const url = urlArray[i];
+    try {
+      const image = await axios.get(url, {
+        responseType: "arraybuffer",
+      });
+
+      const s3Client = new S3Client({});
+      const s3Url = await getSignedUrl(
+        s3Client,
+        new PutObjectCommand({
+          ACL: "public-read",
+          ContentType: "image/png",
+          Bucket: s3Config.devotionImageBucket,
+          Key: `${devo.id}-${i}.png`,
+        })
+      );
+
+      if (!s3Url) {
+        throw new Error("Failed to get presigned url for s3 upload");
+      }
+
+      const s3UploadResponse = await axios.put(s3Url, image.data, {
+        headers: {
+          "Content-Type": "image/png",
+          "Content-Length": image.data.byteLength,
+        },
+      });
+
+      if (s3UploadResponse.status !== 200) {
+        throw new Error(
+          `Failed to upload image to s3: ${s3UploadResponse.status} ${s3UploadResponse.statusText}`
+        );
+      }
+
+      await createDevotionImage({
+        devotionId: devo.id,
+        url: s3Url,
+        caption: imageCaption.text,
+        prompt: imagePrompts.prompt,
+        negativePrompt: imagePrompts.negativePrompt,
+      });
+    } catch (e) {
+      console.error("Error saving devotion image", e);
+    }
+  }
+}
+
+async function getRandomBibleReading() {
+  const vectorStore = await getVectorStore();
+  const bibleReadingChain = RetrievalQAChain.fromLLM(
+    getCompletionsModel(),
+    vectorStore.asRetriever(5),
+    {
+      returnSourceDocuments: true,
+      inputKey: "prompt",
+    }
+  );
+
+  const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
+    z.object({
+      book: z.string().describe("The book from within the bible"),
+      chapter: z.string().describe("The chapter number from within the book"),
+      verseRange: z
+        .string()
+        .regex(/(\d+)-(\d+)/)
+        .describe("The verse range"),
+      text: z.string().describe("The text of the bible reading"),
     })
   );
 
-  if (!s3Url) {
-    throw new Error("Failed to get presigned url for s3 upload");
-  }
-
-  const s3UploadResponse = await axios.put(s3Url, image.data, {
-    headers: {
-      "Content-Type": "image/png",
-      "Content-Length": image.data.byteLength,
-    },
+  const topic = getRandomTopic();
+  const bibleReading = await bibleReadingChain.call({
+    prompt: `Find a bible passage that is between 1 and 15 verses long about ${topic}\n\n{format_instructions}`,
   });
 
-  if (s3UploadResponse.status !== 200) {
-    throw new Error(
-      `Failed to upload image to s3: ${s3UploadResponse.status} ${s3UploadResponse.statusText}`
-    );
-  }
+  const bibleReadingOutput = await bibleReadingOutputParser.parse(
+    bibleReading.text
+  );
 
-  return await updateDevotion(devo.id, {
-    imageCaption: imageCaption.text,
-    imageUrl: s3UploadResponse.config.url?.split("?")[0],
-  });
+  return `${bibleReadingOutput.book} ${bibleReadingOutput.chapter}:${bibleReadingOutput.verseRange} - ${bibleReadingOutput.text}`;
 }
 
-async function getRandomBibleVerse() {
-  const response = await axios.get(
-    "https://labs.bible.org/api?passage=random&type=json&formatting=plain",
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  const verseData = response.data[0];
-  const verse = `${verseData.bookname} ${verseData.chapter}:${verseData.verse} - ${verseData.text}`;
-  return verse;
+function getRandomTopic() {
+  const topics = [
+    "love",
+    "faith",
+    "hope",
+    "joy",
+    "peace",
+    "patience",
+    "kindness",
+    "goodness",
+    "gentleness",
+    "self-control",
+    "forgiveness",
+    "prayer",
+    "history",
+    "prophecy",
+    "salvation",
+    "sin",
+    "heaven",
+    "hell",
+    "baptism",
+    "communion",
+  ];
+
+  return topics[Math.floor(Math.random() * topics.length)];
 }
