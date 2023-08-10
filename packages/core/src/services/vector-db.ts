@@ -21,7 +21,7 @@ export async function getVectorStore() {
             },
           ],
         },
-        ssl: true,
+        ssl: true, // always use SSL when connecting to NeonDB
       },
     }
   );
