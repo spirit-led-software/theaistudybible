@@ -18,7 +18,7 @@ import {
 } from "@core/services/user/daily-query-count";
 import { getDocumentVectorStore } from "@core/services/vector-db";
 import middy from "@middy/core";
-import { writeDatabase } from "@revelationsai/core/database";
+import { readWriteDatabase } from "@revelationsai/core/database";
 import {
   Chat,
   SourceDocument,
@@ -250,10 +250,12 @@ export const handler = middy({ streamifyResponse: true }).handler(
 
           await Promise.all(
             result.sourceDocuments.map(async (sourceDoc: SourceDocument) => {
-              await writeDatabase.insert(aiResponsesToSourceDocuments).values({
-                aiResponseId: aiResponse.id,
-                sourceDocumentId: sourceDoc.id,
-              });
+              await readWriteDatabase
+                .insert(aiResponsesToSourceDocuments)
+                .values({
+                  aiResponseId: aiResponse.id,
+                  sourceDocumentId: sourceDoc.id,
+                });
             })
           );
         })
