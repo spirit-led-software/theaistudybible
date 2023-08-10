@@ -16,7 +16,7 @@ const SessionParameter = (user: User) =>
   Session.parameter({
     type: "user",
     options: {
-      expiresIn: 60 * 60 * 24 * 30, // 30 days
+      expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
       sub: user.id,
     },
     redirect: `${websiteConfig.url}/api/auth/callback`,

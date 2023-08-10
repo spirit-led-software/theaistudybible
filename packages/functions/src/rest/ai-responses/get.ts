@@ -1,6 +1,5 @@
 import { getAiResponses } from "@core/services/ai-response";
 import { validApiSession } from "@core/services/session";
-import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
   InternalServerErrorResponse,
   OkResponse,
@@ -8,6 +7,7 @@ import {
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { aiResponses as aiResponsesTable } from "@revelationsai/core/database/schema";
+import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -18,21 +18,16 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    let aiResponses = await getAiResponses({
-      orderBy: buildOrderBy(aiResponsesTable, orderBy, order),
-      offset: (page - 1) * limit,
-      limit,
-    });
-
     const { isValid, userInfo } = await validApiSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
 
-    aiResponses = aiResponses.filter(async (response) => {
-      return (
-        (await isAdmin(userInfo.id)) || isObjectOwner(response, userInfo.id)
-      );
+    const aiResponses = await getAiResponses({
+      where: eq(aiResponsesTable.userId, userInfo.id),
+      orderBy: buildOrderBy(aiResponsesTable, orderBy, order),
+      offset: (page - 1) * limit,
+      limit,
     });
 
     return OkResponse({

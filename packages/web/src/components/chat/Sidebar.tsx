@@ -6,7 +6,13 @@ import { Chat } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
 import { KeyedMutator } from "swr";
@@ -38,7 +44,7 @@ export function Sidebar({
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const createChat = async () => {
+  const createChat = useCallback(async () => {
     const response = await fetch(`${apiConfig.url}/chats`, {
       method: "POST",
       headers: {
@@ -54,24 +60,27 @@ export function Sidebar({
       setLimit((prevLimit) => prevLimit + 1);
     }
     mutate([chat, ...chats]);
-  };
+  }, [chats, limit, mutate, session, setLimit]);
 
-  const deleteChat = (id: string) => {
-    if (confirm("Are you sure you want to delete this chat?")) {
-      fetch(`${apiConfig.url}/chats/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session}`,
-        },
-      });
-      setTimeout(() => {
-        mutate(chats!.filter((chat) => chat.id !== id));
-        if (activeChatId === id) {
-          router.push("/chat");
-        }
-      }, 1000);
-    }
-  };
+  const deleteChat = useCallback(
+    (id: string) => {
+      if (confirm("Are you sure you want to delete this chat?")) {
+        fetch(`${apiConfig.url}/chats/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session}`,
+          },
+        });
+        setTimeout(() => {
+          mutate(chats!.filter((chat) => chat.id !== id));
+          if (activeChatId === id) {
+            router.push("/chat");
+          }
+        }, 1000);
+      }
+    },
+    [activeChatId, chats, mutate, router, session]
+  );
 
   const handleGetMoreChats = () => {
     setLimit((prevLimit) => prevLimit + 5);
@@ -87,7 +96,7 @@ export function Sidebar({
   }, [chats, isLoading]);
 
   useEffect(() => {
-    if (chats.length < limit && isLoading) {
+    if (chats.length <= limit && isLoading) {
       setIsLoadingMore(true);
     } else {
       setIsLoadingMore(false);

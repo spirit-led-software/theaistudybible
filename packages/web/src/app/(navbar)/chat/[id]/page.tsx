@@ -3,17 +3,23 @@ import { getAiResponsesByUserMessageId } from "@core/services/ai-response";
 import { getChat, getChats } from "@core/services/chat";
 import { isObjectOwner } from "@core/services/user";
 import { getUserMessages } from "@core/services/user-message";
-import { userMessages } from "@revelationsai/core/database/schema";
+import {
+  chats as chatsTable,
+  userMessages,
+} from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
 import { Message } from "ai/react";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getMessages(chatId: string) {
+async function getMessages(chatId: string, userId: string) {
   const foundUserMessages = await getUserMessages({
-    where: eq(userMessages.chatId, chatId),
+    where: and(
+      eq(userMessages.chatId, chatId),
+      eq(userMessages.userId, userId)
+    ),
   });
 
   const messages: Message[] = (
@@ -61,16 +67,11 @@ export default async function SpecificChatPage({
     redirect(`/login?redirect=/chat/${chat.id}`);
   }
 
-  const messagesPromise = getMessages(params.id);
+  const messagesPromise = getMessages(params.id, userInfo.id);
   const chatsPromise = getChats({
+    where: eq(chatsTable.userId, userInfo.id),
     limit: 7,
-  })
-    .then((chats) => {
-      return chats.filter((chat) => isObjectOwner(chat, userInfo.id));
-    })
-    .catch((error) => {
-      throw new Error(error);
-    });
+  });
 
   const [messages, chats] = await Promise.all([messagesPromise, chatsPromise]);
 

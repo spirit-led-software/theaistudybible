@@ -1,7 +1,8 @@
 import { Window } from "@components/chat";
 import { getChats } from "@core/services/chat";
-import { isObjectOwner } from "@core/services/user";
+import { chats as chatsTable } from "@revelationsai/core/database/schema";
 import { validServerSession } from "@services/user";
+import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 export default async function ChatPage() {
@@ -11,14 +12,9 @@ export default async function ChatPage() {
   }
 
   const chats = await getChats({
+    where: eq(chatsTable.userId, userInfo.id),
     limit: 7,
-  })
-    .then((chats) => {
-      return chats.filter((chat) => isObjectOwner(chat, userInfo.id));
-    })
-    .catch((error) => {
-      throw new Error(error);
-    });
+  });
 
   return <Window initChats={chats} />;
 }

@@ -42,7 +42,7 @@ export function Sidebar({
   }, [devos, isLoading]);
 
   useEffect(() => {
-    if (devos.length < limit && isLoading) {
+    if (devos.length <= limit && isLoading) {
       setIsLoadingMore(true);
     } else {
       setIsLoadingMore(false);

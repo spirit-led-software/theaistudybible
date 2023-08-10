@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@hooks/user";
-import { ComponentSize, dimensionClasses } from "@lib/sizing";
+import { ComponentSize, squareDimensionClasses } from "@lib/sizing";
 import Image from "next/image";
 
 export function Avatar({
@@ -15,18 +15,24 @@ export function Avatar({
 }) {
   const { user } = useUser();
 
-  const dimensions = dimensionClasses[size];
-  const largeDimensions = dimensionClasses[largeSize];
+  const dimensions = squareDimensionClasses[size];
+  const largeDimensions = squareDimensionClasses[largeSize];
 
   if (user?.image) {
     return (
-      <Image
-        className={`rounded-full ${dimensions} lg:${largeDimensions} ${
+      <div
+        className={`overflow-hidden rounded-full ${dimensions} lg:${largeDimensions} ${
           className ?? ""
         }`}
-        src={user.image}
-        alt="avatar"
-      />
+      >
+        <Image
+          className="w-full h-full"
+          src={user.image}
+          width={192}
+          height={192}
+          alt="avatar"
+        />
+      </div>
     );
   }
 

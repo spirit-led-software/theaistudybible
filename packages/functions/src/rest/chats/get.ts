@@ -1,6 +1,5 @@
 import { getChats } from "@core/services/chat";
 import { validApiSession } from "@core/services/session";
-import { isObjectOwner } from "@core/services/user";
 import {
   InternalServerErrorResponse,
   OkResponse,
@@ -8,6 +7,7 @@ import {
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { chats as chatsTable } from "@revelationsai/core/database/schema";
+import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -24,16 +24,11 @@ export const handler = ApiHandler(async (event) => {
     }
 
     const chats = await getChats({
+      where: eq(chatsTable.userId, userInfo.id),
       orderBy: buildOrderBy(chatsTable, orderBy, order),
       offset: (page - 1) * limit,
       limit,
-    })
-      .then((chats) => {
-        return chats.filter((chat) => isObjectOwner(chat, userInfo.id));
-      })
-      .catch((error) => {
-        throw new Error(error);
-      });
+    });
 
     return OkResponse({
       entities: chats,
