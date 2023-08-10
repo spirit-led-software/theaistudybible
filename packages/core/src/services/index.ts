@@ -5,6 +5,6 @@ export * as IndexOperationService from "./index-op";
 export * as LlmService from "./llm";
 export * as RoleService from "./role";
 export * as SourceDocumentService from "./source-doc";
-export * as UserService from "./user";
 export * as UserMessageService from "./user-message";
+export * as UserService from "./user/user";
 export * as VectorDbService from "./vector-db";

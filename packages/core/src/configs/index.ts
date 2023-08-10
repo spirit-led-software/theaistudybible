@@ -1,6 +1,7 @@
 export { default as apiConfig } from "./api";
 export { default as authConfig } from "./auth";
 export { default as axios } from "./axios";
+export { default as databaseConfig } from "./database";
 export { default as emailConfig } from "./email";
 export { default as envConfig } from "./env";
 export { default as llmConfig } from "./llm";

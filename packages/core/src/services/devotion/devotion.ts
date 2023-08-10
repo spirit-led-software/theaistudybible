@@ -7,7 +7,7 @@ import { PromptTemplate } from "langchain/prompts";
 import Replicate from "replicate";
 import { z } from "zod";
 import { axios, replicateConfig, s3Config } from "../../configs";
-import { db } from "../../database";
+import { readOnlyDatabase, readWriteDatabase } from "../../database";
 import {
   CreateDevotionData,
   Devotion,
@@ -16,7 +16,7 @@ import {
 } from "../../database/model";
 import { devotions, devotionsToSourceDocuments } from "../../database/schema";
 import { getCompletionsModel, getPromptModel } from "../llm";
-import { getSourceDocument, getVectorStore } from "../vector-db";
+import { getDocumentVectorStore, getSourceDocuments } from "../vector-db";
 import { createDevotionImage } from "./image";
 
 export async function getDevotions(
@@ -34,7 +34,7 @@ export async function getDevotions(
     orderBy = desc(devotions.createdAt),
   } = options;
 
-  return await db
+  return await readOnlyDatabase
     .select()
     .from(devotions)
     .where(where)
@@ -44,7 +44,9 @@ export async function getDevotions(
 }
 
 export async function getDevotion(id: string) {
-  return (await db.select().from(devotions).where(eq(devotions.id, id))).at(0);
+  return (
+    await readOnlyDatabase.select().from(devotions).where(eq(devotions.id, id))
+  ).at(0);
 }
 
 export async function getDevotionOrThrow(id: string) {
@@ -56,37 +58,38 @@ export async function getDevotionOrThrow(id: string) {
 }
 
 export async function getDevotionByDate(date: Date) {
-  return (await db.select().from(devotions).where(eq(devotions.date, date))).at(
-    0
-  );
+  return (
+    await readOnlyDatabase
+      .select()
+      .from(devotions)
+      .where(eq(devotions.date, date))
+  ).at(0);
 }
 
 export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
   const sourceDocumentIds = (
-    await db
+    await readOnlyDatabase
       .select()
       .from(devotionsToSourceDocuments)
       .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
   ).map((d) => d.sourceDocumentId);
 
-  const foundSourceDocuments: SourceDocument[] = [];
-  for (const sourceDocumentId of sourceDocumentIds) {
-    const sourceDocument = await getSourceDocument(sourceDocumentId);
-    if (sourceDocument) {
-      foundSourceDocuments.push(sourceDocument);
-    }
-  }
+  const foundSourceDocuments: SourceDocument[] = await getSourceDocuments(
+    sourceDocumentIds
+  );
 
   return foundSourceDocuments;
 }
 
 export async function createDevotion(data: CreateDevotionData) {
-  return (await db.insert(devotions).values(data).returning())[0];
+  return (
+    await readWriteDatabase.insert(devotions).values(data).returning()
+  )[0];
 }
 
 export async function updateDevotion(id: string, data: UpdateDevotionData) {
   return (
-    await db
+    await readWriteDatabase
       .update(devotions)
       .set({
         ...data,
@@ -99,7 +102,10 @@ export async function updateDevotion(id: string, data: UpdateDevotionData) {
 
 export async function deleteDevotion(id: string) {
   return (
-    await db.delete(devotions).where(eq(devotions.id, id)).returning()
+    await readWriteDatabase
+      .delete(devotions)
+      .where(eq(devotions.id, id))
+      .returning()
   )[0];
 }
 
@@ -145,7 +151,7 @@ export async function generateDevotion(bibleReading?: string) {
       }
     );
 
-    const vectorStore = await getVectorStore();
+    const vectorStore = await getDocumentVectorStore();
     const context = await vectorStore.similaritySearch(bibleReading, 10);
     const chain = new LLMChain({
       llm: getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
@@ -166,7 +172,7 @@ export async function generateDevotion(bibleReading?: string) {
     await Promise.all(
       // @ts-ignore
       context.map(async (c: SourceDocument) => {
-        await db.insert(devotionsToSourceDocuments).values({
+        await readWriteDatabase.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,
         });
@@ -308,7 +314,7 @@ async function generateDevotionImages(devo: Devotion) {
 }
 
 async function getRandomBibleReading() {
-  const vectorStore = await getVectorStore();
+  const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
     getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
     vectorStore.asRetriever(10),

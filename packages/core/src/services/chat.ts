@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { db } from "../database";
+import { readOnlyDatabase, readWriteDatabase } from "../database";
 import { CreateChatData, UpdateChatData } from "../database/model";
 import { chats } from "../database/schema";
 
@@ -18,7 +18,7 @@ export async function getChats(
     orderBy = desc(chats.createdAt),
   } = options;
 
-  return await db
+  return await readOnlyDatabase
     .select()
     .from(chats)
     .where(where)
@@ -28,7 +28,9 @@ export async function getChats(
 }
 
 export async function getChat(id: string) {
-  return (await db.select().from(chats).where(eq(chats.id, id))).at(0);
+  return (
+    await readOnlyDatabase.select().from(chats).where(eq(chats.id, id))
+  ).at(0);
 }
 
 export async function getChatOrThrow(id: string) {
@@ -40,12 +42,12 @@ export async function getChatOrThrow(id: string) {
 }
 
 export async function createChat(data: CreateChatData) {
-  return (await db.insert(chats).values(data).returning())[0];
+  return (await readWriteDatabase.insert(chats).values(data).returning())[0];
 }
 
 export async function updateChat(id: string, data: UpdateChatData) {
   return (
-    await db
+    await readWriteDatabase
       .update(chats)
       .set({
         ...data,
@@ -57,5 +59,7 @@ export async function updateChat(id: string, data: UpdateChatData) {
 }
 
 export async function deleteChat(id: string) {
-  return (await db.delete(chats).where(eq(chats.id, id)).returning())[0];
+  return (
+    await readWriteDatabase.delete(chats).where(eq(chats.id, id)).returning()
+  )[0];
 }

@@ -1,17 +1,17 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "../database";
+import { readOnlyDatabase, readWriteDatabase } from "../../database";
 import {
   CreateUserDailyQueryCountData,
   UpdateUserDailyQueryCountData,
-} from "../database/model/user-daily-query-count";
-import { userDailyQueryCounts } from "../database/schema";
+} from "../../database/model/user/daily-query-count";
+import { userDailyQueryCounts } from "../../database/schema";
 
 export async function getUserDailyQueryCountByUserIdAndDate(
   userId: string,
   date: Date
 ) {
   return (
-    await db
+    await readOnlyDatabase
       .select()
       .from(userDailyQueryCounts)
       .where(
@@ -26,7 +26,12 @@ export async function getUserDailyQueryCountByUserIdAndDate(
 export async function createUserDailyQueryCount(
   data: CreateUserDailyQueryCountData
 ) {
-  return (await db.insert(userDailyQueryCounts).values(data).returning())[0];
+  return (
+    await readWriteDatabase
+      .insert(userDailyQueryCounts)
+      .values(data)
+      .returning()
+  )[0];
 }
 
 export async function updateUserDailyQueryCount(
@@ -34,7 +39,7 @@ export async function updateUserDailyQueryCount(
   data: UpdateUserDailyQueryCountData
 ) {
   return (
-    await db
+    await readWriteDatabase
       .update(userDailyQueryCounts)
       .set({
         ...data,
@@ -47,7 +52,7 @@ export async function updateUserDailyQueryCount(
 
 export async function deleteUserDailyQueryCount(id: string) {
   return (
-    await db
+    await readWriteDatabase
       .delete(userDailyQueryCounts)
       .where(eq(userDailyQueryCounts.id, id))
       .returning()

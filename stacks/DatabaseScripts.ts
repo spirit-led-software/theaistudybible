@@ -14,6 +14,7 @@ export function DatabaseScripts({ stack }: StackContext) {
     environment: {
       ...STATIC_ENV_VARS,
     },
+    timeout: "5 minutes",
   });
   const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
     onCreate: dbMigrationsFunction,
@@ -26,6 +27,7 @@ export function DatabaseScripts({ stack }: StackContext) {
     environment: {
       ...STATIC_ENV_VARS,
     },
+    timeout: "5 minutes",
   });
   dbSeedFunction.node.addDependency(dbMigrationsScript);
   const dbSeedScript = new Script(stack, "dbSeedScript", {

@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { db } from "../database";
+import { readOnlyDatabase, readWriteDatabase } from "../database";
 import {
   AiResponse,
   CreateAiResponseData,
@@ -7,7 +7,7 @@ import {
   UpdateAiResponseData,
 } from "../database/model";
 import { aiResponses, aiResponsesToSourceDocuments } from "../database/schema";
-import { getSourceDocument } from "./vector-db";
+import { getSourceDocuments } from "./vector-db";
 
 export async function getAiResponses(
   options: {
@@ -24,7 +24,7 @@ export async function getAiResponses(
     orderBy = desc(aiResponses.createdAt),
   } = options;
 
-  return await db
+  return await readOnlyDatabase
     .select()
     .from(aiResponses)
     .where(where)
@@ -34,9 +34,12 @@ export async function getAiResponses(
 }
 
 export async function getAiResponse(id: string) {
-  return (await db.select().from(aiResponses).where(eq(aiResponses.id, id))).at(
-    0
-  );
+  return (
+    await readOnlyDatabase
+      .select()
+      .from(aiResponses)
+      .where(eq(aiResponses.id, id))
+  ).at(0);
 }
 
 export async function getAiResponseOrThrow(id: string) {
@@ -48,7 +51,7 @@ export async function getAiResponseOrThrow(id: string) {
 }
 
 export async function getAiResponsesByUserMessageId(userMessageId: string) {
-  return await db
+  return await readOnlyDatabase
     .select()
     .from(aiResponses)
     .where(eq(aiResponses.userMessageId, userMessageId))
@@ -59,30 +62,28 @@ export async function getAiResponseRelatedSourceDocuments(
   aiResponse: AiResponse
 ) {
   const sourceDocumentIds = (
-    await db
+    await readOnlyDatabase
       .select()
       .from(aiResponsesToSourceDocuments)
       .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
   ).map((d) => d.sourceDocumentId);
 
-  const foundSourceDocuments: SourceDocument[] = [];
-  for (const sourceDocumentId of sourceDocumentIds) {
-    const sourceDocument = await getSourceDocument(sourceDocumentId);
-    if (sourceDocument) {
-      foundSourceDocuments.push(sourceDocument);
-    }
-  }
+  const foundSourceDocuments: SourceDocument[] = await getSourceDocuments(
+    sourceDocumentIds
+  );
 
   return foundSourceDocuments;
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {
-  return (await db.insert(aiResponses).values(data).returning())[0];
+  return (
+    await readWriteDatabase.insert(aiResponses).values(data).returning()
+  )[0];
 }
 
 export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
   return (
-    await db
+    await readWriteDatabase
       .update(aiResponses)
       .set({
         ...data,
@@ -95,6 +96,9 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
 
 export async function deleteAiResponse(id: string) {
   return (
-    await db.delete(aiResponses).where(eq(aiResponses.id, id)).returning()
+    await readWriteDatabase
+      .delete(aiResponses)
+      .where(eq(aiResponses.id, id))
+      .returning()
   )[0];
 }

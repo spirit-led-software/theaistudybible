@@ -8,17 +8,17 @@ import { getChatModel, getPromptModel } from "@core/services/llm";
 import { validSessionToken } from "@core/services/session";
 import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
-  createUserDailyQueryCount,
-  getUserDailyQueryCountByUserIdAndDate,
-  updateUserDailyQueryCount,
-} from "@core/services/user-daily-query-count";
-import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@core/services/user-message";
-import { getVectorStore } from "@core/services/vector-db";
+import {
+  createUserDailyQueryCount,
+  getUserDailyQueryCountByUserIdAndDate,
+  updateUserDailyQueryCount,
+} from "@core/services/user/daily-query-count";
+import { getDocumentVectorStore } from "@core/services/vector-db";
 import middy from "@middy/core";
-import { db } from "@revelationsai/core/database";
+import { writeDatabase } from "@revelationsai/core/database";
 import {
   Chat,
   SourceDocument,
@@ -205,7 +205,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
         userId: userInfo.id,
       });
 
-      const vectorStore = await getVectorStore();
+      const vectorStore = await getDocumentVectorStore();
       const history: BaseMessage[] = messages.map((message) => {
         return message.role === "user"
           ? new HumanMessage(message.content)
@@ -248,12 +248,14 @@ export const handler = middy({ streamifyResponse: true }).handler(
             text: result.text,
           });
 
-          result.sourceDocuments.forEach(async (sourceDoc: SourceDocument) => {
-            await db.insert(aiResponsesToSourceDocuments).values({
-              aiResponseId: aiResponse.id,
-              sourceDocumentId: sourceDoc.id,
-            });
-          });
+          await Promise.all(
+            result.sourceDocuments.map(async (sourceDoc: SourceDocument) => {
+              await writeDatabase.insert(aiResponsesToSourceDocuments).values({
+                aiResponseId: aiResponse.id,
+                sourceDocumentId: sourceDoc.id,
+              });
+            })
+          );
         })
         .catch(async (err) => {
           console.error(`${err.stack}`);

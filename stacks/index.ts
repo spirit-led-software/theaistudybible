@@ -8,12 +8,21 @@ export * from "./S3";
 export * from "./Website";
 
 export const STATIC_ENV_VARS: Record<string, string> = {
+  // Environment
+  IS_LOCAL: process.env.IS_LOCAL!,
+  NODE_ENV: process.env.NODE_ENV!,
+
   // Database (Neon)
   DATABASE_URL: process.env.DATABASE_URL!,
+  DATABASE_READ_URL: process.env.DATABASE_READ_URL!,
+  DATABASE_WRITE_URL: process.env.DATABASE_WRITE_URL!,
 
   // Vector DB
   VECTOR_DB_URL: process.env.VECTOR_DB_URL!,
-  VECTOR_DB_COLLECTION_NAME: process.env.VECTOR_DB_COLLECTION_NAME!,
+  VECTOR_DB_READ_URL: process.env.VECTOR_DB_READ_URL!,
+  VECTOR_DB_WRITE_URL: process.env.VECTOR_DB_WRITE_URL!,
+  VECTOR_DB_DOCS_TABLE: process.env.VECTOR_DB_DOCS_TABLE!,
+  VECTOR_DB_DOCS_DIMENSIONS: process.env.VECTOR_DB_DOCS_DIMENSIONS!,
 
   // LLM
   LLM_API_KEY: process.env.LLM_API_KEY!,

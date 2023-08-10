@@ -1,9 +1,9 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import config from "../configs/auth";
-import { db } from "../database";
-import { CreateUserData, UpdateUserData, User } from "../database/model";
-import { roles, users, usersToRoles } from "../database/schema";
-import { addRoleToUser } from "./role";
+import config from "../../configs/auth";
+import { readOnlyDatabase, readWriteDatabase } from "../../database";
+import { CreateUserData, UpdateUserData, User } from "../../database/model";
+import { roles, users, usersToRoles } from "../../database/schema";
+import { addRoleToUser } from "../role";
 
 export async function getUsers(
   options: {
@@ -20,7 +20,7 @@ export async function getUsers(
     orderBy = desc(users.createdAt),
   } = options;
 
-  return await db
+  return await readOnlyDatabase
     .select()
     .from(users)
     .where(where)
@@ -30,7 +30,9 @@ export async function getUsers(
 }
 
 export async function getUser(id: string) {
-  return (await db.select().from(users).where(eq(users.id, id))).at(0);
+  return (
+    await readOnlyDatabase.select().from(users).where(eq(users.id, id))
+  ).at(0);
 }
 
 export async function getUserOrThrow(id: string) {
@@ -42,7 +44,9 @@ export async function getUserOrThrow(id: string) {
 }
 
 export async function getUserByEmail(email: string) {
-  return (await db.select().from(users).where(eq(users.email, email))).at(0);
+  return (
+    await readOnlyDatabase.select().from(users).where(eq(users.email, email))
+  ).at(0);
 }
 
 export async function getUserByEmailOrThrow(email: string) {
@@ -55,7 +59,7 @@ export async function getUserByEmailOrThrow(email: string) {
 
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
   return (
-    await db
+    await readOnlyDatabase
       .select()
       .from(users)
       .where(eq(users.stripeCustomerId, stripeCustomerId))
@@ -63,12 +67,12 @@ export async function getUserByStripeCustomerId(stripeCustomerId: string) {
 }
 
 export async function createUser(data: CreateUserData) {
-  return (await db.insert(users).values(data).returning())[0];
+  return (await readWriteDatabase.insert(users).values(data).returning())[0];
 }
 
 export async function updateUser(id: string, data: UpdateUserData) {
   return (
-    await db
+    await readWriteDatabase
       .update(users)
       .set({
         ...data,
@@ -80,18 +84,20 @@ export async function updateUser(id: string, data: UpdateUserData) {
 }
 
 export async function deleteUser(id: string) {
-  return (await db.delete(users).where(eq(users.id, id)).returning())[0];
+  return (
+    await readWriteDatabase.delete(users).where(eq(users.id, id)).returning()
+  )[0];
 }
 
 export async function isAdmin(userId: string) {
-  const userRolesRelation = await db
+  const userRolesRelation = await readOnlyDatabase
     .select()
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId));
 
   const userRoleNames: string[] = [];
   for (const userRoleRelation of userRolesRelation) {
-    const userRoles = await db
+    const userRoles = await readOnlyDatabase
       .select()
       .from(roles)
       .where(eq(roles.id, userRoleRelation.roleId));
@@ -121,7 +127,7 @@ export async function createInitialAdminUser() {
 
   console.log("Adding admin role to admin user");
   if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("ADMIN", adminUser!.id);
+    await addRoleToUser("ADMIN", adminUser.id);
     console.log("Admin role added to admin user");
   } else {
     console.log("Admin role already added to admin user");

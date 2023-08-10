@@ -1,21 +1,14 @@
-import { neon, neonConfig } from "@neondatabase/serverless";
-import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
-import { drizzle as drizzleLocal } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import config from "../configs/database";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { databaseConfig, envConfig } from "../configs";
 import * as schema from "./schema";
 
-neonConfig.fetchConnectionCache = true;
+export const readOnlyDatabase = drizzle(neon(databaseConfig.readOnlyUrl), {
+  schema,
+  logger: envConfig.isLocal,
+});
 
-export const db = config.isLocal
-  ? drizzleLocal(postgres(config.url), {
-      schema,
-      logger: {
-        logQuery(query, params) {
-          console.log("Executing query:", query, params);
-        },
-      },
-    })
-  : drizzleNeon(neon(config.url), {
-      schema,
-    });
+export const readWriteDatabase = drizzle(neon(databaseConfig.readWriteUrl), {
+  schema,
+  logger: envConfig.isLocal,
+});
