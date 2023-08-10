@@ -248,12 +248,14 @@ export const handler = middy({ streamifyResponse: true }).handler(
             text: result.text,
           });
 
-          result.sourceDocuments.forEach(async (sourceDoc: SourceDocument) => {
-            await writeDatabase.insert(aiResponsesToSourceDocuments).values({
-              aiResponseId: aiResponse.id,
-              sourceDocumentId: sourceDoc.id,
-            });
-          });
+          await Promise.all(
+            result.sourceDocuments.map(async (sourceDoc: SourceDocument) => {
+              await writeDatabase.insert(aiResponsesToSourceDocuments).values({
+                aiResponseId: aiResponse.id,
+                sourceDocumentId: sourceDoc.id,
+              });
+            })
+          );
         })
         .catch(async (err) => {
           console.error(`${err.stack}`);

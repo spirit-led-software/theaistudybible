@@ -1,10 +1,10 @@
 import { Document } from "langchain/document";
-import { vectorDBConfig } from "../configs/index";
+import { envConfig, vectorDBConfig } from "../configs/index";
 import { SourceDocument } from "../database/model";
 import { NeonVectorStore } from "../vector-db/neon";
 import { getEmbeddingsModel } from "./llm";
 
-export async function getVectorStore() {
+export async function getVectorStore(verbose?: boolean) {
   const vectorStore = await NeonVectorStore.fromConnectionString(
     getEmbeddingsModel(),
     {
@@ -14,6 +14,7 @@ export async function getVectorStore() {
         readOnlyUrl: vectorDBConfig.readUrl,
       },
       dimensions: vectorDBConfig.dimensions,
+      verbose: envConfig.isLocal ? true : verbose,
     }
   );
   return vectorStore;
