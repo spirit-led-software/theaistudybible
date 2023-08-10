@@ -16,7 +16,7 @@ export const getChatModel = (temperature?: number) =>
     temperature: temperature ?? config.temperature,
     modelName: config.completionsModelName,
     streaming: true,
-    maxTokens: 256,
+    maxTokens: -1,
   });
 
 export const getPromptModel = (temperature?: number) =>
