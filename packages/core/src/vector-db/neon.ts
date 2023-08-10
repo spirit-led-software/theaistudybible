@@ -1,8 +1,8 @@
-import { NeonQueryFunction, neon, neonConfig } from "@neondatabase/serverless";
+import { NeonQueryFunction, neon } from "@neondatabase/serverless";
 import { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
 import { Embeddings } from "langchain/embeddings";
-import { VectorStore } from "langchain/vectorstores";
+import { VectorStore } from "langchain/vectorstores/base";
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -40,7 +40,6 @@ export class NeonVectorStore extends VectorStore {
     this.filter = fields.filter;
     this.dimensions = fields.dimensions;
 
-    neonConfig.fetchConnectionCache = true;
     this.neonRead = neon(
       fields.connectionOptions.readOnlyUrl ??
         fields.connectionOptions.readWriteUrl
@@ -58,9 +57,6 @@ export class NeonVectorStore extends VectorStore {
 
   async addDocuments(documents: Document[]): Promise<void> {
     const texts = documents.map(({ pageContent }) => pageContent);
-    // This will create the table if it does not exist. We can call it every time as it doesn't
-    // do anything if the table already exists, and it is not expensive in terms of performance
-    await this.ensureTableInDatabase();
     return this.addVectors(
       await this.embeddings.embedDocuments(texts),
       documents
@@ -107,18 +103,14 @@ export class NeonVectorStore extends VectorStore {
     const embeddingString = `[${query.join(",")}]`;
     const _filter = filter ?? "{}";
 
-    const queryString = `
-      SELECT *, embedding <-> $1 as "_distance"
+    const documents = await this.neonRead(
+      `SELECT *, embedding <-> $1 as "_distance"
       FROM ${this.tableName}
       WHERE metadata @> $2
       ORDER BY "_distance" ASC
-      LIMIT $3;`;
-
-    const documents = await this.neonRead(queryString, [
-      embeddingString,
-      _filter,
-      k,
-    ]);
+      LIMIT $3;`,
+      [embeddingString, _filter, k]
+    );
 
     const results = [] as [NeonVectorStoreDocument, number][];
     for (const doc of documents) {
@@ -135,26 +127,42 @@ export class NeonVectorStore extends VectorStore {
     return results;
   }
 
+  /**
+   * Ensure that the table exists in the database.
+   * Only needs to be called once. Will not overwrite existing table.
+   * But will recreate the HNSW index.
+   */
   async ensureTableInDatabase(): Promise<void> {
+    console.log("Creating embedding extension");
     await this.neonWrite("CREATE EXTENSION IF NOT EXISTS embedding;");
-    await this.neonWrite('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
+
+    console.log(`Creating table ${this.tableName}`);
     await this.neonWrite(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
         "pageContent" text,
         metadata jsonb,
-        embedding real[],
+        embedding real[]
       );
     `);
+
+    console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
+    const indexName = `${this.tableName}_hnsw_idx`;
     await this.neonWrite(`
-      CREATE INDEX IF NOT EXISTS ON documents
+      DROP INDEX IF EXISTS ${indexName};
+    `);
+    await this.neonWrite(`
+      CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
         USING hnsw(embedding)
         WITH (
           dims=${this.dimensions}, 
-          m=52, 
+          m=52,
           efconstruction=64, 
           efsearch=30
         );
+    `);
+    console.log("Turning off seq scan");
+    await this.neonWrite(`
       SET enable_seqscan = off;
     `);
   }

@@ -1,5 +1,5 @@
 import config from "@core/configs/database";
-import { neon, neonConfig } from "@neondatabase/serverless";
+import { neon } from "@neondatabase/serverless";
 import * as schema from "@revelationsai/core/database/schema";
 import { Handler } from "aws-lambda";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -8,7 +8,6 @@ import { migrate } from "drizzle-orm/neon-http/migrator";
 export const handler: Handler = async () => {
   try {
     console.log("Creating database migration client...");
-    neonConfig.fetchConnectionCache = true;
     const migration = drizzle(neon(config.writeUrl), {
       schema,
       logger: {
