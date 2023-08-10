@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { readDatabase, writeDatabase } from "../../database";
+import { readOnlyDatabase, readWriteDatabase } from "../../database";
 import {
   CreateUserDailyQueryCountData,
   UpdateUserDailyQueryCountData,
@@ -11,7 +11,7 @@ export async function getUserDailyQueryCountByUserIdAndDate(
   date: Date
 ) {
   return (
-    await readDatabase
+    await readOnlyDatabase
       .select()
       .from(userDailyQueryCounts)
       .where(
@@ -27,7 +27,10 @@ export async function createUserDailyQueryCount(
   data: CreateUserDailyQueryCountData
 ) {
   return (
-    await writeDatabase.insert(userDailyQueryCounts).values(data).returning()
+    await readWriteDatabase
+      .insert(userDailyQueryCounts)
+      .values(data)
+      .returning()
   )[0];
 }
 
@@ -36,7 +39,7 @@ export async function updateUserDailyQueryCount(
   data: UpdateUserDailyQueryCountData
 ) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .update(userDailyQueryCounts)
       .set({
         ...data,
@@ -49,7 +52,7 @@ export async function updateUserDailyQueryCount(
 
 export async function deleteUserDailyQueryCount(id: string) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .delete(userDailyQueryCounts)
       .where(eq(userDailyQueryCounts.id, id))
       .returning()

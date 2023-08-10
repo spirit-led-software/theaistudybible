@@ -7,7 +7,7 @@ import { PromptTemplate } from "langchain/prompts";
 import Replicate from "replicate";
 import { z } from "zod";
 import { axios, replicateConfig, s3Config } from "../../configs";
-import { readDatabase, writeDatabase } from "../../database";
+import { readOnlyDatabase, readWriteDatabase } from "../../database";
 import {
   CreateDevotionData,
   Devotion,
@@ -34,7 +34,7 @@ export async function getDevotions(
     orderBy = desc(devotions.createdAt),
   } = options;
 
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(devotions)
     .where(where)
@@ -45,7 +45,7 @@ export async function getDevotions(
 
 export async function getDevotion(id: string) {
   return (
-    await readDatabase.select().from(devotions).where(eq(devotions.id, id))
+    await readOnlyDatabase.select().from(devotions).where(eq(devotions.id, id))
   ).at(0);
 }
 
@@ -59,13 +59,16 @@ export async function getDevotionOrThrow(id: string) {
 
 export async function getDevotionByDate(date: Date) {
   return (
-    await readDatabase.select().from(devotions).where(eq(devotions.date, date))
+    await readOnlyDatabase
+      .select()
+      .from(devotions)
+      .where(eq(devotions.date, date))
   ).at(0);
 }
 
 export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
   const sourceDocumentIds = (
-    await readDatabase
+    await readOnlyDatabase
       .select()
       .from(devotionsToSourceDocuments)
       .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
@@ -79,12 +82,14 @@ export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
 }
 
 export async function createDevotion(data: CreateDevotionData) {
-  return (await writeDatabase.insert(devotions).values(data).returning())[0];
+  return (
+    await readWriteDatabase.insert(devotions).values(data).returning()
+  )[0];
 }
 
 export async function updateDevotion(id: string, data: UpdateDevotionData) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .update(devotions)
       .set({
         ...data,
@@ -97,7 +102,7 @@ export async function updateDevotion(id: string, data: UpdateDevotionData) {
 
 export async function deleteDevotion(id: string) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .delete(devotions)
       .where(eq(devotions.id, id))
       .returning()
@@ -167,7 +172,7 @@ export async function generateDevotion(bibleReading?: string) {
     await Promise.all(
       // @ts-ignore
       context.map(async (c: SourceDocument) => {
-        await writeDatabase.insert(devotionsToSourceDocuments).values({
+        await readWriteDatabase.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,
         });

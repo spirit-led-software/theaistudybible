@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { readDatabase, writeDatabase } from "../database";
+import { readOnlyDatabase, readWriteDatabase } from "../database";
 import { CreateRoleData, Role, UpdateRoleData } from "../database/model";
 import { roles, usersToRoles } from "../database/schema";
 import { getUser } from "./user/user";
@@ -19,7 +19,7 @@ export async function getRoles(
     orderBy = desc(roles.createdAt),
   } = options;
 
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(roles)
     .where(where)
@@ -29,9 +29,9 @@ export async function getRoles(
 }
 
 export async function getRole(id: string) {
-  return (await readDatabase.select().from(roles).where(eq(roles.id, id))).at(
-    0
-  );
+  return (
+    await readOnlyDatabase.select().from(roles).where(eq(roles.id, id))
+  ).at(0);
 }
 
 export async function getRoleOrThrow(id: string) {
@@ -44,7 +44,7 @@ export async function getRoleOrThrow(id: string) {
 
 export async function getRoleByName(name: string) {
   return (
-    await readDatabase.select().from(roles).where(eq(roles.name, name))
+    await readOnlyDatabase.select().from(roles).where(eq(roles.name, name))
   ).at(0);
 }
 
@@ -57,12 +57,12 @@ export async function getRoleByNameOrThrow(name: string) {
 }
 
 export async function createRole(data: CreateRoleData) {
-  return (await writeDatabase.insert(roles).values(data).returning())[0];
+  return (await readWriteDatabase.insert(roles).values(data).returning())[0];
 }
 
 export async function updateRole(id: string, data: UpdateRoleData) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .update(roles)
       .set({
         ...data,
@@ -75,7 +75,7 @@ export async function updateRole(id: string, data: UpdateRoleData) {
 
 export async function deleteRole(id: string) {
   return (
-    await writeDatabase.delete(roles).where(eq(roles.id, id)).returning()
+    await readWriteDatabase.delete(roles).where(eq(roles.id, id)).returning()
   )[0];
 }
 
@@ -87,7 +87,7 @@ export async function addRoleToUser(roleName: string, userId: string) {
     throw new Error(`User with id ${userId} not found`);
   }
 
-  const userRolesRelation = await readDatabase
+  const userRolesRelation = await readOnlyDatabase
     .select()
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId));
@@ -95,7 +95,7 @@ export async function addRoleToUser(roleName: string, userId: string) {
   const userRoles: Role[] = [];
   for (const userRoleRelation of userRolesRelation) {
     const userRole = (
-      await readDatabase
+      await readOnlyDatabase
         .select()
         .from(roles)
         .where(eq(roles.id, userRoleRelation.roleId))
@@ -107,7 +107,7 @@ export async function addRoleToUser(roleName: string, userId: string) {
     throw new Error(`User already has role ${roleName}`);
   }
 
-  await writeDatabase.insert(usersToRoles).values({
+  await readWriteDatabase.insert(usersToRoles).values({
     userId: user.id,
     roleId: role.id,
   });

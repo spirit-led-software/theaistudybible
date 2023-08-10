@@ -1,5 +1,5 @@
 import { SQL, and, desc, eq } from "drizzle-orm";
-import { readDatabase, writeDatabase } from "../database";
+import { readOnlyDatabase, readWriteDatabase } from "../database";
 import {
   CreateUserMessageData,
   UpdateUserMessageData,
@@ -21,7 +21,7 @@ export async function getUserMessages(
     orderBy = desc(userMessages.createdAt),
   } = options;
 
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(userMessages)
     .where(where)
@@ -32,7 +32,7 @@ export async function getUserMessages(
 
 export async function getUserMessage(id: string) {
   return (
-    await readDatabase
+    await readOnlyDatabase
       .select()
       .from(userMessages)
       .where(eq(userMessages.id, id))
@@ -48,7 +48,7 @@ export async function getUserMessageOrThrow(id: string) {
 }
 
 export async function getUserMessagesByChatId(chatId: string) {
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(userMessages)
     .where(eq(userMessages.chatId, chatId))
@@ -59,7 +59,7 @@ export async function getUserMessagesByChatIdAndText(
   chatId: string,
   text: string
 ) {
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(userMessages)
     .where(and(eq(userMessages.chatId, chatId), eq(userMessages.text, text)))
@@ -67,7 +67,9 @@ export async function getUserMessagesByChatIdAndText(
 }
 
 export async function createUserMessage(data: CreateUserMessageData) {
-  return (await writeDatabase.insert(userMessages).values(data).returning())[0];
+  return (
+    await readWriteDatabase.insert(userMessages).values(data).returning()
+  )[0];
 }
 
 export async function updateUserMessage(
@@ -75,7 +77,7 @@ export async function updateUserMessage(
   data: UpdateUserMessageData
 ) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .update(userMessages)
       .set({
         ...data,
@@ -88,7 +90,7 @@ export async function updateUserMessage(
 
 export async function deleteUserMessage(id: string) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .delete(userMessages)
       .where(eq(userMessages.id, id))
       .returning()

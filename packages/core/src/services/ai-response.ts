@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { readDatabase, writeDatabase } from "../database";
+import { readOnlyDatabase, readWriteDatabase } from "../database";
 import {
   AiResponse,
   CreateAiResponseData,
@@ -24,7 +24,7 @@ export async function getAiResponses(
     orderBy = desc(aiResponses.createdAt),
   } = options;
 
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(aiResponses)
     .where(where)
@@ -35,7 +35,10 @@ export async function getAiResponses(
 
 export async function getAiResponse(id: string) {
   return (
-    await readDatabase.select().from(aiResponses).where(eq(aiResponses.id, id))
+    await readOnlyDatabase
+      .select()
+      .from(aiResponses)
+      .where(eq(aiResponses.id, id))
   ).at(0);
 }
 
@@ -48,7 +51,7 @@ export async function getAiResponseOrThrow(id: string) {
 }
 
 export async function getAiResponsesByUserMessageId(userMessageId: string) {
-  return await readDatabase
+  return await readOnlyDatabase
     .select()
     .from(aiResponses)
     .where(eq(aiResponses.userMessageId, userMessageId))
@@ -59,7 +62,7 @@ export async function getAiResponseRelatedSourceDocuments(
   aiResponse: AiResponse
 ) {
   const sourceDocumentIds = (
-    await readDatabase
+    await readOnlyDatabase
       .select()
       .from(aiResponsesToSourceDocuments)
       .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
@@ -73,12 +76,14 @@ export async function getAiResponseRelatedSourceDocuments(
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {
-  return (await writeDatabase.insert(aiResponses).values(data).returning())[0];
+  return (
+    await readWriteDatabase.insert(aiResponses).values(data).returning()
+  )[0];
 }
 
 export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .update(aiResponses)
       .set({
         ...data,
@@ -91,7 +96,7 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
 
 export async function deleteAiResponse(id: string) {
   return (
-    await writeDatabase
+    await readWriteDatabase
       .delete(aiResponses)
       .where(eq(aiResponses.id, id))
       .returning()
