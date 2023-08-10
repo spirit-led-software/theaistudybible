@@ -11,8 +11,13 @@ export function Constants({ stack, app }: StackContext) {
     hostedZone.zoneName
   }`;
 
+  const providedDevWebsiteUrl = process.env.WEBSITE_URL;
   const websiteUrl =
-    app.mode === "dev" ? `http://localhost:3000` : `https://${domainName}`;
+    app.mode === "dev"
+      ? providedDevWebsiteUrl
+        ? providedDevWebsiteUrl
+        : "https://localhost:3000"
+      : `https://${domainName}`;
 
   app.setDefaultFunctionProps({
     environment: {

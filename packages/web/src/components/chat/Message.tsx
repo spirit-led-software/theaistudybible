@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar } from "@components/user";
-import { dimensionClasses } from "@lib/sizing";
+import { squareDimensionClasses } from "@lib/sizing";
 import { Message as ChatMessage } from "ai/react";
 import { TbCross } from "react-icons/tb";
 import { ResponseSources } from "./ResponseSources";
@@ -24,7 +24,7 @@ export function Message({
           <Avatar size="md" className="border shadow-lg" />
         ) : (
           <TbCross
-            className={`${dimensionClasses["md"]} p-2 text-md text-center border rounded-full shadow-lg`}
+            className={`${squareDimensionClasses["md"]} p-2 text-md text-center border rounded-full shadow-lg`}
           />
         )}
       </div>

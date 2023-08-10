@@ -1,5 +1,4 @@
 import { validApiSession } from "@core/services/session";
-import { isObjectOwner } from "@core/services/user";
 import { getUserMessages } from "@core/services/user-message";
 import {
   InternalServerErrorResponse,
@@ -8,6 +7,7 @@ import {
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { userMessages } from "@revelationsai/core/database/schema";
+import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -23,14 +23,11 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse("You must be logged in.");
     }
 
-    let messages = await getUserMessages({
+    const messages = await getUserMessages({
+      where: eq(userMessages.userId, userInfo.id),
       limit,
       offset: (page - 1) * limit,
       orderBy: buildOrderBy(userMessages, orderBy, order),
-    });
-
-    messages = messages.filter((message) => {
-      return isObjectOwner(message, userInfo.id);
     });
 
     return OkResponse({
