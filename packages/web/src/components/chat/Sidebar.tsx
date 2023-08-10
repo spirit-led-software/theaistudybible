@@ -6,7 +6,7 @@ import { Chat } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
 import { KeyedMutator } from "swr";
@@ -15,12 +15,12 @@ import { SolidLineSpinner } from "..";
 type SidebarProps = {
   activeChatId?: string;
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
   chats: Chat[];
   mutate: KeyedMutator<Chat[]>;
   isLoading: boolean;
   limit: number;
-  setLimit: (limit: number) => void;
+  setLimit: Dispatch<SetStateAction<number>>;
 };
 
 export function Sidebar({
@@ -51,7 +51,7 @@ export function Sidebar({
     });
     const chat = await response.json();
     if (chats.length >= limit) {
-      setLimit(limit + 1);
+      setLimit((prevLimit) => prevLimit + 1);
     }
     mutate([chat, ...chats]);
   };
@@ -74,8 +74,8 @@ export function Sidebar({
   };
 
   const handleGetMoreChats = () => {
-    setLimit(limit + 5);
-    mutate();
+    setLimit((prevLimit) => prevLimit + 5);
+    mutate(chats);
   };
 
   useEffect(() => {
@@ -159,7 +159,7 @@ export function Sidebar({
               </div>
             </div>
           )}
-          {chats.length === limit && !isLoadingMore && (
+          {chats.length >= limit && !isLoadingMore && (
             <button
               className="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
               onClick={handleGetMoreChats}

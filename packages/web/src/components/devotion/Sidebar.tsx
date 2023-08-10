@@ -1,11 +1,10 @@
 "use client";
 
 import { useDevotions } from "@hooks/devotion";
-import { devotions } from "@revelationsai/core/database/schema";
-import { InferModel } from "drizzle-orm";
+import { Devotion } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { BsArrowLeftShort } from "react-icons/bs";
 import { SolidLineSpinner } from "..";
 
@@ -16,20 +15,16 @@ export function Sidebar({
   setIsOpen,
 }: {
   activeDevoId: string;
-  initDevos?: InferModel<typeof devotions>[];
+  initDevos?: Devotion[];
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { devos, isLoading, limit, setLimit, mutate } = useDevotions(
     initDevos,
     {
-      limit: initDevos?.length
-        ? initDevos.length < 7
-          ? 7
-          : initDevos.length
-        : 7,
+      limit: 7,
     }
   );
 
@@ -107,7 +102,7 @@ export function Sidebar({
               </div>
             </div>
           )}
-          {devos.length === limit && !isLoadingMore && (
+          {devos.length >= limit && !isLoadingMore && (
             <button
               className="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
               onClick={handleGetMoreDevos}

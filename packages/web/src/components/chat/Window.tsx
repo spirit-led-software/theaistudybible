@@ -29,7 +29,6 @@ export function Window({
   const searchParams = useSearchParams();
   const searchParamsQuery = searchParams.get("query");
   const { session } = useSession();
-
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
@@ -43,6 +42,10 @@ export function Window({
     null
   );
   const [lastAiResponseId, setLastAiResponseId] = useState<string | null>(null);
+  const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
+    null
+  );
+  const [alert, setAlert] = useState<string | null>(null);
 
   const {
     chats,
@@ -51,16 +54,8 @@ export function Window({
     limit,
     setLimit,
   } = useChats(initChats, {
-    limit: initChats?.length
-      ? initChats.length < 7
-        ? 7
-        : initChats.length
-      : 7,
+    limit: 7,
   });
-  const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(
-    null
-  );
-  const [alert, setAlert] = useState<string | null>(null);
 
   const {
     handleSubmit,
