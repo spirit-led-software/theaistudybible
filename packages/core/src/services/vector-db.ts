@@ -21,6 +21,7 @@ export async function getVectorStore() {
             },
           ],
         },
+        ssl: true,
       },
     }
   );
