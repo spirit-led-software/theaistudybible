@@ -21,7 +21,8 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   VECTOR_DB_URL: process.env.VECTOR_DB_URL!,
   VECTOR_DB_READ_URL: process.env.VECTOR_DB_READ_URL!,
   VECTOR_DB_WRITE_URL: process.env.VECTOR_DB_WRITE_URL!,
-  VECTOR_DB_COLLECTION_NAME: process.env.VECTOR_DB_COLLECTION_NAME!,
+  VECTOR_DB_TABLE_NAME: process.env.VECTOR_DB_TABLE_NAME!,
+  VECTOR_DB_DIMENSIONS: process.env.VECTOR_DB_DIMENSIONS!,
 
   // LLM
   LLM_API_KEY: process.env.LLM_API_KEY!,

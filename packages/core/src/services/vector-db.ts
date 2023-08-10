@@ -1,28 +1,19 @@
 import { Document } from "langchain/document";
-import { TypeORMVectorStore } from "langchain/vectorstores/typeorm";
 import { vectorDBConfig } from "../configs/index";
 import { SourceDocument } from "../database/model";
+import { NeonVectorStore } from "../vector-db/neon";
 import { getEmbeddingsModel } from "./llm";
 
 export async function getVectorStore() {
-  const vectorStore = await TypeORMVectorStore.fromDataSource(
+  const vectorStore = await NeonVectorStore.fromConnectionString(
     getEmbeddingsModel(),
     {
-      tableName: vectorDBConfig.collectionName,
-      postgresConnectionOptions: {
-        type: "postgres",
-        replication: {
-          master: {
-            url: vectorDBConfig.writeUrl,
-          },
-          slaves: [
-            {
-              url: vectorDBConfig.readUrl,
-            },
-          ],
-        },
-        ssl: true, // always use SSL when connecting to NeonDB
+      tableName: vectorDBConfig.tableName,
+      connectionOptions: {
+        readWriteUrl: vectorDBConfig.writeUrl,
+        readOnlyUrl: vectorDBConfig.readUrl,
       },
+      dimensions: vectorDBConfig.dimensions,
     }
   );
   await vectorStore.ensureTableInDatabase();
@@ -51,8 +42,8 @@ export async function getSourceDocument(
   const queryString = `
 SELECT * FROM ${vectorStore.tableName} 
 WHERE id = $1;`;
-  const sourceDocuments = await vectorStore.appDataSource.query(queryString, [
+  const sourceDocuments = (await vectorStore.neonRead(queryString, [
     sourceDocumentId,
-  ]);
+  ])) as SourceDocument[];
   return sourceDocuments[0];
 }

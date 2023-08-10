@@ -7,6 +7,7 @@
     "typecheck": "tsc -noEmit"
   },
   "devDependencies": {
+    "@opensearch-project/opensearch": "^2.3.1",
     "@types/email-templates": "^10.0.1",
     "@types/node": "^20.4.9",
     "sst": "^2.23.15",
