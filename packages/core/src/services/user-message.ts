@@ -88,7 +88,7 @@ export async function updateUserMessage(
 
 export async function deleteUserMessage(id: string) {
   return (
-    await readDatabase
+    await writeDatabase
       .delete(userMessages)
       .where(eq(userMessages.id, id))
       .returning()

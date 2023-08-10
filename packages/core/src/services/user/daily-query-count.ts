@@ -49,7 +49,7 @@ export async function updateUserDailyQueryCount(
 
 export async function deleteUserDailyQueryCount(id: string) {
   return (
-    await readDatabase
+    await writeDatabase
       .delete(userDailyQueryCounts)
       .where(eq(userDailyQueryCounts.id, id))
       .returning()

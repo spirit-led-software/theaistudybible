@@ -101,7 +101,10 @@ export async function updateDevotion(id: string, data: UpdateDevotionData) {
 
 export async function deleteDevotion(id: string) {
   return (
-    await readDatabase.delete(devotions).where(eq(devotions.id, id)).returning()
+    await writeDatabase
+      .delete(devotions)
+      .where(eq(devotions.id, id))
+      .returning()
   )[0];
 }
 
@@ -168,7 +171,7 @@ export async function generateDevotion(bibleReading?: string) {
     await Promise.all(
       // @ts-ignore
       context.map(async (c: SourceDocument) => {
-        await readDatabase.insert(devotionsToSourceDocuments).values({
+        await writeDatabase.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,
         });

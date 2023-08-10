@@ -95,7 +95,7 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
 
 export async function deleteAiResponse(id: string) {
   return (
-    await readDatabase
+    await writeDatabase
       .delete(aiResponses)
       .where(eq(aiResponses.id, id))
       .returning()

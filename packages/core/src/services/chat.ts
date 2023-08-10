@@ -60,6 +60,6 @@ export async function updateChat(id: string, data: UpdateChatData) {
 
 export async function deleteChat(id: string) {
   return (
-    await readDatabase.delete(chats).where(eq(chats.id, id)).returning()
+    await writeDatabase.delete(chats).where(eq(chats.id, id)).returning()
   )[0];
 }

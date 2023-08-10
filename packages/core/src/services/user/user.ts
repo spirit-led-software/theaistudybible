@@ -85,7 +85,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
 
 export async function deleteUser(id: string) {
   return (
-    await readDatabase.delete(users).where(eq(users.id, id)).returning()
+    await writeDatabase.delete(users).where(eq(users.id, id)).returning()
   )[0];
 }
 
@@ -127,7 +127,7 @@ export async function createInitialAdminUser() {
 
   console.log("Adding admin role to admin user");
   if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("ADMIN", adminUser!.id);
+    await addRoleToUser("ADMIN", adminUser.id);
     console.log("Admin role added to admin user");
   } else {
     console.log("Admin role already added to admin user");

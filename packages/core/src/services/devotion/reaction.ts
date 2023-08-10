@@ -111,7 +111,7 @@ export async function updateDevotionReaction(
 
 export async function deleteDevotionReaction(id: string) {
   return (
-    await readDatabase
+    await writeDatabase
       .delete(devotionReactions)
       .where(eq(devotionReactions.id, id))
       .returning()

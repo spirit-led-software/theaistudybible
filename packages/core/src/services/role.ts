@@ -75,7 +75,7 @@ export async function updateRole(id: string, data: UpdateRoleData) {
 
 export async function deleteRole(id: string) {
   return (
-    await readDatabase.delete(roles).where(eq(roles.id, id)).returning()
+    await writeDatabase.delete(roles).where(eq(roles.id, id)).returning()
   )[0];
 }
 
@@ -107,7 +107,7 @@ export async function addRoleToUser(roleName: string, userId: string) {
     throw new Error(`User already has role ${roleName}`);
   }
 
-  await readDatabase.insert(usersToRoles).values({
+  await writeDatabase.insert(usersToRoles).values({
     userId: user.id,
     roleId: role.id,
   });

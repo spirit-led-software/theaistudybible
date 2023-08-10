@@ -78,7 +78,7 @@ export async function updateDevotionImage(
 
 export async function deleteDevotionImage(id: string) {
   return (
-    await readDatabase
+    await writeDatabase
       .delete(devotionImages)
       .where(eq(devotionImages.id, id))
       .returning()

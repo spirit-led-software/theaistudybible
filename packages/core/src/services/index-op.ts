@@ -71,7 +71,7 @@ export async function updateIndexOperation(
 
 export async function deleteIndexOperation(id: string) {
   return (
-    await readDatabase
+    await writeDatabase
       .delete(indexOperations)
       .where(eq(indexOperations.id, id))
       .returning()
