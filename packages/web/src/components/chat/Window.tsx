@@ -14,7 +14,6 @@ import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
 import { LoadingDots } from "..";
 import { useChats } from "../../hooks";
-import { AdMessage } from "./AdMessage";
 import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
@@ -260,11 +259,12 @@ export function Window({
             <div className="flex flex-col flex-1 min-h-full place-content-end">
               {messages.map((message, index) => (
                 <div key={message.id} className="flex flex-col w-full">
-                  {/* Randomly show an ad */}
+                  {/* TODO: Add ads when adsense is approved
+                  Randomly show an ad
                   {index !== 0 &&
                     index % Math.floor(Math.random() * 10) === 0 && (
                       <AdMessage />
-                    )}
+                    )} */}
                   <Message
                     chatId={initChatId!}
                     message={message}
