@@ -57,8 +57,9 @@ export default function RootLayout({
     <SessionProvider sessionToken={sessionToken?.value}>
       <html lang="en">
         <Script
+          id="adsbygoogle-init"
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
           strategy="lazyOnload"
           crossOrigin="anonymous"
         />

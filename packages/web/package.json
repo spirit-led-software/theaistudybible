@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ctrl/react-adsense": "^1.7.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@revelationsai/core": "*",
     "ai": "^2.1.20",

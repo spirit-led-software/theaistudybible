@@ -261,9 +261,10 @@ export function Window({
               {messages.map((message, index) => (
                 <div key={message.id} className="flex flex-col w-full">
                   {/* Randomly show an ad */}
-                  {index % Math.floor(Math.random() * 10) === 0 && (
-                    <AdMessage />
-                  )}
+                  {index !== 0 &&
+                    index % Math.floor(Math.random() * 10) === 0 && (
+                      <AdMessage />
+                    )}
                   <Message
                     chatId={initChatId!}
                     message={message}
