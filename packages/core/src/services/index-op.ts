@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { db } from "../database";
+import { readDatabase, writeDatabase } from "../database";
 import {
   CreateIndexOperationData,
   UpdateIndexOperationData,
@@ -21,7 +21,7 @@ export async function getIndexOperations(
     orderBy = desc(indexOperations.createdAt),
   } = options;
 
-  return await db
+  return await readDatabase
     .select()
     .from(indexOperations)
     .limit(limit)
@@ -32,7 +32,10 @@ export async function getIndexOperations(
 
 export async function getIndexOperation(id: string) {
   return (
-    await db.select().from(indexOperations).where(eq(indexOperations.id, id))
+    await readDatabase
+      .select()
+      .from(indexOperations)
+      .where(eq(indexOperations.id, id))
   ).at(0);
 }
 
@@ -45,7 +48,9 @@ export async function getIndexOperationOrThrow(id: string) {
 }
 
 export async function createIndexOperation(data: CreateIndexOperationData) {
-  return (await db.insert(indexOperations).values(data).returning())[0];
+  return (
+    await writeDatabase.insert(indexOperations).values(data).returning()
+  )[0];
 }
 
 export async function updateIndexOperation(
@@ -53,7 +58,7 @@ export async function updateIndexOperation(
   data: UpdateIndexOperationData
 ) {
   return (
-    await db
+    await writeDatabase
       .update(indexOperations)
       .set({
         ...data,
@@ -66,7 +71,7 @@ export async function updateIndexOperation(
 
 export async function deleteIndexOperation(id: string) {
   return (
-    await db
+    await readDatabase
       .delete(indexOperations)
       .where(eq(indexOperations.id, id))
       .returning()

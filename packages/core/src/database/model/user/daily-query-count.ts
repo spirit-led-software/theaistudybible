@@ -1,6 +1,6 @@
 import { InferModel } from "drizzle-orm";
 import { PgUpdateSetSource } from "drizzle-orm/pg-core";
-import { userDailyQueryCounts } from "../schema";
+import { userDailyQueryCounts } from "../../schema";
 
 export type UserDailyQueryCount = InferModel<
   typeof userDailyQueryCounts,

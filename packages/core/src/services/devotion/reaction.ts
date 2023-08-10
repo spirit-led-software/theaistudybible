@@ -1,5 +1,5 @@
 import { SQL, and, desc, eq } from "drizzle-orm";
-import { db } from "../../database";
+import { readDatabase, writeDatabase } from "../../database";
 import {
   CreateDevotionReactionData,
   UpdateDevotionReactionData,
@@ -21,7 +21,7 @@ export async function getDevotionReactions(
     orderBy = desc(devotionReactions.createdAt),
   } = options;
 
-  return await db
+  return await readDatabase
     .select()
     .from(devotionReactions)
     .where(where)
@@ -32,7 +32,7 @@ export async function getDevotionReactions(
 
 export async function getDevotionReaction(id: string) {
   return (
-    await db
+    await readDatabase
       .select()
       .from(devotionReactions)
       .where(eq(devotionReactions.id, id))
@@ -48,7 +48,7 @@ export async function getDevotionReactionOrThrow(id: string) {
 }
 
 export async function getDevotionReactionsByDevotionId(devotionId: string) {
-  return await db
+  return await readDatabase
     .select()
     .from(devotionReactions)
     .where(eq(devotionReactions.devotionId, devotionId));
@@ -59,7 +59,7 @@ export async function getDevotionReactionCountByDevotionIdAndReactionType(
   reactionType: (typeof devotionReactions.reaction.enumValues)[number]
 ) {
   return (
-    await db
+    await readDatabase
       .select()
       .from(devotionReactions)
       .where(
@@ -88,7 +88,9 @@ export async function getDevotionReactionCounts(devotionId: string) {
 }
 
 export async function createDevotionReaction(data: CreateDevotionReactionData) {
-  return (await db.insert(devotionReactions).values(data).returning())[0];
+  return (
+    await writeDatabase.insert(devotionReactions).values(data).returning()
+  )[0];
 }
 
 export async function updateDevotionReaction(
@@ -96,7 +98,7 @@ export async function updateDevotionReaction(
   data: UpdateDevotionReactionData
 ) {
   return (
-    await db
+    await writeDatabase
       .update(devotionReactions)
       .set({
         ...data,
@@ -109,7 +111,7 @@ export async function updateDevotionReaction(
 
 export async function deleteDevotionReaction(id: string) {
   return (
-    await db
+    await readDatabase
       .delete(devotionReactions)
       .where(eq(devotionReactions.id, id))
       .returning()

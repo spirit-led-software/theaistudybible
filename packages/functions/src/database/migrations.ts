@@ -9,7 +9,7 @@ export const handler: Handler = async () => {
   try {
     console.log("Creating database migration client...");
     neonConfig.fetchConnectionCache = true;
-    const migration = drizzle(neon(config.url), {
+    const migration = drizzle(neon(config.writeUrl), {
       schema,
       logger: {
         logQuery(query, params) {

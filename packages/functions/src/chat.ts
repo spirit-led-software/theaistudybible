@@ -8,17 +8,17 @@ import { getChatModel, getPromptModel } from "@core/services/llm";
 import { validSessionToken } from "@core/services/session";
 import { isAdmin, isObjectOwner } from "@core/services/user";
 import {
-  createUserDailyQueryCount,
-  getUserDailyQueryCountByUserIdAndDate,
-  updateUserDailyQueryCount,
-} from "@core/services/user-daily-query-count";
-import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@core/services/user-message";
+import {
+  createUserDailyQueryCount,
+  getUserDailyQueryCountByUserIdAndDate,
+  updateUserDailyQueryCount,
+} from "@core/services/user/daily-query-count";
 import { getVectorStore } from "@core/services/vector-db";
 import middy from "@middy/core";
-import { db } from "@revelationsai/core/database";
+import { writeDatabase } from "@revelationsai/core/database";
 import {
   Chat,
   SourceDocument,
@@ -249,7 +249,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           });
 
           result.sourceDocuments.forEach(async (sourceDoc: SourceDocument) => {
-            await db.insert(aiResponsesToSourceDocuments).values({
+            await writeDatabase.insert(aiResponsesToSourceDocuments).values({
               aiResponseId: aiResponse.id,
               sourceDocumentId: sourceDoc.id,
             });

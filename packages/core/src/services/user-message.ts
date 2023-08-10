@@ -1,5 +1,5 @@
 import { SQL, and, desc, eq } from "drizzle-orm";
-import { db } from "../database";
+import { readDatabase, writeDatabase } from "../database";
 import {
   CreateUserMessageData,
   UpdateUserMessageData,
@@ -21,7 +21,7 @@ export async function getUserMessages(
     orderBy = desc(userMessages.createdAt),
   } = options;
 
-  return await db
+  return await readDatabase
     .select()
     .from(userMessages)
     .where(where)
@@ -32,7 +32,10 @@ export async function getUserMessages(
 
 export async function getUserMessage(id: string) {
   return (
-    await db.select().from(userMessages).where(eq(userMessages.id, id))
+    await readDatabase
+      .select()
+      .from(userMessages)
+      .where(eq(userMessages.id, id))
   ).at(0);
 }
 
@@ -45,7 +48,7 @@ export async function getUserMessageOrThrow(id: string) {
 }
 
 export async function getUserMessagesByChatId(chatId: string) {
-  return await db
+  return await readDatabase
     .select()
     .from(userMessages)
     .where(eq(userMessages.chatId, chatId))
@@ -56,7 +59,7 @@ export async function getUserMessagesByChatIdAndText(
   chatId: string,
   text: string
 ) {
-  return await db
+  return await readDatabase
     .select()
     .from(userMessages)
     .where(and(eq(userMessages.chatId, chatId), eq(userMessages.text, text)))
@@ -64,7 +67,7 @@ export async function getUserMessagesByChatIdAndText(
 }
 
 export async function createUserMessage(data: CreateUserMessageData) {
-  return (await db.insert(userMessages).values(data).returning())[0];
+  return (await writeDatabase.insert(userMessages).values(data).returning())[0];
 }
 
 export async function updateUserMessage(
@@ -72,7 +75,7 @@ export async function updateUserMessage(
   data: UpdateUserMessageData
 ) {
   return (
-    await db
+    await writeDatabase
       .update(userMessages)
       .set({
         ...data,
@@ -85,6 +88,9 @@ export async function updateUserMessage(
 
 export async function deleteUserMessage(id: string) {
   return (
-    await db.delete(userMessages).where(eq(userMessages.id, id)).returning()
+    await readDatabase
+      .delete(userMessages)
+      .where(eq(userMessages.id, id))
+      .returning()
   )[0];
 }

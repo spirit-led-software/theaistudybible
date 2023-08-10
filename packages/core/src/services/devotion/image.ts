@@ -1,5 +1,5 @@
 import { SQL, desc, eq } from "drizzle-orm";
-import { db } from "../../database";
+import { readDatabase, writeDatabase } from "../../database";
 import {
   CreateDevotionImageData,
   UpdateDevotionImageData,
@@ -21,7 +21,7 @@ export async function getDevotionImages(
     orderBy = desc(devotionImages.createdAt),
   } = options;
 
-  return await db
+  return await readDatabase
     .select()
     .from(devotionImages)
     .where(where)
@@ -32,7 +32,10 @@ export async function getDevotionImages(
 
 export async function getDevotionImage(id: string) {
   return (
-    await db.select().from(devotionImages).where(eq(devotionImages.id, id))
+    await readDatabase
+      .select()
+      .from(devotionImages)
+      .where(eq(devotionImages.id, id))
   ).at(0);
 }
 
@@ -45,14 +48,16 @@ export async function getDevotionImageOrThrow(id: string) {
 }
 
 export async function getDevotionImagesByDevotionId(devotionId: string) {
-  return await db
+  return await readDatabase
     .select()
     .from(devotionImages)
     .where(eq(devotionImages.devotionId, devotionId));
 }
 
 export async function createDevotionImage(data: CreateDevotionImageData) {
-  return (await db.insert(devotionImages).values(data).returning())[0];
+  return (
+    await writeDatabase.insert(devotionImages).values(data).returning()
+  )[0];
 }
 
 export async function updateDevotionImage(
@@ -60,7 +65,7 @@ export async function updateDevotionImage(
   data: UpdateDevotionImageData
 ) {
   return (
-    await db
+    await writeDatabase
       .update(devotionImages)
       .set({
         ...data,
@@ -73,6 +78,9 @@ export async function updateDevotionImage(
 
 export async function deleteDevotionImage(id: string) {
   return (
-    await db.delete(devotionImages).where(eq(devotionImages.id, id)).returning()
+    await readDatabase
+      .delete(devotionImages)
+      .where(eq(devotionImages.id, id))
+      .returning()
   )[0];
 }

@@ -1,11 +1,17 @@
 export type DatabaseConfig = {
-  isLocal: boolean;
-  url: string;
+  readUrl: string;
+  writeUrl: string;
 };
 
 export const config: DatabaseConfig = {
-  isLocal: process.env.IS_LOCAL === "true",
-  url: process.env.DATABASE_URL!,
+  readUrl:
+    process.env.DATABASE_READ_URL && process.env.DATABASE_READ_URL !== ""
+      ? process.env.DATABASE_READ_URL
+      : process.env.DATABASE_URL!,
+  writeUrl:
+    process.env.DATABASE_WRITE_URL && process.env.DATABASE_WRITE_URL !== ""
+      ? process.env.DATABASE_WRITE_URL!
+      : process.env.DATABASE_URL!,
 };
 
 export default config;

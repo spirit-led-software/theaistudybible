@@ -1,6 +1,6 @@
 import { PricingCard } from "@components/PricingCard";
 import { Button } from "@components/ui/button";
-import { getUserDailyQueryCountByUserIdAndDate } from "@core/services/user-daily-query-count";
+import { getUserDailyQueryCountByUserIdAndDate } from "@core/services/user";
 import { validServerSession } from "@services/user";
 import Link from "next/link";
 import { redirect } from "next/navigation";

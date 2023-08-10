@@ -1,11 +1,19 @@
 interface VectorDBConfig {
-  url: string;
+  readUrl: string;
+  writeUrl: string;
   collectionName: string;
 }
 
 export const config: VectorDBConfig = {
-  url: process.env.VECTOR_DB_URL as string,
-  collectionName: process.env.VECTOR_DB_COLLECTION_NAME as string,
+  readUrl:
+    process.env.VECTOR_DB_READ_URL && process.env.VECTOR_DB_READ_URL !== ""
+      ? process.env.VECTOR_DB_READ_URL
+      : process.env.VECTOR_DB_URL!,
+  writeUrl:
+    process.env.VECTOR_DB_WRITE_URL && process.env.VECTOR_DB_WRITE_URL !== ""
+      ? process.env.VECTOR_DB_WRITE_URL!
+      : process.env.VECTOR_DB_URL!,
+  collectionName: process.env.VECTOR_DB_COLLECTION_NAME!,
 };
 
 export default config;

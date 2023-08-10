@@ -11,7 +11,16 @@ export async function getVectorStore() {
       tableName: vectorDBConfig.collectionName,
       postgresConnectionOptions: {
         type: "postgres",
-        url: vectorDBConfig.url,
+        replication: {
+          master: {
+            url: vectorDBConfig.writeUrl,
+          },
+          slaves: [
+            {
+              url: vectorDBConfig.readUrl,
+            },
+          ],
+        },
       },
     }
   );

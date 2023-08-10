@@ -1,7 +1,7 @@
 import { SessionValue, useSession } from "sst/node/auth";
 import { apiConfig } from "../configs";
 import { User } from "../database/model";
-import { getUser } from "./user";
+import { getUser } from "./user/user";
 
 export async function validApiSession(): Promise<
   | {
