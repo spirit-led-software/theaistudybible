@@ -92,7 +92,9 @@ export class NeonVectorStore extends VectorStore {
       if (this.verbose) {
         console.log(
           `Inserting ${chunk.length} rows into vector store: ${JSON.stringify(
-            chunk
+            chunk,
+            null,
+            2
           )}`
         );
       }
@@ -121,17 +123,10 @@ export class NeonVectorStore extends VectorStore {
       `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
       FROM ${this.tableName}
       WHERE metadata @> $2
+      ORDER BY "_distance" ASC
       LIMIT $3;`,
       [embeddingString, _filter, k]
     );
-
-    if (this.verbose) {
-      console.log(
-        `Found ${
-          documents.length
-        } similar results from vector store: ${JSON.stringify(documents)}`
-      );
-    }
 
     const results = [] as [NeonVectorStoreDocument, number][];
     for (const doc of documents) {
@@ -143,6 +138,14 @@ export class NeonVectorStore extends VectorStore {
         document.id = doc.id;
         results.push([document, doc._distance]);
       }
+    }
+
+    if (this.verbose) {
+      console.log(
+        `Found ${
+          documents.length
+        } similar results from vector store: ${JSON.stringify(results)}`
+      );
     }
     return results;
   }
@@ -183,9 +186,9 @@ export class NeonVectorStore extends VectorStore {
         USING hnsw(embedding)
         WITH (
           dims=${this.dimensions}, 
-          m=52,
-          efconstruction=64, 
-          efsearch=30
+          m=64,
+          efconstruction=128, 
+          efsearch=256
         );
     `);
 
