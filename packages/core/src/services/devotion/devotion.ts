@@ -16,7 +16,7 @@ import {
 } from "../../database/model";
 import { devotions, devotionsToSourceDocuments } from "../../database/schema";
 import { getCompletionsModel, getPromptModel } from "../llm";
-import { getSourceDocuments, getVectorStore } from "../vector-db";
+import { getDocumentVectorStore, getSourceDocuments } from "../vector-db";
 import { createDevotionImage } from "./image";
 
 export async function getDevotions(
@@ -146,7 +146,7 @@ export async function generateDevotion(bibleReading?: string) {
       }
     );
 
-    const vectorStore = await getVectorStore();
+    const vectorStore = await getDocumentVectorStore();
     const context = await vectorStore.similaritySearch(bibleReading, 10);
     const chain = new LLMChain({
       llm: getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
@@ -309,7 +309,7 @@ async function generateDevotionImages(devo: Devotion) {
 }
 
 async function getRandomBibleReading() {
-  const vectorStore = await getVectorStore();
+  const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
     getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
     vectorStore.asRetriever(10),

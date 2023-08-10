@@ -79,7 +79,7 @@ export class NeonVectorStore extends VectorStore {
     const rows = vectors.map((embedding, idx) => {
       const embeddingString = `{${embedding.join(",")}}`;
       const documentRow = {
-        pageContent: documents[idx].pageContent,
+        page_content: documents[idx].pageContent,
         embedding: embeddingString,
         metadata: documents[idx].metadata,
       };
@@ -92,22 +92,20 @@ export class NeonVectorStore extends VectorStore {
       if (this.verbose) {
         console.log(
           `Inserting ${chunk.length} rows into vector store: ${JSON.stringify(
-            chunk,
-            null,
-            2
+            chunk
           )}`
         );
       }
 
       try {
         await this.neonWrite(
-          `INSERT INTO ${this.tableName} ("pageContent", embedding, metadata)
+          `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
           SELECT * FROM jsonb_to_recordset($1::jsonb)
-          AS x(pageContent text, embedding real[], metadata jsonb);`,
+          AS x(page_content text, embedding real[], metadata jsonb);`,
           [JSON.stringify(chunk)]
         );
       } catch (e) {
-        throw new Error(`Error inserting: ${chunk[0].pageContent}`);
+        throw new Error(`Error inserting: ${chunk[0].page_content}`);
       }
     }
   }
@@ -130,10 +128,10 @@ export class NeonVectorStore extends VectorStore {
 
     const results = [] as [NeonVectorStoreDocument, number][];
     for (const doc of documents) {
-      if (doc._distance != null && doc.pageContent != null) {
+      if (doc._distance != null && doc.page_content != null) {
         const document = new Document({
           metadata: doc.metadata,
-          pageContent: doc.pageContent,
+          pageContent: doc.page_content,
         }) as NeonVectorStoreDocument;
         document.id = doc.id;
         results.push([document, doc._distance]);
@@ -168,7 +166,7 @@ export class NeonVectorStore extends VectorStore {
     await this.neonWrite(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-        "pageContent" text,
+        page_content text,
         metadata jsonb,
         embedding real[]
       );

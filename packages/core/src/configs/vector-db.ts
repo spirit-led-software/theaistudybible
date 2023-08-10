@@ -1,8 +1,10 @@
 interface VectorDBConfig {
   readUrl: string;
   writeUrl: string;
-  tableName: string;
-  dimensions: number;
+  documents: {
+    tableName: string;
+    dimensions: number;
+  };
 }
 
 export const config: VectorDBConfig = {
@@ -14,8 +16,10 @@ export const config: VectorDBConfig = {
     process.env.VECTOR_DB_WRITE_URL && process.env.VECTOR_DB_WRITE_URL !== ""
       ? process.env.VECTOR_DB_WRITE_URL!
       : process.env.VECTOR_DB_URL!,
-  tableName: process.env.VECTOR_DB_TABLE_NAME!,
-  dimensions: parseInt(process.env.VECTOR_DB_DIMENSIONS!),
+  documents: {
+    tableName: process.env.VECTOR_DB_DOCS_TABLE!,
+    dimensions: parseInt(process.env.VECTOR_DB_DOCS_DIMENSIONS!),
+  },
 };
 
 export default config;

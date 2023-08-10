@@ -16,7 +16,7 @@ import {
   getUserDailyQueryCountByUserIdAndDate,
   updateUserDailyQueryCount,
 } from "@core/services/user/daily-query-count";
-import { getVectorStore } from "@core/services/vector-db";
+import { getDocumentVectorStore } from "@core/services/vector-db";
 import middy from "@middy/core";
 import { writeDatabase } from "@revelationsai/core/database";
 import {
@@ -205,7 +205,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
         userId: userInfo.id,
       });
 
-      const vectorStore = await getVectorStore();
+      const vectorStore = await getDocumentVectorStore();
       const history: BaseMessage[] = messages.map((message) => {
         return message.role === "user"
           ? new HumanMessage(message.content)

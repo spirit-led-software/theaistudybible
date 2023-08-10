@@ -1,6 +1,6 @@
 import { createInitialRoles } from "@core/services/role";
 import { createInitialAdminUser } from "@core/services/user";
-import { getVectorStore } from "@core/services/vector-db";
+import { getDocumentVectorStore } from "@core/services/vector-db";
 import { Handler } from "aws-lambda";
 
 export const handler: Handler = async () => {
@@ -10,7 +10,7 @@ export const handler: Handler = async () => {
     await createInitialAdminUser();
 
     console.log("Creating vector store");
-    const vectorDb = await getVectorStore(true);
+    const vectorDb = await getDocumentVectorStore(true);
     await vectorDb.ensureTableInDatabase();
 
     console.log("Database seeding complete");
