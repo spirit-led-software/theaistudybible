@@ -45,3 +45,14 @@ export async function getSourceDocument(
   )) as SourceDocument[];
   return sourceDocuments[0];
 }
+
+export async function getSourceDocuments(
+  sourceDocumentIds: string[]
+): Promise<SourceDocument[]> {
+  const vectorStore = await getVectorStore();
+  const sourceDocuments = (await vectorStore.neonRead(
+    `SELECT * FROM ${vectorStore.tableName} WHERE id = ANY($1);`,
+    [sourceDocumentIds]
+  )) as SourceDocument[];
+  return sourceDocuments;
+}

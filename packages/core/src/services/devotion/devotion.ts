@@ -16,7 +16,7 @@ import {
 } from "../../database/model";
 import { devotions, devotionsToSourceDocuments } from "../../database/schema";
 import { getCompletionsModel, getPromptModel } from "../llm";
-import { getSourceDocument, getVectorStore } from "../vector-db";
+import { getSourceDocuments, getVectorStore } from "../vector-db";
 import { createDevotionImage } from "./image";
 
 export async function getDevotions(
@@ -71,13 +71,9 @@ export async function getDevotionRelatedSourceDocuments(devotion: Devotion) {
       .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
   ).map((d) => d.sourceDocumentId);
 
-  const foundSourceDocuments: SourceDocument[] = [];
-  for (const sourceDocumentId of sourceDocumentIds) {
-    const sourceDocument = await getSourceDocument(sourceDocumentId);
-    if (sourceDocument) {
-      foundSourceDocuments.push(sourceDocument);
-    }
-  }
+  const foundSourceDocuments: SourceDocument[] = await getSourceDocuments(
+    sourceDocumentIds
+  );
 
   return foundSourceDocuments;
 }
