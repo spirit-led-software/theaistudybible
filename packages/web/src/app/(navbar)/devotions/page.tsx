@@ -1,8 +1,6 @@
 import { getDevotions } from "@core/services/devotion";
 import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 export default async function DevoPageRoot() {
   const devos = await getDevotions({
     limit: 1,

@@ -59,7 +59,7 @@ export default function RootLayout({
         <Script
           id="adsbygoogle-init"
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209"
           strategy="lazyOnload"
           crossOrigin="anonymous"
         />
