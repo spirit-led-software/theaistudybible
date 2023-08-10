@@ -8,8 +8,6 @@ export function Queues({ stack }: StackContext) {
   const webpageIndexQueue = new Queue(stack, "webpageIndexQueue", {
     cdk: {
       queue: {
-        // TODO: Fix this once SST gets their ish together
-        /// @ts-ignore
         visibilityTimeout: Duration.minutes(15),
       },
     },

@@ -15,8 +15,8 @@
     "@tsconfig/node16": "^16.1.0",
     "@types/node": "^20.4.9",
     "@types/pg": "^8.10.2",
-    "aws-cdk-lib": "^2.90.0",
-    "constructs": "^10.2.69",
+    "aws-cdk-lib": "2.84.0",
+    "constructs": "10.1.156",
     "drizzle-kit": "^0.19.12",
     "sst": "^2.23.15",
     "typescript": "^5.1.6"
@@ -39,9 +39,6 @@
   "overrides": {
     "langchain": {
       "replicate": "$replicate"
-    },
-    "sst": {
-      "aws-cdk-lib": "$aws-cdk-lib"
     }
   },
   "workspaces": [
