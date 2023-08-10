@@ -65,24 +65,22 @@ export class NeonVectorStore extends VectorStore {
 
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
     const rows = vectors.map((embedding, idx) => {
-      const embeddingString = `[${embedding.join(",")}]`;
+      const embeddingString = `{${embedding.join(",")}}`;
       const documentRow = {
         pageContent: documents[idx].pageContent,
         embedding: embeddingString,
         metadata: documents[idx].metadata,
       };
-
       return documentRow;
     });
 
     const chunkSize = 500;
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
-
       try {
         await this.neonWrite(
           `
-          INSERT INTO ${this.tableName} (pageContent, embedding, metadata)
+          INSERT INTO ${this.tableName} ("pageContent", embedding, metadata)
           SELECT * FROM jsonb_to_recordset($1::jsonb)
           AS x(pageContent text, embedding real[], metadata jsonb);
         `,
@@ -100,18 +98,15 @@ export class NeonVectorStore extends VectorStore {
     k: number,
     filter?: this["FilterType"]
   ): Promise<[NeonVectorStoreDocument, number][]> {
-    const embeddingString = `[${query.join(",")}]`;
+    const embeddingString = `{${query.join(",")}}`;
     const _filter = filter ?? "{}";
-
     const documents = await this.neonRead(
-      `SELECT *, embedding <-> $1 as "_distance"
+      `SELECT *, embedding <-> $1 AS "_distance"
       FROM ${this.tableName}
       WHERE metadata @> $2
-      ORDER BY "_distance" ASC
       LIMIT $3;`,
       [embeddingString, _filter, k]
     );
-
     const results = [] as [NeonVectorStoreDocument, number][];
     for (const doc of documents) {
       if (doc._distance != null && doc.pageContent != null) {
@@ -123,7 +118,6 @@ export class NeonVectorStore extends VectorStore {
         results.push([document, doc._distance]);
       }
     }
-
     return results;
   }
 
@@ -131,11 +125,11 @@ export class NeonVectorStore extends VectorStore {
    * Ensure that the table exists in the database.
    * Only needs to be called once. Will not overwrite existing table.
    * But will recreate the HNSW index.
+   * https://neon.tech/docs/extensions/pg_embedding
    */
   async ensureTableInDatabase(): Promise<void> {
     console.log("Creating embedding extension");
     await this.neonWrite("CREATE EXTENSION IF NOT EXISTS embedding;");
-
     console.log(`Creating table ${this.tableName}`);
     await this.neonWrite(`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
@@ -145,7 +139,6 @@ export class NeonVectorStore extends VectorStore {
         embedding real[]
       );
     `);
-
     console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
     const indexName = `${this.tableName}_hnsw_idx`;
     await this.neonWrite(`
@@ -169,20 +162,19 @@ export class NeonVectorStore extends VectorStore {
 
   static async fromTexts(
     texts: string[],
-    metadatas: object[] | object,
+    metadata: object[] | object,
     embeddings: Embeddings,
     dbConfig: NeonVectorStoreArgs
   ): Promise<NeonVectorStore> {
     const docs = [];
     for (let i = 0; i < texts.length; i += 1) {
-      const metadata = Array.isArray(metadatas) ? metadatas[i] : metadatas;
+      const _metadata = Array.isArray(metadata) ? metadata[i] : metadata;
       const newDoc = new Document({
         pageContent: texts[i],
-        metadata,
+        metadata: _metadata,
       });
       docs.push(newDoc);
     }
-
     return NeonVectorStore.fromDocuments(docs, embeddings, dbConfig);
   }
 
@@ -196,7 +188,6 @@ export class NeonVectorStore extends VectorStore {
       dbConfig
     );
     await instance.addDocuments(docs);
-
     return instance;
   }
 

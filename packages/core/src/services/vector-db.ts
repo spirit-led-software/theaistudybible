@@ -16,7 +16,6 @@ export async function getVectorStore() {
       dimensions: vectorDBConfig.dimensions,
     }
   );
-  await vectorStore.ensureTableInDatabase();
   return vectorStore;
 }
 
@@ -39,11 +38,9 @@ export async function getSourceDocument(
   sourceDocumentId: string
 ): Promise<SourceDocument | undefined> {
   const vectorStore = await getVectorStore();
-  const queryString = `
-SELECT * FROM ${vectorStore.tableName} 
-WHERE id = $1;`;
-  const sourceDocuments = (await vectorStore.neonRead(queryString, [
-    sourceDocumentId,
-  ])) as SourceDocument[];
+  const sourceDocuments = (await vectorStore.neonRead(
+    `SELECT * FROM ${vectorStore.tableName} WHERE id = $1;`,
+    [sourceDocumentId]
+  )) as SourceDocument[];
   return sourceDocuments[0];
 }
