@@ -1,13 +1,12 @@
 import {
   getDevotion,
-  getDevotionReactionCountByDevotionIdAndReactionType,
+  getDevotionReactionCounts,
 } from "@core/services/devotion";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
 } from "@lib/api-responses";
-import { devotionReactions } from "@revelationsai/core/database/schema";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -19,18 +18,8 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    let devoReactionCounts:
-      | {
-          [key in (typeof devotionReactions.reaction.enumValues)[number]]?: number;
-        } = {};
-    for (const reactionType of devotionReactions.reaction.enumValues) {
-      const reactionCount =
-        await getDevotionReactionCountByDevotionIdAndReactionType(
-          devotion.id,
-          reactionType
-        );
-      devoReactionCounts[reactionType] = reactionCount;
-    }
+    const devoReactionCounts = await getDevotionReactionCounts(id);
+
     return OkResponse(devoReactionCounts);
   } catch (err: any) {
     console.error(err);
