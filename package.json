@@ -30,6 +30,7 @@
     "drizzle-orm": "^0.28.1",
     "drizzle-zod": "^0.5.0",
     "langchain": "^0.0.125",
+    "neon-sdk": "^1.10.0",
     "pg": "^8.11.2",
     "replicate": "^0.16.0",
     "zod": "^3.21.4"

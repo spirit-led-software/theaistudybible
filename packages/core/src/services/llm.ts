@@ -13,8 +13,8 @@ export const getEmbeddingsModel = () =>
 export const getChatModel = (temperature?: number) =>
   new ChatOpenAI({
     openAIApiKey: config.apiKey,
-    temperature: temperature ?? config.temperature,
-    modelName: config.completionsModelName,
+    temperature: temperature ?? 1.0,
+    modelName: config.chatModelName,
     streaming: true,
     maxTokens: -1,
   });
@@ -22,7 +22,7 @@ export const getChatModel = (temperature?: number) =>
 export const getPromptModel = (temperature?: number) =>
   new OpenAI({
     openAIApiKey: config.apiKey,
-    temperature: temperature ?? config.temperature,
+    temperature: temperature ?? 0.3,
     modelName: config.promptModelName,
     maxTokens: -1,
     cache: true,
@@ -31,7 +31,7 @@ export const getPromptModel = (temperature?: number) =>
 export const getCompletionsModel = (temperature?: number) =>
   new OpenAI({
     openAIApiKey: config.apiKey,
-    temperature: temperature ?? config.temperature,
+    temperature: temperature ?? 0.7,
     modelName: config.completionsModelName,
     maxTokens: -1,
     cache: true,

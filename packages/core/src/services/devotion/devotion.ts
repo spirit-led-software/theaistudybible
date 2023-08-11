@@ -140,8 +140,7 @@ export async function generateDevotion(bibleReading?: string) {
     );
 
     const fullPrompt = PromptTemplate.fromTemplate(
-      `Given the context:\n{context}\n\n
-      And the following Bible reading:\n{bibleReading}\n\n
+      `Given the following Bible reading:\n{bibleReading}\n\n
       Write a non-denominational Christian devotion.\n\n
       {format_instructions}`,
       {
@@ -152,14 +151,18 @@ export async function generateDevotion(bibleReading?: string) {
     );
 
     const vectorStore = await getDocumentVectorStore();
-    const context = await vectorStore.similaritySearch(bibleReading, 10);
-    const chain = new LLMChain({
-      llm: getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
-      prompt: fullPrompt,
-    });
+    const chain = RetrievalQAChain.fromLLM(
+      getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
+      vectorStore.asRetriever(10),
+      {
+        returnSourceDocuments: true,
+        inputKey: "prompt",
+      }
+    );
     const result = await chain.call({
-      bibleReading,
-      context: context.map((c) => c.pageContent).join("\n"),
+      prompt: await fullPrompt.format({
+        bibleReading,
+      }),
     });
     const output = await outputParser.parse(result.text);
     devo = await createDevotion({
@@ -170,8 +173,7 @@ export async function generateDevotion(bibleReading?: string) {
     });
 
     await Promise.all(
-      // @ts-ignore
-      context.map(async (c: SourceDocument) => {
+      result.sourceDocument.map(async (c: SourceDocument) => {
         await readWriteDatabase.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,

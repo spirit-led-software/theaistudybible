@@ -1,14 +1,23 @@
 import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { RemovalPolicy } from "aws-cdk-lib/core";
-import { Bucket, StackContext, dependsOn } from "sst/constructs";
+import { Bucket, StackContext, use } from "sst/constructs";
 
 export function S3({ stack }: StackContext) {
-  dependsOn(DatabaseScripts);
+  const {
+    dbReadWriteUrl,
+    dbReadOnlyUrl,
+    vectorDbReadWriteUrl,
+    vectorDbReadOnlyUrl,
+  } = use(DatabaseScripts);
 
   const indexFileBucket = new Bucket(stack, "indexFileBucket", {
     defaults: {
       function: {
         environment: {
+          DATABASE_READWRITE_URL: dbReadWriteUrl,
+          DATABASE_READONLY_URL: dbReadOnlyUrl ?? dbReadWriteUrl,
+          VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl ?? vectorDbReadWriteUrl,
           ...STATIC_ENV_VARS,
         },
         permissions: ["s3"],

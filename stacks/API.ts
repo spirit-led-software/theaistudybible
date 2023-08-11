@@ -11,15 +11,19 @@ import {
   HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
-import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
+import { Api, Function, StackContext, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
-  dependsOn(DatabaseScripts);
-
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
   const { auth } = use(Auth);
   const { devotionImageBucket } = use(S3);
+  const {
+    dbReadOnlyUrl,
+    dbReadWriteUrl,
+    vectorDbReadOnlyUrl,
+    vectorDbReadWriteUrl,
+  } = use(DatabaseScripts);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
@@ -27,6 +31,10 @@ export function API({ stack }: StackContext) {
   const lambdaEnv: Record<string, string> = {
     WEBSITE_URL: websiteUrl,
     API_URL: apiUrl,
+    DATABASE_READWRITE_URL: dbReadWriteUrl,
+    DATABASE_READONLY_URL: dbReadOnlyUrl ?? dbReadWriteUrl,
+    VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+    VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl ?? vectorDbReadWriteUrl,
     ...STATIC_ENV_VARS,
   };
 

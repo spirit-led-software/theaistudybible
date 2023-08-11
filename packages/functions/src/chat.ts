@@ -220,7 +220,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
 
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
-        vectorStore.asRetriever(10),
+        vectorStore.asRetriever(3),
         {
           returnSourceDocuments: true,
           memory: new BufferMemory({
