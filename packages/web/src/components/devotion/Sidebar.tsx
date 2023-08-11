@@ -68,8 +68,8 @@ export function Sidebar({
           isOpen ? "visible" : "invisible"
         }`}
       >
-        <h1 className="mb-3 text-2xl font-bold">All Devotions</h1>
-        <div className="flex flex-col content-center space-y-2">
+        <h1 className="px-2 mb-3 text-2xl font-bold">All Devotions</h1>
+        <div className="flex flex-col content-center w-full space-y-2">
           {isLoadingInitial && (
             <div className="flex justify-center w-full">
               <div className="flex items-center justify-center py-5">

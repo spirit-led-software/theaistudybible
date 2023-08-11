@@ -105,13 +105,13 @@ export function Sidebar({
 
   return (
     <div
-      className={`fixed h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/4 lg:relative ${
+      className={`flex flex-col max-h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/4 z-30 ${
         isOpen ? "w-full" : "w-0"
       }`}
     >
       <div
-        className={`absolute p-1 top-2 rounded-full border border-slate-400 shadow-lg bg-white cursor-pointer duration-300 z-40 lg:hidden ${
-          !isOpen ? "rotate-180 -right-10 opacity-70" : "right-2"
+        className={`absolute top-2 p-1 z-40 rounded-full bg-white border border-slate-700 cursor-pointer duration-300 lg:hidden ${
+          isOpen ? "rotate-0 right-2" : "rotate-180 -right-10 opacity-75"
         }`}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -122,8 +122,8 @@ export function Sidebar({
           isOpen ? "visible" : "invisible"
         }`}
       >
-        <h1 className="px-2 text-2xl">Chat History</h1>
-        <div className="flex flex-col content-center">
+        <h1 className="px-2 text-2xl font-bold">Chat History</h1>
+        <div className="flex flex-col content-center w-full space-y-2">
           <div className="flex justify-center w-full">
             <button
               className="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900"
@@ -143,7 +143,7 @@ export function Sidebar({
           {chats.map((chat) => (
             <div
               key={chat.id}
-              className={`flex place-items-center p-2 rounded-lg mb-2 hover:bg-slate-900 ${
+              className={`flex place-items-center p-2 rounded-lg hover:bg-slate-900 ${
                 activeChatId === chat.id ? "bg-slate-800" : ""
               }`}
             >
