@@ -10,6 +10,7 @@ import {
   NeonClient,
   ProjectsResponse,
   Role,
+  RolePasswordResponse,
   RolesResponse,
 } from "neon-sdk";
 import { App, Stack } from "sst/constructs";
@@ -40,7 +41,9 @@ export async function getAllNeonConnectionUrls(
     (project) => project.name === app.name
   );
   if (!project) {
-    throw new Error(`Project ${app.name} not found`);
+    throw new Error(
+      `Project ${app.name} not found: ${JSON.stringify(listProjectsResponse)}`
+    );
   }
 
   const branchName = stack.stage === "prod" ? "main" : stack.stage;
@@ -64,7 +67,30 @@ export async function getAllNeonConnectionUrls(
   )) as RolesResponse;
   const role = rolesResponse.roles.find((role) => role.name === app.name);
   if (!role) {
-    throw new Error(`DB Role '${app.name}' not found`);
+    throw new Error(
+      `DB Role '${app.name}' not found: ${JSON.stringify(rolesResponse)}`
+    );
+  }
+
+  let rolePassword = role.password;
+  if (!rolePassword) {
+    const rolePasswordResponse =
+      (await neonClient.branch.getProjectBranchRolePassword(
+        project.id,
+        branch.id,
+        role.name
+      )) as RolePasswordResponse;
+    rolePassword = rolePasswordResponse.password;
+    if (!rolePassword) {
+      throw new Error(
+        `DB Role '${
+          role.name
+        }' password could not be obtained: ${JSON.stringify(
+          rolePasswordResponse
+        )}`
+      );
+    }
+    role.password = rolePassword;
   }
 
   const databasesResponse = (await neonClient.branch.listProjectBranchDatabases(
