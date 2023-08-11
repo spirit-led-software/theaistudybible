@@ -1,7 +1,7 @@
 name: Production Deployment
-concurrency: prod
+concurrency: pr-to-master
 on:
-  push:
+  pull_request:
     branches: [master]
 
 env:
@@ -60,4 +60,16 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run deploy prod
+        run: npm run deploy ${{ $GITHUB_HEAD_REF }} >> $GITHUB_OUTPUT
+      - id: comment
+        name: Add comment to PR
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Check out the preview environment ${{ steps.deploy.outputs.WebsiteUrl }}'
+            })

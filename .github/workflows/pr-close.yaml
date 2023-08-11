@@ -1,7 +1,8 @@
 name: Production Deployment
-concurrency: prod
+concurrency: pr-to-master
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches: [master]
 
 env:
@@ -60,4 +61,4 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run deploy prod
+        run: npm run remove ${{ $GITHUB_HEAD_REF }}
