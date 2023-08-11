@@ -1,7 +1,9 @@
 import { DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
-import { Cron, StackContext, use } from "sst/constructs";
+import { Cron, StackContext, dependsOn, use } from "sst/constructs";
 
 export function Crons({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+
   const { devotionImageBucket } = use(S3);
   const {
     dbReadWriteUrl,

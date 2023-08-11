@@ -11,9 +11,11 @@ import {
   HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
-import { Api, Function, StackContext, use } from "sst/constructs";
+import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
   const { auth } = use(Auth);

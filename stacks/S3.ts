@@ -1,8 +1,10 @@
 import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { RemovalPolicy } from "aws-cdk-lib/core";
-import { Bucket, StackContext, use } from "sst/constructs";
+import { Bucket, StackContext, dependsOn, use } from "sst/constructs";
 
 export function S3({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+
   const {
     dbReadWriteUrl,
     dbReadOnlyUrl,

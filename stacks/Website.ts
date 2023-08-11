@@ -1,7 +1,9 @@
 import { API, Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
-import { NextjsSite, StackContext, use } from "sst/constructs";
+import { NextjsSite, StackContext, dependsOn, use } from "sst/constructs";
 
-export function Website({ stack, app }: StackContext) {
+export function Website({ stack }: StackContext) {
+  dependsOn(DatabaseScripts);
+
   const { indexFileBucket, devotionImageBucket } = use(S3);
   const { api, apiUrl, chatApiUrl } = use(API);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
@@ -35,7 +37,7 @@ export function Website({ stack, app }: StackContext) {
     dev: {
       url: websiteUrl,
     },
-    warm: 5,
+    warm: stack.stage === "prod" ? 25 : undefined,
   });
 
   api.bind([website]);
