@@ -236,98 +236,101 @@ export function Window({
         limit={limit}
         setLimit={setLimit}
       />
-      <div
-        className={`relative flex flex-col h-full lg:visible lg:w-full w-full z-0`}
-      >
-        <div
-          role="alert"
-          className={`absolute left-0 right-0 flex justify-center duration-300 ${
-            alert ? "scale-100 top-1" : "scale-0 -top-20"
-          }`}
-        >
-          <div className="w-2/3 py-2 overflow-hidden text-center text-white truncate bg-red-400 rounded-lg">
-            {alert}
+      <div className="absolute h-full overflow-hidden lg:w-full lg:static">
+        <div className="relative w-full h-full">
+          <div
+            role="alert"
+            className={`absolute left-0 right-0 flex justify-center duration-300 ${
+              alert ? "scale-100 top-1" : "scale-0 -top-20"
+            }`}
+          >
+            <div className="w-2/3 py-2 overflow-hidden text-center text-white truncate bg-red-400 rounded-lg">
+              {alert}
+            </div>
           </div>
-        </div>
-        {messages && messages.length > 0 ? (
-          <div className="w-full h-full overflow-y-scroll">
-            <div className="flex flex-col flex-1 min-h-full place-content-end">
-              {messages.map((message, index) => (
-                <div key={message.id} className="flex flex-col w-full">
-                  {/* TODO: Add ads when adsense is approved
+          {messages && messages.length > 0 ? (
+            <div className="w-full h-full overflow-y-scroll">
+              <div className="flex flex-col flex-1 min-h-full place-content-end">
+                {messages.map((message, index) => (
+                  <div key={message.id} className="flex flex-col w-full">
+                    {/* TODO: Add ads when adsense is approved
                   Randomly show an ad
                   {index !== 0 &&
                     index % Math.floor(Math.random() * 10) === 0 && (
                       <AdMessage />
                     )} */}
-                  <Message
-                    chatId={initChatId!}
-                    message={message}
-                    prevMessage={messages[index - 1]}
-                  />
-                </div>
-              ))}
-              <div ref={endOfMessagesRef} className="w-full h-16" />
+                    <Message
+                      chatId={initChatId!}
+                      message={message}
+                      prevMessage={messages[index - 1]}
+                    />
+                  </div>
+                ))}
+                <div ref={endOfMessagesRef} className="w-full h-16" />
+              </div>
             </div>
+          ) : (
+            <div className="flex justify-center w-full h-full place-items-center justify-items-center">
+              <div className="flex flex-col w-3/4 px-10 py-5 space-y-2 rounded-lg h-fit bg-slate-200 md:w-1/2">
+                <h1 className="self-center text-xl font-bold md:text-2xl">
+                  Don{`'`}t know what to say?
+                </h1>
+                <h2 className="text-lg font-bold">Try asking:</h2>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>Who is Jesus Christ?</li>
+                  <li>
+                    How does Jesus dying on the cross mean that I can be saved?
+                  </li>
+                  <li>What is the Trinity?</li>
+                  <li>Can you find me a random Bible verse about grief?</li>
+                  <li>What does the Bible say about marriage?</li>
+                </ul>
+              </div>
+            </div>
+          )}
+          <button
+            className={`absolute bottom-16 right-5 rounded-full bg-white p-2 shadow-lg ${
+              showScrollToBottomButton ? "scale-100" : "scale-0"
+            }`}
+            onClick={() => {
+              endOfMessagesRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "end",
+                inline: "nearest",
+              });
+            }}
+          >
+            <IoIosArrowDown className="text-2xl" />
+          </button>
+          <div className="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90">
+            <form
+              className="flex flex-col w-full"
+              onSubmit={handleSubmitCustom}
+            >
+              <div className="flex items-center w-full mr-1">
+                <IoIosArrowForward className="ml-2 text-2xl" />
+                <TextAreaAutosize
+                  ref={inputRef}
+                  maxRows={3}
+                  placeholder="Type a message..."
+                  className="w-full py-1 overflow-hidden bg-transparent resize-none focus:outline-none"
+                  onChange={handleInputChange}
+                  value={input}
+                />
+                {isLoading && (
+                  <div className="flex mr-1">
+                    <LoadingDots size={"sm"} />
+                  </div>
+                )}
+                <button type="button" onClick={handleReload}>
+                  <CgRedo className="mr-1 text-2xl" />
+                </button>
+                <button type="submit">
+                  <AiOutlineSend className="mr-1 text-2xl" />
+                </button>
+              </div>
+            </form>
           </div>
-        ) : (
-          <div className="flex justify-center w-full h-full place-items-center justify-items-center">
-            <div className="flex flex-col w-3/4 px-10 py-5 space-y-2 rounded-lg h-fit bg-slate-200 md:w-1/2">
-              <h1 className="self-center text-xl font-bold md:text-2xl">
-                Don{`'`}t know what to say?
-              </h1>
-              <h2 className="text-lg font-bold">Try asking:</h2>
-              <ul className="space-y-1 list-disc list-inside">
-                <li>Who is Jesus Christ?</li>
-                <li>
-                  How does Jesus dying on the cross mean that I can be saved?
-                </li>
-                <li>What is the Trinity?</li>
-                <li>Can you find me a random Bible verse about grief?</li>
-                <li>What does the Bible say about marriage?</li>
-              </ul>
-            </div>
-          </div>
-        )}
-        <button
-          className={`${
-            showScrollToBottomButton ? "scale-100" : "scale-0"
-          } absolute bottom-16 right-5 rounded-full bg-white p-2 shadow-lg`}
-          onClick={() => {
-            endOfMessagesRef.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "end",
-              inline: "nearest",
-            });
-          }}
-        >
-          <IoIosArrowDown className="text-2xl" />
-        </button>
-        <div className="absolute z-40 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90">
-          <form onSubmit={handleSubmitCustom}>
-            <div className="flex items-center w-full mr-1">
-              <IoIosArrowForward className="ml-2 text-2xl" />
-              <TextAreaAutosize
-                ref={inputRef}
-                maxRows={3}
-                placeholder="Type a message..."
-                className="w-full py-1 overflow-hidden bg-transparent resize-none focus:outline-none"
-                onChange={handleInputChange}
-                value={input}
-              />
-              {isLoading && (
-                <div className="flex mr-1">
-                  <LoadingDots size={"sm"} />
-                </div>
-              )}
-              <button type="button" onClick={handleReload}>
-                <CgRedo className="mr-1 text-2xl" />
-              </button>
-              <button type="submit">
-                <AiOutlineSend className="mr-1 text-2xl" />
-              </button>
-            </div>
-          </form>
         </div>
       </div>
     </>

@@ -1,5 +1,6 @@
 import {
   BranchCreateRequest,
+  BranchCreateRequestEndpointOptions,
   BranchResponse,
   BranchesResponse,
   Database,
@@ -15,9 +16,10 @@ import {
 } from "neon-sdk";
 import { App, Stack } from "sst/constructs";
 
-const neonClient = new NeonClient({
-  TOKEN: process.env.NEON_API_KEY!,
-});
+const Neon = () =>
+  new NeonClient({
+    TOKEN: process.env.NEON_API_KEY!,
+  });
 
 export enum DatabaseType {
   READWRITE,
@@ -35,6 +37,7 @@ export async function getAllNeonConnectionUrls(
   app: App,
   stack: Stack
 ): Promise<NeonConnectionUrl[]> {
+  const neonClient = Neon();
   const listProjectsResponse =
     (await neonClient.project.listProjects()) as ProjectsResponse;
   const project = listProjectsResponse.projects.find(
@@ -42,7 +45,9 @@ export async function getAllNeonConnectionUrls(
   );
   if (!project) {
     throw new Error(
-      `Project ${app.name} not found: ${JSON.stringify(listProjectsResponse)}`
+      `Project ${app.name} not found. All projects: ${JSON.stringify(
+        listProjectsResponse
+      )}`
     );
   }
 
@@ -68,7 +73,9 @@ export async function getAllNeonConnectionUrls(
   const role = rolesResponse.roles.find((role) => role.name === app.name);
   if (!role) {
     throw new Error(
-      `DB Role '${app.name}' not found: ${JSON.stringify(rolesResponse)}`
+      `DB Role '${app.name}' not found. All roles: ${JSON.stringify(
+        rolesResponse
+      )}`
     );
   }
 
@@ -107,22 +114,33 @@ async function createNeonBranch(
   branchName: string,
   stack: Stack
 ) {
+  const neonClient = Neon();
+  const endpoints: BranchCreateRequestEndpointOptions[] = [
+    {
+      type: "read_write",
+      provisioner: stack.stage === "prod" ? "k8s-neonvm" : "k8s-pod",
+      autoscaling_limit_min_cu: stack.stage === "prod" ? 0.5 : 0.25,
+      autoscaling_limit_max_cu: stack.stage === "prod" ? 7 : 0.25,
+      suspend_timeout_seconds: 0,
+    },
+  ];
+  // Add read only endpoint for prod environments
+  if (stack.stage === "prod") {
+    endpoints.push({
+      type: "read_only",
+      provisioner: "k8s-neonvm",
+      autoscaling_limit_min_cu: 0.25,
+      autoscaling_limit_max_cu: 7,
+      suspend_timeout_seconds: 0,
+    });
+  }
   const createBranchResponse = (await neonClient.branch.createProjectBranch(
     projectId,
     {
       branch: {
         name: branchName,
       },
-      endpoints: [
-        {
-          type: "read_write",
-          provisioner: stack.stage === "prod" ? "k8s-neonvm" : "k8s-pod",
-          autoscaling_limit_min_cu:
-            stack.stage === "prod" ? /* may change */ 0.25 : 0.25,
-          autoscaling_limit_max_cu: stack.stage === "prod" ? 7 : 0.25,
-          suspend_timeout_seconds: 0,
-        },
-      ],
+      endpoints,
     } satisfies BranchCreateRequest
   )) as BranchResponse;
   return createBranchResponse.branch;

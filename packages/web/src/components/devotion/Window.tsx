@@ -97,11 +97,9 @@ export function Window({
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
       />
-      <div
-        className={`fixed flex flex-col h-full overflow-y-scroll lg:visible lg:w-full lg:relative`}
-      >
-        <div className="flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
-          <div className="fixed z-30 flex justify-between space-x-1 bottom-3 right-3">
+      <div className="absolute flex flex-col h-full overflow-y-scroll lg:w-full lg:static">
+        <div className="relative flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
+          <div className="fixed z-20 flex justify-between space-x-1 bottom-3 right-3">
             <Button
               disabled={isLoading}
               onClick={() => handleReaction("LIKE")}

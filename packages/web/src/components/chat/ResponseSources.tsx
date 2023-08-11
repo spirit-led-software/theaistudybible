@@ -97,7 +97,7 @@ export function ResponseSources({
   }, [showSources, getSources]);
 
   return (
-    <div className="flex flex-col w-full overflow-x-hidden grow-0">
+    <div className="flex flex-col w-full overflow-hidden grow-0">
       <div
         className="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer"
         onClick={() => {

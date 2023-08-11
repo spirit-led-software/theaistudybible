@@ -105,77 +105,79 @@ export function Sidebar({
 
   return (
     <div
-      className={`flex flex-col max-h-full bg-slate-700 border-t-2 relative duration-300 lg:w-1/4 z-30 ${
+      className={`absolute flex h-full max-h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/4 lg:static ${
         isOpen ? "w-full" : "w-0"
       }`}
     >
-      <div
-        className={`absolute top-2 p-1 z-40 rounded-full bg-white border border-slate-700 cursor-pointer duration-300 lg:hidden ${
-          isOpen ? "rotate-0 right-2" : "rotate-180 -right-10 opacity-75"
-        }`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <BsArrowLeftShort className="text-xl text-slate-700" />
-      </div>
-      <div
-        className={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${
-          isOpen ? "visible" : "invisible"
-        }`}
-      >
-        <h1 className="px-2 text-2xl font-bold">Chat History</h1>
-        <div className="flex flex-col content-center w-full space-y-2">
-          <div className="flex justify-center w-full">
-            <button
-              className="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900"
-              onClick={() => createChat()}
-            >
-              New chat
-              <BsPlus className="text-xl" />
-            </button>
-          </div>
-          {isLoadingInitial && (
+      <div className="relative flex flex-col w-full h-full">
+        <div
+          className={`absolute top-2 p-1 z-40 rounded-full bg-white border border-slate-700 cursor-pointer duration-300 lg:hidden ${
+            isOpen ? "rotate-0 right-2" : "rotate-180 -right-10 opacity-75"
+          }`}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <BsArrowLeftShort className="text-xl text-slate-700" />
+        </div>
+        <div
+          className={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${
+            isOpen ? "visible" : "invisible"
+          }`}
+        >
+          <h1 className="px-2 text-2xl font-bold">Chat History</h1>
+          <div className="flex flex-col content-center w-full space-y-2">
             <div className="flex justify-center w-full">
-              <div className="flex items-center justify-center py-5">
-                <SolidLineSpinner size="lg" colorscheme={"light"} />
-              </div>
+              <button
+                className="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900"
+                onClick={() => createChat()}
+              >
+                New chat
+                <BsPlus className="text-xl" />
+              </button>
             </div>
-          )}
-          {chats.map((chat) => (
-            <div
-              key={chat.id}
-              className={`flex place-items-center p-2 rounded-lg hover:bg-slate-900 ${
-                activeChatId === chat.id ? "bg-slate-800" : ""
-              }`}
-            >
-              <Link href={`/chat/${chat.id}`} className="flex flex-col w-5/6">
-                <div className="text-white truncate">{chat.name}</div>
-                <div className="text-sm text-gray-400 truncate">
-                  {Moment(chat.createdAt).format("M/D/YYYY h:mma")}
+            {isLoadingInitial && (
+              <div className="flex justify-center w-full">
+                <div className="flex items-center justify-center py-5">
+                  <SolidLineSpinner size="lg" colorscheme={"light"} />
                 </div>
-              </Link>
-              <div className="flex justify-center flex-1">
-                <AiOutlineDelete
-                  className="text-lg cursor-pointer hover:text-red-500"
-                  onClick={() => deleteChat(chat.id)}
-                />
               </div>
-            </div>
-          ))}
-          {isLoadingMore && (
-            <div className="flex justify-center w-full">
-              <div className="flex items-center justify-center py-5">
-                <SolidLineSpinner size="md" colorscheme={"light"} />
+            )}
+            {chats.map((chat) => (
+              <div
+                key={chat.id}
+                className={`flex place-items-center p-2 rounded-lg hover:bg-slate-900 ${
+                  activeChatId === chat.id ? "bg-slate-800" : ""
+                }`}
+              >
+                <Link href={`/chat/${chat.id}`} className="flex flex-col w-5/6">
+                  <div className="text-white truncate">{chat.name}</div>
+                  <div className="text-sm text-gray-400 truncate">
+                    {Moment(chat.createdAt).format("M/D/YYYY h:mma")}
+                  </div>
+                </Link>
+                <div className="flex justify-center flex-1">
+                  <AiOutlineDelete
+                    className="text-lg cursor-pointer hover:text-red-500"
+                    onClick={() => deleteChat(chat.id)}
+                  />
+                </div>
               </div>
-            </div>
-          )}
-          {chats.length >= limit && !isLoadingMore && (
-            <button
-              className="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
-              onClick={handleGetMoreChats}
-            >
-              View more
-            </button>
-          )}
+            ))}
+            {isLoadingMore && (
+              <div className="flex justify-center w-full">
+                <div className="flex items-center justify-center py-5">
+                  <SolidLineSpinner size="md" colorscheme={"light"} />
+                </div>
+              </div>
+            )}
+            {chats.length >= limit && !isLoadingMore && (
+              <button
+                className="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
+                onClick={handleGetMoreChats}
+              >
+                View more
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
