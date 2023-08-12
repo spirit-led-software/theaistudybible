@@ -61,4 +61,4 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run remove ${{ $GITHUB_HEAD_REF }}
+        run: npm run remove $GITHUB_HEAD_REF

@@ -60,7 +60,7 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run deploy ${{ $GITHUB_HEAD_REF }} >> $GITHUB_OUTPUT
+        run: npm run deploy $GITHUB_HEAD_REF >> $GITHUB_OUTPUT
       - id: comment
         name: Add comment to PR
         uses: actions/github-script@v4
