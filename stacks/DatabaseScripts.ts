@@ -1,29 +1,22 @@
 import { STATIC_ENV_VARS } from "@stacks";
 import { Function, Script, StackContext } from "sst/constructs";
-import { DatabaseType, getAllNeonConnectionUrls } from "./resources/neon";
+import { NeonBranch } from "./resources/neon/neon";
 
 export async function DatabaseScripts({ stack, app }: StackContext) {
-  const neonConnectionUrls = await getAllNeonConnectionUrls(app, stack);
+  const neonBranch = new NeonBranch(stack, "neonBranch", {
+    isProd: stack.stage === "prod",
+    projectName: app.name,
+    branchName: stack.stage,
+    roleName: app.name,
+  });
 
-  const dbReadOnlyUrl = neonConnectionUrls.find(
-    (url) => url.type === DatabaseType.READONLY
-  )?.url;
-  const dbReadWriteUrl = neonConnectionUrls.find(
-    (url) => url.type === DatabaseType.READWRITE
-  )?.url;
-  if (!dbReadWriteUrl) {
-    throw new Error("No readwrite database found");
-  }
-
-  const vectorDbReadOnlyUrl = neonConnectionUrls.find(
-    (url) => url.type === DatabaseType.VECTOR_READONLY
-  )?.url;
-  const vectorDbReadWriteUrl = neonConnectionUrls.find(
-    (url) => url.type === DatabaseType.VECTOR_READWRITE
-  )?.url;
-  if (!vectorDbReadWriteUrl) {
-    throw new Error("No vector readwrite database found");
-  }
+  const dbScriptEnv = {
+    DATABASE_READWRITE_URL: neonBranch.dbReadWriteUrl,
+    DATABASE_READONLY_URL: neonBranch.dbReadOnlyUrl,
+    VECTOR_DB_READWRITE_URL: neonBranch.vectorDbReadWriteUrl,
+    VECTOR_DB_READONLY_URL: neonBranch.vectorDbReadOnlyUrl,
+    ...STATIC_ENV_VARS,
+  };
 
   const dbMigrationsFunction = new Function(stack, "dbMigrationsFunction", {
     handler: "packages/functions/src/database/migrations.handler",
@@ -34,13 +27,7 @@ export async function DatabaseScripts({ stack, app }: StackContext) {
       },
     ],
     enableLiveDev: false,
-    environment: {
-      DATABASE_READWRITE_URL: dbReadWriteUrl,
-      DATABASE_READONLY_URL: dbReadOnlyUrl ?? dbReadWriteUrl,
-      VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-      VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl ?? vectorDbReadWriteUrl,
-      ...STATIC_ENV_VARS,
-    },
+    environment: dbScriptEnv,
     timeout: "5 minutes",
   });
   const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
@@ -51,13 +38,7 @@ export async function DatabaseScripts({ stack, app }: StackContext) {
   const dbSeedFunction = new Function(stack, "dbSeedFunction", {
     handler: "packages/functions/src/database/seed.handler",
     enableLiveDev: false,
-    environment: {
-      DATABASE_READWRITE_URL: dbReadWriteUrl,
-      DATABASE_READONLY_URL: dbReadOnlyUrl ?? dbReadWriteUrl,
-      VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-      VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl ?? vectorDbReadWriteUrl,
-      ...STATIC_ENV_VARS,
-    },
+    environment: dbScriptEnv,
     timeout: "5 minutes",
   });
   dbSeedFunction.node.addDependency(dbMigrationsScript);
@@ -67,17 +48,18 @@ export async function DatabaseScripts({ stack, app }: StackContext) {
   });
 
   stack.addOutputs({
-    DatabaseReadOnlyUrl: dbReadOnlyUrl,
-    DatabaseReadWriteUrl: dbReadWriteUrl,
-    VectorDbReadOnlyUrl: vectorDbReadOnlyUrl,
-    VectorDbReadWriteUrl: vectorDbReadWriteUrl,
+    DatabaseReadOnlyUrl: neonBranch.dbReadOnlyUrl,
+    DatabaseReadWriteUrl: neonBranch.dbReadWriteUrl,
+    VectorDbReadOnlyUrl: neonBranch.vectorDbReadOnlyUrl,
+    VectorDbReadWriteUrl: neonBranch.vectorDbReadWriteUrl,
   });
 
   return {
-    dbReadOnlyUrl,
-    dbReadWriteUrl,
-    vectorDbReadOnlyUrl,
-    vectorDbReadWriteUrl,
+    neonBranch,
+    dbReadOnlyUrl: neonBranch.dbReadOnlyUrl,
+    dbReadWriteUrl: neonBranch.dbReadWriteUrl,
+    vectorDbReadOnlyUrl: neonBranch.vectorDbReadOnlyUrl,
+    vectorDbReadWriteUrl: neonBranch.vectorDbReadWriteUrl,
     dbMigrationsScript,
     dbSeedScript,
   };

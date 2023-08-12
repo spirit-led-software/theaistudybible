@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.0",
+    "@types/cfn-response": "^1.0.5",
     "@types/node": "^20.4.9",
     "@types/pg": "^8.10.2",
     "aws-cdk-lib": "2.84.0",
@@ -27,6 +28,7 @@
     "@aws-sdk/credential-providers": "^3.388.0",
     "@aws-sdk/s3-request-presigner": "^3.388.0",
     "@neondatabase/serverless": "^0.5.7",
+    "cfn-response": "^1.0.1",
     "drizzle-orm": "^0.28.1",
     "drizzle-zod": "^0.5.0",
     "langchain": "^0.0.125",

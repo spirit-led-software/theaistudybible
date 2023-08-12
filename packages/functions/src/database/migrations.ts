@@ -7,7 +7,10 @@ import { migrate } from "drizzle-orm/neon-http/migrator";
 
 export const handler: Handler = async () => {
   try {
-    console.log("Creating database migration client...");
+    console.log(
+      "Creating database migration client using url: ",
+      config.readWriteUrl
+    );
     const migration = drizzle(neon(config.readWriteUrl), {
       schema,
       logger: {
