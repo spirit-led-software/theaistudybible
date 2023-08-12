@@ -1,4 +1,4 @@
-name: Production Deployment
+name: PR Preview
 concurrency: pr-to-master
 on:
   pull_request:
@@ -60,7 +60,7 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run deploy $GITHUB_HEAD_REF >> $GITHUB_OUTPUT
+        run: npm run deploy pr-${{ github.event.pull_request.number }} >> $GITHUB_OUTPUT
       - id: comment
         name: Add comment to PR
         uses: actions/github-script@v4

@@ -1,4 +1,4 @@
-name: Production Deployment
+name: PR Preview Cleanup
 concurrency: pr-to-master
 on:
   pull_request:
@@ -61,4 +61,4 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run remove $GITHUB_HEAD_REF
+        run: npm run remove pr-${{ github.event.pull_request.number }}
