@@ -35,13 +35,6 @@ export type NeonConnectionUrl = {
   url: string;
 };
 
-export type NeonDatabases = {
-  dbReadOnlyUrl: string | undefined;
-  dbReadWriteUrl: string;
-  vectorDbReadOnlyUrl: string | undefined;
-  vectorDbReadWriteUrl: string;
-};
-
 export const handler: CdkCustomResourceHandler = async (event) => {
   console.log("Received event from custom resource:", JSON.stringify(event));
 
@@ -80,7 +73,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
         response.Status = "SUCCESS";
         response.Data = {
           projectId: project.id,
-          urls,
+          ...urls,
         };
         break;
       }
@@ -103,7 +96,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
         response.Status = "SUCCESS";
         response.Data = {
           projectId: project.id,
-          urls,
+          ...urls,
         };
       }
     }
@@ -350,28 +343,26 @@ function determineDbType(
   }
 }
 
-function getDatabasesFromConnectionUrls(
-  connectionUrls: NeonConnectionUrl[]
-): NeonDatabases {
-  const dbReadOnlyUrl = connectionUrls.find(
-    (url) => url.type === DatabaseType.READONLY
-  )?.url;
+function getDatabasesFromConnectionUrls(connectionUrls: NeonConnectionUrl[]) {
   const dbReadWriteUrl = connectionUrls.find(
     (url) => url.type === DatabaseType.READWRITE
   )?.url;
   if (!dbReadWriteUrl) {
     throw new Error("No readwrite database found");
   }
+  const dbReadOnlyUrl =
+    connectionUrls.find((url) => url.type === DatabaseType.READONLY)?.url ||
+    dbReadWriteUrl;
 
-  const vectorDbReadOnlyUrl = connectionUrls.find(
-    (url) => url.type === DatabaseType.VECTOR_READONLY
-  )?.url;
   const vectorDbReadWriteUrl = connectionUrls.find(
     (url) => url.type === DatabaseType.VECTOR_READWRITE
   )?.url;
   if (!vectorDbReadWriteUrl) {
     throw new Error("No vector readwrite database found");
   }
+  const vectorDbReadOnlyUrl =
+    connectionUrls.find((url) => url.type === DatabaseType.VECTOR_READONLY)
+      ?.url || vectorDbReadWriteUrl;
 
   return {
     dbReadOnlyUrl,

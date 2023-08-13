@@ -22,9 +22,9 @@ export function Crons({ stack }: StackContext) {
         environment: {
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           DATABASE_READWRITE_URL: dbReadWriteUrl,
-          DATABASE_READONLY_URL: dbReadOnlyUrl || dbReadWriteUrl,
+          DATABASE_READONLY_URL: dbReadOnlyUrl,
           VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl || vectorDbReadWriteUrl,
+          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
           ...STATIC_ENV_VARS,
         },
       },

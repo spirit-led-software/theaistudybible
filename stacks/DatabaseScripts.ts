@@ -12,12 +12,9 @@ export function DatabaseScripts({ stack, app }: StackContext) {
 
   const dbScriptEnv = {
     DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
-    DATABASE_READONLY_URL:
-      neonBranch.urls.dbReadOnlyUrl || neonBranch.urls.dbReadWriteUrl,
+    DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
     VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
-    VECTOR_DB_READONLY_URL:
-      neonBranch.urls.vectorDbReadOnlyUrl ||
-      neonBranch.urls.vectorDbReadWriteUrl,
+    VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl,
     ...STATIC_ENV_VARS,
   };
 

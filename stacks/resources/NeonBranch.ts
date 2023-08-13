@@ -12,9 +12,9 @@ export type NeonBranchProps = {
 };
 
 export type NeonDatabases = {
-  dbReadOnlyUrl: string | undefined;
+  dbReadOnlyUrl: string;
   dbReadWriteUrl: string;
-  vectorDbReadOnlyUrl: string | undefined;
+  vectorDbReadOnlyUrl: string;
   vectorDbReadWriteUrl: string;
 };
 
@@ -56,8 +56,16 @@ export class NeonBranch extends Construct {
     );
 
     this.projectId = neonBranchCustomResource.getAttString("projectId");
-    this.urls = neonBranchCustomResource
-      .getAtt("urls")
-      .toJSON() as NeonDatabases;
+
+    this.urls = {
+      dbReadOnlyUrl: neonBranchCustomResource.getAttString("dbReadOnlyUrl"),
+      dbReadWriteUrl: neonBranchCustomResource.getAttString("dbReadWriteUrl"),
+      vectorDbReadOnlyUrl: neonBranchCustomResource.getAttString(
+        "vectorDbReadOnlyUrl"
+      ),
+      vectorDbReadWriteUrl: neonBranchCustomResource.getAttString(
+        "vectorDbReadWriteUrl"
+      ),
+    };
   }
 }
