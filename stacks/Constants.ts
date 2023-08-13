@@ -20,6 +20,7 @@ export function Constants({ stack, app }: StackContext) {
       : `https://${domainName}`;
 
   app.setDefaultFunctionProps({
+    logRetention: stack.stage === "prod" ? "one_year" : "one_day",
     environment: {
       WEBSITE_URL: websiteUrl,
       ...STATIC_ENV_VARS,

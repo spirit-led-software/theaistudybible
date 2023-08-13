@@ -11,14 +11,17 @@ export type NeonBranchProps = {
   roleName: string;
 };
 
+export type NeonDatabases = {
+  dbReadOnlyUrl: string | undefined;
+  dbReadWriteUrl: string;
+  vectorDbReadOnlyUrl: string | undefined;
+  vectorDbReadWriteUrl: string;
+};
+
 export class NeonBranch extends Construct {
   public readonly projectId: string;
 
-  public readonly dbReadOnlyUrl: string;
-  public readonly dbReadWriteUrl: string;
-
-  public readonly vectorDbReadOnlyUrl: string;
-  public readonly vectorDbReadWriteUrl: string;
+  public readonly urls: NeonDatabases;
 
   constructor(scope: Construct, id: string, props: NeonBranchProps) {
     super(scope, id);
@@ -51,17 +54,10 @@ export class NeonBranch extends Construct {
         },
       }
     );
+
     this.projectId = neonBranchCustomResource.getAttString("projectId");
-
-    this.dbReadOnlyUrl = neonBranchCustomResource.getAttString("dbReadOnlyUrl");
-    this.dbReadWriteUrl =
-      neonBranchCustomResource.getAttString("dbReadWriteUrl");
-
-    this.vectorDbReadOnlyUrl = neonBranchCustomResource.getAttString(
-      "vectorDbReadOnlyUrl"
-    );
-    this.vectorDbReadWriteUrl = neonBranchCustomResource.getAttString(
-      "vectorDbReadWriteUrl"
-    );
+    this.urls = neonBranchCustomResource
+      .getAtt("urls")
+      .toJSON() as NeonDatabases;
   }
 }

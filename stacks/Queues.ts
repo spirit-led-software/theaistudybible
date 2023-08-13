@@ -23,9 +23,9 @@ export function Queues({ stack }: StackContext) {
         handler: "packages/functions/src/scraper/webpage-queue.consumer",
         environment: {
           DATABASE_READWRITE_URL: dbReadWriteUrl,
-          DATABASE_READONLY_URL: dbReadOnlyUrl,
+          DATABASE_READONLY_URL: dbReadOnlyUrl || dbReadWriteUrl,
           VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
+          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl || vectorDbReadWriteUrl,
           ...STATIC_ENV_VARS,
         },
         permissions: ["sqs"],

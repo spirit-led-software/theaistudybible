@@ -36,9 +36,9 @@ export type NeonConnectionUrl = {
 };
 
 export type NeonDatabases = {
-  dbReadOnlyUrl: string | null;
+  dbReadOnlyUrl: string | undefined;
   dbReadWriteUrl: string;
-  vectorDbReadOnlyUrl: string | null;
+  vectorDbReadOnlyUrl: string | undefined;
   vectorDbReadWriteUrl: string;
 };
 
@@ -80,7 +80,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
         response.Status = "SUCCESS";
         response.Data = {
           projectId: project.id,
-          ...urls,
+          urls,
         };
         break;
       }
@@ -103,7 +103,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
         response.Status = "SUCCESS";
         response.Data = {
           projectId: project.id,
-          ...urls,
+          urls,
         };
       }
     }
@@ -353,9 +353,9 @@ function determineDbType(
 function getDatabasesFromConnectionUrls(
   connectionUrls: NeonConnectionUrl[]
 ): NeonDatabases {
-  const dbReadOnlyUrl =
-    connectionUrls.find((url) => url.type === DatabaseType.READONLY)?.url ??
-    null;
+  const dbReadOnlyUrl = connectionUrls.find(
+    (url) => url.type === DatabaseType.READONLY
+  )?.url;
   const dbReadWriteUrl = connectionUrls.find(
     (url) => url.type === DatabaseType.READWRITE
   )?.url;
@@ -363,9 +363,9 @@ function getDatabasesFromConnectionUrls(
     throw new Error("No readwrite database found");
   }
 
-  const vectorDbReadOnlyUrl =
-    connectionUrls.find((url) => url.type === DatabaseType.VECTOR_READONLY)
-      ?.url ?? null;
+  const vectorDbReadOnlyUrl = connectionUrls.find(
+    (url) => url.type === DatabaseType.VECTOR_READONLY
+  )?.url;
   const vectorDbReadWriteUrl = connectionUrls.find(
     (url) => url.type === DatabaseType.VECTOR_READWRITE
   )?.url;

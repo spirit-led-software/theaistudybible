@@ -11,10 +11,13 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   });
 
   const dbScriptEnv = {
-    DATABASE_READWRITE_URL: neonBranch.dbReadWriteUrl,
-    DATABASE_READONLY_URL: neonBranch.dbReadOnlyUrl,
-    VECTOR_DB_READWRITE_URL: neonBranch.vectorDbReadWriteUrl,
-    VECTOR_DB_READONLY_URL: neonBranch.vectorDbReadOnlyUrl,
+    DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
+    DATABASE_READONLY_URL:
+      neonBranch.urls.dbReadOnlyUrl || neonBranch.urls.dbReadWriteUrl,
+    VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
+    VECTOR_DB_READONLY_URL:
+      neonBranch.urls.vectorDbReadOnlyUrl ||
+      neonBranch.urls.vectorDbReadWriteUrl,
     ...STATIC_ENV_VARS,
   };
 
@@ -48,18 +51,18 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   });
 
   stack.addOutputs({
-    DatabaseReadOnlyUrl: neonBranch.dbReadOnlyUrl,
-    DatabaseReadWriteUrl: neonBranch.dbReadWriteUrl,
-    VectorDbReadOnlyUrl: neonBranch.vectorDbReadOnlyUrl,
-    VectorDbReadWriteUrl: neonBranch.vectorDbReadWriteUrl,
+    DatabaseReadOnlyUrl: neonBranch.urls.dbReadOnlyUrl,
+    DatabaseReadWriteUrl: neonBranch.urls.dbReadWriteUrl,
+    VectorDbReadOnlyUrl: neonBranch.urls.vectorDbReadOnlyUrl,
+    VectorDbReadWriteUrl: neonBranch.urls.vectorDbReadWriteUrl,
   });
 
   return {
     neonBranch,
-    dbReadOnlyUrl: neonBranch.dbReadOnlyUrl,
-    dbReadWriteUrl: neonBranch.dbReadWriteUrl,
-    vectorDbReadOnlyUrl: neonBranch.vectorDbReadOnlyUrl,
-    vectorDbReadWriteUrl: neonBranch.vectorDbReadWriteUrl,
+    dbReadOnlyUrl: neonBranch.urls.dbReadOnlyUrl,
+    dbReadWriteUrl: neonBranch.urls.dbReadWriteUrl,
+    vectorDbReadOnlyUrl: neonBranch.urls.vectorDbReadOnlyUrl,
+    vectorDbReadWriteUrl: neonBranch.urls.vectorDbReadWriteUrl,
     dbMigrationsScript,
     dbSeedScript,
   };
