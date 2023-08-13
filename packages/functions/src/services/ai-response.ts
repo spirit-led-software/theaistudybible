@@ -5,10 +5,7 @@ import {
   UpdateAiResponseData,
 } from "@core/model";
 import { aiResponses, aiResponsesToSourceDocuments } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 import { getSourceDocuments } from "./vector-db";
 

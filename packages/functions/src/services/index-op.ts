@@ -3,10 +3,7 @@ import {
   UpdateIndexOperationData,
 } from "@core/model";
 import { indexOperations } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 
 export async function getIndexOperations(

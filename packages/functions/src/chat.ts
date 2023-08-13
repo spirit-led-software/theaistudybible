@@ -1,7 +1,7 @@
 import { Chat, SourceDocument, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
+import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
-import { readWriteDatabase } from "@revelationsai/core/database";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,

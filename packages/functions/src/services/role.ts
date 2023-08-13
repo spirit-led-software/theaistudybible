@@ -1,9 +1,6 @@
 import { CreateRoleData, Role, UpdateRoleData } from "@core/model";
 import { roles, usersToRoles } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 import { getUser } from "./user/user";
 

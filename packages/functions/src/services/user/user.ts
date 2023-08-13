@@ -1,10 +1,7 @@
 import { authConfig } from "@core/configs/index";
 import { CreateUserData, UpdateUserData, User } from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq, or } from "drizzle-orm";
 import { addRoleToUser } from "../role";
 

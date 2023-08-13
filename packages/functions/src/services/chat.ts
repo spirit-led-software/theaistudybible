@@ -1,9 +1,6 @@
 import { CreateChatData, UpdateChatData } from "@core/model";
 import { chats } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 
 export async function getChats(

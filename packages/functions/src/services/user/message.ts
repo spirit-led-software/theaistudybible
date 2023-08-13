@@ -1,9 +1,6 @@
 import { CreateUserMessageData, UpdateUserMessageData } from "@core/model";
 import { userMessages } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, and, desc, eq } from "drizzle-orm";
 
 export async function getUserMessages(

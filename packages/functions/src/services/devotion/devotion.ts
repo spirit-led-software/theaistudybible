@@ -8,10 +8,7 @@ import {
   UpdateDevotionData,
 } from "@core/model";
 import { devotions, devotionsToSourceDocuments } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-} from "@revelationsai/core/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain, RetrievalQAChain } from "langchain/chains";
 import { StructuredOutputParser } from "langchain/output_parsers";
