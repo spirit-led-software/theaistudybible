@@ -9,6 +9,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+
   VECTOR_DB_DOCS_TABLE: ${{ vars.VECTOR_DB_DOCS_TABLE }}
   VECTOR_DB_DOCS_DIMENSIONS: ${{ vars.VECTOR_DB_DOCS_DIMENSIONS }}
 
@@ -60,7 +61,7 @@ jobs:
         run: npm ci
       - id: deploy
         name: Deploy to AWS
-        run: npm run deploy pr-${{ github.event.pull_request.number }}
+        run: npx sst deploy --stage pr-${{ github.event.pull_request.number }}
       - id: comment
         name: Add comment to PR
         uses: actions/github-script@v4
