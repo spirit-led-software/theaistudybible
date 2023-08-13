@@ -1,7 +1,7 @@
 "use client";
 
+import { Devotion } from "@core/model";
 import { useDevotions } from "@hooks/devotion";
-import { Devotion } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";

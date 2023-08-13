@@ -1,25 +1,30 @@
 import { Window } from "@components/chat";
-import { getAiResponsesByUserMessageId } from "@core/services/ai-response";
-import { getChat, getChats } from "@core/services/chat";
-import { isObjectOwner } from "@core/services/user";
-import { getUserMessages } from "@core/services/user-message";
-import {
-  chats as chatsTable,
-  userMessages,
-} from "@revelationsai/core/database/schema";
-import { validServerSession } from "@services/user";
+import { searchForAiResponses } from "@services/ai-response";
+import { getChat, getChats } from "@services/chat";
+import { validServerSession } from "@services/session";
+import { isObjectOwner } from "@services/user";
+import { searchForUserMessages } from "@services/user/message";
 import { Message } from "ai/react";
-import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 async function getMessages(chatId: string, userId: string) {
-  const foundUserMessages = await getUserMessages({
-    where: and(
-      eq(userMessages.chatId, chatId),
-      eq(userMessages.userId, userId)
-    ),
+  const { userMessages: foundUserMessages } = await searchForUserMessages({
+    AND: [
+      {
+        eq: {
+          column: "chatId",
+          value: chatId,
+        },
+      },
+      {
+        eq: {
+          column: "userId",
+          value: userId,
+        },
+      },
+    ],
   });
 
   const messages: Message[] = (
@@ -31,9 +36,12 @@ async function getMessages(chatId: string, userId: string) {
           role: "user",
         };
 
-        const foundAiResponses = await getAiResponsesByUserMessageId(
-          userMessage.id
-        );
+        const { aiResponses: foundAiResponses } = await searchForAiResponses({
+          eq: {
+            column: "userMessageId",
+            value: userMessage.id,
+          },
+        });
 
         const responses: Message[] = foundAiResponses
           .filter((aiResponse) => !aiResponse.failed && !aiResponse.regenerated)
@@ -69,11 +77,13 @@ export default async function SpecificChatPage({
 
   const messagesPromise = getMessages(params.id, userInfo.id);
   const chatsPromise = getChats({
-    where: eq(chatsTable.userId, userInfo.id),
     limit: 7,
   });
 
-  const [messages, chats] = await Promise.all([messagesPromise, chatsPromise]);
+  const [messages, { chats }] = await Promise.all([
+    messagesPromise,
+    chatsPromise,
+  ]);
 
   return (
     <Window initChats={chats} initChatId={params.id} initMessages={messages} />

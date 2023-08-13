@@ -1,5 +1,5 @@
 import { apiConfig } from "@configs/index";
-import { UserMessage } from "@revelationsai/core/database/model";
+import { UserMessage } from "@core/model";
 import useSWR from "swr";
 import { useSession } from "./session";
 import {

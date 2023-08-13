@@ -2,12 +2,12 @@
 
 import { Button } from "@components/ui/button";
 import { apiConfig } from "@configs/index";
-import { getDevotionReactionCounts } from "@core/services/devotion";
+import { Devotion, SourceDocument } from "@core/model";
+import { DevotionImage } from "@core/model/devotion";
+import { devotionReactions } from "@core/schema";
 import { useSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
-import { Devotion, SourceDocument } from "@revelationsai/core/database/model";
-import { DevotionImage } from "@revelationsai/core/database/model/devotion";
-import { devotionReactions } from "@revelationsai/core/database/schema";
+import { getDevotionReactionCounts } from "@services/devotion";
 import Moment from "moment";
 import Image from "next/image";
 import Link from "next/link";

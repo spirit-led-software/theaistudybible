@@ -1,13 +1,13 @@
-import { getDevotion, updateDevotion } from "@core/services/devotion";
-import { validApiSession } from "@core/services/session";
-import { isAdmin } from "@core/services/user";
+import { Devotion } from "@core/model";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { Devotion } from "@revelationsai/core/database/model";
+import { getDevotion, updateDevotion } from "@services/devotion";
+import { validApiHandlerSession } from "@services/session";
+import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -20,7 +20,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }

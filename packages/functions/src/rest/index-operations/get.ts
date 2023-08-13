@@ -1,13 +1,13 @@
-import { getIndexOperations } from "@core/services/index-op";
-import { validApiSession } from "@core/services/session";
-import { isAdmin } from "@core/services/user";
+import { indexOperations } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
-import { indexOperations } from "@revelationsai/core/database/schema";
+import { getIndexOperations } from "@services/index-op";
+import { validApiHandlerSession } from "@services/session";
+import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -18,7 +18,7 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }

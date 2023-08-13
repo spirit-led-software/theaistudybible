@@ -1,5 +1,5 @@
 import { apiConfig } from "@configs/index";
-import { Chat } from "@revelationsai/core/database/model";
+import { Chat } from "@core/model";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 import { useSession } from "./session";

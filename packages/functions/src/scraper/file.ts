@@ -1,11 +1,8 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig } from "@core/configs";
-import {
-  createIndexOperation,
-  updateIndexOperation,
-} from "@core/services/index-op";
-import { addDocumentsToVectorStore } from "@core/services/vector-db";
-import { IndexOperation } from "@revelationsai/core/database/model";
+import { IndexOperation } from "@core/model";
+import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import { addDocumentsToVectorStore } from "@services/vector-db";
 import { S3Handler } from "aws-lambda";
 import { mkdtempSync, writeFileSync } from "fs";
 import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
@@ -119,10 +116,10 @@ export const handler: S3Handler = async (event) => {
     });
     console.log("Adding documents to vector store");
     await addDocumentsToVectorStore(docs);
-    indexOp = await updateIndexOperation(indexOp.id, {
+    indexOp = await updateIndexOperation(indexOp!.id, {
       status: "SUCCEEDED",
       metadata: {
-        ...(indexOp.metadata as any),
+        ...(indexOp!.metadata as any),
         numDocuments: docs.length,
       },
     });

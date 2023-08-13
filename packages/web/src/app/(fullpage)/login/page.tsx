@@ -1,5 +1,5 @@
 import { LoginWindow } from "@components/auth";
-import { validServerSession } from "@services/user";
+import { validServerSession } from "@services/session";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage({

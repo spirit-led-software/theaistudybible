@@ -1,9 +1,9 @@
 "use client";
 
 import { apiConfig } from "@configs/index";
+import { Chat, UpdateAiResponseData } from "@core/model";
 import { useSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
-import { Chat, UpdateAiResponseData } from "@revelationsai/core/database/model";
 import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { useSearchParams } from "next/navigation";

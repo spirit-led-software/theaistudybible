@@ -1,10 +1,4 @@
-import {
-  createDevotionReaction,
-  getDevotion,
-  getDevotionReactions,
-  updateDevotionReaction,
-} from "@core/services/devotion";
-import { validApiSession } from "@core/services/session";
+import { devotionReactions } from "@core/schema";
 import {
   BadRequestResponse,
   CreatedResponse,
@@ -13,7 +7,13 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { devotionReactions } from "@revelationsai/core/database/schema";
+import {
+  createDevotionReaction,
+  getDevotion,
+  getDevotionReactions,
+  updateDevotionReaction,
+} from "@services/devotion";
+import { validApiHandlerSession } from "@services/session";
 import { and, eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
@@ -40,7 +40,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be signed in.");
     }

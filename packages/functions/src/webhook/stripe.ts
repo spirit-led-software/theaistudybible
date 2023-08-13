@@ -1,9 +1,9 @@
+import { User } from "@core/model";
 import {
   getUserByEmail,
   getUserByStripeCustomerId,
   updateUser,
-} from "@core/services/user";
-import { User } from "@revelationsai/core/database/model";
+} from "@services/user";
 import { ApiHandler } from "sst/node/api";
 import Stripe from "stripe";
 

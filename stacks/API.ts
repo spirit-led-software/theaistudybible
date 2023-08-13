@@ -167,6 +167,22 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/user-messages/[id]/put.handler",
       "DELETE /user-messages/{id}":
         "packages/functions/src/rest/user-messages/[id]/delete.handler",
+
+      // Users
+      "GET /users": "packages/functions/src/rest/users/get.handler",
+      "GET /users/{id}": "packages/functions/src/rest/users/[id]/get.handler",
+      "PUT /users/{id}": "packages/functions/src/rest/users/[id]/put.handler",
+      "DELETE /users/{id}":
+        "packages/functions/src/rest/users/[id]/delete.handler",
+      "GET /users/me": "packages/functions/src/rest/users/me/get.handler",
+      "PUT /users/me": "packages/functions/src/rest/users/me/put.handler",
+      "DELETE /users/me": "packages/functions/src/rest/users/me/delete.handler",
+
+      // User query counts
+      "GET /users/{id}/query-counts":
+        "packages/functions/src/rest/users/[id]/query-counts/get.handler",
+      "GET /users/me/query-counts":
+        "packages/functions/src/rest/users/me/query-counts/get.handler",
     },
     defaults: {
       function: {

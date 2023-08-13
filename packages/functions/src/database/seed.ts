@@ -1,6 +1,6 @@
-import { createInitialRoles } from "@core/services/role";
-import { createInitialAdminUser } from "@core/services/user";
-import { getDocumentVectorStore } from "@core/services/vector-db";
+import { createInitialRoles } from "@services/role";
+import { createInitialAdminUser } from "@services/user";
+import { getDocumentVectorStore } from "@services/vector-db";
 import { Handler } from "aws-lambda";
 
 export const handler: Handler = async () => {

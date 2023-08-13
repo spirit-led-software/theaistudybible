@@ -1,30 +1,26 @@
+import { Chat, SourceDocument, UserMessage } from "@core/model";
+import { aiResponsesToSourceDocuments } from "@core/schema";
+import middy from "@middy/core";
+import { readWriteDatabase } from "@revelationsai/core/database";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,
   updateAiResponse,
-} from "@core/services/ai-response";
-import { createChat, getChat, updateChat } from "@core/services/chat";
-import { getChatModel, getPromptModel } from "@core/services/llm";
-import { validSessionToken } from "@core/services/session";
-import { isAdmin, isObjectOwner } from "@core/services/user";
-import {
-  createUserMessage,
-  getUserMessagesByChatIdAndText,
-} from "@core/services/user-message";
+} from "@services/ai-response";
+import { createChat, getChat, updateChat } from "@services/chat";
+import { getChatModel, getPromptModel } from "@services/llm";
+import { validSessionToken } from "@services/session";
+import { isAdmin, isObjectOwner } from "@services/user";
 import {
   createUserDailyQueryCount,
   getUserDailyQueryCountByUserIdAndDate,
   updateUserDailyQueryCount,
-} from "@core/services/user/daily-query-count";
-import { getDocumentVectorStore } from "@core/services/vector-db";
-import middy from "@middy/core";
-import { readWriteDatabase } from "@revelationsai/core/database";
+} from "@services/user/daily-query-count";
 import {
-  Chat,
-  SourceDocument,
-  UserMessage,
-} from "@revelationsai/core/database/model";
-import { aiResponsesToSourceDocuments } from "@revelationsai/core/database/schema";
+  createUserMessage,
+  getUserMessagesByChatIdAndText,
+} from "@services/user/message";
+import { getDocumentVectorStore } from "@services/vector-db";
 import { LangChainStream, Message } from "ai";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";

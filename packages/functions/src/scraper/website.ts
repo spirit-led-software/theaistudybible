@@ -1,12 +1,6 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { axios } from "@core/configs/axios";
-import {
-  createIndexOperation,
-  getIndexOperation,
-  updateIndexOperation,
-} from "@core/services/index-op";
-import { validApiSession } from "@core/services/session";
-import { isAdmin } from "@core/services/user";
+import { IndexOperation } from "@core/model";
 import {
   BadRequestResponse,
   ForbiddenResponse,
@@ -14,7 +8,13 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { IndexOperation } from "@revelationsai/core/database/model";
+import {
+  createIndexOperation,
+  getIndexOperation,
+  updateIndexOperation,
+} from "@services/index-op";
+import { validApiHandlerSession } from "@services/session";
+import { isAdmin } from "@services/user";
 import escapeStringRegexp from "escape-string-regexp";
 import { XMLParser } from "fast-xml-parser";
 import { ApiHandler } from "sst/node/api";
@@ -29,7 +29,7 @@ type RequestBody = {
 const sqsClient = new SQSClient({});
 
 export const handler = ApiHandler(async (event) => {
-  const { isValid, userInfo } = await validApiSession();
+  const { isValid, userInfo } = await validApiHandlerSession();
   if (!isValid) {
     return UnauthorizedResponse("You must be logged in to perform this action");
   }
@@ -105,9 +105,14 @@ export const handler = ApiHandler(async (event) => {
 
     let urlCount = 0;
     for (const sitemapUrl of sitemapUrls) {
-      urlCount += await navigateSitemap(sitemapUrl, urlRegex, name, indexOp.id);
+      urlCount += await navigateSitemap(
+        sitemapUrl,
+        urlRegex,
+        name,
+        indexOp!.id
+      );
     }
-    indexOp = await getIndexOperation(indexOp.id);
+    indexOp = await getIndexOperation(indexOp!.id);
     indexOp = await updateIndexOperation(indexOp!.id, {
       metadata: {
         ...(indexOp!.metadata as any),

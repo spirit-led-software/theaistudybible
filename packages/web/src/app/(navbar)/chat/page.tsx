@@ -1,18 +1,17 @@
 import { Window } from "@components/chat";
-import { getChats } from "@core/services/chat";
-import { chats as chatsTable } from "@revelationsai/core/database/schema";
-import { validServerSession } from "@services/user";
-import { eq } from "drizzle-orm";
+import { getChats } from "@services/chat";
+import { validServerSession } from "@services/session";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function ChatPage() {
-  const { isValid, userInfo } = await validServerSession();
+  const { isValid } = await validServerSession();
   if (!isValid) {
     redirect(`/login?redirect=/chat`);
   }
 
-  const chats = await getChats({
-    where: eq(chatsTable.userId, userInfo.id),
+  const { chats } = await getChats({
     limit: 7,
   });
 

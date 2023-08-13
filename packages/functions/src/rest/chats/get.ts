@@ -1,12 +1,12 @@
-import { getChats } from "@core/services/chat";
-import { validApiSession } from "@core/services/session";
+import { chats as chatsTable } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
-import { chats as chatsTable } from "@revelationsai/core/database/schema";
+import { getChats } from "@services/chat";
+import { validApiHandlerSession } from "@services/session";
 import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
@@ -18,7 +18,7 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }

@@ -1,8 +1,8 @@
 "use client";
 
 import { apiConfig } from "@configs/index";
+import { Chat } from "@core/model";
 import { useSession } from "@hooks/session";
-import { Chat } from "@revelationsai/core/database/model";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,14 +1,13 @@
-import { getChat, updateChat } from "@core/services/chat";
-import { Chat } from "@revelationsai/core/database/model";
-
-import { validApiSession } from "@core/services/session";
-import { isObjectOwner } from "@core/services/user";
+import { Chat } from "@core/model";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { getChat, updateChat } from "@services/chat";
+import { validApiHandlerSession } from "@services/session";
+import { isObjectOwner } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -21,7 +20,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid || !isObjectOwner(chat, userInfo.id)) {
       return UnauthorizedResponse("You are not authorized to edit this chat");
     }

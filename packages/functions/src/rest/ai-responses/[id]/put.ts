@@ -1,12 +1,12 @@
-import { getAiResponse, updateAiResponse } from "@core/services/ai-response";
-import { validApiSession } from "@core/services/session";
-import { isObjectOwner } from "@core/services/user";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { getAiResponse, updateAiResponse } from "@services/ai-response";
+import { validApiHandlerSession } from "@services/session";
+import { isObjectOwner } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -19,7 +19,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid || !isObjectOwner(aiResponse, userInfo.id)) {
       return UnauthorizedResponse(
         "You are not authorized to update this response"

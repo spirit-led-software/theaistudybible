@@ -2,9 +2,9 @@
 
 import { SolidLineSpinner } from "@components/loading";
 import { apiConfig } from "@configs/index";
+import { SourceDocument } from "@core/model";
 import { useSession } from "@hooks/session";
 import { Query } from "@revelationsai/core/database/helpers";
-import { SourceDocument } from "@revelationsai/core/database/model";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";

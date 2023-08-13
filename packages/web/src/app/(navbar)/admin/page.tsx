@@ -6,18 +6,17 @@ import {
   WebsiteIndexForm,
 } from "@components/admin";
 import { WebpageIndexForm } from "@components/admin/WebpageIndexForm";
-import { getIndexOperations } from "@core/services/index-op";
-import { isAdmin } from "@core/services/user";
-import { validServerSession } from "@services/user";
+import { getIndexOperations } from "@services/index-op";
+import { isAdmin, validServerSession } from "@services/session";
 import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
   const { isValid, userInfo } = await validServerSession();
-  if (!isValid || !(await isAdmin(userInfo.id))) {
+  if (!isValid || !isAdmin(userInfo)) {
     redirect("/");
   }
 
-  const indexOps = await getIndexOperations({
+  const { indexOperations: indexOps } = await getIndexOperations({
     limit: 100,
   });
 

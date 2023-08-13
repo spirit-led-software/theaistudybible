@@ -1,12 +1,9 @@
 import {
-  getDevotion,
-  getDevotionReactionCounts,
-} from "@core/services/devotion";
-import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
 } from "@lib/api-responses";
+import { getDevotion, getDevotionReactionCounts } from "@services/devotion";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {

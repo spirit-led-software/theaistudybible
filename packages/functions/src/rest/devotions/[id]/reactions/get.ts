@@ -1,11 +1,11 @@
-import { getDevotion, getDevotionReactions } from "@core/services/devotion";
+import { devotionReactions } from "@core/schema";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
-import { devotionReactions } from "@revelationsai/core/database/schema";
+import { getDevotion, getDevotionReactions } from "@services/devotion";
 import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
@@ -30,7 +30,11 @@ export const handler = ApiHandler(async (event) => {
       orderBy: buildOrderBy(devotionReactions, orderBy, order),
     });
 
-    return OkResponse(devoReactions);
+    return OkResponse({
+      entities: devoReactions,
+      page,
+      perPage: limit,
+    });
   } catch (err: any) {
     console.error(err);
     return InternalServerErrorResponse(err.stack);

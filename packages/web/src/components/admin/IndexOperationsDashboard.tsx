@@ -1,7 +1,7 @@
 "use client";
 
+import { IndexOperation } from "@core/model";
 import { useIndexOps } from "@hooks/index-ops";
-import { IndexOperation } from "@revelationsai/core/database/model";
 import Moment from "moment";
 
 export function IndexOperationsDashboard({

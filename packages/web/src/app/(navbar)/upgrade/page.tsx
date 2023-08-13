@@ -1,7 +1,7 @@
 import { PricingCard } from "@components/PricingCard";
 import { Button } from "@components/ui/button";
-import { getUserDailyQueryCountByUserIdAndDate } from "@core/services/user";
-import { validServerSession } from "@services/user";
+import { validServerSession } from "@services/session";
+import { getUserDailyQueryCounts } from "@services/user/daily-query-count";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -11,10 +11,16 @@ export default async function UpgradePage() {
     return redirect("/login");
   }
 
-  const dayQueries = await getUserDailyQueryCountByUserIdAndDate(
-    user.id,
-    new Date()
-  );
+  const { queryCounts } = await getUserDailyQueryCounts(user.id);
+
+  const dayQueries = queryCounts.find((qc) => {
+    const today = new Date();
+    return (
+      qc.date.getFullYear() === today.getFullYear() &&
+      qc.date.getMonth() === today.getMonth() &&
+      qc.date.getDate() === today.getDate()
+    );
+  });
 
   let remainingQueries: number = user.maxDailyQueryCount;
   if (dayQueries) {

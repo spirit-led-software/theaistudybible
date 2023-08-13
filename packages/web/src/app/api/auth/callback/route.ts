@@ -1,5 +1,5 @@
 import { websiteConfig } from "@configs";
-import { validServerSession } from "@services/user";
+import { validServerSession } from "@services/session";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 

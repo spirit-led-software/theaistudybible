@@ -1,6 +1,6 @@
 import { AskQuestionBar } from "@components/AskQuestionBar";
 import { Logo } from "@components/branding";
-import { validServerSession } from "@services/user";
+import { validServerSession } from "@services/session";
 import Link from "next/link";
 
 export default async function HomePage() {

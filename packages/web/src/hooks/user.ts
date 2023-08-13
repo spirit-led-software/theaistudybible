@@ -1,5 +1,5 @@
 import { apiConfig } from "@configs/index";
-import { User } from "@revelationsai/core/database/model";
+import { User } from "@core/model";
 import { useEffect, useState } from "react";
 import { useSession } from "./session";
 
