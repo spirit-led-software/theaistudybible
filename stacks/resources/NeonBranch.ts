@@ -24,7 +24,7 @@ export class NeonBranch extends Construct {
     super(scope, id);
 
     const neonBranchFunction = new Function(this, "neonBranchFunction", {
-      handler: "stacks/resources/neon/branch.handler",
+      handler: "packages/functions/src/database/branch.handler",
       environment: {
         ...STATIC_ENV_VARS,
       },
