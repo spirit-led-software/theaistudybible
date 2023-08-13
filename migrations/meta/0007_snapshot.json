@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "5a2c886c-8131-4eaa-b5f0-bfffeb470b3d",
+  "id": "71293c05-ce21-4d9c-a5c8-b397a4081324",
   "prevId": "a0f4ec14-2a1b-434e-b91c-4adaefef9c9b",
   "tables": {
     "ai_responses": {
@@ -772,15 +772,15 @@
         }
       },
       "indexes": {
-        "user_daily_query_counts_date": {
-          "name": "user_daily_query_counts_date",
+        "user_query_counts_date": {
+          "name": "user_query_counts_date",
           "columns": [
             "date"
           ],
           "isUnique": false
         },
-        "user_daily_query_counts_user_id": {
-          "name": "user_daily_query_counts_user_id",
+        "user_query_counts_user_id": {
+          "name": "user_query_counts_user_id",
           "columns": [
             "user_id"
           ],

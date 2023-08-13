@@ -121,7 +121,7 @@ export const userQueryCounts = pgTable(
   }
 );
 
-export const userDailyQueryCountsRelations = relations(
+export const userQueryCountsRelations = relations(
   userQueryCounts,
   ({ one }) => {
     return {

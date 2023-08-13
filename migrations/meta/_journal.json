@@ -54,15 +54,8 @@
     {
       "idx": 7,
       "version": "5",
-      "when": 1691959126573,
-      "tag": "0007_flaky_stepford_cuckoos",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1691961636514,
-      "tag": "0008_dazzling_charles_xavier",
+      "when": 1691961957069,
+      "tag": "0007_small_thunderball",
       "breakpoints": true
     }
   ]
