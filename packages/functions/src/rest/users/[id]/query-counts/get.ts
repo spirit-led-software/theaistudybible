@@ -1,4 +1,4 @@
-import { userDailyQueryCounts } from "@core/schema";
+import { userQueryCounts } from "@core/schema";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
@@ -7,7 +7,7 @@ import {
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { validApiHandlerSession } from "@services/session";
-import { getUser, getUserDailyQueryCountsByUserId } from "@services/user";
+import { getUser, getUserQueryCountsByUserId } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -31,10 +31,10 @@ export const handler = ApiHandler(async (event) => {
       );
     }
 
-    const queryCounts = await getUserDailyQueryCountsByUserId(id, {
+    const queryCounts = await getUserQueryCountsByUserId(id, {
       limit,
       offset: (page - 1) * limit,
-      orderBy: buildOrderBy(userDailyQueryCounts, orderBy, order),
+      orderBy: buildOrderBy(userQueryCounts, orderBy, order),
     });
 
     return OkResponse({

@@ -2,7 +2,7 @@ import { STATIC_ENV_VARS } from "@stacks";
 import { Function, Script, StackContext } from "sst/constructs";
 import { NeonBranch } from "./resources/neon/neon";
 
-export async function DatabaseScripts({ stack, app }: StackContext) {
+export function DatabaseScripts({ stack, app }: StackContext) {
   const neonBranch = new NeonBranch(stack, "neonBranch", {
     isProd: stack.stage === "prod",
     projectName: app.name,

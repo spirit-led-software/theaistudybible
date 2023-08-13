@@ -80,7 +80,7 @@ export const users = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name"),
     email: text("email").notNull(),
-    maxDailyQueryCount: integer("max_daily_query_count").notNull().default(25),
+    maxQueryCount: integer("max_query_count").notNull().default(25),
     stripeCustomerId: text("stripe_customer_id"),
     image: text("image"),
   },
@@ -97,12 +97,12 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
-    userDailyQueryCounts: many(userDailyQueryCounts),
+    userDailyQueryCounts: many(userQueryCounts),
   };
 });
 
-export const userDailyQueryCounts = pgTable(
-  "user_daily_query_counts",
+export const userQueryCounts = pgTable(
+  "user_query_counts",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -122,11 +122,11 @@ export const userDailyQueryCounts = pgTable(
 );
 
 export const userDailyQueryCountsRelations = relations(
-  userDailyQueryCounts,
+  userQueryCounts,
   ({ one }) => {
     return {
       user: one(users, {
-        fields: [userDailyQueryCounts.userId],
+        fields: [userQueryCounts.userId],
         references: [users.id],
       }),
     };

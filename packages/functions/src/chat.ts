@@ -12,14 +12,14 @@ import { getChatModel, getPromptModel } from "@services/llm";
 import { validSessionToken } from "@services/session";
 import { isAdmin, isObjectOwner } from "@services/user";
 import {
-  createUserDailyQueryCount,
-  getUserDailyQueryCountByUserIdAndDate,
-  updateUserDailyQueryCount,
-} from "@services/user/daily-query-count";
-import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@services/user/message";
+import {
+  createUserQueryCount,
+  getUserQueryCountByUserIdAndDate,
+  updateUserQueryCount,
+} from "@services/user/query-count";
 import { getDocumentVectorStore } from "@services/vector-db";
 import { LangChainStream, Message } from "ai";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
@@ -97,13 +97,13 @@ export const handler = middy({ streamifyResponse: true }).handler(
         };
       }
 
-      const userDailyQueryCount = await getUserDailyQueryCountByUserIdAndDate(
+      const userDailyQueryCount = await getUserQueryCountByUserIdAndDate(
         userInfo.id,
         new Date()
       );
 
       if (!userDailyQueryCount) {
-        await createUserDailyQueryCount({
+        await createUserQueryCount({
           userId: userInfo.id,
           count: 1,
         });
@@ -126,7 +126,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           ]),
         };
       } else {
-        await updateUserDailyQueryCount(userDailyQueryCount.id, {
+        await updateUserQueryCount(userDailyQueryCount.id, {
           count: userDailyQueryCount.count + 1,
         });
       }

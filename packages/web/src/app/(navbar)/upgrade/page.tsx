@@ -1,7 +1,7 @@
 import { PricingCard } from "@components/PricingCard";
 import { Button } from "@components/ui/button";
 import { validServerSession } from "@services/session";
-import { getUserDailyQueryCounts } from "@services/user/daily-query-count";
+import { getUserQueryCounts } from "@services/user/query-count";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -11,7 +11,7 @@ export default async function UpgradePage() {
     return redirect("/login");
   }
 
-  const { queryCounts } = await getUserDailyQueryCounts(user.id);
+  const { queryCounts } = await getUserQueryCounts(user.id);
 
   const dayQueries = queryCounts.find((qc) => {
     const today = new Date();

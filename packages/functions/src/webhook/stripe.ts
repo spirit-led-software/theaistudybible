@@ -48,31 +48,31 @@ const fulfillOrder = async (
   // Serve staff plan - 50 queries per day
   if (item.price?.product === "prod_OMn5NPjXcAqi4t") {
     await updateUser(user.id, {
-      maxDailyQueryCount: 50,
+      maxQueryCount: 50,
     });
   }
   // Youth Pastor plan - 100 queries per day
   else if (item.price?.product === "prod_OMnEB3M89FhxAU") {
     await updateUser(user.id, {
-      maxDailyQueryCount: 100,
+      maxQueryCount: 100,
     });
   }
   // Worship leader plan - 250 queries per day
   else if (item.price?.product === "prod_OMnFtE1Y58Fk3s") {
     await updateUser(user.id, {
-      maxDailyQueryCount: 250,
+      maxQueryCount: 250,
     });
   }
   // Lead pastor plan - 500 queries per day
   else if (item.price?.product === "prod_OMnFfbim0KFFpo") {
     await updateUser(user.id, {
-      maxDailyQueryCount: 500,
+      maxQueryCount: 500,
     });
   }
   // Church plant plan - unlimited queries per day
   else if (item.price?.product === "prod_OMnGHj22JmMhxm") {
     await updateUser(user.id, {
-      maxDailyQueryCount: Infinity,
+      maxQueryCount: Infinity,
     });
   } else {
     console.error(`Unknown product: ${item.price?.product}`);
@@ -209,7 +209,7 @@ export const handler = ApiHandler(async (event, context) => {
         await fulfillOrder(subItem, user);
       } else {
         await updateUser(user.id, {
-          maxDailyQueryCount: 25,
+          maxQueryCount: 25,
         });
       }
 

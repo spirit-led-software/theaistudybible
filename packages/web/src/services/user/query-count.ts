@@ -1,10 +1,10 @@
 import { apiConfig } from "@configs/index";
-import { UserDailyQueryCount } from "@core/model";
+import { UserQueryCount } from "@core/model";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
 import { getSessionTokenFromCookies } from "@services/session";
 import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
 
-export async function getUserDailyQueryCounts(
+export async function getUserQueryCounts(
   id: string,
   options?: GetEntitiesOptions
 ) {
@@ -31,7 +31,7 @@ export async function getUserDailyQueryCounts(
     );
   }
 
-  const { entities, page, perPage }: EntitiesResponse<UserDailyQueryCount> =
+  const { entities, page, perPage }: EntitiesResponse<UserQueryCount> =
     await response.json();
 
   return {

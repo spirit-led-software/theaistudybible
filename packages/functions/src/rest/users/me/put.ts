@@ -17,7 +17,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse("You are not logged in.");
     }
 
-    if (data.maxDailyQueryCount) {
+    if (data.maxQueryCount) {
       return UnauthorizedResponse(
         "You are not authorized to update this field"
       );

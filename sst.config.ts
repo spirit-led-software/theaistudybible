@@ -18,13 +18,14 @@ export default {
     };
   },
   async stacks(app) {
-    app.stack(Constants);
-    await app.stack(DatabaseScripts);
-    app.stack(S3);
-    app.stack(Queues);
-    app.stack(Auth);
-    app.stack(API);
-    app.stack(Website);
-    app.stack(Crons);
+    app
+      .stack(Constants)
+      .stack(DatabaseScripts)
+      .stack(S3)
+      .stack(Queues)
+      .stack(Auth)
+      .stack(API)
+      .stack(Website)
+      .stack(Crons);
   },
 } satisfies SSTConfig;
