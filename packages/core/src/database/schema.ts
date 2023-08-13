@@ -97,7 +97,7 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
-    userDailyQueryCounts: many(userQueryCounts),
+    userQueryCounts: many(userQueryCounts),
   };
 });
 
@@ -115,8 +115,8 @@ export const userQueryCounts = pgTable(
   },
   (table) => {
     return {
-      dateIdx: index("user_daily_query_counts_date").on(table.date),
-      userIdIdx: index("user_daily_query_counts_user_id").on(table.userId),
+      dateIdx: index("user_query_counts_date").on(table.date),
+      userIdIdx: index("user_query_counts_user_id").on(table.userId),
     };
   }
 );
