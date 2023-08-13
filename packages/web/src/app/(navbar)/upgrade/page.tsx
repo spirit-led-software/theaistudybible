@@ -22,9 +22,9 @@ export default async function UpgradePage() {
     );
   });
 
-  let remainingQueries: number = user.maxDailyQueryCount;
+  let remainingQueries: number = user.maxQueryCount;
   if (dayQueries) {
-    remainingQueries = user.maxDailyQueryCount - dayQueries.count;
+    remainingQueries = user.maxQueryCount - dayQueries.count;
   }
 
   return (
@@ -43,7 +43,7 @@ export default async function UpgradePage() {
           >
             {remainingQueries}
           </span>{" "}
-          of {user.maxDailyQueryCount}
+          of {user.maxQueryCount}
         </h2>
         <Link
           href={"https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288"}
@@ -59,41 +59,41 @@ export default async function UpgradePage() {
           title="Late to Sunday Service"
           price="Free"
           features={["25 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 25}
+          currentLevel={user.maxQueryCount >= 25}
         />
         <PricingCard
           title="Serve Staff"
           price="$5/month"
           features={["50 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 50}
+          currentLevel={user.maxQueryCount >= 50}
           purchaseLink="https://checkout.revelationsai.com/b/4gwcNg8Ev5aB5G0144"
         />
         <PricingCard
           title="Youth Pastor"
           price="$10/month"
           features={["100 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 100}
+          currentLevel={user.maxQueryCount >= 100}
           purchaseLink="https://checkout.revelationsai.com/b/6oEdRk4of46x7O86op"
         />
         <PricingCard
           title="Worship Leader"
           price="$25/month"
           features={["250 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 250}
+          currentLevel={user.maxQueryCount >= 250}
           purchaseLink="https://checkout.revelationsai.com/b/fZe9B46wn46x9Wg5km"
         />
         <PricingCard
           title="Lead Pastor"
           price="$50/month"
           features={["500 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 500}
+          currentLevel={user.maxQueryCount >= 500}
           purchaseLink="https://checkout.revelationsai.com/b/4gw4gKg6X1Yp4BWbIL"
         />
         <PricingCard
           title="Church Plant"
           price="$100/month"
           features={["Unlimited Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount === Infinity}
+          currentLevel={user.maxQueryCount === Infinity}
           purchaseLink="https://checkout.revelationsai.com/b/fZebJc2g7dH79WgbIM"
         />
       </div>
