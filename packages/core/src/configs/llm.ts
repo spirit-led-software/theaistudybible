@@ -1,5 +1,4 @@
 interface LLMConfig {
-  apiKey: string;
   promptModelName: string;
   chatModelName: string;
   completionsModelName: string;
@@ -7,7 +6,6 @@ interface LLMConfig {
 }
 
 export const config: LLMConfig = {
-  apiKey: process.env.LLM_API_KEY!,
   promptModelName: process.env.LLM_PROMPT_MODEL_NAME!,
   chatModelName: process.env.LLM_CHAT_MODEL_NAME!,
   completionsModelName: process.env.LLM_COMPLETIONS_MODEL_NAME!,

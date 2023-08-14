@@ -1,17 +1,19 @@
 import { Window } from "@components/chat";
 import { getChats } from "@services/chat";
-import { validServerSession } from "@services/session";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
+import { validSession } from "@services/session";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function ChatPage() {
-  const { isValid } = await validServerSession();
+  const { isValid, token } = await validSession(getSessionTokenFromCookies());
   if (!isValid) {
     redirect(`/login?redirect=/chat`);
   }
 
   const { chats } = await getChats({
+    token,
     limit: 7,
   });
 

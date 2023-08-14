@@ -3,7 +3,7 @@
 import { SolidLineSpinner } from "@components";
 import { apiConfig } from "@configs/index";
 import { useIndexOps } from "@hooks/index-ops";
-import { useSession } from "@hooks/session";
+import { useClientSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
 
 export function WebsiteIndexForm() {
@@ -14,7 +14,7 @@ export function WebsiteIndexForm() {
     message: string;
     type: "error" | "success";
   } | null>(null);
-  const { session } = useSession();
+  const session = useClientSession();
   const { mutate } = useIndexOps();
   const [isLoading, setIsLoading] = useState(false);
 

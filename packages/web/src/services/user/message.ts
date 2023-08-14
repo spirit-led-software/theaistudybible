@@ -1,14 +1,18 @@
 import { apiConfig } from "@configs";
 import { UserMessage } from "@core/model";
-import { Query } from "@revelationsai/core/database/helpers";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
-import { getSessionTokenFromCookies } from "@services/session";
-import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions,
+  SearchForEntitiesOptions,
+} from "@services/types";
 
-export async function getUserMessages(options?: GetEntitiesOptions) {
-  const token = getSessionTokenFromCookies();
+export async function getUserMessages(
+  options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
-
   const response = await fetch(
     `${apiConfig.url}/user-messages?${searchParams.toString()}`,
     {
@@ -28,7 +32,7 @@ export async function getUserMessages(options?: GetEntitiesOptions) {
     throw new Error(data.error || "Error retrieving user messages.");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<UserMessage> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<UserMessage> =
     await response.json();
 
   return {
@@ -38,8 +42,8 @@ export async function getUserMessages(options?: GetEntitiesOptions) {
   };
 }
 
-export async function getUserMessage(id: string) {
-  const token = getSessionTokenFromCookies();
+export async function getUserMessage(id: string, options: ProtectedApiOptions) {
+  const token = options.token;
   const response = await fetch(`${apiConfig.url}/user-messages/${id}`, {
     method: "GET",
     headers: {
@@ -62,12 +66,12 @@ export async function getUserMessage(id: string) {
 }
 
 export async function searchForUserMessages(
-  query: Query,
-  options?: GetEntitiesOptions
+  options: SearchForEntitiesOptions &
+    PaginatedEntitiesOptions &
+    ProtectedApiOptions
 ) {
-  const token = getSessionTokenFromCookies();
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
-
   const response = await fetch(
     `${apiConfig.url}/user-messages/search?${searchParams.toString()}`,
     {
@@ -75,7 +79,7 @@ export async function searchForUserMessages(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(query),
+      body: JSON.stringify(options.query),
     }
   );
 
@@ -88,7 +92,7 @@ export async function searchForUserMessages(
     throw new Error(data.error || "Error searching for user messages.");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<UserMessage> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<UserMessage> =
     await response.json();
 
   return {

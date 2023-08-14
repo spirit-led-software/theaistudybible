@@ -1,54 +1,36 @@
-import { apiConfig } from "@configs/index";
 import { Chat } from "@core/model";
+import { getChats } from "@services/chat";
+import { PaginatedEntitiesOptions } from "@services/types";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
-import { useSession } from "./session";
-import {
-  ProtectedApiHookParams,
-  entitiesFetcher,
-  setOrderSearchParams,
-  setPaginationSearchParams,
-} from "./shared";
-
-const chatsFetcher = async ({
-  url,
-  token,
-}: ProtectedApiHookParams): Promise<Chat[]> => {
-  return entitiesFetcher(url, token);
-};
+import { useClientSession } from "./session";
 
 export const useChats = (
+  key?: any,
   initChats?: Chat[],
-  options?: {
-    limit?: number;
-    page?: number;
-    orderBy?: string;
-    order?: string;
-  },
+  options?: PaginatedEntitiesOptions,
   swrOptions?: SWRConfiguration
 ) => {
-  const { session } = useSession();
+  const session = useClientSession();
   const [chats, setChats] = useState<Chat[]>(initChats ?? []);
   const [limit, setLimit] = useState<number>(options?.limit ?? 10);
   const [page, setPage] = useState<number>(options?.page ?? 1);
   const { orderBy = "createdAt", order = "desc" } = options ?? {};
 
-  let searchParams = new URLSearchParams();
-  searchParams = setPaginationSearchParams(searchParams, {
-    limit: limit,
-    page: page,
-  });
-  searchParams = setOrderSearchParams(searchParams, {
-    orderBy: orderBy,
-    order: order,
-  });
+  if (!key) {
+    key = options;
+  }
 
   const { data, error, isLoading, mutate, isValidating } = useSWR(
-    {
-      url: `${apiConfig.url}/chats?${searchParams.toString()}`,
-      token: session,
-    },
-    chatsFetcher,
+    key,
+    () =>
+      getChats({
+        token: session!,
+        limit,
+        page,
+        orderBy,
+        order,
+      }).then(({ chats }) => chats),
     swrOptions
   );
 

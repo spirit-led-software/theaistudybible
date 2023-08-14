@@ -1,13 +1,17 @@
 import { apiConfig } from "@configs";
 import { Chat } from "@core/model";
 import { GetEntitiesSearchParams } from "./helpers/search-params";
-import { getSessionTokenFromCookies } from "./session";
-import { EntitiesResponse, GetEntitiesOptions } from "./types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions,
+} from "./types";
 
-export async function getChats(options?: GetEntitiesOptions) {
-  const token = getSessionTokenFromCookies();
+export async function getChats(
+  options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
-
   const response = await fetch(
     `${apiConfig.url}/chats?${searchParams.toString()}`,
     {
@@ -27,7 +31,7 @@ export async function getChats(options?: GetEntitiesOptions) {
     throw new Error(data.error || "Error retrieving chats.");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<Chat> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<Chat> =
     await response.json();
 
   return {
@@ -37,8 +41,8 @@ export async function getChats(options?: GetEntitiesOptions) {
   };
 }
 
-export async function getChat(id: string) {
-  const token = getSessionTokenFromCookies();
+export async function getChat(id: string, options: ProtectedApiOptions) {
+  const token = options.token;
   const response = await fetch(`${apiConfig.url}/chats/${id}`, {
     method: "GET",
     headers: {

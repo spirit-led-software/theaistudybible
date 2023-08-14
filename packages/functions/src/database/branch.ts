@@ -149,8 +149,8 @@ export async function createBranch(
     {
       type: "read_write",
       provisioner: isProd ? "k8s-neonvm" : "k8s-pod",
-      autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
-      autoscaling_limit_max_cu: isProd ? 7 : 0.25,
+      autoscaling_limit_min_cu: isProd ? 0.5 : 0.5,
+      autoscaling_limit_max_cu: isProd ? 7 : 0.5,
       suspend_timeout_seconds: 0,
     },
   ];
@@ -210,8 +210,8 @@ export async function updateBranch(
       await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
         endpoint: {
           provisioner: isProd ? "k8s-neonvm" : "k8s-pod",
-          autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
-          autoscaling_limit_max_cu: isProd ? 7 : 0.25,
+          autoscaling_limit_min_cu: isProd ? 0.5 : 0.5,
+          autoscaling_limit_max_cu: isProd ? 7 : 0.5,
         },
       });
     } else {

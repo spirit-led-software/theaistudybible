@@ -1,14 +1,24 @@
 import { apiConfig } from "@configs";
 import { IndexOperation } from "@core/model";
 import { GetEntitiesSearchParams } from "./helpers/search-params";
-import { EntitiesResponse, GetEntitiesOptions } from "./types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions,
+} from "./types";
 
-export async function getIndexOperations(options: GetEntitiesOptions) {
+export async function getIndexOperations(
+  options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
     `${apiConfig.url}/index-operations?${searchParams.toString()}`,
     {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
@@ -21,7 +31,7 @@ export async function getIndexOperations(options: GetEntitiesOptions) {
     throw new Error(data.error || "Error retrieving index operations.");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<IndexOperation> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<IndexOperation> =
     await response.json();
 
   return {

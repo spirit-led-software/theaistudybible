@@ -84,7 +84,7 @@ export function API({ stack }: StackContext) {
         },
       },
       "GET /session": "packages/functions/src/session.handler",
-      "POST /stripe/webhook": "packages/functions/src/webhook/stripe.handler",
+      "POST /stripe/webhook": "packages/functions/src/webhooks/stripe.handler",
 
       // REST API
       // AI Responses
@@ -141,10 +141,14 @@ export function API({ stack }: StackContext) {
       // Devotion Reactions
       "GET /devotions/{id}/reactions":
         "packages/functions/src/rest/devotions/[id]/reactions/get.handler",
-      "GET /devotions/{id}/reactions/count":
-        "packages/functions/src/rest/devotions/[id]/reactions/count/get.handler",
       "POST /devotions/{id}/reactions":
         "packages/functions/src/rest/devotions/[id]/reactions/post.handler",
+      "GET /devotions/{id}/reactions/counts":
+        "packages/functions/src/rest/devotions/[id]/reactions/counts/get.handler",
+
+      // Devotion Images
+      "GET /devotions/{id}/images":
+        "packages/functions/src/rest/devotions/[id]/images/get.handler",
 
       // Index Operations
       "GET /index-operations":
@@ -161,6 +165,8 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/user-messages/get.handler",
       "POST /user-messages":
         "packages/functions/src/rest/user-messages/post.handler",
+      "POST /user-messages/search":
+        "packages/functions/src/rest/user-messages/search/post.handler",
       "GET /user-messages/{id}":
         "packages/functions/src/rest/user-messages/[id]/get.handler",
       "PUT /user-messages/{id}":
@@ -174,6 +180,8 @@ export function API({ stack }: StackContext) {
       "PUT /users/{id}": "packages/functions/src/rest/users/[id]/put.handler",
       "DELETE /users/{id}":
         "packages/functions/src/rest/users/[id]/delete.handler",
+
+      // Current user
       "GET /users/me": "packages/functions/src/rest/users/me/get.handler",
       "PUT /users/me": "packages/functions/src/rest/users/me/put.handler",
       "DELETE /users/me": "packages/functions/src/rest/users/me/delete.handler",

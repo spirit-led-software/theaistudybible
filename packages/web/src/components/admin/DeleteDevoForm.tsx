@@ -1,12 +1,12 @@
 "use client";
 
 import { apiConfig } from "@configs/index";
-import { useSession } from "@hooks/session";
+import { useClientSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
 import { SolidLineSpinner } from "..";
 
 export function DeleteDevoForm() {
-  const { session } = useSession();
+  const session = useClientSession();
   const idInputRef = useRef<HTMLInputElement>(null);
   const [alert, setAlert] = useState<{
     message: string;

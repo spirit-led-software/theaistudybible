@@ -7,7 +7,7 @@ export function Constants({ stack, app }: StackContext) {
     domainName: "revelationsai.com",
   });
 
-  const domainName = `${stack.stage !== "prod" ? `${stack.stage}.` : ""}${
+  const domainName = `${stack.stage !== "prod" ? `${stack.stage}.test.` : ""}${
     hostedZone.zoneName
   }`;
 

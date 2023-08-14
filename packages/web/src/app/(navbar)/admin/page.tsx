@@ -7,16 +7,20 @@ import {
 } from "@components/admin";
 import { WebpageIndexForm } from "@components/admin/WebpageIndexForm";
 import { getIndexOperations } from "@services/index-op";
-import { isAdmin, validServerSession } from "@services/session";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
+import { isAdmin, validSession } from "@services/session";
 import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
-  const { isValid, userInfo } = await validServerSession();
+  const { isValid, userInfo, token } = await validSession(
+    getSessionTokenFromCookies()
+  );
   if (!isValid || !isAdmin(userInfo)) {
     redirect("/");
   }
 
   const { indexOperations: indexOps } = await getIndexOperations({
+    token,
     limit: 100,
   });
 

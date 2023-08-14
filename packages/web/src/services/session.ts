@@ -1,13 +1,7 @@
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { UserWithRoles } from "@core/model";
-import { cookies } from "next/headers";
 
-export function getSessionTokenFromCookies() {
-  const sessionToken = cookies().get("session");
-  return sessionToken?.value;
-}
-
-export async function validServerSession(): Promise<
+export async function validSession(token?: string): Promise<
   | {
       isValid: false;
       token?: string;
@@ -19,15 +13,15 @@ export async function validServerSession(): Promise<
       userInfo: UserWithRoles;
     }
 > {
-  const sessionToken = getSessionTokenFromCookies();
-  if (!sessionToken) {
+  if (!token) {
+    console.error("No session token found in cookies or options.");
     return { isValid: false };
   }
 
   const response = await fetch(`${apiConfig.url}/session`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${sessionToken}`,
+      Authorization: `Bearer ${token}`,
     },
   });
   if (response.status !== 200) {
@@ -38,7 +32,7 @@ export async function validServerSession(): Promise<
 
   return {
     isValid: true,
-    token: sessionToken,
+    token,
     userInfo,
   };
 }

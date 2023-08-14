@@ -1,11 +1,13 @@
 import { apiConfig } from "@configs";
 import { User } from "@core/model";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
-import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+} from "@services/types";
 
-export async function getUsers(options?: GetEntitiesOptions) {
+export async function getUsers(options: PaginatedEntitiesOptions) {
   const searchParams = GetEntitiesSearchParams(options);
-
   const response = await fetch(
     `${apiConfig.url}/users?${searchParams.toString()}`,
     {
@@ -22,7 +24,7 @@ export async function getUsers(options?: GetEntitiesOptions) {
     throw new Error(data.error || `Error retrieving users`);
   }
 
-  const { entities, page, perPage }: EntitiesResponse<User> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<User> =
     await response.json();
 
   return {

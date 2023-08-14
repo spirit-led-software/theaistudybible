@@ -5,7 +5,7 @@ import { apiConfig } from "@configs/index";
 import { Devotion, SourceDocument } from "@core/model";
 import { DevotionImage } from "@core/model/devotion";
 import { devotionReactions } from "@core/schema";
-import { useSession } from "@hooks/session";
+import { useClientSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
 import { getDevotionReactionCounts } from "@services/devotion";
 import Moment from "moment";
@@ -29,7 +29,7 @@ export function Window({
   images: DevotionImage[];
   reactionCounts: Awaited<ReturnType<typeof getDevotionReactionCounts>>;
 }) {
-  const { session } = useSession();
+  const session = useClientSession();
   const windowDimensions = useWindowDimensions();
   const [isSidebarOpen, setIsSidebarOpen] = useState(
     windowDimensions.width! > 1024
@@ -97,7 +97,7 @@ export function Window({
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
       />
-      <div className="absolute flex flex-col h-full overflow-y-scroll lg:w-full lg:static">
+      <div className="absolute flex flex-col w-full h-full overflow-y-scroll lg:static">
         <div className="relative flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
           <div className="fixed z-20 flex justify-between space-x-1 bottom-3 right-3">
             <Button

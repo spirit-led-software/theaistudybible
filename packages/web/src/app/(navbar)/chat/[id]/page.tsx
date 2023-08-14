@@ -1,30 +1,41 @@
 import { Window } from "@components/chat";
+import { aiResponses, userMessages } from "@core/schema";
+import { getPropertyName } from "@revelationsai/core/util/object";
 import { searchForAiResponses } from "@services/ai-response";
 import { getChat, getChats } from "@services/chat";
-import { validServerSession } from "@services/session";
-import { isObjectOwner } from "@services/user";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
+import { validSession } from "@services/session";
 import { searchForUserMessages } from "@services/user/message";
 import { Message } from "ai/react";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getMessages(chatId: string, userId: string) {
+async function getMessages(token: string, chatId: string, userId: string) {
   const { userMessages: foundUserMessages } = await searchForUserMessages({
-    AND: [
-      {
-        eq: {
-          column: "chatId",
-          value: chatId,
+    token,
+    query: {
+      AND: [
+        {
+          eq: {
+            column: getPropertyName(
+              userMessages,
+              (userMessages) => userMessages.chatId
+            ),
+            value: chatId,
+          },
         },
-      },
-      {
-        eq: {
-          column: "userId",
-          value: userId,
+        {
+          eq: {
+            column: getPropertyName(
+              userMessages,
+              (userMessages) => userMessages.userId
+            ),
+            value: userId,
+          },
         },
-      },
-    ],
+      ],
+    },
   });
 
   const messages: Message[] = (
@@ -37,9 +48,15 @@ async function getMessages(chatId: string, userId: string) {
         };
 
         const { aiResponses: foundAiResponses } = await searchForAiResponses({
-          eq: {
-            column: "userMessageId",
-            value: userMessage.id,
+          token,
+          query: {
+            eq: {
+              column: getPropertyName(
+                aiResponses,
+                (aiResponses) => aiResponses.userMessageId
+              ),
+              value: userMessage.id,
+            },
           },
         });
 
@@ -65,18 +82,23 @@ export default async function SpecificChatPage({
 }: {
   params: { id: string };
 }) {
-  const chat = await getChat(params.id);
+  const { isValid, userInfo, token } = await validSession(
+    getSessionTokenFromCookies()
+  );
+  if (!isValid) {
+    redirect(`/login?redirect=/chat/${params.id}`);
+  }
+
+  const chat = await getChat(params.id, {
+    token,
+  });
   if (!chat) {
     notFound();
   }
 
-  const { isValid, userInfo } = await validServerSession();
-  if (!isValid || !isObjectOwner(chat, userInfo.id)) {
-    redirect(`/login?redirect=/chat/${chat.id}`);
-  }
-
-  const messagesPromise = getMessages(params.id, userInfo.id);
+  const messagesPromise = getMessages(token, params.id, userInfo.id);
   const chatsPromise = getChats({
+    token,
     limit: 7,
   });
 

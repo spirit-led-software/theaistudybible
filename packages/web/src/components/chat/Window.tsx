@@ -1,19 +1,19 @@
 "use client";
 
+import { LoadingDots } from "@components/loading";
 import { apiConfig } from "@configs/index";
 import { Chat, UpdateAiResponseData } from "@core/model";
-import { useSession } from "@hooks/session";
+import { useClientSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
 import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AiOutlineSend } from "react-icons/ai";
 import { CgRedo } from "react-icons/cg";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
-import { LoadingDots } from "..";
-import { useChats } from "../../hooks";
+import { mutate } from "swr";
 import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
@@ -26,9 +26,11 @@ export function Window({
   initChatId?: string;
   initMessages?: ChatMessage[];
 }) {
+  const path = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamsQuery = searchParams.get("query");
-  const { session } = useSession();
+  const session = useClientSession();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   const windowDimensions = useWindowDimensions();
@@ -46,16 +48,6 @@ export function Window({
     null
   );
   const [alert, setAlert] = useState<string | null>(null);
-
-  const {
-    chats,
-    mutate,
-    isLoading: isChatsLoading,
-    limit,
-    setLimit,
-  } = useChats(initChats, {
-    limit: 7,
-  });
 
   const {
     handleSubmit,
@@ -107,7 +99,7 @@ export function Window({
         },
       });
     },
-    [chatId, handleSubmit]
+    [chatId, handleSubmit, session]
   );
 
   const handleAiResponse = useCallback(
@@ -132,10 +124,10 @@ export function Window({
       } catch (err: any) {
         setAlert(`Something went wrong: ${err.message}`);
       } finally {
-        mutate();
+        await mutate("chats-sidebar");
       }
     },
-    [mutate]
+    [session]
   );
 
   const handleReload = useCallback(async () => {
@@ -149,11 +141,14 @@ export function Window({
         },
       },
     });
-    await mutate();
-  }, [chatId, mutate, reload]);
+    await mutate("chats-sidebar");
+  }, [chatId, reload, session]);
 
   useEffect(() => {
     if (searchParamsQuery) {
+      router.replace(path, {
+        shallow: true,
+      });
       setMessages([
         ...messages,
         {
@@ -230,13 +225,9 @@ export function Window({
         activeChatId={initChatId}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
-        chats={chats}
-        mutate={mutate}
-        isLoading={isChatsLoading}
-        limit={limit}
-        setLimit={setLimit}
+        initChats={initChats}
       />
-      <div className="absolute h-full overflow-hidden lg:w-full lg:static">
+      <div className="absolute w-full h-full overflow-hidden lg:static">
         <div className="relative w-full h-full">
           <div
             role="alert"

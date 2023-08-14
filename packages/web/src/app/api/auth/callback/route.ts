@@ -1,5 +1,5 @@
 import { websiteConfig } from "@configs";
-import { validServerSession } from "@services/session";
+import { validSession } from "@services/session";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     secure: true,
   });
 
-  const { isValid } = await validServerSession();
+  const { isValid } = await validSession();
   if (!isValid) {
     return NextResponse.redirect(
       `${websiteConfig.url}/login?error=Invalid Token!`

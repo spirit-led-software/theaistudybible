@@ -1,12 +1,12 @@
 "use client";
 
+import { SolidLineSpinner } from "@components/loading";
 import { Devotion } from "@core/model";
 import { useDevotions } from "@hooks/devotion";
 import Moment from "moment";
 import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { BsArrowLeftShort } from "react-icons/bs";
-import { SolidLineSpinner } from "..";
 
 export function Sidebar({
   activeDevoId,
@@ -22,6 +22,7 @@ export function Sidebar({
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { devos, isLoading, limit, setLimit, mutate } = useDevotions(
+    "devotions-sidebar",
     initDevos,
     {
       limit: 7,

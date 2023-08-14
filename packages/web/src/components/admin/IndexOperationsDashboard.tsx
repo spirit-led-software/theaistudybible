@@ -10,6 +10,7 @@ export function IndexOperationsDashboard({
   initIndexOps?: IndexOperation[];
 }) {
   const { indexOps } = useIndexOps(
+    "index-ops-dashboard",
     initIndexOps,
     {
       limit: initIndexOps?.length

@@ -2,7 +2,8 @@
 
 import { apiConfig } from "@configs/index";
 import { Chat } from "@core/model";
-import { useSession } from "@hooks/session";
+import { useChats } from "@hooks/chat";
+import { useClientSession } from "@hooks/session";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,34 +16,33 @@ import {
 } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
-import { KeyedMutator } from "swr";
 import { SolidLineSpinner } from "..";
 
-type SidebarProps = {
+export type SidebarProps = {
   activeChatId?: string;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  chats: Chat[];
-  mutate: KeyedMutator<Chat[]>;
-  isLoading: boolean;
-  limit: number;
-  setLimit: Dispatch<SetStateAction<number>>;
+  initChats?: Chat[];
 };
 
 export function Sidebar({
   activeChatId,
   isOpen,
   setIsOpen,
-  chats,
-  mutate,
-  isLoading,
-  limit,
-  setLimit,
+  initChats,
 }: SidebarProps) {
   const router = useRouter();
-  const { session } = useSession();
+  const session = useClientSession();
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const { chats, mutate, isLoading, limit, setLimit } = useChats(
+    "chats-sidebar",
+    initChats,
+    {
+      limit: 7,
+    }
+  );
 
   const createChat = useCallback(async () => {
     const response = await fetch(`${apiConfig.url}/chats`, {

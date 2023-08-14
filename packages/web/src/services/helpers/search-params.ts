@@ -1,6 +1,6 @@
-import { GetEntitiesOptions } from "@services/types";
+import { PaginatedEntitiesOptions } from "@services/types";
 
-export const GetEntitiesSearchParams = (options?: GetEntitiesOptions) => {
+export const GetEntitiesSearchParams = (options?: PaginatedEntitiesOptions) => {
   const params = new URLSearchParams();
 
   if (options?.limit) {

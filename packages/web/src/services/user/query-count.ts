@@ -1,17 +1,20 @@
 import { apiConfig } from "@configs/index";
 import { UserQueryCount } from "@core/model";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
-import { getSessionTokenFromCookies } from "@services/session";
-import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions,
+} from "@services/types";
 
 export async function getUserQueryCounts(
   id: string,
-  options?: GetEntitiesOptions
+  options: PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
-  const token = getSessionTokenFromCookies();
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
-    `${apiConfig.url}/api/users/${id}/query-count?${searchParams.toString()}`,
+    `${apiConfig.url}/api/users/${id}/query-counts?${searchParams.toString()}`,
     {
       method: "GET",
       headers: {
@@ -22,7 +25,7 @@ export async function getUserQueryCounts(
 
   if (!response.ok) {
     console.error(
-      `Error retrieving user's query count with id ${id}. Received response:`,
+      `Error retrieving user's query counts with id ${id}. Received response:`,
       JSON.stringify(response)
     );
     const data = await response.json();
@@ -31,7 +34,7 @@ export async function getUserQueryCounts(
     );
   }
 
-  const { entities, page, perPage }: EntitiesResponse<UserQueryCount> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<UserQueryCount> =
     await response.json();
 
   return {

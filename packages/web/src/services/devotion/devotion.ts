@@ -1,9 +1,12 @@
 import { apiConfig } from "@configs";
 import { Devotion, SourceDocument } from "@core/model";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
-import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+} from "@services/types";
 
-export async function getDevotions(options?: GetEntitiesOptions) {
+export async function getDevotions(options: PaginatedEntitiesOptions) {
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
     `${apiConfig.url}/devotions?${searchParams.toString()}`,
@@ -21,7 +24,7 @@ export async function getDevotions(options?: GetEntitiesOptions) {
     throw new Error(data.error || "Error retrieving devotions");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<Devotion> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<Devotion> =
     await response.json();
 
   return {

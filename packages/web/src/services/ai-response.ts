@@ -1,14 +1,18 @@
 import { apiConfig } from "@configs";
-import { AiResponse } from "@core/model";
-import { Query } from "@revelationsai/core/database/helpers";
+import { AiResponse, SourceDocument } from "@core/model";
 import { GetEntitiesSearchParams } from "./helpers/search-params";
-import { getSessionTokenFromCookies } from "./session";
-import { EntitiesResponse, GetEntitiesOptions } from "./types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions,
+  SearchForEntitiesOptions,
+} from "./types";
 
-export async function getAiResponses(options?: GetEntitiesOptions) {
-  const token = getSessionTokenFromCookies();
+export async function getAiResponses(
+  options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
-
   const response = await fetch(
     `${apiConfig.url}/ai-responses?${searchParams.toString()}`,
     {
@@ -28,7 +32,7 @@ export async function getAiResponses(options?: GetEntitiesOptions) {
     throw new Error(data.error || "Error retrieving AI responses.");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<AiResponse> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<AiResponse> =
     await response.json();
 
   return {
@@ -38,8 +42,8 @@ export async function getAiResponses(options?: GetEntitiesOptions) {
   };
 }
 
-export async function getAiResponse(id: string) {
-  const token = getSessionTokenFromCookies();
+export async function getAiResponse(id: string, options: ProtectedApiOptions) {
+  const token = options.token;
   const response = await fetch(`${apiConfig.url}/ai-responses/${id}`, {
     method: "GET",
     headers: {
@@ -62,12 +66,12 @@ export async function getAiResponse(id: string) {
 }
 
 export async function searchForAiResponses(
-  query: Query,
-  options?: GetEntitiesOptions
+  options: SearchForEntitiesOptions &
+    PaginatedEntitiesOptions &
+    ProtectedApiOptions
 ) {
-  const token = getSessionTokenFromCookies();
+  const token = options.token;
   const searchParams = GetEntitiesSearchParams(options);
-
   const response = await fetch(
     `${apiConfig.url}/ai-responses/search?${searchParams.toString()}`,
     {
@@ -75,7 +79,7 @@ export async function searchForAiResponses(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(query),
+      body: JSON.stringify(options.query),
     }
   );
 
@@ -88,7 +92,7 @@ export async function searchForAiResponses(
     throw new Error(data.error || "Error searching for AI responses.");
   }
 
-  const { entities, page, perPage }: EntitiesResponse<AiResponse> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<AiResponse> =
     await response.json();
 
   return {
@@ -96,4 +100,35 @@ export async function searchForAiResponses(
     page,
     perPage,
   };
+}
+
+export async function getAiResponseSourceDocuments(
+  id: string,
+  options: ProtectedApiOptions
+) {
+  const response = await fetch(
+    `${apiConfig.url}/ai-responses/${id}/source-documents`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${options.token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.error(
+      `Error retrieving source documents for AI response with id ${id}. Received response:`,
+      JSON.stringify(response)
+    );
+    const data = await response.json();
+    throw new Error(
+      data.error ||
+        `Error retrieving source documents for AI response with id ${id}`
+    );
+  }
+
+  const sourceDocuments: SourceDocument[] = await response.json();
+
+  return sourceDocuments;
 }

@@ -2,11 +2,14 @@ import { apiConfig } from "@configs";
 import { DevotionReaction } from "@core/model";
 import { devotionReactions } from "@core/schema";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
-import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+} from "@services/types";
 
 export async function getDevotionReactions(
   id: string,
-  options?: GetEntitiesOptions
+  options?: PaginatedEntitiesOptions
 ) {
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
@@ -27,8 +30,11 @@ export async function getDevotionReactions(
     );
   }
 
-  const { entities, page, perPage }: EntitiesResponse<DevotionReaction> =
-    await response.json();
+  const {
+    entities,
+    page,
+    perPage,
+  }: PaginatedEntitiesResponse<DevotionReaction> = await response.json();
 
   return {
     reactions: entities,
@@ -39,7 +45,7 @@ export async function getDevotionReactions(
 
 export async function getDevotionReactionCounts(id: string) {
   const response = await fetch(
-    `${apiConfig.url}/devotions/${id}/reactions/count`,
+    `${apiConfig.url}/devotions/${id}/reactions/counts`,
     {
       method: "GET",
     }

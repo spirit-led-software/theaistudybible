@@ -1,11 +1,14 @@
 import { apiConfig } from "@configs/index";
 import { DevotionImage } from "@core/model";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
-import { EntitiesResponse, GetEntitiesOptions } from "@services/types";
+import {
+  PaginatedEntitiesOptions,
+  PaginatedEntitiesResponse,
+} from "@services/types";
 
 export async function getDevotionImages(
   id: string,
-  options?: GetEntitiesOptions
+  options?: PaginatedEntitiesOptions
 ) {
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
@@ -26,7 +29,7 @@ export async function getDevotionImages(
     );
   }
 
-  const { entities, page, perPage }: EntitiesResponse<DevotionImage> =
+  const { entities, page, perPage }: PaginatedEntitiesResponse<DevotionImage> =
     await response.json();
 
   return {
