@@ -22,7 +22,6 @@ export function Sidebar({
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { devos, isLoading, limit, setLimit, mutate } = useDevotions(
-    "devotions-sidebar",
     initDevos,
     {
       limit: 7,

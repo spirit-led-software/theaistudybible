@@ -6,7 +6,6 @@ import useSWR, { SWRConfiguration } from "swr";
 import { useClientSession } from "./session";
 
 export const useIndexOps = (
-  key?: any,
   initIndexOps?: IndexOperation[],
   options?: PaginatedEntitiesOptions,
   swrOptions?: SWRConfiguration
@@ -19,13 +18,15 @@ export const useIndexOps = (
   const [page, setPage] = useState<number>(options?.page ?? 1);
   const { orderBy = "createdAt", order = "desc" } = options ?? {};
 
-  if (!key) {
-    key = options;
-  }
-
   const { data, error, mutate, isLoading, isValidating } = useSWR(
-    key,
-    () =>
+    {
+      session,
+      limit,
+      page,
+      orderBy,
+      order,
+    },
+    ({ session, limit, page, orderBy, order }) =>
       getIndexOperations({
         token: session!,
         limit,

@@ -1,7 +1,6 @@
 "use client";
 
 import { Chat } from "@core/model";
-import { useChats } from "@hooks/chat";
 import { useClientSession } from "@hooks/session";
 import { createChat, deleteChat } from "@services/chat";
 import Moment from "moment";
@@ -16,33 +15,34 @@ import {
 } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BsArrowLeftShort, BsPlus } from "react-icons/bs";
+import { KeyedMutator } from "swr";
 import { SolidLineSpinner } from "..";
 
 export type SidebarProps = {
   activeChatId?: string;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  initChats?: Chat[];
+  chats: Chat[];
+  mutate: KeyedMutator<Chat[]>;
+  isLoading: boolean;
+  limit: number;
+  setLimit: Dispatch<SetStateAction<number>>;
 };
 
 export function Sidebar({
   activeChatId,
   isOpen,
   setIsOpen,
-  initChats,
+  chats,
+  mutate,
+  isLoading,
+  limit,
+  setLimit,
 }: SidebarProps) {
   const router = useRouter();
   const session = useClientSession();
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-
-  const { chats, mutate, isLoading, limit, setLimit } = useChats(
-    "chats-sidebar",
-    initChats,
-    {
-      limit: 7,
-    }
-  );
 
   const handleCreate = useCallback(async () => {
     const chat = await createChat(

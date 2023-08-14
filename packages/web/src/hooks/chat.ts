@@ -6,24 +6,25 @@ import useSWR, { SWRConfiguration } from "swr";
 import { useClientSession } from "./session";
 
 export const useChats = (
-  key?: any,
   initChats?: Chat[],
   options?: PaginatedEntitiesOptions,
   swrOptions?: SWRConfiguration
 ) => {
   const session = useClientSession();
   const [chats, setChats] = useState<Chat[]>(initChats ?? []);
-  const [limit, setLimit] = useState<number>(options?.limit ?? 10);
+  const [limit, setLimit] = useState<number>(options?.limit ?? 25);
   const [page, setPage] = useState<number>(options?.page ?? 1);
   const { orderBy = "createdAt", order = "desc" } = options ?? {};
 
-  if (!key) {
-    key = options;
-  }
-
   const { data, error, isLoading, mutate, isValidating } = useSWR(
-    key,
-    () =>
+    {
+      session,
+      limit,
+      page,
+      orderBy,
+      order,
+    },
+    ({ session, limit, page, order, orderBy }) =>
       getChats({
         token: session!,
         limit,

@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
 
 export const useDevotions = (
-  key?: any,
   initDevos?: Devotion[],
   options?: PaginatedEntitiesOptions,
   swrOptions?: SWRConfiguration
@@ -15,13 +14,14 @@ export const useDevotions = (
   const [page, setPage] = useState<number>(options?.page ?? 1);
   const { orderBy = "createdAt", order = "desc" } = options ?? {};
 
-  if (!key) {
-    key = options;
-  }
-
   const { data, error, isLoading, mutate, isValidating } = useSWR(
-    key,
-    () =>
+    {
+      limit,
+      page,
+      orderBy,
+      order,
+    },
+    ({ limit, page, orderBy, order }) =>
       getDevotions({
         limit,
         page,

@@ -3,6 +3,7 @@
 import { LoadingDots } from "@components/loading";
 import { apiConfig } from "@configs";
 import { Chat } from "@core/model";
+import { useChats } from "@hooks/chat";
 import { useClientSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
 import { updateAiResponse } from "@services/ai-response";
@@ -14,7 +15,6 @@ import { AiOutlineSend } from "react-icons/ai";
 import { CgRedo } from "react-icons/cg";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import TextAreaAutosize from "react-textarea-autosize";
-import { mutate } from "swr";
 import { Message } from "./Message";
 import { Sidebar } from "./Sidebar";
 
@@ -49,6 +49,16 @@ export function Window({
     null
   );
   const [alert, setAlert] = useState<string | null>(null);
+
+  const {
+    chats,
+    mutate,
+    isLoading: areChatsLoading,
+    limit,
+    setLimit,
+  } = useChats(initChats, {
+    limit: 7,
+  });
 
   const {
     handleSubmit,
@@ -118,10 +128,10 @@ export function Window({
       } catch (err: any) {
         setAlert(`Something went wrong: ${err.message}`);
       } finally {
-        await mutate("chats-sidebar");
+        await mutate();
       }
     },
-    [session]
+    [mutate, session]
   );
 
   const handleReload = useCallback(async () => {
@@ -135,8 +145,8 @@ export function Window({
         },
       },
     });
-    await mutate("chats-sidebar");
-  }, [chatId, reload, session]);
+    await mutate();
+  }, [chatId, mutate, reload, session]);
 
   useEffect(() => {
     if (searchParamsQuery) {
@@ -219,7 +229,11 @@ export function Window({
         activeChatId={initChatId}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
-        initChats={initChats}
+        chats={chats}
+        mutate={mutate}
+        isLoading={areChatsLoading}
+        limit={limit}
+        setLimit={setLimit}
       />
       <div className="absolute w-full h-full overflow-hidden lg:static">
         <div className="relative w-full h-full">
