@@ -87,7 +87,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
       default: {
         const branch = await updateBranch(project.id, branchName, isProd);
         const connectionUrls = await getAllNeonConnectionUrls(
-          projectName,
+          project.id,
           branch.name,
           project.id
         );
