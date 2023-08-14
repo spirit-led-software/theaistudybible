@@ -50,21 +50,29 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
-      - id: setup
+      - id: setup_node
         name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
           cache: 'npm'
-      - id: install
+      - id: setup_jq
+        name: Setup jq
+        run: sudo apt-get install jq
+      - id: install_node_deps
         name: Install Node.js dependencies
         run: npm ci
-      - id: deploy
+      - id: sst_deploy
         name: Deploy to AWS
         run: npx sst deploy --stage pr-${{ github.event.pull_request.number }}
-      - id: comment
+      - id: extract_website_url
+        name: Extract website URL
+        run: |
+          website_url=$(jq -r '.pr-${{ github.event.pull_request.number }}-revelationsai-Website.WebsiteUrl' .sst/outputs.json)
+          echo "website_url=$website_url" >> $GITHUB_OUTPUT
+      - id: pr_comment
         name: Add comment to PR
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
-            Check out the preview environment ${{ steps.deploy.outputs.WebsiteUrl }}
+            Check out the preview environment here: ${{ steps.extract_website_url.outputs.website_url }}

@@ -51,15 +51,15 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
-      - id: setup
+      - id: setup_node
         name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
           cache: 'npm'
-      - id: install
+      - id: install_node_deps
         name: Install Node.js dependencies
         run: npm ci
-      - id: deploy
+      - id: sst_deploy
         name: Deploy to AWS
         run: npx sst remove --stage pr-${{ github.event.pull_request.number }}
