@@ -53,42 +53,31 @@ export const handler: CdkCustomResourceHandler = async (event) => {
       `Neon branch inputs: projectName=${projectName}, branchName=${branchName}, roleName=${roleName}, isProd=${isProd}`
     );
 
-    const project = await getProject(projectName);
+    const project = await getProjectByName(projectName);
     switch (event.RequestType) {
-      case "Create": {
-        let branch = await getBranch(project.id, branchName);
-        if (!branch) {
-          branch = await createBranch(project.id, branchName, isProd);
-        } else {
-          console.log(`Branch ${branchName} already existed. Updating`);
-          branch = await updateBranch(project.id, branchName, isProd);
-        }
-        const connectionUrls = await getAllNeonConnectionUrls(
-          project.id,
-          branch.name,
-          roleName
-        );
-        const urls = getDatabasesFromConnectionUrls(connectionUrls);
-
-        response.Status = "SUCCESS";
-        response.Data = {
-          projectId: project.id,
-          ...urls,
-        };
-        break;
-      }
       case "Delete": {
         if (!isProd) {
-          await deleteBranch(project.id, branchName);
+          const branch = await getBranchByName(project.id, branchName);
+          if (!branch) {
+            response.Status = "FAILED";
+            response.Reason = `Branch ${branchName} not found`;
+            break;
+          }
+          await deleteBranch(project.id, branch.id);
         }
         response.Status = "SUCCESS";
         break;
       }
       default: {
-        const branch = await updateBranch(project.id, branchName, isProd);
+        let branch = await getBranchByName(project.id, branchName);
+        if (!branch) {
+          branch = await createBranch(project.id, branchName, isProd);
+        } else {
+          branch = await updateBranch(project.id, branch.id, isProd);
+        }
         const connectionUrls = await getAllNeonConnectionUrls(
           project.id,
-          branch.name,
+          branch.id,
           project.id
         );
         const urls = getDatabasesFromConnectionUrls(connectionUrls);
@@ -113,7 +102,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
   }
 };
 
-export async function getProject(projectName: string) {
+export async function getProjectByName(projectName: string) {
   const neonClient = Neon();
   const listProjectsResponse =
     (await neonClient.project.listProjects()) as ProjectsResponse;
@@ -130,7 +119,16 @@ export async function getProject(projectName: string) {
   return project;
 }
 
-export async function getBranch(projectId: string, branchName: string) {
+export async function getBranch(projectId: string, branchId: string) {
+  const neonClient = Neon();
+  const branchResponse = (await neonClient.branch.getProjectBranch(
+    projectId,
+    branchId
+  )) as BranchResponse;
+  return branchResponse.branch;
+}
+
+export async function getBranchByName(projectId: string, branchName: string) {
   const neonClient = Neon();
   const branches = (await neonClient.branch.listProjectBranches(
     projectId
@@ -178,15 +176,12 @@ export async function createBranch(
 
 export async function updateBranch(
   projectId: string,
-  branchName: string,
+  branchId: string,
   isProd: boolean
 ) {
-  const neonClient = Neon();
-  const branch = await getBranch(projectId, branchName);
-  if (!branch) {
-    throw new Error(`Branch ${branchName} not found`);
-  }
+  const branch = await getBranch(projectId, branchId);
 
+  const neonClient = Neon();
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
     branch.id
@@ -222,12 +217,10 @@ export async function updateBranch(
   return branch;
 }
 
-export async function deleteBranch(projectId: string, branchName: string) {
+export async function deleteBranch(projectId: string, branchId: string) {
+  const branch = await getBranch(projectId, branchId);
+
   const neonClient = Neon();
-  const branch = await getBranch(projectId, branchName);
-  if (!branch) {
-    throw new Error(`Branch ${branchName} not found`);
-  }
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
     branch.id
@@ -242,22 +235,12 @@ export async function deleteBranch(projectId: string, branchName: string) {
 
 export async function getAllNeonConnectionUrls(
   projectId: string,
-  branchName: string,
+  branchId: string,
   roleName: string
 ): Promise<NeonConnectionUrl[]> {
-  const neonClient = Neon();
-  const branches = (await neonClient.branch.listProjectBranches(
-    projectId
-  )) as BranchesResponse;
-  const branch = branches.branches.find((branch) => branch.name === branchName);
-  if (!branch) {
-    throw new Error(
-      `Branch ${branchName} not found. All branches: ${JSON.stringify(
-        branches
-      )}`
-    );
-  }
+  const branch = await getBranch(projectId, branchId);
 
+  const neonClient = Neon();
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
     branch.id
