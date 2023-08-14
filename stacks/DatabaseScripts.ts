@@ -6,7 +6,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   const neonBranch = new NeonBranch(stack, "neonBranch", {
     isProd: stack.stage === "prod",
     projectName: app.name,
-    branchName: stack.stage,
+    branchName: stack.stage === "prod" ? "main" : stack.stage,
     roleName: app.name,
   });
 
