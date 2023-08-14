@@ -58,6 +58,7 @@ export function ResponseSources({
       }
       const { aiResponses: foundAiResponses } = await searchForAiResponses({
         query,
+        limit: 1,
         token: session,
       });
       const aiResponse = foundAiResponses[0];
@@ -83,7 +84,7 @@ export function ResponseSources({
       console.error(error);
     }
     setIsLoading(false);
-  }, [hasFetchedSources, aiResponseId, chatId]);
+  }, [hasFetchedSources, aiResponseId, chatId, session]);
 
   useEffect(() => {
     if (showSources) {

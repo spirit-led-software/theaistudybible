@@ -16,6 +16,7 @@ export default async function UpgradePage() {
 
   const { queryCounts } = await getUserQueryCounts(userInfo.id, {
     token,
+    limit: 1,
   });
 
   const dayQueries = queryCounts.find((qc) => {

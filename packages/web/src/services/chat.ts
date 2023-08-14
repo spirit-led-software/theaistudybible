@@ -1,5 +1,5 @@
 import { apiConfig } from "@configs";
-import { Chat } from "@core/model";
+import { Chat, CreateChatData, UpdateChatData } from "@core/model";
 import { GetEntitiesSearchParams } from "./helpers/search-params";
 import {
   PaginatedEntitiesOptions,
@@ -62,4 +62,79 @@ export async function getChat(id: string, options: ProtectedApiOptions) {
   const chat: Chat = await response.json();
 
   return chat;
+}
+
+export async function createChat(
+  data: Partial<CreateChatData>,
+  options: ProtectedApiOptions
+) {
+  const response = await fetch(`${apiConfig.url}/chats`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${options.token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    console.error(
+      `Error creating chat. Received response:`,
+      JSON.stringify(response)
+    );
+    const data = await response.json();
+    throw new Error(data.error || "Error creating chat.");
+  }
+
+  const chat: Chat = await response.json();
+
+  return chat;
+}
+
+export async function updateChat(
+  id: string,
+  data: Partial<UpdateChatData>,
+  options: ProtectedApiOptions
+) {
+  const response = await fetch(`${apiConfig.url}/chats/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${options.token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    console.error(
+      `Error updating chat. Received response:`,
+      JSON.stringify(response)
+    );
+    const data = await response.json();
+    throw new Error(data.error || "Error updating chat.");
+  }
+
+  const chat: Chat = await response.json();
+
+  return chat;
+}
+
+export async function deleteChat(id: string, options: ProtectedApiOptions) {
+  const response = await fetch(`${apiConfig.url}/chats/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${options.token}`,
+    },
+  });
+
+  if (!response.ok) {
+    console.error(
+      `Error deleting chat. Received response:`,
+      JSON.stringify(response)
+    );
+    const data = await response.json();
+    throw new Error(data.error || "Error deleting chat.");
+  }
+
+  return true;
 }

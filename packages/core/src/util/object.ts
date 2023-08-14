@@ -1,8 +1,8 @@
 export function getPropertyName<T extends object>(
-  o: T,
+  object: T,
   expression: (x: { [Property in keyof T]: string }) => string
 ) {
   const res = {} as { [Property in keyof T]: string };
-  Object.keys(o).map((k) => (res[k as keyof T] = k));
+  Object.keys(object).map((k) => (res[k as keyof T] = k));
   return expression(res);
 }

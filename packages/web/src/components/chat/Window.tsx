@@ -2,9 +2,10 @@
 
 import { LoadingDots } from "@components/loading";
 import { apiConfig } from "@configs";
-import { Chat, UpdateAiResponseData } from "@core/model";
+import { Chat } from "@core/model";
 import { useClientSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";
+import { updateAiResponse } from "@services/ai-response";
 import { nanoid } from "ai";
 import { Message as ChatMessage, useChat } from "ai/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -105,22 +106,15 @@ export function Window({
   const handleAiResponse = useCallback(
     async (chatMessage: ChatMessage, aiResponseId: string) => {
       try {
-        const response = await fetch(
-          `${apiConfig.url}/ai-responses/${aiResponseId}`,
+        await updateAiResponse(
+          aiResponseId,
           {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${session}`,
-            },
-            body: JSON.stringify({
-              aiId: chatMessage.id,
-            } satisfies UpdateAiResponseData),
+            aiId: chatMessage.id,
+          },
+          {
+            token: session,
           }
         );
-        if (!response.ok) {
-          setAlert("Something went wrong");
-        }
       } catch (err: any) {
         setAlert(`Something went wrong: ${err.message}`);
       } finally {

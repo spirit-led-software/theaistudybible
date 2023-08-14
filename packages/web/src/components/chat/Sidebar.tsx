@@ -1,9 +1,9 @@
 "use client";
 
-import { apiConfig } from "@configs";
 import { Chat } from "@core/model";
 import { useChats } from "@hooks/chat";
 import { useClientSession } from "@hooks/session";
+import { createChat, deleteChat } from "@services/chat";
 import Moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,39 +44,31 @@ export function Sidebar({
     }
   );
 
-  const createChat = useCallback(async () => {
-    const response = await fetch(`${apiConfig.url}/chats`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session}`,
-      },
-      body: JSON.stringify({
+  const handleCreate = useCallback(async () => {
+    const chat = await createChat(
+      {
         name: "New Chat",
-      }),
-    });
-    const chat = await response.json();
+      },
+      {
+        token: session,
+      }
+    );
     if (chats.length >= limit) {
       setLimit((prevLimit) => prevLimit + 1);
     }
     mutate([chat, ...chats]);
   }, [chats, limit, mutate, session, setLimit]);
 
-  const deleteChat = useCallback(
-    (id: string) => {
+  const handleDelete = useCallback(
+    async (id: string) => {
       if (confirm("Are you sure you want to delete this chat?")) {
-        fetch(`${apiConfig.url}/chats/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${session}`,
-          },
+        await deleteChat(id, {
+          token: session,
         });
-        setTimeout(() => {
-          mutate(chats!.filter((chat) => chat.id !== id));
-          if (activeChatId === id) {
-            router.push("/chat");
-          }
-        }, 1000);
+        await mutate(chats.filter((chat) => chat.id !== id));
+        if (activeChatId === id) {
+          router.push("/chat");
+        }
       }
     },
     [activeChatId, chats, mutate, router, session]
@@ -128,7 +120,7 @@ export function Sidebar({
             <div className="flex justify-center w-full">
               <button
                 className="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900"
-                onClick={() => createChat()}
+                onClick={() => handleCreate()}
               >
                 New chat
                 <BsPlus className="text-xl" />
@@ -157,7 +149,7 @@ export function Sidebar({
                 <div className="flex justify-center flex-1">
                   <AiOutlineDelete
                     className="text-lg cursor-pointer hover:text-red-500"
-                    onClick={() => deleteChat(chat.id)}
+                    onClick={() => handleDelete(chat.id)}
                   />
                 </div>
               </div>
