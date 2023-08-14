@@ -20,7 +20,12 @@ const catamaran = Catamaran({
 export const metadata: Metadata = {
   title: "revelationsAI",
   description: "Discover Jesus like never before",
-  viewport: "width=device-width, initial-scale=1",
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
+  themeColor: [
+    {
+      color: "#334155",
+    },
+  ],
   icons: [
     {
       rel: "icon",
