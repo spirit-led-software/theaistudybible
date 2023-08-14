@@ -1,6 +1,6 @@
 "use client";
 
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { useClientSession } from "@hooks/session";
 import { useEffect, useState } from "react";
 import { SolidLineSpinner } from "..";

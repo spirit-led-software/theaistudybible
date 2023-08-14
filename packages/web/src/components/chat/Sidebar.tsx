@@ -1,6 +1,6 @@
 "use client";
 
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { Chat } from "@core/model";
 import { useChats } from "@hooks/chat";
 import { useClientSession } from "@hooks/session";

@@ -1,4 +1,4 @@
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { UserQueryCount } from "@core/model";
 import { GetEntitiesSearchParams } from "@services/helpers/search-params";
 import {

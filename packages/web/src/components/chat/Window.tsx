@@ -1,7 +1,7 @@
 "use client";
 
 import { LoadingDots } from "@components/loading";
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { Chat, UpdateAiResponseData } from "@core/model";
 import { useClientSession } from "@hooks/session";
 import useWindowDimensions from "@hooks/window";

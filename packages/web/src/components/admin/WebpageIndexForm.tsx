@@ -1,6 +1,6 @@
 "use client";
 
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { useIndexOps } from "@hooks/index-ops";
 import { useClientSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";

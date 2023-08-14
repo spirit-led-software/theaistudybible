@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@components/ui/button";
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { Devotion, SourceDocument } from "@core/model";
 import { DevotionImage } from "@core/model/devotion";
 import { devotionReactions } from "@core/schema";

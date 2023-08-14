@@ -1,4 +1,4 @@
-import { authConfig } from "@core/configs/index";
+import { authConfig } from "@core/configs";
 import { CreateUserData, UpdateUserData, User } from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";

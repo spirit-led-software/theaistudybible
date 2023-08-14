@@ -1,4 +1,4 @@
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { BadRequestResponse, OkResponse } from "@lib/api-responses";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
