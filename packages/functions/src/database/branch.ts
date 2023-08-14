@@ -202,8 +202,8 @@ export async function updateBranch(
       await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
         endpoint: {
           provisioner: isProd ? "k8s-neonvm" : "k8s-pod",
-          autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
-          autoscaling_limit_max_cu: isProd ? 7 : 0.25,
+          autoscaling_limit_min_cu: isProd ? 0.5 : 0.5,
+          autoscaling_limit_max_cu: isProd ? 7 : 0.5,
         },
       });
     } else if (endpoint.type === "read_only") {

@@ -14,12 +14,15 @@ export const STATIC_ENV_VARS: Record<string, string> = {
 
   // Neon Database
   NEON_API_KEY: process.env.NEON_API_KEY!,
+
   // Vector DB Table
   VECTOR_DB_DOCS_TABLE: process.env.VECTOR_DB_DOCS_TABLE!,
   VECTOR_DB_DOCS_DIMENSIONS: process.env.VECTOR_DB_DOCS_DIMENSIONS!,
 
+  // OpenAI
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
+
   // LLM
-  LLM_API_KEY: process.env.LLM_API_KEY!,
   LLM_PROMPT_MODEL_NAME: process.env.LLM_PROMPT_MODEL_NAME!,
   LLM_COMPLETIONS_MODEL_NAME: process.env.LLM_COMPLETIONS_MODEL_NAME!,
   LLM_EMBEDDINGS_MODEL_NAME: process.env.LLM_EMBEDDINGS_MODEL_NAME!,
