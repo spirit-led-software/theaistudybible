@@ -54,6 +54,12 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     );
 
     const project = await getProjectByName(projectName);
+    if (!project) {
+      response.Status = "FAILED";
+      response.Reason = `Project ${projectName} not found`;
+      return response;
+    }
+
     switch (event.RequestType) {
       case "Delete": {
         if (!isProd) {
@@ -78,7 +84,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
         const connectionUrls = await getAllNeonConnectionUrls(
           project.id,
           branch.id,
-          project.id
+          roleName
         );
         const urls = getDatabasesFromConnectionUrls(connectionUrls);
 
@@ -110,13 +116,6 @@ export async function getProjectByName(projectName: string) {
   const project = listProjectsResponse.projects.find(
     (project) => project.name === projectName
   );
-  if (!project) {
-    throw new Error(
-      `Project ${projectName} not found. All projects: ${JSON.stringify(
-        listProjectsResponse
-      )}`
-    );
-  }
   return project;
 }
 
@@ -180,12 +179,10 @@ export async function updateBranch(
   branchId: string,
   isProd: boolean
 ) {
-  const branch = await getBranch(projectId, branchId);
-
   const neonClient = Neon();
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
-    branch.id
+    branchId
   )) as EndpointsResponse;
   const endpoints = endpointsResponse.endpoints;
 
@@ -214,8 +211,7 @@ export async function updateBranch(
       throw new Error(`Unknown endpoint type ${endpoint.type}`);
     }
   }
-
-  return branch;
+  return await getBranch(projectId, branchId);
 }
 
 export async function deleteBranch(projectId: string, branchId: string) {
@@ -239,18 +235,16 @@ export async function getAllNeonConnectionUrls(
   branchId: string,
   roleName: string
 ): Promise<NeonConnectionUrl[]> {
-  const branch = await getBranch(projectId, branchId);
-
   const neonClient = Neon();
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
-    branch.id
+    branchId
   )) as EndpointsResponse;
   const endpoints = endpointsResponse.endpoints;
 
   const rolesResponse = (await neonClient.branch.listProjectBranchRoles(
     projectId,
-    branch.id
+    branchId
   )) as RolesResponse;
   const role = rolesResponse.roles.find((role) => role.name === roleName);
   if (!role) {
@@ -266,7 +260,7 @@ export async function getAllNeonConnectionUrls(
     const rolePasswordResponse =
       (await neonClient.branch.getProjectBranchRolePassword(
         projectId,
-        branch.id,
+        branchId,
         role.name
       )) as RolePasswordResponse;
     rolePassword = rolePasswordResponse.password;
@@ -284,7 +278,7 @@ export async function getAllNeonConnectionUrls(
 
   const databasesResponse = (await neonClient.branch.listProjectBranchDatabases(
     projectId,
-    branch.id
+    branchId
   )) as DatabasesResponse;
   const databases = databasesResponse.databases;
 
