@@ -1,12 +1,15 @@
 import { PricingCard } from "@components/PricingCard";
 import { Button } from "@components/ui/button";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
 import { validSession } from "@services/session";
 import { getUserQueryCounts } from "@services/user/query-count";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function UpgradePage() {
-  const { isValid, userInfo, token } = await validSession();
+  const { isValid, userInfo, token } = await validSession(
+    getSessionTokenFromCookies()
+  );
   if (!isValid) {
     return redirect("/login");
   }

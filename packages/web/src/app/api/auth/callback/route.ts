@@ -5,19 +5,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
-  const sessionToken = searchParams.get("token");
+  const token = searchParams.get("token");
 
-  if (!sessionToken) {
+  if (!token) {
     return NextResponse.redirect(
       `${websiteConfig.url}/login?error=No token provided in callback!`
     );
   }
 
-  cookies().set("session", sessionToken, {
+  cookies().set("session", token, {
     secure: true,
   });
 
-  const { isValid } = await validSession();
+  const { isValid } = await validSession(token);
   if (!isValid) {
     return NextResponse.redirect(
       `${websiteConfig.url}/login?error=Invalid Token!`
