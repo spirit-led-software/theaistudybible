@@ -87,6 +87,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
           projectId: project.id,
           ...urls,
         };
+        break;
       }
     }
     console.log("Response from custom resource:", response);

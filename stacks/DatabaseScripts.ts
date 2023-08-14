@@ -4,10 +4,10 @@ import { NeonBranch } from "./resources/NeonBranch";
 
 export function DatabaseScripts({ stack, app }: StackContext) {
   const neonBranch = new NeonBranch(stack, "neonBranch", {
-    isProd: stack.stage === "prod",
     projectName: app.name,
     branchName: stack.stage === "prod" ? "main" : stack.stage,
     roleName: app.name,
+    isProd: stack.stage === "prod",
   });
 
   const dbScriptEnv = {
