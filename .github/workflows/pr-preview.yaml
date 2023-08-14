@@ -45,6 +45,7 @@ env:
 
 jobs:
   deploy:
+    name: Deploy Preview
     runs-on: ubuntu-latest
     steps:
       - id: checkout
@@ -75,25 +76,25 @@ jobs:
           echo "website_url=$website_url" >> $GITHUB_OUTPUT
       - id: pr_comment
         name: Add comment to PR
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: comments } = await github.issues.listComments({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
             const comment = comments.find((comment) => comment.body.includes('Preview URL:'));
             if (comment) {
-              await github.issues.updateComment({
+              await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: comment.id,
                 body: `Preview URL: ${{ steps.extract_website_url.outputs.website_url }}`,
               });
             } else {
-              await github.issues.createComment({
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,

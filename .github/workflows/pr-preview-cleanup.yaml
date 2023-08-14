@@ -45,7 +45,8 @@ env:
   STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
 jobs:
-  deploy:
+  cleanup:
+    name: Cleanup Preview
     runs-on: ubuntu-latest
     steps:
       - id: checkout
@@ -60,6 +61,6 @@ jobs:
       - id: install_node_deps
         name: Install Node.js dependencies
         run: npm ci
-      - id: sst_deploy
-        name: Deploy to AWS
+      - id: sst_remove
+        name: Remove SST deployment
         run: npx sst remove --stage pr-${{ github.event.pull_request.number }}

@@ -45,6 +45,7 @@ env:
 
 jobs:
   deploy:
+    name: Deploy Prod
     runs-on: ubuntu-latest
     steps:
       - id: checkout
