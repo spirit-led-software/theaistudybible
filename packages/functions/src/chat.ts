@@ -1,30 +1,26 @@
+import { Chat, SourceDocument, UserMessage } from "@core/model";
+import { aiResponsesToSourceDocuments } from "@core/schema";
+import { readWriteDatabase } from "@lib/database";
+import middy from "@middy/core";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,
   updateAiResponse,
-} from "@core/services/ai-response";
-import { createChat, getChat, updateChat } from "@core/services/chat";
-import { getChatModel, getPromptModel } from "@core/services/llm";
-import { validSessionToken } from "@core/services/session";
-import { isAdmin, isObjectOwner } from "@core/services/user";
+} from "@services/ai-response";
+import { createChat, getChat, updateChat } from "@services/chat";
+import { getChatModel, getPromptModel } from "@services/llm";
+import { validSessionToken } from "@services/session";
+import { isAdmin, isObjectOwner } from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
-} from "@core/services/user-message";
+} from "@services/user/message";
 import {
-  createUserDailyQueryCount,
-  getUserDailyQueryCountByUserIdAndDate,
-  updateUserDailyQueryCount,
-} from "@core/services/user/daily-query-count";
-import { getDocumentVectorStore } from "@core/services/vector-db";
-import middy from "@middy/core";
-import { readWriteDatabase } from "@revelationsai/core/database";
-import {
-  Chat,
-  SourceDocument,
-  UserMessage,
-} from "@revelationsai/core/database/model";
-import { aiResponsesToSourceDocuments } from "@revelationsai/core/database/schema";
+  createUserQueryCount,
+  getUserQueryCountByUserIdAndDate,
+  updateUserQueryCount,
+} from "@services/user/query-count";
+import { getDocumentVectorStore } from "@services/vector-db";
 import { LangChainStream, Message } from "ai";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
@@ -101,13 +97,13 @@ export const handler = middy({ streamifyResponse: true }).handler(
         };
       }
 
-      const userDailyQueryCount = await getUserDailyQueryCountByUserIdAndDate(
+      const userDailyQueryCount = await getUserQueryCountByUserIdAndDate(
         userInfo.id,
         new Date()
       );
 
       if (!userDailyQueryCount) {
-        await createUserDailyQueryCount({
+        await createUserQueryCount({
           userId: userInfo.id,
           count: 1,
         });
@@ -130,7 +126,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           ]),
         };
       } else {
-        await updateUserDailyQueryCount(userDailyQueryCount.id, {
+        await updateUserQueryCount(userDailyQueryCount.id, {
           count: userDailyQueryCount.count + 1,
         });
       }
@@ -220,7 +216,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
 
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
-        vectorStore.asRetriever(10),
+        vectorStore.asRetriever(3),
         {
           returnSourceDocuments: true,
           memory: new BufferMemory({

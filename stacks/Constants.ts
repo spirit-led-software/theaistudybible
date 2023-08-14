@@ -7,7 +7,7 @@ export function Constants({ stack, app }: StackContext) {
     domainName: "revelationsai.com",
   });
 
-  const domainName = `${stack.stage !== "prod" ? `${stack.stage}.` : ""}${
+  const domainName = `${stack.stage !== "prod" ? `${stack.stage}.test.` : ""}${
     hostedZone.zoneName
   }`;
 
@@ -20,6 +20,7 @@ export function Constants({ stack, app }: StackContext) {
       : `https://${domainName}`;
 
   app.setDefaultFunctionProps({
+    logRetention: stack.stage === "prod" ? "one_year" : "one_day",
     environment: {
       WEBSITE_URL: websiteUrl,
       ...STATIC_ENV_VARS,

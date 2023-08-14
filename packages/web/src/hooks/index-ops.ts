@@ -1,33 +1,16 @@
-import { apiConfig } from "@configs/index";
-import { IndexOperation } from "@revelationsai/core/database/model";
+import { IndexOperation } from "@core/model";
+import { getIndexOperations } from "@services/index-op";
+import { PaginatedEntitiesOptions } from "@services/types";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
-import { useSession } from "./session";
-import {
-  ProtectedApiHookParams,
-  entitiesFetcher,
-  setOrderSearchParams,
-  setPaginationSearchParams,
-} from "./shared";
-
-const indexOpsFetcher = async ({
-  url,
-  token,
-}: ProtectedApiHookParams): Promise<IndexOperation[]> => {
-  return entitiesFetcher(url, token);
-};
+import { useClientSession } from "./session";
 
 export const useIndexOps = (
   initIndexOps?: IndexOperation[],
-  options?: {
-    limit?: number;
-    page?: number;
-    orderBy?: string;
-    order?: string;
-  },
+  options?: PaginatedEntitiesOptions,
   swrOptions?: SWRConfiguration
 ) => {
-  const { session } = useSession();
+  const session = useClientSession();
   const [indexOps, setIndexOps] = useState<IndexOperation[]>(
     initIndexOps ?? []
   );
@@ -35,22 +18,22 @@ export const useIndexOps = (
   const [page, setPage] = useState<number>(options?.page ?? 1);
   const { orderBy = "createdAt", order = "desc" } = options ?? {};
 
-  let searchParams = new URLSearchParams();
-  searchParams = setPaginationSearchParams(searchParams, {
-    limit: limit,
-    page: page,
-  });
-  searchParams = setOrderSearchParams(searchParams, {
-    orderBy: orderBy,
-    order: order,
-  });
-
   const { data, error, mutate, isLoading, isValidating } = useSWR(
     {
-      url: `${apiConfig.url}/index-operations?${searchParams.toString()}`,
-      token: session,
+      session,
+      limit,
+      page,
+      orderBy,
+      order,
     },
-    indexOpsFetcher,
+    ({ session, limit, page, orderBy, order }) =>
+      getIndexOperations({
+        token: session!,
+        limit,
+        page,
+        orderBy,
+        order,
+      }).then(({ indexOperations }) => indexOperations),
     swrOptions
   );
 

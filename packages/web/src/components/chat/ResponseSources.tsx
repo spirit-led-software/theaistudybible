@@ -1,10 +1,15 @@
 "use client";
 
 import { SolidLineSpinner } from "@components/loading";
-import { apiConfig } from "@configs/index";
-import { useSession } from "@hooks/session";
+import { SourceDocument } from "@core/model";
+import { aiResponses } from "@core/schema";
+import { useClientSession } from "@hooks/session";
 import { Query } from "@revelationsai/core/database/helpers";
-import { SourceDocument } from "@revelationsai/core/database/model";
+import { getPropertyName } from "@revelationsai/core/util/object";
+import {
+  getAiResponseSourceDocuments,
+  searchForAiResponses,
+} from "@services/ai-response";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { IoIosArrowForward } from "react-icons/io";
@@ -16,7 +21,7 @@ export function ResponseSources({
   aiResponseId: string;
   chatId: string;
 }) {
-  const { session } = useSession();
+  const session = useClientSession();
   const [showSources, setShowSources] = useState(false);
   const [sources, setSources] = useState<SourceDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +37,10 @@ export function ResponseSources({
       if (aiResponseId) {
         query.AND!.push({
           eq: {
-            column: "aiId",
+            column: getPropertyName(
+              aiResponses,
+              (aiResponses) => aiResponses.aiId
+            ),
             value: aiResponseId,
           },
         });
@@ -40,39 +48,27 @@ export function ResponseSources({
       if (chatId) {
         query.AND!.push({
           eq: {
-            column: "chatId",
+            column: getPropertyName(
+              aiResponses,
+              (aiResponses) => aiResponses.chatId
+            ),
             value: chatId,
           },
         });
       }
-      const fetchAiResponsesResponse = await fetch(
-        `${apiConfig.url}/ai-responses/search`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session}`,
-          },
-          body: JSON.stringify({
-            query,
-          } satisfies {
-            query: Query;
-          }),
-        }
-      );
-      const { entities: aiResponses } = await fetchAiResponsesResponse.json();
-      const aiResponse = aiResponses[0];
+      const { aiResponses: foundAiResponses } = await searchForAiResponses({
+        query,
+        limit: 1,
+        token: session,
+      });
+      const aiResponse = foundAiResponses[0];
 
-      const response = await fetch(
-        `${apiConfig.url}/ai-responses/${aiResponse.id}/source-documents`,
+      const foundSourceDocuments = await getAiResponseSourceDocuments(
+        aiResponse.id,
         {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${session}`,
-          },
+          token: session,
         }
       );
-      const foundSourceDocuments: SourceDocument[] = await response.json();
       setSources(
         foundSourceDocuments.filter((sourceDoc, index) => {
           const firstIndex = foundSourceDocuments.findIndex(
@@ -88,7 +84,7 @@ export function ResponseSources({
       console.error(error);
     }
     setIsLoading(false);
-  }, [hasFetchedSources, aiResponseId, chatId]);
+  }, [hasFetchedSources, aiResponseId, chatId, session]);
 
   useEffect(() => {
     if (showSources) {
@@ -97,7 +93,7 @@ export function ResponseSources({
   }, [showSources, getSources]);
 
   return (
-    <div className="flex flex-col w-full overflow-x-hidden grow-0">
+    <div className="flex flex-col w-full overflow-hidden grow-0">
       <div
         className="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer"
         onClick={() => {

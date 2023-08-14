@@ -1,7 +1,7 @@
-import { getDevotions } from "@core/services/devotion";
+import { devotions } from "@core/schema";
 import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
-import { devotions } from "@revelationsai/core/database/schema";
+import { getDevotions } from "@services/devotion";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {

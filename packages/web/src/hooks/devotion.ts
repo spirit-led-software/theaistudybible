@@ -1,25 +1,12 @@
-import { apiConfig } from "@configs/index";
-import { Devotion } from "@revelationsai/core/database/model";
+import { Devotion } from "@core/model";
+import { getDevotions } from "@services/devotion";
+import { PaginatedEntitiesOptions } from "@services/types";
 import { useEffect, useState } from "react";
 import useSWR, { SWRConfiguration } from "swr";
-import {
-  entitiesFetcher,
-  setOrderSearchParams,
-  setPaginationSearchParams,
-} from "./shared";
-
-const devosFetcher = async (url: string): Promise<Devotion[]> => {
-  return entitiesFetcher(url);
-};
 
 export const useDevotions = (
   initDevos?: Devotion[],
-  options?: {
-    limit?: number;
-    page?: number;
-    orderBy?: string;
-    order?: string;
-  },
+  options?: PaginatedEntitiesOptions,
   swrOptions?: SWRConfiguration
 ) => {
   const [devos, setDevos] = useState<Devotion[]>(initDevos ?? []);
@@ -27,19 +14,20 @@ export const useDevotions = (
   const [page, setPage] = useState<number>(options?.page ?? 1);
   const { orderBy = "createdAt", order = "desc" } = options ?? {};
 
-  let searchParams = new URLSearchParams();
-  searchParams = setPaginationSearchParams(searchParams, {
-    limit: limit,
-    page: page,
-  });
-  searchParams = setOrderSearchParams(searchParams, {
-    orderBy: orderBy,
-    order: order,
-  });
-
   const { data, error, isLoading, mutate, isValidating } = useSWR(
-    `${apiConfig.url}/devotions?${searchParams.toString()}`,
-    devosFetcher,
+    {
+      limit,
+      page,
+      orderBy,
+      order,
+    },
+    ({ limit, page, orderBy, order }) =>
+      getDevotions({
+        limit,
+        page,
+        orderBy,
+        order,
+      }).then(({ devotions }) => devotions),
     swrOptions
   );
 

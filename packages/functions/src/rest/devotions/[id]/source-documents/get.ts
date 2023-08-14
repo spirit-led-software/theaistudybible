@@ -1,7 +1,4 @@
-import {
-  getDevotion,
-  getDevotionRelatedSourceDocuments,
-} from "@core/services/devotion";
+import { getDevotion, getDevotionSourceDocuments } from "@services/devotion";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
@@ -15,12 +12,10 @@ export const handler = ApiHandler(async (event) => {
   try {
     const devotion = await getDevotion(id);
     if (!devotion) {
-      return ObjectNotFoundResponse(
-        `Could not find AI response with ID ${id}.`
-      );
+      return ObjectNotFoundResponse(id);
     }
 
-    const sourceDocuments = await getDevotionRelatedSourceDocuments(devotion);
+    const sourceDocuments = await getDevotionSourceDocuments(devotion);
 
     return OkResponse(sourceDocuments);
   } catch (error: any) {

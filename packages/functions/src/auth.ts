@@ -1,8 +1,8 @@
 import { emailConfig, websiteConfig } from "@core/configs";
 import { emailTransport } from "@core/configs/email";
-import { createUser, getUserByEmail, updateUser } from "@core/services/user";
+import { User } from "@core/model";
 import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
-import { User } from "@revelationsai/core/database/model";
+import { createUser, getUserByEmail, updateUser } from "@services/user";
 import { TokenSet } from "openid-client";
 import {
   AuthHandler,

@@ -5,4 +5,4 @@ export * from "./index-op";
 export * from "./role";
 export * from "./source-doc";
 export * from "./user";
-export * from "./user-message";
+export * from "./user/message";

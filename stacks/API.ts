@@ -20,6 +20,12 @@ export function API({ stack }: StackContext) {
   const { hostedZone, domainName, websiteUrl } = use(Constants);
   const { auth } = use(Auth);
   const { devotionImageBucket } = use(S3);
+  const {
+    dbReadOnlyUrl,
+    dbReadWriteUrl,
+    vectorDbReadOnlyUrl,
+    vectorDbReadWriteUrl,
+  } = use(DatabaseScripts);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
@@ -27,6 +33,10 @@ export function API({ stack }: StackContext) {
   const lambdaEnv: Record<string, string> = {
     WEBSITE_URL: websiteUrl,
     API_URL: apiUrl,
+    DATABASE_READWRITE_URL: dbReadWriteUrl,
+    DATABASE_READONLY_URL: dbReadOnlyUrl,
+    VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+    VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
     ...STATIC_ENV_VARS,
   };
 
@@ -74,7 +84,7 @@ export function API({ stack }: StackContext) {
         },
       },
       "GET /session": "packages/functions/src/session.handler",
-      "POST /stripe/webhook": "packages/functions/src/webhook/stripe.handler",
+      "POST /stripe/webhook": "packages/functions/src/webhooks/stripe.handler",
 
       // REST API
       // AI Responses
@@ -131,10 +141,14 @@ export function API({ stack }: StackContext) {
       // Devotion Reactions
       "GET /devotions/{id}/reactions":
         "packages/functions/src/rest/devotions/[id]/reactions/get.handler",
-      "GET /devotions/{id}/reactions/count":
-        "packages/functions/src/rest/devotions/[id]/reactions/count/get.handler",
       "POST /devotions/{id}/reactions":
         "packages/functions/src/rest/devotions/[id]/reactions/post.handler",
+      "GET /devotions/{id}/reactions/counts":
+        "packages/functions/src/rest/devotions/[id]/reactions/counts/get.handler",
+
+      // Devotion Images
+      "GET /devotions/{id}/images":
+        "packages/functions/src/rest/devotions/[id]/images/get.handler",
 
       // Index Operations
       "GET /index-operations":
@@ -151,12 +165,32 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/user-messages/get.handler",
       "POST /user-messages":
         "packages/functions/src/rest/user-messages/post.handler",
+      "POST /user-messages/search":
+        "packages/functions/src/rest/user-messages/search/post.handler",
       "GET /user-messages/{id}":
         "packages/functions/src/rest/user-messages/[id]/get.handler",
       "PUT /user-messages/{id}":
         "packages/functions/src/rest/user-messages/[id]/put.handler",
       "DELETE /user-messages/{id}":
         "packages/functions/src/rest/user-messages/[id]/delete.handler",
+
+      // Users
+      "GET /users": "packages/functions/src/rest/users/get.handler",
+      "GET /users/{id}": "packages/functions/src/rest/users/[id]/get.handler",
+      "PUT /users/{id}": "packages/functions/src/rest/users/[id]/put.handler",
+      "DELETE /users/{id}":
+        "packages/functions/src/rest/users/[id]/delete.handler",
+
+      // Current user
+      "GET /users/me": "packages/functions/src/rest/users/me/get.handler",
+      "PUT /users/me": "packages/functions/src/rest/users/me/put.handler",
+      "DELETE /users/me": "packages/functions/src/rest/users/me/delete.handler",
+
+      // User query counts
+      "GET /users/{id}/query-counts":
+        "packages/functions/src/rest/users/[id]/query-counts/get.handler",
+      "GET /users/me/query-counts":
+        "packages/functions/src/rest/users/me/query-counts/get.handler",
     },
     defaults: {
       function: {

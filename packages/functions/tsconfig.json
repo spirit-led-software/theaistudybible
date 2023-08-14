@@ -3,15 +3,19 @@
   "compilerOptions": {
     "typeRoots": ["./src/types", "../core/src/types"],
     "lib": ["dom", "dom.iterable", "ES2021"],
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "paths": {
-      "@lib/*": ["./src/lib/*"],
-      "@lib": ["./src/lib"],
-      "@core/configs/*": ["../core/src/configs/*"],
       "@core/configs": ["../core/src/configs"],
-      "@core/services/*": ["../core/src/services/*"],
-      "@core/services": ["../core/src/services"],
-      "@revelationsai/core/*": ["../core/src/*"]
+      "@core/configs/*": ["../core/src/configs/*"],
+      "@core/model": ["../core/src/database/model"],
+      "@core/model/*": ["../core/src/database/model/*"],
+      "@core/schema": ["../core/src/database/schema"],
+      "@core/schema/*": ["../core/src/database/schema/*"],
+      "@revelationsai/core/*": ["../core/src/*"],
+      "@lib": ["./src/lib"],
+      "@lib/*": ["./src/lib/*"],
+      "@services": ["./src/services"],
+      "@services/*": ["./src/services/*"]
     }
   },
   "include": ["**/*.ts"],

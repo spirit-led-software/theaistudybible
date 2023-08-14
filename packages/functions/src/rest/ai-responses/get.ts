@@ -1,12 +1,12 @@
-import { getAiResponses } from "@core/services/ai-response";
-import { validApiSession } from "@core/services/session";
+import { aiResponses as aiResponsesTable } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { buildOrderBy } from "@revelationsai/core/database/helpers";
-import { aiResponses as aiResponsesTable } from "@revelationsai/core/database/schema";
+import { getAiResponses } from "@services/ai-response";
+import { validApiHandlerSession } from "@services/session";
 import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
@@ -18,7 +18,7 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }

@@ -1,4 +1,6 @@
-import { getUser } from "@core/services/user";
+import { UserWithRoles } from "@core/model";
+import { NotFoundResponse, OkResponse } from "@lib/api-responses";
+import { getUser, getUserRoles } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 import { useSession } from "sst/node/auth";
 
@@ -14,14 +16,15 @@ export const handler = ApiHandler(async () => {
 
   const user = await getUser(session.properties.id);
   if (!user) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ message: "User not found" }),
-    };
+    return NotFoundResponse("User not found");
   }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(user),
+  const roles = await getUserRoles(user.id);
+
+  const userWithRoles: UserWithRoles = {
+    ...user,
+    roles,
   };
+
+  return OkResponse(userWithRoles);
 });

@@ -1,12 +1,12 @@
 "use client";
 
-import { apiConfig } from "@configs/index";
-import { useSession } from "@hooks/session";
+import { apiConfig } from "@configs";
+import { useClientSession } from "@hooks/session";
 import { useEffect, useState } from "react";
 import { SolidLineSpinner } from "..";
 
 export function CreateDevoForm() {
-  const { session } = useSession();
+  const session = useClientSession();
   const [alert, setAlert] = useState<{
     message: string;
     type: "error" | "success";

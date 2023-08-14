@@ -3,7 +3,7 @@ interface WebsiteConfig {
 }
 
 export const config: WebsiteConfig = {
-  url: process.env.WEBSITE_URL as string,
+  url: process.env.WEBSITE_URL!,
 };
 
 export default config;

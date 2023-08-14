@@ -1,24 +1,37 @@
 import { PricingCard } from "@components/PricingCard";
 import { Button } from "@components/ui/button";
-import { getUserDailyQueryCountByUserIdAndDate } from "@core/services/user";
-import { validServerSession } from "@services/user";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
+import { validSession } from "@services/session";
+import { getUserQueryCounts } from "@services/user/query-count";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function UpgradePage() {
-  const { isValid, userInfo: user } = await validServerSession();
+  const { isValid, userInfo, token } = await validSession(
+    getSessionTokenFromCookies()
+  );
   if (!isValid) {
     return redirect("/login");
   }
 
-  const dayQueries = await getUserDailyQueryCountByUserIdAndDate(
-    user.id,
-    new Date()
-  );
+  const { queryCounts } = await getUserQueryCounts(userInfo.id, {
+    token,
+    limit: 1,
+  });
 
-  let remainingQueries: number = user.maxDailyQueryCount;
+  const dayQueries = queryCounts.find((qc) => {
+    const today = new Date();
+    const qcDate = new Date(qc.date);
+    return (
+      qcDate.getFullYear() === today.getFullYear() &&
+      qcDate.getMonth() === today.getMonth() &&
+      qcDate.getDate() === today.getDate()
+    );
+  });
+
+  let remainingQueries: number = userInfo.maxQueryCount;
   if (dayQueries) {
-    remainingQueries = user.maxDailyQueryCount - dayQueries.count;
+    remainingQueries = userInfo.maxQueryCount - dayQueries.count;
   }
 
   return (
@@ -37,7 +50,7 @@ export default async function UpgradePage() {
           >
             {remainingQueries}
           </span>{" "}
-          of {user.maxDailyQueryCount}
+          of {userInfo.maxQueryCount}
         </h2>
         <Link
           href={"https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288"}
@@ -53,41 +66,41 @@ export default async function UpgradePage() {
           title="Late to Sunday Service"
           price="Free"
           features={["25 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 25}
+          currentLevel={userInfo.maxQueryCount >= 25}
         />
         <PricingCard
           title="Serve Staff"
           price="$5/month"
           features={["50 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 50}
+          currentLevel={userInfo.maxQueryCount >= 50}
           purchaseLink="https://checkout.revelationsai.com/b/4gwcNg8Ev5aB5G0144"
         />
         <PricingCard
           title="Youth Pastor"
           price="$10/month"
           features={["100 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 100}
+          currentLevel={userInfo.maxQueryCount >= 100}
           purchaseLink="https://checkout.revelationsai.com/b/6oEdRk4of46x7O86op"
         />
         <PricingCard
           title="Worship Leader"
           price="$25/month"
           features={["250 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 250}
+          currentLevel={userInfo.maxQueryCount >= 250}
           purchaseLink="https://checkout.revelationsai.com/b/fZe9B46wn46x9Wg5km"
         />
         <PricingCard
           title="Lead Pastor"
           price="$50/month"
           features={["500 Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount >= 500}
+          currentLevel={userInfo.maxQueryCount >= 500}
           purchaseLink="https://checkout.revelationsai.com/b/4gw4gKg6X1Yp4BWbIL"
         />
         <PricingCard
           title="Church Plant"
           price="$100/month"
           features={["Unlimited Daily Queries"]}
-          currentLevel={user.maxDailyQueryCount === Infinity}
+          currentLevel={userInfo.maxQueryCount === Infinity}
           purchaseLink="https://checkout.revelationsai.com/b/fZebJc2g7dH79WgbIM"
         />
       </div>

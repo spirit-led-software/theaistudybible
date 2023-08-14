@@ -12,21 +12,19 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
 
-  // Database (Neon)
-  DATABASE_URL: process.env.DATABASE_URL!,
-  DATABASE_READ_URL: process.env.DATABASE_READ_URL!,
-  DATABASE_WRITE_URL: process.env.DATABASE_WRITE_URL!,
+  // Neon Database
+  NEON_API_KEY: process.env.NEON_API_KEY!,
 
-  // Vector DB
-  VECTOR_DB_URL: process.env.VECTOR_DB_URL!,
-  VECTOR_DB_READ_URL: process.env.VECTOR_DB_READ_URL!,
-  VECTOR_DB_WRITE_URL: process.env.VECTOR_DB_WRITE_URL!,
+  // Vector DB Table
   VECTOR_DB_DOCS_TABLE: process.env.VECTOR_DB_DOCS_TABLE!,
   VECTOR_DB_DOCS_DIMENSIONS: process.env.VECTOR_DB_DOCS_DIMENSIONS!,
 
+  // OpenAI
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
+
   // LLM
-  LLM_API_KEY: process.env.LLM_API_KEY!,
   LLM_PROMPT_MODEL_NAME: process.env.LLM_PROMPT_MODEL_NAME!,
+  LLM_CHAT_MODEL_NAME: process.env.LLM_CHAT_MODEL_NAME!,
   LLM_COMPLETIONS_MODEL_NAME: process.env.LLM_COMPLETIONS_MODEL_NAME!,
   LLM_EMBEDDINGS_MODEL_NAME: process.env.LLM_EMBEDDINGS_MODEL_NAME!,
   LLM_TEMPERATURE: process.env.LLM_TEMPERATURE!,

@@ -50,6 +50,13 @@
       "when": 1691596222568,
       "tag": "0006_steady_eternity",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1691961957069,
+      "tag": "0007_small_thunderball",
+      "breakpoints": true
     }
   ]
 }

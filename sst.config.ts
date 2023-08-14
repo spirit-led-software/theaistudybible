@@ -17,7 +17,7 @@ export default {
       region: "us-east-1",
     };
   },
-  stacks(app) {
+  async stacks(app) {
     app
       .stack(Constants)
       .stack(DatabaseScripts)

@@ -1,7 +1,4 @@
-import {
-  generateDevotion,
-  getDevotionByDate,
-} from "@revelationsai/core/services/devotion";
+import { generateDevotion, getDevotionByDate } from "@services/devotion";
 import { Handler } from "aws-lambda";
 
 export const handler: Handler = async (event, _) => {

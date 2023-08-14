@@ -1,4 +1,4 @@
-import { addDocumentsToVectorStore } from "@core/services/vector-db";
+import { addDocumentsToVectorStore } from "@services/vector-db";
 import { TokenTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { apiConfig } from "@configs/index";
+import { apiConfig } from "@configs";
 import { useIndexOps } from "@hooks/index-ops";
-import { useSession } from "@hooks/session";
+import { useClientSession } from "@hooks/session";
 import { useEffect, useRef, useState } from "react";
 import { SolidLineSpinner } from "..";
 
@@ -14,7 +14,7 @@ export function WebpageIndexForm() {
     type: "error" | "success";
   } | null>(null);
   const { mutate } = useIndexOps();
-  const { session } = useSession();
+  const session = useClientSession();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

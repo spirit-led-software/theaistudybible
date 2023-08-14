@@ -1,16 +1,16 @@
-import { createChat } from "@core/services/chat";
-import { validApiSession } from "@core/services/session";
 import {
   CreatedResponse,
   InternalServerErrorResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { createChat } from "@services/chat";
+import { validApiHandlerSession } from "@services/session";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? "{}");
   try {
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }

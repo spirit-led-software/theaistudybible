@@ -1,12 +1,12 @@
-import { validApiSession } from "@core/services/session";
-import { isObjectOwner } from "@core/services/user";
-import { getUserMessage } from "@core/services/user-message";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { validApiHandlerSession } from "@services/session";
+import { isObjectOwner } from "@services/user";
+import { getUserMessage } from "@services/user/message";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -17,7 +17,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid || !isObjectOwner(userMessage, userInfo.id)) {
       return UnauthorizedResponse(
         "You are not authorized to view this message"

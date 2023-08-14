@@ -10,15 +10,15 @@
     "@sparticuz/chromium": "^114.0.0",
     "@types/aws-lambda": "^8.10.119",
     "@types/busboy": "^1.5.0",
-    "@types/node": "^20.4.9",
+    "@types/node": "^20.4.10",
     "@types/nodemailer": "^6.4.9",
-    "sst": "^2.23.15",
+    "sst": "^2.22.10",
     "vitest": "^0.33.0"
   },
   "dependencies": {
     "@middy/core": "^4.6.0",
     "@revelationsai/core": "^1.0.0",
-    "ai": "^2.1.32",
+    "ai": "^2.1.33",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.2.7",
@@ -26,6 +26,6 @@
     "mammoth": "^1.6.0",
     "pdf-parse": "^1.1.1",
     "puppeteer-core": "^20.9.0",
-    "stripe": "^12.17.0"
+    "stripe": "^12.18.0"
   }
 }

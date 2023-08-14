@@ -1,4 +1,4 @@
-import websiteConfig from "@configs/website";
+import config from "@configs/website";
 import { UnauthorizedResponse } from "@lib/api-responses";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -13,5 +13,5 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     maxAge: 0,
   });
 
-  return NextResponse.redirect(`${websiteConfig.url}`);
+  return NextResponse.redirect(`${config.url}`);
 }

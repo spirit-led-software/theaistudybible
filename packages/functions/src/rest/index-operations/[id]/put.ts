@@ -1,14 +1,14 @@
 import {
-  getIndexOperationOrThrow,
-  updateIndexOperation,
-} from "@core/services/index-op";
-import { validApiSession } from "@core/services/session";
-import { isAdmin } from "@core/services/user";
-import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import {
+  getIndexOperationOrThrow,
+  updateIndexOperation,
+} from "@services/index-op";
+import { validApiHandlerSession } from "@services/session";
+import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -16,7 +16,7 @@ export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? "{}");
 
   try {
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }

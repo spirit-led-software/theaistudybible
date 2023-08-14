@@ -1,10 +1,11 @@
 import { AskQuestionBar } from "@components/AskQuestionBar";
 import { Logo } from "@components/branding";
-import { validServerSession } from "@services/user";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
+import { validSession } from "@services/session";
 import Link from "next/link";
 
 export default async function HomePage() {
-  const { isValid } = await validServerSession();
+  const { isValid } = await validSession(getSessionTokenFromCookies());
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full">

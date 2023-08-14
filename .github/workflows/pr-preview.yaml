@@ -1,0 +1,105 @@
+name: PR Preview
+concurrency: pr-to-master
+on:
+  pull_request:
+    branches: [master]
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+
+  VECTOR_DB_DOCS_TABLE: ${{ vars.VECTOR_DB_DOCS_TABLE }}
+  VECTOR_DB_DOCS_DIMENSIONS: ${{ vars.VECTOR_DB_DOCS_DIMENSIONS }}
+
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  LLM_PROMPT_MODEL_NAME: ${{ vars.LLM_PROMPT_MODEL_NAME }}
+  LLM_CHAT_MODEL_NAME: ${{ vars.LLM_CHAT_MODEL_NAME }}
+  LLM_COMPLETIONS_MODEL_NAME: ${{ vars.LLM_COMPLETIONS_MODEL_NAME }}
+  LLM_EMBEDDINGS_MODEL_NAME: ${{ vars.LLM_EMBEDDINGS_MODEL_NAME }}
+  LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE }}
+
+  REPLICATE_API_KEY: ${{ secrets.REPLICATE_API_KEY }}
+  REPLICATE_IMAGE_MODEL: ${{ vars.REPLICATE_IMAGE_MODEL }}
+
+  UNSTRUCTURED_API_KEY: ${{ secrets.UNSTRUCTURED_API_KEY }}
+
+  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+  FACEBOOK_CLIENT_ID: ${{ vars.FACEBOOK_CLIENT_ID }}
+  FACEBOOK_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET }}
+
+  EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+  EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
+  EMAIL_SERVER_HOST: ${{ vars.EMAIL_SERVER_HOST }}
+  EMAIL_SERVER_PORT: ${{ vars.EMAIL_SERVER_PORT }}
+  EMAIL_SERVER_USERNAME: ${{ vars.EMAIL_SERVER_USERNAME }}
+  EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
+
+  ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+
+  STRIPE_PUBLIC_KEY: ${{ vars.STRIPE_PUBLIC_KEY }}
+  STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+  STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+jobs:
+  deploy:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - id: setup_node
+        name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+      - id: setup_jq
+        name: Setup jq
+        run: sudo apt-get install jq
+      - id: install_node_deps
+        name: Install Node.js dependencies
+        run: npm ci
+      - id: sst_deploy
+        name: Deploy to AWS
+        run: npx sst deploy --stage pr-${{ github.event.pull_request.number }}
+      - id: extract_website_url
+        name: Extract website URL
+        run: |
+          sst_output_file=.sst/outputs.json
+          sst_outputs=$(cat $sst_output_file)
+          echo -e "Outputs from SST in JSON:\n$sst_outputs"
+          website_url=$(jq -r '.["pr-${{ github.event.pull_request.number }}-revelationsai-Website"].WebsiteUrl' $sst_output_file)
+          echo "website_url=$website_url" >> $GITHUB_OUTPUT
+      - id: pr_comment
+        name: Add comment to PR
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const comment = comments.find((comment) => comment.body.includes('Preview URL:'));
+            if (comment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                body: `Preview URL: ${{ steps.extract_website_url.outputs.website_url }}`,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `Preview URL: ${{ steps.extract_website_url.outputs.website_url }}`,
+              });
+            }

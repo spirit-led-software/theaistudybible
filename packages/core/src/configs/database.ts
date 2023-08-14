@@ -5,13 +5,8 @@ export type DatabaseConfig = {
 
 export const config: DatabaseConfig = {
   readOnlyUrl:
-    process.env.DATABASE_READ_URL && process.env.DATABASE_READ_URL !== ""
-      ? process.env.DATABASE_READ_URL
-      : process.env.DATABASE_URL!,
-  readWriteUrl:
-    process.env.DATABASE_WRITE_URL && process.env.DATABASE_WRITE_URL !== ""
-      ? process.env.DATABASE_WRITE_URL!
-      : process.env.DATABASE_URL!,
+    process.env.DATABASE_READONLY_URL || process.env.DATABASE_READWRITE_URL!,
+  readWriteUrl: process.env.DATABASE_READWRITE_URL!,
 };
 
 export default config;

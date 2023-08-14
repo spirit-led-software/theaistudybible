@@ -1,8 +1,5 @@
-import {
-  getIndexOperation,
-  updateIndexOperation,
-} from "@core/services/index-op";
-import { IndexOperation } from "@revelationsai/core/database/model";
+import { IndexOperation } from "@core/model";
+import { getIndexOperation, updateIndexOperation } from "@services/index-op";
 import { SQSHandler } from "aws-lambda";
 import { generatePageContentEmbeddings } from "../lib/web-scraper";
 

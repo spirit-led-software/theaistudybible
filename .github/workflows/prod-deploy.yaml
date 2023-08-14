@@ -8,16 +8,15 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  DATABASE_READ_URL: ${{ secrets.DATABASE_READ_URL }}
-  DATABASE_WRITE_URL: ${{ secrets.DATABASE_WRITE_URL }}
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
 
-  VECTOR_DB_READ_URL: ${{ secrets.VECTOR_DB_READ_URL }}
-  VECTOR_DB_WRITE_URL: ${{ secrets.VECTOR_DB_WRITE_URL }}
   VECTOR_DB_DOCS_TABLE: ${{ vars.VECTOR_DB_DOCS_TABLE }}
   VECTOR_DB_DOCS_DIMENSIONS: ${{ vars.VECTOR_DB_DOCS_DIMENSIONS }}
 
-  LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
   LLM_PROMPT_MODEL_NAME: ${{ vars.LLM_PROMPT_MODEL_NAME }}
+  LLM_CHAT_MODEL_NAME: ${{ vars.LLM_CHAT_MODEL_NAME }}
   LLM_COMPLETIONS_MODEL_NAME: ${{ vars.LLM_COMPLETIONS_MODEL_NAME }}
   LLM_EMBEDDINGS_MODEL_NAME: ${{ vars.LLM_EMBEDDINGS_MODEL_NAME }}
   LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE }}
@@ -48,16 +47,21 @@ env:
 
 jobs:
   deploy:
+    name: Deploy Prod
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - id: checkout
+        name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Node.js
+      - id: setup_node
+        name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
           cache: 'npm'
-      - name: Install Node.js dependencies
+      - id: install_node_deps
+        name: Install Node.js dependencies
         run: npm ci
-      - name: Deploy to AWS
-        run: npm run deploy prod
+      - id: sst_deploy
+        name: Deploy to AWS
+        run: npx sst deploy --stage prod

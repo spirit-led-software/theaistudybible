@@ -1,25 +1,41 @@
 import { Window } from "@components/chat";
-import { getAiResponsesByUserMessageId } from "@core/services/ai-response";
-import { getChat, getChats } from "@core/services/chat";
-import { isObjectOwner } from "@core/services/user";
-import { getUserMessages } from "@core/services/user-message";
-import {
-  chats as chatsTable,
-  userMessages,
-} from "@revelationsai/core/database/schema";
-import { validServerSession } from "@services/user";
+import { aiResponses, userMessages } from "@core/schema";
+import { getPropertyName } from "@revelationsai/core/util/object";
+import { searchForAiResponses } from "@services/ai-response";
+import { getChat, getChats } from "@services/chat";
+import { getSessionTokenFromCookies } from "@services/server-only/session";
+import { validSession } from "@services/session";
+import { searchForUserMessages } from "@services/user/message";
 import { Message } from "ai/react";
-import { and, eq } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getMessages(chatId: string, userId: string) {
-  const foundUserMessages = await getUserMessages({
-    where: and(
-      eq(userMessages.chatId, chatId),
-      eq(userMessages.userId, userId)
-    ),
+async function getMessages(token: string, chatId: string, userId: string) {
+  const { userMessages: foundUserMessages } = await searchForUserMessages({
+    token,
+    query: {
+      AND: [
+        {
+          eq: {
+            column: getPropertyName(
+              userMessages,
+              (userMessages) => userMessages.chatId
+            ),
+            value: chatId,
+          },
+        },
+        {
+          eq: {
+            column: getPropertyName(
+              userMessages,
+              (userMessages) => userMessages.userId
+            ),
+            value: userId,
+          },
+        },
+      ],
+    },
   });
 
   const messages: Message[] = (
@@ -31,9 +47,18 @@ async function getMessages(chatId: string, userId: string) {
           role: "user",
         };
 
-        const foundAiResponses = await getAiResponsesByUserMessageId(
-          userMessage.id
-        );
+        const { aiResponses: foundAiResponses } = await searchForAiResponses({
+          token,
+          query: {
+            eq: {
+              column: getPropertyName(
+                aiResponses,
+                (aiResponses) => aiResponses.userMessageId
+              ),
+              value: userMessage.id,
+            },
+          },
+        });
 
         const responses: Message[] = foundAiResponses
           .filter((aiResponse) => !aiResponse.failed && !aiResponse.regenerated)
@@ -57,23 +82,30 @@ export default async function SpecificChatPage({
 }: {
   params: { id: string };
 }) {
-  const chat = await getChat(params.id);
+  const { isValid, userInfo, token } = await validSession(
+    getSessionTokenFromCookies()
+  );
+  if (!isValid) {
+    redirect(`/login?redirect=/chat/${params.id}`);
+  }
+
+  const chat = await getChat(params.id, {
+    token,
+  });
   if (!chat) {
     notFound();
   }
 
-  const { isValid, userInfo } = await validServerSession();
-  if (!isValid || !isObjectOwner(chat, userInfo.id)) {
-    redirect(`/login?redirect=/chat/${chat.id}`);
-  }
-
-  const messagesPromise = getMessages(params.id, userInfo.id);
+  const messagesPromise = getMessages(token, params.id, userInfo.id);
   const chatsPromise = getChats({
-    where: eq(chatsTable.userId, userInfo.id),
+    token,
     limit: 7,
   });
 
-  const [messages, chats] = await Promise.all([messagesPromise, chatsPromise]);
+  const [messages, { chats }] = await Promise.all([
+    messagesPromise,
+    chatsPromise,
+  ]);
 
   return (
     <Window initChats={chats} initChatId={params.id} initMessages={messages} />

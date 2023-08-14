@@ -1,17 +1,17 @@
-import { validApiSession } from "@core/services/session";
-import { createUserMessage } from "@core/services/user-message";
 import {
   CreatedResponse,
   InternalServerErrorResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { validApiHandlerSession } from "@services/session";
+import { createUserMessage } from "@services/user/message";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? "{}");
 
   try {
-    const { isValid, userInfo } = await validApiSession();
+    const { isValid, userInfo } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }

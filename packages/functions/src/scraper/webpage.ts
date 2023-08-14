@@ -1,15 +1,12 @@
-import {
-  createIndexOperation,
-  updateIndexOperation,
-} from "@core/services/index-op";
-import { validApiSession } from "@core/services/session";
-import { isAdmin } from "@core/services/user";
-import { IndexOperation } from "@revelationsai/core/database/model";
+import { IndexOperation } from "@core/model";
+import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import { validApiHandlerSession } from "@services/session";
+import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 import { generatePageContentEmbeddings } from "../lib/web-scraper";
 
 export const handler = ApiHandler(async (event) => {
-  const { isValid, userInfo } = await validApiSession();
+  const { isValid, userInfo } = await validApiHandlerSession();
   if (!isValid) {
     return {
       statusCode: 401,
