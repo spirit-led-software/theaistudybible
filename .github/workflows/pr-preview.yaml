@@ -68,7 +68,10 @@ jobs:
       - id: extract_website_url
         name: Extract website URL
         run: |
-          website_url=$(jq -r '.pr-${{ github.event.pull_request.number }}-revelationsai-Website.WebsiteUrl' .sst/outputs.json)
+          sst_output_file=.sst/outputs.json
+          sst_outputs=$(cat $sst_output_file)
+          echo -e "Outputs from SST in JSON:\n$sst_outputs"
+          website_url=$(jq -r '.["pr-${{ github.event.pull_request.number }}-revelationsai-Website"].WebsiteUrl' $sst_output_file)
           echo "website_url=$website_url" >> $GITHUB_OUTPUT
       - id: pr_comment
         name: Add comment to PR
