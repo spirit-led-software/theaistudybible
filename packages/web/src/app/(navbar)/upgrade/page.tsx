@@ -21,10 +21,11 @@ export default async function UpgradePage() {
 
   const dayQueries = queryCounts.find((qc) => {
     const today = new Date();
+    const qcDate = new Date(qc.date);
     return (
-      qc.date.getFullYear() === today.getFullYear() &&
-      qc.date.getMonth() === today.getMonth() &&
-      qc.date.getDate() === today.getDate()
+      qcDate.getFullYear() === today.getFullYear() &&
+      qcDate.getMonth() === today.getMonth() &&
+      qcDate.getDate() === today.getDate()
     );
   });
 
