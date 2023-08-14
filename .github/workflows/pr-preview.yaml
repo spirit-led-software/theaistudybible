@@ -75,7 +75,28 @@ jobs:
           echo "website_url=$website_url" >> $GITHUB_OUTPUT
       - id: pr_comment
         name: Add comment to PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: actions/github-script@v4
         with:
-          message: |
-            Check out the preview environment here: ${{ steps.extract_website_url.outputs.website_url }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const comment = comments.find((comment) => comment.body.includes('Preview URL:'));
+            if (comment) {
+              await github.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment.id,
+                body: `Preview URL: ${{ steps.extract_website_url.outputs.website_url }}`,
+              });
+            } else {
+              await github.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `Preview URL: ${{ steps.extract_website_url.outputs.website_url }}`,
+              });
+            }
