@@ -38,7 +38,7 @@ export async function validSession(token?: string): Promise<
 }
 
 export function isAdmin(userInfo: UserWithRoles) {
-  if (userInfo.roles.find((role) => role.name === "admin")) {
+  if (userInfo.roles.find((role) => role.name === "ADMIN")) {
     return true;
   }
   return false;
