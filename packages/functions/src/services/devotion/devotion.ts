@@ -173,7 +173,7 @@ export async function generateDevotion(bibleReading?: string) {
     });
 
     await Promise.all(
-      result.sourceDocument.map(async (c: SourceDocument) => {
+      result.sourceDocuments.map(async (c: SourceDocument) => {
         await readWriteDatabase.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,
