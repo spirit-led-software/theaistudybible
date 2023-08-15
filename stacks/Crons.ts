@@ -27,7 +27,7 @@ export function Crons({ stack }: StackContext) {
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
           ...STATIC_ENV_VARS,
         },
-        timeout: "2 minutes",
+        timeout: "5 minutes",
       },
     },
   });

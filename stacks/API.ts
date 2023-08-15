@@ -43,7 +43,7 @@ export function API({ stack }: StackContext) {
   const chatApiFunction = new Function(stack, "chatApiFunction", {
     handler: "packages/functions/src/chat.handler",
     environment: lambdaEnv,
-    timeout: "60 seconds",
+    timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
   });
@@ -124,7 +124,7 @@ export function API({ stack }: StackContext) {
             ...lambdaEnv,
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           },
-          timeout: "2 minutes",
+          timeout: "5 minutes",
         },
       },
       "GET /devotions/{id}":
