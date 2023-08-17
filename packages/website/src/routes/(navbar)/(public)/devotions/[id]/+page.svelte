@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import type { SourceDocument } from '@core/model';
+	import type { devotionReactions } from '@core/schema';
 	import Iconify from '@iconify/svelte';
-	import type { devotionReactions } from '@revelationsai/core/database/schema';
 	import Moment from 'moment';
 	import type { PageData } from './$types';
 

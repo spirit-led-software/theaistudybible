@@ -7,5 +7,5 @@ export default {
     },
     extend: {},
   },
-  plugins: [require("tailwindcss-brand-colors")],
+  plugins: [require('tailwindcss-animate'), require("tailwindcss-brand-colors")],
 };
