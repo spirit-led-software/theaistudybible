@@ -1,12 +1,13 @@
-import { createInitialRoles } from "@services/role";
+import { createInitialRoles, createStripeRoles } from "@services/role";
 import { createInitialAdminUser } from "@services/user";
 import { getDocumentVectorStore } from "@services/vector-db";
 import { Handler } from "aws-lambda";
 
 export const handler: Handler = async () => {
   try {
-    console.log("Creating initial roles");
+    console.log("Creating initial roles and users");
     await createInitialRoles();
+    await createStripeRoles();
     await createInitialAdminUser();
 
     console.log("Creating vector store");

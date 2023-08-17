@@ -1,8 +1,10 @@
 import { CreateRoleData, Role, UpdateRoleData } from "@core/model";
 import { roles, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq } from "drizzle-orm";
-import { getUser } from "./user/user";
+import { SQL, and, desc, eq, like } from "drizzle-orm";
+import Stripe from "stripe";
+import { stripeConfig } from "../configs";
+import { getUserOrThrow } from "./user/user";
 
 export async function getRoles(
   options: {
@@ -81,11 +83,7 @@ export async function deleteRole(id: string) {
 
 export async function addRoleToUser(roleName: string, userId: string) {
   const role = await getRoleByNameOrThrow(roleName);
-  const user = await getUser(userId);
-
-  if (!user) {
-    throw new Error(`User with id ${userId} not found`);
-  }
+  const user = await getUserOrThrow(userId);
 
   const userRolesRelation = await readOnlyDatabase
     .select()
@@ -118,14 +116,38 @@ export async function addRoleToUser(roleName: string, userId: string) {
   };
 }
 
+export async function removeRoleFromUser(roleName: string, userId: string) {
+  const role = await getRoleByNameOrThrow(roleName);
+  const user = await getUserOrThrow(userId);
+
+  const userRoleRelation = (
+    await readOnlyDatabase
+      .select()
+      .from(usersToRoles)
+      .where(
+        and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id))
+      )
+  )[0];
+
+  if (!userRoleRelation) {
+    throw new Error(`User does not have role ${roleName}`);
+  }
+
+  await readWriteDatabase
+    .delete(usersToRoles)
+    .where(
+      and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id))
+    );
+}
+
 export async function createInitialRoles() {
   console.log("Creating initial roles");
 
   console.log("Creating admin role");
-  let adminRole = await getRoleByName("ADMIN");
+  let adminRole = await getRoleByName("admin");
   if (!adminRole) {
     adminRole = await createRole({
-      name: "ADMIN",
+      name: "admin",
     });
     console.log("Admin role created");
   } else {
@@ -133,10 +155,10 @@ export async function createInitialRoles() {
   }
 
   console.log("Creating moderator role");
-  let moderatorRole = await getRoleByName("MODERATOR");
+  let moderatorRole = await getRoleByName("user");
   if (!moderatorRole) {
     moderatorRole = await createRole({
-      name: "MODERATOR",
+      name: "user",
     });
     console.log("Moderator role created");
   } else {
@@ -144,10 +166,10 @@ export async function createInitialRoles() {
   }
 
   console.log("Creating default user role");
-  let userRole = await getRoleByName("USER");
+  let userRole = await getRoleByName("user");
   if (!userRole) {
     userRole = await createRole({
-      name: "USER",
+      name: "user",
     });
     console.log("Default user role created");
   } else {
@@ -155,4 +177,43 @@ export async function createInitialRoles() {
   }
 
   console.log("Initial roles created");
+}
+
+export async function createStripeRoles() {
+  const stripe = require("stripe")(stripeConfig.apiKey) as Stripe;
+
+  console.log("Creating stripe roles");
+
+  const productsResponse = await stripe.products.list();
+  const products = productsResponse.data;
+
+  for (const product of products) {
+    const productRole = await getRoleByName(product.name);
+    if (!productRole) {
+      await createRole({
+        name: `stripe:${product.name}`,
+        permissions: [`query:${product.metadata.queryCount}`],
+      });
+      console.log(`Created role ${product.name}`);
+    } else {
+      console.log(`Role ${product.name} already exists`);
+    }
+  }
+
+  const existingRoles = await getStripeRoles();
+  for (const existingRole of existingRoles) {
+    const product = products.find(
+      (p) => p.name === existingRole.name.split(":")[1]
+    );
+    if (!product) {
+      await deleteRole(existingRole.id);
+      console.log(`Deleted role ${existingRole.name}`);
+    }
+  }
+}
+
+export async function getStripeRoles() {
+  return await getRoles({
+    where: like(roles.name, "stripe:%"),
+  });
 }

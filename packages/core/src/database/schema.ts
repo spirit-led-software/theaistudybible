@@ -5,6 +5,7 @@ import {
   index,
   integer,
   json,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -58,6 +59,7 @@ export const roles = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name").notNull(),
+    permissions: jsonb("permissions").notNull().default([]).$type<string[]>(),
   },
   (table) => {
     return {
@@ -80,7 +82,6 @@ export const users = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name"),
     email: text("email").notNull(),
-    maxQueryCount: integer("max_query_count").notNull().default(25),
     stripeCustomerId: text("stripe_customer_id"),
     image: text("image"),
   },

@@ -2,7 +2,7 @@ import { llmConfig, openAiConfig } from "@core/configs";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
-import { Configuration, OpenAIApi } from "openai";
+import { OpenAI as OpenAIClient } from "openai";
 
 export const getEmbeddingsModel = () =>
   new OpenAIEmbeddings({
@@ -38,8 +38,6 @@ export const getCompletionsModel = (temperature?: number) =>
   });
 
 export const getOpenAiClient = () =>
-  new OpenAIApi(
-    new Configuration({
-      apiKey: openAiConfig.apiKey,
-    })
-  );
+  new OpenAIClient({
+    apiKey: openAiConfig.apiKey,
+  });

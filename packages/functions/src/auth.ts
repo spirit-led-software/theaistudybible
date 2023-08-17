@@ -13,13 +13,13 @@ import {
 } from "sst/node/auth";
 
 const SessionParameter = (user: User) =>
-  Session.parameter({
+  Session.cookie({
     type: "user",
     options: {
       expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
       sub: user.id,
     },
-    redirect: `${websiteConfig.url}/api/auth/callback`,
+    redirect: `${websiteConfig.url}/auth/callback`,
     properties: {
       id: user.id,
     },

@@ -115,18 +115,12 @@ export async function isAdmin(userId: string) {
   const userRolesRelation = await readOnlyDatabase
     .select()
     .from(usersToRoles)
-    .where(eq(usersToRoles.userId, userId));
+    .where(eq(usersToRoles.userId, userId))
+    .rightJoin(roles, eq(roles.id, usersToRoles.roleId));
 
-  const userRoleNames: string[] = [];
-  for (const userRoleRelation of userRolesRelation) {
-    const userRoles = await readOnlyDatabase
-      .select()
-      .from(roles)
-      .where(eq(roles.id, userRoleRelation.roleId));
-    userRoles.forEach((userRole) => userRoleNames.push(userRole.name));
-  }
-
-  return userRoleNames.some((roleName) => roleName === "ADMIN") ?? false;
+  return userRolesRelation.some((userRoleRelation) => {
+    return userRoleRelation.roles.name === "admin";
+  });
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {
@@ -149,7 +143,7 @@ export async function createInitialAdminUser() {
 
   console.log("Adding admin role to admin user");
   if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("ADMIN", adminUser.id);
+    await addRoleToUser("admin", adminUser.id);
     console.log("Admin role added to admin user");
   } else {
     console.log("Admin role already added to admin user");

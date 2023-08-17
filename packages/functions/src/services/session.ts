@@ -1,6 +1,7 @@
 import { apiConfig } from "@core/configs";
 import { UserWithRoles } from "@core/model";
 import { getUser, getUserRoles } from "@services/user";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { SessionValue, useSession } from "sst/node/auth";
 
 export async function validApiHandlerSession(): Promise<
@@ -17,7 +18,7 @@ export async function validApiHandlerSession(): Promise<
 > {
   try {
     const sessionToken = useSession();
-    if (!sessionToken || sessionToken.type !== "user") {
+    if (sessionToken.type !== "user") {
       return { isValid: false, sessionToken };
     }
 
@@ -44,7 +45,7 @@ export async function validApiHandlerSession(): Promise<
   }
 }
 
-export async function validSessionToken(token: string): Promise<
+export async function validSessionToken(event: APIGatewayProxyEventV2): Promise<
   | {
       isValid: false;
       userInfo?: UserWithRoles;
@@ -57,14 +58,19 @@ export async function validSessionToken(token: string): Promise<
   const response = await fetch(`${apiConfig.url}/session`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`,
+      cookie: event.headers.cookie ?? "",
+      "set-cookie": event.headers["set-cookie"] ?? "",
     },
+    credentials: "include",
   });
-  if (response.status !== 200) {
+  if (!response.ok) {
+    console.error(
+      `Error validating token: ${response.status} ${response.statusText}`
+    );
     return { isValid: false };
   }
 
-  const userInfo = await response.json();
+  const userInfo: UserWithRoles = await response.json();
 
   return {
     isValid: true,

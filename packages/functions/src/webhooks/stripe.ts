@@ -1,4 +1,5 @@
 import { User } from "@core/model";
+import { addRoleToUser, removeRoleFromUser } from "@services/role";
 import {
   getUserByEmail,
   getUserByStripeCustomerId,
@@ -6,8 +7,9 @@ import {
 } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 import Stripe from "stripe";
+import { stripeConfig } from "../configs";
 
-const stripe = require("stripe")(process.env.STRIPE_API_KEY!) as Stripe;
+const stripe = require("stripe")(stripeConfig.apiKey) as Stripe;
 
 const validateUser = async (
   email?: string,
@@ -45,38 +47,11 @@ const fulfillOrder = async (
   item: Stripe.LineItem | Stripe.SubscriptionItem,
   user: User
 ) => {
-  // Serve staff plan - 50 queries per day
-  if (item.price?.product === "prod_OMn5NPjXcAqi4t") {
-    await updateUser(user.id, {
-      maxQueryCount: 50,
-    });
+  if (!item.price?.product) {
+    throw new Error("No product found for item");
   }
-  // Youth Pastor plan - 100 queries per day
-  else if (item.price?.product === "prod_OMnEB3M89FhxAU") {
-    await updateUser(user.id, {
-      maxQueryCount: 100,
-    });
-  }
-  // Worship leader plan - 250 queries per day
-  else if (item.price?.product === "prod_OMnFtE1Y58Fk3s") {
-    await updateUser(user.id, {
-      maxQueryCount: 250,
-    });
-  }
-  // Lead pastor plan - 500 queries per day
-  else if (item.price?.product === "prod_OMnFfbim0KFFpo") {
-    await updateUser(user.id, {
-      maxQueryCount: 500,
-    });
-  }
-  // Church plant plan - unlimited queries per day
-  else if (item.price?.product === "prod_OMnGHj22JmMhxm") {
-    await updateUser(user.id, {
-      maxQueryCount: Infinity,
-    });
-  } else {
-    console.error(`Unknown product: ${item.price?.product}`);
-  }
+
+  await addRoleToUser(user.id, `stripe:${item.price.product}`);
 };
 
 export const handler = ApiHandler(async (event, context) => {
@@ -208,9 +183,10 @@ export const handler = ApiHandler(async (event, context) => {
         const subItem = subscriptionUpdate.items.data[0];
         await fulfillOrder(subItem, user);
       } else {
-        await updateUser(user.id, {
-          maxQueryCount: 25,
-        });
+        await removeRoleFromUser(
+          user.id,
+          `stripe:${subscriptionUpdate.items.data[0].price.product}`
+        );
       }
 
       break;
