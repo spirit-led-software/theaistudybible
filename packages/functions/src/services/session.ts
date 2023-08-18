@@ -45,7 +45,9 @@ export async function validApiHandlerSession(): Promise<
   }
 }
 
-export async function validSessionToken(event: APIGatewayProxyEventV2): Promise<
+export async function validSessionFromEvent(
+  event: APIGatewayProxyEventV2
+): Promise<
   | {
       isValid: false;
       userInfo?: UserWithRoles;
@@ -58,8 +60,7 @@ export async function validSessionToken(event: APIGatewayProxyEventV2): Promise<
   const response = await fetch(`${apiConfig.url}/session`, {
     method: "GET",
     headers: {
-      cookie: event.headers.cookie ?? "",
-      "set-cookie": event.headers["set-cookie"] ?? "",
+      Authorization: event.headers.authorization || "",
     },
     credentials: "include",
   });

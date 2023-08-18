@@ -10,7 +10,6 @@
 	import { nanoid, type Message as ChatMessage } from 'ai';
 	import { useChat } from 'ai/svelte';
 	import { onMount } from 'svelte';
-	import type { FormEventHandler, MouseEventHandler } from 'svelte/elements';
 	import { LoadingDots } from '../loading';
 	import TextAreaAutosize from './TextAreaAutosize.svelte';
 
@@ -20,14 +19,14 @@
 
 	let showScrollToBottomButton = false;
 	let alert: string | undefined = undefined;
-	let chatId: string | undefined = initChatId;
+	let chatId: string | undefined = undefined;
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
 
 	const queryClient = useQueryClient();
 
-	let { input, handleSubmit, messages, setMessages, error, isLoading, reload } = useChat({
+	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
 		initialMessages: initMessages,
 		sendExtraMessageFields: true,
@@ -44,77 +43,41 @@
 			lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
 		},
 		onFinish: (message: ChatMessage) => {
-			handleAiResponse(message, lastAiResponseId!);
+			lastChatMessage = message;
 		}
-	});
+	}));
 
-	const scrollEndIntoView: MouseEventHandler<HTMLButtonElement> = () => {
+	const scrollEndIntoView = () => {
 		if (browser) {
 			const endOfMessages = document.getElementById('end-of-messages');
 			if (endOfMessages) endOfMessages.scrollIntoView({ behavior: 'smooth' });
 		}
 	};
 
-	const handleSubmitCustom: FormEventHandler<HTMLFormElement> = async (event) => {
-		if ($input === '') {
-			alert = 'Please enter a message';
-		}
-		await handleSubmit(event, {
-			options: {
-				headers: {
-					authorization: `Bearer ${$page.data.session}`
-				},
-				body: {
-					chatId: chatId ?? undefined
-				}
-			}
-		});
-	};
-
-	const handleAiResponse = async (chatMessage: ChatMessage, aiResponseId: string) => {
-		try {
-			await updateAiResponse(
-				aiResponseId,
-				{
-					aiId: chatMessage.id
-				},
-				{
-					session: $page.data.session
-				}
-			);
-		} catch (err: any) {
-			alert = `Something went wrong: ${err.message}`;
-		} finally {
-			queryClient.invalidateQueries(['chats']);
-		}
-	};
-
-	const handleReload = async () => {
-		await reload({
-			options: {
-				headers: {
-					authorization: `Bearer ${$page.data.session}`
-				},
-				body: {
-					chatId: chatId ?? undefined
-				}
-			}
-		});
-		queryClient.invalidateQueries(['chats']);
-	};
+	onMount(() => {
+		chatId = initChatId;
+	});
 
 	onMount(() => {
 		const searchParamsQuery = $page.url.searchParams.get('query');
 		if (searchParamsQuery) {
-			setMessages([
-				...$messages,
+			append(
 				{
 					id: nanoid(),
 					content: searchParamsQuery,
 					role: 'user'
+				},
+				{
+					options: {
+						headers: {
+							authorization: `Bearer ${$page.data.session}`
+						},
+						body: {
+							chatId
+						}
+					}
 				}
-			]);
-			handleReload();
+			);
 		}
 	});
 
@@ -125,16 +88,71 @@
 		}
 	});
 
-	$: if (messages && browser) {
-		const endOfMessages = document.getElementById('end-of-messages');
-		endOfMessages?.scrollIntoView({
-			behavior: 'instant',
-			block: 'end',
-			inline: 'end'
+	$: messages.subscribe(() => {
+		scrollEndIntoView();
+	});
+
+	$: error.subscribe((err) => {
+		if (err) {
+			alert = err.message;
+		}
+	});
+
+	$: handleSubmitCustom = async (event?: SubmitEvent) => {
+		event?.preventDefault();
+		if ($input === '') {
+			alert = 'Please enter a message';
+		}
+		await handleSubmit(event, {
+			options: {
+				headers: {
+					authorization: `Bearer ${$page.data.session}`
+				},
+				body: {
+					chatId: chatId
+				}
+			}
 		});
+	};
+
+	$: handleReload = async () => {
+		await reload({
+			options: {
+				headers: {
+					authorization: `Bearer ${$page.data.session}`
+				},
+				body: {
+					chatId: chatId
+				}
+			}
+		});
+		queryClient.invalidateQueries(['chats']);
+	};
+
+	$: handleAiResponse = async (chatMessage: ChatMessage) => {
+		if (lastAiResponseId) {
+			try {
+				await updateAiResponse(
+					lastAiResponseId,
+					{
+						aiId: chatMessage.id
+					},
+					{
+						session: $page.data.session
+					}
+				);
+			} catch (err: any) {
+				alert = `Something went wrong: ${err.message}`;
+			} finally {
+				queryClient.invalidateQueries(['chats']);
+			}
+		}
+	};
+
+	$: if (!$isLoading && lastChatMessage) {
+		handleAiResponse(lastChatMessage);
 	}
 
-	$: if ($error) alert = $error.message;
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 
@@ -196,7 +214,7 @@
 			class={`absolute bottom-16 right-5 rounded-full bg-white p-2 shadow-lg ${
 				showScrollToBottomButton ? 'scale-100' : 'scale-0'
 			}`}
-			on:click|preventDefault={scrollEndIntoView}
+			on:click={scrollEndIntoView}
 		>
 			<Icon icon="icon-park:down" class="text-2xl" />
 		</button>
@@ -206,13 +224,13 @@
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize id="input" disabled={$isLoading} bind:input />
+					<TextAreaAutosize id="input" {input} />
 					{#if $isLoading}
 						<div class="flex mr-1">
 							<LoadingDots size={'sm'} />
 						</div>
 					{/if}
-					<button type="button" on:click|preventDefault={handleReload}>
+					<button type="button" on:click={handleReload}>
 						<Icon icon="gg:redo" class="mr-1 text-2xl" />
 					</button>
 					<button type="submit">

@@ -16,6 +16,7 @@
 		"@sveltejs/adapter-auto": "^2.1.0",
 		"@sveltejs/kit": "^1.22.6",
 		"@types/autosize": "^4.0.1",
+		"@types/validator": "^13.11.1",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
 		"@typescript-eslint/parser": "^5.62.0",
 		"autoprefixer": "^10.4.15",
@@ -44,6 +45,7 @@
 		"@tanstack/svelte-query": "^4.32.6",
 		"ai": "^2.2.2",
 		"autosize": "^6.0.1",
-		"moment": "^2.29.4"
+		"moment": "^2.29.4",
+		"validator": "^13.11.0"
 	}
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { getDevotions } from '$lib/services/devotion';
 	import type { Devotion } from '@core/model';
 	import Icon from '@iconify/svelte';
@@ -11,6 +12,9 @@
 
 	let isOpen = false;
 	let limit = 5;
+	let devotions: Devotion[] = [];
+	let isLoadingInitial = false;
+	let isLoadingMore = false;
 
 	$: query = createQuery({
 		queryKey: ['devos'],
@@ -18,9 +22,23 @@
 		initialData: initDevos
 	});
 
-	$: devotions = $query.data;
-	$: isLoadingInitial = ($query.isLoading || $query.isFetching) && devotions.length === 0;
-	$: isLoadingMore = ($query.isLoading || $query.isFetching) && limit > devotions.length;
+	$: query?.subscribe(({ data, isLoading, isFetching }) => {
+		devotions = data ?? [];
+
+		if ((isLoading || isFetching) && devotions.length === 0) {
+			isLoadingInitial = true;
+		} else {
+			isLoadingInitial = false;
+		}
+
+		if ((isLoading || isFetching) && limit > devotions.length) {
+			isLoadingMore = true;
+		} else {
+			isLoadingMore = false;
+		}
+	});
+
+	$: if ($page.route) isOpen = false;
 </script>
 
 <div
@@ -35,7 +53,7 @@
 			}`}
 			on:click|preventDefault={() => (isOpen = !isOpen)}
 		>
-			<Icon icon="formkit:arrowleft" class="text-xl" />
+			<Icon icon="formkit:arrowleft" height={20} width={20} />
 		</button>
 		<div
 			class={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${

@@ -11,60 +11,59 @@
 	export let aiResponseId: string;
 	export let chatId: string | undefined;
 
-	let sources: SourceDocument[] | undefined = undefined;
-	let hasFetchedSources = false;
+	let sources: SourceDocument[] = [];
 	let isLoading = false;
 	let showSources = false;
 
-	$: getSources = async () => {
-		if (hasFetchedSources) return;
-		try {
-			isLoading = true;
-			let query: Query = {
-				AND: []
-			};
-			if (aiResponseId) {
-				query.AND!.push({
-					eq: {
-						column: getPropertyName(aiResponses, (aiResponses) => aiResponses.aiId),
-						value: aiResponseId
-					}
+	const getSources = async (chatId?: string, aiResponseId?: string) => {
+		if (sources.length === 0) {
+			try {
+				isLoading = true;
+				let query: Query = {
+					AND: []
+				};
+				if (aiResponseId) {
+					query.AND!.push({
+						eq: {
+							column: getPropertyName(aiResponses, (aiResponses) => aiResponses.aiId),
+							value: aiResponseId
+						}
+					});
+				}
+				if (chatId) {
+					query.AND!.push({
+						eq: {
+							column: getPropertyName(aiResponses, (aiResponses) => aiResponses.chatId),
+							value: chatId
+						}
+					});
+				}
+				const { aiResponses: foundAiResponses } = await searchForAiResponses({
+					session: $page.data.session,
+					query,
+					limit: 1
 				});
-			}
-			if (chatId) {
-				query.AND!.push({
-					eq: {
-						column: getPropertyName(aiResponses, (aiResponses) => aiResponses.chatId),
-						value: chatId
-					}
+				const aiResponse = foundAiResponses[0];
+
+				const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
+					session: $page.data.session
 				});
+				sources = foundSourceDocuments.filter((sourceDoc, index) => {
+					const firstIndex = foundSourceDocuments.findIndex(
+						(otherSourceDoc) =>
+							(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
+					);
+					return firstIndex === index;
+				});
+			} catch (error) {
+				console.error(error);
+			} finally {
+				isLoading = false;
 			}
-			const { aiResponses: foundAiResponses } = await searchForAiResponses({
-				session: $page.data.session,
-				query,
-				limit: 1
-			});
-			const aiResponse = foundAiResponses[0];
-
-			const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
-				session: $page.data.session
-			});
-			sources = foundSourceDocuments.filter((sourceDoc, index) => {
-				const firstIndex = foundSourceDocuments.findIndex(
-					(otherSourceDoc) =>
-						(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
-				);
-				return firstIndex === index;
-			});
-
-			hasFetchedSources = true;
-		} catch (error) {
-			console.error(error);
 		}
-		isLoading = false;
 	};
 
-	$: if (showSources) getSources();
+	$: if (showSources) getSources(chatId, aiResponseId);
 </script>
 
 <div class="flex flex-col w-full overflow-hidden grow-0">

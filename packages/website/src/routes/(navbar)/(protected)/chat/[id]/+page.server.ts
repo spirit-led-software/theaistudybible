@@ -64,15 +64,15 @@ async function getMessages(chatId: string, userId: string, session: string) {
 	return messages;
 }
 
-export const load: PageServerLoad = async ({ params, locals }) => {
+export const load: PageServerLoad = async ({ params, locals: { user, session } }) => {
 	const chat = await getChat(params.id, {
-		session: locals.session!
+		session: session!
 	});
 	if (!chat) {
 		throw redirect(307, '/chat');
 	}
 
-	const messages = await getMessages(params.id, locals.user!.id, locals.session!);
+	const messages = await getMessages(params.id, user!.id, session!);
 	return {
 		messages,
 		chat

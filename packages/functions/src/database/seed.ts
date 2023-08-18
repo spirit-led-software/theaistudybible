@@ -6,6 +6,7 @@ import {
   deleteRole,
   getRoleByName,
   getStripeRoles,
+  updateRole,
 } from "@services/role";
 import {
   createUser,
@@ -66,6 +67,9 @@ export async function createInitialRoles() {
     });
     console.log("Admin role created");
   } else {
+    adminRole = await updateRole(adminRole.id, {
+      permissions: ["query:10000"],
+    });
     console.log("Admin role already exists");
   }
 
@@ -77,6 +81,9 @@ export async function createInitialRoles() {
     });
     console.log("Moderator role created");
   } else {
+    moderatorRole = await updateRole(moderatorRole.id, {
+      permissions: ["query:10000"],
+    });
     console.log("Moderator role already exists");
   }
 
@@ -88,6 +95,9 @@ export async function createInitialRoles() {
     });
     console.log("Default user role created");
   } else {
+    userRole = await updateRole(userRole.id, {
+      permissions: ["query:10"],
+    });
     console.log("Default user role already exists");
   }
 

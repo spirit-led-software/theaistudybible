@@ -10,7 +10,7 @@
 	export let prevMessage: Message | undefined;
 	export let user: UserWithRoles;
 
-	const { id, content, role } = message;
+	$: ({ id, role, content } = message);
 </script>
 
 <div
@@ -21,7 +21,7 @@
 			<Avatar {user} size="md" class="border shadow-lg" />
 		{:else}
 			<div class="px-3 py-2 rounded-full shadow-lg outline outline-slate-200">
-				<Cross colorscheme="dark" />
+				<Cross colorscheme="dark" size="lg" />
 			</div>
 		{/if}
 	</div>

@@ -21,8 +21,17 @@
 >
 	{#if alertMessage}
 		<div class="absolute left-0 right-0 flex -top-20 lg:top-20">
-			<div class="px-4 py-2 mx-auto text-white bg-red-500 rounded-xl lg:text-xl">
+			<div class="w-5/6 px-4 py-2 mx-auto text-white bg-red-500 rounded-xl lg:text-xl">
 				{alertMessage}
+			</div>
+		</div>
+	{/if}
+	{#if $page.url.searchParams.get('reset-password') === 'success'}
+		<div class="absolute left-0 right-0 flex -top-20 lg:top-14">
+			<div
+				class="w-5/6 px-4 py-2 mx-auto text-center text-white bg-green-500 rounded-xl lg:text-xl"
+			>
+				Your password has been reset. Please login with your new password.
 			</div>
 		</div>
 	{/if}
@@ -76,6 +85,12 @@
 				>
 					Login with Email
 				</button>
+				<div class="flex justify-between text-sm text-gray-500">
+					<a href="/auth/register" class="hover:underline">
+						Don't have an account? Register here.
+					</a>
+					<a href="/auth/forgot-password" class="hover:underline">Forgot your password?</a>
+				</div>
 			</form>
 		</div>
 	</div>

@@ -13,14 +13,11 @@
 
 	let isOpen = false;
 	let limit = 5;
+	let chats: Chat[] = [];
+	let isLoadingInitial = false;
+	let isLoadingMore = false;
 
-	$: query = createQuery({
-		queryKey: ['chats'],
-		queryFn: () => getChats({ limit, session: $page.data.session }).then((r) => r.chats),
-		initialData: initChats
-	});
-
-	$: handleCreate = async () => {
+	const handleCreate = async () => {
 		await createChat(
 			{
 				name: 'New Chat'
@@ -34,7 +31,7 @@
 		}
 	};
 
-	$: handleDelete = async (id: string) => {
+	const handleDelete = async (id: string) => {
 		if (confirm('Are you sure you want to delete this chat?')) {
 			await deleteChat(id, { session: $page.data.session });
 			if (activeChatId === id) {
@@ -43,9 +40,29 @@
 		}
 	};
 
-	$: chats = $query?.data ?? [];
-	$: isLoadingInitial = ($query.isLoading || $query.isFetching) && chats.length === 0;
-	$: isLoadingMore = ($query.isLoading || $query.isFetching) && limit > chats.length;
+	$: query = createQuery({
+		queryKey: ['chats'],
+		queryFn: () => getChats({ limit, session: $page.data.session }).then((r) => r.chats),
+		initialData: initChats
+	});
+
+	$: query?.subscribe(({ data, isLoading, isFetching }) => {
+		chats = data ?? [];
+
+		if ((isLoading || isFetching) && chats.length === 0) {
+			isLoadingInitial = true;
+		} else {
+			isLoadingInitial = false;
+		}
+
+		if ((isLoading || isFetching) && limit > chats.length) {
+			isLoadingMore = true;
+		} else {
+			isLoadingMore = false;
+		}
+	});
+
+	$: if ($page.route) isOpen = false;
 </script>
 
 <div
@@ -60,7 +77,7 @@
 			}`}
 			on:click|preventDefault={() => (isOpen = !isOpen)}
 		>
-			<Icon icon="formkit:arrowleft" class="text-xl" />
+			<Icon icon="formkit:arrowleft" height={20} width={20} />
 		</button>
 		<div
 			class={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${

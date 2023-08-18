@@ -1,6 +1,8 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import { commonCookies } from '$lib/utils/cookies';
 import { fail, redirect } from '@sveltejs/kit';
+import isEmail from 'validator/lib/isEmail';
+import isStrongPassword from 'validator/lib/isStrongPassword';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
@@ -8,11 +10,35 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const email = formData.get('email') as string | null;
 		const password = formData.get('password') as string | null;
+		const confirmPassword = formData.get('confirmPassword') as string | null;
 
 		if (!email) return fail(400, { errors: { banner: 'Email is required.' } });
 		if (!password) return fail(400, { errors: { banner: 'Password is required.' } });
+		if (!confirmPassword) return fail(400, { errors: { banner: 'Confirm password is required.' } });
 
-		const response = await fetch(`${PUBLIC_API_URL}/auth/email/login`, {
+		if (!isEmail(email)) return fail(400, { errors: { banner: 'Email is invalid.' } });
+
+		if (
+			!isStrongPassword(password, {
+				minLength: 8,
+				minNumbers: 1,
+				minSymbols: 1,
+				minUppercase: 1
+			})
+		) {
+			return fail(400, {
+				errors: {
+					banner:
+						'Password must be at least 8 characters long and contain at least 1 number, 1 symbol, and 1 uppercase letter.'
+				}
+			});
+		}
+
+		if (password !== confirmPassword) {
+			return fail(400, { errors: { banner: 'Passwords do not match.' } });
+		}
+
+		const response = await fetch(`${PUBLIC_API_URL}/auth/email/register`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email, password })
@@ -38,14 +64,14 @@ export const actions: Actions = {
 		});
 
 		const returnUrl = url.searchParams.get('returnUrl') || '/';
-		return new Response('Login Successful', {
-			status: 307,
-			headers: { Location: returnUrl }
-		});
+		throw redirect(307, returnUrl);
 	},
 	social: async ({ cookies, url, request }) => {
 		const returnUrl = url.searchParams.get('returnUrl') || '/';
-		cookies.set(commonCookies.returnUrl, returnUrl, { path: '/' });
+		cookies.set(commonCookies.returnUrl, returnUrl, {
+			path: '/',
+			maxAge: 60 * 30 // 30 minutes
+		});
 
 		const formData = await request.formData();
 		const provider = formData.get('provider') as string;

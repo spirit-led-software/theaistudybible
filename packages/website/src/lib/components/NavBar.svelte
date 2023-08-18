@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
-	import type { MouseEventHandler } from 'svelte/elements';
 
 	export let user: UserWithRoles | undefined = undefined;
 
@@ -29,17 +27,14 @@
 		}
 	];
 
-	const handleSignOut: MouseEventHandler<HTMLButtonElement> = async (event) => {
-		event.preventDefault();
-		goto('/');
-	};
-
 	const isActive = (path: string) => {
 		if (path === '/') return $page.url.pathname === path;
 		return $page.url.pathname.startsWith(path);
 	};
 
 	let isOpen = false;
+
+	$: if ($page.route) isOpen = false;
 </script>
 
 <div class="flex flex-col">
@@ -49,20 +44,20 @@
 		</a>
 		<div class="lg:hidden">
 			<button
-				class={`flex items-center p-3 text-blue-600 duration-300 transform ${
+				class={`flex items-center p-3 text-white duration-300 transform ${
 					!isOpen ? 'rotate-180' : ''
 				}`}
 				on:click|preventDefault={() => (isOpen = !isOpen)}
 			>
 				{#if isOpen}
-					<Icon icon="material-symbols:menu" />
+					<Icon icon="formkit:down" height={20} width={20} />
 				{:else}
-					<Icon icon="formkit:down" />
+					<Icon icon="material-symbols:menu" />
 				{/if}
 			</button>
 		</div>
 		<ul
-			class="absolute hidden transform top-1/2 left-1/2 lg:flex lg:mx-auto lg:items-center lg:w-auto lg:space-x-6"
+			class="absolute hidden transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 lg:flex lg:mx-auto lg:items-center lg:w-auto lg:space-x-6"
 		>
 			{#each navItems as navItem}
 				<li>
@@ -92,17 +87,17 @@
 				<div class="inline-flex items-center justify-center space-x-1">
 					<Avatar {user} size="sm" />
 				</div>
-				<button
+				<a
+					href="/auth/logout"
 					class="hidden px-6 py-2 text-sm font-bold text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
-					on:click|preventDefault={handleSignOut}
 				>
 					Log Out
-				</button>
+				</a>
 			</div>
 		{:else}
 			<a
 				class="hidden px-6 py-2 text-sm font-bold text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
-				href="/login"
+				href="/auth/login"
 			>
 				Log In
 			</a>
@@ -154,17 +149,17 @@
 									{user.email ?? 'User'}
 								</span>
 							</div>
-							<button
+							<a
+								href="/auth/logout"
 								class="block px-10 py-3 mb-3 text-xs font-semibold leading-none text-center bg-gray-50 hover:bg-gray-100 rounded-xl"
-								on:click={handleSignOut}
 							>
 								Log out
-							</button>
+							</a>
 						</div>
 					{:else}
 						<a
 							class="block px-4 py-3 mb-3 text-xs font-semibold leading-none text-center bg-gray-50 hover:bg-gray-100 rounded-xl"
-							href="/login"
+							href="/auth/login"
 						>
 							Log in
 						</a>

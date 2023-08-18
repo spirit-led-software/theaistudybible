@@ -9,7 +9,7 @@ import {
 } from "@services/ai-response";
 import { createChat, getChat, updateChat } from "@services/chat";
 import { getChatModel, getPromptModel } from "@services/llm";
-import { validSessionToken } from "@services/session";
+import { validSessionFromEvent } from "@services/session";
 import { isObjectOwner } from "@services/user";
 import {
   createUserMessage,
@@ -67,7 +67,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
         };
       }
 
-      const { isValid, userInfo } = await validSessionToken(event);
+      const { isValid, userInfo } = await validSessionFromEvent(event);
       if (!isValid) {
         console.log("Invalid session token");
         return {
@@ -86,12 +86,16 @@ export const handler = middy({ streamifyResponse: true }).handler(
         new Date()
       );
 
-      const queryPermissions = userInfo.roles.map((role) => {
-        return role.permissions.find((permission) => {
+      const queryPermissions: string[] = [];
+      userInfo.roles.forEach((role) => {
+        const queryPermission = role.permissions.find((permission) => {
           return permission.startsWith("query:");
         });
+        if (queryPermission) queryPermissions.push(queryPermission);
       });
-      const maxQueries = parseInt(queryPermissions[0]?.split(":")[1] ?? "10");
+      const maxQueries = Math.max(
+        ...queryPermissions.map((p) => parseInt(p.split(":")[1]))
+      );
 
       if (!userDailyQueryCount) {
         createUserQueryCount({
@@ -112,7 +116,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           ]),
         };
       } else {
-        await updateUserQueryCount(userDailyQueryCount.id, {
+        updateUserQueryCount(userDailyQueryCount.id, {
           count: userDailyQueryCount.count + 1,
         });
       }
@@ -267,6 +271,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
                   this.push(null);
                   return;
                 }
+                console.log(`Pushing value: ${JSON.stringify(value)}`);
                 this.push(value);
                 this.read();
               })

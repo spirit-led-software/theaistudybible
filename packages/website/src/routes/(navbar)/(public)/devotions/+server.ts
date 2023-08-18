@@ -1,15 +1,9 @@
 import { getDevotions } from '$lib/services/devotion';
-import type { RequestHandler } from '@sveltejs/kit';
+import { redirect, type RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ request }) => {
+export const GET: RequestHandler = async () => {
 	const { devotions } = await getDevotions({
 		limit: 1
 	});
-
-	const headers = request.headers;
-	headers.set('Location', `/devotions/${devotions[0].id}`);
-	return new Response(null, {
-		status: 302,
-		headers
-	});
+	throw redirect(307, `/devotions/${devotions[0].id}`);
 };

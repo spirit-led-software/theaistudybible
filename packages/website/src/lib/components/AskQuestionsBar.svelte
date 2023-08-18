@@ -50,9 +50,9 @@
 		/>
 		<button
 			type="submit"
-			class="px-1 py-1 font-bold border rounded-lg rounded-l-none border-slate-300 hover:bg-slate-100"
+			class="px-2 py-1 font-bold border rounded-lg rounded-l-none border-slate-300 hover:bg-slate-100"
 		>
-			<Icon icon="formkit:arrowright" />
+			<Icon icon="formkit:arrowright" height={20} width={20} />
 		</button>
 	</div>
 </form>

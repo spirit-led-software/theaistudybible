@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import type { SourceDocument } from '@core/model';
 	import type { devotionReactions } from '@core/schema';
@@ -8,26 +9,10 @@
 
 	export let data: PageData;
 
-	const { devotion: activeDevo, sourceDocs, images, reactionCounts } = data;
-
 	let isLoading = false;
-	let likeCount = reactionCounts?.LIKE || 0;
-	let dislikeCount = reactionCounts?.DISLIKE || 0;
 	let alert: string | undefined = undefined;
 
-	let sourceDocuments: SourceDocument[] = sourceDocs?.filter(
-		(sourceDoc: SourceDocument, index: number) => {
-			const firstIndex = sourceDocs.findIndex(
-				(otherSourceDoc: SourceDocument) =>
-					(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
-			);
-			return firstIndex === index;
-		}
-	);
-
-	const handleReaction = async (
-		reaction: (typeof devotionReactions.reaction.enumValues)[number]
-	) => {
+	$: handleReaction = async (reaction: (typeof devotionReactions.reaction.enumValues)[number]) => {
 		isLoading = true;
 		try {
 			if (reaction === 'LIKE') {
@@ -39,7 +24,8 @@
 			const response = await fetch(`${PUBLIC_API_URL}/devotions/${activeDevo.id}/reactions`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${$page.data.session}`
 				},
 				body: JSON.stringify({
 					reaction: reaction
@@ -63,6 +49,17 @@
 		isLoading = false;
 	};
 
+	$: ({ devotion: activeDevo, sourceDocs, images, reactionCounts } = data);
+	$: likeCount = reactionCounts?.LIKE || 0;
+	$: dislikeCount = reactionCounts?.DISLIKE || 0;
+	$: sourceDocuments = sourceDocs?.filter((sourceDoc: SourceDocument, index: number) => {
+		const firstIndex = sourceDocs.findIndex(
+			(otherSourceDoc: SourceDocument) =>
+				(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
+		);
+		return firstIndex === index;
+	});
+
 	$: if (alert) {
 		setTimeout(() => {
 			alert = undefined;
@@ -76,18 +73,18 @@
 			<button
 				disabled={isLoading}
 				on:click|preventDefault={() => handleReaction('LIKE')}
-				class="text-center rounded-full group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
+				class="flex justify-center px-3 py-2 text-center text-white rounded-full place-items-center group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
 			>
 				<span class="mr-2">{likeCount}</span>
-				<Iconify icon="fa6-regular:thumbs-up" class="text-white group-hover:text-green-400" />
+				<Iconify icon="fa6-regular:thumbs-up" class="group-hover:text-green-400" />
 			</button>
 			<button
 				disabled={isLoading}
 				on:click|preventDefault={() => handleReaction('DISLIKE')}
-				class="text-center rounded-full group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
+				class="flex justify-center px-3 py-2 text-center text-white rounded-full place-items-center group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
 			>
 				<span class="mr-2">{dislikeCount}</span>
-				<Iconify icon="fa6-regular:thumbs-down" class="text-white group-hover:text-red-400" />
+				<Iconify icon="fa6-regular:thumbs-down" class="group-hover:text-red-400" />
 			</button>
 		</div>
 		<div
