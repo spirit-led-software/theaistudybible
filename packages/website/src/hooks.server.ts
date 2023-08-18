@@ -1,9 +1,10 @@
 import { getUserInfo } from '$lib/services/user';
+import { commonCookies } from '$lib/utils/cookies';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ resolve, event }) => {
 	try {
-		const session = event.cookies.get('auth-session');
+		const session = event.cookies.get(commonCookies.session);
 		if (!session) {
 			console.error('No session found');
 			event.locals.user = undefined;

@@ -1,9 +1,9 @@
 import { authConfig, websiteConfig } from "@core/configs";
 import { User } from "@core/model";
-import { InternalServerErrorResponse } from "@lib/api-responses";
+import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
 import { createUser, getUserByEmail, updateUser } from "@services/user";
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { TokenSet } from "openid-client";
 import { useBody, usePath } from "sst/node/api";
 import {
@@ -53,6 +53,23 @@ const EmailPasswordAdapter = createAdapter((config: EmailPasswordConfig) => {
     throw new Error("Invalid login step");
   };
 });
+
+const SessionResponse = (user: User) => {
+  const session = Session.create({
+    type: "user",
+    options: {
+      expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
+      sub: user.id,
+    },
+    properties: {
+      id: user.id,
+    },
+  });
+
+  return OkResponse({
+    session,
+  });
+};
 
 const SessionParameter = (user: User) =>
   Session.parameter({
@@ -125,7 +142,7 @@ export const handler = AuthHandler({
         } else {
           return InternalServerErrorResponse("User already exists");
         }
-        return SessionParameter(user);
+        return SessionResponse(user);
       },
       onLogin: async (claims) => {
         let user: User | undefined = await getUserByEmail(claims.email);
@@ -140,7 +157,7 @@ export const handler = AuthHandler({
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
           return InternalServerErrorResponse("Incorrect password");
         }
-        return SessionParameter(user);
+        return SessionResponse(user);
       },
       onError: async (error) => {
         return InternalServerErrorResponse(
@@ -150,20 +167,3 @@ export const handler = AuthHandler({
     }),
   },
 });
-
-const emailLinkHtml = (link: string) => `
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>revelationsAI</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <p>Click this link to login to revelationsAI: <a href="${link}">${link}</a></p>
-  </body>
-</html>
-`;

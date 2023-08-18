@@ -20,10 +20,6 @@
 			href: '/'
 		},
 		{
-			label: 'About',
-			href: '/about'
-		},
-		{
 			label: 'Chat',
 			href: '/chat'
 		},
@@ -38,12 +34,12 @@
 		goto('/');
 	};
 
-	$: isActive = (path: string) => {
+	const isActive = (path: string) => {
 		if (path === '/') return $page.url.pathname === path;
 		return $page.url.pathname.startsWith(path);
 	};
 
-	$: isOpen = false;
+	let isOpen = false;
 </script>
 
 <div class="flex flex-col">

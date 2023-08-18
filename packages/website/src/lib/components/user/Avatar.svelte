@@ -13,11 +13,17 @@
 </script>
 
 <div
-	class={`relative rounded-full bg-gray-300 ${dimensions} lg:${largeDimensions} ${className ?? ''}`}
+	class={`relative overflow-hidden rounded-full bg-gray-300 ${dimensions} lg:${largeDimensions} ${
+		className ?? ''
+	}`}
 >
 	<div
 		class={`absolute inset-0 flex items-center justify-center rounded-full text-white text-xl font-bold uppercase`}
 	>
-		{user?.name ? user.name[0] : user?.email ? user.email[0] : '?'}
+		{#if user.image}
+			<img class="w-full h-full" src={user.image} width={192} height={192} alt="avatar" />
+		{:else}
+			{user.name ? user.name[0] : user.email ? user.email[0] : '?'}
+		{/if}
 	</div>
 </div>

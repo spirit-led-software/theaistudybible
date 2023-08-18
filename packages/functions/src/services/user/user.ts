@@ -127,39 +127,3 @@ export async function isAdmin(userId: string) {
 export function isObjectOwner(object: { userId: string }, userId: string) {
   return object.userId === userId;
 }
-
-export async function createInitialAdminUser() {
-  console.log("Creating initial admin user");
-  let adminUser: User | undefined = await getUserByEmail(
-    authConfig.adminUser.email
-  );
-  if (!adminUser) {
-    adminUser = await createUser({
-      email: authConfig.adminUser.email,
-      passwordHash: bcrypt.hashSync(
-        authConfig.adminUser.password,
-        authConfig.bcrypt.saltRounds
-      ),
-    });
-    console.log("Initial admin user created");
-  } else {
-    console.log("Admin user already existed, updating password.");
-    adminUser = await updateUser(adminUser.id, {
-      passwordHash: bcrypt.hashSync(
-        authConfig.adminUser.password,
-        authConfig.bcrypt.saltRounds
-      ),
-    });
-  }
-
-  console.log("Adding admin role to admin user");
-  await isAdmin(adminUser.id).then(async (isAdmin) => {
-    if (!isAdmin) {
-      await addRoleToUser("admin", adminUser!.id);
-      console.log("Admin role added to admin user");
-    } else {
-      console.log("Admin role already added to admin user");
-    }
-  });
-  console.log("Initial admin user created");
-}

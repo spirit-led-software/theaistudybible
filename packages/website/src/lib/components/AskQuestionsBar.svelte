@@ -20,10 +20,11 @@
 	];
 
 	let input = '';
-	$: handleAskQuestion = async () => {
+
+	const handleAskQuestion = async (query: string) => {
 		try {
-			if (input) {
-				goto(`/chat?query=${input}`);
+			if (query) {
+				goto(`/chat?query=${query}`);
 			} else {
 				goto('/chat');
 			}
@@ -34,7 +35,10 @@
 	};
 </script>
 
-<form class="flex flex-col w-full space-y-1" on:submit|preventDefault={handleAskQuestion}>
+<form
+	class="flex flex-col w-full space-y-1"
+	on:submit|preventDefault={() => handleAskQuestion(input)}
+>
 	<label for="question-bar" class="text-sm text-gray-400">Ask a question</label>
 	<div class="flex w-full space-x-0">
 		<input
