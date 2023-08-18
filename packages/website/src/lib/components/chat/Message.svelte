@@ -20,7 +20,9 @@
 		{#if role === 'user'}
 			<Avatar {user} size="md" class="border shadow-lg" />
 		{:else}
-			<Cross />
+			<div class="px-3 py-2 rounded-full shadow-lg outline outline-slate-200">
+				<Cross colorscheme="dark" />
+			</div>
 		{/if}
 	</div>
 	<div class="flex flex-col w-full pl-5 pr-3 overflow-x-clip">

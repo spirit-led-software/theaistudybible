@@ -82,6 +82,7 @@ export const users = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name"),
     email: text("email").notNull(),
+    passwordHash: text("password_hash"),
     stripeCustomerId: text("stripe_customer_id"),
     image: text("image"),
   },

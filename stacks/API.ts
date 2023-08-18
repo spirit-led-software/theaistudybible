@@ -54,7 +54,6 @@ export function API({ stack }: StackContext) {
       allowedHeaders: ["*"],
       allowedMethods: [HttpMethod.ALL],
       allowedOrigins: [websiteUrl],
-      exposedHeaders: ["*"],
     },
     authType: FunctionUrlAuthType.NONE,
   });
@@ -204,11 +203,10 @@ export function API({ stack }: StackContext) {
       hostedZone: hostedZone.zoneName,
     },
     cors: {
+      allowCredentials: true,
       allowOrigins: [websiteUrl],
       allowHeaders: ["*"],
       allowMethods: ["ANY"],
-      allowCredentials: true,
-      exposeHeaders: ["*"],
     },
   });
 

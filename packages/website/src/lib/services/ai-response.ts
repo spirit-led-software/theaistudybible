@@ -9,18 +9,23 @@ import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
 	PaginatedEntitiesResponse,
+	ProtectedApiOptions,
 	SearchForEntitiesOptions
 } from './types';
 
-export async function getAiResponses(options: PaginatedEntitiesOptions) {
+export async function getAiResponses(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses?${searchParams.toString()}`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
-		console.error(`Error retrieving AI responses. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error retrieving AI responses. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error retrieving AI responses.');
 	}
@@ -34,10 +39,12 @@ export async function getAiResponses(options: PaginatedEntitiesOptions) {
 	};
 }
 
-export async function getAiResponse(id: string) {
+export async function getAiResponse(id: string, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
@@ -52,17 +59,21 @@ export async function getAiResponse(id: string) {
 }
 
 export async function searchForAiResponses(
-	options: SearchForEntitiesOptions & PaginatedEntitiesOptions
+	options: SearchForEntitiesOptions & PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses/search?${searchParams.toString()}`, {
 		method: 'POST',
-		credentials: 'include',
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		},
 		body: JSON.stringify(options.query)
 	});
 
 	if (!response.ok) {
-		console.error(`Error searching for AI responses. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error searching for AI responses. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error searching for AI responses.');
 	}
@@ -76,16 +87,17 @@ export async function searchForAiResponses(
 	};
 }
 
-export async function getAiResponseSourceDocuments(id: string) {
+export async function getAiResponseSourceDocuments(id: string, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}/source-documents`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
 		console.error(
-			`Error retrieving source documents for AI response with id ${id}. Received response:`,
-			JSON.stringify(response)
+			`Error retrieving source documents for AI response with id ${id}. Received response: ${response.status} ${response.statusText}`
 		);
 		const data = await response.json();
 		throw new Error(
@@ -98,15 +110,23 @@ export async function getAiResponseSourceDocuments(id: string) {
 	return sourceDocuments;
 }
 
-export async function createAiResponse(data: Partial<CreateAiResponseData>) {
+export async function createAiResponse(
+	data: Partial<CreateAiResponseData>,
+	options: ProtectedApiOptions
+) {
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses`, {
 		method: 'POST',
-		credentials: 'include',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${options.session}`
+		},
 		body: JSON.stringify(data)
 	});
 
 	if (!response.ok) {
-		console.error(`Error creating AI response. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error creating AI response. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error creating AI response.');
 	}
@@ -116,18 +136,24 @@ export async function createAiResponse(data: Partial<CreateAiResponseData>) {
 	return aiResponse;
 }
 
-export async function updateAiResponse(id: string, data: Partial<UpdateAiResponseData>) {
+export async function updateAiResponse(
+	id: string,
+	data: Partial<UpdateAiResponseData>,
+	options: ProtectedApiOptions
+) {
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}`, {
 		method: 'PUT',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${options.session}`
 		},
-		credentials: 'include',
 		body: JSON.stringify(data)
 	});
 
 	if (!response.ok) {
-		console.error(`Error updating AI response. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error updating AI response. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error updating AI response.');
 	}
@@ -137,14 +163,18 @@ export async function updateAiResponse(id: string, data: Partial<UpdateAiRespons
 	return aiResponse;
 }
 
-export async function deleteAiResponse(id: string) {
+export async function deleteAiResponse(id: string, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}`, {
 		method: 'DELETE',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
-		console.error(`Error deleting AI response. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error deleting AI response. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error deleting AI response.');
 	}

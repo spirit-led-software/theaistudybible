@@ -4,14 +4,17 @@ import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
 	PaginatedEntitiesResponse,
+	ProtectedApiOptions,
 	SearchForEntitiesOptions
 } from '../types';
 
-export async function getUserMessages(options: PaginatedEntitiesOptions) {
+export async function getUserMessages(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(`${PUBLIC_API_URL}/user-messages?${searchParams.toString()}`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
@@ -29,10 +32,12 @@ export async function getUserMessages(options: PaginatedEntitiesOptions) {
 	};
 }
 
-export async function getUserMessage(id: string) {
+export async function getUserMessage(id: string, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/user-messages/${id}`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
@@ -47,14 +52,16 @@ export async function getUserMessage(id: string) {
 }
 
 export async function searchForUserMessages(
-	options: SearchForEntitiesOptions & PaginatedEntitiesOptions
+	options: SearchForEntitiesOptions & PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(
 		`${PUBLIC_API_URL}/user-messages/search?${searchParams.toString()}`,
 		{
 			method: 'POST',
-			credentials: 'include',
+			headers: {
+				Authorization: `Bearer ${options.session}`
+			},
 			body: JSON.stringify(options.query)
 		}
 	);

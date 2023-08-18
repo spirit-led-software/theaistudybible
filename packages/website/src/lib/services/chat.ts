@@ -1,17 +1,25 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { Chat, CreateChatData, UpdateChatData } from '@core/model';
 import { GetEntitiesSearchParams } from './helpers/search-params';
-import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from './types';
+import type {
+	PaginatedEntitiesOptions,
+	PaginatedEntitiesResponse,
+	ProtectedApiOptions
+} from './types';
 
-export async function getChats(options: PaginatedEntitiesOptions) {
+export async function getChats(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(`${PUBLIC_API_URL}/chats?${searchParams.toString()}`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
-		console.error(`Error retrieving chats. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error retrieving chats. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error retrieving chats.');
 	}
@@ -25,14 +33,18 @@ export async function getChats(options: PaginatedEntitiesOptions) {
 	};
 }
 
-export async function getChat(id: string) {
+export async function getChat(id: string, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/chats/${id}`, {
 		method: 'GET',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
-		console.error(`Error retrieving chat. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error retrieving chat. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error retrieving chat.');
 	}
@@ -42,18 +54,20 @@ export async function getChat(id: string) {
 	return chat;
 }
 
-export async function createChat(data: Partial<CreateChatData>) {
+export async function createChat(data: Partial<CreateChatData>, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/chats`, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${options.session}`
 		},
-		credentials: 'include',
 		body: JSON.stringify(data)
 	});
 
 	if (!response.ok) {
-		console.error(`Error creating chat. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error creating chat. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error creating chat.');
 	}
@@ -63,18 +77,24 @@ export async function createChat(data: Partial<CreateChatData>) {
 	return chat;
 }
 
-export async function updateChat(id: string, data: Partial<UpdateChatData>) {
+export async function updateChat(
+	id: string,
+	data: Partial<UpdateChatData>,
+	options: ProtectedApiOptions
+) {
 	const response = await fetch(`${PUBLIC_API_URL}/chats/${id}`, {
 		method: 'PUT',
 		headers: {
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${options.session}`
 		},
-		credentials: 'include',
 		body: JSON.stringify(data)
 	});
 
 	if (!response.ok) {
-		console.error(`Error updating chat. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error updating chat. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error updating chat.');
 	}
@@ -84,14 +104,18 @@ export async function updateChat(id: string, data: Partial<UpdateChatData>) {
 	return chat;
 }
 
-export async function deleteChat(id: string) {
+export async function deleteChat(id: string, options: ProtectedApiOptions) {
 	const response = await fetch(`${PUBLIC_API_URL}/chats/${id}`, {
 		method: 'DELETE',
-		credentials: 'include'
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
 	});
 
 	if (!response.ok) {
-		console.error(`Error deleting chat. Received response:`, JSON.stringify(response));
+		console.error(
+			`Error deleting chat. Received response: ${response.status} ${response.statusText}`
+		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error deleting chat.');
 	}

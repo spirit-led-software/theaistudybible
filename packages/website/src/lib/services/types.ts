@@ -1,4 +1,4 @@
-import type { Query } from '@revelationsai/core/database/helpers';
+import type { Query } from '@core/database/helpers';
 
 export type PaginatedEntitiesResponse<T> = {
 	entities: T[];
@@ -15,4 +15,8 @@ export type PaginatedEntitiesOptions = {
 	limit?: number;
 	orderBy?: string;
 	order?: 'asc' | 'desc';
+};
+
+export type ProtectedApiOptions = {
+	session: string;
 };

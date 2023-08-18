@@ -1,15 +1,23 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { UserQueryCount } from '@core/model';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
-import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
+import type {
+	PaginatedEntitiesOptions,
+	PaginatedEntitiesResponse,
+	ProtectedApiOptions
+} from '../types';
 
-export async function getCurrentUsersQueryCounts(options: PaginatedEntitiesOptions) {
+export async function getCurrentUsersQueryCounts(
+	options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(
 		`${PUBLIC_API_URL}/users/me/query-counts?${searchParams.toString()}`,
 		{
 			method: 'GET',
-			credentials: 'include'
+			headers: {
+				Authorization: `Bearer ${options.session}`
+			}
 		}
 	);
 
@@ -32,13 +40,18 @@ export async function getCurrentUsersQueryCounts(options: PaginatedEntitiesOptio
 	};
 }
 
-export async function getUserQueryCounts(id: string, options: PaginatedEntitiesOptions) {
+export async function getUserQueryCounts(
+	id: string,
+	options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(
 		`${PUBLIC_API_URL}/users/${id}/query-counts?${searchParams.toString()}`,
 		{
 			method: 'GET',
-			credentials: 'include'
+			headers: {
+				Authorization: `Bearer ${options.session}`
+			}
 		}
 	);
 

@@ -1,19 +1,61 @@
-import { emailConfig, websiteConfig } from "@core/configs";
-import { emailTransport } from "@core/configs/email";
+import { authConfig, websiteConfig } from "@core/configs";
 import { User } from "@core/model";
-import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
+import { InternalServerErrorResponse } from "@lib/api-responses";
 import { createUser, getUserByEmail, updateUser } from "@services/user";
+import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import * as bcrypt from "bcrypt";
 import { TokenSet } from "openid-client";
+import { useBody, usePath } from "sst/node/api";
 import {
   AuthHandler,
   FacebookAdapter,
   GoogleAdapter,
-  LinkAdapter,
   Session,
+  createAdapter,
 } from "sst/node/auth";
 
+interface EmailPasswordConfig {
+  onRegister: (claims: {
+    email: string;
+    password: string;
+  }) => Promise<APIGatewayProxyStructuredResultV2>;
+  onLogin: (claims: {
+    email: string;
+    password: string;
+  }) => Promise<APIGatewayProxyStructuredResultV2>;
+  onError: (error: any) => Promise<APIGatewayProxyStructuredResultV2>;
+}
+
+const EmailPasswordAdapter = createAdapter((config: EmailPasswordConfig) => {
+  return async function () {
+    const [step] = usePath().slice(-1);
+    if (step === "register") {
+      try {
+        const claims: {
+          email: string;
+          password: string;
+        } = JSON.parse(useBody() || "{}");
+        return config.onRegister(claims);
+      } catch (error: any) {
+        return config.onError(error);
+      }
+    } else if (step === "login") {
+      try {
+        const claims: {
+          email: string;
+          password: string;
+        } = JSON.parse(useBody() || "{}");
+        return config.onLogin(claims);
+      } catch (error: any) {
+        return config.onError(error);
+      }
+    }
+    throw new Error("Invalid login step");
+  };
+});
+
 const SessionParameter = (user: User) =>
-  Session.cookie({
+  Session.parameter({
     type: "user",
     options: {
       expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
@@ -69,43 +111,41 @@ export const handler = AuthHandler({
         return SessionParameter(user);
       },
     }),
-    email: LinkAdapter({
-      onLink: async (link, claims) => {
-        try {
-          const sendMessageInfo = await emailTransport.sendMail({
-            to: claims.email,
-            from: emailConfig.from,
-            subject: "Login to revelationsAI",
-            replyTo: emailConfig.replyTo,
-            html: emailLinkHtml(link),
-          });
-          if (sendMessageInfo.rejected.length > 0) {
-            throw new Error(
-              `Failed to send email to ${sendMessageInfo.rejected.join(", ")}`
-            );
-          }
-          console.log("Send message response:", sendMessageInfo.response);
-
-          return OkResponse({
-            message: "Login link email sent",
-            claims,
-          });
-        } catch (error: any) {
-          console.error(error);
-          return InternalServerErrorResponse(error.stack);
-        }
-      },
-      onSuccess: async (claims) => {
+    email: EmailPasswordAdapter({
+      onRegister: async (claims) => {
         let user: User | undefined = await getUserByEmail(claims.email);
         if (!user) {
           user = await createUser({
             email: claims.email,
+            passwordHash: await bcrypt.hash(
+              claims.password,
+              authConfig.bcrypt.saltRounds
+            ),
           });
+        } else {
+          return InternalServerErrorResponse("User already exists");
         }
         return SessionParameter(user);
       },
-      onError: async () => {
-        return InternalServerErrorResponse("Failed to login with email link");
+      onLogin: async (claims) => {
+        let user: User | undefined = await getUserByEmail(claims.email);
+        if (!user) {
+          return InternalServerErrorResponse("User not found");
+        }
+        if (!user.passwordHash) {
+          return InternalServerErrorResponse(
+            "You may have signed up with a different provider."
+          );
+        }
+        if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
+          return InternalServerErrorResponse("Incorrect password");
+        }
+        return SessionParameter(user);
+      },
+      onError: async (error) => {
+        return InternalServerErrorResponse(
+          error.stack || error.message || "Something went wrong"
+        );
       },
     }),
   },

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { createChat, deleteChat, getChats } from '$lib/services/chat';
 	import type { Chat } from '@core/model';
 	import Icon from '@iconify/svelte';
@@ -15,14 +16,19 @@
 
 	$: query = createQuery({
 		queryKey: ['chats'],
-		queryFn: () => getChats({ limit }).then((r) => r.chats),
+		queryFn: () => getChats({ limit, session: $page.data.session }).then((r) => r.chats),
 		initialData: initChats
 	});
 
 	$: handleCreate = async () => {
-		const chat = await createChat({
-			name: 'New Chat'
-		});
+		await createChat(
+			{
+				name: 'New Chat'
+			},
+			{
+				session: $page.data.session
+			}
+		);
 		if (chats.length >= limit) {
 			limit++;
 		}
@@ -30,14 +36,14 @@
 
 	$: handleDelete = async (id: string) => {
 		if (confirm('Are you sure you want to delete this chat?')) {
-			await deleteChat(id);
+			await deleteChat(id, { session: $page.data.session });
 			if (activeChatId === id) {
 				goto('/chat');
 			}
 		}
 	};
 
-	$: chats = $query.data;
+	$: chats = $query?.data ?? [];
 	$: isLoadingInitial = ($query.isLoading || $query.isFetching) && chats.length === 0;
 	$: isLoadingMore = ($query.isLoading || $query.isFetching) && limit > chats.length;
 </script>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { PUBLIC_CHAT_API_URL } from '$env/static/public';
 	import Message from '$lib/components/chat/Message.svelte';
@@ -26,7 +27,7 @@
 
 	const queryClient = useQueryClient();
 
-	$: chatData = useChat({
+	let { input, handleSubmit, messages, setMessages, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
 		initialMessages: initMessages,
 		sendExtraMessageFields: true,
@@ -47,25 +48,22 @@
 		}
 	});
 
-	$: messages = chatData.messages;
-	$: setMessages = chatData.setMessages;
-	$: isLoading = chatData.isLoading;
-	$: error = chatData.error;
-	$: input = chatData.input;
-	$: handleSubmit = chatData.handleSubmit;
-	$: reload = chatData.reload;
-
 	const scrollEndIntoView: MouseEventHandler<HTMLButtonElement> = () => {
-		const endOfMessages = document.getElementById('end-of-messages');
-		if (endOfMessages) endOfMessages.scrollIntoView({ behavior: 'smooth' });
+		if (browser) {
+			const endOfMessages = document.getElementById('end-of-messages');
+			if (endOfMessages) endOfMessages.scrollIntoView({ behavior: 'smooth' });
+		}
 	};
 
-	const handleSubmitCustom: FormEventHandler<HTMLFormElement> = (event) => {
+	const handleSubmitCustom: FormEventHandler<HTMLFormElement> = async (event) => {
 		if ($input === '') {
 			alert = 'Please enter a message';
 		}
-		handleSubmit(event, {
+		await handleSubmit(event, {
 			options: {
+				headers: {
+					authorization: `Bearer ${$page.data.session}`
+				},
 				body: {
 					chatId: chatId ?? undefined
 				}
@@ -75,9 +73,15 @@
 
 	const handleAiResponse = async (chatMessage: ChatMessage, aiResponseId: string) => {
 		try {
-			await updateAiResponse(aiResponseId, {
-				aiId: chatMessage.id
-			});
+			await updateAiResponse(
+				aiResponseId,
+				{
+					aiId: chatMessage.id
+				},
+				{
+					session: $page.data.session
+				}
+			);
 		} catch (err: any) {
 			alert = `Something went wrong: ${err.message}`;
 		} finally {
@@ -88,6 +92,9 @@
 	const handleReload = async () => {
 		await reload({
 			options: {
+				headers: {
+					authorization: `Bearer ${$page.data.session}`
+				},
 				body: {
 					chatId: chatId ?? undefined
 				}
@@ -118,7 +125,7 @@
 		}
 	});
 
-	$: if (messages) {
+	$: if (messages && browser) {
 		const endOfMessages = document.getElementById('end-of-messages');
 		endOfMessages?.scrollIntoView({
 			behavior: 'instant',
@@ -199,7 +206,7 @@
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize id="input" disabled={$isLoading} bind:value={$input} />
+					<TextAreaAutosize id="input" disabled={$isLoading} bind:input />
 					{#if $isLoading}
 						<div class="flex mr-1">
 							<LoadingDots size={'sm'} />

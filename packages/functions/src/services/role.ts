@@ -188,15 +188,15 @@ export async function createStripeRoles() {
   const products = productsResponse.data;
 
   for (const product of products) {
-    const productRole = await getRoleByName(product.name);
+    const productRole = await getRoleByName(`stripe:${product.id}`);
     if (!productRole) {
-      await createRole({
-        name: `stripe:${product.name}`,
+      const role = await createRole({
+        name: `stripe:${product.id}`,
         permissions: [`query:${product.metadata.queryCount}`],
       });
-      console.log(`Created role ${product.name}`);
+      console.log(`Created role ${role.name}`);
     } else {
-      console.log(`Role ${product.name} already exists`);
+      console.log(`Role stripe:${product.id} already exists`);
     }
   }
 

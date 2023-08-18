@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { getAiResponseSourceDocuments, searchForAiResponses } from '$lib/services/ai-response';
 	import type { Query } from '@core/database/helpers';
 	import type { SourceDocument } from '@core/model';
@@ -39,12 +40,15 @@
 				});
 			}
 			const { aiResponses: foundAiResponses } = await searchForAiResponses({
+				session: $page.data.session,
 				query,
 				limit: 1
 			});
 			const aiResponse = foundAiResponses[0];
 
-			const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id);
+			const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
+				session: $page.data.session
+			});
 			sources = foundSourceDocuments.filter((sourceDoc, index) => {
 				const firstIndex = foundSourceDocuments.findIndex(
 					(otherSourceDoc) =>

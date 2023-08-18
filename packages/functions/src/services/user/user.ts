@@ -2,6 +2,7 @@ import { authConfig } from "@core/configs";
 import { CreateUserData, UpdateUserData, User } from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
+import * as bcrypt from "bcrypt";
 import { SQL, desc, eq, or } from "drizzle-orm";
 import { addRoleToUser } from "../role";
 
@@ -135,18 +136,30 @@ export async function createInitialAdminUser() {
   if (!adminUser) {
     adminUser = await createUser({
       email: authConfig.adminUser.email,
+      passwordHash: bcrypt.hashSync(
+        authConfig.adminUser.password,
+        authConfig.bcrypt.saltRounds
+      ),
     });
     console.log("Initial admin user created");
   } else {
-    console.log("Admin user already existed");
+    console.log("Admin user already existed, updating password.");
+    adminUser = await updateUser(adminUser.id, {
+      passwordHash: bcrypt.hashSync(
+        authConfig.adminUser.password,
+        authConfig.bcrypt.saltRounds
+      ),
+    });
   }
 
   console.log("Adding admin role to admin user");
-  if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("admin", adminUser.id);
-    console.log("Admin role added to admin user");
-  } else {
-    console.log("Admin role already added to admin user");
-  }
+  await isAdmin(adminUser.id).then(async (isAdmin) => {
+    if (!isAdmin) {
+      await addRoleToUser("admin", adminUser!.id);
+      console.log("Admin role added to admin user");
+    } else {
+      console.log("Admin role already added to admin user");
+    }
+  });
   console.log("Initial admin user created");
 }

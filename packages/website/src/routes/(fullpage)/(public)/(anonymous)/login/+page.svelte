@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Icon from '@iconify/svelte';
@@ -33,7 +34,7 @@
 		</div>
 		<div class="divide-y divide-gray-600">
 			<div class="flex flex-col w-full pb-4 space-y-3 text-center">
-				<form class="flex flex-col w-full" method="POST" action="?/social">
+				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance>
 					<input type="hidden" name="provider" value="google" />
 					<button
 						type="submit"
@@ -43,7 +44,7 @@
 						Login with Google
 					</button>
 				</form>
-				<form class="flex flex-col w-full" method="POST" action="?/social">
+				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance>
 					<input type="hidden" name="provider" value="facebook" />
 					<button
 						type="submit"
@@ -54,13 +55,20 @@
 					</button>
 				</form>
 			</div>
-			<form class="flex flex-col w-full pt-4 space-y-3" method="POST" action="?/email">
+			<form class="flex flex-col w-full pt-4 space-y-3" method="POST" action="?/email" use:enhance>
 				<input
 					id="email"
 					name="email"
 					type="email"
 					class="w-full px-2 py-2 border shadow-xl outline-none focus:outline-none"
 					placeholder="Email address"
+				/>
+				<input
+					id="password"
+					name="password"
+					type="password"
+					class="w-full px-2 py-2 border shadow-xl outline-none focus:outline-none"
+					placeholder="Password"
 				/>
 				<button
 					type="submit"

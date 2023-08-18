@@ -54,7 +54,7 @@
 					See Devotions
 				</a>
 				<a
-					href={'/auth/login'}
+					href={'/login'}
 					class="w-full py-3 text-white rounded-md bg-slate-700 hover:bg-slate-900 hover:shadow-lg"
 				>
 					Login
