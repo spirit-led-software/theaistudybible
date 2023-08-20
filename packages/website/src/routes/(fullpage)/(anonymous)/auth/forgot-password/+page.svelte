@@ -2,7 +2,6 @@
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import Logo from '$lib/components/branding/Logo.svelte';
-	import { redirect } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
@@ -19,25 +18,25 @@
 		successMessage = form.success.banner;
 	}
 
-	$: if (form?.success?.redirect) throw redirect(307, form.success.redirect);
-
 	$: if (successMessage) setTimeout(() => (successMessage = undefined), 10000);
 	$: if (alertMessage) setTimeout(() => (alertMessage = undefined), 10000);
 </script>
 
 <div
-	class="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2"
+	class="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/2 lg:h-full lg:place-content-center lg:px-20 md:w-1/2 sm:w-2/3"
 >
 	{#if alertMessage}
-		<div class="absolute left-0 right-0 flex -top-20 lg:top-20">
-			<div class="px-4 py-2 mx-auto text-white bg-red-500 rounded-xl lg:text-xl">
+		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
+			<div class="w-5/6 px-4 py-2 mx-auto text-center text-white bg-red-500 rounded-xl lg:text-xl">
 				{alertMessage}
 			</div>
 		</div>
 	{/if}
 	{#if successMessage}
-		<div class="absolute left-0 right-0 flex -top-20 lg:top-20">
-			<div class="px-4 py-2 mx-auto text-white bg-green-500 rounded-xl lg:text-xl">
+		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
+			<div
+				class="w-5/6 px-4 py-2 mx-auto text-center text-white bg-green-500 rounded-xl lg:text-xl"
+			>
 				{successMessage}
 			</div>
 		</div>

@@ -14,7 +14,13 @@ export function Auth({ stack }: StackContext) {
 
   const auth = new AuthConstruct(stack, "auth", {
     authenticator: {
-      handler: "packages/functions/src/auth.handler",
+      handler: "packages/functions/src/auth/auth.handler",
+      copyFiles: [
+        {
+          from: "packages/functions/src/auth/emails",
+          to: "emails",
+        },
+      ],
       environment: {
         WEBSITE_URL: websiteUrl,
         DATABASE_READWRITE_URL: dbReadWriteUrl,

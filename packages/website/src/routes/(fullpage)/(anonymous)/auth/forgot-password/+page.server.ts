@@ -1,10 +1,10 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import isEmail from 'validator/lib/isEmail';
 import isStrongPassword from 'validator/lib/isStrongPassword';
 import type { Actions } from './$types';
 
-type ActionData = { banner?: string; redirect?: string };
+type ActionData = { banner?: string };
 
 export const actions: Actions = {
 	reset: async ({ request }) => {
@@ -40,7 +40,7 @@ export const actions: Actions = {
 			});
 		}
 
-		const response = await fetch(`${PUBLIC_API_URL}/auth/email/reset-password`, {
+		const response = await fetch(`${PUBLIC_API_URL}/auth/credentials/reset-password`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ token, password })
@@ -53,12 +53,10 @@ export const actions: Actions = {
 			});
 		}
 
-		return {
-			success: {
-				banner: 'Password reset successfully.',
-				redirect: `/auth/login?${encodeURIComponent('reset-password=success')}`
-			} as ActionData
-		};
+		throw redirect(
+			307,
+			`/auth/login?${encodeURIComponent('reset-password')}=${encodeURIComponent('success')}`
+		);
 	},
 	forgot: async ({ request }) => {
 		const formData = await request.formData();
@@ -69,9 +67,12 @@ export const actions: Actions = {
 		if (!isEmail(email))
 			return fail(400, { errors: { banner: 'Email is invalid.' } as ActionData });
 
-		const response = await fetch(`${PUBLIC_API_URL}/auth/email/forgot-password?email=${email}`, {
-			method: 'GET'
-		});
+		const response = await fetch(
+			`${PUBLIC_API_URL}/auth/credentials/forgot-password?email=${email}`,
+			{
+				method: 'GET'
+			}
+		);
 
 		if (!response.ok) {
 			const data = await response.json();
