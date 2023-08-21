@@ -1,43 +1,60 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
+	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Icon from '@iconify/svelte';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
 
-	let successMessage: string | undefined = undefined;
-	$: alertMessage = $page.url.searchParams.get('error') || undefined;
-
-	$: if (form?.errors?.banner) {
-		alertMessage = form.errors.banner;
-	}
+	let alertMessage:
+		| {
+				type: 'error' | 'success';
+				text: string;
+		  }
+		| undefined = undefined;
 
 	$: if ($page.url.searchParams.get('reset-password') === 'success') {
-		successMessage = 'Your password has been reset. Please login with your new password.';
+		alertMessage = {
+			type: 'success',
+			text: 'Your password has been reset. Please login with your new password.'
+		};
+	}
+	$: if ($page.url.searchParams.get('error')) {
+		alertMessage = {
+			type: 'error',
+			text: $page.url.searchParams.get('error')!
+		};
+	}
+	$: if ($page.url.searchParams.get('success')) {
+		alertMessage = {
+			type: 'success',
+			text: $page.url.searchParams.get('success')!
+		};
+	}
+
+	$: if (form?.errors?.banner) {
+		alertMessage = {
+			type: 'error',
+			text: form.errors.banner
+		};
 	}
 
 	$: alertMessage && setTimeout(() => (alertMessage = undefined), 10000);
-	$: successMessage && setTimeout(() => (successMessage = undefined), 10000);
 </script>
 
 <div
-	class="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/2 lg:h-full lg:place-content-center lg:px-20 md:w-1/2 sm:w-2/3"
+	class="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2 sm:w-2/3"
 >
 	{#if alertMessage}
 		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
-			<div class="w-5/6 px-4 py-2 mx-auto text-center text-white bg-red-500 rounded-xl lg:text-xl">
-				{alertMessage}
-			</div>
-		</div>
-	{/if}
-	{#if successMessage}
-		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-14">
 			<div
-				class="w-5/6 px-4 py-2 mx-auto text-center text-white bg-green-500 rounded-xl lg:text-xl"
+				class={`w-5/6 px-4 py-2 mx-auto text-center text-white rounded-xl lg:text-xl ${
+					alertMessage.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+				}`}
 			>
-				Your password has been reset. Please login with your new password.
+				{alertMessage.text}
 			</div>
 		</div>
 	{/if}
@@ -78,13 +95,7 @@
 					class="w-full px-2 py-2 border shadow-xl outline-none focus:outline-none"
 					placeholder="Email address"
 				/>
-				<input
-					id="password"
-					name="password"
-					type="password"
-					class="w-full px-2 py-2 border shadow-xl outline-none focus:outline-none"
-					placeholder="Password"
-				/>
+				<PasswordInput class="w-full shadow-xl" />
 				<button
 					type="submit"
 					class="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"

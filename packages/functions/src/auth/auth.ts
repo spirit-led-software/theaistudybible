@@ -9,8 +9,8 @@ import {
 } from "@lib/api-responses";
 import { createUser, getUserByEmail, updateUser } from "@services/user";
 import * as bcrypt from "bcryptjs";
-import Email from "email-templates";
 import { TokenSet } from "openid-client";
+import pug from "pug";
 import {
   AuthHandler,
   FacebookAdapter,
@@ -95,23 +95,26 @@ export const handler = AuthHandler({
     }),
     credentials: CredentialsAdapter({
       onRegister: async (link, claims) => {
-        const template = new Email({
-          message: {
-            from: emailConfig.from,
-            replyTo: emailConfig.replyTo,
-            subject: "Verify your email",
-          },
-          transport: emailTransport,
+        const htmlCompileFunction = pug.compileFile(
+          "emails/verify-email/html.pug"
+        );
+        const html = htmlCompileFunction({
+          link,
         });
-        await template.send({
-          template: "verify-email",
-          message: {
-            to: claims.email,
-          },
-          locals: {
-            link,
-          },
+        const sendEmailResponse = await emailTransport.sendMail({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: claims.email,
+          subject: "Verify your email",
+          html,
         });
+
+        if (sendEmailResponse.rejected.length > 0) {
+          return InternalServerErrorResponse(
+            "Failed to send verification email"
+          );
+        }
+
         return OkResponse({
           message: "Verify email sent",
         });
@@ -129,7 +132,7 @@ export const handler = AuthHandler({
         } else {
           return BadRequestResponse("A user already exists with this email");
         }
-        return SessionResponse(user);
+        return SessionParameter(user);
       },
       onLogin: async (claims) => {
         let user: User | undefined = await getUserByEmail(claims.email);
@@ -147,23 +150,25 @@ export const handler = AuthHandler({
         return SessionResponse(user);
       },
       onForgotPassword: async (link, claims) => {
-        const template = new Email({
-          message: {
-            from: emailConfig.from,
-            replyTo: emailConfig.replyTo,
-            subject: "Reset your password",
-          },
-          transport: emailTransport,
+        const htmlCompileFunction = pug.compileFile(
+          "emails/reset-password/html.pug"
+        );
+        const html = htmlCompileFunction({
+          link,
         });
-        await template.send({
-          template: "reset-password",
-          message: {
-            to: claims.email,
-          },
-          locals: {
-            link,
-          },
+        const sendEmailResponse = await emailTransport.sendMail({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: claims.email,
+          subject: "Reset Your Password",
+          html,
         });
+
+        if (sendEmailResponse.rejected.length > 0) {
+          return InternalServerErrorResponse(
+            "Failed to send password reset email"
+          );
+        }
         return OkResponse({
           message: "Password reset email sent",
         });
@@ -204,37 +209,3 @@ export const handler = AuthHandler({
     }),
   },
 });
-
-const verifyEmailHtml = (link: string) => `
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Verify Email for RevelationsAI</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <p>Click this link to verify your email: <a href="${link}">${link}</a></p>
-  </body>
-</html>
-`;
-
-const resetPasswordHtml = (link: string) => `
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Reset password for RevelationsAI</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <p>Click this link to reset your password: <a href="${link}">${link}</a></p>
-  </body>
-</html>
-`;

@@ -7,14 +7,18 @@
 	const tools: {
 		name: string;
 		icon: string;
-		route: string;
+		path: string;
 	}[] = [
 		{
 			name: 'Index Files',
 			icon: 'mdi:file-find',
-			route: '/admin/file-index'
+			path: '/admin/file-index'
 		}
 	];
+
+	$: isActive = (path: string) => {
+		return $page.url.pathname === path;
+	};
 </script>
 
 <div
@@ -40,9 +44,9 @@
 			<div class="flex flex-col content-center w-full space-y-2">
 				<div class="flex justify-center w-full">
 					{#each tools as tool}
-						<div class={`flex hover:bg-slate-900 ${$page.url.pathname === tool.route}`}>
+						<div class={`flex hover:bg-slate-900 ${isActive(tool.path) ? 'bg-slate-900' : ''}`}>
 							<Icon icon={tool.icon} class="text-xl" />
-							<a href={tool.route}>{tool.name}</a>
+							<a href={tool.path}>{tool.name}</a>
 						</div>
 					{/each}
 				</div>

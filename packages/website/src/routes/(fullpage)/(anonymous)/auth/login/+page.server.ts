@@ -27,7 +27,7 @@ export const actions: Actions = {
 			});
 		}
 
-		const { session }: { session: string | undefined } = await response.json();
+		const { session } = await response.json();
 		if (!session) {
 			return fail(500, {
 				errors: { banner: 'Something went wrong. Please try again.' } as ActionData

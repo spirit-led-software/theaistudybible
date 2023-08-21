@@ -17,7 +17,7 @@ export function Auth({ stack }: StackContext) {
       handler: "packages/functions/src/auth/auth.handler",
       copyFiles: [
         {
-          from: "packages/functions/src/auth/emails",
+          from: "emails",
           to: "emails",
         },
       ],
