@@ -109,7 +109,9 @@ export async function createStripeRoles() {
 
   console.log("Creating stripe roles");
 
-  const productsResponse = await stripe.products.list();
+  const productsResponse = await stripe.products.list({
+    active: true,
+  });
   const products = productsResponse.data;
 
   for (const product of products) {
