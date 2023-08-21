@@ -8,7 +8,7 @@
 	import Moment from 'moment';
 	import { SolidLineSpinner } from '../loading';
 
-	export let initChats: Chat[];
+	export let initChats: Chat[] = [];
 	export let activeChatId: string | undefined = undefined;
 
 	let isOpen = false;
@@ -62,7 +62,7 @@
 		}
 	});
 
-	$: if ($page.route) isOpen = false;
+	$: if ($page.url.pathname) isOpen = false;
 </script>
 
 <div

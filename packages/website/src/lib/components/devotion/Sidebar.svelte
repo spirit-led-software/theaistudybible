@@ -7,7 +7,7 @@
 	import Moment from 'moment';
 	import { SolidLineSpinner } from '../loading';
 
-	export let initDevos: Devotion[];
+	export let initDevos: Devotion[] = [];
 	export let activeDevoId: string;
 
 	let isOpen = false;
@@ -38,7 +38,7 @@
 		}
 	});
 
-	$: if ($page.route) isOpen = false;
+	$: if ($page.url.pathname) isOpen = false;
 </script>
 
 <div

@@ -3,6 +3,7 @@
 	import Icon from '@iconify/svelte';
 
 	let isOpen = false;
+	let activePath: string | undefined = undefined;
 
 	const tools: {
 		name: string;
@@ -10,15 +11,26 @@
 		path: string;
 	}[] = [
 		{
-			name: 'Index Files',
+			name: 'Index File',
 			icon: 'mdi:file-find',
 			path: '/admin/file-index'
+		},
+		{
+			name: 'Index Website',
+			icon: 'mdi:web',
+			path: '/admin/website-index'
+		},
+		{
+			name: 'Index Webpage',
+			icon: 'mdi:web',
+			path: '/admin/webpage-index'
 		}
 	];
 
-	$: isActive = (path: string) => {
-		return $page.url.pathname === path;
-	};
+	$: if ($page.url.pathname) {
+		activePath = $page.url.pathname;
+		isOpen = false;
+	}
 </script>
 
 <div
@@ -33,7 +45,7 @@
 			}`}
 			on:click|preventDefault={() => (isOpen = !isOpen)}
 		>
-			<Icon icon="formkit:arrowleft" class="text-xl" />
+			<Icon icon="formkit:arrowleft" height={20} width={20} />
 		</button>
 		<div
 			class={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${
@@ -41,15 +53,17 @@
 			}`}
 		>
 			<h1 class="px-2 mb-3 text-2xl font-bold">Admin Utilities</h1>
-			<div class="flex flex-col content-center w-full space-y-2">
-				<div class="flex justify-center w-full">
-					{#each tools as tool}
-						<div class={`flex hover:bg-slate-900 ${isActive(tool.path) ? 'bg-slate-900' : ''}`}>
-							<Icon icon={tool.icon} class="text-xl" />
-							<a href={tool.path}>{tool.name}</a>
-						</div>
-					{/each}
-				</div>
+			<div class="flex flex-col justify-center w-full space-y-3">
+				{#each tools as tool}
+					<div
+						class={`flex px-3 py-2 rounded-xl cursor-pointer hover:bg-slate-900 ${
+							activePath === tool.path ? 'bg-slate-900' : ''
+						}`}
+					>
+						<Icon icon={tool.icon} class="mr-2 text-xl" />
+						<a href={tool.path}>{tool.name}</a>
+					</div>
+				{/each}
 			</div>
 		</div>
 	</div>

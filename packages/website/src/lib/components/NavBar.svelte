@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Avatar from '$lib/components/user/Avatar.svelte';
+	import { isAdmin } from '$lib/services/user';
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 
@@ -26,6 +27,13 @@
 			href: '/devotions'
 		}
 	];
+
+	$: if (user && isAdmin(user)) {
+		navItems.push({
+			label: 'Admin',
+			href: '/admin'
+		});
+	}
 
 	const isActive = (path: string) => {
 		if (path === '/') return $page.url.pathname === path;
