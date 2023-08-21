@@ -55,14 +55,15 @@
 			<h1 class="px-2 mb-3 text-2xl font-medium">Admin Utilities</h1>
 			<div class="flex flex-col justify-center w-full space-y-3">
 				{#each tools as tool}
-					<div
-						class={`flex px-3 py-2 rounded-xl cursor-pointer hover:bg-slate-900 ${
+					<a
+						href={tool.path}
+						class={`inline-flex w-full px-3 py-2 rounded-xl cursor-pointer hover:bg-slate-900 ${
 							activePath === tool.path ? 'bg-slate-900' : ''
 						}`}
 					>
 						<Icon icon={tool.icon} class="mr-2 text-xl" />
-						<a href={tool.path}>{tool.name}</a>
-					</div>
+						{tool.name}
+					</a>
 				{/each}
 			</div>
 		</div>
