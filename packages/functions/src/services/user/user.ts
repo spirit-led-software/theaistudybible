@@ -1,10 +1,7 @@
-import { authConfig } from "@core/configs";
-import { CreateUserData, UpdateUserData, User } from "@core/model";
+import { CreateUserData, Role, UpdateUserData } from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import * as bcrypt from "bcrypt";
-import { SQL, desc, eq, or } from "drizzle-orm";
-import { addRoleToUser } from "../role";
+import { SQL, desc, eq, inArray } from "drizzle-orm";
 
 export async function getUsers(
   options: {
@@ -52,16 +49,18 @@ export async function getUserRoles(id: string) {
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, user.id));
 
-  const userRoles = await readOnlyDatabase
-    .select()
-    .from(roles)
-    .where(
-      or(
-        ...userRolesRelation.map((userRoleRelation) =>
-          eq(roles.id, userRoleRelation.roleId)
+  let userRoles: Role[] = [];
+  if (userRolesRelation.length > 0) {
+    userRoles = await readOnlyDatabase
+      .select()
+      .from(roles)
+      .where(
+        inArray(
+          roles.id,
+          userRolesRelation.map((userRoleRelation) => userRoleRelation.roleId)
         )
-      )
-    );
+      );
+  }
 
   return userRoles;
 }

@@ -105,7 +105,7 @@
 				{#if $query.isSuccess}
 					{#each chats as chat (chat.id)}
 						<div
-							class={`flex place-items-center p-2 rounded-lg hover:bg-slate-900 ${
+							class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 ${
 								activeChatId === chat.id ? 'bg-slate-800' : ''
 							}`}
 						>
@@ -115,7 +115,7 @@
 									{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
 								</div>
 							</a>
-							<div class="flex justify-center flex-1">
+							<div class="flex">
 								<button
 									class="flex w-full h-full"
 									on:click|preventDefault={() => handleDelete(chat.id)}

@@ -1,9 +1,7 @@
 import { CreateRoleData, Role, UpdateRoleData } from "@core/model";
 import { roles, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, and, desc, eq, like } from "drizzle-orm";
-import Stripe from "stripe";
-import { stripeConfig } from "../configs";
+import { SQL, and, desc, eq, inArray, like } from "drizzle-orm";
 import { getUserOrThrow } from "./user/user";
 
 export async function getRoles(
@@ -90,15 +88,17 @@ export async function addRoleToUser(roleName: string, userId: string) {
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId));
 
-  const userRoles: Role[] = [];
-  for (const userRoleRelation of userRolesRelation) {
-    const userRole = (
-      await readOnlyDatabase
-        .select()
-        .from(roles)
-        .where(eq(roles.id, userRoleRelation.roleId))
-    )[0];
-    userRoles.push(userRole);
+  let userRoles: Role[] = [];
+  if (userRolesRelation.length > 0) {
+    userRoles = await readOnlyDatabase
+      .select()
+      .from(roles)
+      .where(
+        inArray(
+          roles.id,
+          userRolesRelation.map((r) => r.roleId)
+        )
+      );
   }
 
   if (userRoles.some((r) => r.id === role.id)) {

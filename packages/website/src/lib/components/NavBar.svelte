@@ -93,7 +93,7 @@
 		{#if user}
 			<div class="hidden space-x-2 lg:flex">
 				<div class="inline-flex items-center justify-center space-x-1">
-					<Avatar {user} size="sm" />
+					<Avatar {user} size="md" />
 				</div>
 				<a
 					href="/auth/logout"
@@ -152,9 +152,9 @@
 					{#if user}
 						<div class="flex flex-col w-full space-y-2">
 							<div class="inline-flex items-center justify-center">
-								<Avatar {user} size="sm" />
+								<Avatar {user} size="md" />
 								<span class="ml-2 text-sm font-semibold text-gray-800">
-									{user.email ?? 'User'}
+									{user.name || user.email || 'User'}
 								</span>
 							</div>
 							<a

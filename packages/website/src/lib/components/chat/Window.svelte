@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 	import { PUBLIC_CHAT_API_URL } from '$env/static/public';
 	import Message from '$lib/components/chat/Message.svelte';
@@ -10,6 +9,7 @@
 	import { nanoid, type Message as ChatMessage } from 'ai';
 	import { useChat } from 'ai/svelte';
 	import { onMount } from 'svelte';
+	import IntersectionObserver from 'svelte-intersection-observer';
 	import { LoadingDots } from '../loading';
 	import TextAreaAutosize from './TextAreaAutosize.svelte';
 
@@ -19,44 +19,14 @@
 
 	let showScrollToBottomButton = false;
 	let alert: string | undefined = undefined;
-	let chatId: string | undefined = undefined;
+	let chatId: string | undefined = initChatId;
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
+	let endOfMessagesRef: HTMLDivElement | undefined = undefined;
+	let isEndOfMessagesShowing = false;
 
 	const queryClient = useQueryClient();
-
-	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
-		api: PUBLIC_CHAT_API_URL,
-		initialMessages: initMessages,
-		sendExtraMessageFields: true,
-		onResponse: (response) => {
-			if (response.status === 429) {
-				alert = 'You have reached your daily query limit. Upgrade for more!';
-				return;
-			} else if (!response.ok) {
-				alert = 'Something went wrong. Please try again.';
-				return;
-			}
-			chatId = response.headers.get('x-chat-id') ?? undefined;
-			lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
-			lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
-		},
-		onFinish: (message: ChatMessage) => {
-			lastChatMessage = message;
-		}
-	}));
-
-	const scrollEndIntoView = () => {
-		if (browser) {
-			const endOfMessages = document.getElementById('end-of-messages');
-			if (endOfMessages) endOfMessages.scrollIntoView({ behavior: 'smooth' });
-		}
-	};
-
-	onMount(() => {
-		chatId = initChatId;
-	});
 
 	onMount(() => {
 		const searchParamsQuery = $page.url.searchParams.get('query');
@@ -79,14 +49,41 @@
 				}
 			);
 		}
+		endOfMessagesRef?.scrollIntoView({
+			behavior: 'instant',
+			block: 'end'
+		});
 	});
 
-	onMount(() => {
-		const inputRef = document.getElementById('input');
-		if (inputRef) {
-			inputRef.focus();
+	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
+		api: PUBLIC_CHAT_API_URL,
+		initialMessages: initMessages,
+		sendExtraMessageFields: true,
+		onResponse: (response) => {
+			if (response.status === 429) {
+				alert = 'You have reached your daily query limit. Upgrade for more!';
+				return;
+			} else if (!response.ok) {
+				alert = 'Something went wrong. Please try again.';
+				return;
+			}
+			chatId = response.headers.get('x-chat-id') ?? undefined;
+			lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
+			lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
+		},
+		onFinish: (message: ChatMessage) => {
+			lastChatMessage = message;
 		}
-	});
+	}));
+
+	$: scrollEndIntoView = () => {
+		if (endOfMessagesRef) {
+			endOfMessagesRef.scrollIntoView({
+				behavior: 'smooth',
+				block: 'end'
+			});
+		}
+	};
 
 	$: messages.subscribe(() => {
 		scrollEndIntoView();
@@ -153,6 +150,8 @@
 		handleAiResponse(lastChatMessage);
 	}
 
+	$: showScrollToBottomButton = !isEndOfMessagesShowing;
+
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 
@@ -182,13 +181,12 @@
 							<Message {user} {chatId} {message} prevMessage={$messages[index - 1]} />
 						</div>
 					{/each}
-					<div
-						id="end-of-messages"
-						class="w-full h-16"
-						on:visibilitychange={({ currentTarget }) => {
-							if (!currentTarget.checkVisibility()) showScrollToBottomButton = true;
-						}}
-					/>
+					<IntersectionObserver
+						element={endOfMessagesRef}
+						bind:intersecting={isEndOfMessagesShowing}
+					>
+						<div bind:this={endOfMessagesRef} class="w-full h-16" />
+					</IntersectionObserver>
 				</div>
 			</div>
 		{:else}
@@ -210,14 +208,14 @@
 				</div>
 			</div>
 		{/if}
-		<button
-			class={`absolute bottom-16 right-5 rounded-full bg-white p-2 shadow-lg ${
-				showScrollToBottomButton ? 'scale-100' : 'scale-0'
-			}`}
-			on:click={scrollEndIntoView}
-		>
-			<Icon icon="icon-park:down" class="text-2xl" />
-		</button>
+		{#if showScrollToBottomButton}
+			<button
+				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5"
+				on:click|preventDefault={scrollEndIntoView}
+			>
+				<Icon icon="icon-park:down" class="text-2xl" />
+			</button>
+		{/if}
 		<div
 			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
 		>
@@ -230,7 +228,7 @@
 							<LoadingDots size={'sm'} />
 						</div>
 					{/if}
-					<button type="button" on:click={handleReload}>
+					<button type="button" tabindex={-1} on:click|preventDefault={handleReload}>
 						<Icon icon="gg:redo" class="mr-1 text-2xl" />
 					</button>
 					<button type="submit">

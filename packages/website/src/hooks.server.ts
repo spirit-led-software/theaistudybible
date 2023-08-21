@@ -15,7 +15,10 @@ export const handle: Handle = async ({ resolve, event }) => {
 		event.locals.user = await getUserInfo(session);
 		event.locals.session = session;
 
-		console.debug(`User ${event.locals.user?.email} authorized`);
+		console.debug(
+			`User ${event.locals.user?.email} authorized with info:`,
+			JSON.stringify(event.locals.user)
+		);
 	} catch (error) {
 		console.debug('Error authorizing user:', error);
 		// Unauthorized

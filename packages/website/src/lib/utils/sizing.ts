@@ -35,17 +35,17 @@ export const squareDimensions = {
 	'3xs': 2,
 	'2xs': 3,
 	xs: 4,
-	sm: 8,
-	md: 10,
+	sm: 6,
+	md: 8,
 	lg: 12,
 	xl: 16,
-	'2xl': 20,
-	'3xl': 24,
-	'4xl': 32,
-	'5xl': 40,
-	'6xl': 48,
-	'7xl': 56,
-	'8xl': 64
+	'2xl': 24,
+	'3xl': 32,
+	'4xl': 40,
+	'5xl': 48,
+	'6xl': 56,
+	'7xl': 64,
+	'8xl': 72
 };
 
 export const squareDimensionClasses = {

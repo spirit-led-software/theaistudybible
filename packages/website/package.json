@@ -46,6 +46,7 @@
 		"ai": "^2.2.2",
 		"autosize": "^6.0.1",
 		"moment": "^2.29.4",
+		"svelte-intersection-observer": "^0.10.1",
 		"validator": "^13.11.0"
 	}
 }
