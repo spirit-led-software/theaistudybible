@@ -8,12 +8,12 @@
 
 	export let user: UserWithRoles | undefined = undefined;
 
-	type NavItem = {
+	let isOpen = false;
+
+	const navItems: {
 		label: string;
 		href: string;
-	};
-
-	const navItems: NavItem[] = [
+	}[] = [
 		{
 			label: 'Home',
 			href: '/'
@@ -28,21 +28,19 @@
 		}
 	];
 
-	$: if (user && isAdmin(user)) {
+	$: if (user && isAdmin(user) && !navItems.some((item) => item.label === 'Admin')) {
 		navItems.push({
 			label: 'Admin',
 			href: '/admin'
 		});
 	}
 
-	const isActive = (path: string) => {
+	$: isActive = (path: string) => {
 		if (path === '/') return $page.url.pathname === path;
 		return $page.url.pathname.startsWith(path);
 	};
 
-	let isOpen = false;
-
-	$: if ($page.route) isOpen = false;
+	$: if ($page.url.pathname) isOpen = false;
 </script>
 
 <div class="flex flex-col">
