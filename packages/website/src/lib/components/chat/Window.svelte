@@ -225,11 +225,16 @@
 							<LoadingDots size={'sm'} />
 						</div>
 					{/if}
-					<button type="button" tabindex={-1} on:click|preventDefault={handleReload}>
-						<Icon icon="gg:redo" class="mr-1 text-2xl" />
+					<button
+						type="button"
+						tabindex={-1}
+						on:click|preventDefault={handleReload}
+						class="mr-1 text-2xl text-slate-800 hover:text-slate-900"
+					>
+						<Icon icon="gg:redo" />
 					</button>
-					<button type="submit">
-						<Icon icon="majesticons:send-line" class="mr-1 text-2xl" />
+					<button type="submit" class="mr-1 text-2xl text-slate-800 hover:text-slate-900">
+						<Icon icon="majesticons:send-line" />
 					</button>
 				</div>
 			</form>

@@ -81,7 +81,7 @@
 			{/each}
 			<li>
 				<a
-					class="block px-6 py-2 text-sm font-extrabold text-white bg-blue-300 rounded-lg hover:bg-blue-400"
+					class="block px-6 py-2 text-sm font-bold text-white bg-blue-300 rounded-lg hover:bg-blue-400"
 					href={'/upgrade'}
 				>
 					Upgrade
@@ -137,7 +137,7 @@
 					{/each}
 					<li>
 						<a
-							class="block px-4 py-3 mb-3 font-extrabold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
+							class="block px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
 							href={'/upgrade'}
 						>
 							Upgrade
