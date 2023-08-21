@@ -6,7 +6,7 @@ import type { Actions } from './$types';
 type ActionData = { banner: string };
 
 export const actions: Actions = {
-	email: async ({ request, url, cookies }) => {
+	credentials: async ({ request, url, cookies }) => {
 		const formData = await request.formData();
 		const email = formData.get('email') as string | null;
 		const password = formData.get('password') as string | null;

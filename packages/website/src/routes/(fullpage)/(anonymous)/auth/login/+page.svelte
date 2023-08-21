@@ -25,7 +25,7 @@
 		};
 	};
 
-	$: if ($page.url.searchParams.get('reset-password') === 'success') {
+	$: if ($page.url.searchParams.get('resetPassword') === 'success') {
 		alertMessage = {
 			type: 'success',
 			text: 'Your password has been reset. Please login with your new password.'
@@ -105,7 +105,7 @@
 			<form
 				class="flex flex-col w-full pt-4 space-y-3"
 				method="POST"
-				action="?/email"
+				action="?/credentials"
 				use:enhance={submit}
 			>
 				<input

@@ -1,7 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import { fail, redirect } from '@sveltejs/kit';
-import isEmail from 'validator/lib/isEmail';
-import isStrongPassword from 'validator/lib/isStrongPassword';
 import type { Actions } from './$types';
 
 type ActionData = { banner?: string };
@@ -14,25 +12,10 @@ export const actions: Actions = {
 		const confirmPassword = formData.get('confirmPassword') as string | null;
 
 		if (!token) return fail(400, { errors: { banner: 'Token is required.' } as ActionData });
-		if (!password) return fail(400, { errors: { banner: 'Password is required.' } as ActionData });
+		if (!password)
+			return fail(400, { errors: { banner: 'New password is required.' } as ActionData });
 		if (!confirmPassword)
-			return fail(400, { errors: { banner: 'Confirm password is required.' } as ActionData });
-
-		if (
-			!isStrongPassword(password, {
-				minLength: 8,
-				minNumbers: 1,
-				minSymbols: 1,
-				minUppercase: 1
-			})
-		) {
-			return fail(400, {
-				errors: {
-					banner:
-						'Password must be at least 8 characters long and contain at least 1 number, 1 symbol, and 1 uppercase letter.'
-				} as ActionData
-			});
-		}
+			return fail(400, { errors: { banner: 'Confirm new password is required.' } as ActionData });
 
 		if (password !== confirmPassword) {
 			return fail(400, {
@@ -53,19 +36,13 @@ export const actions: Actions = {
 			});
 		}
 
-		throw redirect(
-			307,
-			`/auth/login?${encodeURIComponent('reset-password')}=${encodeURIComponent('success')}`
-		);
+		throw redirect(307, `/auth/login?resetPassword=${encodeURIComponent('success')}`);
 	},
 	forgot: async ({ request }) => {
 		const formData = await request.formData();
 		const email = formData.get('email') as string | null;
 
 		if (!email) return fail(400, { errors: { banner: 'Email is required.' } as ActionData });
-
-		if (!isEmail(email))
-			return fail(400, { errors: { banner: 'Email is invalid.' } as ActionData });
 
 		const response = await fetch(
 			`${PUBLIC_API_URL}/auth/credentials/forgot-password?email=${email}`,
