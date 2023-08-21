@@ -20,7 +20,6 @@ env:
   LLM_CHAT_MODEL_NAME: ${{ vars.LLM_CHAT_MODEL_NAME }}
   LLM_COMPLETIONS_MODEL_NAME: ${{ vars.LLM_COMPLETIONS_MODEL_NAME }}
   LLM_EMBEDDINGS_MODEL_NAME: ${{ vars.LLM_EMBEDDINGS_MODEL_NAME }}
-  LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE }}
 
   REPLICATE_API_KEY: ${{ secrets.REPLICATE_API_KEY }}
   REPLICATE_IMAGE_MODEL: ${{ vars.REPLICATE_IMAGE_MODEL }}
@@ -59,8 +58,8 @@ jobs:
         name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
-          cache: 'npm'
+          node-version: "18.x"
+          cache: "npm"
       - id: install_node_deps
         name: Install Node.js dependencies
         run: npm ci
