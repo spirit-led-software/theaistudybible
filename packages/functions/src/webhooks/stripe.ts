@@ -52,7 +52,6 @@ const fulfillOrder = async (
   if (!item.price?.product) {
     throw new Error("No product found for item");
   }
-
   await addRoleToUser(user.id, `stripe:${item.price.product}`);
 };
 

@@ -10,7 +10,7 @@ import {
 import { createChat, getChat, updateChat } from "@services/chat";
 import { getChatModel, getPromptModel } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
-import { isObjectOwner } from "@services/user";
+import { getUserMaxQueries, isObjectOwner } from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
@@ -86,17 +86,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
         new Date()
       );
 
-      const queryPermissions: string[] = [];
-      userInfo.roles.forEach((role) => {
-        const queryPermission = role.permissions.find((permission) => {
-          return permission.startsWith("query:");
-        });
-        if (queryPermission) queryPermissions.push(queryPermission);
-      });
-      const maxQueries = Math.max(
-        ...queryPermissions.map((p) => parseInt(p.split(":")[1]))
-      );
-
+      const maxQueries = getUserMaxQueries(userInfo);
       if (!userDailyQueryCount) {
         createUserQueryCount({
           userId: userInfo.id,

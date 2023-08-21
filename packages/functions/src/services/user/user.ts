@@ -1,4 +1,9 @@
-import { CreateUserData, Role, UpdateUserData } from "@core/model";
+import {
+  CreateUserData,
+  Role,
+  UpdateUserData,
+  UserWithRoles,
+} from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq, inArray } from "drizzle-orm";
@@ -125,4 +130,19 @@ export async function isAdmin(userId: string) {
 
 export function isObjectOwner(object: { userId: string }, userId: string) {
   return object.userId === userId;
+}
+
+export function getUserMaxQueries(userInfo: UserWithRoles) {
+  const queryPermissions: string[] = [];
+  userInfo.roles.forEach((role) => {
+    const queryPermission = role.permissions.find((permission) => {
+      return permission.startsWith("query:");
+    });
+    if (queryPermission) queryPermissions.push(queryPermission);
+  });
+  const maxQueries = Math.max(
+    10,
+    ...queryPermissions.map((p) => parseInt(p.split(":")[1]))
+  );
+  return maxQueries;
 }
