@@ -230,22 +230,24 @@ export const handler = middy({ streamifyResponse: true }).handler(
           CallbackManager.fromHandlers(handlers)
         )
         .then(async (result) => {
-          updateAiResponse(aiResponse.id, {
+          await updateAiResponse(aiResponse.id, {
             text: result.text,
           });
 
           await Promise.all(
             result.sourceDocuments.map(async (sourceDoc: SourceDocument) => {
-              readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
-                aiResponseId: aiResponse.id,
-                sourceDocumentId: sourceDoc.id,
-              });
+              await readWriteDatabase
+                .insert(aiResponsesToSourceDocuments)
+                .values({
+                  aiResponseId: aiResponse.id,
+                  sourceDocumentId: sourceDoc.id,
+                });
             })
           );
         })
-        .catch((err) => {
+        .catch(async (err) => {
           console.error(`${err.stack}`);
-          updateAiResponse(aiResponse.id, {
+          await updateAiResponse(aiResponse.id, {
             failed: true,
           });
         });
