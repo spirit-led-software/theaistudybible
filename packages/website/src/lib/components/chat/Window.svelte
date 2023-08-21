@@ -17,14 +17,13 @@
 	export let initChatId: string | undefined = undefined;
 	export let initMessages: ChatMessage[] | undefined = undefined;
 
-	let showScrollToBottomButton = false;
 	let alert: string | undefined = undefined;
 	let chatId: string | undefined = initChatId;
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
 	let endOfMessagesRef: HTMLDivElement | undefined = undefined;
-	let isEndOfMessagesShowing = false;
+	let isEndOfMessagesShowing = true;
 
 	const queryClient = useQueryClient();
 
@@ -150,8 +149,6 @@
 		handleAiResponse(lastChatMessage);
 	}
 
-	$: showScrollToBottomButton = !isEndOfMessagesShowing;
-
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 
@@ -208,7 +205,7 @@
 				</div>
 			</div>
 		{/if}
-		{#if showScrollToBottomButton}
+		{#if !isEndOfMessagesShowing}
 			<button
 				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5"
 				on:click|preventDefault={scrollEndIntoView}
