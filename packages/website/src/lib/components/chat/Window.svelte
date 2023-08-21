@@ -219,7 +219,7 @@
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize id="input" {input} />
+					<TextAreaAutosize id="input" {input} autofocus />
 					{#if $isLoading}
 						<div class="flex mr-1">
 							<LoadingDots size={'sm'} />
