@@ -29,6 +29,7 @@
 		if (chats.length >= limit) {
 			limit++;
 		}
+		$query.refetch();
 	};
 
 	const handleDelete = async (id: string) => {
@@ -36,6 +37,8 @@
 			await deleteChat(id, { session: $page.data.session });
 			if (activeChatId === id) {
 				goto('/chat');
+			} else {
+				$query.refetch();
 			}
 		}
 	};
