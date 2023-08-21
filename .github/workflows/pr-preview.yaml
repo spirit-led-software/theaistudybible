@@ -19,7 +19,6 @@ env:
   LLM_CHAT_MODEL_NAME: ${{ vars.LLM_CHAT_MODEL_NAME }}
   LLM_COMPLETIONS_MODEL_NAME: ${{ vars.LLM_COMPLETIONS_MODEL_NAME }}
   LLM_EMBEDDINGS_MODEL_NAME: ${{ vars.LLM_EMBEDDINGS_MODEL_NAME }}
-  LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE }}
 
   REPLICATE_API_KEY: ${{ secrets.REPLICATE_API_KEY }}
   REPLICATE_IMAGE_MODEL: ${{ vars.REPLICATE_IMAGE_MODEL }}
@@ -40,6 +39,7 @@ env:
   EMAIL_SERVER_PASSWORD: ${{ secrets.EMAIL_SERVER_PASSWORD }}
 
   ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
   STRIPE_PUBLIC_KEY: ${{ vars.STRIPE_PUBLIC_KEY }}
   STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
@@ -57,8 +57,8 @@ jobs:
         name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
-          cache: 'npm'
+          node-version: "18.x"
+          cache: "npm"
       - id: setup_jq
         name: Setup jq
         run: sudo apt-get install jq

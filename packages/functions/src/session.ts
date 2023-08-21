@@ -1,17 +1,19 @@
 import { UserWithRoles } from "@core/model";
-import { NotFoundResponse, OkResponse } from "@lib/api-responses";
+import {
+  NotFoundResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
 import { getUser, getUserRoles } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 import { useSession } from "sst/node/auth";
 
-export const handler = ApiHandler(async () => {
+export const handler = ApiHandler(async (event) => {
+  console.debug("Received session validation event: ", event);
   const session = useSession();
 
   if (session.type !== "user") {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ message: "Unauthorized" }),
-    };
+    return UnauthorizedResponse();
   }
 
   const user = await getUser(session.properties.id);
@@ -26,5 +28,6 @@ export const handler = ApiHandler(async () => {
     roles,
   };
 
+  console.debug("Returning user: ", userWithRoles);
   return OkResponse(userWithRoles);
 });

@@ -24,7 +24,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse("You are not authorized to update this user");
     }
 
-    if (data.maxQueryCount) {
+    if (data.passwordHash) {
       return UnauthorizedResponse(
         "You are not authorized to update this field"
       );

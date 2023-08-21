@@ -144,3 +144,14 @@ export const InternalServerErrorResponse = (
     }),
   };
 };
+
+export const RedirectResponse = (
+  url: string
+): APIGatewayProxyStructuredResultV2 => {
+  return {
+    statusCode: 302,
+    headers: {
+      Location: url,
+    },
+  };
+};

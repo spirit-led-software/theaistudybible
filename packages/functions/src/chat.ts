@@ -9,8 +9,8 @@ import {
 } from "@services/ai-response";
 import { createChat, getChat, updateChat } from "@services/chat";
 import { getChatModel, getPromptModel } from "@services/llm";
-import { validSessionToken } from "@services/session";
-import { isAdmin, isObjectOwner } from "@services/user";
+import { validSessionFromEvent } from "@services/session";
+import { getUserMaxQueries, isObjectOwner } from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
@@ -67,23 +67,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
         };
       }
 
-      const authorizationHeader = event.headers["authorization"];
-      if (!authorizationHeader) {
-        console.log("No auth header provided in request");
-        return {
-          statusCode: 401,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: Readable.from([
-            JSON.stringify({ error: "No auth header provided in request" }),
-          ]),
-        };
-      }
-
-      const { isValid, userInfo } = await validSessionToken(
-        authorizationHeader.split(" ")[1]
-      );
+      const { isValid, userInfo } = await validSessionFromEvent(event);
       if (!isValid) {
         console.log("Invalid session token");
         return {
@@ -102,18 +86,14 @@ export const handler = middy({ streamifyResponse: true }).handler(
         new Date()
       );
 
+      const maxQueries = getUserMaxQueries(userInfo);
       if (!userDailyQueryCount) {
-        await createUserQueryCount({
+        createUserQueryCount({
           userId: userInfo.id,
           count: 1,
         });
-      } else if (
-        userDailyQueryCount.count >= userInfo.maxDailyQueryCount &&
-        !(await isAdmin(userInfo.id))
-      ) {
-        console.log(
-          `Max daily query count of ${userInfo.maxDailyQueryCount} reached`
-        );
+      } else if (userDailyQueryCount.count >= maxQueries) {
+        console.log(`Max daily query count of ${maxQueries} reached`);
         return {
           statusCode: 429,
           headers: {
@@ -121,12 +101,12 @@ export const handler = middy({ streamifyResponse: true }).handler(
           },
           body: Readable.from([
             JSON.stringify({
-              error: `Max daily query count of ${userInfo.maxDailyQueryCount} reached`,
+              error: `Max daily query count of ${maxQueries} reached`,
             }),
           ]),
         };
       } else {
-        await updateUserQueryCount(userDailyQueryCount.id, {
+        updateUserQueryCount(userDailyQueryCount.id, {
           count: userDailyQueryCount.count + 1,
         });
       }
@@ -168,7 +148,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
       }
 
       if (chat.name === "New Chat") {
-        chat = await updateChat(chat.id, {
+        updateChat(chat.id, {
           name: messages[0].content,
         });
       }
@@ -189,7 +169,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           await getAiResponsesByUserMessageId(userMessage.id)
         )[0];
         if (oldAiResponse) {
-          await updateAiResponse(oldAiResponse.id, {
+          updateAiResponse(oldAiResponse.id, {
             regenerated: true,
           });
         }
@@ -240,7 +220,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           CallbackManager.fromHandlers(handlers)
         )
         .then(async (result) => {
-          aiResponse = await updateAiResponse(aiResponse.id, {
+          await updateAiResponse(aiResponse.id, {
             text: result.text,
           });
 
@@ -281,6 +261,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
                   this.push(null);
                   return;
                 }
+                console.log(`Pushing value: ${JSON.stringify(value)}`);
                 this.push(value);
                 this.read();
               })

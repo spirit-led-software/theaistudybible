@@ -153,6 +153,8 @@ export function API({ stack }: StackContext) {
       // Index Operations
       "GET /index-operations":
         "packages/functions/src/rest/index-operations/get.handler",
+      "POST /index-operations/search":
+        "packages/functions/src/rest/index-operations/search/post.handler",
       "GET /index-operations/{id}":
         "packages/functions/src/rest/index-operations/[id]/get.handler",
       "PUT /index-operations/{id}":
@@ -204,10 +206,10 @@ export function API({ stack }: StackContext) {
       hostedZone: hostedZone.zoneName,
     },
     cors: {
+      allowCredentials: true,
       allowOrigins: [websiteUrl],
       allowHeaders: ["*"],
       allowMethods: ["ANY"],
-      allowCredentials: true,
       exposeHeaders: ["*"],
     },
   });

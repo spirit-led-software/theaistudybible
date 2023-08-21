@@ -1,9 +1,12 @@
-import { authConfig } from "@core/configs";
-import { CreateUserData, UpdateUserData, User } from "@core/model";
+import {
+  CreateUserData,
+  Role,
+  UpdateUserData,
+  UserWithRoles,
+} from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq, or } from "drizzle-orm";
-import { addRoleToUser } from "../role";
+import { SQL, desc, eq, inArray } from "drizzle-orm";
 
 export async function getUsers(
   options: {
@@ -51,16 +54,18 @@ export async function getUserRoles(id: string) {
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, user.id));
 
-  const userRoles = await readOnlyDatabase
-    .select()
-    .from(roles)
-    .where(
-      or(
-        ...userRolesRelation.map((userRoleRelation) =>
-          eq(roles.id, userRoleRelation.roleId)
+  let userRoles: Role[] = [];
+  if (userRolesRelation.length > 0) {
+    userRoles = await readOnlyDatabase
+      .select()
+      .from(roles)
+      .where(
+        inArray(
+          roles.id,
+          userRolesRelation.map((userRoleRelation) => userRoleRelation.roleId)
         )
-      )
-    );
+      );
+  }
 
   return userRoles;
 }
@@ -115,44 +120,29 @@ export async function isAdmin(userId: string) {
   const userRolesRelation = await readOnlyDatabase
     .select()
     .from(usersToRoles)
-    .where(eq(usersToRoles.userId, userId));
+    .where(eq(usersToRoles.userId, userId))
+    .rightJoin(roles, eq(roles.id, usersToRoles.roleId));
 
-  const userRoleNames: string[] = [];
-  for (const userRoleRelation of userRolesRelation) {
-    const userRoles = await readOnlyDatabase
-      .select()
-      .from(roles)
-      .where(eq(roles.id, userRoleRelation.roleId));
-    userRoles.forEach((userRole) => userRoleNames.push(userRole.name));
-  }
-
-  return userRoleNames.some((roleName) => roleName === "ADMIN") ?? false;
+  return userRolesRelation.some((userRoleRelation) => {
+    return userRoleRelation.roles.name === "admin";
+  });
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {
   return object.userId === userId;
 }
 
-export async function createInitialAdminUser() {
-  console.log("Creating initial admin user");
-  let adminUser: User | undefined = await getUserByEmail(
-    authConfig.adminUser.email
-  );
-  if (!adminUser) {
-    adminUser = await createUser({
-      email: authConfig.adminUser.email,
+export function getUserMaxQueries(userInfo: UserWithRoles) {
+  const queryPermissions: string[] = [];
+  userInfo.roles.forEach((role) => {
+    const queryPermission = role.permissions.find((permission) => {
+      return permission.startsWith("query:");
     });
-    console.log("Initial admin user created");
-  } else {
-    console.log("Admin user already existed");
-  }
-
-  console.log("Adding admin role to admin user");
-  if (!(await isAdmin(adminUser.id))) {
-    await addRoleToUser("ADMIN", adminUser.id);
-    console.log("Admin role added to admin user");
-  } else {
-    console.log("Admin role already added to admin user");
-  }
-  console.log("Initial admin user created");
+    if (queryPermission) queryPermissions.push(queryPermission);
+  });
+  const maxQueries = Math.max(
+    10,
+    ...queryPermissions.map((p) => parseInt(p.split(":")[1]))
+  );
+  return maxQueries;
 }

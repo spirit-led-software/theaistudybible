@@ -9,6 +9,10 @@ interface AuthConfig {
   };
   adminUser: {
     email: string;
+    password: string;
+  };
+  bcrypt: {
+    saltRounds: number;
   };
 }
 
@@ -23,6 +27,10 @@ export const config: AuthConfig = {
   },
   adminUser: {
     email: process.env.ADMIN_EMAIL!,
+    password: process.env.ADMIN_PASSWORD!,
+  },
+  bcrypt: {
+    saltRounds: 10,
   },
 };
 

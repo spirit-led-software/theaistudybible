@@ -1,8 +1,8 @@
 import { CreateRoleData, Role, UpdateRoleData } from "@core/model";
 import { roles, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq } from "drizzle-orm";
-import { getUser } from "./user/user";
+import { SQL, and, desc, eq, inArray, like } from "drizzle-orm";
+import { getUserOrThrow } from "./user/user";
 
 export async function getRoles(
   options: {
@@ -81,26 +81,24 @@ export async function deleteRole(id: string) {
 
 export async function addRoleToUser(roleName: string, userId: string) {
   const role = await getRoleByNameOrThrow(roleName);
-  const user = await getUser(userId);
-
-  if (!user) {
-    throw new Error(`User with id ${userId} not found`);
-  }
+  const user = await getUserOrThrow(userId);
 
   const userRolesRelation = await readOnlyDatabase
     .select()
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId));
 
-  const userRoles: Role[] = [];
-  for (const userRoleRelation of userRolesRelation) {
-    const userRole = (
-      await readOnlyDatabase
-        .select()
-        .from(roles)
-        .where(eq(roles.id, userRoleRelation.roleId))
-    )[0];
-    userRoles.push(userRole);
+  let userRoles: Role[] = [];
+  if (userRolesRelation.length > 0) {
+    userRoles = await readOnlyDatabase
+      .select()
+      .from(roles)
+      .where(
+        inArray(
+          roles.id,
+          userRolesRelation.map((r) => r.roleId)
+        )
+      );
   }
 
   if (userRoles.some((r) => r.id === role.id)) {
@@ -118,41 +116,32 @@ export async function addRoleToUser(roleName: string, userId: string) {
   };
 }
 
-export async function createInitialRoles() {
-  console.log("Creating initial roles");
+export async function removeRoleFromUser(roleName: string, userId: string) {
+  const role = await getRoleByNameOrThrow(roleName);
+  const user = await getUserOrThrow(userId);
 
-  console.log("Creating admin role");
-  let adminRole = await getRoleByName("ADMIN");
-  if (!adminRole) {
-    adminRole = await createRole({
-      name: "ADMIN",
-    });
-    console.log("Admin role created");
-  } else {
-    console.log("Admin role already exists");
+  const userRoleRelation = (
+    await readOnlyDatabase
+      .select()
+      .from(usersToRoles)
+      .where(
+        and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id))
+      )
+  )[0];
+
+  if (!userRoleRelation) {
+    throw new Error(`User does not have role ${roleName}`);
   }
 
-  console.log("Creating moderator role");
-  let moderatorRole = await getRoleByName("MODERATOR");
-  if (!moderatorRole) {
-    moderatorRole = await createRole({
-      name: "MODERATOR",
-    });
-    console.log("Moderator role created");
-  } else {
-    console.log("Moderator role already exists");
-  }
+  await readWriteDatabase
+    .delete(usersToRoles)
+    .where(
+      and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id))
+    );
+}
 
-  console.log("Creating default user role");
-  let userRole = await getRoleByName("USER");
-  if (!userRole) {
-    userRole = await createRole({
-      name: "USER",
-    });
-    console.log("Default user role created");
-  } else {
-    console.log("Default user role already exists");
-  }
-
-  console.log("Initial roles created");
+export async function getStripeRoles() {
+  return await getRoles({
+    where: like(roles.name, "stripe:%"),
+  });
 }
