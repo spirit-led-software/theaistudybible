@@ -9,7 +9,9 @@ import { ApiHandler } from "sst/node/api";
 import Stripe from "stripe";
 import { stripeConfig } from "../configs";
 
-const stripe = require("stripe")(stripeConfig.apiKey) as Stripe;
+const stripe = new Stripe(stripeConfig.apiKey, {
+  apiVersion: "2023-08-16",
+});
 
 const validateUser = async (
   email?: string,

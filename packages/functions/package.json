@@ -32,7 +32,7 @@
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
     "puppeteer-core": "^20.9.0",
-    "stripe": "^12.18.0",
+    "stripe": "^13.2.0",
     "validator": "^13.11.0"
   }
 }

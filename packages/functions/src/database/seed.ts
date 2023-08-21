@@ -105,7 +105,7 @@ export async function createInitialRoles() {
 }
 
 export async function createStripeRoles() {
-  const stripe = new Stripe(stripeConfig.apiKey, { apiVersion: "2022-11-15" });
+  const stripe = new Stripe(stripeConfig.apiKey, { apiVersion: "2023-08-16" });
 
   console.log("Creating stripe roles");
 
