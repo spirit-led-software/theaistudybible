@@ -97,7 +97,7 @@
 				{alert}
 			</div>
 		</div>
-		<h1 class="mb-2 text-2xl font-bold text-center lg:text-left">
+		<h1 class="mb-2 text-2xl font-medium text-center lg:text-left">
 			{Moment(activeDevo.createdAt).format('MMMM Do YYYY')}
 		</h1>
 		{#if !activeDevo.prayer || !activeDevo.reflection || images.length === 0}
@@ -117,7 +117,7 @@
 		{/if}
 		{#if activeDevo.bibleReading}
 			<div class="flex flex-col w-full mb-3 break-words whitespace-pre-wrap">
-				<h2 class="mb-2 text-xl font-bold text-center lg:text-left">Reading</h2>
+				<h2 class="mb-2 text-xl font-medium text-center lg:text-left">Reading</h2>
 				<div class="flex flex-col w-full">
 					{activeDevo.bibleReading}
 				</div>
@@ -125,13 +125,13 @@
 		{/if}
 		{#if activeDevo.summary}
 			<div class="flex flex-col w-full mb-3 break-words whitespace-pre-wrap">
-				<h2 class="mb-2 text-xl font-bold text-center lg:text-left">Summary</h2>
+				<h2 class="mb-2 text-xl font-medium text-center lg:text-left">Summary</h2>
 				<div class="flex flex-col w-full">{activeDevo.summary}</div>
 			</div>
 		{/if}
 		{#if activeDevo.reflection}
 			<div class="flex flex-col w-full mb-3 break-words whitespace-pre-wrap">
-				<h2 class="mb-2 text-xl font-bold text-center lg:text-left">Reflection</h2>
+				<h2 class="mb-2 text-xl font-medium text-center lg:text-left">Reflection</h2>
 				<div class="flex flex-col w-full">
 					{activeDevo.reflection}
 				</div>
@@ -139,13 +139,13 @@
 		{/if}
 		{#if activeDevo.prayer}
 			<div class="flex flex-col w-full mb-3 break-words whitespace-pre-wrap">
-				<h2 class="mb-2 text-xl font-bold text-center lg:text-left">Prayer</h2>
+				<h2 class="mb-2 text-xl font-medium text-center lg:text-left">Prayer</h2>
 				<div class="flex flex-col w-full">{activeDevo.prayer}</div>
 			</div>
 		{/if}
 		{#if images && images.length > 0}
 			<div class="flex flex-col w-full">
-				<h2 class="mb-2 text-xl font-bold text-center lg:text-left">Generated Image(s)</h2>
+				<h2 class="mb-2 text-xl font-medium text-center lg:text-left">Generated Image(s)</h2>
 				{#if images[0].caption}
 					<p class="mb-2 text-sm text-center">{images[0].caption}</p>
 				{/if}
@@ -169,7 +169,7 @@
 		{/if}
 		{#if sourceDocuments && sourceDocuments.length > 0}
 			<div class="flex flex-col w-full mt-5">
-				<h2 class="mb-2 font-bold">Sources</h2>
+				<h2 class="mb-2 font-medium">Sources</h2>
 				<ul class="flex flex-col space-y-2 text-xs list-decimal list-inside text-slate-400">
 					{#each sourceDocuments as sourceDoc (sourceDoc.id)}
 						<li>

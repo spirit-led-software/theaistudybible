@@ -25,7 +25,7 @@
 		/>
 	{:else}
 		<div
-			class="absolute inset-0 flex items-center justify-center text-xl font-bold text-white uppercase rounded-full"
+			class="absolute inset-0 flex items-center justify-center text-xl font-medium text-white uppercase rounded-full"
 		>
 			{user.name ? user.name[0] : user.email ? user.email[0] : '?'}
 		</div>

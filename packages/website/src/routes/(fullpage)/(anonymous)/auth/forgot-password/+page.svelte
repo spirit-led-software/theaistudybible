@@ -103,7 +103,7 @@
 					/>
 					<button
 						type="submit"
-						class="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
+						class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 					>
 						Reset Password
 					</button>
@@ -124,7 +124,7 @@
 					/>
 					<button
 						type="submit"
-						class="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
+						class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 					>
 						Enter your email
 					</button>

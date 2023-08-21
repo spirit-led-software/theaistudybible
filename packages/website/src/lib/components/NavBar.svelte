@@ -70,7 +70,7 @@
 			{#each navItems as navItem}
 				<li>
 					<a
-						class={`block px-6 py-2 text-sm font-bold transition duration-200 rounded-xl ${
+						class={`block px-6 py-2 text-sm font-medium transition duration-200 rounded-xl ${
 							isActive(navItem.href)
 								? 'bg-white text-slate-800 hover:bg-gray-100 hover:text-slate-900'
 								: 'bg-transparent text-white hover:bg-gray-800 hover:text-white'
@@ -97,14 +97,14 @@
 				</div>
 				<a
 					href="/auth/logout"
-					class="hidden px-6 py-2 text-sm font-bold text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
+					class="hidden px-6 py-2 text-sm font-medium text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
 				>
 					Log Out
 				</a>
 			</div>
 		{:else}
 			<a
-				class="hidden px-6 py-2 text-sm font-bold text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
+				class="hidden px-6 py-2 text-sm font-medium text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
 				href="/auth/login"
 			>
 				Log In

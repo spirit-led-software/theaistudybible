@@ -62,7 +62,7 @@
 			</div>
 		</div>
 	{/if}
-	<h1 class="text-xl font-bold">Index Operation Status</h1>
+	<h1 class="text-xl font-medium">Index Operation Status</h1>
 	{#if indexOps.length > 0}
 		<div class="w-full h-full overflow-scroll border">
 			<table class="w-full text-left whitespace-normal divide-y table-fixed divide-slate-800">

@@ -29,3 +29,14 @@ export function isObjectOwner(object: { userId: string }, userId: string) {
 export function isAdmin(userInfo: UserWithRoles) {
 	return userInfo.roles.some((role) => role.name === 'admin');
 }
+
+export function getUserMaxQueries(userInfo: UserWithRoles) {
+	const queryPermissions: string[] = [];
+	userInfo.roles.forEach((role) => {
+		const queryPermission = role.permissions.find((permission) => {
+			return permission.startsWith('query:');
+		});
+		if (queryPermission) queryPermissions.push(queryPermission);
+	});
+	return Math.max(10, ...queryPermissions.map((p) => parseInt(p.split(':')[1])));
+}

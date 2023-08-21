@@ -45,7 +45,7 @@
 		</div>
 	{/if}
 	<div class="flex flex-col space-y-2">
-		<h1 class="text-xl font-bold">Index Website</h1>
+		<h1 class="text-xl font-medium">Index Website</h1>
 		<div class="flex flex-col">
 			<input
 				id="name"

@@ -85,7 +85,7 @@
 					<input type="hidden" name="provider" value="google" />
 					<button
 						type="submit"
-						class="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
+						class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 					>
 						<Icon icon="fa6-brands:google" class="inline-block mr-2 text-white" />
 						Register with Google
@@ -95,7 +95,7 @@
 					<input type="hidden" name="provider" value="facebook" />
 					<button
 						type="submit"
-						class="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
+						class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 					>
 						<Icon icon="fa6-brands:facebook-f" class="inline-block mr-2 text-white" />
 						Register with Facebook
@@ -124,7 +124,7 @@
 				/>
 				<button
 					type="submit"
-					class="w-full px-4 py-2 font-bold text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
+					class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 				>
 					Register with Email
 				</button>

@@ -45,7 +45,7 @@
 		</div>
 	{/if}
 	<div class="flex flex-col space-y-2">
-		<h1 class="text-xl font-bold">Index File</h1>
+		<h1 class="text-xl font-medium">Index File</h1>
 		<div class="flex justify-between w-full space-x-2">
 			<div class="flex w-1/2 h-12">
 				<input

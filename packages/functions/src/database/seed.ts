@@ -105,7 +105,7 @@ export async function createInitialRoles() {
 }
 
 export async function createStripeRoles() {
-  const stripe = require("stripe")(stripeConfig.apiKey) as Stripe;
+  const stripe = new Stripe(stripeConfig.apiKey, { apiVersion: "2022-11-15" });
 
   console.log("Creating stripe roles");
 
@@ -117,7 +117,7 @@ export async function createStripeRoles() {
     if (!productRole) {
       const role = await createRole({
         name: `stripe:${product.id}`,
-        permissions: [`query:${product.metadata.queryCount}`],
+        permissions: [`query:${product.metadata.queryLimit}`],
       });
       console.log(`Created role ${role.name}`);
     } else {
@@ -128,7 +128,7 @@ export async function createStripeRoles() {
   const existingRoles = await getStripeRoles();
   for (const existingRole of existingRoles) {
     const product = products.find(
-      (p) => p.name === existingRole.name.split(":")[1]
+      (p) => p.id === existingRole.name.split(":")[1]
     );
     if (!product) {
       await deleteRole(existingRole.id);

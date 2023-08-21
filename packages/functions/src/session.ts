@@ -9,7 +9,7 @@ import { ApiHandler } from "sst/node/api";
 import { useSession } from "sst/node/auth";
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Received session validation event: ", event);
+  console.debug("Received session validation event: ", event);
   const session = useSession();
 
   if (session.type !== "user") {
@@ -28,6 +28,6 @@ export const handler = ApiHandler(async (event) => {
     roles,
   };
 
-  console.log("Returning user: ", userWithRoles);
+  console.debug("Returning user: ", userWithRoles);
   return OkResponse(userWithRoles);
 });

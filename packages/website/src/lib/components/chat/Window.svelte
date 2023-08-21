@@ -194,10 +194,10 @@
 				<div
 					class="flex flex-col w-3/4 px-10 py-5 space-y-2 rounded-lg h-fit bg-slate-200 md:w-1/2"
 				>
-					<h1 class="self-center text-xl font-bold md:text-2xl">
+					<h1 class="self-center text-xl font-medium md:text-2xl">
 						Don{`'`}t know what to say?
 					</h1>
-					<h2 class="text-lg font-bold">Try asking:</h2>
+					<h2 class="text-lg font-medium">Try asking:</h2>
 					<ul class="space-y-1 list-disc list-inside">
 						<li>Who is Jesus Christ?</li>
 						<li>How does Jesus dying on the cross mean that I can be saved?</li>

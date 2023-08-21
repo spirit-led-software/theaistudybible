@@ -52,7 +52,7 @@
 				isOpen ? 'visible' : 'invisible'
 			}`}
 		>
-			<h1 class="px-2 mb-3 text-2xl font-bold">Admin Utilities</h1>
+			<h1 class="px-2 mb-3 text-2xl font-medium">Admin Utilities</h1>
 			<div class="flex flex-col justify-center w-full space-y-3">
 				{#each tools as tool}
 					<div

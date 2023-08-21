@@ -60,7 +60,7 @@
 				isOpen ? 'visible' : 'invisible'
 			}`}
 		>
-			<h1 class="px-2 mb-3 text-2xl font-bold">All Devotions</h1>
+			<h1 class="px-2 mb-3 text-2xl font-medium">All Devotions</h1>
 			<div class="flex flex-col content-center w-full space-y-2">
 				{#if isLoadingInitial}
 					<div class="flex justify-center w-full">
