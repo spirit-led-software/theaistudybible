@@ -3,17 +3,27 @@
 	import { page } from '$app/stores';
 	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
 	import Logo from '$lib/components/branding/Logo.svelte';
-	import type { ActionData } from './$types';
+	import { SolidLineSpinner } from '$lib/components/loading';
+	import type { ActionData, SubmitFunction } from './$types';
 
 	export let form: ActionData;
 
 	let token: string | undefined = undefined;
+	let isLoading = false;
 	let alertMessage:
 		| {
 				type: 'error' | 'success';
 				text: string;
 		  }
 		| undefined = undefined;
+
+	const submit: SubmitFunction = () => {
+		isLoading = true;
+		return async ({ update }) => {
+			isLoading = false;
+			await update();
+		};
+	};
 
 	$: if ($page.url.searchParams.get('token')) token = $page.url.searchParams.get('token')!;
 	$: if ($page.url.searchParams.get('error')) {
@@ -48,6 +58,11 @@
 <div
 	class="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2 sm:w-2/3"
 >
+	{#if isLoading}
+		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
+			<SolidLineSpinner size="md" colorscheme={'dark'} />
+		</div>
+	{/if}
 	{#if alertMessage}
 		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
 			<div
@@ -71,7 +86,7 @@
 					class="flex flex-col w-full pt-4 space-y-3"
 					method="post"
 					action="?/reset"
-					use:enhance
+					use:enhance={submit}
 				>
 					<input id="token" name="token" type="hidden" value={token} />
 					<PasswordInput
@@ -98,7 +113,7 @@
 					class="flex flex-col w-full pt-4 space-y-3"
 					method="post"
 					action="?/forgot"
-					use:enhance
+					use:enhance={submit}
 				>
 					<input
 						id="email"
