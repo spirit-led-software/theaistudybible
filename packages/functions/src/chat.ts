@@ -30,8 +30,6 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
-import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
-import { LLMChainExtractor } from "langchain/retrievers/document_compressors/chain_extract";
 import {
   AIMessage,
   BaseMessage,
@@ -202,10 +200,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
 
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
-        new ContextualCompressionRetriever({
-          baseCompressor: LLMChainExtractor.fromLLM(getCompletionsModel(0.5)),
-          baseRetriever: vectorStore.asRetriever(15),
-        }),
+        vectorStore.asRetriever(),
         {
           returnSourceDocuments: true,
           memory: new BufferMemory({
