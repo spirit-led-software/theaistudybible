@@ -37,8 +37,8 @@ export class NeonVectorStore extends VectorStore {
   verbose: boolean;
   distance: "l2" | "cosine" | "manhattan";
 
-  neonRead: postgres.Sql<{}>;
-  neonWrite: postgres.Sql<{}>;
+  rSql: postgres.Sql<{}>;
+  wSql: postgres.Sql<{}>;
 
   _vectorstoreType(): string {
     return "neon";
@@ -52,11 +52,18 @@ export class NeonVectorStore extends VectorStore {
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "cosine";
 
-    this.neonRead = postgres(
+    this.rSql = postgres(
       fields.connectionOptions.readOnlyUrl ??
-        fields.connectionOptions.readWriteUrl
+        fields.connectionOptions.readWriteUrl,
+      {
+        ssl: true,
+        debug: this.verbose,
+      }
     );
-    this.neonWrite = postgres(fields.connectionOptions.readWriteUrl);
+    this.wSql = postgres(fields.connectionOptions.readWriteUrl, {
+      ssl: true,
+      debug: this.verbose,
+    });
   }
 
   static async fromConnectionString(
@@ -98,8 +105,10 @@ export class NeonVectorStore extends VectorStore {
       }
 
       try {
-        await this.neonWrite`
-          INSERT INTO ${this.tableName} (page_content, embedding, metadata)
+        await this.wSql`
+          INSERT INTO ${this.wSql(
+            this.tableName
+          )} (page_content, embedding, metadata)
           SELECT * FROM jsonb_to_recordset(${JSON.stringify(chunk)}::jsonb)
           AS x(page_content text, embedding real[], metadata jsonb);`;
       } catch (e) {
@@ -116,13 +125,13 @@ export class NeonVectorStore extends VectorStore {
     const embeddingString = `{${query.join(",")}}`;
     const _filter = filter ?? "{}";
 
-    const documents = await this.neonRead`
-      SELECT id, page_content, metadata, embedding ${
+    const documents = await this.rSql`
+      SELECT id, page_content, metadata, embedding ${this.rSql(
         distanceOperators[this.distance]
-      } ${embeddingString} AS _distance
-      FROM ${this.tableName}
+      )} ${embeddingString} AS "_distance"
+      FROM ${this.rSql(this.tableName)}
       WHERE metadata @> ${_filter.toString()}
-      ORDER BY embedding ${distanceOperators[this.distance]} ${embeddingString}
+      ORDER BY "_distance" ASC
       LIMIT ${k.toString()};
     `;
 
@@ -158,13 +167,13 @@ export class NeonVectorStore extends VectorStore {
     if (this.verbose) {
       console.log("Creating embedding extension");
     }
-    await this.neonWrite`CREATE EXTENSION IF NOT EXISTS embedding;`;
+    await this.wSql`CREATE EXTENSION IF NOT EXISTS embedding;`;
 
     if (this.verbose) {
       console.log(`Creating table ${this.tableName}`);
     }
-    await this.neonWrite`
-      CREATE TABLE IF NOT EXISTS ${this.tableName} (
+    await this.wSql`
+      CREATE TABLE IF NOT EXISTS ${this.wSql(this.tableName)} (
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
         page_content text,
         metadata jsonb,
@@ -176,14 +185,16 @@ export class NeonVectorStore extends VectorStore {
       console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
     }
     const indexName = `${this.tableName}_hnsw_idx`;
-    await this.neonWrite`
-      DROP INDEX IF EXISTS ${indexName};
+    await this.wSql`
+      DROP INDEX IF EXISTS ${this.wSql(indexName)};
     `;
-    await this.neonWrite`
-      CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
+    await this.wSql`
+      CREATE INDEX IF NOT EXISTS ${this.wSql(indexName)} ON ${this.wSql(
+      this.tableName
+    )}
         USING hnsw(embedding)
         WITH (
-          dims=${this.dimensions}, 
+          dims=${this.wSql(this.dimensions.toString())}, 
           m=64,
           efconstruction=128, 
           efsearch=256
@@ -193,7 +204,7 @@ export class NeonVectorStore extends VectorStore {
     if (this.verbose) {
       console.log("Turning off seq scan");
     }
-    await this.neonWrite`
+    await this.wSql`
       SET enable_seqscan = off;
     `;
   }

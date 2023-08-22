@@ -39,7 +39,7 @@ export async function getSourceDocument(
   sourceDocumentId: string
 ): Promise<SourceDocument | undefined> {
   const vectorStore = await getDocumentVectorStore();
-  const sourceDocuments = (await vectorStore.neonRead(
+  const sourceDocuments = (await vectorStore.rSql(
     `SELECT * FROM ${vectorStore.tableName} WHERE id = $1;`,
     [sourceDocumentId]
   )) as SourceDocument[];
@@ -50,7 +50,7 @@ export async function getSourceDocuments(
   sourceDocumentIds: string[]
 ): Promise<SourceDocument[]> {
   const vectorStore = await getDocumentVectorStore();
-  const sourceDocuments = (await vectorStore.neonRead(
+  const sourceDocuments = (await vectorStore.rSql(
     `SELECT * FROM ${vectorStore.tableName} WHERE id = ANY($1);`,
     [sourceDocumentIds]
   )) as SourceDocument[];
