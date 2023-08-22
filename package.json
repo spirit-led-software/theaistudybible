@@ -12,14 +12,14 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@tsconfig/node16": "^16.1.0",
+    "@tsconfig/node16": "^16.1.1",
     "@types/cfn-response": "^1.0.5",
-    "@types/node": "^20.5.1",
+    "@types/node": "^20.5.2",
     "@types/pg": "^8.10.2",
-    "aws-cdk-lib": "2.84.0",
-    "constructs": "10.1.156",
+    "aws-cdk-lib": "2.91.0",
+    "constructs": "10.2.69",
     "drizzle-kit": "^0.19.13",
-    "sst": "2.22.10",
+    "sst": "2.24.12",
     "typescript": "^5.1.6"
   },
   "dependencies": {
@@ -27,9 +27,8 @@
     "@aws-sdk/client-sqs": "^3.395.0",
     "@aws-sdk/credential-providers": "^3.395.0",
     "@aws-sdk/s3-request-presigner": "^3.395.0",
-    "@neondatabase/serverless": "^0.5.7",
-    "cfn-response": "^1.0.1",
-    "drizzle-orm": "^0.28.2",
+    "@neondatabase/serverless": "^0.6.0",
+    "drizzle-orm": "^0.28.3",
     "drizzle-zod": "^0.5.0",
     "langchain": "^0.0.132",
     "neon-sdk": "^1.10.0",
