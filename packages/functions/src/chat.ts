@@ -8,7 +8,11 @@ import {
   updateAiResponse,
 } from "@services/ai-response";
 import { createChat, getChat, updateChat } from "@services/chat";
-import { getChatModel, getPromptModel } from "@services/llm";
+import {
+  getChatModel,
+  getCompletionsModel,
+  getPromptModel,
+} from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
 import { getUserMaxQueries, isObjectOwner } from "@services/user";
 import {
@@ -26,6 +30,8 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
+import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
+import { LLMChainExtractor } from "langchain/retrievers/document_compressors/chain_extract";
 import {
   AIMessage,
   BaseMessage,
@@ -196,7 +202,10 @@ export const handler = middy({ streamifyResponse: true }).handler(
 
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
-        vectorStore.asRetriever(3),
+        new ContextualCompressionRetriever({
+          baseCompressor: LLMChainExtractor.fromLLM(getCompletionsModel(0.5)),
+          baseRetriever: vectorStore.asRetriever(15),
+        }),
         {
           returnSourceDocuments: true,
           memory: new BufferMemory({
