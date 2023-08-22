@@ -59,9 +59,12 @@ jobs:
         with:
           node-version: "18.x"
           cache: "npm"
-      - id: install_node_deps
-        name: Install Node.js dependencies
-        run: npm ci
+      - id: setup_pnpm
+        name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          run_install: true
       - id: sst_deploy
         name: Deploy to AWS
-        run: npx sst deploy --stage prod
+        run: pnpm sst deploy --stage prod
