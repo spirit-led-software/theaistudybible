@@ -2,7 +2,7 @@ import { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
 import { Embeddings } from "langchain/embeddings";
 import { VectorStore } from "langchain/vectorstores/base";
-import postgres from "postgres";
+import { Client } from "pg";
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -37,8 +37,8 @@ export class NeonVectorStore extends VectorStore {
   verbose: boolean;
   distance: "l2" | "cosine" | "manhattan";
 
-  rSql: postgres.Sql<{}>;
-  wSql: postgres.Sql<{}>;
+  readClient: Client;
+  writeClient: Client;
 
   _vectorstoreType(): string {
     return "neon";
@@ -52,17 +52,15 @@ export class NeonVectorStore extends VectorStore {
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "cosine";
 
-    this.rSql = postgres(
-      fields.connectionOptions.readOnlyUrl ??
+    this.readClient = new Client({
+      connectionString:
+        fields.connectionOptions.readOnlyUrl ||
         fields.connectionOptions.readWriteUrl,
-      {
-        ssl: true,
-        debug: this.verbose,
-      }
-    );
-    this.wSql = postgres(fields.connectionOptions.readWriteUrl, {
       ssl: true,
-      debug: this.verbose,
+    });
+    this.writeClient = new Client({
+      connectionString: fields.connectionOptions.readWriteUrl,
+      ssl: true,
     });
   }
 
@@ -105,12 +103,12 @@ export class NeonVectorStore extends VectorStore {
       }
 
       try {
-        await this.wSql`
-          INSERT INTO ${this.wSql(
-            this.tableName
-          )} (page_content, embedding, metadata)
-          SELECT * FROM jsonb_to_recordset(${JSON.stringify(chunk)}::jsonb)
-          AS x(page_content text, embedding real[], metadata jsonb);`;
+        await this.writeClient.query(
+          `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
+          SELECT * FROM jsonb_to_recordset($1::jsonb)
+          AS x(page_content text, embedding real[], metadata jsonb);`,
+          [JSON.stringify(chunk)]
+        );
       } catch (e) {
         throw new Error(`Error inserting: ${chunk[0].page_content}`);
       }
@@ -124,37 +122,52 @@ export class NeonVectorStore extends VectorStore {
   ): Promise<[NeonVectorStoreDocument, number][]> {
     const embeddingString = `{${query.join(",")}}`;
     const _filter = filter ?? "{}";
-
-    const documents = await this.rSql`
-      SELECT id, page_content, metadata, embedding ${this.rSql(
-        distanceOperators[this.distance]
-      )} ${embeddingString} AS "_distance"
-      FROM ${this.rSql(this.tableName)}
-      WHERE metadata @> ${_filter.toString()}
-      ORDER BY "_distance" ASC
-      LIMIT ${k.toString()};
-    `;
-
-    const results = [] as [NeonVectorStoreDocument, number][];
-    for (const doc of documents) {
-      if (doc._distance != null && doc.page_content != null) {
-        const document = new Document({
-          metadata: doc.metadata,
-          pageContent: doc.page_content,
-        }) as NeonVectorStoreDocument;
-        document.id = doc.id;
-        results.push([document, doc._distance]);
-      }
-    }
-
     if (this.verbose) {
       console.log(
-        `Found ${
-          documents.length
-        } similar results from vector store: ${JSON.stringify(results)}`
+        `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
+          _filter
+        )}`
       );
     }
-    return results;
+
+    await this.readClient.connect();
+    try {
+      const documents = await this.readClient.query(
+        `SELECT id, page_content, metadata, embedding ${
+          distanceOperators[this.distance]
+        } $1 AS "_distance"
+        FROM ${this.tableName}
+        WHERE metadata @> $2
+        ORDER BY "_distance" ASC
+        LIMIT $3;`,
+        [embeddingString, _filter, k]
+      );
+
+      const results = [] as [NeonVectorStoreDocument, number][];
+      for (const doc of documents.rows) {
+        if (doc._distance != null && doc.page_content != null) {
+          const document = new Document({
+            metadata: doc.metadata,
+            pageContent: doc.page_content,
+          }) as NeonVectorStoreDocument;
+          document.id = doc.id;
+          results.push([document, doc._distance]);
+        }
+      }
+
+      if (this.verbose) {
+        console.log(
+          `Found ${
+            documents.rows.length
+          } similar results from vector store: ${JSON.stringify(results)}`
+        );
+      }
+      return results;
+    } catch (e) {
+      throw e;
+    } finally {
+      await this.readClient.end();
+    }
   }
 
   /**
@@ -164,49 +177,50 @@ export class NeonVectorStore extends VectorStore {
    * https://neon.tech/docs/extensions/pg_embedding
    */
   async ensureTableInDatabase(): Promise<void> {
-    if (this.verbose) {
-      console.log("Creating embedding extension");
-    }
-    await this.wSql`CREATE EXTENSION IF NOT EXISTS embedding;`;
+    await this.writeClient.connect();
+    try {
+      if (this.verbose) {
+        console.log("Creating embedding extension");
+      }
+      await this.writeClient.query("CREATE EXTENSION IF NOT EXISTS embedding;");
 
-    if (this.verbose) {
-      console.log(`Creating table ${this.tableName}`);
-    }
-    await this.wSql`
-      CREATE TABLE IF NOT EXISTS ${this.wSql(this.tableName)} (
-        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-        page_content text,
-        metadata jsonb,
-        embedding real[]
+      if (this.verbose) {
+        console.log(`Creating table ${this.tableName}`);
+      }
+      await this.writeClient.query(
+        `CREATE TABLE IF NOT EXISTS ${this.tableName} (
+          "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+          page_content text,
+          metadata jsonb,
+          embedding real[]
+        );`
       );
-    `;
 
-    if (this.verbose) {
-      console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
-    }
-    const indexName = `${this.tableName}_hnsw_idx`;
-    await this.wSql`
-      DROP INDEX IF EXISTS ${this.wSql(indexName)};
-    `;
-    await this.wSql`
-      CREATE INDEX IF NOT EXISTS ${this.wSql(indexName)} ON ${this.wSql(
-      this.tableName
-    )}
+      if (this.verbose) {
+        console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
+      }
+      const indexName = `${this.tableName}_hnsw_idx`;
+      await this.writeClient.query(`DROP INDEX IF EXISTS ${indexName};`);
+      await this.writeClient.query(
+        `CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
         USING hnsw(embedding)
         WITH (
-          dims=${this.wSql(this.dimensions.toString())}, 
+          dims=${this.dimensions}, 
           m=64,
           efconstruction=128, 
           efsearch=256
-        );
-    `;
+        );`
+      );
 
-    if (this.verbose) {
-      console.log("Turning off seq scan");
+      if (this.verbose) {
+        console.log("Turning off seq scan");
+      }
+      await this.writeClient.query("SET enable_seqscan = off;");
+    } catch (e) {
+      throw e;
+    } finally {
+      await this.writeClient.end();
     }
-    await this.wSql`
-      SET enable_seqscan = off;
-    `;
   }
 
   static async fromTexts(

@@ -3,7 +3,7 @@
   "exclude": ["packages", "node_modules"],
   "compilerOptions": {
     "moduleResolution": "Node",
-    "strict": false,
+    "strictFunctionTypes": false,
     "paths": {
       "@stacks/*": ["./stacks/*"],
       "@stacks": ["./stacks"]

@@ -1,14 +1,7 @@
-import { InferModel } from "drizzle-orm";
-import { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { indexOperations } from "../schema";
 
-export type IndexOperation = InferModel<typeof indexOperations, "select">;
+export type IndexOperation = typeof indexOperations.$inferSelect;
 
-export type CreateIndexOperationData = InferModel<
-  typeof indexOperations,
-  "insert"
->;
+export type CreateIndexOperationData = typeof indexOperations.$inferInsert;
 
-export type UpdateIndexOperationData = PgUpdateSetSource<
-  typeof indexOperations
->;
+export type UpdateIndexOperationData = Partial<CreateIndexOperationData>;

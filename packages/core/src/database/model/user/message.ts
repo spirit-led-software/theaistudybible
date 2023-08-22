@@ -1,9 +1,7 @@
-import { InferModel } from "drizzle-orm";
-import { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { userMessages } from "../../schema";
 
-export type UserMessage = InferModel<typeof userMessages, "select">;
+export type UserMessage = typeof userMessages.$inferSelect;
 
-export type CreateUserMessageData = InferModel<typeof userMessages, "insert">;
+export type CreateUserMessageData = typeof userMessages.$inferInsert;
 
-export type UpdateUserMessageData = PgUpdateSetSource<typeof userMessages>;
+export type UpdateUserMessageData = Partial<CreateUserMessageData>;

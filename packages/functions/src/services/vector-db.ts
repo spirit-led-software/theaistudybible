@@ -39,20 +39,32 @@ export async function getSourceDocument(
   sourceDocumentId: string
 ): Promise<SourceDocument | undefined> {
   const vectorStore = await getDocumentVectorStore();
-  const sourceDocuments: SourceDocument[] =
-    await vectorStore.rSql`SELECT * FROM ${vectorStore.rSql(
-      vectorStore.tableName
-    )} WHERE id = ${sourceDocumentId};`;
-  return sourceDocuments[0];
+  await vectorStore.readClient.connect();
+  try {
+    const sourceDocumentsResult = await vectorStore.readClient.query(
+      `SELECT * FROM ${vectorStore.tableName} WHERE id = ${sourceDocumentId};`
+    );
+    return sourceDocumentsResult.rows[0] as SourceDocument;
+  } catch (error) {
+    throw error;
+  } finally {
+    await vectorStore.readClient.end();
+  }
 }
 
 export async function getSourceDocuments(
   sourceDocumentIds: string[]
 ): Promise<SourceDocument[]> {
   const vectorStore = await getDocumentVectorStore();
-  const sourceDocuments: SourceDocument[] =
-    await vectorStore.rSql`SELECT * FROM ${vectorStore.rSql(
-      vectorStore.tableName
-    )} WHERE id = ANY(${sourceDocumentIds});`;
-  return sourceDocuments;
+  await vectorStore.readClient.connect();
+  try {
+    const sourceDocumentsResult = await vectorStore.readClient.query(
+      `SELECT * FROM ${vectorStore.tableName} WHERE id = ANY(${sourceDocumentIds});`
+    );
+    return sourceDocumentsResult.rows as SourceDocument[];
+  } catch (error) {
+    throw error;
+  } finally {
+    await vectorStore.readClient.end();
+  }
 }

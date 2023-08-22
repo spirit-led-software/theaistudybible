@@ -1,9 +1,7 @@
-import { InferModel } from "drizzle-orm";
-import { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { aiResponses } from "../schema";
 
-export type AiResponse = InferModel<typeof aiResponses, "select">;
+export type AiResponse = typeof aiResponses.$inferSelect;
 
-export type CreateAiResponseData = InferModel<typeof aiResponses, "insert">;
+export type CreateAiResponseData = typeof aiResponses.$inferInsert;
 
-export type UpdateAiResponseData = PgUpdateSetSource<typeof aiResponses>;
+export type UpdateAiResponseData = Partial<CreateAiResponseData>;
