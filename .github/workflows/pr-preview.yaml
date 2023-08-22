@@ -62,15 +62,12 @@ jobs:
       - id: setup_jq
         name: Setup jq
         run: sudo apt-get install jq
-      - id: setup_pnpm
-        name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-          run_install: true
+      - id: install_node_deps
+        name: Install Node.js dependencies
+        run: npm ci
       - id: sst_deploy
         name: Deploy to AWS
-        run: pnpm sst deploy --stage pr-${{ github.event.pull_request.number }}
+        run: npx sst deploy --stage pr-${{ github.event.pull_request.number }}
       - id: extract_website_url
         name: Extract website URL
         run: |

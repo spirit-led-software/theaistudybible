@@ -60,12 +60,9 @@ jobs:
         with:
           node-version: "18.x"
           cache: "npm"
-      - id: setup_pnpm
-        name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-          run_install: true
+      - id: install_node_deps
+        name: Install Node.js dependencies
+        run: npm ci
       - id: sst_remove
         name: Remove SST deployment
-        run: pnpm sst remove --stage pr-${{ github.event.pull_request.number }}
+        run: npx sst remove --stage pr-${{ github.event.pull_request.number }}
