@@ -2,17 +2,14 @@ import { Chat, SourceDocument, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
+import { CustomLLMChainExtractor } from "@revelationsai/core/chains/CustomLLMChainExtractor";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,
   updateAiResponse,
 } from "@services/ai-response";
 import { createChat, getChat, updateChat } from "@services/chat";
-import {
-  getChatModel,
-  getCompletionsModel,
-  getPromptModel,
-} from "@services/llm";
+import { getChatModel, getPromptModel } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
 import { getUserMaxQueries, isObjectOwner } from "@services/user";
 import {
@@ -30,6 +27,7 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
+import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import {
   AIMessage,
   BaseMessage,
@@ -200,7 +198,10 @@ export const handler = middy({ streamifyResponse: true }).handler(
 
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
-        vectorStore.asRetriever(),
+        new ContextualCompressionRetriever({
+          baseCompressor: CustomLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+          baseRetriever: vectorStore.asRetriever(10),
+        }),
         {
           returnSourceDocuments: true,
           memory: new BufferMemory({
