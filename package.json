@@ -16,10 +16,10 @@
     "@types/cfn-response": "^1.0.5",
     "@types/node": "^20.5.1",
     "@types/pg": "^8.10.2",
-    "aws-cdk-lib": "2.84.0",
-    "constructs": "10.1.156",
+    "aws-cdk-lib": "^2.92.0",
+    "constructs": "^10.2.69",
     "drizzle-kit": "^0.19.13",
-    "sst": "2.22.10",
+    "sst": "^2.24.12",
     "typescript": "^5.1.6"
   },
   "dependencies": {
@@ -31,7 +31,7 @@
     "cfn-response": "^1.0.1",
     "drizzle-orm": "^0.28.2",
     "drizzle-zod": "^0.5.0",
-    "langchain": "^0.0.125",
+    "langchain": "^0.0.132",
     "neon-sdk": "^1.10.0",
     "pg": "^8.11.3",
     "replicate": "^0.16.1",
