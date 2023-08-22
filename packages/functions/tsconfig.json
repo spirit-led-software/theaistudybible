@@ -4,6 +4,7 @@
     "typeRoots": ["./src/types", "../core/src/types"],
     "lib": ["dom", "dom.iterable", "ES2021"],
     "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@core/configs": ["../core/src/configs"],
       "@core/configs/*": ["../core/src/configs/*"],

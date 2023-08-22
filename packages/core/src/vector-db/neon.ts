@@ -1,8 +1,8 @@
-import { NeonQueryFunction, neon } from "@neondatabase/serverless";
 import { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
 import { Embeddings } from "langchain/embeddings";
 import { VectorStore } from "langchain/vectorstores/base";
+import postgres from "postgres";
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -37,8 +37,8 @@ export class NeonVectorStore extends VectorStore {
   verbose: boolean;
   distance: "l2" | "cosine" | "manhattan";
 
-  neonRead: NeonQueryFunction<false, false>;
-  neonWrite: NeonQueryFunction<false, false>;
+  neonRead: postgres.Sql<{}>;
+  neonWrite: postgres.Sql<{}>;
 
   _vectorstoreType(): string {
     return "neon";
@@ -52,11 +52,11 @@ export class NeonVectorStore extends VectorStore {
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "cosine";
 
-    this.neonRead = neon(
+    this.neonRead = postgres(
       fields.connectionOptions.readOnlyUrl ??
         fields.connectionOptions.readWriteUrl
     );
-    this.neonWrite = neon(fields.connectionOptions.readWriteUrl);
+    this.neonWrite = postgres(fields.connectionOptions.readWriteUrl);
   }
 
   static async fromConnectionString(
@@ -98,12 +98,10 @@ export class NeonVectorStore extends VectorStore {
       }
 
       try {
-        await this.neonWrite(
-          `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
-          SELECT * FROM jsonb_to_recordset($1::jsonb)
-          AS x(page_content text, embedding real[], metadata jsonb);`,
-          [JSON.stringify(chunk)]
-        );
+        await this.neonWrite`
+          INSERT INTO ${this.tableName} (page_content, embedding, metadata)
+          SELECT * FROM jsonb_to_recordset(${JSON.stringify(chunk)}::jsonb)
+          AS x(page_content text, embedding real[], metadata jsonb);`;
       } catch (e) {
         throw new Error(`Error inserting: ${chunk[0].page_content}`);
       }
@@ -117,14 +115,16 @@ export class NeonVectorStore extends VectorStore {
   ): Promise<[NeonVectorStoreDocument, number][]> {
     const embeddingString = `{${query.join(",")}}`;
     const _filter = filter ?? "{}";
-    const documents = await this.neonRead(
-      `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
+
+    const documents = await this.neonRead`
+      SELECT id, page_content, metadata, embedding ${
+        distanceOperators[this.distance]
+      } ${embeddingString} AS _distance
       FROM ${this.tableName}
-      WHERE metadata @> $2
-      ORDER BY "_distance" ASC
-      LIMIT $3;`,
-      [embeddingString, _filter, k]
-    );
+      WHERE metadata @> ${_filter.toString()}
+      ORDER BY embedding ${distanceOperators[this.distance]} ${embeddingString}
+      LIMIT ${k.toString()};
+    `;
 
     const results = [] as [NeonVectorStoreDocument, number][];
     for (const doc of documents) {
@@ -158,28 +158,28 @@ export class NeonVectorStore extends VectorStore {
     if (this.verbose) {
       console.log("Creating embedding extension");
     }
-    await this.neonWrite("CREATE EXTENSION IF NOT EXISTS embedding;");
+    await this.neonWrite`CREATE EXTENSION IF NOT EXISTS embedding;`;
 
     if (this.verbose) {
       console.log(`Creating table ${this.tableName}`);
     }
-    await this.neonWrite(`
+    await this.neonWrite`
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
         page_content text,
         metadata jsonb,
         embedding real[]
       );
-    `);
+    `;
 
     if (this.verbose) {
       console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
     }
     const indexName = `${this.tableName}_hnsw_idx`;
-    await this.neonWrite(`
+    await this.neonWrite`
       DROP INDEX IF EXISTS ${indexName};
-    `);
-    await this.neonWrite(`
+    `;
+    await this.neonWrite`
       CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
         USING hnsw(embedding)
         WITH (
@@ -188,14 +188,14 @@ export class NeonVectorStore extends VectorStore {
           efconstruction=128, 
           efsearch=256
         );
-    `);
+    `;
 
     if (this.verbose) {
       console.log("Turning off seq scan");
     }
-    await this.neonWrite(`
+    await this.neonWrite`
       SET enable_seqscan = off;
-    `);
+    `;
   }
 
   static async fromTexts(

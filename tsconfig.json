@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node16/tsconfig.json",
-  "exclude": ["./packages/**", "./node_modules/**"],
+  "exclude": ["packages", "node_modules"],
   "compilerOptions": {
     "moduleResolution": "Node",
     "paths": {
