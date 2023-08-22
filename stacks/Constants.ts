@@ -19,6 +19,10 @@ export function Constants({ stack, app }: StackContext) {
         : "https://localhost:3000"
       : `https://${domainName}`;
 
+  if (app.stage !== "prod") {
+    app.setDefaultRemovalPolicy("destroy");
+  }
+
   app.setDefaultFunctionProps({
     logRetention: stack.stage === "prod" ? "one_year" : "one_day",
     environment: {
