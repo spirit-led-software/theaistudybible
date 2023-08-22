@@ -13,8 +13,6 @@ import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain, RetrievalQAChain } from "langchain/chains";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
-import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
-import { LLMChainExtractor } from "langchain/retrievers/document_compressors/chain_extract";
 import Replicate from "replicate";
 import { z } from "zod";
 import { getCompletionsModel, getPromptModel } from "../llm";
@@ -155,10 +153,7 @@ export async function generateDevotion(bibleReading?: string) {
     const vectorStore = await getDocumentVectorStore();
     const chain = RetrievalQAChain.fromLLM(
       getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
-      new ContextualCompressionRetriever({
-        baseCompressor: LLMChainExtractor.fromLLM(getCompletionsModel(0.5)),
-        baseRetriever: vectorStore.asRetriever(15),
-      }),
+      vectorStore.asRetriever(10),
       {
         returnSourceDocuments: true,
         inputKey: "prompt",
