@@ -1,6 +1,6 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { devotions } from "@core/schema";
 import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { getDevotions } from "@services/devotion";
 import { ApiHandler } from "sst/node/api";
 

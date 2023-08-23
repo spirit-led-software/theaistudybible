@@ -1,10 +1,12 @@
 import { databaseConfig, envConfig } from "@core/configs";
-import * as schema from "@revelationsai/core/database/schema";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import * as schema from "@core/database/schema";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
 export const readOnlyDatabase = drizzle(
-  postgres(databaseConfig.readOnlyUrl, {
+  new Pool({
+    connectionString: databaseConfig.readOnlyUrl,
+    max: 20,
     ssl: true,
   }),
   {
@@ -14,7 +16,9 @@ export const readOnlyDatabase = drizzle(
 );
 
 export const readWriteDatabase = drizzle(
-  postgres(databaseConfig.readWriteUrl, {
+  new Pool({
+    connectionString: databaseConfig.readWriteUrl,
+    max: 20,
     ssl: true,
   }),
   {

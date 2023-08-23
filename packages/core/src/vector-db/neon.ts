@@ -2,7 +2,7 @@ import { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
 import { Embeddings } from "langchain/embeddings";
 import { VectorStore } from "langchain/vectorstores/base";
-import { Client } from "pg";
+import { Pool } from "pg";
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -17,8 +17,19 @@ export interface NeonVectorStoreArgs {
 }
 
 export class NeonVectorStoreDocument extends Document {
-  id?: string;
-  embedding?: string;
+  id: string;
+  embedding: string;
+
+  constructor(fields: {
+    id: string;
+    metadata?: Metadata;
+    pageContent: string;
+    embedding: string;
+  }) {
+    super(fields);
+    this.id = fields.id;
+    this.embedding = fields.embedding;
+  }
 }
 
 const defaultDocumentTableName = "documents";
@@ -37,8 +48,8 @@ export class NeonVectorStore extends VectorStore {
   verbose: boolean;
   distance: "l2" | "cosine" | "manhattan";
 
-  readClient: Client;
-  writeClient: Client;
+  readPool: Pool;
+  writePool: Pool;
 
   _vectorstoreType(): string {
     return "neon";
@@ -52,15 +63,17 @@ export class NeonVectorStore extends VectorStore {
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "cosine";
 
-    this.readClient = new Client({
+    this.readPool = new Pool({
       connectionString:
         fields.connectionOptions.readOnlyUrl ||
         fields.connectionOptions.readWriteUrl,
       ssl: true,
+      log: this.verbose ? console.log : undefined,
     });
-    this.writeClient = new Client({
+    this.writePool = new Pool({
       connectionString: fields.connectionOptions.readWriteUrl,
       ssl: true,
+      log: this.verbose ? console.log : undefined,
     });
   }
 
@@ -103,7 +116,7 @@ export class NeonVectorStore extends VectorStore {
       }
 
       try {
-        await this.writeClient.query(
+        await this.writePool.query(
           `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
           SELECT * FROM jsonb_to_recordset($1::jsonb)
           AS x(page_content text, embedding real[], metadata jsonb);`,
@@ -130,44 +143,37 @@ export class NeonVectorStore extends VectorStore {
       );
     }
 
-    await this.readClient.connect();
-    try {
-      const documents = await this.readClient.query(
-        `SELECT id, page_content, metadata, embedding ${
-          distanceOperators[this.distance]
-        } $1 AS "_distance"
+    const documents = await this.readPool.query(
+      `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
         FROM ${this.tableName}
         WHERE metadata @> $2
         ORDER BY "_distance" ASC
         LIMIT $3;`,
-        [embeddingString, _filter, k]
-      );
+      [embeddingString, _filter, k]
+    );
 
-      const results = [] as [NeonVectorStoreDocument, number][];
-      for (const doc of documents.rows) {
-        if (doc._distance != null && doc.page_content != null) {
-          const document = new Document({
-            metadata: doc.metadata,
-            pageContent: doc.page_content,
-          }) as NeonVectorStoreDocument;
-          document.id = doc.id;
-          results.push([document, doc._distance]);
-        }
+    const results = [] as [NeonVectorStoreDocument, number][];
+    for (const doc of documents.rows) {
+      if (doc._distance != null && doc.page_content != null) {
+        const document = new NeonVectorStoreDocument({
+          id: doc.id,
+          metadata: doc.metadata,
+          pageContent: doc.page_content,
+          embedding: doc.embedding,
+        });
+        document.id = doc.id;
+        results.push([document, doc._distance]);
       }
-
-      if (this.verbose) {
-        console.log(
-          `Found ${
-            documents.rows.length
-          } similar results from vector store: ${JSON.stringify(results)}`
-        );
-      }
-      return results;
-    } catch (e) {
-      throw e;
-    } finally {
-      await this.readClient.end();
     }
+
+    if (this.verbose) {
+      console.log(
+        `Found ${
+          documents.rows.length
+        } similar results from vector store: ${JSON.stringify(results)}`
+      );
+    }
+    return results;
   }
 
   /**
@@ -177,49 +183,49 @@ export class NeonVectorStore extends VectorStore {
    * https://neon.tech/docs/extensions/pg_embedding
    */
   async ensureTableInDatabase(): Promise<void> {
-    await this.writeClient.connect();
+    const client = await this.writePool.connect();
     try {
       if (this.verbose) {
         console.log("Creating embedding extension");
       }
-      await this.writeClient.query("CREATE EXTENSION IF NOT EXISTS embedding;");
+      await client.query("CREATE EXTENSION IF NOT EXISTS embedding;");
 
       if (this.verbose) {
         console.log(`Creating table ${this.tableName}`);
       }
-      await this.writeClient.query(
-        `CREATE TABLE IF NOT EXISTS ${this.tableName} (
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS ${this.tableName} (
           "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
           page_content text,
           metadata jsonb,
           embedding real[]
-        );`
-      );
+        );
+      `);
 
       if (this.verbose) {
         console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
       }
       const indexName = `${this.tableName}_hnsw_idx`;
-      await this.writeClient.query(`DROP INDEX IF EXISTS ${indexName};`);
-      await this.writeClient.query(
-        `CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
-        USING hnsw(embedding)
-        WITH (
-          dims=${this.dimensions}, 
-          m=64,
-          efconstruction=128, 
-          efsearch=256
-        );`
-      );
+      await client.query(`DROP INDEX IF EXISTS ${indexName};`);
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
+          USING hnsw(embedding)
+          WITH (
+            dims=${this.dimensions}, 
+            m=64,
+            efconstruction=128, 
+            efsearch=256
+          );
+      `);
 
       if (this.verbose) {
         console.log("Turning off seq scan");
       }
-      await this.writeClient.query("SET enable_seqscan = off;");
+      await client.query("SET enable_seqscan = off;");
     } catch (e) {
       throw e;
     } finally {
-      await this.writeClient.end();
+      await client.release();
     }
   }
 

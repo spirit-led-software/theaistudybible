@@ -1,10 +1,10 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { chats as chatsTable } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { getChats } from "@services/chat";
 import { validApiHandlerSession } from "@services/session";
 import { eq } from "drizzle-orm";

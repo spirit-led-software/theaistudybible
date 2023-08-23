@@ -1,8 +1,9 @@
-import { Chat, SourceDocument, UserMessage } from "@core/model";
+import { NeonDocLLMChainExtractor } from "@core/chains/NeonDocLLMChainExtractor";
+import { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
+import { NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
-import { CustomLLMChainExtractor } from "@revelationsai/core/chains/CustomLLMChainExtractor";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,
@@ -199,7 +200,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
         new ContextualCompressionRetriever({
-          baseCompressor: CustomLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+          baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
           baseRetriever: vectorStore.asRetriever(10),
         }),
         {
@@ -230,14 +231,16 @@ export const handler = middy({ streamifyResponse: true }).handler(
           });
 
           await Promise.all(
-            result.sourceDocuments.map(async (sourceDoc: SourceDocument) => {
-              await readWriteDatabase
-                .insert(aiResponsesToSourceDocuments)
-                .values({
-                  aiResponseId: aiResponse.id,
-                  sourceDocumentId: sourceDoc.id,
-                });
-            })
+            result.sourceDocuments.map(
+              async (sourceDoc: NeonVectorStoreDocument) => {
+                await readWriteDatabase
+                  .insert(aiResponsesToSourceDocuments)
+                  .values({
+                    aiResponseId: aiResponse.id,
+                    sourceDocumentId: sourceDoc.id,
+                  });
+              }
+            )
           );
         })
         .catch(async (err) => {

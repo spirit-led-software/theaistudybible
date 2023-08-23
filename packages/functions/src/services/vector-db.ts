@@ -1,6 +1,5 @@
 import { envConfig, vectorDBConfig } from "@core/configs";
-import { SourceDocument } from "@core/model";
-import { NeonVectorStore } from "@revelationsai/core/vector-db/neon";
+import { NeonVectorStore, NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { Document } from "langchain/document";
 import { getEmbeddingsModel } from "./llm";
 
@@ -37,34 +36,20 @@ export async function addDocumentsToVectorStore(
 
 export async function getSourceDocument(
   sourceDocumentId: string
-): Promise<SourceDocument | undefined> {
+): Promise<NeonVectorStoreDocument | undefined> {
   const vectorStore = await getDocumentVectorStore();
-  await vectorStore.readClient.connect();
-  try {
-    const sourceDocumentsResult = await vectorStore.readClient.query(
-      `SELECT * FROM ${vectorStore.tableName} WHERE id = ${sourceDocumentId};`
-    );
-    return sourceDocumentsResult.rows[0] as SourceDocument;
-  } catch (error) {
-    throw error;
-  } finally {
-    await vectorStore.readClient.end();
-  }
+  const sourceDocumentsResult = await vectorStore.readPool.query(
+    `SELECT * FROM ${vectorStore.tableName} WHERE id = ${sourceDocumentId};`
+  );
+  return sourceDocumentsResult.rows[0] as NeonVectorStoreDocument;
 }
 
 export async function getSourceDocuments(
   sourceDocumentIds: string[]
-): Promise<SourceDocument[]> {
+): Promise<NeonVectorStoreDocument[]> {
   const vectorStore = await getDocumentVectorStore();
-  await vectorStore.readClient.connect();
-  try {
-    const sourceDocumentsResult = await vectorStore.readClient.query(
-      `SELECT * FROM ${vectorStore.tableName} WHERE id = ANY(${sourceDocumentIds});`
-    );
-    return sourceDocumentsResult.rows as SourceDocument[];
-  } catch (error) {
-    throw error;
-  } finally {
-    await vectorStore.readClient.end();
-  }
+  const sourceDocumentsResult = await vectorStore.readPool.query(
+    `SELECT * FROM ${vectorStore.tableName} WHERE id = ANY(${sourceDocumentIds});`
+  );
+  return sourceDocumentsResult.rows as NeonVectorStoreDocument[];
 }

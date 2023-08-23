@@ -1,10 +1,10 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { userMessages } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { validApiHandlerSession } from "@services/session";
 import { getUserMessages } from "@services/user/message";
 import { eq } from "drizzle-orm";

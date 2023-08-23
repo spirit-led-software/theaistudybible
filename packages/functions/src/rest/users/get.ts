@@ -1,6 +1,6 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { users as usersTable } from "@core/schema";
 import { InternalServerErrorResponse, OkResponse } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { getUsers } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 

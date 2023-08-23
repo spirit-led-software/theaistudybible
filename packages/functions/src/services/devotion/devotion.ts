@@ -1,13 +1,9 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { axios, replicateConfig, s3Config } from "@core/configs";
-import {
-  CreateDevotionData,
-  Devotion,
-  SourceDocument,
-  UpdateDevotionData,
-} from "@core/model";
+import { CreateDevotionData, Devotion, UpdateDevotionData } from "@core/model";
 import { devotions, devotionsToSourceDocuments } from "@core/schema";
+import { NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain, RetrievalQAChain } from "langchain/chains";
@@ -16,7 +12,7 @@ import { PromptTemplate } from "langchain/prompts";
 import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import Replicate from "replicate";
 import { z } from "zod";
-import { CustomLLMChainExtractor } from "../../../../core/src/chains/CustomLLMChainExtractor";
+import { NeonDocLLMChainExtractor } from "../../../../core/src/chains/NeonDocLLMChainExtractor";
 import { getCompletionsModel, getPromptModel } from "../llm";
 import { getDocumentVectorStore, getSourceDocuments } from "../vector-db";
 import { createDevotionImage } from "./image";
@@ -76,9 +72,8 @@ export async function getDevotionSourceDocuments(devotion: Devotion) {
       .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
   ).map((d) => d.sourceDocumentId);
 
-  const foundSourceDocuments: SourceDocument[] = await getSourceDocuments(
-    sourceDocumentIds
-  );
+  const foundSourceDocuments: NeonVectorStoreDocument[] =
+    await getSourceDocuments(sourceDocumentIds);
 
   return foundSourceDocuments;
 }
@@ -156,7 +151,7 @@ export async function generateDevotion(bibleReading?: string) {
     const chain = RetrievalQAChain.fromLLM(
       getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
       new ContextualCompressionRetriever({
-        baseCompressor: CustomLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+        baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
         baseRetriever: vectorStore.asRetriever(15),
       }),
       {
@@ -178,7 +173,7 @@ export async function generateDevotion(bibleReading?: string) {
     });
 
     await Promise.all(
-      result.sourceDocuments.map(async (c: SourceDocument) => {
+      result.sourceDocuments.map(async (c: NeonVectorStoreDocument) => {
         await readWriteDatabase.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,
@@ -324,7 +319,10 @@ async function getRandomBibleReading() {
   const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
     getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
-    vectorStore.asRetriever(10),
+    new ContextualCompressionRetriever({
+      baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+      baseRetriever: vectorStore.asRetriever(10),
+    }),
     {
       returnSourceDocuments: true,
       inputKey: "prompt",

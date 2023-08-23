@@ -1,10 +1,10 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { indexOperations } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { getIndexOperations } from "@services/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";

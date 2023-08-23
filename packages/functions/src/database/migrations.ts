@@ -1,9 +1,9 @@
 import config from "@core/configs/database";
 import * as schema from "@core/schema";
 import { Handler } from "aws-lambda";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { Pool } from "pg";
 
 export const handler: Handler = async () => {
   try {
@@ -12,8 +12,9 @@ export const handler: Handler = async () => {
       config.readWriteUrl
     );
 
-    const migration = drizzle(
-      postgres(config.readWriteUrl, {
+    const migrationClient = drizzle(
+      new Pool({
+        connectionString: config.readWriteUrl,
         max: 1,
         ssl: true,
       }),
@@ -28,7 +29,7 @@ export const handler: Handler = async () => {
     );
 
     console.log("Running database migrations...");
-    await migrate(migration, {
+    await migrate(migrationClient, {
       migrationsFolder: "migrations",
     });
     console.log("Database migrations complete!");

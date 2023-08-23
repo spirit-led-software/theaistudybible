@@ -13,7 +13,7 @@
       "@core/model/*": ["../core/src/database/model/*"],
       "@core/schema": ["../core/src/database/schema"],
       "@core/schema/*": ["../core/src/database/schema/*"],
-      "@revelationsai/core/*": ["../core/src/*"],
+      "@core/*": ["../core/src/*"],
       "@lib": ["./src/lib"],
       "@lib/*": ["./src/lib/*"],
       "@services": ["./src/services"],
