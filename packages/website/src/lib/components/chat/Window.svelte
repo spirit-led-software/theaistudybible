@@ -170,7 +170,7 @@
 		{#if $messages && $messages.length > 0}
 			<div class="w-full h-full overflow-y-scroll">
 				<div class="flex flex-col flex-1 min-h-full place-content-end">
-					{#each $messages as message, index}
+					{#each $messages as message, index (message.id)}
 						<div class="flex flex-col w-full">
 							<!-- TODO: Add ads when adsense is approved
                   Randomly show an ad

@@ -1,9 +1,13 @@
 <script lang="ts">
+	/* @ts-ignore */
+	import { Email, Facebook, Twitter } from 'svelte-share-buttons-component';
+
 	import { page } from '$app/stores';
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import type { SourceDocument } from '@core/model';
 	import type { devotionReactions } from '@core/schema';
-	import Iconify from '@iconify/svelte';
+	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
+	import { default as Icon, default as Iconify } from '@iconify/svelte';
+	import { Popover } from 'flowbite-svelte';
 	import Moment from 'moment';
 	import type { PageData } from './$types';
 
@@ -52,9 +56,9 @@
 	$: ({ devotion: activeDevo, sourceDocs, images, reactionCounts } = data);
 	$: likeCount = reactionCounts?.LIKE || 0;
 	$: dislikeCount = reactionCounts?.DISLIKE || 0;
-	$: sourceDocuments = sourceDocs?.filter((sourceDoc: SourceDocument, index: number) => {
+	$: sourceDocuments = sourceDocs?.filter((sourceDoc: NeonVectorStoreDocument, index: number) => {
 		const firstIndex = sourceDocs.findIndex(
-			(otherSourceDoc: SourceDocument) =>
+			(otherSourceDoc: NeonVectorStoreDocument) =>
 				(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
 		);
 		return firstIndex === index;
@@ -85,6 +89,32 @@
 			>
 				<span class="mr-2">{dislikeCount}</span>
 				<Iconify icon="fa6-regular:thumbs-down" class="group-hover:text-red-400" />
+			</button>
+			<Popover placement="top-start" triggeredBy={`#share-button`} trigger="click" arrow={true}>
+				<div class="flex justify-center space-x-2 place-items-center">
+					<Email
+						class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
+						subject="New Devotion from RevelationsAI"
+						body={`Checkout the latest Devotion from RevelationsAI:\n\n${$page.url.toString()}`}
+					/>
+					<Facebook
+						class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
+						url={$page.url.toString()}
+						quote="Checkout the latest devotion from RevelationsAI"
+					/>
+					<Twitter
+						class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
+						text="Checkout the latest devotion from RevelationsAI:"
+						url={$page.url.toString()}
+						hashtags="revelationsai,ai,christ,jesus"
+					/>
+				</div>
+			</Popover>
+			<button
+				id="share-button"
+				class="flex justify-center px-3 py-2 text-center text-white rounded-full place-items-center group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
+			>
+				<Icon icon="lucide:share" width={20} height={20} />
 			</button>
 		</div>
 		<div
