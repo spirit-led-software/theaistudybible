@@ -14,7 +14,7 @@ import Replicate from "replicate";
 import { z } from "zod";
 import { NeonDocLLMChainExtractor } from "../../../../core/src/chains/NeonDocLLMChainExtractor";
 import { getCompletionsModel, getPromptModel } from "../llm";
-import { getDocumentVectorStore, getSourceDocuments } from "../vector-db";
+import { getDocumentVectorStore } from "../vector-db";
 import { createDevotionImage } from "./image";
 
 export async function getDevotions(
@@ -72,8 +72,10 @@ export async function getDevotionSourceDocuments(devotion: Devotion) {
       .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
   ).map((d) => d.sourceDocumentId);
 
-  const foundSourceDocuments: NeonVectorStoreDocument[] =
-    await getSourceDocuments(sourceDocumentIds);
+  const vectorStore = await getDocumentVectorStore();
+  const foundSourceDocuments = await vectorStore.getDocumentsByIds(
+    sourceDocumentIds
+  );
 
   return foundSourceDocuments;
 }

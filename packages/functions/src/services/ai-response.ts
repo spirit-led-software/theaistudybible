@@ -1,13 +1,12 @@
 import {
   AiResponse,
   CreateAiResponseData,
-  SourceDocument,
   UpdateAiResponseData,
 } from "@core/model";
 import { aiResponses, aiResponsesToSourceDocuments } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
-import { getSourceDocuments } from "./vector-db";
+import { getDocumentVectorStore } from "./vector-db";
 
 export async function getAiResponses(
   options: {
@@ -66,7 +65,8 @@ export async function getAiResponseSourceDocuments(aiResponse: AiResponse) {
       .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
   ).map((d) => d.sourceDocumentId);
 
-  const foundSourceDocuments: SourceDocument[] = await getSourceDocuments(
+  const vectorStore = await getDocumentVectorStore();
+  const foundSourceDocuments = await vectorStore.getDocumentsByIds(
     sourceDocumentIds
   );
 

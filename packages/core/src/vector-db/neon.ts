@@ -86,11 +86,19 @@ export class NeonVectorStore extends VectorStore {
   }
 
   async addDocuments(documents: Document[]): Promise<void> {
-    const texts = documents.map(({ pageContent }) => pageContent);
-    return this.addVectors(
-      await this.embeddings.embedDocuments(texts),
-      documents
-    );
+    for (let i = 0; i < documents.length; i += 30) {
+      let sliceEnd = i + 30;
+      if (sliceEnd >= documents.length) {
+        sliceEnd = documents.length - 1;
+      }
+      const docsSlice = documents.slice(i, sliceEnd);
+      console.log(`Adding slice: ${i} to ${sliceEnd}`);
+      const texts = docsSlice.map(({ pageContent }) => pageContent);
+      await this.addVectors(
+        await this.embeddings.embedDocuments(texts),
+        docsSlice
+      );
+    }
   }
 
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
@@ -152,7 +160,7 @@ export class NeonVectorStore extends VectorStore {
       [embeddingString, _filter, k]
     );
 
-    const results = [] as [NeonVectorStoreDocument, number][];
+    const results: [NeonVectorStoreDocument, number][] = [];
     for (const doc of documents.rows) {
       if (doc._distance != null && doc.page_content != null) {
         const document = new NeonVectorStoreDocument({
@@ -161,7 +169,6 @@ export class NeonVectorStore extends VectorStore {
           pageContent: doc.page_content,
           embedding: doc.embedding,
         });
-        document.id = doc.id;
         results.push([document, doc._distance]);
       }
     }
@@ -174,6 +181,39 @@ export class NeonVectorStore extends VectorStore {
       );
     }
     return results;
+  }
+
+  async getDocumentsByIds(
+    ids: string[],
+    filter?: this["FilterType"]
+  ): Promise<NeonVectorStoreDocument[]> {
+    const _filter = filter ?? "{}";
+    if (this.verbose) {
+      console.log(
+        `Getting documents by ids from vector store with filter ${JSON.stringify(
+          _filter
+        )}`
+      );
+    }
+
+    const documentsResult = await this.readPool.query(
+      `SELECT * FROM ${this.tableName}
+        WHERE id = ANY($1)
+        AND metadata @> $2;`,
+      [ids, _filter]
+    );
+
+    if (this.verbose) {
+      console.log(
+        `Found ${
+          documentsResult.rows.length
+        } documents by ids from vector store: ${JSON.stringify(
+          documentsResult.rows
+        )}`
+      );
+    }
+
+    return documentsResult.rows as NeonVectorStoreDocument[];
   }
 
   /**

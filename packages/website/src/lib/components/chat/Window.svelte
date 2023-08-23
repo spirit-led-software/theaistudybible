@@ -18,14 +18,21 @@
 	export let initMessages: ChatMessage[] | undefined = undefined;
 
 	let alert: string | undefined = undefined;
-	let chatId: string | undefined = initChatId;
+	let chatId: string | undefined = undefined;
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
 	let endOfMessagesRef: HTMLDivElement | undefined = undefined;
-	let isEndOfMessagesShowing = true;
+	let isEndOfMessagesRefShowing = true;
 
 	const queryClient = useQueryClient();
+
+	onMount(() => {
+		endOfMessagesRef?.scrollIntoView({
+			behavior: 'instant',
+			block: 'end'
+		});
+	});
 
 	onMount(() => {
 		const searchParamsQuery = $page.url.searchParams.get('query');
@@ -48,12 +55,9 @@
 				}
 			);
 		}
-		endOfMessagesRef?.scrollIntoView({
-			behavior: 'instant',
-			block: 'end'
-		});
 	});
 
+	$: if (initChatId) chatId = initChatId;
 	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
 		initialMessages: initMessages,
@@ -87,7 +91,6 @@
 	$: messages.subscribe(() => {
 		scrollEndIntoView();
 	});
-
 	$: error.subscribe((err) => {
 		if (err) {
 			alert = err.message;
@@ -180,7 +183,7 @@
 					{/each}
 					<IntersectionObserver
 						element={endOfMessagesRef}
-						bind:intersecting={isEndOfMessagesShowing}
+						bind:intersecting={isEndOfMessagesRefShowing}
 					>
 						<div bind:this={endOfMessagesRef} class="w-full h-16" />
 					</IntersectionObserver>
@@ -205,7 +208,7 @@
 				</div>
 			</div>
 		{/if}
-		{#if !isEndOfMessagesShowing}
+		{#if !isEndOfMessagesRefShowing}
 			<button
 				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5"
 				on:click|preventDefault={scrollEndIntoView}

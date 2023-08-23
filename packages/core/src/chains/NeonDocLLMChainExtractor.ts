@@ -6,6 +6,7 @@ import {
   BaseOutputParser,
   FormatInstructionsOptions,
 } from "langchain/schema/output_parser";
+import { envConfig } from "../configs";
 import { NeonVectorStoreDocument } from "../vector-db/neon";
 
 export const PROMPT_TEMPLATE = (
@@ -97,7 +98,11 @@ export class NeonDocLLMChainExtractor extends LLMChainExtractor {
   ) {
     const _prompt = prompt || getDefaultChainPrompt();
     const _getInput = getInput || defaultGetInput;
-    const llmChain = new LLMChain({ llm, prompt: _prompt });
+    const llmChain = new LLMChain({
+      llm,
+      prompt: _prompt,
+      verbose: envConfig.isLocal,
+    });
     return new NeonDocLLMChainExtractor({ llmChain, getInput: _getInput });
   }
 }
