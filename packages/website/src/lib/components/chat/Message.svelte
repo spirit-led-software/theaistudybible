@@ -18,12 +18,12 @@
 >
 	<div class="flex flex-col content-start w-12">
 		{#if role === 'user'}
-			<Avatar {user} size="md" class="border shadow-lg" />
+			<Avatar {user} size="md" class="border shadow-xl border-slate-100" />
 		{:else}
 			<Cross
 				colorscheme="dark"
 				size="md"
-				class="p-1 rounded-full shadow-xl outline outline-slate-200"
+				class="p-1 border rounded-full shadow-xl border-slate-100"
 			/>
 		{/if}
 	</div>
