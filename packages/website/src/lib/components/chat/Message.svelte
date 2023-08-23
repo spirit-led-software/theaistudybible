@@ -6,9 +6,10 @@
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
-	import { Checkbox, Popover } from 'flowbite-svelte';
+	import { Checkbox, Popover, Tooltip } from 'flowbite-svelte';
 	import Cross from '../branding/Cross.svelte';
 	import Avatar from '../user/Avatar.svelte';
+	import CopyButton from './CopyButton.svelte';
 	import ResponseSources from './ResponseSources.svelte';
 
 	export let chatId: string | undefined;
@@ -47,14 +48,19 @@
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<div class="w-full break-words whitespace-pre-wrap">{content}</div>
 		{#if role !== 'user'}
-			<div class="flex justify-between w-full">
+			<div class="flex justify-between w-full place-items-end">
 				<ResponseSources aiResponseId={id} {chatId} />
-				<div class="flex justify-center place-items-center">
+				<div class="flex justify-center space-x-2 place-items-center">
+					<CopyButton
+						id={`copy-button-${id}`}
+						{content}
+						class="text-slate-700 hover:text-slate-900"
+					/>
 					<Popover placement="left-end" triggeredBy={`#share-button-${id}`} trigger="click">
 						<div class="flex justify-center mb-2 space-x-2 place-items-center">
 							<Email
 								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-								subject="RevelationsAI AI Response"
+								subject="Response from RevelationsAI"
 								body={`${sharableContent}\n\n${url}`}
 							/>
 							<Facebook
@@ -74,7 +80,10 @@
 							<Checkbox id={`include-previous-${id}`} bind:checked={includePreviousMessage} />
 						</div>
 					</Popover>
-					<button id={`share-button-${id}`}>
+					<Tooltip type="dark" placement="top-start" triggeredBy={`#share-button-${id}`}>
+						<div class="text-slate-700">Share response</div>
+					</Tooltip>
+					<button id={`share-button-${id}`} class="text-slate-700 hover:text-slate-900">
 						<Icon icon="lucide:share" width={20} height={20} />
 					</button>
 				</div>

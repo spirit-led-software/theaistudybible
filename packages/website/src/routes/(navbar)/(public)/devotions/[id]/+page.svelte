@@ -64,12 +64,16 @@
 		return firstIndex === index;
 	});
 
-	$: if (alert) {
-		setTimeout(() => {
-			alert = undefined;
-		}, 8000);
-	}
+	$: if (alert) setTimeout(() => (alert = undefined), 8000);
+
+	$: cleanDate = Moment(activeDevo.createdAt).format('MMMM Do YYYY');
 </script>
+
+<svelte:head>
+	<title>
+		{cleanDate}: {activeDevo.bibleReading.substring(0, activeDevo.bibleReading.indexOf(' -'))}
+	</title>
+</svelte:head>
 
 <div class="absolute flex flex-col w-full h-full overflow-y-scroll lg:static">
 	<div class="relative flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
@@ -128,7 +132,7 @@
 			</div>
 		</div>
 		<h1 class="mb-2 text-2xl font-medium text-center lg:text-left">
-			{Moment(activeDevo.createdAt).format('MMMM Do YYYY')}
+			{cleanDate}
 		</h1>
 		{#if !activeDevo.prayer || !activeDevo.reflection || images.length === 0}
 			<div

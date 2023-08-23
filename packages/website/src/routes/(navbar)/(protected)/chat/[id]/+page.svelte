@@ -3,6 +3,12 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
+
+	$: ({ chat, user, messages } = data);
 </script>
 
-<Window user={data.user} initChatId={data.chat.id} initMessages={data.messages} />
+<svelte:head>
+	<title>Chat: {chat.name}</title>
+</svelte:head>
+
+<Window {user} initChatId={chat.id} initMessages={messages} />
