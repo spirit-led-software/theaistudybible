@@ -48,6 +48,7 @@
     "moment": "^2.29.4",
     "stripe": "^13.2.0",
     "svelte-intersection-observer": "^0.10.1",
+    "svelte-share-buttons-component": "^1.5.5",
     "validator": "^13.11.0"
   }
 }
