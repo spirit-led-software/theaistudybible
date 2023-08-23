@@ -7,6 +7,7 @@
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
 	import { Checkbox, Popover, Tooltip } from 'flowbite-svelte';
+	import { copyText } from 'svelte-copy';
 	import Cross from '../branding/Cross.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -59,16 +60,19 @@
 					<Popover placement="left-end" triggeredBy={`#share-button-${id}`} trigger="click">
 						<div class="flex justify-center mb-2 space-x-2 place-items-center">
 							<Email
+								on:click={() => copyText(sharableContent)}
 								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
 								subject="Response from RevelationsAI"
 								body={`${sharableContent}\n\n${url}`}
 							/>
 							<Facebook
+								on:click={() => copyText(sharableContent)}
 								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
 								{url}
 								quote={sharableContent}
 							/>
 							<Twitter
+								on:click={() => copyText(sharableContent)}
 								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
 								text={sharableContent}
 								{url}
@@ -80,7 +84,7 @@
 							<Checkbox id={`include-previous-${id}`} bind:checked={includePreviousMessage} />
 						</div>
 					</Popover>
-					<Tooltip type="dark" placement="top-start" triggeredBy={`#share-button-${id}`}>
+					<Tooltip type="custom" placement="top-start" triggeredBy={`#share-button-${id}`}>
 						<div class="text-slate-700">Share response</div>
 					</Tooltip>
 					<button id={`share-button-${id}`} class="text-slate-700 hover:text-slate-900">

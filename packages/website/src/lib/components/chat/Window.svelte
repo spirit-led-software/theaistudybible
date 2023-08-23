@@ -185,7 +185,7 @@
 						element={endOfMessagesRef}
 						bind:intersecting={isEndOfMessagesRefShowing}
 					>
-						<div bind:this={endOfMessagesRef} class="w-full h-16" />
+						<div bind:this={endOfMessagesRef} class="w-full h-20" />
 					</IntersectionObserver>
 				</div>
 			</div>
@@ -222,7 +222,7 @@
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize id="input" {input} autofocus />
+					<TextAreaAutosize id="input" {input} maxRows={5} autofocus />
 					{#if $isLoading}
 						<div class="flex mr-1">
 							<LoadingDots size={'sm'} />
