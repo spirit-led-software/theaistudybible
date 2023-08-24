@@ -66,7 +66,7 @@
 							<div class="flex justify-center space-x-2 place-items-center">
 								<Email
 									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
-									subject="New Devotion from RevelationsAI"
+									subject="Response from RevelationsAI"
 									body={`${sharableContent}\n\n${url}`}
 								/>
 								<Facebook
