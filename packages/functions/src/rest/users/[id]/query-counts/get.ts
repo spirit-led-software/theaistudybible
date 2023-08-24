@@ -1,3 +1,4 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { userQueryCounts } from "@core/schema";
 import {
   InternalServerErrorResponse,
@@ -5,7 +6,6 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { validApiHandlerSession } from "@services/session";
 import { getUser, getUserQueryCountsByUserId } from "@services/user";
 import { ApiHandler } from "sst/node/api";

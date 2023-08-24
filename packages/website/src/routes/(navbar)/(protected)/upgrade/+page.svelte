@@ -7,6 +7,10 @@
 	$: ({ productInfos, maxQueries, remainingQueries } = data);
 </script>
 
+<svelte:head>
+	<title>Upgrade Account</title>
+</svelte:head>
+
 <div class="flex flex-col w-full h-full py-5 space-y-4 place-items-center">
 	<div class="flex flex-col space-y-2 text-xl text-center">
 		<h1>Remaining Queries:</h1>

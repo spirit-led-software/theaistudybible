@@ -1,10 +1,10 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { devotionReactions } from "@core/schema";
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
 } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { getDevotion, getDevotionReactions } from "@services/devotion";
 import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";

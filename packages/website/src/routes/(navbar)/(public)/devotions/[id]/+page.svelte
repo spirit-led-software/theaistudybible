@@ -1,9 +1,12 @@
 <script lang="ts">
+	/* @ts-ignore */
+	import { Email, Facebook, Twitter } from 'svelte-share-buttons-component';
+
 	import { page } from '$app/stores';
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import type { SourceDocument } from '@core/model';
 	import type { devotionReactions } from '@core/schema';
-	import Iconify from '@iconify/svelte';
+	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
+	import { default as Icon, default as Iconify } from '@iconify/svelte';
 	import Moment from 'moment';
 	import type { PageData } from './$types';
 
@@ -11,6 +14,7 @@
 
 	let isLoading = false;
 	let alert: string | undefined = undefined;
+	let shareModal: HTMLDialogElement | undefined = undefined;
 
 	$: handleReaction = async (reaction: (typeof devotionReactions.reaction.enumValues)[number]) => {
 		isLoading = true;
@@ -52,20 +56,24 @@
 	$: ({ devotion: activeDevo, sourceDocs, images, reactionCounts } = data);
 	$: likeCount = reactionCounts?.LIKE || 0;
 	$: dislikeCount = reactionCounts?.DISLIKE || 0;
-	$: sourceDocuments = sourceDocs?.filter((sourceDoc: SourceDocument, index: number) => {
+	$: sourceDocuments = sourceDocs?.filter((sourceDoc: NeonVectorStoreDocument, index: number) => {
 		const firstIndex = sourceDocs.findIndex(
-			(otherSourceDoc: SourceDocument) =>
+			(otherSourceDoc: NeonVectorStoreDocument) =>
 				(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
 		);
 		return firstIndex === index;
 	});
 
-	$: if (alert) {
-		setTimeout(() => {
-			alert = undefined;
-		}, 8000);
-	}
+	$: if (alert) setTimeout(() => (alert = undefined), 8000);
+
+	$: cleanDate = Moment(activeDevo.createdAt).format('MMMM Do YYYY');
 </script>
+
+<svelte:head>
+	<title>
+		{cleanDate}: {activeDevo.bibleReading.substring(0, activeDevo.bibleReading.indexOf(' -'))}
+	</title>
+</svelte:head>
 
 <div class="absolute flex flex-col w-full h-full overflow-y-scroll lg:static">
 	<div class="relative flex flex-col w-full px-5 pt-5 pb-20 space-y-5">
@@ -86,6 +94,38 @@
 				<span class="mr-2">{dislikeCount}</span>
 				<Iconify icon="fa6-regular:thumbs-down" class="group-hover:text-red-400" />
 			</button>
+			<dialog bind:this={shareModal} class="modal">
+				<form method="dialog" class="flex flex-col space-y-2 modal-box w-fit">
+					<h1 class="text-bold">Share to:</h1>
+					<div class="flex justify-center space-x-2 place-items-center">
+						<Email
+							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+							subject="New Devotion from RevelationsAI"
+							body={`Checkout the latest Devotion from RevelationsAI:\n\n${$page.url.toString()}`}
+						/>
+						<Facebook
+							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+							url={$page.url.toString()}
+							quote="Checkout the latest devotion from RevelationsAI"
+						/>
+						<Twitter
+							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+							text="Checkout the latest devotion from RevelationsAI:"
+							url={$page.url.toString()}
+							hashtags="revelationsai,ai,christ,jesus"
+						/>
+					</div>
+				</form>
+				<form method="dialog" class="modal-backdrop">
+					<button>close</button>
+				</form>
+			</dialog>
+			<button
+				on:click={() => shareModal?.showModal()}
+				class="flex justify-center px-3 py-2 text-center text-white rounded-full place-items-center group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
+			>
+				<Icon icon="lucide:share" width={20} height={20} />
+			</button>
 		</div>
 		<div
 			role="alert"
@@ -98,7 +138,7 @@
 			</div>
 		</div>
 		<h1 class="mb-2 text-2xl font-medium text-center lg:text-left">
-			{Moment(activeDevo.createdAt).format('MMMM Do YYYY')}
+			{cleanDate}
 		</h1>
 		{#if !activeDevo.prayer || !activeDevo.reflection || images.length === 0}
 			<div

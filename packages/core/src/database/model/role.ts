@@ -1,9 +1,7 @@
-import { InferModel } from "drizzle-orm";
-import { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { roles } from "../schema";
 
-export type Role = InferModel<typeof roles, "select">;
+export type Role = typeof roles.$inferSelect;
 
-export type CreateRoleData = InferModel<typeof roles, "insert">;
+export type CreateRoleData = typeof roles.$inferInsert;
 
-export type UpdateRoleData = PgUpdateSetSource<typeof roles>;
+export type UpdateRoleData = Partial<CreateRoleData>;

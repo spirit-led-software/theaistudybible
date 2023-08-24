@@ -1,14 +1,7 @@
-import { InferModel } from "drizzle-orm";
-import { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { devotionReactions } from "../../schema";
 
-export type DevotionReaction = InferModel<typeof devotionReactions, "select">;
+export type DevotionReaction = typeof devotionReactions.$inferSelect;
 
-export type CreateDevotionReactionData = InferModel<
-  typeof devotionReactions,
-  "insert"
->;
+export type CreateDevotionReactionData = typeof devotionReactions.$inferInsert;
 
-export type UpdateDevotionReactionData = PgUpdateSetSource<
-  typeof devotionReactions
->;
+export type UpdateDevotionReactionData = Partial<CreateDevotionReactionData>;

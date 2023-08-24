@@ -1,9 +1,7 @@
-import { InferModel } from "drizzle-orm";
-import { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { chats } from "../schema";
 
-export type Chat = InferModel<typeof chats, "select">;
+export type Chat = typeof chats.$inferSelect;
 
-export type CreateChatData = InferModel<typeof chats, "insert">;
+export type CreateChatData = typeof chats.$inferInsert;
 
-export type UpdateChatData = PgUpdateSetSource<typeof chats>;
+export type UpdateChatData = Partial<CreateChatData>;

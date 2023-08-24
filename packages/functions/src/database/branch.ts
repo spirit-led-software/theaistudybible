@@ -146,9 +146,9 @@ export async function createBranch(
   const endpoints: BranchCreateRequestEndpointOptions[] = [
     {
       type: "read_write",
-      provisioner: isProd ? "k8s-neonvm" : "k8s-pod",
-      autoscaling_limit_min_cu: isProd ? 0.5 : 0.5,
-      autoscaling_limit_max_cu: isProd ? 7 : 0.5,
+      provisioner: "k8s-neonvm",
+      autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
+      autoscaling_limit_max_cu: isProd ? 7 : 1,
       suspend_timeout_seconds: 0,
     },
   ];
@@ -187,26 +187,32 @@ export async function updateBranch(
   const endpoints = endpointsResponse.endpoints;
 
   for (const endpoint of endpoints) {
-    if (endpoint.type === "read_only" && !isProd) {
-      await neonClient.endpoint.deleteProjectEndpoint(projectId, endpoint.id);
-    }
-
     if (endpoint.type === "read_write") {
       await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
         endpoint: {
-          provisioner: isProd ? "k8s-neonvm" : "k8s-pod",
-          autoscaling_limit_min_cu: isProd ? 0.5 : 0.5,
-          autoscaling_limit_max_cu: isProd ? 7 : 0.5,
+          provisioner: "k8s-neonvm",
+          autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
+          autoscaling_limit_max_cu: isProd ? 7 : 1,
+          suspend_timeout_seconds: 0,
         },
       });
     } else if (endpoint.type === "read_only") {
-      await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
-        endpoint: {
-          provisioner: isProd ? "k8s-neonvm" : "k8s-pod",
-          autoscaling_limit_min_cu: isProd ? 0.5 : 0.5,
-          autoscaling_limit_max_cu: isProd ? 7 : 0.5,
-        },
-      });
+      if (isProd) {
+        await neonClient.endpoint.updateProjectEndpoint(
+          projectId,
+          endpoint.id,
+          {
+            endpoint: {
+              provisioner: "k8s-neonvm",
+              autoscaling_limit_min_cu: 0.5,
+              autoscaling_limit_max_cu: 7,
+              suspend_timeout_seconds: 0,
+            },
+          }
+        );
+      } else {
+        await neonClient.endpoint.deleteProjectEndpoint(projectId, endpoint.id);
+      }
     } else {
       throw new Error(`Unknown endpoint type ${endpoint.type}`);
     }
@@ -290,12 +296,19 @@ function formConnectionUrls(
   endpoints: Endpoint[],
   role: Role
 ) {
+  console.log(
+    `Forming connection urls for databases: ${JSON.stringify(
+      databases
+    )}, endpoints: ${JSON.stringify(endpoints)}, role: ${JSON.stringify(role)}`
+  );
   const connectionUrls: NeonConnectionUrl[] = [];
   for (const database of databases) {
     for (const endpoint of endpoints) {
       connectionUrls.push({
         type: determineDbType(database.name, endpoint.type),
-        url: `postgres://${role.name}:${role.password}@${endpoint.host}/${database.name}`,
+        url: `postgres://${role.name}:${role.password}@${endpoint.host}/${
+          database.name
+        }?options=${encodeURIComponent(`endpoint=${endpoint.id}`)}`,
       });
     }
   }

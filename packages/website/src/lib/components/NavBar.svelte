@@ -55,11 +55,12 @@
 				}`}
 				on:click|preventDefault={() => (isOpen = !isOpen)}
 			>
-				{#if isOpen}
-					<Icon icon="formkit:down" height={20} width={20} />
-				{:else}
-					<Icon icon="material-symbols:menu" />
-				{/if}
+				<Icon
+					icon={isOpen ? 'formkit:down' : 'material-symbols:menu'}
+					height={20}
+					width={20}
+					class={`transition-transform duration-100 ${isOpen ? 'rotate-[360deg]' : 'rotate-0'}`}
+				/>
 			</button>
 		</div>
 		<ul
@@ -74,6 +75,9 @@
 								: 'bg-transparent text-white hover:bg-gray-800 hover:text-white'
 						}`}
 						href={navItem.href}
+						on:click={() => {
+							if (isActive(navItem.href)) isOpen = false;
+						}}
 					>
 						{navItem.label}
 					</a>
@@ -83,6 +87,9 @@
 				<a
 					class="block px-6 py-2 text-sm font-bold text-white bg-blue-300 rounded-lg hover:bg-blue-400"
 					href={'/upgrade'}
+					on:click={() => {
+						if (isActive('/upgrade')) isOpen = false;
+					}}
 				>
 					Upgrade
 				</a>
@@ -130,6 +137,9 @@
 										: 'text-gray-600 hover:bg-gray-100'
 								}`}
 								href={navItem.href}
+								on:click={() => {
+									if (isActive(navItem.href)) isOpen = false;
+								}}
 							>
 								{navItem.label}
 							</a>
@@ -139,6 +149,9 @@
 						<a
 							class="block px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
 							href={'/upgrade'}
+							on:click={() => {
+								if (isActive('/upgrade')) isOpen = false;
+							}}
 						>
 							Upgrade
 						</a>

@@ -112,7 +112,13 @@
 								activeChatId === chat.id ? 'bg-slate-800' : ''
 							}`}
 						>
-							<a href={`/chat/${chat.id}`} class="flex flex-col w-5/6">
+							<a
+								href={`/chat/${chat.id}`}
+								class="flex flex-col w-5/6"
+								on:click={() => {
+									if (activeChatId === chat.id) isOpen = false;
+								}}
+							>
 								<div class="text-white truncate">{chat.name}</div>
 								<div class="text-sm text-gray-400 truncate">
 									{Moment(chat.createdAt).format('M/D/YYYY h:mma')}

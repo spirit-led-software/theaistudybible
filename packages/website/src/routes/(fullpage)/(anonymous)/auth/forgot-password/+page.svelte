@@ -55,6 +55,10 @@
 	$: if (alertMessage) setTimeout(() => (alertMessage = undefined), 10000);
 </script>
 
+<svelte:head>
+	<title>Forgot Password</title>
+</svelte:head>
+
 <div
 	class="relative flex flex-col w-full px-5 pt-3 pb-10 bg-white shadow-xl lg:w-1/3 lg:h-full lg:place-content-center lg:px-20 md:w-1/2 sm:w-2/3"
 >

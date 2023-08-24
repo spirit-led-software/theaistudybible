@@ -12,9 +12,7 @@
 	$: dimensions = squareDimensionClasses[size];
 </script>
 
-<div
-	class={cn(`grow-0 relative overflow-hidden rounded-full bg-gray-300 ${dimensions}`, className)}
->
+<div class={cn(`relative overflow-hidden rounded-full bg-gray-300 ${dimensions}`, className)}>
 	{#if user.image}
 		<img
 			class="w-full h-full rounded-full"

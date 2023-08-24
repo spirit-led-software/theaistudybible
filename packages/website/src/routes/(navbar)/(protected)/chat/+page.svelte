@@ -5,4 +5,8 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Chat</title>
+</svelte:head>
+
 <Window user={data.user} />

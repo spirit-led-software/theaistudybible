@@ -1,9 +1,10 @@
 {
-  "extends": "@tsconfig/node16/tsconfig.json",
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     "typeRoots": ["./src/types", "../core/src/types"],
     "lib": ["dom", "dom.iterable", "ES2021"],
     "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@core/configs": ["../core/src/configs"],
       "@core/configs/*": ["../core/src/configs/*"],
@@ -11,7 +12,7 @@
       "@core/model/*": ["../core/src/database/model/*"],
       "@core/schema": ["../core/src/database/schema"],
       "@core/schema/*": ["../core/src/database/schema/*"],
-      "@revelationsai/core/*": ["../core/src/*"],
+      "@core/*": ["../core/src/*"],
       "@lib": ["./src/lib"],
       "@lib/*": ["./src/lib/*"],
       "@services": ["./src/services"],

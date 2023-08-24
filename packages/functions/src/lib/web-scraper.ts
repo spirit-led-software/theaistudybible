@@ -1,4 +1,4 @@
-import { addDocumentsToVectorStore } from "@services/vector-db";
+import { getDocumentVectorStore } from "@services/vector-db";
 import { TokenTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
 
@@ -51,7 +51,8 @@ export async function generatePageContentEmbeddings(
         return doc;
       });
       console.log("Docs ready. Adding them to the vector store.");
-      await addDocumentsToVectorStore(docs);
+      const vectorStore = await getDocumentVectorStore();
+      await vectorStore.addDocuments(docs);
       success = true;
       break;
     } catch (err) {

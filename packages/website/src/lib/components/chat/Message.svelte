@@ -1,16 +1,42 @@
 <script lang="ts">
+	/* @ts-ignore */
+	import { Email, Facebook, Twitter } from 'svelte-share-buttons-component';
+
+	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import type { UserWithRoles } from '@core/model';
+	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
+	import { copyText } from 'svelte-copy';
 	import Cross from '../branding/Cross.svelte';
 	import Avatar from '../user/Avatar.svelte';
+	import CopyButton from './CopyButton.svelte';
 	import ResponseSources from './ResponseSources.svelte';
 
 	export let chatId: string | undefined;
 	export let message: Message;
-	export let prevMessage: Message | undefined;
+	export let prevMessage: Message | undefined = undefined;
 	export let user: UserWithRoles;
 
+	const url = `${PUBLIC_WEBSITE_URL}/chat`;
+
+	let includePreviousMessage: boolean = false;
+	let sharableContent: string = message.content;
+	let shareModal: HTMLDialogElement | undefined = undefined;
+
+	let id: string;
+	let role: Message['role'];
+	let content: string;
+
 	$: ({ id, role, content } = message);
+
+	$: if (includePreviousMessage && prevMessage) {
+		const { role: prevRole, content: prevContent } = prevMessage;
+		sharableContent = `${prevRole === 'user' ? 'Me' : 'RevelationsAI'}: ${prevContent}\n\n${
+			role === 'user' ? 'Me' : 'RevelationsAI'
+		}: ${content}`;
+	} else {
+		sharableContent = `${role === 'user' ? 'Me' : 'RevelationsAI'}: ${content}`;
+	}
 </script>
 
 <div
@@ -18,19 +44,76 @@
 >
 	<div class="flex flex-col content-start w-12">
 		{#if role === 'user'}
-			<Avatar {user} size="md" class="border shadow-lg" />
+			<Avatar {user} size="md" class="border shadow-xl border-slate-100" />
 		{:else}
 			<Cross
 				colorscheme="dark"
 				size="md"
-				class="p-1 rounded-full shadow-xl outline outline-slate-200"
+				class="p-1 border rounded-full shadow-xl border-slate-100"
 			/>
 		{/if}
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<div class="w-full break-words whitespace-pre-wrap">{content}</div>
 		{#if role !== 'user'}
-			<ResponseSources aiResponseId={id} {chatId} />
+			<div class="flex justify-between w-full place-items-end">
+				<ResponseSources aiResponseId={id} {chatId} />
+				<div class="flex space-x-2">
+					<CopyButton {content} />
+					<dialog bind:this={shareModal} class="modal">
+						<form method="dialog" class="flex flex-col space-y-2 modal-box w-fit">
+							<h1 class="text-bold">Share to:</h1>
+							<div class="flex justify-center space-x-2 place-items-center">
+								<Email
+									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									subject="New Devotion from RevelationsAI"
+									body={`${sharableContent}\n\n${url}`}
+								/>
+								<Facebook
+									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									{url}
+									quote={sharableContent}
+								/>
+								<Twitter
+									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									text={sharableContent}
+									{url}
+									hashtags="revelationsai,ai,christ,jesus"
+								/>
+							</div>
+							<div class="flex justify-center space-x-2 place-items-center">
+								<label for={`include-message-${id}`}>Include your message</label>
+								<input
+									id={`include-message-${id}`}
+									type="checkbox"
+									class="checkbox checkbox-primary checkbox-sm"
+									bind:checked={includePreviousMessage}
+									on:change={() => {
+										copyText(sharableContent);
+									}}
+								/>
+							</div>
+							<p class="text-xs text-gray-400">Text will also be copied to your clipboard!</p>
+						</form>
+						<form method="dialog" class="modal-backdrop">
+							<button>close</button>
+						</form>
+					</dialog>
+					<button
+						class="text-slate-700 hover:text-slate-900"
+						on:click={() => {
+							copyText(sharableContent);
+							shareModal?.showModal();
+						}}
+					>
+						<Icon icon="lucide:share" width={16} height={16} />
+					</button>
+				</div>
+			</div>
+		{:else}
+			<div class="flex justify-end place-items-end">
+				<CopyButton content={sharableContent} />
+			</div>
 		{/if}
 	</div>
 </div>

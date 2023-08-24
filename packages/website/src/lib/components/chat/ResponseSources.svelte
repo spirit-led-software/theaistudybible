@@ -2,16 +2,16 @@
 	import { page } from '$app/stores';
 	import { getAiResponseSourceDocuments, searchForAiResponses } from '$lib/services/ai-response';
 	import type { Query } from '@core/database/helpers';
-	import type { SourceDocument } from '@core/model';
 	import { aiResponses } from '@core/schema';
 	import { getPropertyName } from '@core/util/object';
+	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 	import Icon from '@iconify/svelte';
 	import { SolidLineSpinner } from '../loading';
 
 	export let aiResponseId: string;
 	export let chatId: string | undefined;
 
-	let sources: SourceDocument[] = [];
+	let sources: NeonVectorStoreDocument[] = [];
 	let isLoading = false;
 	let showSources = false;
 
@@ -66,7 +66,7 @@
 	$: if (showSources) getSources(chatId, aiResponseId);
 </script>
 
-<div class="flex flex-col w-full overflow-hidden grow-0">
+<div class="flex flex-col overflow-hidden">
 	<button
 		class="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer"
 		on:click|preventDefault={() => (showSources = !showSources)}

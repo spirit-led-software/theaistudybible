@@ -1,14 +1,28 @@
 import { databaseConfig, envConfig } from "@core/configs";
-import { neon } from "@neondatabase/serverless";
-import * as schema from "@revelationsai/core/database/schema";
-import { drizzle } from "drizzle-orm/neon-http";
+import * as schema from "@core/database/schema";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-export const readOnlyDatabase = drizzle(neon(databaseConfig.readOnlyUrl), {
-  schema,
-  logger: envConfig.isLocal,
-});
+export const readOnlyDatabase = drizzle(
+  new Pool({
+    connectionString: databaseConfig.readOnlyUrl,
+    max: 20,
+    ssl: true,
+  }),
+  {
+    schema,
+    logger: envConfig.isLocal,
+  }
+);
 
-export const readWriteDatabase = drizzle(neon(databaseConfig.readWriteUrl), {
-  schema,
-  logger: envConfig.isLocal,
-});
+export const readWriteDatabase = drizzle(
+  new Pool({
+    connectionString: databaseConfig.readWriteUrl,
+    max: 20,
+    ssl: true,
+  }),
+  {
+    schema,
+    logger: envConfig.isLocal,
+  }
+);

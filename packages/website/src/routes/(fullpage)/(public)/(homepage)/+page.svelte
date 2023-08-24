@@ -6,6 +6,10 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>RevelationsAI: Home</title>
+</svelte:head>
+
 <div class="flex flex-col items-center justify-center w-full h-full">
 	<div class="flex flex-col w-full space-y-4 place-items-center">
 		<div class="flex justify-center w-3/4 place-items-center md:w-1/2">

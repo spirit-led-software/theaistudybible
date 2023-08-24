@@ -1,10 +1,10 @@
+import { buildOrderBy } from "@core/database/helpers";
 import { aiResponses as aiResponsesTable } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { buildOrderBy } from "@revelationsai/core/database/helpers";
 import { getAiResponses } from "@services/ai-response";
 import { validApiHandlerSession } from "@services/session";
 import { eq } from "drizzle-orm";

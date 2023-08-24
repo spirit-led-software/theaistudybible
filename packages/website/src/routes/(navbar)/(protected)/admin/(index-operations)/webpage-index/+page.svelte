@@ -27,6 +27,10 @@
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 
+<svelte:head>
+	<title>Admin: Index Webpage</title>
+</svelte:head>
+
 <form class="relative flex-col w-full" method="post" use:enhance={submit}>
 	{#if isLoading}
 		<div class="absolute left-0 right-0 flex justify-center">

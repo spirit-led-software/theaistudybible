@@ -1,5 +1,7 @@
-import { Chat, SourceDocument, UserMessage } from "@core/model";
+import { NeonDocLLMChainExtractor } from "@core/chains/NeonDocLLMChainExtractor";
+import { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
+import { NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
 import {
@@ -8,11 +10,7 @@ import {
   updateAiResponse,
 } from "@services/ai-response";
 import { createChat, getChat, updateChat } from "@services/chat";
-import {
-  getChatModel,
-  getCompletionsModel,
-  getPromptModel,
-} from "@services/llm";
+import { getChatModel, getPromptModel } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
 import { getUserMaxQueries, isObjectOwner } from "@services/user";
 import {
@@ -30,6 +28,7 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
+import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import {
   AIMessage,
   BaseMessage,
@@ -185,7 +184,6 @@ export const handler = middy({ streamifyResponse: true }).handler(
         userId: userInfo.id,
       });
 
-      const vectorStore = await getDocumentVectorStore();
       const history: BaseMessage[] = messages.map((message) => {
         return message.role === "user"
           ? new HumanMessage(message.content)
@@ -193,14 +191,24 @@ export const handler = middy({ streamifyResponse: true }).handler(
       });
       history.unshift(
         new SystemMessage(
-          "You are a Christian chatbot who can answer questions about Christian faith and theology. Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of faith. Quote the bible as much as possible in your answers. If you are asked what your name is, it is revelationsAI."
+          `You are a Christian chatbot who can answer questions about Christian faith and theology. 
+          
+          Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of
+          faith.
+          
+          If you do not know the answer to a question, say that you do not know the answer. If you are asked a
+          question that is not about faith or theology, answer that you are not able to answer the question.`
         )
       );
       console.debug(`Chat history: ${JSON.stringify(history)}`);
 
+      const vectorStore = await getDocumentVectorStore();
       const chain = ConversationalRetrievalQAChain.fromLLM(
         getChatModel(),
-        vectorStore.asRetriever(),
+        new ContextualCompressionRetriever({
+          baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+          baseRetriever: vectorStore.asRetriever(6),
+        }),
         {
           returnSourceDocuments: true,
           memory: new BufferMemory({
@@ -229,14 +237,16 @@ export const handler = middy({ streamifyResponse: true }).handler(
           });
 
           await Promise.all(
-            result.sourceDocuments.map(async (sourceDoc: SourceDocument) => {
-              await readWriteDatabase
-                .insert(aiResponsesToSourceDocuments)
-                .values({
-                  aiResponseId: aiResponse.id,
-                  sourceDocumentId: sourceDoc.id,
-                });
-            })
+            result.sourceDocuments.map(
+              async (sourceDoc: NeonVectorStoreDocument) => {
+                await readWriteDatabase
+                  .insert(aiResponsesToSourceDocuments)
+                  .values({
+                    aiResponseId: aiResponse.id,
+                    sourceDocumentId: sourceDoc.id,
+                  });
+              }
+            )
           );
         })
         .catch(async (err) => {
