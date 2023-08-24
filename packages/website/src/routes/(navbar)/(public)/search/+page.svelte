@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
+	import Icon from '@iconify/svelte';
 	import type { ActionData, SubmitFunction } from './$types';
 
 	export let form: ActionData;
@@ -57,16 +58,16 @@
 			action="?/search"
 		>
 			<div class="flex flex-col w-full mb-2">
-				<h1 class="text-lg font-medium">Search powered by <span class="text-blue-300">AI</span></h1>
-				<p class="text-xs text-gray-400">Find Christian resources using vector similarity search</p>
+				<h1 class="text-xl font-medium"><span class="text-blue-300">AI</span>-Powered Search</h1>
+				<p class="text-xs text-gray-400">
+					Find Christian resources using vector similarity search.
+				</p>
+				<p class="text-xs text-gray-400">
+					This is <strong class="font-bold">not</strong> a web search. All sources have been hand-selected
+					ahead of time.
+				</p>
 			</div>
 			<div class="join">
-				<label
-					for="query"
-					class="px-3 text-lg text-white border bg-slate-700 join-item label label-text"
-				>
-					Search:
-				</label>
 				{#if alert}
 					<div class="w-full border join-item">
 						<div
@@ -87,11 +88,11 @@
 						disabled={isLoading}
 					/>
 				{/if}
-				<button type="submit" class="text-white bg-slate-700 btn hover:bg-slate-900 join-item">
+				<button type="submit" class="text-white bg-slate-700 hover:bg-slate-900 btn join-item">
 					{#if isLoading}
-						<span class="loading loading-spinner" />
+						<span class="loading loading-xs loading-spinner" />
 					{:else}
-						<span>Submit</span>
+						<Icon icon="mdi:arrow-right" width={16} height={16} />
 					{/if}
 				</button>
 			</div>
@@ -103,7 +104,7 @@
 						target="_blank"
 						rel="noopener noreferrer"
 						href={result.metadata.url}
-						class="flex flex-col w-full p-3 border rounded shadow"
+						class="flex flex-col w-full p-3 border"
 					>
 						<div class="flex flex-col w-full">
 							<div class="text-lg font-bold">{result.metadata.name.split(' - ')[0]}</div>
