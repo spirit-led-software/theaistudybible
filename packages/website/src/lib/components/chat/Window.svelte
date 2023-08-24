@@ -210,7 +210,7 @@
 		{/if}
 		{#if !isEndOfMessagesRefShowing}
 			<button
-				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5"
+				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5 text-slate-700 hover:text-slate-900 hover:shadow-xl hover:bg-slate-100"
 				on:click|preventDefault={scrollEndIntoView}
 			>
 				<Icon icon="icon-park:down" class="text-2xl" />
@@ -232,11 +232,11 @@
 						type="button"
 						tabindex={-1}
 						on:click|preventDefault={handleReload}
-						class="mr-1 text-2xl text-slate-800 hover:text-slate-900"
+						class="mr-1 text-2xl text-slate-700 hover:text-slate-900"
 					>
 						<Icon icon="gg:redo" />
 					</button>
-					<button type="submit" class="mr-1 text-2xl text-slate-800 hover:text-slate-900">
+					<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
 						<Icon icon="majesticons:send-line" />
 					</button>
 				</div>

@@ -100,6 +100,7 @@
 						</form>
 					</dialog>
 					<button
+						class="text-slate-700 hover:text-slate-900"
 						on:click={() => {
 							copyText(sharableContent);
 							shareModal?.showModal();
