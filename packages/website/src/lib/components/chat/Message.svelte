@@ -14,7 +14,7 @@
 
 	export let chatId: string | undefined;
 	export let message: Message;
-	export let prevMessage: Message | undefined;
+	export let prevMessage: Message | undefined = undefined;
 	export let user: UserWithRoles;
 
 	const url = `${PUBLIC_WEBSITE_URL}/chat`;
@@ -23,12 +23,19 @@
 	let sharableContent: string = message.content;
 	let shareModal: HTMLDialogElement | undefined = undefined;
 
+	let id: string;
+	let role: Message['role'];
+	let content: string;
+
 	$: ({ id, role, content } = message);
 
-	$: if (includePreviousMessage) {
-		sharableContent = `Me: ${prevMessage?.content}\n\nRevelationsAI: ${content}`;
+	$: if (includePreviousMessage && prevMessage) {
+		const { role: prevRole, content: prevContent } = prevMessage;
+		sharableContent = `${prevRole === 'user' ? 'Me' : 'RevelationsAI'}: ${prevContent}\n\n${
+			role === 'user' ? 'Me' : 'RevelationsAI'
+		}: ${content}`;
 	} else {
-		sharableContent = `RevelationsAI: ${content}`;
+		sharableContent = `${role === 'user' ? 'Me' : 'RevelationsAI'}: ${content}`;
 	}
 </script>
 
@@ -104,7 +111,7 @@
 			</div>
 		{:else}
 			<div class="flex justify-end place-items-end">
-				<CopyButton {content} />
+				<CopyButton content={sharableContent} />
 			</div>
 		{/if}
 	</div>
