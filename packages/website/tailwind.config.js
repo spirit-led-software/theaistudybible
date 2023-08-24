@@ -42,9 +42,6 @@ export default {
 			}
 		}
 	},
-	future: {
-		hoverOnlyWhenSupported: true
-	},
 	daisyui: {
 		themes: [
 			{
