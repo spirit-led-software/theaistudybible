@@ -1,11 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-	content: [
-		'./src/**/*.{html,js,svelte,ts}',
-		'./node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'
-	],
+	content: ['./src/**/*.{html,js,svelte,ts}'],
 	plugins: [
-		require('flowbite/plugin'),
+		require('daisyui'),
 		require('tailwindcss-animate'),
 		require('tailwindcss-brand-colors')
 	],
@@ -47,5 +44,33 @@ export default {
 	},
 	future: {
 		hoverOnlyWhenSupported: true
+	},
+	daisyui: {
+		themes: [
+			{
+				light: {
+					primary: '#374151',
+					secondary: '#67e8f9',
+					accent: '#f3f4f6',
+					neutral: '#ffffff',
+					'base-100': '#ffffff',
+					info: '#3abff8',
+					success: '#36d399',
+					warning: '#fbbd23',
+					error: '#f87272'
+				},
+				dark: {
+					primary: '#ffffff',
+					secondary: '#67e8f9',
+					accent: '#374151',
+					neutral: '#1e293b',
+					'base-100': '#1e293b',
+					info: '#3abff8',
+					success: '#36d399',
+					warning: '#fbbd23',
+					error: '#f87272'
+				}
+			}
+		]
 	}
 };

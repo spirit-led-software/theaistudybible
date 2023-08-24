@@ -7,7 +7,6 @@
 	import type { devotionReactions } from '@core/schema';
 	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 	import { default as Icon, default as Iconify } from '@iconify/svelte';
-	import { Popover } from 'flowbite-svelte';
 	import Moment from 'moment';
 	import type { PageData } from './$types';
 
@@ -15,6 +14,7 @@
 
 	let isLoading = false;
 	let alert: string | undefined = undefined;
+	let shareModal: HTMLDialogElement | undefined = undefined;
 
 	$: handleReaction = async (reaction: (typeof devotionReactions.reaction.enumValues)[number]) => {
 		isLoading = true;
@@ -94,28 +94,34 @@
 				<span class="mr-2">{dislikeCount}</span>
 				<Iconify icon="fa6-regular:thumbs-down" class="group-hover:text-red-400" />
 			</button>
-			<Popover placement="top-start" triggeredBy={`#share-button`} trigger="click" arrow={true}>
-				<div class="flex justify-center space-x-2 place-items-center">
-					<Email
-						class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-						subject="New Devotion from RevelationsAI"
-						body={`Checkout the latest Devotion from RevelationsAI:\n\n${$page.url.toString()}`}
-					/>
-					<Facebook
-						class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-						url={$page.url.toString()}
-						quote="Checkout the latest devotion from RevelationsAI"
-					/>
-					<Twitter
-						class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-						text="Checkout the latest devotion from RevelationsAI:"
-						url={$page.url.toString()}
-						hashtags="revelationsai,ai,christ,jesus"
-					/>
-				</div>
-			</Popover>
+			<dialog bind:this={shareModal} class="modal">
+				<form method="dialog" class="flex flex-col space-y-2 modal-box w-fit">
+					<h1 class="text-bold">Share to:</h1>
+					<div class="flex justify-center space-x-2 place-items-center">
+						<Email
+							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+							subject="New Devotion from RevelationsAI"
+							body={`Checkout the latest Devotion from RevelationsAI:\n\n${$page.url.toString()}`}
+						/>
+						<Facebook
+							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+							url={$page.url.toString()}
+							quote="Checkout the latest devotion from RevelationsAI"
+						/>
+						<Twitter
+							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+							text="Checkout the latest devotion from RevelationsAI:"
+							url={$page.url.toString()}
+							hashtags="revelationsai,ai,christ,jesus"
+						/>
+					</div>
+				</form>
+				<form method="dialog" class="modal-backdrop">
+					<button>close</button>
+				</form>
+			</dialog>
 			<button
-				id="share-button"
+				on:click={() => shareModal?.showModal()}
 				class="flex justify-center px-3 py-2 text-center text-white rounded-full place-items-center group bg-slate-300 hover:bg-slate-400 bg-opacity-90"
 			>
 				<Icon icon="lucide:share" width={20} height={20} />

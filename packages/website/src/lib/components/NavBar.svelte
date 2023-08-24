@@ -55,11 +55,12 @@
 				}`}
 				on:click|preventDefault={() => (isOpen = !isOpen)}
 			>
-				{#if isOpen}
-					<Icon icon="formkit:down" height={20} width={20} />
-				{:else}
-					<Icon icon="material-symbols:menu" />
-				{/if}
+				<Icon
+					icon={isOpen ? 'formkit:down' : 'material-symbols:menu'}
+					height={20}
+					width={20}
+					class={`transition-transform duration-100 ${isOpen ? 'rotate-[360deg]' : 'rotate-0'}`}
+				/>
 			</button>
 		</div>
 		<ul

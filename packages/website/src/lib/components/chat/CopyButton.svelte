@@ -1,29 +1,39 @@
 <script lang="ts">
 	import { cn } from '$lib/utils/class-names';
 	import Icon from '@iconify/svelte';
-	import { Tooltip } from 'flowbite-svelte';
 	import { copy } from 'svelte-copy';
 
-	let className: string = '';
-	export { className as class };
+	/**
+	 * Icon classes
+	 */
+	export let iconClass: string | undefined = undefined;
+
+	/**
+	 * Button classes
+	 */
+	export let btnClass: string | undefined = undefined;
+
+	/**
+	 * Content to copy
+	 */
 	export let content: string;
-	export let id: string;
 
 	let copied = false;
 
 	$: if (copied) setTimeout(() => (copied = false), 2000);
 </script>
 
-<Tooltip type="dark" triggeredBy={`#${id}`} placement="top-start">
-	<div class="text-slate-700">Copy response</div>
-</Tooltip>
-<button {id} use:copy={content} on:click={() => (copied = true)} {...$$restProps}>
+<button
+	use:copy={content}
+	on:click={() => (copied = true)}
+	class={cn(btnClass, 'text-primary-700 hover:text-primary-700')}
+>
 	<Icon
 		icon={copied ? 'carbon:checkmark' : 'clarity:copy-to-clipboard-line'}
-		width={20}
-		height={20}
+		width={16}
+		height={16}
 		class={cn(
-			className,
+			iconClass,
 			`transition-transform duration-200 ${copied ? 'text-green-600 rotate-[360deg]' : 'rotate-0'}`
 		)}
 	/>

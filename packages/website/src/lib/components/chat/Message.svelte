@@ -6,8 +6,6 @@
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
-	import { Checkbox, Popover, Tooltip } from 'flowbite-svelte';
-	import { copyText } from 'svelte-copy';
 	import Cross from '../branding/Cross.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -22,6 +20,7 @@
 
 	let includePreviousMessage: boolean = false;
 	let sharableContent: string = message.content;
+	let shareModal: HTMLDialogElement | undefined = undefined;
 
 	$: ({ id, role, content } = message);
 
@@ -51,46 +50,51 @@
 		{#if role !== 'user'}
 			<div class="flex justify-between w-full place-items-end">
 				<ResponseSources aiResponseId={id} {chatId} />
-				<div class="flex justify-center space-x-2 place-items-center">
-					<CopyButton
-						id={`copy-button-${id}`}
-						{content}
-						class="text-slate-700 hover:text-slate-900"
-					/>
-					<Popover placement="left-end" triggeredBy={`#share-button-${id}`} trigger="click">
-						<div class="flex justify-center mb-2 space-x-2 place-items-center">
-							<Email
-								on:click={() => copyText(sharableContent)}
-								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-								subject="Response from RevelationsAI"
-								body={`${sharableContent}\n\n${url}`}
-							/>
-							<Facebook
-								on:click={() => copyText(sharableContent)}
-								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-								{url}
-								quote={sharableContent}
-							/>
-							<Twitter
-								on:click={() => copyText(sharableContent)}
-								class="flex justify-center w-6 h-6 overflow-hidden rounded-full place-items-center"
-								text={sharableContent}
-								{url}
-								hashtags="revelationsai,ai,christ,jesus"
-							/>
-						</div>
-						<div class="flex justify-center space-x-1 place-items-center">
-							<label for={`include-previous-${id}`} class="text-xs">Include your message</label>
-							<Checkbox id={`include-previous-${id}`} bind:checked={includePreviousMessage} />
-						</div>
-					</Popover>
-					<Tooltip type="custom" placement="top-start" triggeredBy={`#share-button-${id}`}>
-						<div class="text-slate-700">Share response</div>
-					</Tooltip>
-					<button id={`share-button-${id}`} class="text-slate-700 hover:text-slate-900">
-						<Icon icon="lucide:share" width={20} height={20} />
+				<div class="flex space-x-2">
+					<CopyButton {content} />
+					<dialog bind:this={shareModal} class="modal">
+						<form method="dialog" class="flex flex-col space-y-2 modal-box w-fit">
+							<h1 class="text-bold">Share to:</h1>
+							<div class="flex justify-center space-x-2 place-items-center">
+								<Email
+									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									subject="New Devotion from RevelationsAI"
+									body={`${sharableContent}\n\n${url}`}
+								/>
+								<Facebook
+									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									{url}
+									quote={sharableContent}
+								/>
+								<Twitter
+									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									text={sharableContent}
+									{url}
+									hashtags="revelationsai,ai,christ,jesus"
+								/>
+							</div>
+							<div class="flex justify-center space-x-2 place-items-center">
+								<label for={`include-message-${id}`}>Include your message</label>
+								<input
+									id={`include-message-${id}`}
+									type="checkbox"
+									class="checkbox checkbox-primary checkbox-sm"
+									bind:checked={includePreviousMessage}
+								/>
+							</div>
+						</form>
+						<form method="dialog" class="modal-backdrop">
+							<button>close</button>
+						</form>
+					</dialog>
+					<button on:click={() => shareModal?.showModal()}>
+						<Icon icon="lucide:share" width={16} height={16} />
 					</button>
 				</div>
+			</div>
+		{:else}
+			<div class="flex justify-end place-items-end">
+				<CopyButton {content} />
 			</div>
 		{/if}
 	</div>
