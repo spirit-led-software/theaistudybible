@@ -23,6 +23,10 @@
 			href: '/chat'
 		},
 		{
+			label: 'Search',
+			href: '/search'
+		},
+		{
 			label: 'Devotions',
 			href: '/devotions'
 		}

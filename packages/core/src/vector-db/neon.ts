@@ -139,10 +139,12 @@ export class NeonVectorStore extends VectorStore {
   async similaritySearchVectorWithScore(
     query: number[],
     k: number,
-    filter?: this["FilterType"]
+    filter?: this["FilterType"],
+    offset?: number
   ): Promise<[NeonVectorStoreDocument, number][]> {
     const embeddingString = `{${query.join(",")}}`;
     const _filter = filter ?? "{}";
+    const _offset = offset ?? 0;
     if (this.verbose) {
       console.log(
         `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
@@ -156,8 +158,9 @@ export class NeonVectorStore extends VectorStore {
         FROM ${this.tableName}
         WHERE metadata @> $2
         ORDER BY "_distance" ASC
-        LIMIT $3;`,
-      [embeddingString, _filter, k]
+        LIMIT $3
+        OFFSET $4;`,
+      [embeddingString, _filter, k, _offset]
     );
 
     const results: [NeonVectorStoreDocument, number][] = [];

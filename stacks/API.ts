@@ -193,6 +193,10 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/users/[id]/query-counts/get.handler",
       "GET /users/me/query-counts":
         "packages/functions/src/rest/users/me/query-counts/get.handler",
+
+      // Vector similarity search
+      "POST /vector-search":
+        "packages/functions/src/rest/vector-search/post.handler",
     },
     defaults: {
       function: {
