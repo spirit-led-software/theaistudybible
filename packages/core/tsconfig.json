@@ -2,8 +2,7 @@
   "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
     "typeRoots": ["./src/types"],
-    "moduleResolution": "Node",
-    "strictFunctionTypes": false
+    "moduleResolution": "Node"
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

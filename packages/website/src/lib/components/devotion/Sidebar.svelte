@@ -76,7 +76,13 @@
 								devotion.id === activeDevoId && 'bg-slate-800'
 							}`}
 						>
-							<a href={`/devotions/${devotion.id}`} class="flex flex-col text-lg truncate">
+							<a
+								href={`/devotions/${devotion.id}`}
+								class="flex flex-col text-lg truncate"
+								on:click={() => {
+									if (devotion.id === activeDevoId) isOpen = false;
+								}}
+							>
 								<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
 								<div class="text-xs">
 									{devotion.bibleReading.split(' - ')[0]}

@@ -6,6 +6,7 @@
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
+	import { copyText } from 'svelte-copy';
 	import Cross from '../branding/Cross.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -80,14 +81,23 @@
 									type="checkbox"
 									class="checkbox checkbox-primary checkbox-sm"
 									bind:checked={includePreviousMessage}
+									on:change={() => {
+										copyText(sharableContent);
+									}}
 								/>
 							</div>
+							<p class="text-xs text-gray-400">Text will also be copied to your clipboard!</p>
 						</form>
 						<form method="dialog" class="modal-backdrop">
 							<button>close</button>
 						</form>
 					</dialog>
-					<button on:click={() => shareModal?.showModal()}>
+					<button
+						on:click={() => {
+							copyText(sharableContent);
+							shareModal?.showModal();
+						}}
+					>
 						<Icon icon="lucide:share" width={16} height={16} />
 					</button>
 				</div>

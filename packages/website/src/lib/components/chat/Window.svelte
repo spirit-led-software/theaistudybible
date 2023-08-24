@@ -102,7 +102,7 @@
 		if ($input === '') {
 			alert = 'Please enter a message';
 		}
-		await handleSubmit(event, {
+		handleSubmit(event, {
 			options: {
 				headers: {
 					authorization: `Bearer ${$page.data.session}`
@@ -112,7 +112,6 @@
 				}
 			}
 		});
-		$input = '';
 	};
 
 	$: handleReload = async () => {
@@ -223,7 +222,7 @@
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize id="input" {input} maxRows={5} autofocus />
+					<TextAreaAutosize {input} autofocus />
 					{#if $isLoading}
 						<div class="flex mr-1">
 							<LoadingDots size={'sm'} />

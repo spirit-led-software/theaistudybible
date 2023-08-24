@@ -14,7 +14,7 @@
 	"devDependencies": {
 		"@iconify/svelte": "^3.1.4",
 		"@sveltejs/adapter-auto": "^2.1.0",
-		"@sveltejs/kit": "^1.22.6",
+		"@sveltejs/kit": "^1.23.0",
 		"@types/autosize": "^4.0.1",
 		"@types/validator": "^13.11.1",
 		"@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -47,7 +47,7 @@
 	"dependencies": {
 		"@revelationsai/core": "^1.0.0",
 		"@tanstack/svelte-query": "^4.33.0",
-		"ai": "^2.2.7",
+		"ai": "^2.2.8",
 		"autosize": "^6.0.1",
 		"moment": "^2.29.4",
 		"stripe": "^13.2.0",

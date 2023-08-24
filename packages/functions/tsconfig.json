@@ -5,7 +5,6 @@
     "lib": ["dom", "dom.iterable", "ES2021"],
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
-    "strictFunctionTypes": false,
     "paths": {
       "@core/configs": ["../core/src/configs"],
       "@core/configs/*": ["../core/src/configs/*"],
