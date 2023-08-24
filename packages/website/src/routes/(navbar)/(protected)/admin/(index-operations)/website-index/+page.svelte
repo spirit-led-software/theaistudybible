@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { SolidLineSpinner } from '$lib/components/loading';
+	import { useQueryClient } from '@tanstack/svelte-query';
 	import type { ActionData, SubmitFunction } from './$types';
 
 	export let form: ActionData;
@@ -8,12 +9,15 @@
 	let alert: { type: 'error' | 'success'; message: string } | undefined = undefined;
 	let isLoading = false;
 
+	const queryClient = useQueryClient();
+
 	const submit: SubmitFunction = () => {
 		isLoading = true;
 
 		return async ({ update }) => {
 			isLoading = false;
 			await update();
+			queryClient.invalidateQueries(['index-operations']);
 		};
 	};
 

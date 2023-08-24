@@ -28,6 +28,7 @@ export function S3({ stack }: StackContext) {
     },
     notifications: {
       indexFile: {
+        events: ["object_created"],
         function: {
           handler: "packages/functions/src/scraper/file.handler",
         },

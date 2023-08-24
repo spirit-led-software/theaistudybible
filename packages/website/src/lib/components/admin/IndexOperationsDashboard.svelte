@@ -35,7 +35,8 @@
 		queryKey: ['index-operations'],
 		queryFn: () =>
 			getIndexOperations({ limit, session: $page.data.session }).then((r) => r.indexOperations),
-		initialData: initIndexOps
+		initialData: initIndexOps,
+		refetchInterval: 8000
 	});
 
 	$: query?.subscribe(({ data }) => {
