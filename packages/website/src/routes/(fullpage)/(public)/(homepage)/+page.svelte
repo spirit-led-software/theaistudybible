@@ -21,49 +21,36 @@
 				<span class="text-blue-300">Artificial Intelligence</span>
 			</h2>
 		</div>
-		{#if data.user}
-			<div class="flex flex-col items-center justify-center w-5/6 space-y-4 text-center md:w-2/5">
-				<AskQuestionsBar />
-				<div
-					class="flex flex-col items-center justify-center w-full space-y-2 md:space-x-2 md:space-y-0 md:flex-row md:w-1/2"
-				>
-					<a
-						href={'/chat'}
-						class="w-full py-3 text-white rounded-md grow-0 shrink-0 bg-slate-700 hover:bg-slate-900 hover:shadow-lg"
-					>
-						See Chats
-					</a>
-					<a
-						href={'/devotions'}
-						class="w-full py-3 text-white rounded-md grow-0 shrink-0 bg-slate-700 hover:bg-slate-900 hover:shadow-lg"
-					>
-						See Devotions
-					</a>
-				</div>
-			</div>
-		{:else}
+
+		<div class="flex flex-col items-center justify-center w-5/6 space-y-4 text-center md:w-3/5">
+			<AskQuestionsBar />
 			<div
-				class="flex flex-col justify-center w-2/3 space-y-2 text-center place-items-center md:space-y-0 md:w-2/5 md:space-x-2 md:flex-row"
+				class="flex flex-col items-center justify-between w-full space-x-0 space-y-2 md:space-y-0 md:flex-row md:space-x-2"
 			>
 				<a
 					href={'/chat'}
-					class="w-full py-3 text-white rounded-md bg-slate-700 hover:bg-slate-900 hover:shadow-lg"
+					class="flex w-full p-2 text-center text-white rounded-md place-content-center bg-slate-700 hover:bg-slate-900 active:bg-slate-900 hover:shadow-lg"
 				>
 					See Chats
 				</a>
 				<a
 					href={'/devotions'}
-					class="w-full py-3 text-white rounded-md bg-slate-700 hover:bg-slate-900 hover:shadow-lg"
+					class="flex w-full p-2 text-center text-white rounded-md place-content-center bg-slate-700 hover:bg-slate-900 active:bg-slate-900 hover:shadow-lg"
 				>
 					See Devotions
 				</a>
+
 				<a
-					href={'/auth/login'}
-					class="w-full py-3 text-white rounded-md bg-slate-700 hover:bg-slate-900 hover:shadow-lg"
+					href={data.user ? '/auth/logout' : '/auth/login'}
+					class="flex w-full p-2 text-center text-white rounded-md place-content-center bg-slate-700 hover:bg-slate-900 active:bg-slate-900 hover:shadow-lg"
 				>
-					Login
+					{#if data.user}
+						Logout
+					{:else}
+						Login
+					{/if}
 				</a>
 			</div>
-		{/if}
+		</div>
 	</div>
 </div>

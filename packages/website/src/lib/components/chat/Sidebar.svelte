@@ -119,6 +119,10 @@
 								href={`/chat/${chat.id}`}
 								class="flex flex-col w-5/6"
 								on:click={() => {
+									if (activeChatId === chat.id) {
+										isOpen = false;
+										return;
+									}
 									loadingChatId = chat.id;
 								}}
 							>

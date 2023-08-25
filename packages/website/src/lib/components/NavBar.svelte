@@ -77,10 +77,10 @@
 			{#each navItems as navItem}
 				<li>
 					<a
-						class={`block px-6 py-2 text-sm font-medium transition duration-200 rounded-xl active:bg-gray-100 active:text-slate-900 ${
+						class={`block px-6 py-2 text-sm font-medium transition duration-200 rounded-xl ${
 							isActive(navItem.href)
-								? 'bg-white text-slate-800 hover:bg-gray-100 hover:text-slate-900'
-								: 'bg-transparent text-white hover:bg-gray-800 hover:text-white'
+								? 'bg-white text-slate-800 hover:bg-gray-100 active:bg-gray-100'
+								: 'bg-transparent text-white hover:bg-gray-800 active:bg-slate-800'
 						}`}
 						href={navItem.href}
 					>
@@ -133,6 +133,9 @@
 									isActive(navItem.href) ? ' bg-slate-100' : ''
 								}`}
 								href={navItem.href}
+								on:click={() => {
+									if (isActive(navItem.href)) isOpen = false;
+								}}
 							>
 								{navItem.label}
 							</a>
@@ -142,6 +145,9 @@
 						<a
 							class="block px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
 							href={'/upgrade'}
+							on:click={() => {
+								if (isActive('/upgrade')) isOpen = false;
+							}}
 						>
 							Upgrade
 						</a>

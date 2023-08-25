@@ -83,6 +83,10 @@
 								href={`/devotions/${devotion.id}`}
 								class="flex flex-col text-lg truncate"
 								on:click={() => {
+									if (activeDevoId === devotion.id) {
+										isOpen = false;
+										return;
+									}
 									loadingDevoId = devotion.id;
 								}}
 							>

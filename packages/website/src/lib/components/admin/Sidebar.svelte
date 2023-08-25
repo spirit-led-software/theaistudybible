@@ -66,6 +66,10 @@
 							href={tool.href}
 							class="flex w-5/6"
 							on:click={() => {
+								if (activePath === tool.href) {
+									isOpen = false;
+									return;
+								}
 								loadingToolHref = tool.href;
 							}}
 						>
