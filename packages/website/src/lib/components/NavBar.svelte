@@ -32,17 +32,17 @@
 		}
 	];
 
+	const isActive = (path: string) => {
+		if (path === '/') return $page.url.pathname === path;
+		return $page.url.pathname.startsWith(path);
+	};
+
 	$: if (user && isAdmin(user) && !navItems.some((item) => item.label === 'Admin')) {
 		navItems.push({
 			label: 'Admin',
 			href: '/admin'
 		});
 	}
-
-	$: isActive = (path: string) => {
-		if (path === '/') return $page.url.pathname === path;
-		return $page.url.pathname.startsWith(path);
-	};
 
 	$: if ($page.url.pathname) isOpen = false;
 </script>

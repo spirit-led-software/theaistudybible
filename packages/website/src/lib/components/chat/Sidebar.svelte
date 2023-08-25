@@ -165,9 +165,7 @@
 		loadingChatId = undefined;
 	}
 
-	$: if (loadingChatId) {
-		activeChatId = loadingChatId;
-	}
+	$: if (loadingChatId) activeChatId = loadingChatId;
 </script>
 
 <div

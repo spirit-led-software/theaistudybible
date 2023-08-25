@@ -23,6 +23,7 @@
 	let lastAiResponseId = writable<string | undefined>(undefined);
 	let lastChatMessage = writable<ChatMessage | undefined>(undefined);
 	let endOfMessagesRef = writable<HTMLDivElement | undefined>(undefined);
+	let initialMessages = writable<ChatMessage[] | undefined>(initMessages);
 
 	let alert: string | undefined = undefined;
 	let isEndOfMessagesRefShowing = true;
@@ -61,7 +62,7 @@
 
 	const { input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
-		initialMessages: initMessages,
+		initialMessages: $initialMessages,
 		sendExtraMessageFields: true,
 		onResponse: (response) => {
 			if (response.status === 429) {
@@ -149,10 +150,9 @@
 		}
 	};
 
-	$: if (!$isLoading && $lastChatMessage) {
-		handleAiResponse($lastChatMessage);
-	}
-
+	$: if (initChatId) $chatId = initChatId;
+	$: if (initMessages) $initialMessages = initMessages;
+	$: if (!$isLoading && $lastChatMessage) handleAiResponse($lastChatMessage);
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 

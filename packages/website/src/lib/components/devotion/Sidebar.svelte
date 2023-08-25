@@ -41,9 +41,7 @@
 		loadingDevoId = undefined;
 	}
 
-	$: if (loadingDevoId) {
-		activeDevoId = loadingDevoId;
-	}
+	$: if (loadingDevoId) activeDevoId = loadingDevoId;
 </script>
 
 <div
