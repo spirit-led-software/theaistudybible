@@ -10,7 +10,7 @@
 	export let form: ActionData;
 
 	let isLoading = false;
-	let alertMessage:
+	let alert:
 		| {
 				type: 'error' | 'success';
 				text: string;
@@ -26,32 +26,36 @@
 	};
 
 	$: if ($page.url.searchParams.get('resetPassword') === 'success') {
-		alertMessage = {
+		alert = {
 			type: 'success',
 			text: 'Your password has been reset. Please login with your new password.'
 		};
 	}
 	$: if ($page.url.searchParams.get('error')) {
-		alertMessage = {
+		alert = {
 			type: 'error',
 			text: $page.url.searchParams.get('error')!
 		};
 	}
 	$: if ($page.url.searchParams.get('success')) {
-		alertMessage = {
+		alert = {
 			type: 'success',
 			text: $page.url.searchParams.get('success')!
 		};
 	}
 
 	$: if (form?.errors?.banner) {
-		alertMessage = {
+		alert = {
 			type: 'error',
 			text: form.errors.banner
 		};
 	}
 
-	$: alertMessage && setTimeout(() => (alertMessage = undefined), 10000);
+	$: if (form?.success) {
+		setTimeout(() => $page.url.searchParams.get('returnUrl') || '/', 3000);
+	}
+
+	$: alert && setTimeout(() => (alert = undefined), 10000);
 </script>
 
 <svelte:head>
@@ -66,14 +70,14 @@
 			<SolidLineSpinner size="md" colorscheme={'dark'} />
 		</div>
 	{/if}
-	{#if alertMessage}
+	{#if alert}
 		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
 			<div
 				class={`w-5/6 px-4 py-2 mx-auto text-center text-white rounded-xl lg:text-xl ${
-					alertMessage.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+					alert.type === 'error' ? 'bg-red-500' : 'bg-green-500'
 				}`}
 			>
-				{alertMessage.text}
+				{alert.text}
 			</div>
 		</div>
 	{/if}
