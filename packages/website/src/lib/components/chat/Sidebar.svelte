@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { createChat, deleteChat, getChats } from '$lib/services/chat';
+	import { createChat, deleteChat, getChats, updateChat } from '$lib/services/chat';
 	import type { Chat } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -16,6 +16,8 @@
 	let isLoadingInitial = false;
 	let isLoadingMore = false;
 	let loadingChatId: string | undefined = undefined;
+	let editChatId: string | undefined = undefined;
+	let editIsLoading = false;
 
 	const handleCreate = async () => {
 		await createChat(
@@ -30,6 +32,31 @@
 			limit++;
 		}
 		$query.refetch();
+	};
+
+	const handleEdit = async (
+		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement },
+		id: string
+	) => {
+		const formData = new FormData(event.currentTarget);
+		const name = formData.get('name') as string;
+		if (!name) {
+			return;
+		}
+		editIsLoading = true;
+		updateChat(
+			id,
+			{
+				name: name
+			},
+			{
+				session: $page.data.session
+			}
+		).finally(async () => {
+			await $query.refetch();
+			editIsLoading = false;
+			editChatId = undefined;
+		});
 	};
 
 	const handleDelete = async (id: string) => {
@@ -72,7 +99,7 @@
 </script>
 
 <div
-	class={`absolute flex h-full max-h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/4 lg:static ${
+	class={`absolute flex h-full max-h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-2/5 lg:static ${
 		isOpen ? 'w-full' : 'w-0'
 	}`}
 >
@@ -86,7 +113,7 @@
 			<Icon icon="formkit:arrowleft" height={20} width={20} />
 		</button>
 		<div
-			class={`h-full w-full overflow-y-scroll py-4 px-3 text-white lg:px-6 lg:visible ${
+			class={`h-full w-full overflow-y-scroll py-4 px-6 text-white lg:px-2 lg:visible ${
 				isOpen ? 'visible' : 'invisible'
 			}`}
 		>
@@ -126,23 +153,69 @@
 									loadingChatId = chat.id;
 								}}
 							>
-								<div class="text-white truncate">{chat.name}</div>
+								{#if editChatId === chat.id}
+									{#if editIsLoading}
+										<div class="flex w-full mb-1">
+											<span class="loading loading-spinner loading-sm" />
+										</div>
+									{:else}
+										<form
+											on:submit|preventDefault={(event) => handleEdit(event, chat.id)}
+											class="flex flex-col w-full"
+										>
+											<input
+												name="name"
+												class="w-full py-1 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
+												autocomplete="off"
+												autofocus
+												on:focusout={() => (editChatId = undefined)}
+											/>
+										</form>
+									{/if}
+								{:else}
+									<div class="text-white truncate">{chat.name}</div>
+								{/if}
 								<div class="text-sm text-gray-400 truncate">
 									{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
 								</div>
 							</a>
-							<div class="flex justify-center place-items-center">
+							<div class="flex justify-center space-x-1 place-items-center">
 								{#if loadingChatId === chat.id}
 									<div class="mr-2">
 										<span class="loading loading-spinner loading-xs" />
 									</div>
+								{:else}
+									<button
+										class="flex w-full h-full"
+										on:click={() => {
+											if (editChatId === chat.id) {
+												editChatId = undefined;
+												return;
+											}
+											editChatId = chat.id;
+										}}
+									>
+										<Icon
+											icon={editChatId === chat.id && !editIsLoading
+												? 'mdi:cancel'
+												: 'tdesign:edit'}
+											width={20}
+											height={20}
+											class="hover:text-yellow-400 active:text-yellow-400"
+										/>
+									</button>
+									<button
+										class="flex w-full h-full"
+										on:click|preventDefault={() => handleDelete(chat.id)}
+									>
+										<Icon
+											icon="mdi:trash-outline"
+											width={20}
+											height={20}
+											class="hover:text-red-500 active:text-red-500"
+										/>
+									</button>
 								{/if}
-								<button
-									class="flex w-full h-full"
-									on:click|preventDefault={() => handleDelete(chat.id)}
-								>
-									<Icon icon="mdi:trash-outline" class="text-lg hover:text-red-500" />
-								</button>
 							</div>
 						</div>
 					{/each}
