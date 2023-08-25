@@ -220,14 +220,9 @@
 			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
 		>
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
-				<div class="flex items-center w-full mr-1">
+				<div class="flex items-center w-full h-auto mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
 					<TextAreaAutosize {input} autofocus />
-					{#if $isLoading}
-						<div class="flex mr-1">
-							<LoadingDots size={'sm'} />
-						</div>
-					{/if}
 					<button
 						type="button"
 						tabindex={-1}
@@ -236,9 +231,15 @@
 					>
 						<Icon icon="gg:redo" />
 					</button>
-					<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
-						<Icon icon="majesticons:send-line" />
-					</button>
+					{#if $isLoading}
+						<div class="flex mr-1">
+							<LoadingDots size={'sm'} />
+						</div>
+					{:else}
+						<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
+							<Icon icon="majesticons:send-line" />
+						</button>
+					{/if}
 				</div>
 			</form>
 		</div>

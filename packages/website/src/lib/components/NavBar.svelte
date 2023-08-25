@@ -32,6 +32,10 @@
 		}
 	];
 
+	const close = () => {
+		isOpen = false;
+	};
+
 	$: if (user && isAdmin(user) && !navItems.some((item) => item.label === 'Admin')) {
 		navItems.push({
 			label: 'Admin',
@@ -47,7 +51,11 @@
 	$: if ($page.url.pathname) isOpen = false;
 </script>
 
-<div class="flex flex-col">
+<div
+	class={`flex flex-col w-screen lg:static lg:h-fit lg:z-0 ${
+		isOpen ? 'absolute z-40 h-screen' : 'relative'
+	}`}
+>
 	<nav class="relative flex items-center justify-between h-16 px-4 py-4 bg-slate-700">
 		<a href="/">
 			<Logo size="2xl" colorscheme="light" />
@@ -73,15 +81,13 @@
 			{#each navItems as navItem}
 				<li>
 					<a
-						class={`block px-6 py-2 text-sm font-medium transition duration-200 rounded-xl ${
+						class={`block px-6 py-2 text-sm font-medium transition duration-200 rounded-xl active:bg-gray-100 active:text-slate-900 ${
 							isActive(navItem.href)
 								? 'bg-white text-slate-800 hover:bg-gray-100 hover:text-slate-900'
 								: 'bg-transparent text-white hover:bg-gray-800 hover:text-white'
 						}`}
 						href={navItem.href}
-						on:click={() => {
-							if (isActive(navItem.href)) isOpen = false;
-						}}
+						on:click={close}
 					>
 						{navItem.label}
 					</a>
@@ -91,9 +97,7 @@
 				<a
 					class="block px-6 py-2 text-sm font-bold text-white bg-blue-300 rounded-lg hover:bg-blue-400"
 					href={'/upgrade'}
-					on:click={() => {
-						if (isActive('/upgrade')) isOpen = false;
-					}}
+					on:click={close}
 				>
 					Upgrade
 				</a>
@@ -121,29 +125,21 @@
 		{/if}
 	</nav>
 	<div
-		class={`fixed z-50 bottom-0 left-0 flex flex-col w-full  bg-white border-r md:w-1/2 top-16 transition-all duration-300 ${
-			isOpen ? 'h-100' : 'h-0'
+		class={`z-50 flex flex-col w-full bg-white transition-all duration-300 ${
+			isOpen ? 'flex-1' : 'hidden'
 		} overflow-y-hidden lg:hidden`}
 	>
-		<nav
-			class={`flex flex-col h-full w-full px-6 py-6 overflow-y-hidden transition duration-300 ease-in-out ${
-				isOpen ? '' : '-top-full'
-			}`}
-		>
+		<nav class="flex flex-col w-full h-full px-6 py-6 overflow-y-hidden">
 			<div>
 				<ul>
 					{#each navItems as navItem}
 						<li>
 							<a
-								class={`block px-4 py-3 mb-3 text-md font-semibold leading-none rounded-xl ${
-									isActive(navItem.href)
-										? 'text-slate-800 bg-slate-200'
-										: 'text-gray-600 hover:bg-gray-100'
+								class={`block px-4 py-3 mb-3 text-md font-semibold leading-none rounded-xl text-slate-800 hover:bg-slate-200 active:bg-slate-200 ${
+									isActive(navItem.href) ? ' bg-slate-100' : ''
 								}`}
 								href={navItem.href}
-								on:click={() => {
-									if (isActive(navItem.href)) isOpen = false;
-								}}
+								on:click={close}
 							>
 								{navItem.label}
 							</a>
@@ -153,9 +149,7 @@
 						<a
 							class="block px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
 							href={'/upgrade'}
-							on:click={() => {
-								if (isActive('/upgrade')) isOpen = false;
-							}}
+							on:click={close}
 						>
 							Upgrade
 						</a>

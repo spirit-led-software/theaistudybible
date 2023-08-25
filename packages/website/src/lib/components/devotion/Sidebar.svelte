@@ -5,7 +5,6 @@
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';
-	import { SolidLineSpinner } from '../loading';
 
 	export let initDevos: Devotion[] = [];
 	export let activeDevoId: string;
@@ -15,6 +14,10 @@
 	let devotions: Devotion[] = [];
 	let isLoadingInitial = false;
 	let isLoadingMore = false;
+
+	const close = () => {
+		isOpen = false;
+	};
 
 	$: query = createQuery({
 		queryKey: ['devos'],
@@ -65,23 +68,21 @@
 				{#if isLoadingInitial}
 					<div class="flex justify-center w-full">
 						<div class="flex items-center justify-center py-5">
-							<SolidLineSpinner size="lg" colorscheme={'light'} />
+							<span class="loading loading-spinner loading-lg" />
 						</div>
 					</div>
 				{/if}
 				{#if $query.isSuccess}
 					{#each devotions as devotion (devotion.id)}
 						<div
-							class={`px-3 py-1 rounded-md cursor-pointer duration-200 hover:bg-slate-900 ${
+							class={`px-3 py-1 rounded-md cursor-pointer duration-200 hover:bg-slate-900 active:bg-slate-900 ${
 								devotion.id === activeDevoId && 'bg-slate-800'
 							}`}
 						>
 							<a
 								href={`/devotions/${devotion.id}`}
 								class="flex flex-col text-lg truncate"
-								on:click={() => {
-									if (devotion.id === activeDevoId) isOpen = false;
-								}}
+								on:click={close}
 							>
 								<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
 								<div class="text-xs">
@@ -100,7 +101,7 @@
 					{:else if isLoadingMore}
 						<div class="flex justify-center w-full">
 							<div class="flex items-center justify-center py-5">
-								<SolidLineSpinner size="md" colorscheme={'light'} />
+								<span class="loading loading-spinner loading-md" />
 							</div>
 						</div>
 					{/if}

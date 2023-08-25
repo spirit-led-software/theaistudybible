@@ -6,7 +6,6 @@
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';
-	import { SolidLineSpinner } from '../loading';
 
 	export let initChats: Chat[] = [];
 	export let activeChatId: string | undefined = undefined;
@@ -41,6 +40,10 @@
 				$query.refetch();
 			}
 		}
+	};
+
+	const close = () => {
+		isOpen = false;
 	};
 
 	$: query = createQuery({
@@ -101,24 +104,18 @@
 				{#if isLoadingInitial}
 					<div class="flex justify-center w-full">
 						<div class="flex items-center justify-center py-5">
-							<SolidLineSpinner size="lg" colorscheme={'light'} />
+							<span class="loading loading-spinner loading-lg" />
 						</div>
 					</div>
 				{/if}
 				{#if $query.isSuccess}
 					{#each chats as chat (chat.id)}
 						<div
-							class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 ${
+							class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 active:bg-slate-900 ${
 								activeChatId === chat.id ? 'bg-slate-800' : ''
 							}`}
 						>
-							<a
-								href={`/chat/${chat.id}`}
-								class="flex flex-col w-5/6"
-								on:click={() => {
-									if (activeChatId === chat.id) isOpen = false;
-								}}
-							>
+							<a href={`/chat/${chat.id}`} class="flex flex-col w-5/6" on:click={close}>
 								<div class="text-white truncate">{chat.name}</div>
 								<div class="text-sm text-gray-400 truncate">
 									{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
@@ -144,7 +141,7 @@
 					{:else if isLoadingMore}
 						<div class="flex justify-center w-full">
 							<div class="flex items-center justify-center py-5">
-								<SolidLineSpinner size="md" colorscheme={'light'} />
+								<span class="loading loading-spinner loading-md" />
 							</div>
 						</div>
 					{/if}

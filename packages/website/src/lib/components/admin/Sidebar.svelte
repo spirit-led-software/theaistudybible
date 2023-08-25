@@ -27,6 +27,10 @@
 		}
 	];
 
+	const close = () => {
+		isOpen = false;
+	};
+
 	$: if ($page.url.pathname) {
 		activePath = $page.url.pathname;
 		isOpen = false;
@@ -57,9 +61,10 @@
 				{#each tools as tool}
 					<a
 						href={tool.path}
-						class={`inline-flex w-full px-3 py-2 rounded-xl cursor-pointer hover:bg-slate-900 ${
-							activePath === tool.path ? 'bg-slate-900' : ''
+						class={`inline-flex w-full px-3 py-2 rounded-xl cursor-pointer hover:bg-slate-900 active:bg-slate-900 ${
+							activePath === tool.path ? 'bg-slate-800' : ''
 						}`}
+						on:click={close}
 					>
 						<Icon icon={tool.icon} class="mr-2 text-xl" />
 						{tool.name}

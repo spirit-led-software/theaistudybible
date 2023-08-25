@@ -16,7 +16,7 @@ export const actions: Actions = {
 		if (!query) {
 			return fail(400, {
 				errors: {
-					banner: 'Missing query'
+					banner: 'Please enter a search query'
 				} as ActionData
 			});
 		}
