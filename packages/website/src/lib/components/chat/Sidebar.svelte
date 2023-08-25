@@ -15,6 +15,7 @@
 	let chats: Chat[] = [];
 	let isLoadingInitial = false;
 	let isLoadingMore = false;
+	let loadingChatId: string | undefined = undefined;
 
 	const handleCreate = async () => {
 		await createChat(
@@ -42,10 +43,6 @@
 		}
 	};
 
-	const close = () => {
-		isOpen = false;
-	};
-
 	$: query = createQuery({
 		queryKey: ['chats'],
 		queryFn: () => getChats({ limit, session: $page.data.session }).then((r) => r.chats),
@@ -68,7 +65,10 @@
 		}
 	});
 
-	$: if ($page.url.pathname) isOpen = false;
+	$: if ($page.url.pathname) {
+		isOpen = false;
+		loadingChatId = undefined;
+	}
 </script>
 
 <div
@@ -115,13 +115,24 @@
 								activeChatId === chat.id ? 'bg-slate-800' : ''
 							}`}
 						>
-							<a href={`/chat/${chat.id}`} class="flex flex-col w-5/6" on:click={close}>
+							<a
+								href={`/chat/${chat.id}`}
+								class="flex flex-col w-5/6"
+								on:click={() => {
+									loadingChatId = chat.id;
+								}}
+							>
 								<div class="text-white truncate">{chat.name}</div>
 								<div class="text-sm text-gray-400 truncate">
 									{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
 								</div>
 							</a>
-							<div class="flex">
+							<div class="flex justify-center place-items-center">
+								{#if loadingChatId === chat.id}
+									<div class="mr-2">
+										<span class="loading loading-spinner loading-xs" />
+									</div>
+								{/if}
 								<button
 									class="flex w-full h-full"
 									on:click|preventDefault={() => handleDelete(chat.id)}

@@ -14,10 +14,7 @@
 	let devotions: Devotion[] = [];
 	let isLoadingInitial = false;
 	let isLoadingMore = false;
-
-	const close = () => {
-		isOpen = false;
-	};
+	let loadingDevoId: string | undefined = undefined;
 
 	$: query = createQuery({
 		queryKey: ['devos'],
@@ -41,7 +38,10 @@
 		}
 	});
 
-	$: if ($page.url.pathname) isOpen = false;
+	$: if ($page.url.pathname) {
+		isOpen = false;
+		loadingDevoId = undefined;
+	}
 </script>
 
 <div
@@ -75,20 +75,29 @@
 				{#if $query.isSuccess}
 					{#each devotions as devotion (devotion.id)}
 						<div
-							class={`px-3 py-1 rounded-md cursor-pointer duration-200 hover:bg-slate-900 active:bg-slate-900 ${
+							class={`flex place-items-center px-3 py-1 rounded-md cursor-pointer duration-200 justify-between hover:bg-slate-900 active:bg-slate-900 ${
 								devotion.id === activeDevoId && 'bg-slate-800'
 							}`}
 						>
 							<a
 								href={`/devotions/${devotion.id}`}
 								class="flex flex-col text-lg truncate"
-								on:click={close}
+								on:click={() => {
+									loadingDevoId = devotion.id;
+								}}
 							>
 								<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
 								<div class="text-xs">
 									{devotion.bibleReading.split(' - ')[0]}
 								</div>
 							</a>
+							<div class="flex justify-center place-items-center">
+								{#if loadingDevoId === devotion.id}
+									<div class="flex justify-center place-items-center">
+										<span class="loading loading-spinner loading-xs" />
+									</div>
+								{/if}
+							</div>
 						</div>
 					{/each}
 					{#if !isLoadingMore && devotions.length >= limit}
