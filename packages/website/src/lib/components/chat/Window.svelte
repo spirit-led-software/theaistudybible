@@ -10,6 +10,7 @@
 	import { useChat } from 'ai/svelte';
 	import { onMount } from 'svelte';
 	import IntersectionObserver from 'svelte-intersection-observer';
+	import { writable } from 'svelte/store';
 	import { LoadingDots } from '../loading';
 	import TextAreaAutosize from './TextAreaAutosize.svelte';
 
@@ -17,18 +18,19 @@
 	export let initChatId: string | undefined = undefined;
 	export let initMessages: ChatMessage[] | undefined = undefined;
 
+	let chatId = writable<string | undefined>(initChatId);
+	let lastUserMessageId = writable<string | undefined>(undefined);
+	let lastAiResponseId = writable<string | undefined>(undefined);
+	let lastChatMessage = writable<ChatMessage | undefined>(undefined);
+	let endOfMessagesRef = writable<HTMLDivElement | undefined>(undefined);
+
 	let alert: string | undefined = undefined;
-	let chatId: string | undefined = undefined;
-	let lastUserMessageId: string | undefined = undefined;
-	let lastAiResponseId: string | undefined = undefined;
-	let lastChatMessage: ChatMessage | undefined = undefined;
-	let endOfMessagesRef: HTMLDivElement | undefined = undefined;
 	let isEndOfMessagesRefShowing = true;
 
 	const queryClient = useQueryClient();
 
 	onMount(() => {
-		endOfMessagesRef?.scrollIntoView({
+		$endOfMessagesRef?.scrollIntoView({
 			behavior: 'instant',
 			block: 'end'
 		});
@@ -57,8 +59,7 @@
 		}
 	});
 
-	$: if (initChatId) chatId = initChatId;
-	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
+	const { input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
 		initialMessages: initMessages,
 		sendExtraMessageFields: true,
@@ -70,34 +71,34 @@
 				alert = 'Something went wrong. Please try again.';
 				return;
 			}
-			chatId = response.headers.get('x-chat-id') ?? undefined;
-			lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
-			lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
+			$chatId = response.headers.get('x-chat-id') ?? undefined;
+			$lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
+			$lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
 		},
 		onFinish: (message: ChatMessage) => {
-			lastChatMessage = message;
+			$lastChatMessage = message;
 		}
-	}));
+	});
 
-	$: scrollEndIntoView = () => {
+	const scrollEndIntoView = () => {
 		if (endOfMessagesRef) {
-			endOfMessagesRef.scrollIntoView({
+			$endOfMessagesRef?.scrollIntoView({
 				behavior: 'smooth',
 				block: 'end'
 			});
 		}
 	};
 
-	$: messages.subscribe(() => {
+	messages.subscribe(() => {
 		scrollEndIntoView();
 	});
-	$: error.subscribe((err) => {
+	error.subscribe((err) => {
 		if (err) {
 			alert = err.message;
 		}
 	});
 
-	$: handleSubmitCustom = async (event?: SubmitEvent) => {
+	const handleSubmitCustom = async (event?: SubmitEvent) => {
 		event?.preventDefault();
 		if ($input === '') {
 			alert = 'Please enter a message';
@@ -108,31 +109,31 @@
 					authorization: `Bearer ${$page.data.session}`
 				},
 				body: {
-					chatId: chatId
+					chatId: $chatId
 				}
 			}
 		});
 	};
 
-	$: handleReload = async () => {
+	const handleReload = async () => {
 		await reload({
 			options: {
 				headers: {
 					authorization: `Bearer ${$page.data.session}`
 				},
 				body: {
-					chatId: chatId
+					chatId: $chatId
 				}
 			}
 		});
 		queryClient.invalidateQueries(['chats']);
 	};
 
-	$: handleAiResponse = async (chatMessage: ChatMessage) => {
-		if (lastAiResponseId) {
+	const handleAiResponse = async (chatMessage: ChatMessage) => {
+		if ($lastAiResponseId) {
 			try {
 				await updateAiResponse(
-					lastAiResponseId,
+					$lastAiResponseId,
 					{
 						aiId: chatMessage.id
 					},
@@ -148,8 +149,8 @@
 		}
 	};
 
-	$: if (!$isLoading && lastChatMessage) {
-		handleAiResponse(lastChatMessage);
+	$: if (!$isLoading && $lastChatMessage) {
+		handleAiResponse($lastChatMessage);
 	}
 
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
@@ -178,14 +179,14 @@
                     index % Math.floor(Math.random() * 10) === 0 && (
                       <AdMessage />
                     )} -->
-							<Message {user} {chatId} {message} prevMessage={$messages[index - 1]} />
+							<Message {user} chatId={$chatId} {message} prevMessage={$messages[index - 1]} />
 						</div>
 					{/each}
 					<IntersectionObserver
-						element={endOfMessagesRef}
+						element={$endOfMessagesRef}
 						bind:intersecting={isEndOfMessagesRefShowing}
 					>
-						<div bind:this={endOfMessagesRef} class="w-full h-20" />
+						<div bind:this={$endOfMessagesRef} class="w-full h-20" />
 					</IntersectionObserver>
 				</div>
 			</div>

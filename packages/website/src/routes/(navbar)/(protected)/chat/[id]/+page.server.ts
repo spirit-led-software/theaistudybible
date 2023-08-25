@@ -1,8 +1,9 @@
 import { searchForAiResponses } from '$lib/services/ai-response';
-import { getChat } from '$lib/services/chat';
+import { getChat, getChats } from '$lib/services/chat';
 import { searchForUserMessages } from '$lib/services/user';
 import { aiResponses, userMessages } from '@core/schema';
 import { getPropertyName } from '@core/util/object';
+import { redirect } from '@sveltejs/kit';
 import type { Message } from 'ai';
 import type { PageServerLoad } from './$types';
 
@@ -64,6 +65,14 @@ async function getMessages(chatId: string, userId: string, session: string) {
 }
 
 export const load: PageServerLoad = async ({ params, locals: { user, session } }) => {
+	if (params.id === 'new') {
+		const chatsResponse = await getChats({
+			session: session!,
+			limit: 1
+		});
+		throw redirect(307, `/chat/${chatsResponse.chats[0].id}`);
+	}
+
 	const [chat, messages] = await Promise.all([
 		getChat(params.id, {
 			session: session!

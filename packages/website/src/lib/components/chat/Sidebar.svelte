@@ -4,23 +4,26 @@
 	import { createChat, deleteChat, getChats, updateChat } from '$lib/services/chat';
 	import type { Chat } from '@core/model';
 	import Icon from '@iconify/svelte';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import Moment from 'moment';
+	import { writable } from 'svelte/store';
 
 	export let initChats: Chat[] = [];
 	export let activeChatId: string | undefined = undefined;
 
 	let isOpen = false;
-	let limit = 5;
-	let chats: Chat[] = [];
+	let limit = writable(5);
 	let isLoadingInitial = false;
 	let isLoadingMore = false;
 	let loadingChatId: string | undefined = undefined;
 	let editChatId: string | undefined = undefined;
-	let editIsLoading = false;
+	let editChatForm: HTMLFormElement | undefined = undefined;
+
+	const client = useQueryClient();
 
 	const handleCreate = async () => {
-		await createChat(
+		$limit++;
+		return await createChat(
 			{
 				name: 'New Chat'
 			},
@@ -28,13 +31,70 @@
 				session: $page.data.session
 			}
 		);
-		if (chats.length >= limit) {
-			limit++;
-		}
-		$query.refetch();
 	};
 
-	const handleEdit = async (
+	const createChatMutation = createMutation(handleCreate, {
+		onMutate: async () => {
+			await client.cancelQueries(['chats']);
+			const previousChats = client.getQueryData<Chat[]>(['chats']);
+			if (previousChats) {
+				client.setQueryData<Chat[]>(
+					['chats'],
+					[
+						{
+							id: 'new',
+							name: 'New Chat',
+							createdAt: new Date(),
+							updatedAt: new Date(),
+							userId: $page.data.user.id
+						},
+						...previousChats
+					]
+				);
+			}
+			return { previousChats };
+		},
+		onSettled: () => {
+			client.invalidateQueries(['chats']);
+		}
+	});
+
+	const handleSubmitCreate = () => {
+		$limit++;
+		$createChatMutation.mutate();
+	};
+
+	const handleUpdate = async ({ name, id }: { name: string; id: string }) => {
+		return await updateChat(
+			id,
+			{
+				name: name
+			},
+			{
+				session: $page.data.session
+			}
+		);
+	};
+
+	const editChatMutation = createMutation({
+		mutationFn: handleUpdate,
+		onMutate: async ({ name, id }) => {
+			await client.cancelQueries(['chats']);
+			const previousChats = client.getQueryData<Chat[]>(['chats']);
+			if (previousChats) {
+				client.setQueryData<Chat[]>(
+					['chats'],
+					previousChats.map((c) => (c.id === id ? { ...c, name } : c))
+				);
+			}
+			return { previousChats };
+		},
+		onSettled: () => {
+			client.invalidateQueries(['chats']);
+		}
+	});
+
+	const handleSubmitEdit = async (
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement },
 		id: string
 	) => {
@@ -43,49 +103,57 @@
 		if (!name) {
 			return;
 		}
-		editIsLoading = true;
-		updateChat(
-			id,
-			{
-				name: name
-			},
-			{
-				session: $page.data.session
-			}
-		).finally(async () => {
-			await $query.refetch();
-			editIsLoading = false;
-			editChatId = undefined;
-		});
+		$editChatMutation.mutate({ name, id });
+		editChatId = undefined;
 	};
 
 	const handleDelete = async (id: string) => {
+		await deleteChat(id, { session: $page.data.session }).finally(async () => {
+			if (activeChatId === id) await goto('/chat');
+		});
+	};
+
+	const deleteChatMutation = createMutation({
+		mutationFn: handleDelete,
+		onMutate: async (id: string) => {
+			await client.cancelQueries(['chats']);
+			const previousChats = client.getQueryData<Chat[]>(['chats']);
+			if (previousChats) {
+				client.setQueryData<Chat[]>(
+					['chats'],
+					previousChats.filter((c) => c.id !== id)
+				);
+			}
+			return { previousChats };
+		},
+		onSettled: async () => {
+			client.invalidateQueries(['chats']);
+		}
+	});
+
+	const handleSubmitDelete = async (id: string) => {
 		if (confirm('Are you sure you want to delete this chat?')) {
-			await deleteChat(id, { session: $page.data.session });
+			$deleteChatMutation.mutate(id);
 			if (activeChatId === id) {
 				goto('/chat');
-			} else {
-				$query.refetch();
 			}
 		}
 	};
 
-	$: query = createQuery({
+	const query = createQuery({
 		queryKey: ['chats'],
-		queryFn: () => getChats({ limit, session: $page.data.session }).then((r) => r.chats),
+		queryFn: () => getChats({ limit: $limit, session: $page.data.session }).then((r) => r.chats),
 		initialData: initChats
 	});
 
-	$: query?.subscribe(({ data, isLoading, isFetching }) => {
-		chats = data ?? [];
-
-		if ((isLoading || isFetching) && chats.length === 0) {
+	query.subscribe(({ data, isLoading, isFetching, isSuccess }) => {
+		if ((isLoading || isFetching) && data.length === 0) {
 			isLoadingInitial = true;
 		} else {
 			isLoadingInitial = false;
 		}
 
-		if ((isLoading || isFetching) && limit > chats.length) {
+		if ((isLoading || isFetching) && $limit > data.length) {
 			isLoadingMore = true;
 		} else {
 			isLoadingMore = false;
@@ -95,6 +163,10 @@
 	$: if ($page.url.pathname) {
 		isOpen = false;
 		loadingChatId = undefined;
+	}
+
+	$: if (loadingChatId) {
+		activeChatId = loadingChatId;
 	}
 </script>
 
@@ -122,7 +194,7 @@
 				<div class="flex justify-center w-full">
 					<button
 						class="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900"
-						on:click|preventDefault={() => handleCreate()}
+						on:click|preventDefault={() => handleSubmitCreate()}
 					>
 						New chat
 						<Icon icon="ic:baseline-plus" class="text-xl" />
@@ -136,7 +208,7 @@
 					</div>
 				{/if}
 				{#if $query.isSuccess}
-					{#each chats as chat (chat.id)}
+					{#each $query.data as chat (chat.id)}
 						<div
 							class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 active:bg-slate-900 ${
 								activeChatId === chat.id ? 'bg-slate-800' : ''
@@ -154,24 +226,18 @@
 								}}
 							>
 								{#if editChatId === chat.id}
-									{#if editIsLoading}
-										<div class="flex w-full mb-1">
-											<span class="loading loading-spinner loading-sm" />
-										</div>
-									{:else}
-										<form
-											on:submit|preventDefault={(event) => handleEdit(event, chat.id)}
-											class="flex flex-col w-full"
-										>
-											<input
-												name="name"
-												class="w-full py-1 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
-												autocomplete="off"
-												autofocus
-												on:focusout={() => (editChatId = undefined)}
-											/>
-										</form>
-									{/if}
+									<form
+										bind:this={editChatForm}
+										on:submit|preventDefault={(event) => handleSubmitEdit(event, chat.id)}
+										class="flex flex-col w-full"
+									>
+										<input
+											name="name"
+											class="w-full py-1 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
+											autocomplete="off"
+											autofocus
+										/>
+									</form>
 								{:else}
 									<div class="text-white truncate">{chat.name}</div>
 								{/if}
@@ -184,21 +250,43 @@
 									<div class="mr-2">
 										<span class="loading loading-spinner loading-xs" />
 									</div>
+								{:else if editChatId === chat.id}
+									<button
+										class="flex w-full h-full"
+										on:click|preventDefault={() => {
+											editChatForm?.dispatchEvent(new Event('submit'));
+										}}
+									>
+										<Icon
+											icon={'material-symbols:check'}
+											width={20}
+											height={20}
+											class="hover:text-green-500 active:text-green-500"
+										/>
+									</button>
+									<button
+										class="flex w-full h-full"
+										on:click|preventDefault={() => {
+											editChatId = undefined;
+											editChatForm = undefined;
+										}}
+									>
+										<Icon
+											icon="cil:x"
+											width={20}
+											height={20}
+											class="hover:text-red-500 active:text-red-500"
+										/>
+									</button>
 								{:else}
 									<button
 										class="flex w-full h-full"
 										on:click={() => {
-											if (editChatId === chat.id) {
-												editChatId = undefined;
-												return;
-											}
 											editChatId = chat.id;
 										}}
 									>
 										<Icon
-											icon={editChatId === chat.id && !editIsLoading
-												? 'mdi:cancel'
-												: 'tdesign:edit'}
+											icon={'tdesign:edit'}
 											width={20}
 											height={20}
 											class="hover:text-yellow-400 active:text-yellow-400"
@@ -206,7 +294,7 @@
 									</button>
 									<button
 										class="flex w-full h-full"
-										on:click|preventDefault={() => handleDelete(chat.id)}
+										on:click|preventDefault={() => handleSubmitDelete(chat.id)}
 									>
 										<Icon
 											icon="mdi:trash-outline"
@@ -219,10 +307,10 @@
 							</div>
 						</div>
 					{/each}
-					{#if !isLoadingMore && chats.length >= limit}
+					{#if !isLoadingMore && $query.data.length >= $limit}
 						<button
 							class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
-							on:click|preventDefault={() => (limit = limit + 5)}
+							on:click|preventDefault={() => ($limit = $limit + 5)}
 						>
 							View more
 						</button>

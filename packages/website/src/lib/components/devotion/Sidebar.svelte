@@ -5,33 +5,31 @@
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';
+	import { writable } from 'svelte/store';
 
 	export let initDevos: Devotion[] = [];
 	export let activeDevoId: string;
 
 	let isOpen = false;
-	let limit = 5;
-	let devotions: Devotion[] = [];
+	let limit = writable(5);
 	let isLoadingInitial = false;
 	let isLoadingMore = false;
 	let loadingDevoId: string | undefined = undefined;
 
-	$: query = createQuery({
+	const query = createQuery({
 		queryKey: ['devos'],
-		queryFn: () => getDevotions({ limit }).then((r) => r.devotions),
+		queryFn: () => getDevotions({ limit: $limit }).then((r) => r.devotions),
 		initialData: initDevos
 	});
 
-	$: query?.subscribe(({ data, isLoading, isFetching }) => {
-		devotions = data ?? [];
-
-		if ((isLoading || isFetching) && devotions.length === 0) {
+	query.subscribe(({ data, isLoading, isFetching, isSuccess }) => {
+		if ((isLoading || isFetching) && data.length === 0) {
 			isLoadingInitial = true;
 		} else {
 			isLoadingInitial = false;
 		}
 
-		if ((isLoading || isFetching) && limit > devotions.length) {
+		if ((isLoading || isFetching) && $limit > data.length) {
 			isLoadingMore = true;
 		} else {
 			isLoadingMore = false;
@@ -41,6 +39,10 @@
 	$: if ($page.url.pathname) {
 		isOpen = false;
 		loadingDevoId = undefined;
+	}
+
+	$: if (loadingDevoId) {
+		activeDevoId = loadingDevoId;
 	}
 </script>
 
@@ -73,7 +75,7 @@
 					</div>
 				{/if}
 				{#if $query.isSuccess}
-					{#each devotions as devotion (devotion.id)}
+					{#each $query.data as devotion (devotion.id)}
 						<div
 							class={`flex place-items-center px-3 py-1 rounded-md cursor-pointer duration-200 justify-between hover:bg-slate-900 active:bg-slate-900 ${
 								devotion.id === activeDevoId && 'bg-slate-800'
@@ -104,10 +106,10 @@
 							</div>
 						</div>
 					{/each}
-					{#if !isLoadingMore && devotions.length >= limit}
+					{#if !isLoadingMore && $query.data.length >= $limit}
 						<button
 							class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
-							on:click|preventDefault={() => (limit = limit + 5)}
+							on:click|preventDefault={() => ($limit = $limit + 5)}
 						>
 							View more
 						</button>
