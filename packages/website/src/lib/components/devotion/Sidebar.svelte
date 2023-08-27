@@ -35,6 +35,7 @@
 
 	query.subscribe(({ data, isSuccess }) => {
 		if (isSuccess) {
+			devotions = data.pages.flat();
 		}
 	});
 
