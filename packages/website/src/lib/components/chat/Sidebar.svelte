@@ -4,25 +4,26 @@
 	import { createChat, deleteChat, getChats, updateChat } from '$lib/services/chat';
 	import type { Chat } from '@core/model';
 	import Icon from '@iconify/svelte';
-	import { createMutation, createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import {
+		createInfiniteQuery,
+		createMutation,
+		useQueryClient,
+		type InfiniteData
+	} from '@tanstack/svelte-query';
 	import Moment from 'moment';
-	import { writable } from 'svelte/store';
 
 	export let initChats: Chat[] = [];
 	export let activeChatId: string | undefined = undefined;
 
 	let isOpen = false;
-	let limit = writable(5);
-	let isLoadingInitial = false;
-	let isLoadingMore = false;
 	let loadingChatId: string | undefined = undefined;
 	let editChatId: string | undefined = undefined;
 	let editChatForm: HTMLFormElement | undefined = undefined;
+	let chats: Chat[] = initChats;
 
 	const client = useQueryClient();
 
 	const handleCreate = async () => {
-		$limit++;
 		return await createChat(
 			{
 				name: 'New Chat'
@@ -33,34 +34,37 @@
 		);
 	};
 
-	const createChatMutation = createMutation(handleCreate, {
+	const createChatMutation = createMutation({
+		mutationFn: handleCreate,
 		onMutate: async () => {
-			await client.cancelQueries(['chats']);
-			const previousChats = client.getQueryData<Chat[]>(['chats']);
+			await client.cancelQueries(['infinite-chats']);
+			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
 			if (previousChats) {
-				client.setQueryData<Chat[]>(
-					['chats'],
-					[
-						{
-							id: 'new',
-							name: 'New Chat',
-							createdAt: new Date(),
-							updatedAt: new Date(),
-							userId: $page.data.user.id
-						},
-						...previousChats
-					]
-				);
+				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
+					pages: [
+						[
+							{
+								id: 'new',
+								name: 'New Chat',
+								createdAt: new Date(),
+								updatedAt: new Date(),
+								userId: $page.data.user.id
+							},
+							...previousChats.pages[0]
+						],
+						...previousChats.pages.slice(1)
+					],
+					pageParams: previousChats.pageParams
+				});
 			}
 			return { previousChats };
 		},
 		onSettled: () => {
-			client.invalidateQueries(['chats']);
+			client.invalidateQueries(['infinite-chats']);
 		}
 	});
 
 	const handleSubmitCreate = () => {
-		$limit++;
 		$createChatMutation.mutate();
 	};
 
@@ -79,18 +83,20 @@
 	const editChatMutation = createMutation({
 		mutationFn: handleUpdate,
 		onMutate: async ({ name, id }) => {
-			await client.cancelQueries(['chats']);
-			const previousChats = client.getQueryData<Chat[]>(['chats']);
+			await client.cancelQueries(['infinite-chats']);
+			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
 			if (previousChats) {
-				client.setQueryData<Chat[]>(
-					['chats'],
-					previousChats.map((c) => (c.id === id ? { ...c, name } : c))
-				);
+				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
+					pages: previousChats.pages.map((page) =>
+						page.map((c) => (c.id === id ? { ...c, name } : c))
+					),
+					pageParams: previousChats.pageParams
+				});
 			}
 			return { previousChats };
 		},
 		onSettled: () => {
-			client.invalidateQueries(['chats']);
+			client.invalidateQueries(['infinite-chats']);
 		}
 	});
 
@@ -116,18 +122,18 @@
 	const deleteChatMutation = createMutation({
 		mutationFn: handleDelete,
 		onMutate: async (id: string) => {
-			await client.cancelQueries(['chats']);
-			const previousChats = client.getQueryData<Chat[]>(['chats']);
+			await client.cancelQueries(['infinite-chats']);
+			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
 			if (previousChats) {
-				client.setQueryData<Chat[]>(
-					['chats'],
-					previousChats.filter((c) => c.id !== id)
-				);
+				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
+					pages: previousChats.pages.map((page) => page.filter((c) => c.id !== id)),
+					pageParams: previousChats.pageParams
+				});
 			}
 			return { previousChats };
 		},
 		onSettled: async () => {
-			client.invalidateQueries(['chats']);
+			client.invalidateQueries(['infinite-chats']);
 		}
 	});
 
@@ -140,23 +146,28 @@
 		}
 	};
 
-	const query = createQuery({
-		queryKey: ['chats'],
-		queryFn: () => getChats({ limit: $limit, session: $page.data.session }).then((r) => r.chats),
-		initialData: initChats
+	const fetchChats = async ({ pageParam = 1 }) => {
+		return await getChats({ limit: 7, page: pageParam, session: $page.data.session }).then(
+			(r) => r.chats
+		);
+	};
+
+	const query = createInfiniteQuery({
+		queryKey: ['infinite-chats'],
+		queryFn: fetchChats,
+		getNextPageParam: (lastPage, pages) => {
+			if (lastPage.length < 7) return undefined;
+			return pages.length + 1;
+		},
+		initialData: {
+			pages: [chats],
+			pageParams: [1]
+		}
 	});
 
-	query.subscribe(({ data, isLoading, isFetching, isSuccess }) => {
-		if ((isLoading || isFetching) && data.length === 0) {
-			isLoadingInitial = true;
-		} else {
-			isLoadingInitial = false;
-		}
-
-		if ((isLoading || isFetching) && $limit > data.length) {
-			isLoadingMore = true;
-		} else {
-			isLoadingMore = false;
+	query.subscribe(({ data, isSuccess }) => {
+		if (isSuccess) {
+			chats = data.pages.flat();
 		}
 	});
 
@@ -198,130 +209,124 @@
 						<Icon icon="ic:baseline-plus" class="text-xl" />
 					</button>
 				</div>
-				{#if isLoadingInitial}
+				{#if $query.isInitialLoading}
 					<div class="flex justify-center w-full">
 						<div class="flex items-center justify-center py-5">
 							<span class="loading loading-spinner loading-lg" />
 						</div>
 					</div>
 				{/if}
-				{#if $query.isSuccess}
-					{#each $query.data as chat (chat.id)}
-						<div
-							class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 active:bg-slate-900 ${
-								activeChatId === chat.id ? 'bg-slate-800' : ''
-							}`}
+				{#each chats as chat (chat.id)}
+					<div
+						class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 active:bg-slate-900 ${
+							activeChatId === chat.id ? 'bg-slate-800' : ''
+						}`}
+					>
+						<a
+							href={`/chat/${chat.id}`}
+							class="flex flex-col w-5/6"
+							on:click={() => {
+								if (activeChatId === chat.id) {
+									isOpen = false;
+									return;
+								}
+								loadingChatId = chat.id;
+							}}
 						>
-							<a
-								href={`/chat/${chat.id}`}
-								class="flex flex-col w-5/6"
-								on:click={() => {
-									if (activeChatId === chat.id) {
-										isOpen = false;
-										return;
-									}
-									loadingChatId = chat.id;
-								}}
-							>
-								{#if editChatId === chat.id}
-									<form
-										bind:this={editChatForm}
-										on:submit|preventDefault={(event) => handleSubmitEdit(event, chat.id)}
-										class="flex flex-col w-full"
-									>
-										<input
-											name="name"
-											class="w-full py-1 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
-											autocomplete="off"
-											autofocus
-										/>
-									</form>
-								{:else}
-									<div class="text-white truncate">{chat.name}</div>
-								{/if}
-								<div class="text-sm text-gray-400 truncate">
-									{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
+							{#if editChatId === chat.id}
+								<form
+									bind:this={editChatForm}
+									on:submit|preventDefault={(event) => handleSubmitEdit(event, chat.id)}
+									class="flex flex-col w-full"
+								>
+									<input
+										name="name"
+										class="w-full py-1 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
+										autocomplete="off"
+										autofocus
+									/>
+								</form>
+							{:else}
+								<div class="text-white truncate">{chat.name}</div>
+							{/if}
+							<div class="text-sm text-gray-400 truncate">
+								{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
+							</div>
+						</a>
+						<div class="flex justify-center space-x-1 place-items-center">
+							{#if loadingChatId === chat.id}
+								<div class="mr-2">
+									<span class="loading loading-spinner loading-xs" />
 								</div>
-							</a>
-							<div class="flex justify-center space-x-1 place-items-center">
-								{#if loadingChatId === chat.id}
-									<div class="mr-2">
-										<span class="loading loading-spinner loading-xs" />
-									</div>
-								{:else if editChatId === chat.id}
-									<button
-										class="flex w-full h-full"
-										on:click|preventDefault={() => {
-											editChatForm?.dispatchEvent(new Event('submit'));
-										}}
-									>
-										<Icon
-											icon={'material-symbols:check'}
-											width={20}
-											height={20}
-											class="hover:text-green-500 active:text-green-500"
-										/>
-									</button>
-									<button
-										class="flex w-full h-full"
-										on:click|preventDefault={() => {
-											editChatId = undefined;
-											editChatForm = undefined;
-										}}
-									>
-										<Icon
-											icon="cil:x"
-											width={20}
-											height={20}
-											class="hover:text-red-500 active:text-red-500"
-										/>
-									</button>
-								{:else}
-									<button
-										class="flex w-full h-full"
-										on:click={() => {
-											editChatId = chat.id;
-										}}
-									>
-										<Icon
-											icon={'tdesign:edit'}
-											width={20}
-											height={20}
-											class="hover:text-yellow-400 active:text-yellow-400"
-										/>
-									</button>
-									<button
-										class="flex w-full h-full"
-										on:click|preventDefault={() => handleSubmitDelete(chat.id)}
-									>
-										<Icon
-											icon="mdi:trash-outline"
-											width={20}
-											height={20}
-											class="hover:text-red-500 active:text-red-500"
-										/>
-									</button>
-								{/if}
-							</div>
+							{:else if editChatId === chat.id}
+								<button
+									class="flex w-full h-full"
+									on:click|preventDefault={() => {
+										editChatForm?.dispatchEvent(new Event('submit'));
+									}}
+								>
+									<Icon
+										icon={'material-symbols:check'}
+										width={20}
+										height={20}
+										class="hover:text-green-500 active:text-green-500"
+									/>
+								</button>
+								<button
+									class="flex w-full h-full"
+									on:click|preventDefault={() => {
+										editChatId = undefined;
+										editChatForm = undefined;
+									}}
+								>
+									<Icon
+										icon="cil:x"
+										width={20}
+										height={20}
+										class="hover:text-red-500 active:text-red-500"
+									/>
+								</button>
+							{:else}
+								<button
+									class="flex w-full h-full"
+									on:click={() => {
+										editChatId = chat.id;
+									}}
+								>
+									<Icon
+										icon={'tdesign:edit'}
+										width={20}
+										height={20}
+										class="hover:text-yellow-400 active:text-yellow-400"
+									/>
+								</button>
+								<button
+									class="flex w-full h-full"
+									on:click|preventDefault={() => handleSubmitDelete(chat.id)}
+								>
+									<Icon
+										icon="mdi:trash-outline"
+										width={20}
+										height={20}
+										class="hover:text-red-500 active:text-red-500"
+									/>
+								</button>
+							{/if}
 						</div>
-					{/each}
-					{#if !isLoadingMore && $query.data.length >= $limit}
-						<button
-							class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
-							on:click|preventDefault={() => ($limit = $limit + 5)}
-						>
-							View more
-						</button>
-					{:else if isLoadingMore}
-						<div class="flex justify-center w-full">
-							<div class="flex items-center justify-center py-5">
-								<span class="loading loading-spinner loading-md" />
-							</div>
+					</div>
+				{/each}
+				{#if $query.hasNextPage && !$query.isFetchingNextPage}
+					<button
+						class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
+						on:click|preventDefault={() => $query.fetchNextPage()}
+					>
+						View more
+					</button>
+				{:else if $query.isFetchingNextPage}
+					<div class="flex justify-center w-full">
+						<div class="flex items-center justify-center py-5">
+							<span class="loading loading-spinner loading-md" />
 						</div>
-					{/if}
-				{:else if $query.isError}
-					<div>
-						Error fetching devotions: {$query.error}
 					</div>
 				{/if}
 			</div>

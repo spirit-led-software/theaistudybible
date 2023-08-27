@@ -3,36 +3,38 @@
 	import { getDevotions } from '$lib/services/devotion';
 	import type { Devotion } from '@core/model';
 	import Icon from '@iconify/svelte';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';
-	import { writable } from 'svelte/store';
 
 	export let initDevos: Devotion[] = [];
 	export let activeDevoId: string;
 
 	let isOpen = false;
-	let limit = writable(5);
-	let isLoadingInitial = false;
-	let isLoadingMore = false;
+	let devotions = initDevos;
 	let loadingDevoId: string | undefined = undefined;
 
-	const query = createQuery({
-		queryKey: ['devos'],
-		queryFn: () => getDevotions({ limit: $limit }).then((r) => r.devotions),
-		initialData: initDevos
+	const fetchDevos = async ({ pageParam = 1 }) => {
+		return await getDevotions({
+			limit: 7,
+			page: pageParam
+		}).then((r) => r.devotions);
+	};
+
+	let query = createInfiniteQuery({
+		queryKey: ['infinite-devotions'],
+		queryFn: fetchDevos,
+		getNextPageParam: (lastPage, pages) => {
+			if (lastPage.length < 7) return undefined;
+			return pages.length + 1;
+		},
+		initialData: {
+			pages: [devotions],
+			pageParams: [1]
+		}
 	});
 
-	query.subscribe(({ data, isLoading, isFetching, isSuccess }) => {
-		if ((isLoading || isFetching) && data.length === 0) {
-			isLoadingInitial = true;
-		} else {
-			isLoadingInitial = false;
-		}
-
-		if ((isLoading || isFetching) && $limit > data.length) {
-			isLoadingMore = true;
-		} else {
-			isLoadingMore = false;
+	query.subscribe(({ data, isSuccess }) => {
+		if (isSuccess) {
 		}
 	});
 
@@ -65,62 +67,56 @@
 		>
 			<h1 class="px-2 mb-3 text-2xl font-medium">All Devotions</h1>
 			<div class="flex flex-col content-center w-full space-y-2">
-				{#if isLoadingInitial}
+				{#if $query.isInitialLoading}
 					<div class="flex justify-center w-full">
 						<div class="flex items-center justify-center py-5">
 							<span class="loading loading-spinner loading-lg" />
 						</div>
 					</div>
 				{/if}
-				{#if $query.isSuccess}
-					{#each $query.data as devotion (devotion.id)}
-						<div
-							class={`flex place-items-center px-3 py-1 rounded-md cursor-pointer duration-200 justify-between hover:bg-slate-900 active:bg-slate-900 ${
-								devotion.id === activeDevoId && 'bg-slate-800'
-							}`}
+				{#each devotions as devotion (devotion.id)}
+					<div
+						class={`flex place-items-center px-3 py-1 rounded-md cursor-pointer duration-200 justify-between hover:bg-slate-900 active:bg-slate-900 ${
+							devotion.id === activeDevoId && 'bg-slate-800'
+						}`}
+					>
+						<a
+							href={`/devotions/${devotion.id}`}
+							class="flex flex-col text-lg truncate"
+							on:click={() => {
+								if (activeDevoId === devotion.id) {
+									isOpen = false;
+									return;
+								}
+								loadingDevoId = devotion.id;
+							}}
 						>
-							<a
-								href={`/devotions/${devotion.id}`}
-								class="flex flex-col text-lg truncate"
-								on:click={() => {
-									if (activeDevoId === devotion.id) {
-										isOpen = false;
-										return;
-									}
-									loadingDevoId = devotion.id;
-								}}
-							>
-								<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
-								<div class="text-xs">
-									{devotion.bibleReading.split(' - ')[0]}
+							<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
+							<div class="text-xs">
+								{devotion.bibleReading.split(' - ')[0]}
+							</div>
+						</a>
+						<div class="flex justify-center place-items-center">
+							{#if loadingDevoId === devotion.id}
+								<div class="flex justify-center place-items-center">
+									<span class="loading loading-spinner loading-xs" />
 								</div>
-							</a>
-							<div class="flex justify-center place-items-center">
-								{#if loadingDevoId === devotion.id}
-									<div class="flex justify-center place-items-center">
-										<span class="loading loading-spinner loading-xs" />
-									</div>
-								{/if}
-							</div>
+							{/if}
 						</div>
-					{/each}
-					{#if !isLoadingMore && $query.data.length >= $limit}
-						<button
-							class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
-							on:click|preventDefault={() => ($limit = $limit + 5)}
-						>
-							View more
-						</button>
-					{:else if isLoadingMore}
-						<div class="flex justify-center w-full">
-							<div class="flex items-center justify-center py-5">
-								<span class="loading loading-spinner loading-md" />
-							</div>
+					</div>
+				{/each}
+				{#if $query.hasNextPage && !$query.isFetchingNextPage}
+					<button
+						class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
+						on:click|preventDefault={() => $query.fetchNextPage()}
+					>
+						View more
+					</button>
+				{:else if $query.isFetchingNextPage}
+					<div class="flex justify-center w-full">
+						<div class="flex items-center justify-center py-5">
+							<span class="loading loading-spinner loading-md" />
 						</div>
-					{/if}
-				{:else if $query.isError}
-					<div>
-						Error fetching devotions: {$query.error}
 					</div>
 				{/if}
 			</div>
