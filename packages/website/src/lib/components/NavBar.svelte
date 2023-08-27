@@ -32,7 +32,7 @@
 		}
 	];
 
-	const isActive = (path: string) => {
+	$: isActive = (path: string) => {
 		if (path === '/') return $page.url.pathname === path;
 		return $page.url.pathname.startsWith(path);
 	};

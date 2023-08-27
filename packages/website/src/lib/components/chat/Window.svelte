@@ -217,7 +217,7 @@
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full h-auto mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize {input} autofocus />
+					<TextAreaAutosize {input} />
 					<button
 						type="button"
 						tabindex={-1}

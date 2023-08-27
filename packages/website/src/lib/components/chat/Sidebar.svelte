@@ -18,6 +18,7 @@
 	let isOpen = false;
 	let loadingChatId: string | undefined = undefined;
 	let editChatId: string | undefined = undefined;
+	let editChatInput: HTMLInputElement | undefined = undefined;
 	let editChatForm: HTMLFormElement | undefined = undefined;
 	let chats: Chat[] = initChats;
 
@@ -222,15 +223,17 @@
 							activeChatId === chat.id ? 'bg-slate-800' : ''
 						}`}
 					>
-						<a
-							href={`/chat/${chat.id}`}
+						<button
 							class="flex flex-col w-5/6"
-							on:click={() => {
-								if (activeChatId === chat.id) {
+							on:click|preventDefault={() => {
+								if (editChatId === chat.id) {
+									editChatInput?.focus();
+								} else if (activeChatId === chat.id) {
 									isOpen = false;
-									return;
+								} else {
+									loadingChatId = chat.id;
+									goto(`/chat/${chat.id}`);
 								}
-								loadingChatId = chat.id;
 							}}
 						>
 							{#if editChatId === chat.id}
@@ -240,10 +243,10 @@
 									class="flex flex-col w-full"
 								>
 									<input
+										bind:this={editChatInput}
 										name="name"
 										class="w-full py-1 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
 										autocomplete="off"
-										autofocus
 									/>
 								</form>
 							{:else}
@@ -252,7 +255,7 @@
 							<div class="text-sm text-gray-400 truncate">
 								{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
 							</div>
-						</a>
+						</button>
 						<div class="flex justify-center space-x-1 place-items-center">
 							{#if loadingChatId === chat.id}
 								<div class="mr-2">

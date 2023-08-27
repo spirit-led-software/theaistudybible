@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getDevotions } from '$lib/services/devotion';
 	import type { Devotion } from '@core/model';
@@ -81,22 +82,23 @@
 							devotion.id === activeDevoId && 'bg-slate-800'
 						}`}
 					>
-						<a
-							href={`/devotions/${devotion.id}`}
+						<button
 							class="flex flex-col text-lg truncate"
-							on:click={() => {
+							on:click|preventDefault={() => {
 								if (activeDevoId === devotion.id) {
 									isOpen = false;
 									return;
+								} else {
+									loadingDevoId = devotion.id;
+									goto(`/devotions/${devotion.id}`);
 								}
-								loadingDevoId = devotion.id;
 							}}
 						>
 							<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
 							<div class="text-xs">
 								{devotion.bibleReading.split(' - ')[0]}
 							</div>
-						</a>
+						</button>
 						<div class="flex justify-center place-items-center">
 							{#if loadingDevoId === devotion.id}
 								<div class="flex justify-center place-items-center">
