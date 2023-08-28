@@ -84,7 +84,7 @@
 					>
 						<div
 							class="flex flex-col w-full text-lg truncate"
-							on:click|preventDefault={() => {
+							on:click={() => {
 								if (activeDevoId === devotion.id) {
 									isOpen = false;
 									return;
