@@ -5,7 +5,7 @@
 
 	export let data: LayoutData;
 
-	const { chats } = data;
+	$: ({ chats } = data);
 </script>
 
 <div class="relative flex w-full h-full overflow-hidden">

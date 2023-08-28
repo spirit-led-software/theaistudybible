@@ -23,11 +23,7 @@
 	$: if (copied) setTimeout(() => (copied = false), 2000);
 </script>
 
-<button
-	use:copy={content}
-	on:click={() => (copied = true)}
-	class={cn(btnClass, 'text-slate-700 hover:text-slate-900')}
->
+<button use:copy={content} on:click={() => (copied = true)} class={cn(btnClass, 'btn')}>
 	<Icon
 		icon={copied ? 'carbon:checkmark' : 'clarity:copy-to-clipboard-line'}
 		width={16}

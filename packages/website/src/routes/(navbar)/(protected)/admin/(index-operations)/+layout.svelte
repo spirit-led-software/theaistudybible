@@ -7,11 +7,13 @@
 	$: ({ indexOperations } = data);
 </script>
 
-<div class="flex flex-col-reverse w-full overflow-hidden">
-	<div class="flex w-full mt-5">
-		<slot />
-	</div>
-	<div class="flex flex-1 w-full overflow-y-scroll">
-		<IndexOperationsDashboard initIndexOps={indexOperations} />
+<div class="flex w-full h-full p-5">
+	<div class="flex flex-col-reverse w-full overflow-hidden">
+		<div class="flex w-full mt-5">
+			<slot />
+		</div>
+		<div class="flex flex-1 w-full overflow-y-scroll">
+			<IndexOperationsDashboard initIndexOps={indexOperations} />
+		</div>
 	</div>
 </div>

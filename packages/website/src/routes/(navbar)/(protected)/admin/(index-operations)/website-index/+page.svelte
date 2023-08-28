@@ -35,7 +35,7 @@
 	<title>Admin: Index Website</title>
 </svelte:head>
 
-<form class="relative flex-col w-full" use:enhance={submit}>
+<form class="relative flex-col w-full" method="post" use:enhance={submit}>
 	{#if isLoading}
 		<div class="absolute left-0 right-0 flex justify-center">
 			<SolidLineSpinner size="md" colorscheme={'dark'} />

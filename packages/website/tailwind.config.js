@@ -2,9 +2,9 @@
 export default {
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	plugins: [
-		require('daisyui'),
 		require('tailwindcss-animate'),
-		require('tailwindcss-brand-colors')
+		require('tailwindcss-brand-colors'),
+		require('daisyui')
 	],
 	darkMode: 'class',
 	theme: {
@@ -69,5 +69,8 @@ export default {
 				}
 			}
 		]
+	},
+	future: {
+		hoverOnlyWhenSupported: true
 	}
 };

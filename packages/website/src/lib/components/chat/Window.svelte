@@ -17,12 +17,12 @@
 	export let initChatId: string | undefined = undefined;
 	export let initMessages: ChatMessage[] | undefined = undefined;
 
-	let alert: string | undefined = undefined;
 	let chatId: string | undefined = undefined;
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
 	let endOfMessagesRef: HTMLDivElement | undefined = undefined;
+	let alert: string | undefined = undefined;
 	let isEndOfMessagesRefShowing = true;
 
 	const queryClient = useQueryClient();
@@ -57,7 +57,6 @@
 		}
 	});
 
-	$: if (initChatId) chatId = initChatId;
 	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
 		initialMessages: initMessages,
@@ -80,18 +79,16 @@
 	}));
 
 	$: scrollEndIntoView = () => {
-		if (endOfMessagesRef) {
-			endOfMessagesRef.scrollIntoView({
-				behavior: 'smooth',
-				block: 'end'
-			});
-		}
+		endOfMessagesRef?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'end'
+		});
 	};
 
-	$: messages.subscribe(() => {
+	$: messages?.subscribe(() => {
 		scrollEndIntoView();
 	});
-	$: error.subscribe((err) => {
+	$: error?.subscribe((err) => {
 		if (err) {
 			alert = err.message;
 		}
@@ -108,7 +105,7 @@
 					authorization: `Bearer ${$page.data.session}`
 				},
 				body: {
-					chatId: chatId
+					chatId
 				}
 			}
 		});
@@ -121,7 +118,7 @@
 					authorization: `Bearer ${$page.data.session}`
 				},
 				body: {
-					chatId: chatId
+					chatId
 				}
 			}
 		});
@@ -148,10 +145,8 @@
 		}
 	};
 
-	$: if (!$isLoading && lastChatMessage) {
-		handleAiResponse(lastChatMessage);
-	}
-
+	$: if (initChatId) chatId = initChatId;
+	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 
@@ -170,7 +165,7 @@
 		{#if $messages && $messages.length > 0}
 			<div class="w-full h-full overflow-y-scroll">
 				<div class="flex flex-col flex-1 min-h-full place-content-end">
-					{#each $messages as message, index (message.id)}
+					{#each $messages as message, index}
 						<div class="flex flex-col w-full">
 							<!-- TODO: Add ads when adsense is approved
                   Randomly show an ad
@@ -220,14 +215,9 @@
 			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
 		>
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
-				<div class="flex items-center w-full mr-1">
+				<div class="flex items-center w-full h-auto mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
-					<TextAreaAutosize {input} autofocus />
-					{#if $isLoading}
-						<div class="flex mr-1">
-							<LoadingDots size={'sm'} />
-						</div>
-					{/if}
+					<TextAreaAutosize {input} />
 					<button
 						type="button"
 						tabindex={-1}
@@ -236,9 +226,15 @@
 					>
 						<Icon icon="gg:redo" />
 					</button>
-					<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
-						<Icon icon="majesticons:send-line" />
-					</button>
+					{#if $isLoading}
+						<div class="flex mr-1">
+							<LoadingDots size={'sm'} />
+						</div>
+					{:else}
+						<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
+							<Icon icon="majesticons:send-line" />
+						</button>
+					{/if}
 				</div>
 			</form>
 		</div>

@@ -6,7 +6,6 @@
 	import { getPropertyName } from '@core/util/object';
 	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 	import Icon from '@iconify/svelte';
-	import { SolidLineSpinner } from '../loading';
 
 	export let aiResponseId: string;
 	export let chatId: string | undefined;
@@ -72,14 +71,15 @@
 		on:click|preventDefault={() => (showSources = !showSources)}
 	>
 		<div class="text-sm text-blue-400">Sources</div>
-		<Icon
-			icon="icon-park:right"
-			class={`text-sm duration-300 ${showSources ? 'rotate-90' : 'rotate-0'}`}
-		/>
+		{#if isLoading}
+			<span class="w-2 loading loading-spinner" />
+		{:else}
+			<Icon
+				icon="icon-park:right"
+				class={`text-sm duration-300 ${showSources ? 'rotate-90' : 'rotate-0'}`}
+			/>
+		{/if}
 	</button>
-	{#if isLoading}
-		<SolidLineSpinner size="sm" colorscheme={'dark'} />
-	{/if}
 	{#if sources}
 		<ul class={`flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
 			{#each sources as sourceDoc (sourceDoc.id)}

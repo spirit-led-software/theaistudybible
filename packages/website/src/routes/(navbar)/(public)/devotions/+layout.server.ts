@@ -3,7 +3,7 @@ import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async () => {
 	const devotionsData = await getDevotions({
-		limit: 5
+		limit: 7
 	});
 	return {
 		devotions: devotionsData.devotions

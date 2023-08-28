@@ -1,12 +1,12 @@
 <script lang="ts">
-	/* @ts-ignore */
-	import { Email, Facebook, Twitter } from 'svelte-share-buttons-component';
+	import Email from 'svelte-share-buttons-component/src/Email.svelte';
+	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
+	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
 
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
-	import { copyText } from 'svelte-copy';
 	import Cross from '../branding/Cross.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -58,8 +58,8 @@
 		{#if role !== 'user'}
 			<div class="flex justify-between w-full place-items-end">
 				<ResponseSources aiResponseId={id} {chatId} />
-				<div class="flex space-x-2">
-					<CopyButton {content} />
+				<div class="flex join">
+					<CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
 					<dialog bind:this={shareModal} class="modal">
 						<form method="dialog" class="flex flex-col space-y-2 modal-box w-fit">
 							<h1 class="text-bold">Share to:</h1>
@@ -84,13 +84,11 @@
 							<div class="flex justify-center space-x-2 place-items-center">
 								<label for={`include-message-${id}`}>Include your message</label>
 								<input
+									tabindex="-1"
 									id={`include-message-${id}`}
 									type="checkbox"
 									class="checkbox checkbox-primary checkbox-sm"
 									bind:checked={includePreviousMessage}
-									on:change={() => {
-										copyText(sharableContent);
-									}}
 								/>
 							</div>
 							<p class="text-xs text-gray-400">Text will also be copied to your clipboard!</p>
@@ -100,9 +98,8 @@
 						</form>
 					</dialog>
 					<button
-						class="text-slate-700 hover:text-slate-900"
+						class="btn btn-xs btn-ghost join-item"
 						on:click={() => {
-							copyText(sharableContent);
 							shareModal?.showModal();
 						}}
 					>
@@ -112,7 +109,7 @@
 			</div>
 		{:else}
 			<div class="flex justify-end place-items-end">
-				<CopyButton content={sharableContent} />
+				<CopyButton btnClass="btn-xs btn-ghost" content={sharableContent} />
 			</div>
 		{/if}
 	</div>
