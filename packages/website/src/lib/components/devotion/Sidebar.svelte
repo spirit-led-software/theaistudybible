@@ -78,12 +78,12 @@
 				{/if}
 				{#each devotions as devotion (devotion.id)}
 					<div
-						class={`flex place-items-center px-3 py-1 rounded-md cursor-pointer duration-200 justify-between hover:bg-slate-900 active:bg-slate-900 ${
+						class={`flex w-full place-items-center px-3 py-1 rounded-md cursor-pointer duration-200 justify-between hover:bg-slate-900 active:bg-slate-900 ${
 							devotion.id === activeDevoId && 'bg-slate-800'
 						}`}
 					>
-						<button
-							class="flex flex-col text-lg truncate"
+						<div
+							class="flex flex-col w-full text-lg truncate"
 							on:click|preventDefault={() => {
 								if (activeDevoId === devotion.id) {
 									isOpen = false;
@@ -98,7 +98,7 @@
 							<div class="text-xs">
 								{devotion.bibleReading.split(' - ')[0]}
 							</div>
-						</button>
+						</div>
 						<div class="flex justify-center place-items-center">
 							{#if loadingDevoId === devotion.id}
 								<div class="flex justify-center place-items-center">
