@@ -219,13 +219,13 @@
 				{/if}
 				{#each chats as chat (chat.id)}
 					<div
-						class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg hover:bg-slate-900 active:bg-slate-900 ${
+						class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg truncate hover:bg-slate-900 active:bg-slate-900 ${
 							activeChatId === chat.id ? 'bg-slate-800' : ''
 						}`}
 					>
-						<button
-							class="flex flex-col w-5/6"
-							on:click|preventDefault={() => {
+						<div
+							class="flex flex-col w-full truncate"
+							on:click={() => {
 								if (editChatId === chat.id) {
 									editChatInput?.focus();
 								} else if (activeChatId === chat.id) {
@@ -255,7 +255,7 @@
 							<div class="text-sm text-gray-400 truncate">
 								{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
 							</div>
-						</button>
+						</div>
 						<div class="flex justify-center space-x-1 place-items-center">
 							{#if loadingChatId === chat.id}
 								<div class="mr-2">
