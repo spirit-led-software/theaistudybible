@@ -203,7 +203,7 @@
 			<div class="flex flex-col content-center w-full space-y-2">
 				<div class="flex justify-center w-full">
 					<button
-						class="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900"
+						class="flex items-center justify-center w-full py-2 my-2 border rounded-lg hover:bg-slate-900 active:bg-slate-900"
 						on:click|preventDefault={() => handleSubmitCreate()}
 					>
 						New chat
@@ -223,9 +223,9 @@
 							activeChatId === chat.id ? 'bg-slate-800' : ''
 						}`}
 					>
-						<div
+						<button
 							class="flex flex-col w-full truncate"
-							on:click={() => {
+							on:click|preventDefault={() => {
 								if (editChatId === chat.id) {
 									editChatInput?.focus();
 								} else if (activeChatId === chat.id) {
@@ -255,7 +255,7 @@
 							<div class="text-sm text-gray-400 truncate">
 								{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
 							</div>
-						</div>
+						</button>
 						<div class="flex justify-center space-x-1 place-items-center">
 							{#if loadingChatId === chat.id}
 								<div class="mr-2">
@@ -320,7 +320,7 @@
 				{/each}
 				{#if $query.hasNextPage && !$query.isFetchingNextPage}
 					<button
-						class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900"
+						class="flex justify-center py-2 text-center border border-white rounded-lg hover:bg-slate-900 active:bg-slate-900"
 						on:click|preventDefault={() => $query.fetchNextPage()}
 					>
 						View more

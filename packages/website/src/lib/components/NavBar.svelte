@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Avatar from '$lib/components/user/Avatar.svelte';
@@ -90,7 +91,7 @@
 			{/each}
 			<li>
 				<a
-					class="block px-6 py-2 text-sm font-bold text-white bg-blue-300 rounded-lg hover:bg-blue-400"
+					class="block px-6 py-2 text-sm font-bold text-white bg-blue-300 rounded-lg hover:bg-blue-400 active:bg-blue-400"
 					href={'/upgrade'}
 				>
 					Upgrade
@@ -128,29 +129,29 @@
 				<ul>
 					{#each navItems as navItem}
 						<li>
-							<a
+							<button
 								class={`block px-4 py-3 mb-3 text-md font-semibold leading-none rounded-xl text-slate-800 hover:bg-slate-200 active:bg-slate-200 ${
 									isActive(navItem.href) ? ' bg-slate-100' : ''
 								}`}
-								href={navItem.href}
 								on:click={() => {
 									if (isActive(navItem.href)) isOpen = false;
+									else goto(navItem.href);
 								}}
 							>
 								{navItem.label}
-							</a>
+							</button>
 						</li>
 					{/each}
 					<li>
-						<a
-							class="block px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400"
-							href={'/upgrade'}
+						<button
+							class="block px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400 active:bg-blue-400"
 							on:click={() => {
 								if (isActive('/upgrade')) isOpen = false;
+								else goto('/upgrade');
 							}}
 						>
 							Upgrade
-						</a>
+						</button>
 					</li>
 				</ul>
 			</div>
