@@ -219,7 +219,7 @@
 				{/if}
 				{#each chats as chat (chat.id)}
 					<div
-						class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg truncate hover:bg-slate-900 active:bg-slate-900 ${
+						class={`flex w-full place-items-center justify-between px-4 py-2 rounded-lg truncate cursor-pointer hover:bg-slate-900 active:bg-slate-900 ${
 							activeChatId === chat.id ? 'bg-slate-800' : ''
 						}`}
 					>
