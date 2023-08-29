@@ -85,9 +85,6 @@
 		});
 	};
 
-	$: messages?.subscribe(() => {
-		scrollEndIntoView();
-	});
 	$: error?.subscribe((err) => {
 		if (err) {
 			alert = err.message;
