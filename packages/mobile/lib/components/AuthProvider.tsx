@@ -1,66 +1,34 @@
 import { UserWithRoles } from "@core/database/model";
-import { router, useRootNavigation, useSegments } from "expo-router";
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import * as SecureStore from "expo-secure-store";
+import { ReactNode, createContext, useState } from "react";
 
-const AuthContext = createContext<
-  | {
-      login: (user: UserWithRoles) => void;
-      logout: () => void;
-      user: UserWithRoles | undefined;
-    }
-  | undefined
->(undefined);
+export const AuthContext = createContext<{
+  login: (session: string, user: UserWithRoles) => Promise<void>;
+  logout: () => Promise<void>;
+  user: UserWithRoles | undefined;
+}>({} as any);
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function AuthProvider(props: {
+  children: ReactNode;
+  initialSession: string | undefined;
+}) {
+  const [user, setUser] = useState<UserWithRoles | undefined>(undefined);
 
-function useProtectedRoute(user: UserWithRoles | undefined) {
-  const [isNavigationReady, setNavigationReady] = useState(false);
-  const rootNavigation = useRootNavigation();
-  const segments = useSegments();
+  const login = async (session: string, user: UserWithRoles) => {
+    await SecureStore.setItemAsync("session", session);
+    setUser(user);
+  };
 
-  useEffect(() => {
-    const unsubscribe = rootNavigation?.addListener("state", () => {
-      setNavigationReady(true);
-    });
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [rootNavigation]);
-
-  useEffect(() => {
-    if (!isNavigationReady) {
-      return;
-    }
-
-    const inAuthGroup = segments[0] === "(auth)";
-    if (!user && !inAuthGroup) {
-      router.replace("/login");
-    } else if (user && inAuthGroup) {
-      router.replace("/");
-    }
-  }, [user, segments, isNavigationReady]);
-}
-
-export function AuthProvider(props: { children: ReactNode }) {
-  const [user, setAuth] = useState<UserWithRoles | undefined>(undefined);
-
-  useProtectedRoute(user);
+  const logout = async () => {
+    await SecureStore.deleteItemAsync("session");
+    setUser(undefined);
+  };
 
   return (
     <AuthContext.Provider
       value={{
-        login: (user: UserWithRoles) => setAuth(user),
-        logout: () => setAuth(undefined),
+        login,
+        logout,
         user,
       }}
     >

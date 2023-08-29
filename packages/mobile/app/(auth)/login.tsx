@@ -1,11 +1,14 @@
-import { useAuth } from "@components/AuthProvider";
 import { Text, View } from "@components/Themed";
 import { Logo } from "@components/branding/Logo";
-import { apiConfig } from "@core/configs";
+import { apiConfig } from "@config";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@hooks/auth";
 import { getUserInfo } from "@services/user";
+import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   GestureResponderEvent,
   TextInput,
   TouchableOpacity,
@@ -13,22 +16,26 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginPage() {
-  const { login } = useAuth()!;
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<{
     type: "error" | "success";
     message: string;
   } | null>(null);
-
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
 
   const handleLogin = async (event: GestureResponderEvent) => {
+    event.preventDefault();
+    setLoading(true);
+
     if (!email || !password) {
       setAlert({
         type: "error",
         message: "Please enter your email and password.",
       });
+      setLoading(false);
       return;
     }
 
@@ -49,17 +56,38 @@ export default function LoginPage() {
         type: "error",
         message: data.message || data.error || "An unknown error occurred.",
       });
+      setLoading(false);
       return;
     }
 
     const { session } = await response.json();
     const user = await getUserInfo(session);
-    login(user);
+    if (!user) {
+      setAlert({
+        type: "error",
+        message: "An unknown error occurred.",
+      });
+      setLoading(false);
+      return;
+    }
 
+    login(session, user);
     setAlert({
       type: "success",
       message: "Successfully logged in.",
     });
+    setLoading(false);
+
+    router.push("/(tabs)");
+  };
+
+  const handleSocialLogin = async (provider: "facebook" | "google") => {
+    setLoading(true);
+    await WebBrowser.openAuthSessionAsync(
+      `${apiConfig.url}/auth/${provider}/authorize`,
+      `revelationsai://(auth)/callback`
+    );
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -84,6 +112,11 @@ export default function LoginPage() {
             </Text>
           </View>
         )}
+        {loading && (
+          <View className="absolute p-4 mx-auto rounded top-10 left-3 right-3">
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        )}
         <View className="bg-white shadow-xl">
           <View className="px-4 py-10 space-y-4">
             <View className="flex flex-col justify-center p-2 mx-auto border rounded-lg border-slate-400 place-items-center">
@@ -91,13 +124,19 @@ export default function LoginPage() {
             </View>
             <View className="space-y-4 divide-y-2 divide-slate-300">
               <View className="space-y-2">
-                <TouchableOpacity className="flex flex-row justify-center p-3 space-x-2 rounded bg-slate-700">
+                <TouchableOpacity
+                  onPress={() => handleSocialLogin("facebook")}
+                  className="flex flex-row justify-center p-3 space-x-2 rounded bg-slate-700"
+                >
                   <FontAwesome name="facebook-f" size={20} color="white" />
                   <Text className="text-center text-white font-catamaran-medium">
                     Login with Facebook
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="flex flex-row justify-center p-3 space-x-2 rounded bg-slate-700">
+                <TouchableOpacity
+                  onPress={() => handleSocialLogin("google")}
+                  className="flex flex-row justify-center p-3 space-x-2 rounded bg-slate-700"
+                >
                   <FontAwesome name="google" size={20} color="white" />
                   <Text className="text-center text-white font-catamaran-medium">
                     Login with Google
@@ -107,6 +146,8 @@ export default function LoginPage() {
               <View className="flex flex-col pt-4 space-y-2">
                 <TextInput
                   onChange={(event) => setEmail(event.nativeEvent.text)}
+                  autoCapitalize="none"
+                  autoCorrect={false}
                   textContentType="emailAddress"
                   placeholder="Email"
                   className="w-full px-3 py-3 border rounded border-slate-300"
@@ -115,6 +156,8 @@ export default function LoginPage() {
                   <View className="flex flex-row flex-1">
                     <TextInput
                       onChange={(event) => setPassword(event.nativeEvent.text)}
+                      autoCapitalize="none"
+                      autoCorrect={false}
                       secureTextEntry={!showPassword}
                       textContentType="password"
                       placeholder="Password"

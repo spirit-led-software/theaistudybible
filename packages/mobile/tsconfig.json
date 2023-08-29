@@ -3,7 +3,6 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@core/*": ["../core/src/*"],
       "@app/*": ["./app/*"],
       "@assets/*": ["./assets/*"],
       "@components/*": ["./lib/components/*"],
@@ -13,7 +12,8 @@
       "@hooks/*": ["./lib/hooks/*"],
       "@services/*": ["./lib/services/*"],
       "@util/*": ["./lib/util/*"],
-      "@lib/*": ["./lib/*"]
+      "@lib/*": ["./lib/*"],
+      "@core/*": ["../core/src/*"]
     }
   },
   "include": [

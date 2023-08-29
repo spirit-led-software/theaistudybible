@@ -10,7 +10,7 @@ export function Text(props: TextProps) {
   return (
     <DefaultText
       style={[style]}
-      className={cn("font-catamaran")}
+      className={cn("font-catamaran text-slate-800")}
       {...otherProps}
     />
   );

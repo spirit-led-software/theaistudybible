@@ -11,6 +11,7 @@ import {
   Catamaran_900Black,
 } from "@expo-google-fonts/catamaran";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useStoredSession } from "@hooks/auth";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -39,6 +40,7 @@ export default function RootLayout() {
     "Catamaran-ExtraBold": Catamaran_800ExtraBold,
     "Catamaran-Black": Catamaran_900Black,
   });
+  const { session, loading } = useStoredSession();
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -46,21 +48,21 @@ export default function RootLayout() {
   }, [fontsError]);
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && !loading) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, loading]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || loading) {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return <RootLayoutNav initialSession={session} />;
 }
 
-function RootLayoutNav() {
+function RootLayoutNav(props: { initialSession: string | undefined }) {
   return (
-    <AuthProvider>
+    <AuthProvider initialSession={props.initialSession}>
       <StatusBar style={"light"} />
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

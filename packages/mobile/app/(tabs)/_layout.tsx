@@ -1,8 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useProtectedRoute } from "@hooks/auth";
 import { Tabs } from "expo-router";
 import colors from "tailwindcss/colors";
 
 export default function TabLayout() {
+  useProtectedRoute();
+
   return (
     <Tabs
       screenOptions={{
