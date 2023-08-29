@@ -1,10 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type {
-	AiResponse,
-	CreateAiResponseData,
-	SourceDocument,
-	UpdateAiResponseData
-} from '@core/model';
+import type { AiResponse, CreateAiResponseData, UpdateAiResponseData } from '@core/model';
+import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
@@ -105,7 +101,7 @@ export async function getAiResponseSourceDocuments(id: string, options: Protecte
 		);
 	}
 
-	const sourceDocuments: SourceDocument[] = await response.json();
+	const sourceDocuments: NeonVectorStoreDocument[] = await response.json();
 
 	return sourceDocuments;
 }

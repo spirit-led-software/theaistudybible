@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  content: ["./app/**/*.{js,jsx,ts,tsx}", "./lib/**/*.{js,jsx,ts,tsx}"],
   plugins: [
     require("tailwindcss-animate"),
     require("tailwindcss-brand-colors"),
@@ -10,6 +10,15 @@ module.exports = {
   theme: {
     fontFamily: {
       catamaran: ["Catamaran-Light"],
+      "catamaran-bold": ["Catamaran-Bold"],
+      "catamaran-black": ["Catamaran-Black"],
+      "catamaran-medium": ["Catamaran-Medium"],
+      "catamaran-semi-bold": ["Catamaran-SemiBold"],
+      "catamaran-extra-bold": ["Catamaran-ExtraBold"],
+      "catamaran-extra-light": ["Catamaran-ExtraLight"],
+      "catamaran-thin": ["Catamaran-Thin"],
+      "catamaran-light": ["Catamaran-Light"],
+      "catamaran-regular": ["Catamaran-Regular"],
     },
     extend: {
       colors: {

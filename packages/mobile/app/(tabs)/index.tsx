@@ -1,35 +1,25 @@
-import { StyleSheet } from "react-native";
+import { Stack } from "expo-router";
+import colors from "tailwindcss/colors";
+import { Text, View } from "../../lib/components/Themed";
 
-import EditScreenInfo from "../../components/EditScreenInfo";
-import { Text, View } from "../../components/Themed";
-
-export default function TabOneScreen() {
+export default function ChatScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
+    <>
+      <Stack.Screen
+        options={{
+          title: "Chat",
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: colors.slate[700],
+          },
+          headerTitleStyle: {
+            color: colors.white,
+          },
+        }}
       />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+      <View className="flex flex-col justify-center flex-1 place-items-center">
+        <Text className="text-center">Chat</Text>
+      </View>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});

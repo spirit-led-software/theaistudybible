@@ -1,5 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { Devotion, SourceDocument } from '@core/model';
+import type { Devotion } from '@core/model';
+import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
 
@@ -57,7 +58,7 @@ export async function getDevotionSourceDocuments(id: string) {
 		throw new Error(data.error || `Error retrieving source documents for devotion with id ${id}`);
 	}
 
-	const sourceDocuments: SourceDocument[] = await response.json();
+	const sourceDocuments: NeonVectorStoreDocument[] = await response.json();
 
 	return sourceDocuments;
 }
