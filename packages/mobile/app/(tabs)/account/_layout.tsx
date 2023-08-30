@@ -1,13 +1,13 @@
 import { Stack } from "expo-router";
 import colors from "tailwindcss/colors";
-import { Text, View } from "../../lib/components/Themed";
 
-export default function ChatScreen() {
+export default function AccountLayout() {
   return (
-    <>
+    <Stack>
       <Stack.Screen
+        name="index"
         options={{
-          title: "Chat",
+          title: "Account",
           headerShown: true,
           headerStyle: {
             backgroundColor: colors.slate[700],
@@ -17,9 +17,6 @@ export default function ChatScreen() {
           },
         }}
       />
-      <View className="flex flex-col justify-center flex-1 place-items-center">
-        <Text className="text-center">Chat</Text>
-      </View>
-    </>
+    </Stack>
   );
 }

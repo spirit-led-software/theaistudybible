@@ -7,6 +7,19 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
+export function useUser() {
+  const { user, loading } = useAuth();
+  return {
+    user,
+    loading,
+  };
+}
+
+export function useSession() {
+  const { session } = useAuth();
+  return session;
+}
+
 export function useProtectedRoute() {
   const { user } = useAuth();
   const [isNavigationReady, setNavigationReady] = useState(false);
@@ -31,7 +44,7 @@ export function useProtectedRoute() {
 
     const inAuthGroup = segments[0] === "(auth)";
     if (!user && !inAuthGroup) {
-      router.replace("/login");
+      router.replace("/(auth)/login");
     } else if (user && inAuthGroup) {
       router.replace("/");
     }

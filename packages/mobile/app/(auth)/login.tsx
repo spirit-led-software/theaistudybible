@@ -10,93 +10,144 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   GestureResponderEvent,
+  Pressable,
   TextInput,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LoginPage() {
+  const { user, loading: userLoading } = useAuth();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState<{
-    type: "error" | "success";
-    message: string;
-  } | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-  const [password, setPassword] = useState<string | null>(null);
+  const [alert, setAlert] = useState<
+    | {
+        type: "error" | "success";
+        message: string;
+      }
+    | undefined
+  >(undefined);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState<string | undefined>(undefined);
 
   const handleLogin = async (event: GestureResponderEvent) => {
     event.preventDefault();
     setLoading(true);
 
-    if (!email || !password) {
+    try {
+      if (!email || !password) {
+        setAlert({
+          type: "error",
+          message: "Please enter your email and password.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${apiConfig.url}/auth/credentials-mobile/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        setAlert({
+          type: "error",
+          message: data.message || data.error || "An unknown error occurred.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const { session } = await response.json();
+      const user = await getUserInfo(session);
+      if (!user) {
+        setAlert({
+          type: "error",
+          message: "An unknown error occurred.",
+        });
+        setLoading(false);
+        return;
+      }
+
+      login(session);
       setAlert({
-        type: "error",
-        message: "Please enter your email and password.",
+        type: "success",
+        message: "Successfully logged in.",
       });
-      setLoading(false);
-      return;
-    }
-
-    const response = await fetch(`${apiConfig.url}/auth/credentials/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json();
-      setAlert({
-        type: "error",
-        message: data.message || data.error || "An unknown error occurred.",
-      });
-      setLoading(false);
-      return;
-    }
-
-    const { session } = await response.json();
-    const user = await getUserInfo(session);
-    if (!user) {
+      router.push("/(tabs)/chat");
+    } catch (error) {
       setAlert({
         type: "error",
         message: "An unknown error occurred.",
       });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    login(session, user);
-    setAlert({
-      type: "success",
-      message: "Successfully logged in.",
-    });
-    setLoading(false);
-
-    router.push("/(tabs)");
   };
 
   const handleSocialLogin = async (provider: "facebook" | "google") => {
     setLoading(true);
-    await WebBrowser.openAuthSessionAsync(
-      `${apiConfig.url}/auth/${provider}/authorize`,
-      `revelationsai://(auth)/callback`
-    );
-    setLoading(false);
+    try {
+      const result = await WebBrowser.openAuthSessionAsync(
+        `${apiConfig.url}/auth/${provider}-mobile/authorize`,
+        `revelationsai://(auth)/callback`
+      );
+      if (result.type === "success") {
+        console.log(result.url);
+        const url = new URL(result.url);
+        const session = url.searchParams.get("token");
+        if (!session) {
+          setAlert({
+            type: "error",
+            message: "An unknown error occurred.",
+          });
+          setLoading(false);
+          return;
+        }
+        login(session);
+        router.push("/(tabs)/chat");
+      }
+    } catch (error) {
+      console.log(error);
+      setAlert({
+        type: "error",
+        message: "An unknown error occurred.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     if (alert) {
       setTimeout(() => {
-        setAlert(null);
+        setAlert(undefined);
       }, 5000);
     }
   }, [alert]);
+
+  if (user) {
+    router.push("/(tabs)/chat");
+    return null;
+  }
+
+  if (userLoading) {
+    return (
+      <View className="flex flex-col justify-center flex-1 place-items-center">
+        <ActivityIndicator size={20} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="bg-slate-700">
@@ -124,7 +175,7 @@ export default function LoginPage() {
             </View>
             <View className="space-y-4 divide-y-2 divide-slate-300">
               <View className="space-y-2">
-                <TouchableOpacity
+                <Pressable
                   onPress={() => handleSocialLogin("facebook")}
                   className="flex flex-row justify-center p-3 space-x-2 rounded bg-slate-700"
                 >
@@ -132,8 +183,8 @@ export default function LoginPage() {
                   <Text className="text-center text-white font-catamaran-medium">
                     Login with Facebook
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                </Pressable>
+                <Pressable
                   onPress={() => handleSocialLogin("google")}
                   className="flex flex-row justify-center p-3 space-x-2 rounded bg-slate-700"
                 >
@@ -141,7 +192,7 @@ export default function LoginPage() {
                   <Text className="text-center text-white font-catamaran-medium">
                     Login with Google
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
               <View className="flex flex-col pt-4 space-y-2">
                 <TextInput
@@ -165,25 +216,23 @@ export default function LoginPage() {
                     />
                   </View>
                   <View>
-                    <TouchableOpacity
-                      onPress={() => setShowPassword(!showPassword)}
-                    >
+                    <Pressable onPress={() => setShowPassword(!showPassword)}>
                       <Ionicons
                         name={showPassword ? "eye-off-outline" : "eye-outline"}
                         size={20}
                         color="black"
                       />
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>
                 </View>
-                <TouchableOpacity
+                <Pressable
                   className="p-2 rounded bg-slate-700"
                   onPress={handleLogin}
                 >
                   <Text className="text-center text-white font-catamaran-medium">
                     Login with Email
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
           </View>

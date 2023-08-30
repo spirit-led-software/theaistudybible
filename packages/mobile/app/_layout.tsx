@@ -1,3 +1,12 @@
+// @ts-ignore
+import { polyfill as polyfillURL } from "react-native-polyfill-globals/src/url";
+// @ts-ignore
+import { polyfill as polyfillEncoding } from "react-native-polyfill-globals/src/encoding";
+// @ts-ignore
+import { polyfill as polyfillFetch } from "react-native-polyfill-globals/src/fetch";
+// @ts-ignore
+import { polyfill as polyfillStream } from "react-native-polyfill-globals/src/readable-stream";
+
 import { AuthProvider } from "@components/AuthProvider";
 import {
   Catamaran_100Thin,
@@ -12,6 +21,7 @@ import {
 } from "@expo-google-fonts/catamaran";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useStoredSession } from "@hooks/auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -22,6 +32,8 @@ export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from "expo-router";
+
+const queryClient = new QueryClient();
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -41,6 +53,14 @@ export default function RootLayout() {
     "Catamaran-Black": Catamaran_900Black,
   });
   const { session, loading } = useStoredSession();
+
+  // Polyfill global objects.
+  useEffect(() => {
+    polyfillURL();
+    polyfillEncoding();
+    polyfillFetch();
+    polyfillStream();
+  }, []);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -62,12 +82,14 @@ export default function RootLayout() {
 
 function RootLayoutNav(props: { initialSession: string | undefined }) {
   return (
-    <AuthProvider initialSession={props.initialSession}>
-      <StatusBar style={"light"} />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      </Stack>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider initialSession={props.initialSession}>
+        <StatusBar style={"light"} />
+        <Stack initialRouteName="(tabs)">
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        </Stack>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

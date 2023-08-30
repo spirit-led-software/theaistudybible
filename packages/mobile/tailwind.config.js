@@ -4,7 +4,6 @@ module.exports = {
   plugins: [
     require("tailwindcss-animate"),
     require("tailwindcss-brand-colors"),
-    require("daisyui"),
   ],
   darkMode: "class",
   theme: {

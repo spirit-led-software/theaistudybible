@@ -8,7 +8,9 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="chat"
       screenOptions={{
+        headerShown: false,
         tabBarStyle: {
           height: 100,
           backgroundColor: colors.slate[700],
@@ -21,12 +23,32 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="chat"
         options={{
           title: "Chat",
           headerShown: false,
           tabBarIcon: ({ color }) => (
             <Ionicons size={28} name="md-chatbox" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="devotion"
+        options={{
+          title: "Devotions",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons size={28} name="book-outline" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "Account",
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons size={28} name="person" color={color} />
           ),
         }}
       />
