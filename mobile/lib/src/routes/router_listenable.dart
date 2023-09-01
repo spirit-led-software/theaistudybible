@@ -28,26 +28,25 @@ class RouterListenable extends _$RouterListenable implements Listenable {
   /// Redirects the user when our authentication changes
   String? redirect(BuildContext context, GoRouterState state) {
     if (this.state.isLoading) {
-      print("Router is loading");
+      debugPrint("Router is loading");
       return null;
     }
 
     if (this.state.hasError) {
-      print("Router has error: ${this.state.error}");
+      debugPrint("Router has error: ${this.state.error}");
       return null;
     }
 
-    print("Router path: ${state.uri.path}");
+    debugPrint("Router path: ${state.uri.path}");
 
     final isSplash = state.uri.path == "/";
 
     if (isSplash) {
-      print("Redirecting to ${_isAuth ? "/chat" : "/login"}");
-      return _isAuth ? "/chat" : "/login";
+      debugPrint("Redirecting to ${_isAuth ? "/chat" : "/auth/login"}");
+      return _isAuth ? "/chat" : "/auth/login";
     }
 
-    final isLoggingIn =
-        state.uri.path == "/login" || state.uri.path == "/register";
+    final isLoggingIn = state.uri.path.startsWith("/auth");
     if (isLoggingIn) return _isAuth ? "/chat" : null;
 
     return _isAuth ? null : "/";

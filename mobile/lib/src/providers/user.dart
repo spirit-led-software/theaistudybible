@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:revelationsai/src/constants/Api.dart';
-import 'package:revelationsai/src/models/user/user.dart';
-import 'package:revelationsai/src/services/user/user.dart';
+import 'package:revelationsai/src/models/user.dart';
+import 'package:revelationsai/src/services/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,7 +40,8 @@ class CurrentUser extends _$CurrentUser {
 
   Future<void> login(String email, String password) async {
     try {
-      log("Logging in using $email at ${Api.url}/auth/credentials-mobile/login");
+      debugPrint(
+          "Logging in using $email at ${Api.url}/auth/credentials-mobile/login");
 
       Response res = await post(
         Uri.parse('${Api.url}/auth/credentials-mobile/login'),
@@ -54,7 +55,7 @@ class CurrentUser extends _$CurrentUser {
       );
 
       if (res.statusCode != 200) {
-        log("Failed to login: ${res.statusCode} ${res.body}");
+        debugPrint("Failed to login: ${res.statusCode} ${res.body}");
         throw Exception('Failed to login');
       }
 
@@ -63,7 +64,7 @@ class CurrentUser extends _$CurrentUser {
 
       state = AsyncData(await _loginWithToken(session));
     } catch (e) {
-      log("Failed to login: $e");
+      debugPrint("Failed to login: $e");
       throw Exception('Failed to login');
     }
   }
@@ -72,7 +73,7 @@ class CurrentUser extends _$CurrentUser {
     try {
       state = AsyncData<User?>(await _loginWithToken(session));
     } catch (e) {
-      log("Failed to login with token: $e");
+      debugPrint("Failed to login with token: $e");
       throw Exception('Failed to login with token');
     }
   }
@@ -83,9 +84,9 @@ class CurrentUser extends _$CurrentUser {
 
   Future<User?> _loginWithToken(String session) async {
     try {
-      return await getUserInfo(session);
+      return await UserService.getUserInfo(session);
     } catch (e) {
-      log("Failed to login with token: $e");
+      debugPrint("Failed to login with token: $e");
       throw Exception('Failed to login with token');
     }
   }

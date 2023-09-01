@@ -33,8 +33,20 @@ class MyApp extends HookConsumerWidget {
     return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primaryColor: RAIColors.primary,
         fontFamily: "Catamaran",
+        colorScheme: ColorScheme(
+          brightness: Brightness.light,
+          primary: RAIColors.primary,
+          onPrimary: Colors.white,
+          secondary: RAIColors.secondary,
+          onSecondary: Colors.white,
+          error: Colors.red,
+          onError: Colors.white,
+          background: Colors.white,
+          onBackground: RAIColors.primary,
+          surface: Colors.white,
+          onSurface: RAIColors.primary,
+        ),
         useMaterial3: true,
       ),
       routerConfig: router,

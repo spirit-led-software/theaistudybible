@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revelationsai/src/screens/account/account_screen.dart';
@@ -16,13 +17,13 @@ List<RouteBase> routes = [
     },
   ),
   GoRoute(
-    path: "/login",
+    path: "/auth/login",
     builder: (context, state) {
       return const LoginScreen();
     },
   ),
   GoRoute(
-    path: "/register",
+    path: "/auth/register",
     builder: (context, state) {
       return const RegisterScreen();
     },
@@ -50,20 +51,21 @@ List<RouteBase> routes = [
         ],
       ),
       GoRoute(
-          path: "/devotions",
-          builder: (context, state) {
-            return const DevotionScreen();
-          },
-          routes: [
-            GoRoute(
-              path: ":id",
-              builder: (context, state) {
-                return DevotionScreen(
-                  devotionId: state.pathParameters['id'],
-                );
-              },
-            ),
-          ]),
+        path: "/devotions",
+        builder: (context, state) {
+          return const DevotionScreen();
+        },
+        routes: [
+          GoRoute(
+            path: ":id",
+            builder: (context, state) {
+              return DevotionScreen(
+                devotionId: state.pathParameters['id'],
+              );
+            },
+          ),
+        ],
+      ),
       GoRoute(
         path: "/account",
         builder: (context, state) {

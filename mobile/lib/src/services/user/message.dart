@@ -6,72 +6,75 @@ import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/user/message.dart';
 
-Future<PaginatedEntitiesResponse<UserMessage>> getUserMessages({
-  PaginatedEntitiesRequestOptions paginationOptions =
-      const PaginatedEntitiesRequestOptions(),
-  required String session,
-}) async {
-  Response res = await get(
-    Uri.parse('${Api.url}/user-messages?${paginationOptions.searchQuery}'),
-    headers: <String, String>{
-      'Authorization': 'Bearer $session',
-    },
-  );
+class UserMessageService {
+  static Future<PaginatedEntitiesResponseData<UserMessage>> getUserMessages({
+    PaginatedEntitiesRequestOptions paginationOptions =
+        const PaginatedEntitiesRequestOptions(),
+    required String session,
+  }) async {
+    Response res = await get(
+      Uri.parse('${Api.url}/user-messages?${paginationOptions.searchQuery}'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $session',
+      },
+    );
 
-  if (res.statusCode != 200) {
-    throw Exception('Failed to load user messages');
+    if (res.statusCode != 200) {
+      throw Exception('Failed to load user messages');
+    }
+
+    var data = jsonDecode(res.body);
+
+    return PaginatedEntitiesResponseData.fromJson(data, (json) {
+      return UserMessage.fromJson(json as Map<String, dynamic>);
+    });
   }
 
-  var data = jsonDecode(res.body);
+  static Future<UserMessage> getUserMessage({
+    required String id,
+    required String session,
+  }) async {
+    Response res = await get(
+      Uri.parse('${Api.url}/user-messages/$id'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $session',
+      },
+    );
 
-  return PaginatedEntitiesResponse.fromJson(data, (json) {
-    return UserMessage.fromJson(json as Map<String, dynamic>);
-  });
-}
+    if (res.statusCode != 200) {
+      throw Exception('Failed to load user message');
+    }
 
-Future<UserMessage> getUserMessage({
-  required String id,
-  required String session,
-}) async {
-  Response res = await get(
-    Uri.parse('${Api.url}/user-messages/$id'),
-    headers: <String, String>{
-      'Authorization': 'Bearer $session',
-    },
-  );
+    var data = jsonDecode(res.body);
 
-  if (res.statusCode != 200) {
-    throw Exception('Failed to load user message');
+    return UserMessage.fromJson(data);
   }
 
-  var data = jsonDecode(res.body);
+  static Future<PaginatedEntitiesResponseData<UserMessage>>
+      searchForUserMessages({
+    PaginatedEntitiesRequestOptions paginationOptions =
+        const PaginatedEntitiesRequestOptions(),
+    required Query query,
+    required String session,
+  }) async {
+    Response res = await post(
+      Uri.parse(
+        '${Api.url}/user-messages/search?${paginationOptions.searchQuery}',
+      ),
+      headers: <String, String>{
+        'Authorization': 'Bearer $session',
+      },
+      body: jsonEncode(query.toJson()),
+    );
 
-  return UserMessage.fromJson(data);
-}
+    if (res.statusCode != 200) {
+      throw Exception('Failed to search for user messages');
+    }
 
-Future<PaginatedEntitiesResponse<UserMessage>> searchForUserMessages({
-  PaginatedEntitiesRequestOptions paginationOptions =
-      const PaginatedEntitiesRequestOptions(),
-  required Query query,
-  required String session,
-}) async {
-  Response res = await post(
-    Uri.parse(
-      '${Api.url}/user-messages/search?${paginationOptions.searchQuery}',
-    ),
-    headers: <String, String>{
-      'Authorization': 'Bearer $session',
-    },
-    body: jsonEncode(query.toJson()),
-  );
+    var data = jsonDecode(res.body);
 
-  if (res.statusCode != 200) {
-    throw Exception('Failed to search for user messages');
+    return PaginatedEntitiesResponseData.fromJson(data, (json) {
+      return UserMessage.fromJson(json as Map<String, dynamic>);
+    });
   }
-
-  var data = jsonDecode(res.body);
-
-  return PaginatedEntitiesResponse.fromJson(data, (json) {
-    return UserMessage.fromJson(json as Map<String, dynamic>);
-  });
 }

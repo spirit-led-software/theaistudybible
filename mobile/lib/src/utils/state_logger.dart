@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Useful to log state change in our application
@@ -11,7 +12,7 @@ class StateLogger extends ProviderObserver {
     Object? newValue,
     ProviderContainer container,
   ) {
-    print('''
+    debugPrint('''
 {
   provider: ${provider.name ?? provider.runtimeType},
   oldValue: $previousValue,

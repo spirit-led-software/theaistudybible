@@ -1,7 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'chat_request.freezed.dart';
-part 'chat_request.g.dart';
+part 'request.freezed.dart';
+part 'request.g.dart';
 
 @freezed
 class CreateChatRequest with _$CreateChatRequest {

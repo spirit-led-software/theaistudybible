@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+export 'chat/request.dart' show CreateChatRequest, UpdateChatRequest;
+
 part 'chat.freezed.dart';
 part 'chat.g.dart';
 

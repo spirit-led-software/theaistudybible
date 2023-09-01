@@ -1,5 +1,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revelationsai/src/models/user/role.dart';
+import 'package:revelationsai/src/models/role.dart';
+
+export 'user/message.dart' show UserMessage;
+export 'user/query_count.dart' show UserQueryCount;
 
 part 'user.freezed.dart';
 part 'user.g.dart';
