@@ -109,7 +109,7 @@ class Sources extends HookConsumerWidget {
                 dense: true,
                 title: Text(
                   sources.value[index].metadata?['name'],
-                  style: TextStyle(fontSize: 8),
+                  style: const TextStyle(fontSize: 8),
                 ),
               );
             },

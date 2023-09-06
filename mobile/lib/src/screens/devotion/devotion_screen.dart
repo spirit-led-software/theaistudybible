@@ -96,7 +96,7 @@ class DevotionScreen extends HookConsumerWidget {
                 ),
               );
             },
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
           ),
         ],
       ),
@@ -107,7 +107,7 @@ class DevotionScreen extends HookConsumerWidget {
               ),
             )
           : Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: ListView(
                 children: [
                   Container(
@@ -120,7 +120,7 @@ class DevotionScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                   Text(

@@ -57,13 +57,13 @@ class DevotionModal extends HookConsumerWidget {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               top: 10,
               bottom: 10,
               left: 30,
             ),
             decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -73,7 +73,7 @@ class DevotionModal extends HookConsumerWidget {
             ),
             child: Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: Text(
                     'All Devotions',
                     style: TextStyle(
@@ -87,7 +87,7 @@ class DevotionModal extends HookConsumerWidget {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.close,
                     color: Colors.white,
                   ),
@@ -131,7 +131,7 @@ class DevotionModal extends HookConsumerWidget {
                 ),
           loading.value && devotions.value.isNotEmpty
               ? Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: Center(
                     child: CircularProgressIndicator(
                       color: RAIColors.primary,
@@ -140,7 +140,7 @@ class DevotionModal extends HookConsumerWidget {
                 )
               : hasMore.value
                   ? Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       child: Row(
                         children: [
                           Expanded(
@@ -148,7 +148,7 @@ class DevotionModal extends HookConsumerWidget {
                               onPressed: () {
                                 page.value += 1;
                               },
-                              child: Text('Show More'),
+                              child: const Text('Show More'),
                             ),
                           ),
                         ],
