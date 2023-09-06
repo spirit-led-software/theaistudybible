@@ -16,6 +16,7 @@ class UserMessageService {
       Uri.parse('${Api.url}/user-messages?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -23,7 +24,7 @@ class UserMessageService {
       throw Exception('Failed to load user messages');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return UserMessage.fromJson(json as Map<String, dynamic>);
@@ -38,6 +39,7 @@ class UserMessageService {
       Uri.parse('${Api.url}/user-messages/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -45,7 +47,7 @@ class UserMessageService {
       throw Exception('Failed to load user message');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return UserMessage.fromJson(data);
   }
@@ -63,6 +65,7 @@ class UserMessageService {
       ),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(query.toJson()),
     );
@@ -71,7 +74,7 @@ class UserMessageService {
       throw Exception('Failed to search for user messages');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return UserMessage.fromJson(json as Map<String, dynamic>);

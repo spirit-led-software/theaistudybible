@@ -77,6 +77,7 @@ class DevotionScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
         title: Text(loading.value

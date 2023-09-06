@@ -15,13 +15,16 @@ class DevotionImageService {
     Response res = await get(
       Uri.parse(
           '${Api.url}/devotions/$id/images?${paginationOptions.searchQuery}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to load devotions');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(
       data,

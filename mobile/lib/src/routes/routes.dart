@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/account/account_screen.dart';
 import 'package:revelationsai/src/screens/auth/login_screen.dart';
 import 'package:revelationsai/src/screens/auth/register_screen.dart';
@@ -13,6 +15,18 @@ List<RouteBase> routes = [
   GoRoute(
     path: "/",
     builder: (context, state) {
+      return const SplashScreen();
+    },
+  ),
+  GoRoute(
+    path: "/auth/callback",
+    builder: (context, state) {
+      if (state.uri.queryParameters.containsKey('token')) {
+        final token = state.uri.queryParameters['token'];
+        ProviderScope.containerOf(context)
+            .read(currentUserProvider.notifier)
+            .loginWithToken(token!);
+      }
       return const SplashScreen();
     },
   ),

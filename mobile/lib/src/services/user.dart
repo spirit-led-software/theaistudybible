@@ -11,15 +11,16 @@ class UserService {
       Uri.parse('${Api.url}/session'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
     if (res.statusCode != 200) {
-      debugPrint("Failed to get user");
+      debugPrint("Failed to get user info: ${res.statusCode} ${res.body}");
       throw Exception('Failed to get user');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
     debugPrint("Received: $data");
 
     User user = User.fromJson({

@@ -21,6 +21,7 @@ class ChatService {
       Uri.parse('${Api.url}/chats?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -29,7 +30,7 @@ class ChatService {
       throw Exception('Failed to load chats');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return Chat.fromJson(json as Map<String, dynamic>);
@@ -44,6 +45,7 @@ class ChatService {
       Uri.parse('${Api.url}/chats/$chatId'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -52,7 +54,7 @@ class ChatService {
       throw Exception('Failed to get chat');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return Chat.fromJson(data);
   }
@@ -75,7 +77,7 @@ class ChatService {
       throw Exception('Failed to create chat');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return Chat.fromJson(data);
   }

@@ -15,13 +15,16 @@ class DevotionService {
   }) async {
     Response res = await get(
       Uri.parse('${Api.url}/devotions?${paginationOptions.searchQuery}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to load devotions');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(
         data, (json) => Devotion.fromJson(json as Map<String, dynamic>));
@@ -32,13 +35,16 @@ class DevotionService {
   }) async {
     Response res = await get(
       Uri.parse('${Api.url}/devotions/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to load devotion');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return Devotion.fromJson(data);
   }
@@ -48,13 +54,16 @@ class DevotionService {
   }) async {
     Response res = await get(
       Uri.parse('${Api.url}/devotions/$id/source-documents'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
     );
 
     if (res.statusCode != 200) {
       throw Exception('Failed to load devotion source documents');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return (data as List<dynamic>)
         .map((e) => SourceDocument.fromJson(e as Map<String, dynamic>))

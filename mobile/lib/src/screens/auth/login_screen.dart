@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/constants/Api.dart';
 import 'package:revelationsai/src/constants/Colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -18,6 +22,7 @@ class LoginScreen extends HookConsumerWidget {
     final pendingLogin = useState<Future<void>?>(null);
     final snapshot = useFuture(pendingLogin.value);
 
+    final showPassword = useState(false);
     final isErrored = snapshot.hasError &&
         snapshot.connectionState != ConnectionState.waiting;
 
@@ -72,6 +77,136 @@ class LoginScreen extends HookConsumerWidget {
                 const SizedBox(
                   height: 30,
                 ),
+                Flex(
+                  direction: Axis.horizontal,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: RAIColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          padding: const EdgeInsets.only(
+                            top: 15,
+                            bottom: 15,
+                          ),
+                        ),
+                        onPressed: () async {
+                          final url =
+                              "${Api.url}/auth/facebook-mobile/authorize";
+                          await launchUrlString(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.facebookF,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Login with Facebook",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Flex(
+                  direction: Axis.horizontal,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: RAIColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          padding: const EdgeInsets.only(
+                            top: 15,
+                            bottom: 15,
+                          ),
+                        ),
+                        onPressed: () async {
+                          final url = "${Api.url}/auth/google-mobile/authorize";
+                          await launchUrlString(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.google,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Login with Google",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Flex(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  direction: Axis.horizontal,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "OR",
+                      style: TextStyle(
+                        color: RAIColors.primary,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
                 TextField(
                   autofocus: true,
                   autocorrect: false,
@@ -83,7 +218,7 @@ class LoginScreen extends HookConsumerWidget {
                   decoration: InputDecoration(
                     hintText: "Email",
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(1),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -99,8 +234,8 @@ class LoginScreen extends HookConsumerWidget {
                 TextField(
                   autofocus: true,
                   autocorrect: false,
-                  obscureText: true,
-                  keyboardType: TextInputType.emailAddress,
+                  obscureText: !showPassword.value,
+                  keyboardType: TextInputType.visiblePassword,
                   controller: passwordTextController,
                   style: TextStyle(
                     color: RAIColors.primary,
@@ -116,13 +251,23 @@ class LoginScreen extends HookConsumerWidget {
                         width: 1,
                       ),
                     ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        showPassword.value = !showPassword.value;
+                      },
+                      icon: FaIcon(
+                        showPassword.value
+                            ? FontAwesomeIcons.eye
+                            : FontAwesomeIcons.eyeSlash,
+                        size: 18,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                Flex(
-                  direction: Axis.horizontal,
+                Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
@@ -144,7 +289,7 @@ class LoginScreen extends HookConsumerWidget {
                           pendingLogin.value = future;
                         },
                         child: const Text(
-                          "Login",
+                          "Login with Email",
                           style: TextStyle(
                             color: Colors.white,
                           ),
@@ -153,6 +298,20 @@ class LoginScreen extends HookConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    context.go('/auth/register');
+                  },
+                  child: Text(
+                    "Don't have an account? Register",
+                    style: TextStyle(
+                      color: RAIColors.primary,
+                    ),
+                  ),
+                )
               ],
             ),
           ),

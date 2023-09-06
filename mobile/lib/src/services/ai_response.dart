@@ -17,6 +17,7 @@ class AiResponseService {
       Uri.parse('${Api.url}/ai-responses?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -24,7 +25,7 @@ class AiResponseService {
       throw Exception('Failed to load ai responses');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return AiResponse.fromJson(json as Map<String, dynamic>);
@@ -39,6 +40,7 @@ class AiResponseService {
       Uri.parse('${Api.url}/ai-responses/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -46,7 +48,7 @@ class AiResponseService {
       throw Exception('Failed to load ai response');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return AiResponse.fromJson(data);
   }
@@ -64,6 +66,7 @@ class AiResponseService {
       ),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(query.toJson()),
     );
@@ -72,7 +75,7 @@ class AiResponseService {
       throw Exception('Failed to search for ai responses');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return AiResponse.fromJson(json as Map<String, dynamic>);
@@ -87,6 +90,7 @@ class AiResponseService {
       Uri.parse('${Api.url}/ai-responses/$id/source-documents'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
@@ -94,7 +98,7 @@ class AiResponseService {
       throw Exception('Failed to load AI response source documents');
     }
 
-    var data = jsonDecode(res.body);
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return (data as List<dynamic>)
         .map((e) => SourceDocument.fromJson(e as Map<String, dynamic>))

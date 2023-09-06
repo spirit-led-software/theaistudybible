@@ -56,7 +56,7 @@ class ChatScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: null,
+        automaticallyImplyLeading: false,
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
         title: loading.value
@@ -107,8 +107,18 @@ class ChatScreen extends HookConsumerWidget {
                         itemBuilder: (context, index) {
                           ChatMessage message =
                               chatObj.messages.value.reversed.toList()[index];
+                          ChatMessage? previousMessage = index + 1 <
+                                  chatObj.messages.value.reversed
+                                      .toList()
+                                      .length
+                              ? chatObj.messages.value.reversed
+                                  .toList()[index + 1]
+                              : null;
                           return Message(
-                              chatId: chatObj.chatId.value!, message: message);
+                            chatId: chatObj.chatId.value!,
+                            message: message,
+                            previousMessage: previousMessage,
+                          );
                         },
                       ),
                     ),
@@ -134,7 +144,7 @@ class ChatScreen extends HookConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SpinKitThreeBounce(
+                                SpinKitChasingDots(
                                   color: RAIColors.primary,
                                   size: 20,
                                 ),
@@ -143,20 +153,27 @@ class ChatScreen extends HookConsumerWidget {
                           : Row(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 IconButton(
+                                  visualDensity: VisualDensity.compact,
                                   onPressed: () {
                                     chatObj.reload();
                                   },
                                   icon: const FaIcon(
-                                      FontAwesomeIcons.arrowRotateRight),
+                                    FontAwesomeIcons.arrowRotateRight,
+                                    size: 20,
+                                  ),
                                 ),
                                 IconButton(
+                                  visualDensity: VisualDensity.compact,
                                   onPressed: () {
                                     chatObj.handleSubmit();
                                   },
-                                  icon:
-                                      const FaIcon(FontAwesomeIcons.paperPlane),
+                                  icon: const Icon(
+                                    Icons.send,
+                                    size: 20,
+                                  ),
                                 ),
                               ],
                             ),

@@ -51,6 +51,8 @@ dependencies:
   uuid: ^3.0.7
   font_awesome_flutter: ^10.5.0
   flutter_spinkit: ^5.2.0
+  share_plus: ^7.1.0
+  accordion: ^2.6.0
 
 dev_dependencies:
   flutter_test:

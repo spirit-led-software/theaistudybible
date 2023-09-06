@@ -10,15 +10,21 @@ import 'package:revelationsai/src/widgets/chat/sources.dart';
 class Message extends HookConsumerWidget {
   final String chatId;
   final ChatMessage message;
+  final ChatMessage? previousMessage;
 
-  const Message({Key? key, required this.chatId, required this.message})
-      : super(key: key);
+  const Message({
+    Key? key,
+    required this.chatId,
+    required this.message,
+    this.previousMessage,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
 
     return ListTile(
+      dense: true,
       contentPadding: const EdgeInsets.only(
         top: 10,
         bottom: 10,
@@ -41,28 +47,50 @@ class Message extends HookConsumerWidget {
                   )
                 : null,
         child: message.role == Role.user
-            ? Text(currentUser.requireValue!.name ??
-                currentUser.requireValue!.email.substring(0, 1).toUpperCase())
+            ? Text(currentUser.requireValue?.name
+                    ?.substring(0, 1)
+                    .toUpperCase() ??
+                currentUser.requireValue?.email.substring(0, 1).toUpperCase() ??
+                "?")
             : const FaIcon(FontAwesomeIcons.cross),
       ),
       title: Text(
         message.content,
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            DateFormat()
-                .add_yMMMMd()
-                .addPattern(DateFormat.HOUR_MINUTE)
-                .format(message.createdAt ?? DateTime.now()),
-            style: const TextStyle(fontSize: 10),
-          ),
-          if (message.role == Role.assistant)
-            Sources(chatId: chatId, message: message)
-        ],
+      subtitle: Container(
+        padding: const EdgeInsets.only(
+          top: 15,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              DateFormat()
+                  .add_yMMMMd()
+                  .addPattern(DateFormat.HOUR_MINUTE)
+                  .format(message.createdAt ?? DateTime.now()),
+              style: const TextStyle(fontSize: 10),
+            ),
+            if (message.role == Role.assistant) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Sources(
+                      chatId: chatId,
+                      message: message,
+                      previousMessage: previousMessage,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
       ),
-      dense: true,
     );
   }
 }

@@ -90,7 +90,10 @@ export const handler = AuthHandler({
       scope: "openid email",
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user, "revelationsai://(auth)/callback");
+        return SessionParameter(
+          user,
+          "revelationsai://revelationsai/auth/callback"
+        );
       },
     }),
     google: GoogleAdapter({
@@ -110,7 +113,10 @@ export const handler = AuthHandler({
       scope: "openid email",
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user, "revelationsai://(auth)/callback");
+        return SessionParameter(
+          user,
+          "revelationsai://revelationsai/auth/callback"
+        );
       },
     }),
     credentials: CredentialsAdapter({
@@ -268,7 +274,10 @@ export const handler = AuthHandler({
         } else {
           return BadRequestResponse("A user already exists with this email");
         }
-        return SessionParameter(user, "revelationsai://(auth)/callback");
+        return SessionParameter(
+          user,
+          "revelationsai://revelationsai/auth/callback"
+        );
       },
       onLogin: async (claims) => {
         let user: User | undefined = await getUserByEmail(claims.email);
@@ -311,7 +320,7 @@ export const handler = AuthHandler({
       },
       onForgotPasswordCallback: async (token) => {
         return RedirectResponse(
-          `revelationsai://(auth)/forgot-password?token=${token}`
+          `revelationsai://revelationsai/auth/forgot-password?token=${token}`
         );
       },
       onResetPassword: async (email, password) => {

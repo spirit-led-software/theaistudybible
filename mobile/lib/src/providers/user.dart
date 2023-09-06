@@ -59,7 +59,7 @@ class CurrentUser extends _$CurrentUser {
         throw Exception('Failed to login');
       }
 
-      var data = jsonDecode(res.body);
+      var data = jsonDecode(utf8.decode(res.bodyBytes));
       String session = data['session'];
 
       state = AsyncData(await _loginWithToken(session));
@@ -79,7 +79,6 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> logout() async {
-    _sharedPreferences.remove(_sharedPrefsKey);
     state = const AsyncValue<User?>.data(null);
   }
 
@@ -89,6 +88,32 @@ class CurrentUser extends _$CurrentUser {
     } catch (e) {
       debugPrint("Failed to login with token: $e");
       throw Exception('Failed to login with token');
+    }
+  }
+
+  Future<void> register(String email, String password) async {
+    try {
+      debugPrint(
+          "Registering using $email at ${Api.url}/auth/credentials-mobile/register");
+
+      Response res = await post(
+        Uri.parse('${Api.url}/auth/credentials-mobile/register'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (res.statusCode != 200) {
+        debugPrint("Failed to register: ${res.statusCode} ${res.body}");
+        throw Exception(['Failed to register user', res.body]);
+      }
+    } catch (e) {
+      debugPrint("Failed to register: $e");
+      throw Exception(['Failed to register user', e]);
     }
   }
 
