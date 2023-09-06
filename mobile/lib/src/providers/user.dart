@@ -79,6 +79,7 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> logout() async {
+    _sharedPreferences.remove(_sharedPrefsKey);
     state = const AsyncValue<User?>.data(null);
   }
 
@@ -99,9 +100,9 @@ class CurrentUser extends _$CurrentUser {
         return;
       }
 
-      String? session = next.value?.session;
       if (next.requireValue != null) {
-        _sharedPreferences.setString(_sharedPrefsKey, session!);
+        _sharedPreferences.setString(
+            _sharedPrefsKey, next.requireValue!.session);
       } else {
         _sharedPreferences.remove(_sharedPrefsKey);
       }

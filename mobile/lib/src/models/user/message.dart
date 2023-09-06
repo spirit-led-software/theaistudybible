@@ -11,6 +11,7 @@ class UserMessage with _$UserMessage {
     required DateTime updatedAt,
     required String chatId,
     required String userId,
+    String? aiId,
     required String text,
   }) = _UserMessage;
 

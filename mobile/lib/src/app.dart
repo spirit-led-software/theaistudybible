@@ -31,7 +31,7 @@ class MyApp extends HookConsumerWidget {
     );
 
     return MaterialApp.router(
-      title: 'Flutter Demo',
+      title: 'RevelationsAI',
       theme: ThemeData(
         fontFamily: "Catamaran",
         colorScheme: ColorScheme(
