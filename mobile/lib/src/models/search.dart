@@ -7,7 +7,7 @@ part 'search.g.dart';
 class ColumnValue with _$ColumnValue {
   factory ColumnValue({
     required String column,
-    required String value,
+    required Object? value,
   }) = _ColumnValue;
 
   factory ColumnValue.fromJson(Map<String, dynamic> json) =>

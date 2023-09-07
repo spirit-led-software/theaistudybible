@@ -6,6 +6,7 @@ part 'request.g.dart';
 @freezed
 class CreateChatRequest with _$CreateChatRequest {
   factory CreateChatRequest({
+    String? id,
     required String name,
   }) = _CreateChatRequest;
 

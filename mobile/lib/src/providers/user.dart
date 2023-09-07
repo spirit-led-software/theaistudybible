@@ -16,7 +16,7 @@ class CurrentUser extends _$CurrentUser {
   static const _sharedPrefsKey = 'token';
 
   @override
-  Future<User?> build() async {
+  FutureOr<User> build() async {
     _sharedPreferences = await SharedPreferences.getInstance();
 
     _persistenceRefreshLogic();
@@ -24,7 +24,7 @@ class CurrentUser extends _$CurrentUser {
     return _loginRecoveryAttempt();
   }
 
-  Future<User?> _loginRecoveryAttempt() async {
+  FutureOr<User> _loginRecoveryAttempt() async {
     try {
       final savedSession = _sharedPreferences.getString(_sharedPrefsKey);
       if (savedSession == null) {
@@ -34,7 +34,7 @@ class CurrentUser extends _$CurrentUser {
       return await _loginWithToken(savedSession);
     } catch (_, __) {
       await _sharedPreferences.remove(_sharedPrefsKey);
-      return null;
+      throw const UnauthorizedException('No auth token found');
     }
   }
 
@@ -71,7 +71,7 @@ class CurrentUser extends _$CurrentUser {
 
   Future<void> loginWithToken(String session) async {
     try {
-      state = AsyncData<User?>(await _loginWithToken(session));
+      state = AsyncData<User>(await _loginWithToken(session));
     } catch (e) {
       debugPrint("Failed to login with token: $e");
       throw Exception('Failed to login with token');
@@ -79,10 +79,11 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> logout() async {
-    state = const AsyncValue<User?>.data(null);
+    state = AsyncValue.error(
+        UnauthorizedException("Not logged in"), StackTrace.current);
   }
 
-  Future<User?> _loginWithToken(String session) async {
+  FutureOr<User> _loginWithToken(String session) async {
     try {
       return await UserService.getUserInfo(session);
     } catch (e) {
@@ -125,9 +126,8 @@ class CurrentUser extends _$CurrentUser {
         return;
       }
 
-      if (next.requireValue != null) {
-        _sharedPreferences.setString(
-            _sharedPrefsKey, next.requireValue!.session);
+      if (next.hasValue) {
+        _sharedPreferences.setString(_sharedPrefsKey, next.value!.session);
       } else {
         _sharedPreferences.remove(_sharedPrefsKey);
       }

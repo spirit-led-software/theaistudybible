@@ -20,17 +20,16 @@ class AccountScreen extends HookConsumerWidget {
             CircleAvatar(
               radius: 50,
               backgroundColor: RAIColors.secondary,
-              foregroundImage: currentUser.requireValue?.image != null
+              foregroundImage: currentUser.requireValue.image != null
                   ? NetworkImage(
-                      currentUser.requireValue!.image!,
+                      currentUser.requireValue.image!,
                     )
                   : null,
               child: Text(
-                currentUser.requireValue?.name?.substring(0, 1).toUpperCase() ??
-                    currentUser.requireValue?.email
+                currentUser.requireValue.name?.substring(0, 1).toUpperCase() ??
+                    currentUser.requireValue.email
                         .substring(0, 1)
-                        .toUpperCase() ??
-                    "?",
+                        .toUpperCase(),
                 style: const TextStyle(
                   fontSize: 40,
                 ),
@@ -40,9 +39,7 @@ class AccountScreen extends HookConsumerWidget {
               height: 20,
             ),
             Text(
-              currentUser.requireValue?.name ??
-                  currentUser.requireValue?.email ??
-                  "?",
+              currentUser.requireValue.name ?? currentUser.requireValue.email,
               style: const TextStyle(
                 fontSize: 20,
               ),

@@ -4,39 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/Colors.dart';
-import 'package:revelationsai/src/models/devotion.dart';
-import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/services/devotion.dart';
+import 'package:revelationsai/src/providers/devotion/pages.dart';
 
 class DevotionModal extends HookConsumerWidget {
   const DevotionModal({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final devotions = ref.watch(devotionsPagesProvider);
+    final devotionsNotifier = ref.watch(devotionsPagesProvider.notifier);
+
     ScrollController controller = useScrollController();
-    ValueNotifier<bool> loading = useState(false);
-    ValueNotifier<int> page = useState(1);
-    ValueNotifier<List<List<Devotion>>> devotions = useState([]);
-    ValueNotifier<bool> hasMore = useState(false);
-
-    useEffect(() {
-      loading.value = true;
-      Future<void> devotionFuture = DevotionService.getDevotions(
-        paginationOptions:
-            PaginatedEntitiesRequestOptions(limit: 7, page: page.value),
-      ).then(
-        (value) {
-          devotions.value.add(value.entities);
-          hasMore.value = value.entities.length == 7;
-        },
-      );
-
-      Future.wait([devotionFuture]).whenComplete(() {
-        loading.value = false;
-      });
-
-      return () {};
-    }, [page.value]);
 
     useEffect(() {
       controller.addListener(() {
@@ -44,8 +22,8 @@ class DevotionModal extends HookConsumerWidget {
           if (controller.position.pixels == 0) {
             // You're at the top.
           } else {
-            if (hasMore.value) {
-              page.value += 1;
+            if (devotionsNotifier.hasNextPage()) {
+              devotionsNotifier.fetchNextPage();
             }
           }
         }
@@ -54,6 +32,13 @@ class DevotionModal extends HookConsumerWidget {
     }, []);
 
     return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
       child: Column(
         children: [
           Container(
@@ -95,7 +80,7 @@ class DevotionModal extends HookConsumerWidget {
               ],
             ),
           ),
-          loading.value && devotions.value.isEmpty
+          devotionsNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
                     child: CircularProgressIndicator(
@@ -106,13 +91,14 @@ class DevotionModal extends HookConsumerWidget {
               : Expanded(
                   child: ListView.builder(
                     controller: controller,
-                    itemCount: devotions.value
+                    itemCount: devotions.requireValue
                         .expand((element) => element)
                         .toList()
                         .length,
                     itemBuilder: (context, index) {
-                      final devotionsFlat =
-                          devotions.value.expand((element) => element).toList();
+                      final devotionsFlat = devotions.requireValue
+                          .expand((element) => element)
+                          .toList();
                       return ListTile(
                         title: Text(DateFormat.yMMMd()
                             .format(devotionsFlat[index].date)),
@@ -129,7 +115,7 @@ class DevotionModal extends HookConsumerWidget {
                     },
                   ),
                 ),
-          loading.value && devotions.value.isNotEmpty
+          devotionsNotifier.isLoadingNextPage()
               ? Container(
                   padding: const EdgeInsets.all(10),
                   child: Center(
@@ -138,7 +124,7 @@ class DevotionModal extends HookConsumerWidget {
                     ),
                   ),
                 )
-              : hasMore.value
+              : devotionsNotifier.hasNextPage()
                   ? Container(
                       padding: const EdgeInsets.all(10),
                       child: Row(
@@ -146,7 +132,7 @@ class DevotionModal extends HookConsumerWidget {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                page.value += 1;
+                                devotionsNotifier.fetchNextPage();
                               },
                               child: const Text('Show More'),
                             ),

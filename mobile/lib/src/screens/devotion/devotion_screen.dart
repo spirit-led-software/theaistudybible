@@ -214,6 +214,7 @@ class DevotionScreen extends HookConsumerWidget {
                   ),
                   ListView.builder(
                     shrinkWrap: true,
+                    padding: EdgeInsets.zero,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: sourceDocs.value.length,
                     itemBuilder: (context, index) {
@@ -221,10 +222,17 @@ class DevotionScreen extends HookConsumerWidget {
                         uri: Uri.parse(
                           sourceDocs.value[index].metadata!['url'],
                         ),
-                        target: LinkTarget.blank,
+                        target: LinkTarget.self,
                         builder: (context, followLink) => ListTile(
+                          leading: Icon(
+                            Icons.link,
+                            size: 15,
+                            color: Colors.grey.shade600,
+                          ),
                           title: Text(
                             sourceDocs.value[index].metadata!['name'],
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,

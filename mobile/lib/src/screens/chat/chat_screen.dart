@@ -7,9 +7,10 @@ import 'package:revelationsai/src/constants/Colors.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
+import 'package:revelationsai/src/providers/chat.dart';
+import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
-import 'package:revelationsai/src/services/chat.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
 
 class ChatScreen extends HookConsumerWidget {
@@ -24,35 +25,45 @@ class ChatScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
 
-    final ValueNotifier<bool> loading = useState(false);
-    final ValueNotifier<Chat?> chat = useState(null);
-
     final UseChatReturnObject chatObj = useChat(
       options: UseChatOptions(
-        session: currentUser.requireValue!.session,
+        session: currentUser.requireValue.session,
         chatId: chatId,
       ),
     );
 
+    final chat = useState<Chat?>(null);
+    final messages = useState<List<ChatMessage>>([]);
+    final loading = useState(false);
+
     useEffect(() {
-      loading.value = true;
-      debugPrint("ChatScreen: $chatId");
       if (chatId != null) {
+        loading.value = true;
+
+        final chatFuture = ref
+            .read(currentChatProvider(chatId!).future)
+            .then((value) => chat.value = value);
+
+        final messagesFuture = ref
+            .read(currentChatMessagesProvider(chatId!).future)
+            .then((value) => messages.value = value);
+
         Future.wait([
-          ChatService.getChat(
-            chatId: chatId!,
-            session: currentUser.requireValue!.session,
-          ).then((value) => chat.value = value),
-          ChatService.getChatMessages(
-            session: currentUser.requireValue!.session,
-            chatId: chatId!,
-          ).then((value) => chatObj.messages.value = value)
+          chatFuture,
+          messagesFuture,
         ]).whenComplete(() => loading.value = false);
-      } else {
-        loading.value = false;
       }
       return () {};
     }, [chatId]);
+
+    useEffect(() {
+      if (messages.value.isNotEmpty) {
+        chatObj.messages.value = messages.value;
+      }
+      return () {};
+    }, [
+      messages.value,
+    ]);
 
     return Scaffold(
       appBar: AppBar(
@@ -105,19 +116,19 @@ class ChatScreen extends HookConsumerWidget {
                         scrollDirection: Axis.vertical,
                         itemCount: chatObj.messages.value.length,
                         itemBuilder: (context, index) {
-                          ChatMessage message =
-                              chatObj.messages.value.reversed.toList()[index];
-                          ChatMessage? previousMessage = index + 1 <
-                                  chatObj.messages.value.reversed
-                                      .toList()
-                                      .length
-                              ? chatObj.messages.value.reversed
-                                  .toList()[index + 1]
-                              : null;
+                          final messagesReversed =
+                              chatObj.messages.value.reversed.toList();
+                          ChatMessage message = messagesReversed[index];
+                          ChatMessage? previousMessage =
+                              index + 1 < messagesReversed.length
+                                  ? messagesReversed[index + 1]
+                                  : null;
                           return Message(
-                            chatId: chatObj.chatId.value!,
+                            chatId: chatObj.chatId.value,
                             message: message,
                             previousMessage: previousMessage,
+                            isLastMessage: index == 0,
+                            isLoading: chatObj.loading.value,
                           );
                         },
                       ),
@@ -144,7 +155,7 @@ class ChatScreen extends HookConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SpinKitChasingDots(
+                                SpinKitFoldingCube(
                                   color: RAIColors.primary,
                                   size: 20,
                                 ),

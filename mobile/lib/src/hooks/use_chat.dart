@@ -216,6 +216,8 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() reload = useCallback(
     () {
+      if (messagesRef.value.isEmpty) return;
+
       final lastMessage = messagesRef.value.last;
       if (lastMessage.role == Role.assistant) {
         final chatRequest = ChatRequest(

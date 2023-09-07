@@ -4,43 +4,19 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/Colors.dart';
-import 'package:revelationsai/src/models/chat.dart';
-import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/providers/user.dart';
-import 'package:revelationsai/src/services/chat.dart';
+import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
+import 'package:revelationsai/src/widgets/chat/edit_dialog.dart';
 
 class ChatModal extends HookConsumerWidget {
   const ChatModal({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
+    final chats = ref.watch(chatsPagesProvider);
+    final chatsNotifier = ref.watch(chatsPagesProvider.notifier);
 
     ScrollController controller = useScrollController();
-    ValueNotifier<bool> loading = useState(false);
-    ValueNotifier<int> page = useState(1);
-    ValueNotifier<List<List<Chat>>> chats = useState([]);
-    ValueNotifier<bool> hasMore = useState(false);
-
-    useEffect(() {
-      loading.value = true;
-      Future<void> chatFuture = ChatService.getChats(
-        session: currentUser.requireValue!.session,
-        paginationOptions:
-            PaginatedEntitiesRequestOptions(limit: 7, page: page.value),
-      ).then(
-        (value) {
-          chats.value.add(value.entities);
-          hasMore.value = value.entities.length == 7;
-        },
-      );
-
-      Future.wait([chatFuture]).whenComplete(() {
-        loading.value = false;
-      });
-
-      return () {};
-    }, [page.value]);
 
     useEffect(() {
       controller.addListener(() {
@@ -48,8 +24,8 @@ class ChatModal extends HookConsumerWidget {
           if (controller.position.pixels == 0) {
             // You're at the top.
           } else {
-            if (hasMore.value) {
-              page.value += 1;
+            if (chatsNotifier.hasNextPage()) {
+              chatsNotifier.fetchNextPage();
             }
           }
         }
@@ -58,6 +34,13 @@ class ChatModal extends HookConsumerWidget {
     }, []);
 
     return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
       child: Column(
         children: [
           Container(
@@ -99,7 +82,38 @@ class ChatModal extends HookConsumerWidget {
               ],
             ),
           ),
-          loading.value && chats.value.isEmpty
+          if (!chatsNotifier.isLoadingInitial())
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const CreateDialog();
+                          },
+                        );
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('New Chat'),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.add),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          chatsNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
                     child: CircularProgressIndicator(
@@ -108,33 +122,69 @@ class ChatModal extends HookConsumerWidget {
                   ),
                 )
               : Expanded(
-                  child: ListView.builder(
-                    controller: controller,
-                    itemCount: chats.value
-                        .expand((element) => element)
-                        .toList()
-                        .length,
-                    itemBuilder: (context, index) {
-                      final chatsFlat =
-                          chats.value.expand((element) => element).toList();
-                      return ListTile(
-                        title: Text(
-                          chatsFlat[index].name,
-                        ),
-                        subtitle: Text(
-                          DateFormat.yMMMd().format(chatsFlat[index].createdAt),
-                        ),
-                        onTap: () {
-                          context.go(
-                            '/chat/${chatsFlat[index].id}',
-                          );
-                          Navigator.of(context).pop();
-                        },
-                      );
-                    },
+                  child: Container(
+                    child: ListView.builder(
+                      controller: controller,
+                      itemCount: chats.requireValue
+                          .expand((element) => element)
+                          .toList()
+                          .length,
+                      itemBuilder: (context, index) {
+                        final chatsFlat = chats.requireValue
+                            .expand((element) => element)
+                            .toList();
+                        return ListTile(
+                          title: Text(
+                            chatsFlat[index].name,
+                          ),
+                          subtitle: Text(
+                            DateFormat.yMMMd()
+                                .format(chatsFlat[index].createdAt),
+                          ),
+                          dense: true,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                visualDensity: const VisualDensity(
+                                  horizontal: VisualDensity.minimumDensity,
+                                  vertical: VisualDensity.minimumDensity,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return EditDialog(
+                                          id: chatsFlat[index].id);
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                              IconButton(
+                                visualDensity: const VisualDensity(
+                                  horizontal: VisualDensity.minimumDensity,
+                                  vertical: VisualDensity.minimumDensity,
+                                ),
+                                onPressed: () {
+                                  chatsNotifier.deleteChat(chatsFlat[index].id);
+                                },
+                                icon: const Icon(Icons.delete),
+                              )
+                            ],
+                          ),
+                          onTap: () {
+                            context.go(
+                              '/chat/${chatsFlat[index].id}',
+                            );
+                            Navigator.of(context).pop();
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ),
-          loading.value && chats.value.isNotEmpty
+          chatsNotifier.isLoadingNextPage()
               ? Container(
                   padding: const EdgeInsets.all(10),
                   child: Center(
@@ -143,7 +193,7 @@ class ChatModal extends HookConsumerWidget {
                     ),
                   ),
                 )
-              : hasMore.value
+              : chatsNotifier.hasNextPage()
                   ? Container(
                       padding: const EdgeInsets.all(10),
                       child: Row(
@@ -151,7 +201,7 @@ class ChatModal extends HookConsumerWidget {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                page.value += 1;
+                                chatsNotifier.fetchNextPage();
                               },
                               child: const Text('Show More'),
                             ),

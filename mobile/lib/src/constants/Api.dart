@@ -1,6 +1,6 @@
-import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final class Api {
-  static final String url = FlutterConfig.get('API_URL');
-  static final String chatUrl = FlutterConfig.get('CHAT_API_URL');
+  static final String url = dotenv.env['API_URL']!;
+  static final String chatUrl = dotenv.env['CHAT_API_URL']!;
 }

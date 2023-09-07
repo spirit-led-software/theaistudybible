@@ -8,15 +8,19 @@ import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
 
 class Message extends HookConsumerWidget {
-  final String chatId;
+  final String? chatId;
   final ChatMessage message;
   final ChatMessage? previousMessage;
+  final bool isLoading;
+  final bool isLastMessage;
 
   const Message({
     Key? key,
-    required this.chatId,
+    this.chatId,
     required this.message,
     this.previousMessage,
+    this.isLoading = false,
+    this.isLastMessage = false,
   }) : super(key: key);
 
   @override
@@ -41,17 +45,16 @@ class Message extends HookConsumerWidget {
         backgroundColor: RAIColors.secondary,
         foregroundImage: message.role != Role.user
             ? null
-            : currentUser.requireValue!.image != null
+            : currentUser.requireValue.image != null
                 ? NetworkImage(
-                    currentUser.requireValue!.image!,
+                    currentUser.requireValue.image!,
                   )
                 : null,
         child: message.role == Role.user
-            ? Text(currentUser.requireValue?.name
+            ? Text(currentUser.requireValue.name
                     ?.substring(0, 1)
                     .toUpperCase() ??
-                currentUser.requireValue?.email.substring(0, 1).toUpperCase() ??
-                "?")
+                currentUser.requireValue.email.substring(0, 1).toUpperCase())
             : const FaIcon(FontAwesomeIcons.cross),
       ),
       title: Text(
@@ -71,7 +74,8 @@ class Message extends HookConsumerWidget {
                   .format(message.createdAt ?? DateTime.now()),
               style: const TextStyle(fontSize: 10),
             ),
-            if (message.role == Role.assistant) ...[
+            if (message.role == Role.assistant &&
+                !(isLoading && isLastMessage)) ...[
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

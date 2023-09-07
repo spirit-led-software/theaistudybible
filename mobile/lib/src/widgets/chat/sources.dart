@@ -8,96 +8,31 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/Colors.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/models/search.dart';
-import 'package:revelationsai/src/models/source_document.dart';
-import 'package:revelationsai/src/providers/user.dart';
-import 'package:revelationsai/src/services/ai_response.dart';
+import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/link.dart';
 
 class Sources extends HookConsumerWidget {
-  final String chatId;
+  final String? chatId;
   final ChatMessage message;
   final ChatMessage? previousMessage;
 
   const Sources({
     Key? key,
-    required this.chatId,
+    this.chatId,
     required this.message,
     this.previousMessage,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
+    final sourceDocuments = ref.watch(aiResponseSourceDocumentsProvider(
+      message,
+      chatId,
+    ));
 
-    ValueNotifier<bool> loading = useState(false);
     ValueNotifier<bool> showSources = useState(false);
-    ValueNotifier<List<SourceDocument>> sources = useState([]);
     ValueNotifier<bool> copied = useState(false);
-
-    useEffect(
-      () {
-        if (showSources.value && sources.value.isEmpty) {
-          loading.value = true;
-          if (message.uuid == null) {
-            AiResponseService.searchForAiResponses(
-              query: Query(
-                AND: [
-                  Query(
-                    OR: [
-                      Query(
-                        eq: ColumnValue(
-                          column: 'aiId',
-                          value: message.id,
-                        ),
-                      ),
-                      Query(
-                        eq: ColumnValue(
-                          column: 'id',
-                          value: message.uuid!,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Query(
-                    eq: ColumnValue(
-                      column: 'chatId',
-                      value: chatId,
-                    ),
-                  )
-                ],
-              ),
-              session: currentUser.requireValue!.session,
-            ).then((value) {
-              AiResponseService.getAiResponseSourceDocuments(
-                      id: value.entities.first.id,
-                      session: currentUser.requireValue!.session)
-                  .then((value) {
-                sources.value = value;
-              }).whenComplete(() => loading.value = false);
-            });
-          } else {
-            AiResponseService.getAiResponseSourceDocuments(
-              id: message.uuid!,
-              session: currentUser.requireValue!.session,
-            ).then((value) {
-              sources.value = value;
-            }).whenComplete(() {
-              loading.value = false;
-            });
-          }
-        }
-        return () {};
-      },
-      [
-        currentUser,
-        message,
-        chatId,
-        showSources.value,
-        sources.value,
-      ],
-    );
 
     return Accordion(
       paddingListTop: 0,
@@ -107,11 +42,10 @@ class Sources extends HookConsumerWidget {
       scaleWhenAnimating: false,
       flipLeftIconIfOpen: true,
       flipRightIconIfOpen: false,
-      
       children: [
         AccordionSection(
           headerPadding: EdgeInsets.zero,
-          headerBackgroundColor: RAIColors.secondary,
+          headerBackgroundColor: Colors.grey.shade600,
           leftIcon: Container(
             padding: EdgeInsets.zero,
             margin: EdgeInsets.zero,
@@ -200,7 +134,7 @@ class Sources extends HookConsumerWidget {
               color: Colors.white,
             ),
           ),
-          content: loading.value
+          content: sourceDocuments.isLoading
               ? Center(
                   child: SpinKitHourGlass(
                     color: RAIColors.primary,
@@ -210,43 +144,39 @@ class Sources extends HookConsumerWidget {
               : Column(
                   children: [
                     if (showSources.value)
-                      ClipRect(
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: sources.value.map((source) {
-                            return Container(
-                              margin: const EdgeInsets.only(
-                                top: 5,
-                                bottom: 5,
-                              ),
-                              child: GestureDetector(
-                                child: Row(
-                                  children: [
-                                    const FaIcon(
-                                      FontAwesomeIcons.link,
-                                      size: 10,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      source.metadata!['name'],
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: false,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey.shade500,
-                                      ),
-                                    ),
-                                  ],
+                      ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: sourceDocuments.requireValue.length,
+                        itemBuilder: (context, index) {
+                          final source = sourceDocuments.requireValue[index];
+                          return Link(
+                            uri: Uri.parse(source.metadata!['url']),
+                            target: LinkTarget.self,
+                            builder: (context, followLink) {
+                              return ListTile(
+                                visualDensity: VisualDensity.compact,
+                                dense: true,
+                                leading: Icon(
+                                  Icons.link,
+                                  size: 15,
+                                  color: Colors.grey.shade600,
                                 ),
-                                onTap: () async {
-                                  final url = source.metadata!['url'];
-                                  await launchUrlString(url);
-                                },
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                                title: Text(
+                                  source.metadata!['name'],
+                                  softWrap: false,
+                                  overflow: TextOverflow.fade,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                onTap: followLink,
+                              );
+                            },
+                          );
+                        },
                       ),
                   ],
                 ),

@@ -38,11 +38,11 @@ class ChatService {
   }
 
   static Future<Chat> getChat({
-    required String chatId,
+    required String id,
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/chats/$chatId'),
+      Uri.parse('${Api.url}/chats/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -72,14 +72,55 @@ class ChatService {
       body: jsonEncode(request.toJson()),
     );
 
-    if (res.statusCode != 200) {
+    if (res.statusCode != 201) {
       debugPrint("Failed to create chat: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to create chat');
+      throw Exception('Failed to create chat ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
 
     return Chat.fromJson(data);
+  }
+
+  static Future<Chat> updateChat({
+    required String session,
+    required String id,
+    required UpdateChatRequest request,
+  }) async {
+    Response res = await put(
+      Uri.parse('${Api.url}/chats/$id'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(request.toJson()),
+    );
+
+    if (res.statusCode != 200) {
+      debugPrint("Failed to update chat: ${res.statusCode} ${res.body}");
+      throw Exception('Failed to update chat ${res.statusCode} ${res.body}');
+    }
+
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
+
+    return Chat.fromJson(data);
+  }
+
+  static Future<void> deleteChat({
+    required String session,
+    required String id,
+  }) async {
+    Response res = await delete(
+      Uri.parse('${Api.url}/chats/$id'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $session',
+      },
+    );
+
+    if (res.statusCode != 200) {
+      debugPrint("Failed to delete chat: ${res.statusCode} ${res.body}");
+      throw Exception('Failed to delete chat ${res.statusCode} ${res.body}');
+    }
   }
 
   static Future<List<ChatMessage>> getChatMessages({

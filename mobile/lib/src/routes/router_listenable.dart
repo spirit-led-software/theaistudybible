@@ -14,9 +14,15 @@ class RouterListenable extends _$RouterListenable implements Listenable {
   Future<void> build() async {
     // One could watch more providers and write logic accordingly
 
-    _isAuth = await ref.watch(currentUserProvider.selectAsync((value) {
-      return value != null ? true : false;
-    }));
+    final currentUserFuture = ref.watch(currentUserProvider.future);
+
+    await currentUserFuture.then((value) {
+      _isAuth = true;
+      return;
+    }).catchError((_) {
+      _isAuth = false;
+      return;
+    });
 
     ref.listenSelf((_, __) {
       // One could write more conditional logic for when to call redirection
