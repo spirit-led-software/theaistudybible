@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 
 class DevotionModal extends HookConsumerWidget {

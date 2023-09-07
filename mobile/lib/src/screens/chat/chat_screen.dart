@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
@@ -144,6 +144,9 @@ class ChatScreen extends HookConsumerWidget {
                   right: 10,
                   child: TextField(
                     controller: chatObj.inputController,
+                    onSubmitted: (value) {
+                      chatObj.handleSubmit();
+                    },
                     decoration: InputDecoration(
                       hintText: "Type a message",
                       border: OutlineInputBorder(
@@ -167,7 +170,10 @@ class ChatScreen extends HookConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 IconButton(
-                                  visualDensity: VisualDensity.compact,
+                                  visualDensity: const VisualDensity(
+                                    vertical: VisualDensity.minimumDensity,
+                                    horizontal: VisualDensity.minimumDensity,
+                                  ),
                                   onPressed: () {
                                     chatObj.reload();
                                   },
@@ -177,7 +183,10 @@ class ChatScreen extends HookConsumerWidget {
                                   ),
                                 ),
                                 IconButton(
-                                  visualDensity: VisualDensity.compact,
+                                  visualDensity: const VisualDensity(
+                                    vertical: VisualDensity.minimumDensity,
+                                    horizontal: VisualDensity.minimumDensity,
+                                  ),
                                   onPressed: () {
                                     chatObj.handleSubmit();
                                   },

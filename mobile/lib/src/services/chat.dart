@@ -8,7 +8,7 @@ import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/services/ai_response.dart';
 import 'package:revelationsai/src/services/user/message.dart';
 
-import '../constants/Api.dart';
+import '../constants/api.dart';
 import '../models/chat.dart';
 
 class ChatService {
@@ -18,7 +18,7 @@ class ChatService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/chats?${paginationOptions.searchQuery}'),
+      Uri.parse('${API.url}/chats?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -42,7 +42,7 @@ class ChatService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/chats/$id'),
+      Uri.parse('${API.url}/chats/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -64,7 +64,7 @@ class ChatService {
     required CreateChatRequest request,
   }) async {
     Response res = await post(
-      Uri.parse('${Api.url}/chats'),
+      Uri.parse('${API.url}/chats'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -88,7 +88,7 @@ class ChatService {
     required UpdateChatRequest request,
   }) async {
     Response res = await put(
-      Uri.parse('${Api.url}/chats/$id'),
+      Uri.parse('${API.url}/chats/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -111,7 +111,7 @@ class ChatService {
     required String id,
   }) async {
     Response res = await delete(
-      Uri.parse('${Api.url}/chats/$id'),
+      Uri.parse('${API.url}/chats/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
       },

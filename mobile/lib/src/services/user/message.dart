@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:revelationsai/src/constants/Api.dart';
+import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/user/message.dart';
@@ -13,7 +13,7 @@ class UserMessageService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/user-messages?${paginationOptions.searchQuery}'),
+      Uri.parse('${API.url}/user-messages?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -36,7 +36,7 @@ class UserMessageService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/user-messages/$id'),
+      Uri.parse('${API.url}/user-messages/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -61,7 +61,7 @@ class UserMessageService {
   }) async {
     Response res = await post(
       Uri.parse(
-        '${Api.url}/user-messages/search?${paginationOptions.searchQuery}',
+        '${API.url}/user-messages/search?${paginationOptions.searchQuery}',
       ),
       headers: <String, String>{
         'Authorization': 'Bearer $session',

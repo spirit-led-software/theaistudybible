@@ -6,7 +6,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
@@ -40,27 +41,24 @@ class Sources extends HookConsumerWidget {
       paddingListHorizontal: 0,
       disableScrolling: true,
       scaleWhenAnimating: false,
-      flipLeftIconIfOpen: true,
+      flipLeftIconIfOpen: false,
       flipRightIconIfOpen: false,
       children: [
         AccordionSection(
           headerPadding: EdgeInsets.zero,
           headerBackgroundColor: Colors.grey.shade600,
-          leftIcon: Container(
-            padding: EdgeInsets.zero,
-            margin: EdgeInsets.zero,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
-              iconSize: 14,
-              alignment: Alignment.center,
-              constraints: BoxConstraints.tight(const Size.square(14)),
-              icon: const FaIcon(
-                FontAwesomeIcons.angleDown,
-                color: Colors.white,
-              ),
-              onPressed: () => showSources.value = !showSources.value,
+          leftIcon: IconButton(
+            visualDensity: RAIVisualDensity.tightest,
+            iconSize: 14,
+            alignment: Alignment.center,
+            constraints: BoxConstraints.tight(const Size.square(14)),
+            icon: FaIcon(
+              showSources.value
+                  ? FontAwesomeIcons.angleUp
+                  : FontAwesomeIcons.angleDown,
+              color: Colors.white,
             ),
+            onPressed: () => showSources.value = !showSources.value,
           ),
           rightIcon: Row(
             mainAxisSize: MainAxisSize.max,
@@ -68,16 +66,8 @@ class Sources extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               IconButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all(
-                    EdgeInsets.zero,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                  iconSize: MaterialStateProperty.all(14),
-                  fixedSize: MaterialStateProperty.all(
-                    const Size.square(20),
-                  ),
-                ),
+                visualDensity: RAIVisualDensity.tightest,
+                iconSize: 14,
                 icon: FaIcon(
                   copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
                   color: copied.value ? Colors.green : Colors.white,
@@ -95,16 +85,8 @@ class Sources extends HookConsumerWidget {
                 },
               ),
               IconButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all(
-                    EdgeInsets.zero,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                  iconSize: MaterialStateProperty.all(14),
-                  fixedSize: MaterialStateProperty.all(
-                    const Size.square(20),
-                  ),
-                ),
+                visualDensity: RAIVisualDensity.tightest,
+                iconSize: 14,
                 icon: const FaIcon(
                   FontAwesomeIcons.shareFromSquare,
                   color: Colors.white,
@@ -156,8 +138,8 @@ class Sources extends HookConsumerWidget {
                             target: LinkTarget.self,
                             builder: (context, followLink) {
                               return ListTile(
-                                visualDensity: VisualDensity.compact,
                                 dense: true,
+                                visualDensity: RAIVisualDensity.tightest,
                                 leading: Icon(
                                   Icons.link,
                                   size: 15,

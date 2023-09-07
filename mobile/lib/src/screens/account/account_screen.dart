@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
 
 class AccountScreen extends HookConsumerWidget {

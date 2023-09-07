@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:revelationsai/src/constants/Api.dart';
+import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/services/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -41,10 +41,10 @@ class CurrentUser extends _$CurrentUser {
   Future<void> login(String email, String password) async {
     try {
       debugPrint(
-          "Logging in using $email at ${Api.url}/auth/credentials-mobile/login");
+          "Logging in using $email at ${API.url}/auth/credentials-mobile/login");
 
       Response res = await post(
-        Uri.parse('${Api.url}/auth/credentials-mobile/login'),
+        Uri.parse('${API.url}/auth/credentials-mobile/login'),
         headers: <String, String>{
           'Content-Type': 'application/json',
         },
@@ -80,7 +80,7 @@ class CurrentUser extends _$CurrentUser {
 
   Future<void> logout() async {
     state = AsyncValue.error(
-        UnauthorizedException("Not logged in"), StackTrace.current);
+        const UnauthorizedException("Not logged in"), StackTrace.current);
   }
 
   FutureOr<User> _loginWithToken(String session) async {
@@ -95,10 +95,10 @@ class CurrentUser extends _$CurrentUser {
   Future<void> register(String email, String password) async {
     try {
       debugPrint(
-          "Registering using $email at ${Api.url}/auth/credentials-mobile/register");
+          "Registering using $email at ${API.url}/auth/credentials-mobile/register");
 
       Response res = await post(
-        Uri.parse('${Api.url}/auth/credentials-mobile/register'),
+        Uri.parse('${API.url}/auth/credentials-mobile/register'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

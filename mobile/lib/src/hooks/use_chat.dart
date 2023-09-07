@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:http/http.dart';
 import 'package:nanoid/nanoid.dart';
-import 'package:revelationsai/src/constants/Api.dart';
+import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:uuid/uuid.dart';
 
@@ -84,7 +84,7 @@ Future<ChatMessage> getStreamedResponse({
   List<ChatMessage> prevMessages = messagesRef.value;
   messages.value = chatRequest.messages;
 
-  final uri = Uri.parse(Api.chatUrl);
+  final uri = Uri.parse(API.chatUrl);
   final client = Client();
   final request = Request("POST", uri);
   request.body = jsonEncode({
@@ -245,6 +245,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
   Function() handleSubmit = useCallback(
     () {
       if (input.value == '') return;
+      FocusManager.instance.primaryFocus?.unfocus();
 
       append(
         ChatMessage(

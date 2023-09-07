@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/source_document.dart';
@@ -224,6 +225,8 @@ class DevotionScreen extends HookConsumerWidget {
                         ),
                         target: LinkTarget.self,
                         builder: (context, followLink) => ListTile(
+                          dense: true,
+                          visualDensity: RAIVisualDensity.tightest,
                           leading: Icon(
                             Icons.link,
                             size: 15,
@@ -239,7 +242,6 @@ class DevotionScreen extends HookConsumerWidget {
                             ),
                           ),
                           onTap: followLink,
-                          dense: true,
                         ),
                       );
                     },

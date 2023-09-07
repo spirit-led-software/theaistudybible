@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:revelationsai/src/constants/Api.dart';
+import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/devotion/image.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 
@@ -14,7 +14,7 @@ class DevotionImageService {
   }) async {
     Response res = await get(
       Uri.parse(
-          '${Api.url}/devotions/$id/images?${paginationOptions.searchQuery}'),
+          '${API.url}/devotions/$id/images?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

@@ -14,7 +14,7 @@ class SourceDocument with _$SourceDocument {
     embedding: string;
      */
     required String id,
-    Map<String, dynamic>? metadata,
+    required Map<String, dynamic> metadata,
     required String page_content,
     List<dynamic>? embedding,
   }) = _SourceDocument;

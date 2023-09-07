@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
 
 class SplashScreen extends StatelessWidget {

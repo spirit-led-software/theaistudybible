@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:revelationsai/src/constants/Api.dart';
+import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/source_document.dart';
@@ -14,7 +14,7 @@ class DevotionService {
         const PaginatedEntitiesRequestOptions(),
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/devotions?${paginationOptions.searchQuery}'),
+      Uri.parse('${API.url}/devotions?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -34,7 +34,7 @@ class DevotionService {
     required String id,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/devotions/$id'),
+      Uri.parse('${API.url}/devotions/$id'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -53,7 +53,7 @@ class DevotionService {
     required String id,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/devotions/$id/source-documents'),
+      Uri.parse('${API.url}/devotions/$id/source-documents'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

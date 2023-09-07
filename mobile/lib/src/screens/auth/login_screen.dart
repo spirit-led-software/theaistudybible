@@ -3,8 +3,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/Api.dart';
-import 'package:revelationsai/src/constants/Colors.dart';
+import 'package:revelationsai/src/constants/api.dart';
+import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -94,7 +94,7 @@ class LoginScreen extends HookConsumerWidget {
                         ),
                         onPressed: () async {
                           final url =
-                              "${Api.url}/auth/facebook-mobile/authorize";
+                              "${API.url}/auth/facebook-mobile/authorize";
                           await launchUrlString(
                             url,
                             mode: LaunchMode.externalApplication,
@@ -142,7 +142,7 @@ class LoginScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          final url = "${Api.url}/auth/google-mobile/authorize";
+                          final url = "${API.url}/auth/google-mobile/authorize";
                           await launchUrlString(
                             url,
                             mode: LaunchMode.externalApplication,
@@ -208,7 +208,6 @@ class LoginScreen extends HookConsumerWidget {
                   height: 10,
                 ),
                 TextField(
-                  autofocus: true,
                   autocorrect: false,
                   keyboardType: TextInputType.emailAddress,
                   controller: emailTextController,
@@ -232,7 +231,6 @@ class LoginScreen extends HookConsumerWidget {
                   height: 10,
                 ),
                 TextField(
-                  autofocus: true,
                   autocorrect: false,
                   obscureText: !showPassword.value,
                   keyboardType: TextInputType.visiblePassword,

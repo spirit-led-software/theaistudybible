@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:revelationsai/src/constants/Api.dart';
+import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/ai_response.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
@@ -14,7 +14,7 @@ class AiResponseService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/ai-responses?${paginationOptions.searchQuery}'),
+      Uri.parse('${API.url}/ai-responses?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -37,7 +37,7 @@ class AiResponseService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/ai-responses/$id'),
+      Uri.parse('${API.url}/ai-responses/$id'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
@@ -62,7 +62,7 @@ class AiResponseService {
   }) async {
     Response res = await post(
       Uri.parse(
-        '${Api.url}/ai-responses/search?${paginationOptions.searchQuery}',
+        '${API.url}/ai-responses/search?${paginationOptions.searchQuery}',
       ),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
@@ -87,7 +87,7 @@ class AiResponseService {
     required String session,
   }) async {
     Response res = await get(
-      Uri.parse('${Api.url}/ai-responses/$id/source-documents'),
+      Uri.parse('${API.url}/ai-responses/$id/source-documents'),
       headers: <String, String>{
         'Authorization': 'Bearer $session',
         'Content-Type': 'application/json; charset=UTF-8',
