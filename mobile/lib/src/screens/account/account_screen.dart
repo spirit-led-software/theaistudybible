@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/screens/account/settings_modal.dart';
 
 class AccountScreen extends HookConsumerWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -11,15 +13,44 @@ class AccountScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
 
-    return SafeArea(
-      child: Stack(
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text(
+          "Account",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: RAIColors.primary,
+        actions: [
+          IconButton(
+            onPressed: () {
+              showModalBottomSheet(
+                elevation: 20,
+                isScrollControlled: true,
+                context: context,
+                backgroundColor: Colors.white,
+                builder: (_) => const FractionallySizedBox(
+                  heightFactor: 0.90,
+                  widthFactor: 1,
+                  child: SettingsModal(),
+                ),
+              );
+            },
+            icon: const FaIcon(
+              FontAwesomeIcons.gear,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+      body: Stack(
         children: [
           Positioned(
             top: 10,
-            left: 20,
-            right: 20,
+            left: 50,
+            right: 50,
             child: Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color: RAIColors.secondary,
                 borderRadius: BorderRadius.circular(25),

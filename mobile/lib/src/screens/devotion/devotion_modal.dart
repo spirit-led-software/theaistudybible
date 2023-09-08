@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -83,7 +84,7 @@ class DevotionModal extends HookConsumerWidget {
           devotionsNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
-                    child: CircularProgressIndicator(
+                    child: SpinKitFoldingCube(
                       color: RAIColors.primary,
                     ),
                   ),
@@ -119,7 +120,7 @@ class DevotionModal extends HookConsumerWidget {
               ? Container(
                   padding: const EdgeInsets.all(10),
                   child: Center(
-                    child: CircularProgressIndicator(
+                    child: SpinKitFoldingCube(
                       color: RAIColors.primary,
                     ),
                   ),

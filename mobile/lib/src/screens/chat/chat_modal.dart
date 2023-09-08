@@ -188,7 +188,7 @@ class ChatModal extends HookConsumerWidget {
               ? Container(
                   padding: const EdgeInsets.all(10),
                   child: Center(
-                    child: CircularProgressIndicator(
+                    child: SpinKitFoldingCube(
                       color: RAIColors.primary,
                     ),
                   ),

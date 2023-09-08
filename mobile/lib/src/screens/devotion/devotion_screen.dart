@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -7,6 +8,9 @@ import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/source_document.dart';
+import 'package:revelationsai/src/providers/devotion.dart';
+import 'package:revelationsai/src/providers/devotion/image.dart';
+import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/services/devotion.dart';
 import 'package:url_launcher/link.dart';
@@ -21,6 +25,7 @@ class DevotionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isMounted = useIsMounted();
     ValueNotifier<bool> loading = useState(false);
     ValueNotifier<Devotion?> devotion = useState(null);
     ValueNotifier<List<SourceDocument>> sourceDocs = useState([]);
@@ -30,47 +35,48 @@ class DevotionScreen extends HookConsumerWidget {
       loading.value = true;
       if (devotionId != null) {
         Future devoFuture =
-            DevotionService.getDevotion(id: devotionId!).then((value) {
-          devotion.value = value;
+            ref.read(currentDevotionProvider(devotionId!).future).then((value) {
+          if (isMounted()) devotion.value = value;
         });
-
-        Future devoSourceDocsFuture =
-            DevotionService.getDevotionSourceDocuments(id: devotionId!).then(
-          (value) {
-            sourceDocs.value = value;
-          },
-        );
-
+        Future devoSourceDocsFuture = ref
+            .read(devotionSourceDocumentsProvider(devotionId!).future)
+            .then((value) {
+          if (isMounted()) sourceDocs.value = value;
+        });
         Future devoImagesFuture =
-            DevotionImageService.getDevotionImages(id: devotionId!)
-                .then((value) {
-          images.value = value.entities;
+            ref.read(devotionImagesProvider(devotionId!).future).then((value) {
+          if (isMounted()) images.value = value;
         });
-
         Future.wait([devoFuture, devoSourceDocsFuture, devoImagesFuture])
-            .whenComplete(() => loading.value = false);
+            .whenComplete(() {
+          if (isMounted()) loading.value = false;
+        });
       } else {
-        Future devoFuture = DevotionService.getDevotions(
+        DevotionService.getDevotions(
                 paginationOptions:
                     const PaginatedEntitiesRequestOptions(limit: 1))
             .then(
           (value) {
-            devotion.value = value.entities.first;
-            Future devoSourceDocFuture =
-                DevotionService.getDevotionSourceDocuments(
-                        id: value.entities.first.id)
-                    .then((value) {
-              sourceDocs.value = value;
-            });
-            Future devoImagesFuture = DevotionImageService.getDevotionImages(
-                    id: value.entities.first.id)
-                .then((value) {
-              images.value = value.entities;
-            });
-            return Future.wait([devoSourceDocFuture, devoImagesFuture]);
+            if (isMounted()) {
+              devotion.value = value.entities.first;
+              Future devoSourceDocFuture = ref
+                  .read(devotionSourceDocumentsProvider(value.entities.first.id)
+                      .future)
+                  .then((value) {
+                if (isMounted()) sourceDocs.value = value;
+              });
+              Future devoImagesFuture = ref
+                  .read(devotionImagesProvider(value.entities.first.id).future)
+                  .then((value) {
+                if (isMounted()) images.value = value;
+              });
+              return Future.wait([devoSourceDocFuture, devoImagesFuture]);
+            }
+            return Future.value();
           },
-        );
-        Future.wait([devoFuture]).whenComplete(() => loading.value = false);
+        ).whenComplete(() {
+          if (isMounted()) loading.value = false;
+        });
       }
 
       return () {};
@@ -81,7 +87,7 @@ class DevotionScreen extends HookConsumerWidget {
         automaticallyImplyLeading: false,
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
-        title: Text(loading.value
+        title: Text(loading.value && devotion.value != null
             ? "Devotions"
             : DateFormat.yMMMd().format(devotion.value!.date)),
         actions: [
@@ -104,7 +110,7 @@ class DevotionScreen extends HookConsumerWidget {
       ),
       body: loading.value
           ? Center(
-              child: CircularProgressIndicator(
+              child: SpinKitFoldingCube(
                 color: RAIColors.primary,
               ),
             )

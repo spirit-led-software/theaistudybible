@@ -24,6 +24,7 @@ class ChatScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
+    final isMounted = useIsMounted();
 
     final UseChatReturnObject chatObj = useChat(
       options: UseChatOptions(
@@ -40,18 +41,22 @@ class ChatScreen extends HookConsumerWidget {
       if (chatId != null) {
         loading.value = true;
 
-        final chatFuture = ref
-            .read(currentChatProvider(chatId!).future)
-            .then((value) => chat.value = value);
+        final chatFuture =
+            ref.read(currentChatProvider(chatId!).future).then((value) {
+          if (isMounted()) chat.value = value;
+        });
 
-        final messagesFuture = ref
-            .read(currentChatMessagesProvider(chatId!).future)
-            .then((value) => messages.value = value);
+        final messagesFuture =
+            ref.read(currentChatMessagesProvider(chatId!).future).then((value) {
+          if (isMounted()) messages.value = value;
+        });
 
         Future.wait([
           chatFuture,
           messagesFuture,
-        ]).whenComplete(() => loading.value = false);
+        ]).whenComplete(() {
+          if (isMounted()) loading.value = false;
+        });
       }
       return () {};
     }, [chatId]);

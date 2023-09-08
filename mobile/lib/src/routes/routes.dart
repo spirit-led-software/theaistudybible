@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/screens/about_screen.dart';
 import 'package:revelationsai/src/screens/account/account_screen.dart';
 import 'package:revelationsai/src/screens/auth/login_screen.dart';
 import 'package:revelationsai/src/screens/auth/register_screen.dart';
@@ -11,11 +12,44 @@ import 'package:revelationsai/src/screens/devotion/devotion_screen.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
 import 'package:revelationsai/src/widgets/tabs_scaffold.dart';
 
+CustomTransitionPage buildPageWithDefaultTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+        FadeTransition(opacity: animation, child: child),
+  );
+}
+
 List<RouteBase> routes = [
   GoRoute(
     path: "/",
     builder: (context, state) {
       return const SplashScreen();
+    },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SplashScreen(),
+      );
+    },
+  ),
+  GoRoute(
+    path: "/about",
+    builder: (context, state) {
+      return const AboutScreen();
+    },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const AboutScreen(),
+      );
     },
   ),
   GoRoute(
@@ -29,17 +63,38 @@ List<RouteBase> routes = [
       }
       return const SplashScreen();
     },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SplashScreen(),
+      );
+    },
   ),
   GoRoute(
     path: "/auth/login",
     builder: (context, state) {
       return const LoginScreen();
     },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const LoginScreen(),
+      );
+    },
   ),
   GoRoute(
     path: "/auth/register",
     builder: (context, state) {
       return const RegisterScreen();
+    },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const RegisterScreen(),
+      );
     },
   ),
   ShellRoute(
@@ -53,12 +108,28 @@ List<RouteBase> routes = [
         builder: (context, state) {
           return const ChatScreen();
         },
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const ChatScreen(),
+          );
+        },
         routes: [
           GoRoute(
             path: ":id",
             builder: (context, state) {
               return ChatScreen(
                 chatId: state.pathParameters['id'],
+              );
+            },
+            pageBuilder: (context, state) {
+              return buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: ChatScreen(
+                  chatId: state.pathParameters['id'],
+                ),
               );
             },
           ),
@@ -69,12 +140,28 @@ List<RouteBase> routes = [
         builder: (context, state) {
           return const DevotionScreen();
         },
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const DevotionScreen(),
+          );
+        },
         routes: [
           GoRoute(
             path: ":id",
             builder: (context, state) {
               return DevotionScreen(
                 devotionId: state.pathParameters['id'],
+              );
+            },
+            pageBuilder: (context, state) {
+              return buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: DevotionScreen(
+                  devotionId: state.pathParameters['id'],
+                ),
               );
             },
           ),
@@ -85,6 +172,14 @@ List<RouteBase> routes = [
         builder: (context, state) {
           return const AccountScreen();
         },
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const AccountScreen(),
+          );
+        },
+        routes: const [/* TODO: More here soon */],
       )
     ],
   )
