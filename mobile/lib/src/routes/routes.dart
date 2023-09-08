@@ -63,13 +63,6 @@ List<RouteBase> routes = [
       }
       return const SplashScreen();
     },
-    pageBuilder: (context, state) {
-      return buildPageWithDefaultTransition(
-        context: context,
-        state: state,
-        child: const SplashScreen(),
-      );
-    },
   ),
   GoRoute(
     path: "/auth/login",

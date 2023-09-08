@@ -87,7 +87,7 @@ class DevotionScreen extends HookConsumerWidget {
         automaticallyImplyLeading: false,
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
-        title: Text(loading.value && devotion.value != null
+        title: Text(loading.value || devotion.value == null
             ? "Devotions"
             : DateFormat.yMMMd().format(devotion.value!.date)),
         actions: [

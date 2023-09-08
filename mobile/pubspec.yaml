@@ -57,6 +57,8 @@ dependencies:
   change_app_package_name: ^1.1.0
   flutter_native_splash: ^2.3.2
   flutter_local_notifications: ^15.1.1
+  flutter_timezone: ^1.0.7
+  workmanager: ^0.5.1
 
 dev_dependencies:
   flutter_test:
