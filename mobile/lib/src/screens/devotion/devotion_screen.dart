@@ -221,7 +221,7 @@ class DevotionScreen extends HookConsumerWidget {
                     itemBuilder: (context, index) {
                       return Link(
                         uri: Uri.parse(
-                          sourceDocs.value[index].metadata!['url'],
+                          sourceDocs.value[index].metadata['url'],
                         ),
                         target: LinkTarget.self,
                         builder: (context, followLink) => ListTile(
@@ -233,7 +233,7 @@ class DevotionScreen extends HookConsumerWidget {
                             color: Colors.grey.shade600,
                           ),
                           title: Text(
-                            sourceDocs.value[index].metadata!['name'],
+                            sourceDocs.value[index].metadata['name'],
                             softWrap: false,
                             overflow: TextOverflow.fade,
                             style: TextStyle(

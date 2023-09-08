@@ -71,7 +71,7 @@ class ChatScreen extends HookConsumerWidget {
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
         title: loading.value
-            ? const SpinKitThreeBounce(
+            ? const SpinKitFoldingCube(
                 color: Colors.white,
                 size: 20,
               )
@@ -98,8 +98,9 @@ class ChatScreen extends HookConsumerWidget {
       ),
       body: loading.value
           ? Center(
-              child: CircularProgressIndicator(
+              child: SpinKitFoldingCube(
                 color: RAIColors.primary,
+                size: 32,
               ),
             )
           : Stack(

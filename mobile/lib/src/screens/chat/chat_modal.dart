@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -116,72 +117,71 @@ class ChatModal extends HookConsumerWidget {
           chatsNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
-                    child: CircularProgressIndicator(
+                    child: SpinKitFoldingCube(
                       color: RAIColors.primary,
+                      size: 32,
                     ),
                   ),
                 )
               : Expanded(
-                  child: Container(
-                    child: ListView.builder(
-                      controller: controller,
-                      itemCount: chats.requireValue
+                  child: ListView.builder(
+                    controller: controller,
+                    itemCount: chats.requireValue
+                        .expand((element) => element)
+                        .toList()
+                        .length,
+                    itemBuilder: (context, index) {
+                      final chatsFlat = chats.requireValue
                           .expand((element) => element)
-                          .toList()
-                          .length,
-                      itemBuilder: (context, index) {
-                        final chatsFlat = chats.requireValue
-                            .expand((element) => element)
-                            .toList();
-                        return ListTile(
-                          title: Text(
-                            chatsFlat[index].name,
-                          ),
-                          subtitle: Text(
-                            DateFormat.yMMMd()
-                                .format(chatsFlat[index].createdAt),
-                          ),
-                          dense: true,
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                visualDensity: const VisualDensity(
-                                  horizontal: VisualDensity.minimumDensity,
-                                  vertical: VisualDensity.minimumDensity,
-                                ),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return EditDialog(
-                                          id: chatsFlat[index].id);
-                                    },
-                                  );
-                                },
-                                icon: const Icon(Icons.edit),
+                          .toList();
+                      return ListTile(
+                        title: Text(
+                          chatsFlat[index].name,
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                        ),
+                        subtitle: Text(
+                          DateFormat.yMMMd().format(chatsFlat[index].createdAt),
+                        ),
+                        dense: true,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              visualDensity: const VisualDensity(
+                                horizontal: VisualDensity.minimumDensity,
+                                vertical: VisualDensity.minimumDensity,
                               ),
-                              IconButton(
-                                visualDensity: const VisualDensity(
-                                  horizontal: VisualDensity.minimumDensity,
-                                  vertical: VisualDensity.minimumDensity,
-                                ),
-                                onPressed: () {
-                                  chatsNotifier.deleteChat(chatsFlat[index].id);
-                                },
-                                icon: const Icon(Icons.delete),
-                              )
-                            ],
-                          ),
-                          onTap: () {
-                            context.go(
-                              '/chat/${chatsFlat[index].id}',
-                            );
-                            Navigator.of(context).pop();
-                          },
-                        );
-                      },
-                    ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return EditDialog(id: chatsFlat[index].id);
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            ),
+                            IconButton(
+                              visualDensity: const VisualDensity(
+                                horizontal: VisualDensity.minimumDensity,
+                                vertical: VisualDensity.minimumDensity,
+                              ),
+                              onPressed: () {
+                                chatsNotifier.deleteChat(chatsFlat[index].id);
+                              },
+                              icon: const Icon(Icons.delete),
+                            )
+                          ],
+                        ),
+                        onTap: () {
+                          context.go(
+                            '/chat/${chatsFlat[index].id}',
+                          );
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    },
                   ),
                 ),
           chatsNotifier.isLoadingNextPage()

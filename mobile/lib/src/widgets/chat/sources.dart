@@ -134,7 +134,7 @@ class Sources extends HookConsumerWidget {
                         itemBuilder: (context, index) {
                           final source = sourceDocuments.requireValue[index];
                           return Link(
-                            uri: Uri.parse(source.metadata!['url']),
+                            uri: Uri.parse(source.metadata['url']),
                             target: LinkTarget.self,
                             builder: (context, followLink) {
                               return ListTile(
@@ -146,7 +146,7 @@ class Sources extends HookConsumerWidget {
                                   color: Colors.grey.shade600,
                                 ),
                                 title: Text(
-                                  source.metadata!['name'],
+                                  source.metadata['name'],
                                   softWrap: false,
                                   overflow: TextOverflow.fade,
                                   style: TextStyle(
