@@ -20,4 +20,4 @@ volumes
 
 test
 
-firebase.json
+firebase-service-account.json

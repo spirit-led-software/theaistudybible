@@ -21,8 +21,8 @@ export function Crons({ stack }: StackContext) {
         permissions: [devotionImageBucket],
         copyFiles: [
           {
-            from: "firebase.json",
-            to: "firebase.json",
+            from: "firebase-service-account.json",
+            to: "firebase-service-account.json",
           },
         ],
         environment: {

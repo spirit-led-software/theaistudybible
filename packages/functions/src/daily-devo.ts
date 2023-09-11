@@ -1,6 +1,7 @@
 import { generateDevotion, getDevotionByDate } from "@services/devotion";
 import { Handler } from "aws-lambda";
-import * as fadmin from "firebase-admin";
+import firebase from "firebase-admin";
+import path from "path";
 
 export const handler: Handler = async (event, _) => {
   console.log(event);
@@ -11,12 +12,12 @@ export const handler: Handler = async (event, _) => {
     devo = await generateDevotion();
   }
 
-  const serviceAccount = require("./firebase.json");
-  fadmin.initializeApp({
-    credential: fadmin.credential.cert(serviceAccount),
+  const serviceAccount = require(path.resolve("firebase-service-account.json"));
+  firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount),
   });
 
-  await fadmin.messaging().send({
+  await firebase.messaging().send({
     topic: "daily-devo",
     notification: {
       title: "New Daily Devo",
