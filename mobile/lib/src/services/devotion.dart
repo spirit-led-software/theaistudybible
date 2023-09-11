@@ -21,7 +21,8 @@ class DevotionService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load devotions');
+      throw Exception(
+          'Failed to load devotions: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -41,7 +42,7 @@ class DevotionService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load devotion');
+      throw Exception('Failed to load devotion: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -60,7 +61,8 @@ class DevotionService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load devotion source documents');
+      throw Exception('Failed to load devotion source documents: '
+          '${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));

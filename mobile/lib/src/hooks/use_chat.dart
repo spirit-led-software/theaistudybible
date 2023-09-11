@@ -144,10 +144,33 @@ Future<ChatMessage> getStreamedResponse({
 
 UseChatReturnObject useChat({required UseChatOptions options}) {
   ValueNotifier<String?> chatId = useState(options.chatId);
+  useEffect(
+    () {
+      chatId.value = options.chatId;
+      return () {};
+    },
+    [options.chatId],
+  );
+
   ValueNotifier<String> input = useState(options.initialInput);
+  useEffect(
+    () {
+      input.value = options.initialInput;
+      return () {};
+    },
+    [options.initialInput],
+  );
 
   ValueNotifier<List<ChatMessage>> messages =
       useState(options.initialMessages ?? []);
+  useEffect(
+    () {
+      messages.value = options.initialMessages ?? [];
+      return () {};
+    },
+    [options.initialMessages],
+  );
+
   ObjectRef<List<ChatMessage>> messagesRef = useRef(messages.value);
   useEffect(
     () {

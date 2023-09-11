@@ -83,8 +83,9 @@ class RegisterScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 (snapshot.connectionState == ConnectionState.waiting)
-                    ? SpinKitFoldingCube(
+                    ? SpinKitSpinningLines(
                         color: RAIColors.secondary,
+                        size: 32,
                       )
                     : alert.value != null
                         ? Container(

@@ -84,8 +84,9 @@ class DevotionModal extends HookConsumerWidget {
           devotionsNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
-                    child: SpinKitFoldingCube(
+                    child: SpinKitSpinningLines(
                       color: RAIColors.primary,
+                      size: 32,
                     ),
                   ),
                 )
@@ -120,8 +121,9 @@ class DevotionModal extends HookConsumerWidget {
               ? Container(
                   padding: const EdgeInsets.all(10),
                   child: Center(
-                    child: SpinKitFoldingCube(
+                    child: SpinKitSpinningLines(
                       color: RAIColors.primary,
+                      size: 20,
                     ),
                   ),
                 )

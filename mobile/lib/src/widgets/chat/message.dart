@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -32,7 +31,7 @@ class Message extends HookConsumerWidget {
       contentPadding: const EdgeInsets.only(
         top: 10,
         bottom: 10,
-        left: 5,
+        left: 10,
         right: 5,
       ),
       shape: RoundedRectangleBorder(
@@ -41,31 +40,43 @@ class Message extends HookConsumerWidget {
           color: Colors.grey.shade300,
         ),
       ),
-      leading: CircleAvatar(
-        backgroundColor: RAIColors.secondary,
-        foregroundImage: message.role != Role.user
-            ? null
-            : currentUser.requireValue.image != null
-                ? NetworkImage(
-                    currentUser.requireValue.image!,
-                  )
-                : null,
-        child: message.role == Role.user
-            ? Text(currentUser.requireValue.name
-                    ?.substring(0, 1)
-                    .toUpperCase() ??
-                currentUser.requireValue.email.substring(0, 1).toUpperCase())
-            : const FaIcon(FontAwesomeIcons.cross),
-      ),
-      title: Text(
-        message.content,
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: RAIColors.secondary,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: message.role == Role.user
+                  ? currentUser.requireValue.image != null
+                      ? Image.network(
+                          currentUser.requireValue.image!,
+                        )
+                      : Text(currentUser.requireValue.name
+                              ?.substring(0, 1)
+                              .toUpperCase() ??
+                          currentUser.requireValue.email
+                              .substring(0, 1)
+                              .toUpperCase())
+                  : Image.asset("assets/icons/icon.png"),
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          Flexible(
+            child: Text(
+              message.content,
+            ),
+          ),
+        ],
       ),
       subtitle: Container(
         padding: const EdgeInsets.only(
           top: 15,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
               DateFormat()

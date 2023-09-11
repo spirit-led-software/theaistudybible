@@ -1,13 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/app.dart';
-import 'package:revelationsai/src/models/notification.dart';
+import 'package:revelationsai/src/models/devotion.dart';
+import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/services/devotion.dart';
 import 'package:revelationsai/src/utils/state_logger.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -15,14 +17,6 @@ import 'package:workmanager/workmanager.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-
-final StreamController<ReceivedNotification> didReceiveLocalNotificationStream =
-    StreamController<ReceivedNotification>.broadcast();
-
-final StreamController<String?> selectNotificationStream =
-    StreamController<String?>.broadcast();
-
-const MethodChannel platform = MethodChannel('revelationsai.com/notifications');
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
@@ -37,11 +31,49 @@ void notificationTapBackground(NotificationResponse notificationResponse) {
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) {
+  Workmanager().executeTask((task, inputData) async {
     debugPrint("Native called background task: $task");
-    if(task == "daily-devo") {
-      
+    if (task == "daily-devo") {
+      PaginatedEntitiesResponseData<Devotion> devos =
+          await DevotionService.getDevotions(
+        paginationOptions: const PaginatedEntitiesRequestOptions(limit: 1),
+      );
+
+      Devotion devo = devos.entities.first;
+      debugPrint("Daily devo: ${devo.date}");
+
+      await flutterLocalNotificationsPlugin.show(
+        Random().nextInt(1000),
+        "New Devotion Available",
+        devo.bibleReading,
+        const NotificationDetails(
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+          android: AndroidNotificationDetails(
+            "daily-devo",
+            "Daily Devotion",
+            importance: Importance.max,
+            priority: Priority.high,
+            showWhen: false,
+            enableVibration: true,
+            enableLights: true,
+            playSound: true,
+            visibility: NotificationVisibility.public,
+            timeoutAfter: 5000,
+          ),
+        ),
+      );
+
+      await Workmanager().registerOneOffTask(
+        "daily-devo",
+        "Daily Devotion",
+        initialDelay: const Duration(days: 1),
+      );
     }
+
     return Future.value(true);
   });
 }
@@ -51,8 +83,7 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
   await _configureLocalTimeZone();
-
-  Workmanager().initialize(
+  await Workmanager().initialize(
     callbackDispatcher,
     isInDebugMode: true,
   );
@@ -90,7 +121,7 @@ Future<void> main() async {
   Workmanager().registerOneOffTask(
     "daily-devo",
     "Daily Devotion",
-    initialDelay: Duration(seconds: 5),
+    initialDelay: const Duration(seconds: 10),
     constraints: Constraints(
       networkType: NetworkType.connected,
       requiresBatteryNotLow: true,

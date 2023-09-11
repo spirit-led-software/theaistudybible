@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
+import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
 import 'package:url_launcher/link.dart';
@@ -27,13 +28,52 @@ class Sources extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sourceDocuments = ref.watch(aiResponseSourceDocumentsProvider(
-      message,
-      chatId,
-    ));
+    final isMounted = useIsMounted();
+
+    ValueNotifier<bool> loading = useState(false);
+    ValueNotifier<List<SourceDocument>> sourceDocuments = useState(ref
+            .read(
+              aiResponseSourceDocumentsProvider(
+                message.id,
+                message.uuid,
+                chatId,
+              ),
+            )
+            .value ??
+        []);
 
     ValueNotifier<bool> showSources = useState(false);
     ValueNotifier<bool> copied = useState(false);
+
+    useEffect(
+      () {
+        if (sourceDocuments.value.isEmpty) {
+          loading.value = true;
+          final sourceDocumentsFuture =
+              ref.read(aiResponseSourceDocumentsProvider(
+            message.id,
+            message.uuid,
+            chatId,
+          ).future);
+
+          sourceDocumentsFuture.then((value) {
+            if (isMounted()) sourceDocuments.value = value;
+          }).catchError((e) {
+            debugPrint("Failed to load sources: ${e.toString()}");
+          }).whenComplete(() {
+            if (isMounted()) loading.value = false;
+          });
+        }
+
+        return () {};
+      },
+      [
+        chatId,
+        message.id,
+        message.uuid,
+        showSources.value,
+      ],
+    );
 
     return Accordion(
       paddingListTop: 0,
@@ -43,10 +83,13 @@ class Sources extends HookConsumerWidget {
       scaleWhenAnimating: false,
       flipLeftIconIfOpen: false,
       flipRightIconIfOpen: false,
+      headerBackgroundColor: Colors.white,
       children: [
         AccordionSection(
           headerPadding: EdgeInsets.zero,
-          headerBackgroundColor: Colors.grey.shade600,
+          headerBackgroundColor: Colors.transparent,
+          contentBackgroundColor: Colors.transparent,
+          contentBorderColor: Colors.transparent,
           leftIcon: IconButton(
             visualDensity: RAIVisualDensity.tightest,
             iconSize: 14,
@@ -56,7 +99,7 @@ class Sources extends HookConsumerWidget {
               showSources.value
                   ? FontAwesomeIcons.angleUp
                   : FontAwesomeIcons.angleDown,
-              color: Colors.white,
+              color: RAIColors.primary,
             ),
             onPressed: () => showSources.value = !showSources.value,
           ),
@@ -70,7 +113,7 @@ class Sources extends HookConsumerWidget {
                 iconSize: 14,
                 icon: FaIcon(
                   copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
-                  color: copied.value ? Colors.green : Colors.white,
+                  color: copied.value ? Colors.green : RAIColors.primary,
                 ),
                 onPressed: () {
                   copied.value = true;
@@ -87,9 +130,9 @@ class Sources extends HookConsumerWidget {
               IconButton(
                 visualDensity: RAIVisualDensity.tightest,
                 iconSize: 14,
-                icon: const FaIcon(
+                icon: FaIcon(
                   FontAwesomeIcons.shareFromSquare,
-                  color: Colors.white,
+                  color: RAIColors.primary,
                 ),
                 onPressed: () {
                   showDialog(
@@ -109,16 +152,16 @@ class Sources extends HookConsumerWidget {
           onCloseSection: () => showSources.value = false,
           onOpenSection: () => showSources.value = true,
           scrollIntoViewOfItems: ScrollIntoViewOfItems.none,
-          header: const Text(
+          header: Text(
             "Sources",
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white,
+              color: RAIColors.primary,
             ),
           ),
-          content: sourceDocuments.isLoading
+          content: loading.value
               ? Center(
-                  child: SpinKitHourGlass(
+                  child: SpinKitFadingGrid(
                     color: RAIColors.primary,
                     size: 20,
                   ),
@@ -130,9 +173,9 @@ class Sources extends HookConsumerWidget {
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: sourceDocuments.requireValue.length,
+                        itemCount: sourceDocuments.value.length,
                         itemBuilder: (context, index) {
-                          final source = sourceDocuments.requireValue[index];
+                          final source = sourceDocuments.value[index];
                           return Link(
                             uri: Uri.parse(source.metadata['url']),
                             target: LinkTarget.self,

@@ -76,9 +76,19 @@ class ChatScreen extends HookConsumerWidget {
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
         title: loading.value
-            ? const SpinKitFoldingCube(
-                color: Colors.white,
-                size: 20,
+            ? const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Loading Chat"),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  SpinKitSpinningLines(
+                    color: Colors.white,
+                    size: 20,
+                  )
+                ],
               )
             : Text(
                 chat.value?.name ?? "New Chat",
@@ -103,9 +113,9 @@ class ChatScreen extends HookConsumerWidget {
       ),
       body: loading.value
           ? Center(
-              child: SpinKitFoldingCube(
+              child: SpinKitSpinningLines(
                 color: RAIColors.primary,
-                size: 32,
+                size: 40,
               ),
             )
           : Stack(
@@ -153,6 +163,11 @@ class ChatScreen extends HookConsumerWidget {
                     onSubmitted: (value) {
                       chatObj.handleSubmit();
                     },
+                    onTapOutside: (event) {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    },
+                    autocorrect: true,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: "Type a message",
                       border: OutlineInputBorder(
@@ -164,7 +179,7 @@ class ChatScreen extends HookConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SpinKitFoldingCube(
+                                SpinKitWave(
                                   color: RAIColors.primary,
                                   size: 20,
                                 ),

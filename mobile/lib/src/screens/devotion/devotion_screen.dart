@@ -87,9 +87,24 @@ class DevotionScreen extends HookConsumerWidget {
         automaticallyImplyLeading: false,
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
-        title: Text(loading.value || devotion.value == null
-            ? "Devotions"
-            : DateFormat.yMMMd().format(devotion.value!.date)),
+        title: loading.value || devotion.value == null
+            ? const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Loading Devotion"),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  SpinKitSpinningLines(
+                    color: Colors.white,
+                    size: 20,
+                  )
+                ],
+              )
+            : Text(
+                DateFormat.yMMMd().format(devotion.value!.date),
+              ),
         actions: [
           IconButton(
             onPressed: () {
@@ -110,8 +125,9 @@ class DevotionScreen extends HookConsumerWidget {
       ),
       body: loading.value
           ? Center(
-              child: SpinKitFoldingCube(
+              child: SpinKitSpinningLines(
                 color: RAIColors.primary,
+                size: 40,
               ),
             )
           : Container(

@@ -16,8 +16,7 @@ class UserService {
     );
 
     if (res.statusCode != 200) {
-      debugPrint("Failed to get user info: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to get user');
+      throw Exception('Failed to get user: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));

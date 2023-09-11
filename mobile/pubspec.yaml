@@ -59,6 +59,7 @@ dependencies:
   flutter_local_notifications: ^15.1.1
   flutter_timezone: ^1.0.7
   workmanager: ^0.5.1
+  timezone: ^0.9.2
 
 dev_dependencies:
   flutter_test:
@@ -79,13 +80,13 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/icon.png"
+  image_path: "assets/icons/icon.png"
   remove_alpha_ios: true
   background_color_ios: "#ffffff"
 
 flutter_native_splash:
   color: "#334155"
-  image: "assets/icon/icon.png"
+  image: "assets/icons/icon.png"
   android: true
   ios: true
 
@@ -101,7 +102,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/
+    - assets/icons/icon.png
     - .env
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

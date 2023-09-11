@@ -21,7 +21,8 @@ class DevotionImageService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load devotions');
+      throw Exception(
+          'Failed to load devotion images: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));

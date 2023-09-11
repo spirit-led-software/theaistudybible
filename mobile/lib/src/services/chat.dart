@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/pagination.dart';
@@ -26,8 +25,7 @@ class ChatService {
     );
 
     if (res.statusCode != 200) {
-      debugPrint("Failed to load chats: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to load chats');
+      throw Exception('Failed to load chats: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -50,8 +48,7 @@ class ChatService {
     );
 
     if (res.statusCode != 200) {
-      debugPrint("Failed to get chat: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to get chat');
+      throw Exception('Failed to get chat: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -73,7 +70,6 @@ class ChatService {
     );
 
     if (res.statusCode != 201) {
-      debugPrint("Failed to create chat: ${res.statusCode} ${res.body}");
       throw Exception('Failed to create chat ${res.statusCode} ${res.body}');
     }
 
@@ -97,7 +93,6 @@ class ChatService {
     );
 
     if (res.statusCode != 200) {
-      debugPrint("Failed to update chat: ${res.statusCode} ${res.body}");
       throw Exception('Failed to update chat ${res.statusCode} ${res.body}');
     }
 
@@ -118,7 +113,6 @@ class ChatService {
     );
 
     if (res.statusCode != 200) {
-      debugPrint("Failed to delete chat: ${res.statusCode} ${res.body}");
       throw Exception('Failed to delete chat ${res.statusCode} ${res.body}');
     }
   }
@@ -150,6 +144,7 @@ class ChatService {
           id: userMessage.aiId ?? userMessage.id,
           uuid: userMessage.id,
           content: userMessage.text,
+          createdAt: userMessage.createdAt,
           role: Role.user,
         );
 
@@ -178,6 +173,7 @@ class ChatService {
                 id: aiResponse.aiId ?? aiResponse.id,
                 uuid: aiResponse.id,
                 content: aiResponse.text ?? "",
+                createdAt: aiResponse.createdAt,
                 role: Role.assistant,
               ),
             );

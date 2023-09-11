@@ -25,7 +25,7 @@ class ChatMessage {
   ChatMessage.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         uuid = json['uuid'],
-        createdAt = json['createdAt'],
+        createdAt = DateTime(json['createdAt']),
         content = json['content'],
         role = json['role'],
         name = json['name'];
@@ -33,9 +33,24 @@ class ChatMessage {
   Map<String, dynamic> toJson() => {
         'id': id,
         'uuid': uuid,
-        'createdAt': createdAt,
+        'createdAt': createdAt.toString(),
         'content': content,
         'role': role.name,
         'name': name,
       };
+
+  @override
+  bool operator ==(other) {
+    return other is ChatMessage &&
+        other.runtimeType == runtimeType &&
+        other.id == id &&
+        other.uuid == uuid &&
+        other.createdAt == createdAt &&
+        other.content == content &&
+        other.role == role &&
+        other.name == name;
+  }
+
+  @override
+  int get hashCode => uuid.hashCode;
 }

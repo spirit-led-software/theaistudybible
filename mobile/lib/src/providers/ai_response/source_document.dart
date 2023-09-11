@@ -1,4 +1,3 @@
-import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/user.dart';
@@ -10,10 +9,14 @@ part 'source_document.g.dart';
 @riverpod
 class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
   @override
-  FutureOr<List<SourceDocument>> build(ChatMessage message, String? chatId) {
+  FutureOr<List<SourceDocument>> build(
+    String? messageId,
+    String? messageUuid,
+    String? chatId,
+  ) {
     final currentUser = ref.watch(currentUserProvider);
 
-    if (message.uuid == null) {
+    if (messageUuid == null) {
       return AiResponseService.searchForAiResponses(
         query: Query(
           AND: [
@@ -22,13 +25,13 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
                 Query(
                   eq: ColumnValue(
                     column: 'aiId',
-                    value: message.id,
+                    value: messageId,
                   ),
                 ),
                 Query(
                   eq: ColumnValue(
                     column: 'id',
-                    value: message.uuid,
+                    value: messageUuid,
                   ),
                 ),
               ],
@@ -49,7 +52,7 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
       });
     } else {
       return AiResponseService.getAiResponseSourceDocuments(
-        id: message.uuid!,
+        id: messageUuid,
         session: currentUser.requireValue.session,
       );
     }

@@ -22,7 +22,8 @@ class AiResponseService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load ai responses');
+      throw Exception(
+          'Failed to load ai responses: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -45,7 +46,8 @@ class AiResponseService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load ai response');
+      throw Exception(
+          'Failed to load ai response: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -72,7 +74,8 @@ class AiResponseService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to search for ai responses');
+      throw Exception(
+          'Failed to search for ai responses: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -95,7 +98,8 @@ class AiResponseService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load AI response source documents');
+      throw Exception(
+          'Failed to load AI response source documents: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));

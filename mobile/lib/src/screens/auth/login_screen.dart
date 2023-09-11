@@ -27,6 +27,12 @@ class LoginScreen extends HookConsumerWidget {
     final isErrored = snapshot.hasError &&
         snapshot.connectionState != ConnectionState.waiting;
 
+    void handleSubmit() {
+      final future = ref.read(currentUserProvider.notifier).login(
+          emailTextController.value.text, passwordTextController.value.text);
+      pendingLogin.value = future;
+    }
+
     return Scaffold(
       backgroundColor: RAIColors.primary,
       body: Center(
@@ -46,8 +52,9 @@ class LoginScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 (snapshot.connectionState == ConnectionState.waiting)
-                    ? SpinKitFoldingCube(
+                    ? SpinKitSpinningLines(
                         color: RAIColors.secondary,
+                        size: 32,
                       )
                     : isErrored
                         ? Container(
@@ -236,6 +243,9 @@ class LoginScreen extends HookConsumerWidget {
                   obscureText: !showPassword.value,
                   keyboardType: TextInputType.visiblePassword,
                   controller: passwordTextController,
+                  onSubmitted: (value) {
+                    handleSubmit();
+                  },
                   style: TextStyle(
                     color: RAIColors.primary,
                   ),
@@ -281,11 +291,7 @@ class LoginScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          final future = ref
-                              .read(currentUserProvider.notifier)
-                              .login(emailTextController.value.text,
-                                  passwordTextController.value.text);
-                          pendingLogin.value = future;
+                          handleSubmit();
                         },
                         child: const Text(
                           "Login with Email",

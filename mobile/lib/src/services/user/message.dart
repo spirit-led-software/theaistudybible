@@ -21,7 +21,8 @@ class UserMessageService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load user messages');
+      throw Exception(
+          'Failed to load user messages: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -44,7 +45,8 @@ class UserMessageService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to load user message');
+      throw Exception(
+          'Failed to load user message: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -71,7 +73,8 @@ class UserMessageService {
     );
 
     if (res.statusCode != 200) {
-      throw Exception('Failed to search for user messages');
+      throw Exception(
+          'Failed to search for user messages: ${res.statusCode} ${res.body}');
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
