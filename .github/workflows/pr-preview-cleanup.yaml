@@ -72,7 +72,7 @@ jobs:
       - id: setup_firebase_creds
         name: Setup Firebase Credentials
         run: |
-          echo $ENCODED_FIREBASE_JSON | base64 --decode > firebase.json
+          echo $ENCODED_FIREBASE_JSON | base64 --decode > firebase-service-account.json
       - id: sst_remove
         name: Remove SST deployment
         run: npx sst remove --stage pr-${{ github.event.pull_request.number }}
