@@ -3,6 +3,16 @@ concurrency: mobile
 on:
   push:
     branches: [master]
+  # only build when mobile dir changes
+  workflow_dispatch:
+    paths:
+      - "mobile/**"
+
+# TODO: Figure out how to get these from a single source of truth
+env:
+  WEBSITE_URL: https://revelationsai.com
+  API_URL: https://api.revelationsai.com
+  CHAT_API_URL: https://v2pnd3an3d42xw3hq3stiwij240ssycn.lambda-url.us-east-1.on.aws/
 
 jobs:
   build_android:
@@ -27,6 +37,12 @@ jobs:
       - id: generate_code
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
+      - id: generate_env_file
+        name: Generate env file
+        run: |
+          echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
+          echo "API_URL=${{ env.API_URL }}" >> .env
+          echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
       - id: build_apk
         name: Build APK for Android
         run: flutter build apk --release
@@ -63,6 +79,12 @@ jobs:
       - id: generate_code
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
+      - id: generate_env_file
+        name: Generate env file
+        run: |
+          echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
+          echo "API_URL=${{ env.API_URL }}" >> .env
+          echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
       - id: build_ios
         name: Build iOS
         run: flutter build ios --release --no-codesign
