@@ -20,4 +20,4 @@ volumes
 
 test
 
-firebase-key.json
+firebase.json
