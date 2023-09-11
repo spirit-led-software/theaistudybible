@@ -24,6 +24,7 @@
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.2.7",
+    "firebase-admin": "^11.10.1",
     "lambda-stream": "^0.5.0",
     "mammoth": "^1.6.0",
     "openai": "^4.6.0",

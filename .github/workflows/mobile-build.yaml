@@ -1,0 +1,73 @@
+name: Mobile Build
+concurrency: mobile
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build_android:
+    name: Android Build
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: "11"
+      - id: setup_flutter
+        name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - id: install_dependencies
+        name: Install dependencies
+        run: flutter pub get
+      - id: generate_code
+        name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+      - id: build_apk
+        name: Build APK for Android
+        run: flutter build apk --release
+      - id: build_appbundle
+        name: Build App Bundle for Android
+        run: flutter build appbundle --release
+      - name: Archive APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: android
+          path: build/app/outputs/apk/release/app-release.apk
+      - name: Archive App Bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: android
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  build_ios:
+    name: IOS Build
+    runs-on: macos-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - id: setup_flutter
+        name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          architecture: x64
+      - id: install_dependencies
+        name: Install dependencies
+        run: flutter pub get
+      - id: generate_code
+        name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+      - id: build_ios
+        name: Build iOS
+        run: flutter build ios --release --no-codesign
+      - name: Archive iOS
+        uses: actions/upload-artifact@v2
+        with:
+          name: ios
+          path: build/ios/iphoneos/Runner.app

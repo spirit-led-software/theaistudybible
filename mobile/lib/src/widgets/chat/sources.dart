@@ -12,6 +12,7 @@ import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/link.dart';
 
 class Sources extends HookConsumerWidget {
@@ -32,13 +33,11 @@ class Sources extends HookConsumerWidget {
 
     ValueNotifier<bool> loading = useState(false);
     ValueNotifier<List<SourceDocument>> sourceDocuments = useState(ref
-            .read(
-              aiResponseSourceDocumentsProvider(
-                message.id,
-                message.uuid,
-                chatId,
-              ),
-            )
+            .read(aiResponseSourceDocumentsProvider(
+              message.id,
+              message.uuid,
+              chatId,
+            ))
             .value ??
         []);
 
@@ -47,23 +46,21 @@ class Sources extends HookConsumerWidget {
 
     useEffect(
       () {
-        if (sourceDocuments.value.isEmpty) {
-          loading.value = true;
-          final sourceDocumentsFuture =
-              ref.read(aiResponseSourceDocumentsProvider(
-            message.id,
-            message.uuid,
-            chatId,
-          ).future);
+        loading.value = true;
+        final sourceDocumentsFuture =
+            ref.read(aiResponseSourceDocumentsProvider(
+          message.id,
+          message.uuid,
+          chatId,
+        ).future);
 
-          sourceDocumentsFuture.then((value) {
-            if (isMounted()) sourceDocuments.value = value;
-          }).catchError((e) {
-            debugPrint("Failed to load sources: ${e.toString()}");
-          }).whenComplete(() {
-            if (isMounted()) loading.value = false;
-          });
-        }
+        sourceDocumentsFuture.then((value) {
+          if (isMounted()) sourceDocuments.value = value;
+        }).catchError((e) {
+          debugPrint("Failed to load sources: ${e.toString()}");
+        }).whenComplete(() {
+          if (isMounted()) loading.value = false;
+        });
 
         return () {};
       },
@@ -71,7 +68,6 @@ class Sources extends HookConsumerWidget {
         chatId,
         message.id,
         message.uuid,
-        showSources.value,
       ],
     );
 
@@ -152,59 +148,60 @@ class Sources extends HookConsumerWidget {
           onCloseSection: () => showSources.value = false,
           onOpenSection: () => showSources.value = true,
           scrollIntoViewOfItems: ScrollIntoViewOfItems.none,
-          header: Text(
-            "Sources",
-            style: TextStyle(
-              fontSize: 12,
-              color: RAIColors.primary,
-            ),
-          ),
-          content: loading.value
-              ? Center(
-                  child: SpinKitFadingGrid(
-                    color: RAIColors.primary,
-                    size: 20,
-                  ),
-                )
-              : Column(
-                  children: [
-                    if (showSources.value)
-                      ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: sourceDocuments.value.length,
-                        itemBuilder: (context, index) {
-                          final source = sourceDocuments.value[index];
-                          return Link(
-                            uri: Uri.parse(source.metadata['url']),
-                            target: LinkTarget.self,
-                            builder: (context, followLink) {
-                              return ListTile(
-                                dense: true,
-                                visualDensity: RAIVisualDensity.tightest,
-                                leading: Icon(
-                                  Icons.link,
-                                  size: 15,
-                                  color: Colors.grey.shade600,
-                                ),
-                                title: Text(
-                                  source.metadata['name'],
-                                  softWrap: false,
-                                  overflow: TextOverflow.fade,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                                onTap: followLink,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                  ],
+          header: Row(
+            children: [
+              Text(
+                "Sources",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: RAIColors.primary,
                 ),
+              ),
+              if (loading.value) ...[
+                const SizedBox(width: 5),
+                SpinKitWave(
+                  color: RAIColors.primary,
+                  size: 10,
+                )
+              ],
+            ],
+          ),
+          content: ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: sourceDocuments.value.length,
+            itemBuilder: (context, index) {
+              final source = sourceDocuments.value[index];
+              return Link(
+                uri: Uri.parse(source.metadata['url']),
+                target: LinkTarget.self,
+                builder: (context, followLink) {
+                  return ListTile(
+                    dense: true,
+                    visualDensity: RAIVisualDensity.tightest,
+                    leading: Skeleton.keep(
+                      child: Icon(
+                        Icons.link,
+                        size: 15,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    title: Text(
+                      source.metadata['name'],
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    onTap: followLink,
+                  );
+                },
+              );
+            },
+          ),
         ),
       ],
     );
