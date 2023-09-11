@@ -1,7 +1,6 @@
 import { generateDevotion, getDevotionByDate } from "@services/devotion";
 import { Handler } from "aws-lambda";
 import * as fadmin from "firebase-admin";
-import { firebaseConfig } from "./configs";
 
 export const handler: Handler = async (event, _) => {
   console.log(event);
@@ -12,12 +11,9 @@ export const handler: Handler = async (event, _) => {
     devo = await generateDevotion();
   }
 
+  const serviceAccount = require("./firebase.json");
   fadmin.initializeApp({
-    credential: fadmin.credential.cert({
-      projectId: firebaseConfig.projectId,
-      privateKey: firebaseConfig.privateKey,
-      clientEmail: firebaseConfig.clientEmail,
-    }),
+    credential: fadmin.credential.cert(serviceAccount),
   });
 
   await fadmin.messaging().send({
