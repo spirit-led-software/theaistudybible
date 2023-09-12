@@ -5,6 +5,16 @@ on:
     branches: [master]
     paths:
       - "mobile/**"
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: "Build Android"
+        required: true
+        default: "true"
+      build_ios:
+        description: "Build iOS"
+        required: true
+        default: "true"
 
 # TODO: Figure out how to get these from a single source of truth
 env:
@@ -14,6 +24,7 @@ env:
 
 jobs:
   build_android:
+    if: ${{ github.event.inputs.build_android == 'true' }}
     name: Android Build
     runs-on: ubuntu-latest
     steps:
@@ -55,6 +66,7 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
 
   build_ios:
+    if: ${{ github.event.inputs.build_ios == 'true' }}
     name: IOS Build
     runs-on: macos-latest
     steps:
