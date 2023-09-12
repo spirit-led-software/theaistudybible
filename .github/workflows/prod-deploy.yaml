@@ -4,8 +4,12 @@ on:
   push:
     branches: [master]
     paths-ignore:
-      - "mobile/**"
       - ".github/**"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - ".gitignore"
+      - "README.md"
+      - "mobile/**"
   workflow_dispatch:
 
 env:

@@ -4,8 +4,12 @@ on:
   pull_request:
     branches: [master]
     paths-ignore:
-      - "mobile/**"
       - ".github/**"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - ".gitignore"
+      - "README.md"
+      - "mobile/**"
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
