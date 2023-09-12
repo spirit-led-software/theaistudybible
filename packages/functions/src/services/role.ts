@@ -140,6 +140,22 @@ export async function removeRoleFromUser(roleName: string, userId: string) {
     );
 }
 
+export async function doesUserHaveRole(roleName: string, userId: string) {
+  const role = await getRoleByNameOrThrow(roleName);
+  const user = await getUserOrThrow(userId);
+
+  const userRoleRelation = (
+    await readOnlyDatabase
+      .select()
+      .from(usersToRoles)
+      .where(
+        and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id))
+      )
+  )[0];
+
+  return !!userRoleRelation;
+}
+
 export async function getStripeRoles() {
   return await getRoles({
     where: like(roles.name, "stripe:%"),

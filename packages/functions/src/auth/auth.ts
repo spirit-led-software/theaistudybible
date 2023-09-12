@@ -7,7 +7,7 @@ import {
   OkResponse,
   RedirectResponse,
 } from "@lib/api-responses";
-import { addRoleToUser } from "@services/role";
+import { addRoleToUser, doesUserHaveRole } from "@services/role";
 import { createUser, getUserByEmail, updateUser } from "@services/user";
 import * as bcrypt from "bcryptjs";
 import { TokenSet } from "openid-client";
@@ -70,6 +70,11 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
       });
     }
   }
+
+  if (!(await doesUserHaveRole("user", user.id))) {
+    await addRoleToUser("user", user.id);
+  }
+
   return user;
 };
 
@@ -155,7 +160,7 @@ export const handler = AuthHandler({
               authConfig.bcrypt.saltRounds
             ),
           });
-          await addRoleToUser(user.id, "user");
+          await addRoleToUser("user", user.id);
         } else {
           return BadRequestResponse("A user already exists with this email");
         }
