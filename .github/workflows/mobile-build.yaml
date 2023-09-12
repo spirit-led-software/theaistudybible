@@ -6,7 +6,7 @@ on:
     # only run if there are changes to the mobile directory
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onpushpull_requestpull_request_targetpathspaths-ignore
     paths-ignore:
-      - "!(mobile)/**"
+      - "!mobile/**"
   workflow_dispatch:
     inputs:
       build_android:
