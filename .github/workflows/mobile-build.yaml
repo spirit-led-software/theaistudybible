@@ -30,18 +30,23 @@ jobs:
     name: Android Build
     runs-on: ubuntu-latest
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v3
       - uses: actions/setup-java@v2
         with:
-          distribution: "zulu"
+          distribution: temurin
           java-version: "11"
+          cache: gradle
       - id: setup_flutter
         name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
+      - id: flutter_doctor
+        name: Run Flutter Doctor
+        run: flutter doctor -v
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
       - id: install_dependencies
         name: Install dependencies
         run: flutter pub get
@@ -65,22 +70,25 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: android
-          path: build/app/outputs/bundle/release/app-release.aab
+          path: mobile/build/app/outputs/bundle/release/app-release.aab
 
   build_ios:
     if: ${{ github.event.inputs.build_ios == 'true' }}
     name: IOS Build
     runs-on: macos-latest
     steps:
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v3
       - id: setup_flutter
         name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
           architecture: x64
+      - id: flutter_doctor
+        name: Run Flutter Doctor
+        run: flutter doctor -v
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
       - id: install_dependencies
         name: Install dependencies
         run: flutter pub get
@@ -104,4 +112,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ios
-          path: build/ios/ipa/Runner.ipa
+          path: mobile/build/ios/ipa/Runner.ipa
