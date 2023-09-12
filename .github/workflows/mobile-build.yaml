@@ -10,12 +10,10 @@ on:
       build_android:
         type: boolean
         description: "Build Android"
-        required: true
         default: true
       build_ios:
         type: boolean
         description: "Build iOS"
-        required: true
         default: true
 
 # TODO: Figure out how to get these from a single source of truth
@@ -26,7 +24,7 @@ env:
 
 jobs:
   build_android:
-    if: ${{ github.event.inputs.build_android == 'true' }}
+    if: ${{ inputs.build_android }}
     name: Android Build
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +50,7 @@ jobs:
         working-directory: mobile
       - id: generate_code
         name: Generate code
-        run: dart run build_runner build
+        run: dart run build_runner build --delete-conflicting-outputs
         working-directory: mobile
       - id: generate_env_file
         name: Generate env file
@@ -63,8 +61,9 @@ jobs:
         working-directory: mobile
       - id: build_appbundle
         name: Build App Bundle for Android
-        run: flutter build appbundle --release
-        working-directory: mobile
+        run: |
+          cd mobile
+          flutter build appbundle --release
       - name: Archive App Bundle
         uses: actions/upload-artifact@v2
         with:
@@ -72,7 +71,7 @@ jobs:
           path: mobile/build/app/outputs/bundle/release/app-release.aab
 
   build_ios:
-    if: ${{ github.event.inputs.build_ios == 'true' }}
+    if: ${{ inputs.build_ios }}
     name: IOS Build
     runs-on: macos-latest
     steps:
@@ -94,7 +93,7 @@ jobs:
         working-directory: mobile
       - id: generate_code
         name: Generate code
-        run: dart run build_runner build
+        run: dart run build_runner build --delete-conflicting-outputs
         working-directory: mobile
       - id: generate_env_file
         name: Generate env file
