@@ -12,10 +12,6 @@ env:
   API_URL: https://api.revelationsai.com
   CHAT_API_URL: https://v2pnd3an3d42xw3hq3stiwij240ssycn.lambda-url.us-east-1.on.aws/
 
-defaults:
-  run:
-    working-directory: mobile
-
 jobs:
   build_android:
     name: Android Build
@@ -36,18 +32,22 @@ jobs:
       - id: install_dependencies
         name: Install dependencies
         run: flutter pub get
+        working-directory: mobile
       - id: generate_code
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: mobile
       - id: generate_env_file
         name: Generate env file
         run: |
           echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
           echo "API_URL=${{ env.API_URL }}" >> .env
           echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
+        working-directory: mobile
       - id: build_appbundle
         name: Build App Bundle for Android
         run: flutter build appbundle --release
+        working-directory: mobile
       - name: Archive App Bundle
         uses: actions/upload-artifact@v2
         with:
@@ -70,18 +70,22 @@ jobs:
       - id: install_dependencies
         name: Install dependencies
         run: flutter pub get
+        working-directory: mobile
       - id: generate_code
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: mobile
       - id: generate_env_file
         name: Generate env file
         run: |
           echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
           echo "API_URL=${{ env.API_URL }}" >> .env
           echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
+        working-directory: mobile
       - id: build_ipa
         name: Build iOS IPA
         run: flutter build ipa --release --no-codesign
+        working-directory: mobile
       - name: Archive IPA
         uses: actions/upload-artifact@v2
         with:
