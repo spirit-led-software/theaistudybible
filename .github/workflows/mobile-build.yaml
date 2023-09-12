@@ -3,8 +3,6 @@ concurrency: mobile
 on:
   push:
     branches: [master]
-  # only build when mobile dir changes
-  workflow_dispatch:
     paths:
       - "mobile/**"
 
@@ -13,6 +11,10 @@ env:
   WEBSITE_URL: https://revelationsai.com
   API_URL: https://api.revelationsai.com
   CHAT_API_URL: https://v2pnd3an3d42xw3hq3stiwij240ssycn.lambda-url.us-east-1.on.aws/
+
+defaults:
+  run:
+    working-directory: mobile
 
 jobs:
   build_android:
@@ -43,17 +45,9 @@ jobs:
           echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
           echo "API_URL=${{ env.API_URL }}" >> .env
           echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
-      - id: build_apk
-        name: Build APK for Android
-        run: flutter build apk --release
       - id: build_appbundle
         name: Build App Bundle for Android
         run: flutter build appbundle --release
-      - name: Archive APK
-        uses: actions/upload-artifact@v2
-        with:
-          name: android
-          path: build/app/outputs/apk/release/app-release.apk
       - name: Archive App Bundle
         uses: actions/upload-artifact@v2
         with:
@@ -85,11 +79,11 @@ jobs:
           echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
           echo "API_URL=${{ env.API_URL }}" >> .env
           echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
-      - id: build_ios
-        name: Build iOS
-        run: flutter build ios --release --no-codesign
-      - name: Archive iOS
+      - id: build_ipa
+        name: Build iOS IPA
+        run: flutter build ipa --release --no-codesign
+      - name: Archive IPA
         uses: actions/upload-artifact@v2
         with:
           name: ios
-          path: build/ios/iphoneos/Runner.app
+          path: build/ios/ipa/Runner.ipa

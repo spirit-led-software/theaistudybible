@@ -3,10 +3,9 @@ concurrency: pr-to-master
 on:
   pull_request:
     branches: [master]
-  # ignore if only the mobile dir changes
-  workflow_dispatch:
     paths-ignore:
       - "mobile/**"
+      - ".github/**"
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
