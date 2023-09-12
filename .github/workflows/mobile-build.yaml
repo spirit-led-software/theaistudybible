@@ -56,13 +56,18 @@ jobs:
         working-directory: mobile
       - id: build_appbundle
         name: Build App Bundle for Android
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --obfuscate --split-debug-info=build/android/debug-info
         working-directory: mobile
       - name: Archive App Bundle
         uses: actions/upload-artifact@v2
         with:
-          name: android
+          name: app-release.aab
           path: mobile/build/app/outputs/bundle/release/app-release.aab
+      - name: Archive Obfuscation Mapping
+        uses: actions/upload-artifact@v2
+        with:
+          name: android-obfuscation-mapping
+          path: mobile/build/android/debug-info/*.symbols
 
   build_ios:
     if: inputs.build_ios == null || inputs.build_ios
@@ -91,10 +96,15 @@ jobs:
         working-directory: mobile
       - id: build_ipa
         name: Build iOS IPA
-        run: flutter build ipa --release --no-codesign
+        run: flutter build ipa --release --no-codesign --obfuscate --split-debug-info=build/ios/debug-info
         working-directory: mobile
       - name: Archive IPA
         uses: actions/upload-artifact@v2
         with:
-          name: ios
+          name: Runner.xcarchive
           path: mobile/build/ios/archive/Runner.xcarchive
+      - name: Archive Obfuscation Mapping
+        uses: actions/upload-artifact@v2
+        with:
+          name: ios-obfuscation-mapping
+          path: mobile/build/ios/debug-info/*.symbols
