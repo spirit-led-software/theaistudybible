@@ -5,8 +5,8 @@ on:
     branches: [master]
     # only run if there are changes to the mobile directory
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onpushpull_requestpull_request_targetpathspaths-ignore
-    paths-ignore:
-      - "!mobile/**"
+    paths:
+      - mobile/**
   workflow_dispatch:
     inputs:
       build_android:
@@ -26,7 +26,8 @@ env:
 
 jobs:
   build_android:
-    if: ${{ inputs.build_android }}
+    # if input is provided and input is true
+    if: ${{ inputs == null || inputs.build_android}}
     name: Android Build
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +66,7 @@ jobs:
           path: mobile/build/app/outputs/bundle/release/app-release.aab
 
   build_ios:
-    if: ${{ inputs.build_ios }}
+    if: ${{ inputs == null || inputs.build_ios}}
     name: IOS Build
     runs-on: macos-latest
     steps:
