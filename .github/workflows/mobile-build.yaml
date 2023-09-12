@@ -8,13 +8,15 @@ on:
   workflow_dispatch:
     inputs:
       build_android:
+        type: boolean
         description: "Build Android"
         required: true
-        default: "true"
+        default: true
       build_ios:
+        type: boolean
         description: "Build iOS"
         required: true
-        default: "true"
+        default: true
 
 # TODO: Figure out how to get these from a single source of truth
 env:
