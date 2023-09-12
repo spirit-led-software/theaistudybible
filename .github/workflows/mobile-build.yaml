@@ -54,13 +54,6 @@ jobs:
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
         working-directory: mobile
-      - id: generate_env_file
-        name: Generate env file
-        run: |
-          echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
-          echo "API_URL=${{ env.API_URL }}" >> .env
-          echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
-        working-directory: mobile
       - id: build_appbundle
         name: Build App Bundle for Android
         run: flutter build appbundle --release
@@ -95,13 +88,6 @@ jobs:
       - id: generate_code
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: mobile
-      - id: generate_env_file
-        name: Generate env file
-        run: |
-          echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
-          echo "API_URL=${{ env.API_URL }}" >> .env
-          echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
         working-directory: mobile
       - id: build_ipa
         name: Build iOS IPA

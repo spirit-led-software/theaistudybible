@@ -1,6 +1,4 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 final class API {
-  static final String url = dotenv.env['API_URL']!;
-  static final String chatUrl = dotenv.env['CHAT_API_URL']!;
+  static const String url = String.fromEnvironment('API_URL');
+  static const String chatUrl = String.fromEnvironment('CHAT_API_URL');
 }

@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
+import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/chat.dart';
@@ -35,11 +36,13 @@ class ChatScreen extends HookConsumerWidget {
 
     final chat = useState<Chat?>(null);
     final messages = useState<List<ChatMessage>>([]);
-    final loading = useState(false);
+    final loadingChat = useState(false);
+
+    final alert = useState<Alert?>(null);
 
     useEffect(() {
       if (chatId != null) {
-        loading.value = true;
+        loadingChat.value = true;
 
         final chatFuture =
             ref.read(currentChatProvider(chatId!).future).then((value) {
@@ -55,7 +58,7 @@ class ChatScreen extends HookConsumerWidget {
           chatFuture,
           messagesFuture,
         ]).whenComplete(() {
-          if (isMounted()) loading.value = false;
+          if (isMounted()) loadingChat.value = false;
         });
       }
       return () {};
@@ -70,12 +73,31 @@ class ChatScreen extends HookConsumerWidget {
       messages.value,
     ]);
 
+    useEffect(() {
+      if (chatObj.error.value != null) {
+        alert.value = Alert(
+          type: AlertType.error,
+          message: chatObj.error.value!.toString(),
+        );
+      }
+      return () {};
+    }, [chatObj.error.value]);
+
+    useEffect(() {
+      if (alert.value != null) {
+        Future.delayed(const Duration(seconds: 8)).then((value) {
+          alert.value = null;
+        });
+      }
+      return () {};
+    }, [alert.value]);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
-        title: loading.value
+        title: loadingChat.value
             ? const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -111,7 +133,7 @@ class ChatScreen extends HookConsumerWidget {
           ),
         ],
       ),
-      body: loading.value
+      body: loadingChat.value
           ? Center(
               child: SpinKitSpinningLines(
                 color: RAIColors.primary,
@@ -120,6 +142,38 @@ class ChatScreen extends HookConsumerWidget {
             )
           : Stack(
               children: [
+                if (alert.value != null)
+                  Positioned(
+                    top: 5,
+                    left: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: alert.value!.type == AlertType.error
+                            ? Colors.red
+                            : Colors.green,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.all(10),
+                      child: Flex(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        direction: Axis.horizontal,
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            fit: FlexFit.loose,
+                            child: Text(
+                              alert.value!.message,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 Flex(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,

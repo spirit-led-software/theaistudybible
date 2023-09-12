@@ -17,8 +17,7 @@ export const handler: Handler = async (event, _) => {
     credential: firebase.credential.cert(serviceAccount),
   });
 
-  await firebase.messaging().send({
-    topic: "daily-devo",
+  await firebase.messaging().sendToTopic("daily-devo", {
     notification: {
       title: "New Daily Devo",
       body: devo?.bibleReading,

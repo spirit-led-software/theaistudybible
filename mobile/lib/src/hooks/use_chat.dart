@@ -15,7 +15,7 @@ class UseChatOptions {
   final List<ChatMessage>? initialMessages;
   final Function(StreamedResponse)? onResponse;
   final Function(ChatMessage)? onFinish;
-  final Function(Error)? onError;
+  final Function(Exception)? onError;
 
   UseChatOptions({
     required this.session,
@@ -38,7 +38,7 @@ class UseChatReturnObject {
   final ValueNotifier<List<ChatMessage>> messages;
 
   final ValueNotifier<bool> loading;
-  final ValueNotifier<Error?> error;
+  final ValueNotifier<Exception?> error;
 
   final ValueNotifier<String?> currentResponseId;
 
@@ -188,7 +188,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   ValueNotifier<bool> loading = useState(false);
 
-  ValueNotifier<Error?> error = useState(null);
+  ValueNotifier<Exception?> error = useState(null);
 
   ValueNotifier<String?> currentResponseId = useState(null);
 
@@ -209,7 +209,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
           onFinish: options.onFinish,
         );
         // TODO: Do something with the new message
-      } on Error catch (e) {
+      } on Exception catch (e) {
         debugPrint(e.toString());
         error.value = e;
         if (options.onError != null) options.onError!(e);
@@ -248,7 +248,10 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() reload = useCallback(
     () {
-      if (messagesRef.value.isEmpty) return;
+      if (messagesRef.value.isEmpty) {
+        error.value = Exception('No messages to reload');
+        return;
+      }
 
       final lastMessage = messagesRef.value.last;
       if (lastMessage.role == Role.assistant) {
@@ -276,7 +279,10 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() handleSubmit = useCallback(
     () {
-      if (input.value == '') return;
+      if (input.value.isEmpty) {
+        error.value = Exception('Input cannot be empty');
+        return;
+      }
       FocusManager.instance.primaryFocus?.unfocus();
 
       append(
