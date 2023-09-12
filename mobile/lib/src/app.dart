@@ -31,6 +31,7 @@ class MyApp extends HookConsumerWidget {
     );
 
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'RevelationsAI',
       theme: ThemeData(
         fontFamily: "Catamaran",

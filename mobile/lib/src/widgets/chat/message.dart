@@ -85,8 +85,7 @@ class Message extends HookConsumerWidget {
                   .format(message.createdAt ?? DateTime.now()),
               style: const TextStyle(fontSize: 10),
             ),
-            if (message.role == Role.assistant &&
-                !(isLoading && isCurrentResponse)) ...[
+            if (message.role == Role.assistant && !isCurrentResponse) ...[
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

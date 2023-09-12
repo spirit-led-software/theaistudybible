@@ -131,19 +131,24 @@ Future<ChatMessage> getStreamedResponse({
   );
   currentResponseId.value = reply.id;
 
-  final subscription = response.stream.transform(utf8.decoder).listen((value) {
-    reply.content += value;
+  response.stream.transform(utf8.decoder).listen(
+    (value) {
+      reply.content += value;
 
-    messages.value = [
-      ...chatRequest.messages,
-      reply,
-    ];
-  });
-
-  subscription.onDone(() {
-    if (onFinish != null) onFinish(reply);
-    currentResponseId.value = null;
-  });
+      messages.value = [
+        ...chatRequest.messages,
+        reply,
+      ];
+    },
+    onDone: () {
+      if (onFinish != null) onFinish(reply);
+      currentResponseId.value = null;
+    },
+    onError: (error) {
+      throw error;
+    },
+    cancelOnError: true,
+  );
 
   return reply;
 }
