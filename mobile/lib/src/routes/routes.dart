@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/about_screen.dart';
 import 'package:revelationsai/src/screens/account/account_screen.dart';
+import 'package:revelationsai/src/screens/auth/forgot_password.dart';
 import 'package:revelationsai/src/screens/auth/login_screen.dart';
 import 'package:revelationsai/src/screens/auth/register_screen.dart';
 import 'package:revelationsai/src/screens/chat/chat_screen.dart';
@@ -65,15 +66,36 @@ List<RouteBase> routes = [
     },
   ),
   GoRoute(
-    path: "/auth/login",
+    path: "/auth/forgot-password",
     builder: (context, state) {
-      return const LoginScreen();
+      return ForgotPasswordScreen(
+        token: state.uri.queryParameters['token'],
+      );
     },
     pageBuilder: (context, state) {
       return buildPageWithDefaultTransition(
         context: context,
         state: state,
-        child: const LoginScreen(),
+        child: ForgotPasswordScreen(
+          token: state.uri.queryParameters['token'],
+        ),
+      );
+    },
+  ),
+  GoRoute(
+    path: "/auth/login",
+    builder: (context, state) {
+      return LoginScreen(
+        resetPassword: state.uri.queryParameters['resetPassword'] == 'true',
+      );
+    },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: LoginScreen(
+          resetPassword: state.uri.queryParameters['resetPassword'] == 'true',
+        ),
       );
     },
   ),

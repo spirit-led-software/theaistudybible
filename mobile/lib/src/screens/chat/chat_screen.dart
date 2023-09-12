@@ -143,7 +143,8 @@ class ChatScreen extends HookConsumerWidget {
                             chatId: chatObj.chatId.value,
                             message: message,
                             previousMessage: previousMessage,
-                            isLastMessage: index == 0,
+                            isCurrentResponse:
+                                chatObj.currentResponseId.value == message.id,
                             isLoading: chatObj.loading.value,
                           );
                         },

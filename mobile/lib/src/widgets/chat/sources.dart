@@ -20,11 +20,16 @@ class Sources extends HookConsumerWidget {
   final ChatMessage message;
   final ChatMessage? previousMessage;
 
+  final bool isLoading;
+  final bool isCurrentResponse;
+
   const Sources({
     Key? key,
     this.chatId,
     required this.message,
     this.previousMessage,
+    this.isLoading = false,
+    this.isCurrentResponse = false,
   }) : super(key: key);
 
   @override
@@ -46,28 +51,31 @@ class Sources extends HookConsumerWidget {
 
     useEffect(
       () {
-        loading.value = true;
-        final sourceDocumentsFuture =
-            ref.read(aiResponseSourceDocumentsProvider(
-          message.id,
-          message.uuid,
-          chatId,
-        ).future);
+        if (sourceDocuments.value.isEmpty) {
+          loading.value = true;
+          final sourceDocumentsFuture =
+              ref.read(aiResponseSourceDocumentsProvider(
+            message.id,
+            message.uuid,
+            chatId,
+          ).future);
 
-        sourceDocumentsFuture.then((value) {
-          if (isMounted()) sourceDocuments.value = value;
-        }).catchError((e) {
-          debugPrint("Failed to load sources: ${e.toString()}");
-        }).whenComplete(() {
-          if (isMounted()) loading.value = false;
-        });
-
+          sourceDocumentsFuture.then((value) {
+            if (isMounted()) sourceDocuments.value = value;
+          }).catchError((e) {
+            debugPrint("Failed to load sources: ${e.toString()}");
+          }).whenComplete(() {
+            if (isMounted()) loading.value = false;
+          });
+        }
         return () {};
       },
       [
         chatId,
         message.id,
         message.uuid,
+        isLoading,
+        showSources.value,
       ],
     );
 

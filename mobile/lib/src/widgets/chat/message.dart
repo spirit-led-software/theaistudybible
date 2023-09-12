@@ -11,7 +11,7 @@ class Message extends HookConsumerWidget {
   final ChatMessage message;
   final ChatMessage? previousMessage;
   final bool isLoading;
-  final bool isLastMessage;
+  final bool isCurrentResponse;
 
   const Message({
     Key? key,
@@ -19,7 +19,7 @@ class Message extends HookConsumerWidget {
     required this.message,
     this.previousMessage,
     this.isLoading = false,
-    this.isLastMessage = false,
+    this.isCurrentResponse = false,
   }) : super(key: key);
 
   @override
@@ -66,7 +66,7 @@ class Message extends HookConsumerWidget {
           ),
           Flexible(
             child: Text(
-              message.content,
+              message.content + (isCurrentResponse ? "|" : ""),
             ),
           ),
         ],
@@ -86,7 +86,7 @@ class Message extends HookConsumerWidget {
               style: const TextStyle(fontSize: 10),
             ),
             if (message.role == Role.assistant &&
-                !(isLoading && isLastMessage)) ...[
+                !(isLoading && isCurrentResponse)) ...[
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -98,6 +98,8 @@ class Message extends HookConsumerWidget {
                       chatId: chatId,
                       message: message,
                       previousMessage: previousMessage,
+                      isLoading: isLoading,
+                      isCurrentResponse: isCurrentResponse,
                     ),
                   ),
                 ],

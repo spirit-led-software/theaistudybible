@@ -6,12 +6,15 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class LoginScreen extends HookConsumerWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  final bool? resetPassword;
+
+  const LoginScreen({Key? key, this.resetPassword = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,16 +25,61 @@ class LoginScreen extends HookConsumerWidget {
 
     final pendingLogin = useState<Future<void>?>(null);
     final snapshot = useFuture(pendingLogin.value);
+    final alert = useState<Alert?>(null);
 
     final showPassword = useState(false);
-    final isErrored = snapshot.hasError &&
-        snapshot.connectionState != ConnectionState.waiting;
 
     void handleSubmit() {
       final future = ref.read(currentUserProvider.notifier).login(
           emailTextController.value.text, passwordTextController.value.text);
       pendingLogin.value = future;
     }
+
+    useEffect(() {
+      if (resetPassword == true) {
+        alert.value = Alert(
+          message:
+              "Password reset successful. Please login with your new password.",
+          type: AlertType.success,
+        );
+      }
+
+      return () {};
+    }, [resetPassword]);
+
+    useEffect(
+      () {
+        if (snapshot.hasError &&
+            snapshot.connectionState != ConnectionState.waiting) {
+          alert.value = Alert(
+            message: snapshot.error.toString(),
+            type: AlertType.error,
+          );
+        }
+
+        return () {};
+      },
+      [
+        snapshot.connectionState,
+        snapshot.hasError,
+        snapshot.error,
+      ],
+    );
+
+    useEffect(
+      () {
+        if (alert.value != null) {
+          Future.delayed(
+            const Duration(seconds: 8),
+          ).then(
+            (value) => alert.value = null,
+          );
+        }
+
+        return () {};
+      },
+      [alert.value],
+    );
 
     return Scaffold(
       backgroundColor: RAIColors.primary,
@@ -56,14 +104,19 @@ class LoginScreen extends HookConsumerWidget {
                         color: RAIColors.secondary,
                         size: 32,
                       )
-                    : isErrored
+                    : alert.value != null
                         ? Container(
                             padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: alert.value!.type == AlertType.error
+                                  ? Colors.red
+                                  : Colors.green,
+                            ),
                             child: Text(
-                              "Login failed ${snapshot.error}",
+                              alert.value!.message,
                               style: const TextStyle(
                                 color: Colors.white,
-                                backgroundColor: Colors.red,
                               ),
                             ),
                           )
@@ -234,6 +287,9 @@ class LoginScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
                 ),
                 const SizedBox(
                   height: 10,
@@ -245,6 +301,9 @@ class LoginScreen extends HookConsumerWidget {
                   controller: passwordTextController,
                   onSubmitted: (value) {
                     handleSubmit();
+                  },
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
                   },
                   style: TextStyle(
                     color: RAIColors.primary,
@@ -316,7 +375,21 @@ class LoginScreen extends HookConsumerWidget {
                       color: RAIColors.primary,
                     ),
                   ),
-                )
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    context.go('/auth/forgot-password');
+                  },
+                  child: Text(
+                    "Forgot password?",
+                    style: TextStyle(
+                      color: RAIColors.primary,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

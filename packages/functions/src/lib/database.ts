@@ -6,7 +6,7 @@ import { Pool } from "pg";
 export const readOnlyDatabase = drizzle(
   new Pool({
     connectionString: databaseConfig.readOnlyUrl,
-    max: 20,
+    max: 100,
     ssl: true,
   }),
   {
@@ -18,7 +18,7 @@ export const readOnlyDatabase = drizzle(
 export const readWriteDatabase = drizzle(
   new Pool({
     connectionString: databaseConfig.readWriteUrl,
-    max: 20,
+    max: 50,
     ssl: true,
   }),
   {

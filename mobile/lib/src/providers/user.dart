@@ -39,34 +39,29 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> login(String email, String password) async {
-    try {
-      debugPrint(
-          "Logging in using $email at ${API.url}/auth/credentials-mobile/login");
+    debugPrint(
+        "Logging in using $email at ${API.url}/auth/credentials-mobile/login");
 
-      Response res = await post(
-        Uri.parse('${API.url}/auth/credentials-mobile/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-          'password': password,
-        }),
-      );
+    Response res = await post(
+      Uri.parse('${API.url}/auth/credentials-mobile/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+      }),
+    );
 
-      if (res.statusCode != 200) {
-        debugPrint("Failed to login: ${res.statusCode} ${res.body}");
-        throw Exception('Failed to login');
-      }
-
-      var data = jsonDecode(utf8.decode(res.bodyBytes));
-      String session = data['session'];
-
-      state = AsyncData(await _loginWithToken(session));
-    } catch (e) {
-      debugPrint("Failed to login: $e");
+    if (res.statusCode != 200) {
+      debugPrint("Failed to login: ${res.statusCode} ${res.body}");
       throw Exception('Failed to login');
     }
+
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
+    String session = data['session'];
+
+    state = AsyncData(await _loginWithToken(session));
   }
 
   Future<void> loginWithToken(String session) async {
@@ -93,28 +88,57 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> register(String email, String password) async {
-    try {
+    debugPrint(
+        "Registering using $email at ${API.url}/auth/credentials-mobile/register");
+
+    Response res = await post(
+      Uri.parse('${API.url}/auth/credentials-mobile/register'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (res.statusCode != 200) {
+      debugPrint("Failed to register: ${res.statusCode} ${res.body}");
+      throw Exception(['Failed to register user', res.body]);
+    }
+  }
+
+  Future<void> forgotPassword(String email) async {
+    Response res = await get(
+      Uri.parse(
+          '${API.url}/auth/credentials-mobile/forgot-password?email=$email'),
+    );
+
+    if (res.statusCode != 200) {
       debugPrint(
-          "Registering using $email at ${API.url}/auth/credentials-mobile/register");
+          "Failed to send forgot password email: ${res.statusCode} ${res.body}");
+      throw Exception('Failed to send forgot password email');
+    }
+  }
 
-      Response res = await post(
-        Uri.parse('${API.url}/auth/credentials-mobile/register'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-          'password': password,
-        }),
-      );
+  Future<void> resetPassword(String token, String password) async {
+    debugPrint(
+        "Resetting password using token $token at ${API.url}/auth/credentials-mobile/reset-password");
 
-      if (res.statusCode != 200) {
-        debugPrint("Failed to register: ${res.statusCode} ${res.body}");
-        throw Exception(['Failed to register user', res.body]);
-      }
-    } catch (e) {
-      debugPrint("Failed to register: $e");
-      throw Exception(['Failed to register user', e]);
+    Response res = await post(
+      Uri.parse('${API.url}/auth/credentials-mobile/reset-password'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'password': password,
+        'token': token,
+      }),
+    );
+
+    if (res.statusCode != 200) {
+      debugPrint("Failed to reset password: ${res.statusCode} ${res.body}");
+      throw Exception('Failed to reset password');
     }
   }
 

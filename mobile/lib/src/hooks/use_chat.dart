@@ -40,6 +40,8 @@ class UseChatReturnObject {
   final ValueNotifier<bool> loading;
   final ValueNotifier<Error?> error;
 
+  final ValueNotifier<String?> currentResponseId;
+
   final Function(ChatMessage) append;
   final Function reload;
 
@@ -51,6 +53,7 @@ class UseChatReturnObject {
     required this.messages,
     required this.loading,
     required this.error,
+    required this.currentResponseId,
     required this.append,
     required this.reload,
   });
@@ -76,6 +79,7 @@ Function nanoid = () => customAlphabet(
 Future<ChatMessage> getStreamedResponse({
   required ChatRequest chatRequest,
   required ValueNotifier<String?> chatId,
+  required ValueNotifier<String?> currentResponseId,
   required ValueNotifier<List<ChatMessage>?> messages,
   required ObjectRef<List<ChatMessage>> messagesRef,
   Function(StreamedResponse)? onResponse,
@@ -125,6 +129,7 @@ Future<ChatMessage> getStreamedResponse({
     content: '',
     role: Role.assistant,
   );
+  currentResponseId.value = reply.id;
 
   final subscription = response.stream.transform(utf8.decoder).listen((value) {
     reply.content += value;
@@ -137,6 +142,7 @@ Future<ChatMessage> getStreamedResponse({
 
   subscription.onDone(() {
     if (onFinish != null) onFinish(reply);
+    currentResponseId.value = null;
   });
 
   return reply;
@@ -184,6 +190,8 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   ValueNotifier<Error?> error = useState(null);
 
+  ValueNotifier<String?> currentResponseId = useState(null);
+
   TextEditingController inputController =
       useTextEditingController(text: input.value);
 
@@ -194,6 +202,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
         ChatMessage newMessage = await getStreamedResponse(
           chatRequest: chatRequest,
           chatId: chatId,
+          currentResponseId: currentResponseId,
           messages: messages,
           messagesRef: messagesRef,
           onResponse: options.onResponse,
@@ -324,6 +333,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     messages: messages,
     loading: loading,
     error: error,
+    currentResponseId: currentResponseId,
     append: append,
     reload: reload,
   );

@@ -30,6 +30,39 @@ class RegisterScreen extends HookConsumerWidget {
     final showPassword = useState(false);
     final showConfirmPassword = useState(false);
 
+    void handleSubmit() {
+      if (emailTextController.value.text.isEmpty ||
+          passwordTextController.value.text.isEmpty ||
+          confirmPasswordTextController.value.text.isEmpty) {
+        alert.value = Alert(
+          message: "Please fill in all fields",
+          type: AlertType.error,
+        );
+        return;
+      }
+
+      if (passwordTextController.value.text !=
+          confirmPasswordTextController.value.text) {
+        alert.value = Alert(
+          message: "Passwords do not match",
+          type: AlertType.error,
+        );
+        return;
+      }
+
+      final future = ref
+          .read(currentUserProvider.notifier)
+          .register(
+              emailTextController.value.text, passwordTextController.value.text)
+          .then((value) {
+        alert.value = Alert(
+          message: "Check your email for a verification link.",
+          type: AlertType.success,
+        );
+      });
+      pendingRegister.value = future;
+    }
+
     useEffect(
       () {
         if (snapshot.hasError &&
@@ -270,6 +303,9 @@ class RegisterScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
                 ),
                 const SizedBox(
                   height: 10,
@@ -305,6 +341,9 @@ class RegisterScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
                 ),
                 const SizedBox(
                   height: 10,
@@ -340,6 +379,12 @@ class RegisterScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
+                  onTapOutside: (event) {
+                    FocusScope.of(context).unfocus();
+                  },
+                  onSubmitted: (value) {
+                    handleSubmit();
+                  },
                 ),
                 const SizedBox(
                   height: 10,
@@ -359,38 +404,7 @@ class RegisterScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          if (emailTextController.value.text.isEmpty ||
-                              passwordTextController.value.text.isEmpty ||
-                              confirmPasswordTextController
-                                  .value.text.isEmpty) {
-                            alert.value = Alert(
-                              message: "Please fill in all fields",
-                              type: AlertType.error,
-                            );
-                            return;
-                          }
-
-                          if (passwordTextController.value.text !=
-                              confirmPasswordTextController.value.text) {
-                            alert.value = Alert(
-                              message: "Passwords do not match",
-                              type: AlertType.error,
-                            );
-                            return;
-                          }
-
-                          final future = ref
-                              .read(currentUserProvider.notifier)
-                              .register(emailTextController.value.text,
-                                  passwordTextController.value.text)
-                              .then((value) {
-                            alert.value = Alert(
-                              message:
-                                  "Check your email for a verification link.",
-                              type: AlertType.success,
-                            );
-                          });
-                          pendingRegister.value = future;
+                          handleSubmit();
                         },
                         child: const Text(
                           "Register with Email",
