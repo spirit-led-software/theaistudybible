@@ -3,5 +3,5 @@
     "**/.sst": true
   },
   "cSpell.words": ["autocorrect", "autofocus"],
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
