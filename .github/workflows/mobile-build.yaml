@@ -61,9 +61,8 @@ jobs:
         working-directory: mobile
       - id: build_appbundle
         name: Build App Bundle for Android
-        run: |
-          cd mobile
-          flutter build appbundle --release
+        run: flutter build appbundle --release
+        working-directory: mobile
       - name: Archive App Bundle
         uses: actions/upload-artifact@v2
         with:
