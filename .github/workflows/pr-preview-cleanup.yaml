@@ -4,10 +4,6 @@ on:
   pull_request:
     types: [closed]
     branches: [master]
-  # ignore if only the mobile dir changes
-  workflow_dispatch:
-    paths-ignore:
-      - "mobile/**"
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
