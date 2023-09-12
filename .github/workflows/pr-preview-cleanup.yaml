@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [closed]
     branches: [master]
+  # ignore if only the mobile dir changes
+  workflow_dispatch:
+    paths-ignore:
+      - "mobile/**"
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -46,6 +50,8 @@ env:
   STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
   STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
+  ENCODED_FIREBASE_JSON: ${{ secrets.ENCODED_FIREBASE_JSON }}
+
 jobs:
   cleanup:
     name: Cleanup Preview
@@ -63,6 +69,10 @@ jobs:
       - id: install_node_deps
         name: Install Node.js dependencies
         run: npm ci
+      - id: setup_firebase_creds
+        name: Setup Firebase Credentials
+        run: |
+          echo $ENCODED_FIREBASE_JSON | base64 --decode > firebase-service-account.json
       - id: sst_remove
         name: Remove SST deployment
         run: npx sst remove --stage pr-${{ github.event.pull_request.number }}

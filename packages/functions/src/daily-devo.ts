@@ -1,5 +1,7 @@
 import { generateDevotion, getDevotionByDate } from "@services/devotion";
 import { Handler } from "aws-lambda";
+import firebase from "firebase-admin";
+import path from "path";
 
 export const handler: Handler = async (event, _) => {
   console.log(event);
@@ -9,6 +11,19 @@ export const handler: Handler = async (event, _) => {
   if (!devo) {
     devo = await generateDevotion();
   }
+
+  const serviceAccount = require(path.resolve("firebase-service-account.json"));
+  firebase.initializeApp({
+    credential: firebase.credential.cert(serviceAccount),
+  });
+
+  await firebase.messaging().send({
+    topic: "daily-devo",
+    notification: {
+      title: "New Daily Devo",
+      body: devo?.bibleReading,
+    },
+  });
 
   return {
     statusCode: 200,

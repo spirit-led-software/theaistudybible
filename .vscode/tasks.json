@@ -3,30 +3,9 @@
   "tasks": [
     {
       "type": "shell",
-      "label": "web-dev-env",
-      "detail": "Start web development environment",
-      "command": "docker compose down -v --remove-orphans && docker compose --profile web-dev up -d && sleep 5 && turbo dev",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "clean-web-dev-env",
-      "detail": "Start fresh web development environment",
-      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile web-dev up -d && sleep 5 && turbo dev",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "mobile-dev-env",
-      "detail": "Start mobile development environment",
-      "command": "docker compose down -v --remove-orphans && docker compose --profile mobile-dev up -d && sleep 5 && turbo dev",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "clean-mobile-dev-env",
-      "detail": "Start mobile development environment",
-      "command": "docker compose down -v --remove-orphans && rm -rf volumes && docker compose --profile mobile-dev up -d && sleep 5 && turbo dev",
+      "label": "mobile-codegen",
+      "detail": "Generate mobile code",
+      "command": "cd mobile && dart run build_runner build",
       "problemMatcher": []
     }
   ]

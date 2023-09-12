@@ -7,32 +7,31 @@
     "typecheck": "tsc -noEmit"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.11",
-    "@babel/preset-typescript": "^7.22.11",
     "@sparticuz/chromium": "^114.0.0",
     "@types/aws-lambda": "^8.10.119",
-    "@types/bcryptjs": "^2.4.2",
+    "@types/bcryptjs": "^2.4.3",
     "@types/busboy": "^1.5.0",
-    "@types/node": "^20.5.6",
-    "@types/nodemailer": "^6.4.9",
-    "sst": "2.24.13",
+    "@types/node": "^20.6.0",
+    "@types/nodemailer": "^6.4.10",
+    "sst": "2.24.24",
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@middy/core": "^4.6.0",
+    "@middy/core": "^4.6.1",
     "@revelationsai/core": "^1.0.0",
-    "ai": "^2.2.9",
+    "ai": "^2.2.12",
     "bcryptjs": "^2.4.3",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.2.7",
+    "firebase-admin": "^11.10.1",
     "lambda-stream": "^0.5.0",
     "mammoth": "^1.6.0",
-    "openai": "^4.3.0",
+    "openai": "^4.6.0",
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
     "puppeteer-core": "^20.9.0",
-    "stripe": "^13.3.0",
+    "stripe": "^13.5.0",
     "validator": "^13.11.0"
   }
 }

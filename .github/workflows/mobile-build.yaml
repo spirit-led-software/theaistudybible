@@ -1,0 +1,95 @@
+name: Mobile Build
+concurrency: mobile
+on:
+  push:
+    branches: [master]
+  # only build when mobile dir changes
+  workflow_dispatch:
+    paths:
+      - "mobile/**"
+
+# TODO: Figure out how to get these from a single source of truth
+env:
+  WEBSITE_URL: https://revelationsai.com
+  API_URL: https://api.revelationsai.com
+  CHAT_API_URL: https://v2pnd3an3d42xw3hq3stiwij240ssycn.lambda-url.us-east-1.on.aws/
+
+jobs:
+  build_android:
+    name: Android Build
+    runs-on: ubuntu-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-version: "11"
+      - id: setup_flutter
+        name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - id: install_dependencies
+        name: Install dependencies
+        run: flutter pub get
+      - id: generate_code
+        name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+      - id: generate_env_file
+        name: Generate env file
+        run: |
+          echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
+          echo "API_URL=${{ env.API_URL }}" >> .env
+          echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
+      - id: build_apk
+        name: Build APK for Android
+        run: flutter build apk --release
+      - id: build_appbundle
+        name: Build App Bundle for Android
+        run: flutter build appbundle --release
+      - name: Archive APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: android
+          path: build/app/outputs/apk/release/app-release.apk
+      - name: Archive App Bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: android
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  build_ios:
+    name: IOS Build
+    runs-on: macos-latest
+    steps:
+      - id: checkout
+        name: Checkout
+        uses: actions/checkout@v3
+      - id: setup_flutter
+        name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          architecture: x64
+      - id: install_dependencies
+        name: Install dependencies
+        run: flutter pub get
+      - id: generate_code
+        name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+      - id: generate_env_file
+        name: Generate env file
+        run: |
+          echo "WEBSITE_URL=${{ env.WEBSITE_URL }}" >> .env
+          echo "API_URL=${{ env.API_URL }}" >> .env
+          echo "CHAT_API_URL=${{ env.CHAT_API_URL }}" >> .env
+      - id: build_ios
+        name: Build iOS
+        run: flutter build ios --release --no-codesign
+      - name: Archive iOS
+        uses: actions/upload-artifact@v2
+        with:
+          name: ios
+          path: build/ios/iphoneos/Runner.app

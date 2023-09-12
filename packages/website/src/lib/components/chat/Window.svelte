@@ -119,7 +119,7 @@
 				}
 			}
 		});
-		queryClient.invalidateQueries(['chats']);
+		queryClient.invalidateQueries(['infinite-chats']);
 	};
 
 	$: handleAiResponse = async (chatMessage: ChatMessage) => {
@@ -137,7 +137,7 @@
 			} catch (err: any) {
 				alert = `Something went wrong: ${err.message}`;
 			} finally {
-				queryClient.invalidateQueries(['chats']);
+				queryClient.invalidateQueries(['infinite-chats']);
 			}
 		}
 	};

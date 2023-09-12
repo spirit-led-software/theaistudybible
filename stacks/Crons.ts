@@ -19,6 +19,12 @@ export function Crons({ stack }: StackContext) {
         handler: "packages/functions/src/daily-devo.handler",
         bind: [devotionImageBucket],
         permissions: [devotionImageBucket],
+        copyFiles: [
+          {
+            from: "firebase-service-account.json",
+            to: "firebase-service-account.json",
+          },
+        ],
         environment: {
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           DATABASE_READWRITE_URL: dbReadWriteUrl,
