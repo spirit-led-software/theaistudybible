@@ -52,7 +52,7 @@ jobs:
         working-directory: mobile
       - id: generate_code
         name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
         working-directory: mobile
       - id: generate_env_file
         name: Generate env file
@@ -94,7 +94,7 @@ jobs:
         working-directory: mobile
       - id: generate_code
         name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: dart run build_runner build
         working-directory: mobile
       - id: generate_env_file
         name: Generate env file
