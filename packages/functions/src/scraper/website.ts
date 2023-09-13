@@ -29,7 +29,7 @@ type RequestBody = {
 const sqsClient = new SQSClient({});
 
 export const handler = ApiHandler(async (event) => {
-  const { isValid, userInfo } = await validApiHandlerSession();
+  const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
   if (!isValid) {
     return UnauthorizedResponse("You must be logged in to perform this action");
   }

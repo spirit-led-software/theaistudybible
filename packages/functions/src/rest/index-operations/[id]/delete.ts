@@ -13,7 +13,7 @@ export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
     if (!isValid || !(await isAdmin(userInfo.id))) {
       return UnauthorizedResponse();
     }

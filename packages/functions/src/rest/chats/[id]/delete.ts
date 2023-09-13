@@ -17,7 +17,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
     if (!isValid || !isObjectOwner(chat, userInfo.id)) {
       return UnauthorizedResponse("You are not authorized to delete this chat");
     }

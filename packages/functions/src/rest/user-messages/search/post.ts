@@ -27,7 +27,7 @@ export const handler = ApiHandler(async (event) => {
   });
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
