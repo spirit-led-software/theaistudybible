@@ -40,7 +40,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be signed in.");
     }
@@ -49,7 +49,7 @@ export const handler = ApiHandler(async (event) => {
       await getDevotionReactions({
         where: and(
           eq(devotionReactions.devotionId, devotion.id),
-          eq(devotionReactions.userId, userInfo.id)
+          eq(devotionReactions.userId, userWithRoles.id)
         ),
         limit: 1,
       })
@@ -71,7 +71,7 @@ export const handler = ApiHandler(async (event) => {
 
     devoReaction = await createDevotionReaction({
       devotionId: devotion.id,
-      userId: userInfo.id,
+      userId: userWithRoles.id,
       reaction,
     });
     return CreatedResponse(devoReaction);

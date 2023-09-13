@@ -4,7 +4,7 @@
 
 	export let data: PageData;
 
-	$: ({ productInfos, maxQueries, remainingQueries } = data);
+	$: ({ user, productInfos } = data);
 </script>
 
 <svelte:head>
@@ -17,16 +17,16 @@
 		<h2 class="text-md">
 			<span
 				class={`${
-					remainingQueries < 5
+					user.remainingQueries < 5
 						? 'text-red-500'
-						: remainingQueries < 10
+						: user.remainingQueries < 10
 						? 'text-yellow-500'
 						: 'text-green-500'
 				}`}
 			>
-				{remainingQueries}
+				{user.remainingQueries}
 			</span>{' '}
-			of {maxQueries}
+			of {user.maxQueries}
 		</h2>
 		<a href={'https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288'} target="_blank">
 			<button class="px-3 py-2 text-white rounded-lg bg-slate-700 hover:bg-slate-900"
@@ -39,14 +39,14 @@
 			title="Late to Sunday Service"
 			price="Free"
 			features={['10 Daily Queries']}
-			currentLevel={maxQueries >= 10}
+			currentLevel={user.maxQueries >= 10}
 		/>
 		{#each productInfos as productInfo}
 			<PricingCard
 				title={productInfo.product.name}
 				price={productInfo.product.default_price}
 				features={['Ad Free', `${productInfo.product.metadata.queryLimit} Daily Queries`]}
-				currentLevel={maxQueries >= parseInt(productInfo.product.metadata.queryLimit)}
+				currentLevel={user.maxQueries >= parseInt(productInfo.product.metadata.queryLimit)}
 				purchaseLink={productInfo.paymentLink.url}
 			/>
 		{/each}

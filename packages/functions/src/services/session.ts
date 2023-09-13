@@ -14,14 +14,14 @@ export async function validApiHandlerSession(): Promise<
   | {
       isValid: false;
       sessionToken?: SessionValue;
-      userAndRoles?: UserWithRoles;
+      userWithRoles?: UserWithRoles;
       maxQueries?: number;
       remainingQueries?: number;
     }
   | {
       isValid: true;
       sessionToken: SessionValue;
-      userAndRoles: UserWithRoles;
+      userWithRoles: UserWithRoles;
       maxQueries: number;
       remainingQueries: number;
     }
@@ -32,7 +32,7 @@ export async function validApiHandlerSession(): Promise<
       return { isValid: false, sessionToken };
     }
 
-    const [user, roles, queryCount] = await Promise.all([
+    const [user, roles, todaysQueryCount] = await Promise.all([
       getUser(sessionToken.properties.id),
       getUserRoles(sessionToken.properties.id),
       getUserQueryCountByUserIdAndDate(sessionToken.properties.id, new Date()),
@@ -44,18 +44,18 @@ export async function validApiHandlerSession(): Promise<
       return { isValid: false, sessionToken };
     }
 
-    const userAndRoles = {
+    const userWithRoles = {
       ...user,
       roles,
     };
-    const maxQueries = getUserMaxQueries(userAndRoles);
+    const maxQueries = getUserMaxQueries(userWithRoles);
 
     let count = 0;
-    if (queryCount) {
-      count = queryCount.count;
+    if (todaysQueryCount) {
+      count = todaysQueryCount.count;
     } else {
       createUserQueryCount({
-        userId: userAndRoles.id,
+        userId: userWithRoles.id,
         count: 0,
       });
     }
@@ -63,7 +63,7 @@ export async function validApiHandlerSession(): Promise<
     return {
       isValid: true,
       sessionToken,
-      userAndRoles: userAndRoles,
+      userWithRoles: userWithRoles,
       maxQueries,
       remainingQueries: maxQueries - count,
     };

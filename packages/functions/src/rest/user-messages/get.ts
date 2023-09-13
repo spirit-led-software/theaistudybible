@@ -18,13 +18,13 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }
 
     const messages = await getUserMessages({
-      where: eq(userMessages.userId, userInfo.id),
+      where: eq(userMessages.userId, userWithRoles.id),
       limit,
       offset: (page - 1) * limit,
       orderBy: buildOrderBy(userMessages, orderBy, order),

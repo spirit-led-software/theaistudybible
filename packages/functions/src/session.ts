@@ -6,7 +6,7 @@ import { ApiHandler } from "sst/node/api";
 export const handler = ApiHandler(async (event) => {
   console.debug("Received session validation event: ", event);
 
-  const { isValid, userAndRoles, maxQueries, remainingQueries, sessionToken } =
+  const { isValid, userWithRoles, maxQueries, remainingQueries, sessionToken } =
     await validApiHandlerSession();
 
   if (!isValid) {
@@ -15,7 +15,7 @@ export const handler = ApiHandler(async (event) => {
   }
 
   return OkResponse({
-    ...userAndRoles,
+    ...userWithRoles,
     maxQueries,
     remainingQueries,
   } satisfies UserInfo);

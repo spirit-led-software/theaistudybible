@@ -27,7 +27,7 @@ export const handler = ApiHandler(async (event) => {
   });
 
   try {
-    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
@@ -35,7 +35,7 @@ export const handler = ApiHandler(async (event) => {
     const responses = await getAiResponses({
       where: and(
         buildQuery(aiResponses, query),
-        eq(aiResponses.userId, userInfo.id)
+        eq(aiResponses.userId, userWithRoles.id)
       ),
       limit,
       offset: (page - 1) * limit,

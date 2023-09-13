@@ -60,20 +60,20 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
     });
   } else {
     if (tokenSet.claims().name && user.name !== tokenSet.claims().name) {
-      user = await updateUser(user.id, {
+      updateUser(user.id, {
         name: tokenSet.claims().name!,
       });
     }
     if (tokenSet.claims().picture && user.image !== tokenSet.claims().picture) {
-      user = await updateUser(user.id, {
+      updateUser(user.id, {
         image: tokenSet.claims().picture!,
       });
     }
   }
 
-  if (!(await doesUserHaveRole("user", user.id))) {
-    await addRoleToUser("user", user.id);
-  }
+  await doesUserHaveRole("user", user.id).then(async (hasRole) => {
+    if (!hasRole) return await addRoleToUser("user", user!.id);
+  });
 
   return user;
 };

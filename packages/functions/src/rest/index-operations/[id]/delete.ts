@@ -6,15 +6,14 @@ import {
 } from "@lib/api-responses";
 import { deleteIndexOperation, getIndexOperation } from "@services/index-op";
 import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
 
   try {
-    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userInfo.id))) {
+    const { isValid, userWithRoles } = await validApiHandlerSession();
+    if (!isValid || !userWithRoles.id) {
       return UnauthorizedResponse();
     }
 

@@ -24,8 +24,8 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
-    if (!isValid || user.id !== userInfo.id) {
+    const { isValid, userWithRoles } = await validApiHandlerSession();
+    if (!isValid || user.id !== userWithRoles.id) {
       return UnauthorizedResponse(
         "You are not authorized to view this user's query count."
       );

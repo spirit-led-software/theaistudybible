@@ -6,7 +6,7 @@ import { ApiHandler } from "sst/node/api";
 import { generatePageContentEmbeddings } from "../lib/web-scraper";
 
 export const handler = ApiHandler(async (event) => {
-  const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
+  const { isValid, userWithRoles } = await validApiHandlerSession();
   if (!isValid) {
     return {
       statusCode: 401,
@@ -16,7 +16,7 @@ export const handler = ApiHandler(async (event) => {
     };
   }
 
-  if (!(await isAdmin(userInfo.id))) {
+  if (!(await isAdmin(userWithRoles.id))) {
     return {
       statusCode: 403,
       body: JSON.stringify({

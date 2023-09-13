@@ -132,9 +132,9 @@ export function isObjectOwner(object: { userId: string }, userId: string) {
   return object.userId === userId;
 }
 
-export function getUserMaxQueries(userInfo: UserWithRoles) {
+export function getUserMaxQueries(userWithRoles: UserWithRoles) {
   const queryPermissions: string[] = [];
-  userInfo.roles.forEach((role) => {
+  userWithRoles.roles.forEach((role) => {
     const queryPermission = role.permissions.find((permission) => {
       return permission.startsWith("query:");
     });

@@ -18,13 +18,13 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userAndRoles: userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRolesss } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }
 
     const chats = await getChats({
-      where: eq(chatsTable.userId, userInfo.id),
+      where: eq(chatsTable.userId, userWithRolesss.id),
       orderBy: buildOrderBy(chatsTable, orderBy, order),
       offset: (page - 1) * limit,
       limit,
