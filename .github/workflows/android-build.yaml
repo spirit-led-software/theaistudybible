@@ -6,17 +6,12 @@ on:
     # only run if there are changes to the mobile directory
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onpushpull_requestpull_request_targetpathspaths-ignore
     paths:
-      - mobile/**
+      - mobile/android/**
+      - mobile/lib/**
+      - mobile/assets/**
+      - mobile/pubspec.yaml
+      - mobile/pubspec.lock
   workflow_dispatch:
-    inputs:
-      build_android:
-        type: boolean
-        description: "Build Android"
-        default: true
-      build_ios:
-        type: boolean
-        description: "Build iOS"
-        default: true
 
 # TODO: Figure out how to get these from a single source of truth
 env:
@@ -26,7 +21,6 @@ env:
 
 jobs:
   build_android:
-    if: inputs.build_android == null || inputs.build_android
     name: Android Build
     runs-on: ubuntu-latest
     steps:
@@ -68,43 +62,3 @@ jobs:
         with:
           name: android-obfuscation-mapping
           path: mobile/build/android/debug-info/*.symbols
-
-  build_ios:
-    if: inputs.build_ios == null || inputs.build_ios
-    name: IOS Build
-    runs-on: macos-latest
-    steps:
-      - id: setup_flutter
-        name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          architecture: x64
-      - id: flutter_doctor
-        name: Run Flutter Doctor
-        run: flutter doctor -v
-      - id: checkout
-        name: Checkout
-        uses: actions/checkout@v3
-      - id: install_dependencies
-        name: Install dependencies
-        run: flutter pub get
-        working-directory: mobile
-      - id: generate_code
-        name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
-        working-directory: mobile
-      - id: build_ipa
-        name: Build iOS IPA
-        run: flutter build ipa --release --no-codesign --obfuscate --split-debug-info=build/ios/debug-info
-        working-directory: mobile
-      - name: Archive IPA
-        uses: actions/upload-artifact@v2
-        with:
-          name: Runner.xcarchive
-          path: mobile/build/ios/archive/Runner.xcarchive
-      - name: Archive Obfuscation Mapping
-        uses: actions/upload-artifact@v2
-        with:
-          name: ios-obfuscation-mapping
-          path: mobile/build/ios/debug-info/*.symbols
