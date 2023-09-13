@@ -19,6 +19,11 @@ env:
   API_URL: https://api.revelationsai.com
   CHAT_API_URL: https://v2pnd3an3d42xw3hq3stiwij240ssycn.lambda-url.us-east-1.on.aws/
 
+  ENCODED_ANDROID_KEYSTORE: ${{ secrets.ENCODED_ANDROID_KEYSTORE }}
+  ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+  ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+  ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+
 jobs:
   build_android:
     name: Android Build
@@ -47,6 +52,19 @@ jobs:
       - id: generate_code
         name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: mobile
+      - id: generate_keystore
+        name: Generate Keystore
+        run: |
+          echo $ENCODED_ANDROID_KEYSTORE | base64 --decode > android/app/keystore.jks
+        working-directory: mobile
+      - id: generate_keystore_properties
+        name: Generate Keystore Properties
+        run: |
+          echo "storePassword=$ANDROID_STORE_PASSWORD" >> android/key.properties
+          echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
         working-directory: mobile
       - id: build_appbundle
         name: Build App Bundle for Android
