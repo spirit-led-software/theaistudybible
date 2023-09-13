@@ -1,5 +1,5 @@
-name: Mobile Build
-concurrency: mobile
+name: Android Build
+concurrency: android
 on:
   push:
     branches: [master]
