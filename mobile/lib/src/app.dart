@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/routes/routes.dart';
+import 'package:revelationsai/src/screens/splash_screen.dart';
 
 import 'routes/router_listenable.dart';
 
@@ -26,6 +27,9 @@ class MyApp extends HookConsumerWidget {
         initialLocation: "/",
         routes: routes,
         redirect: notifier.redirect,
+        errorBuilder: (context, state) {
+          return const SplashScreen(redirectPath: "/chat");
+        },
       ),
       [notifier],
     );

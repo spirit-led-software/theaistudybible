@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:http/http.dart';
 import 'package:nanoid/nanoid.dart';
@@ -134,11 +135,11 @@ Future<ChatMessage> getStreamedResponse({
   response.stream.transform(utf8.decoder).listen(
     (value) {
       reply.content += value;
-
       messages.value = [
         ...chatRequest.messages,
         reply,
       ];
+      HapticFeedback.mediumImpact();
     },
     onDone: () {
       if (onFinish != null) onFinish(reply);
@@ -253,6 +254,8 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() reload = useCallback(
     () {
+      HapticFeedback.mediumImpact();
+
       if (messagesRef.value.isEmpty) {
         error.value = Exception('No messages to reload');
         return;
@@ -284,6 +287,8 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() handleSubmit = useCallback(
     () {
+      HapticFeedback.mediumImpact();
+
       if (input.value.isEmpty) {
         error.value = Exception('Input cannot be empty');
         return;

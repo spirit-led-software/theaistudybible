@@ -19,6 +19,8 @@ class User with _$User {
     String? image,
     String? stripeCustomerId,
     required List<Role> roles,
+    required int maxQueries,
+    required int remainingQueries,
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

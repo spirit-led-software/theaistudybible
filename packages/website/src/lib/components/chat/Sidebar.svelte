@@ -180,8 +180,8 @@
 	$: if (loadingChatId) activeChatId = loadingChatId;
 </script>
 
-<div
-	class={`absolute flex h-full max-h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-2/5 lg:static ${
+<nav
+	class={`absolute flex flex-grow-0 flex-shrink-0 h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/3 lg:static ${
 		isOpen ? 'w-full' : 'w-0'
 	}`}
 >
@@ -195,7 +195,7 @@
 			<Icon icon="formkit:arrowleft" height={20} width={20} />
 		</button>
 		<div
-			class={`h-full w-full overflow-y-scroll py-4 px-6 text-white lg:px-2 lg:visible ${
+			class={`h-full w-full py-4 px-6 overflow-y-auto text-white lg:px-2 lg:visible ${
 				isOpen ? 'visible' : 'invisible'
 			}`}
 		>
@@ -335,4 +335,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</nav>

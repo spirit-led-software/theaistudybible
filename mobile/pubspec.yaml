@@ -61,6 +61,8 @@ dependencies:
   firebase_core: ^2.15.1
   firebase_messaging: ^14.6.7
   skeletonizer: ^0.7.0
+  flutter_stripe: ^9.4.0
+  package_info_plus: ^4.1.0
 
 dev_dependencies:
   flutter_test:

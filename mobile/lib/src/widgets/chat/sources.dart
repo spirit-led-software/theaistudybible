@@ -124,6 +124,7 @@ class Sources extends HookConsumerWidget {
                   Clipboard.setData(
                     ClipboardData(text: message.content),
                   );
+                  HapticFeedback.mediumImpact();
 
                   Future.delayed(
                     const Duration(seconds: 2),
@@ -167,7 +168,7 @@ class Sources extends HookConsumerWidget {
               ),
               if (loading.value) ...[
                 const SizedBox(width: 5),
-                SpinKitWave(
+                SpinKitRipple(
                   color: RAIColors.primary,
                   size: 10,
                 )
