@@ -17,14 +17,14 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse(
         "You are not logged in or your session has expired."
       );
     }
 
-    const queryCounts = await getUserQueryCountsByUserId(userInfo.id, {
+    const queryCounts = await getUserQueryCountsByUserId(userWithRoles.id, {
       limit,
       offset: (page - 1) * limit,
       orderBy: buildOrderBy(userQueryCounts, orderBy, order),

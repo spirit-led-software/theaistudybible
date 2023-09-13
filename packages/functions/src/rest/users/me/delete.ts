@@ -9,13 +9,13 @@ import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse();
     }
 
-    await deleteUser(userInfo.id);
-    return DeletedResponse(userInfo.id);
+    await deleteUser(userWithRoles.id);
+    return DeletedResponse(userWithRoles.id);
   } catch (error: any) {
     console.error(error);
     return InternalServerErrorResponse(error.stack);

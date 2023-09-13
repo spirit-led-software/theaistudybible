@@ -91,6 +91,25 @@ export async function updateUserQueryCount(
   )[0];
 }
 
+export async function incrementUserQueryCount(userId: string) {
+  const todaysQueries = await getUserQueryCountByUserIdAndDate(
+    userId,
+    new Date()
+  );
+
+  if (todaysQueries) {
+    await updateUserQueryCount(todaysQueries.id, {
+      count: todaysQueries.count + 1,
+    });
+  } else {
+    await createUserQueryCount({
+      userId,
+      count: 1,
+      date: new Date(),
+    });
+  }
+}
+
 export async function deleteUserQueryCount(id: string) {
   return (
     await readWriteDatabase

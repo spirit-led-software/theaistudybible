@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends HookConsumerWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -89,26 +90,28 @@ class AccountScreen extends HookConsumerWidget {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundColor: RAIColors.secondary,
+                  backgroundColor: Colors.grey.shade400,
                   foregroundImage: currentUser.requireValue.image != null
                       ? NetworkImage(
                           currentUser.requireValue.image!,
                         )
                       : null,
-                  child: Text(
-                    currentUser.requireValue.name
-                            ?.substring(0, 1)
-                            .toUpperCase() ??
-                        currentUser.requireValue.email
-                            .substring(0, 1)
-                            .toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 40,
+                  child: Center(
+                    child: Text(
+                      currentUser.requireValue.name
+                              ?.substring(0, 1)
+                              .toUpperCase() ??
+                          currentUser.requireValue.email
+                              .substring(0, 1)
+                              .toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 40,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(
-                  height: 20,
+                  height: 10,
                 ),
                 Text(
                   currentUser.requireValue.name ??
@@ -118,7 +121,37 @@ class AccountScreen extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(
-                  height: 20,
+                  height: 30,
+                ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: RAIColors.secondary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 50,
+                    ),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(10),
+                      ),
+                    ),
+                  ),
+                  onPressed: () async {
+                    await launchUrl(
+                      Uri.parse("https://revelationsai.com/upgrade"),
+                      mode: LaunchMode.externalApplication,
+                      webViewConfiguration: WebViewConfiguration(
+                        headers: {
+                          'rai-session': currentUser.requireValue.session,
+                        },
+                      ),
+                    );
+                  },
+                  child: const Text("Upgrade"),
+                ),
+                const SizedBox(
+                  height: 10,
                 ),
                 TextButton(
                   style: ButtonStyle(

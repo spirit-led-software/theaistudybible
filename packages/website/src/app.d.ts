@@ -1,6 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 
-import type { UserWithRoles } from '@core/model';
+import type { UserInfo } from '@core/model';
 
 // for information about these interfaces
 declare global {
@@ -8,7 +8,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			session?: string;
-			user?: UserWithRoles;
+			user?: UserInfo;
 		}
 		// interface PageData {}
 		// interface Platform {}

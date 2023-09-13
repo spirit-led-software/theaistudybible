@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -50,15 +51,19 @@ class TabsScaffold extends HookWidget {
           switch (value) {
             case 0:
               context.go("/chat");
+              HapticFeedback.mediumImpact();
               break;
             case 1:
               context.go("/devotions");
+              HapticFeedback.mediumImpact();
               break;
             case 2:
               context.go("/account");
+              HapticFeedback.mediumImpact();
               break;
             default:
               context.go("/chat");
+              HapticFeedback.mediumImpact();
               break;
           }
         },

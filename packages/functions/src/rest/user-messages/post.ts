@@ -11,14 +11,14 @@ export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? "{}");
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in.");
     }
 
     const message = await createUserMessage({
       ...data,
-      userId: userInfo.id,
+      userId: userWithRoles.id,
     });
 
     return CreatedResponse(message);

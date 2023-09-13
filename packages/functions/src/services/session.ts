@@ -1,6 +1,12 @@
 import { apiConfig } from "@core/configs";
-import { UserWithRoles } from "@core/model";
-import { getUser, getUserRoles } from "@services/user";
+import { UserInfo, UserWithRoles } from "@core/model";
+import {
+  createUserQueryCount,
+  getUser,
+  getUserMaxQueries,
+  getUserQueryCountByUserIdAndDate,
+  getUserRoles,
+} from "@services/user";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { SessionValue, useSession } from "sst/node/auth";
 
@@ -8,12 +14,16 @@ export async function validApiHandlerSession(): Promise<
   | {
       isValid: false;
       sessionToken?: SessionValue;
-      userInfo?: UserWithRoles;
+      userWithRoles?: UserWithRoles;
+      maxQueries?: number;
+      remainingQueries?: number;
     }
   | {
       isValid: true;
       sessionToken: SessionValue;
-      userInfo: UserWithRoles;
+      userWithRoles: UserWithRoles;
+      maxQueries: number;
+      remainingQueries: number;
     }
 > {
   try {
@@ -22,22 +32,40 @@ export async function validApiHandlerSession(): Promise<
       return { isValid: false, sessionToken };
     }
 
-    const user = await getUser(sessionToken.properties.id);
-    if (!user) {
+    const [user, roles, todaysQueryCount] = await Promise.all([
+      getUser(sessionToken.properties.id),
+      getUserRoles(sessionToken.properties.id),
+      getUserQueryCountByUserIdAndDate(sessionToken.properties.id, new Date()),
+    ]).catch((err) => {
+      console.error("Error validating token:", err);
+      return [null, null, null];
+    });
+    if (!user || !roles) {
       return { isValid: false, sessionToken };
     }
 
-    const roles = await getUserRoles(user.id);
-
-    const userInfo = {
+    const userWithRoles = {
       ...user,
       roles,
     };
+    const maxQueries = getUserMaxQueries(userWithRoles);
+
+    let count = 0;
+    if (todaysQueryCount) {
+      count = todaysQueryCount.count;
+    } else {
+      createUserQueryCount({
+        userId: userWithRoles.id,
+        count: 0,
+      });
+    }
 
     return {
       isValid: true,
       sessionToken,
-      userInfo,
+      userWithRoles: userWithRoles,
+      maxQueries,
+      remainingQueries: maxQueries - count,
     };
   } catch (err: any) {
     console.error("Error validating token:", err);
@@ -50,11 +78,11 @@ export async function validSessionFromEvent(
 ): Promise<
   | {
       isValid: false;
-      userInfo?: UserWithRoles;
+      userInfo?: UserInfo;
     }
   | {
       isValid: true;
-      userInfo: UserWithRoles;
+      userInfo: UserInfo;
     }
 > {
   const response = await fetch(`${apiConfig.url}/session`, {
@@ -71,7 +99,7 @@ export async function validSessionFromEvent(
     return { isValid: false };
   }
 
-  const userInfo: UserWithRoles = await response.json();
+  const userInfo: UserInfo = await response.json();
 
   return {
     isValid: true,

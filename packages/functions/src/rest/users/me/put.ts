@@ -12,7 +12,7 @@ export const handler = ApiHandler(async (event) => {
   const data: UpdateUserData = JSON.parse(event.body ?? "{}");
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You are not logged in.");
     }
@@ -23,7 +23,7 @@ export const handler = ApiHandler(async (event) => {
       );
     }
 
-    const user = await updateUser(userInfo.id, data);
+    const user = await updateUser(userWithRoles.id, data);
 
     return OkResponse(user);
   } catch (error: any) {

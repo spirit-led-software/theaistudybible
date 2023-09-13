@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { UserWithRoles } from '@core/model';
+import type { UserInfo, UserWithRoles } from '@core/model';
 
 export async function getUserInfo(session: string) {
 	const response = await fetch(`${PUBLIC_API_URL}/session`, {
@@ -17,7 +17,7 @@ export async function getUserInfo(session: string) {
 		throw new Error(data.error || 'Error retrieving current user.');
 	}
 
-	const user: UserWithRoles = await response.json();
+	const user: UserInfo = await response.json();
 
 	return user;
 }

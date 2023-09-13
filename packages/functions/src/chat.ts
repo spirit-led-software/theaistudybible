@@ -12,16 +12,12 @@ import {
 import { createChat, getChat, updateChat } from "@services/chat";
 import { getChatModel, getPromptModel } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
-import { getUserMaxQueries, isObjectOwner } from "@services/user";
+import { isObjectOwner } from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@services/user/message";
-import {
-  createUserQueryCount,
-  getUserQueryCountByUserIdAndDate,
-  updateUserQueryCount,
-} from "@services/user/query-count";
+import { incrementUserQueryCount } from "@services/user/query-count";
 import { getDocumentVectorStore } from "@services/vector-db";
 import { LangChainStream, Message } from "ai";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
@@ -84,19 +80,8 @@ export const handler = middy({ streamifyResponse: true }).handler(
         };
       }
 
-      const userDailyQueryCount = await getUserQueryCountByUserIdAndDate(
-        userInfo.id,
-        new Date()
-      );
-
-      const maxQueries = getUserMaxQueries(userInfo);
-      if (!userDailyQueryCount) {
-        createUserQueryCount({
-          userId: userInfo.id,
-          count: 1,
-        });
-      } else if (userDailyQueryCount.count >= maxQueries) {
-        console.log(`Max daily query count of ${maxQueries} reached`);
+      if (userInfo.remainingQueries <= 0) {
+        console.log(`Max daily query count of ${userInfo.maxQueries} reached`);
         return {
           statusCode: 429,
           headers: {
@@ -104,14 +89,12 @@ export const handler = middy({ streamifyResponse: true }).handler(
           },
           body: Readable.from([
             JSON.stringify({
-              error: `Max daily query count of ${maxQueries} reached`,
+              error: `Max daily query count of ${userInfo.maxQueries} reached`,
             }),
           ]),
         };
       } else {
-        updateUserQueryCount(userDailyQueryCount.id, {
-          count: userDailyQueryCount.count + 1,
-        });
+        incrementUserQueryCount(userInfo.id);
       }
 
       let chat: Chat | undefined;

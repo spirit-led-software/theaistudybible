@@ -13,6 +13,7 @@ import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final String? chatId;
@@ -116,6 +117,28 @@ class ChatScreen extends HookConsumerWidget {
                 chat.value?.name ?? "New Chat",
               ),
         actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: RAIColors.secondary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.all(10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () async {
+              await launchUrl(
+                Uri.parse("https://revelationsai.com/upgrade"),
+                mode: LaunchMode.externalApplication,
+                webViewConfiguration: WebViewConfiguration(
+                  headers: {
+                    'rai-session': currentUser.requireValue.session,
+                  },
+                ),
+              );
+            },
+            child: const Text("Upgrade"),
+          ),
           IconButton(
             onPressed: () {
               showModalBottomSheet(

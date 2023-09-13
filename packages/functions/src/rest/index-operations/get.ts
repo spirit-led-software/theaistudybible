@@ -18,8 +18,8 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userInfo.id))) {
+    const { isValid, userWithRoles } = await validApiHandlerSession();
+    if (!isValid || !(await isAdmin(userWithRoles.id))) {
       return UnauthorizedResponse();
     }
 

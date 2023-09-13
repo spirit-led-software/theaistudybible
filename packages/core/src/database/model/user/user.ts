@@ -10,3 +10,8 @@ export type UpdateUserData = Partial<CreateUserData>;
 export type UserWithRoles = User & {
   roles: Role[];
 };
+
+export type UserInfo = UserWithRoles & {
+  remainingQueries: number;
+  maxQueries: number;
+};

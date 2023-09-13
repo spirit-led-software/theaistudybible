@@ -194,7 +194,9 @@ List<RouteBase> routes = [
             child: const AccountScreen(),
           );
         },
-        routes: const [/* TODO: More here soon */],
+        routes: const [
+          // TODO: More account stuff
+        ],
       )
     ],
   )

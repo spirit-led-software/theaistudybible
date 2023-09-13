@@ -170,7 +170,7 @@ class RegisterScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          final url =
+                          const url =
                               "${API.url}/auth/facebook-mobile/authorize";
                           await launchUrlString(
                             url,
@@ -219,7 +219,7 @@ class RegisterScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          final url = "${API.url}/auth/google-mobile/authorize";
+                          const url = "${API.url}/auth/google-mobile/authorize";
                           await launchUrlString(
                             url,
                             mode: LaunchMode.externalApplication,

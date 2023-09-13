@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import Logo from '$lib/components/branding/Logo.svelte';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { isAdmin } from '$lib/services/user';
-	import type { UserWithRoles } from '@core/model';
+	import type { UserInfo } from '@core/model';
 	import Icon from '@iconify/svelte';
+	import CompactLogo from './branding/CompactLogo.svelte';
+	import Logo from './branding/Logo.svelte';
 
-	export let user: UserWithRoles | undefined = undefined;
+	export let user: UserInfo | undefined = undefined;
 
 	let isOpen = false;
 
@@ -54,10 +55,23 @@
 	}`}
 >
 	<nav class="relative flex items-center justify-between h-16 px-4 py-4 bg-slate-700">
-		<a href="/">
+		<a href="/" class="lg:hidden">
+			<CompactLogo size="4xl" colorscheme="light" />
+		</a>
+		<a href="/" class="hidden lg:block">
 			<Logo size="2xl" colorscheme="light" />
 		</a>
-		<div class="lg:hidden">
+		<div class="flex space-x-1 place-items-center lg:hidden">
+			<div>
+				{#if user}
+					<div class="flex flex-col justify-center space-y-1 place-items-center">
+						<Avatar {user} size="sm" />
+						<div class="text-xs text-white">
+							{user.remainingQueries}/{user.maxQueries}
+						</div>
+					</div>
+				{/if}
+			</div>
 			<button
 				class={`flex items-center p-3 text-white duration-300 transform ${
 					!isOpen ? 'rotate-180' : ''
@@ -72,9 +86,7 @@
 				/>
 			</button>
 		</div>
-		<ul
-			class="absolute hidden transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 lg:flex lg:mx-auto lg:items-center lg:w-auto lg:space-x-6"
-		>
+		<ul class="hidden lg:flex lg:mx-auto lg:items-center lg:w-auto lg:space-x-6">
 			{#each navItems as navItem}
 				<li>
 					<a
@@ -99,7 +111,10 @@
 			</li>
 		</ul>
 		{#if user}
-			<div class="hidden space-x-2 lg:flex">
+			<div class="hidden space-x-2 lg:flex place-items-center">
+				<div class="text-xs text-white">
+					Remaining: {user.remainingQueries}
+				</div>
 				<div class="inline-flex items-center justify-center space-x-1">
 					<Avatar {user} size="md" />
 				</div>

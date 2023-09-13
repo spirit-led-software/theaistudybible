@@ -1,33 +1,22 @@
-import { UserWithRoles } from "@core/model";
-import {
-  NotFoundResponse,
-  OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { getUser, getUserRoles } from "@services/user";
+import { UserInfo } from "@core/model";
+import { OkResponse, UnauthorizedResponse } from "@lib/api-responses";
+import { validApiHandlerSession } from "@services/session";
 import { ApiHandler } from "sst/node/api";
-import { useSession } from "sst/node/auth";
 
 export const handler = ApiHandler(async (event) => {
   console.debug("Received session validation event: ", event);
-  const session = useSession();
 
-  if (session.type !== "user") {
-    return UnauthorizedResponse();
+  const { isValid, userWithRoles, maxQueries, remainingQueries, sessionToken } =
+    await validApiHandlerSession();
+
+  if (!isValid) {
+    console.debug("Invalid session token: ", sessionToken);
+    return UnauthorizedResponse("Invalid session token");
   }
 
-  const user = await getUser(session.properties.id);
-  if (!user) {
-    return NotFoundResponse("User not found");
-  }
-
-  const roles = await getUserRoles(user.id);
-
-  const userWithRoles: UserWithRoles = {
-    ...user,
-    roles,
-  };
-
-  console.debug("Returning user: ", userWithRoles);
-  return OkResponse(userWithRoles);
+  return OkResponse({
+    ...userWithRoles,
+    maxQueries,
+    remainingQueries,
+  } satisfies UserInfo);
 });

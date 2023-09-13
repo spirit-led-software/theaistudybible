@@ -16,8 +16,8 @@ export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? "{}");
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userInfo.id))) {
+    const { isValid, userWithRoles } = await validApiHandlerSession();
+    if (!isValid || !(await isAdmin(userWithRoles.id))) {
       return UnauthorizedResponse();
     }
 

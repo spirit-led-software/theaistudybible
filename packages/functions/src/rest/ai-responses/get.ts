@@ -18,13 +18,13 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userInfo } = await validApiHandlerSession();
+    const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be logged in");
     }
 
     const aiResponses = await getAiResponses({
-      where: eq(aiResponsesTable.userId, userInfo.id),
+      where: eq(aiResponsesTable.userId, userWithRoles.id),
       orderBy: buildOrderBy(aiResponsesTable, orderBy, order),
       offset: (page - 1) * limit,
       limit,

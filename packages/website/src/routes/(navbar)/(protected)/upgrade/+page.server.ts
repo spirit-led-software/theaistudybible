@@ -1,30 +1,8 @@
 import { STRIPE_API_KEY } from '$env/static/private';
-import { getUserMaxQueries, getUserQueryCounts } from '$lib/services/user';
 import Stripe from 'stripe';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const user = locals.user!;
-	const { queryCounts } = await getUserQueryCounts(user.id, {
-		session: locals.session!
-	});
-
-	const dayQueries = queryCounts.find((qc) => {
-		const today = new Date();
-		const qcDate = new Date(qc.date);
-		return (
-			qcDate.getUTCFullYear() == today.getFullYear() &&
-			qcDate.getUTCMonth() == today.getMonth() &&
-			qcDate.getUTCDate() == today.getDate()
-		);
-	});
-
-	const maxQueries = getUserMaxQueries(user);
-	let remainingQueries: number = maxQueries;
-	if (dayQueries) {
-		remainingQueries = maxQueries - dayQueries.count;
-	}
-
 	let productInfos: {
 		product: Stripe.Product;
 		paymentLink: Stripe.PaymentLink;
@@ -65,8 +43,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 	});
 
 	return {
-		productInfos,
-		maxQueries,
-		remainingQueries
+		productInfos
 	};
 };
