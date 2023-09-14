@@ -7,7 +7,7 @@
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
-	import Cross from '../branding/Cross.svelte';
+	import CompactLogo from '../branding/CompactLogo.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
 	import ResponseSources from './ResponseSources.svelte';
@@ -46,11 +46,11 @@
 		{#if role === 'user'}
 			<Avatar {user} size="md" class="border shadow-xl border-slate-100" />
 		{:else}
-			<Cross
-				colorscheme="dark"
-				size="md"
-				class="p-1 border rounded-full shadow-xl border-slate-100"
-			/>
+			<div
+				class="flex flex-col justify-center p-1 overflow-hidden border rounded-full shadow-xl place-items-center border-slate-100 bg-slate-700"
+			>
+				<CompactLogo colorscheme="light" size="xl" />
+			</div>
 		{/if}
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
