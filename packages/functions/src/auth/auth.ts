@@ -160,7 +160,7 @@ export const handler = AuthHandler({
       clientID: process.env.APPLE_CLIENT_ID!,
       clientSecret: appleClientSecret,
       scope: "openid name email",
-      onSuccess: async (tokenSet, client) => {
+      onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
         return SessionParameter(user);
       },
@@ -169,7 +169,7 @@ export const handler = AuthHandler({
       clientID: process.env.APPLE_CLIENT_ID!,
       clientSecret: appleClientSecret,
       scope: "openid name email",
-      onSuccess: async (tokenSet, client) => {
+      onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
         return SessionParameter(
           user,

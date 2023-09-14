@@ -73,6 +73,31 @@ class CurrentUser extends _$CurrentUser {
     }
   }
 
+  Future<void> loginWithApple(String authorizationCode) async {
+    debugPrint(
+        "Logging in using Apple at ${API.url}/auth/credentials-mobile/login/apple");
+
+    Response res = await post(
+      Uri.parse('${API.url}/auth/apple-mobile/callback'),
+      headers: <String, String>{
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'code': authorizationCode,
+      },
+    );
+
+    if (res.statusCode != 200) {
+      debugPrint("Failed to login with Apple: ${res.statusCode} ${res.body}");
+      throw Exception('Failed to login with Apple');
+    }
+
+    var data = jsonDecode(utf8.decode(res.bodyBytes));
+    String session = data['session'];
+
+    await loginWithToken(session);
+  }
+
   Future<void> logout() async {
     state = AsyncValue.error(
         const UnauthorizedException("Not logged in"), StackTrace.current);

@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
@@ -116,27 +117,51 @@ class ChatScreen extends HookConsumerWidget {
               ),
         actions: [
           TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: RAIColors.secondary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () async {
-              await launchUrl(
-                Uri.parse("https://revelationsai.com/upgrade"),
-                mode: LaunchMode.externalApplication,
-                webViewConfiguration: WebViewConfiguration(
-                  headers: {
-                    'rai-session': currentUser.requireValue.session,
-                  },
+              style: TextButton.styleFrom(
+                visualDensity: RAIVisualDensity.tightest,
+                backgroundColor: RAIColors.secondary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  top: 20,
+                  bottom: 20,
                 ),
-              );
-            },
-            child: const Text("Upgrade"),
-          ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                await launchUrl(
+                  Uri.parse("https://revelationsai.com/upgrade"),
+                  mode: LaunchMode.externalApplication,
+                  webViewConfiguration: WebViewConfiguration(
+                    headers: {
+                      'rai-session': currentUser.requireValue.session,
+                    },
+                  ),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries}",
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  const Text(
+                    "Upgrade",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              )),
           IconButton(
             onPressed: () {
               showModalBottomSheet(

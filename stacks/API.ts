@@ -6,12 +6,21 @@ import {
   S3,
   STATIC_ENV_VARS,
 } from "@stacks";
-import { Fn } from "aws-cdk-lib";
+import { Duration, Fn } from "aws-cdk-lib";
 import {
   Certificate,
   CertificateValidation,
 } from "aws-cdk-lib/aws-certificatemanager";
-import { Distribution, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import {
+  CacheHeaderBehavior,
+  CachePolicy,
+  Distribution,
+  OriginRequestCookieBehavior,
+  OriginRequestHeaderBehavior,
+  OriginRequestPolicy,
+  ResponseHeadersPolicy,
+  ViewerProtocolPolicy,
+} from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
   FunctionUrlAuthType,
@@ -77,7 +86,41 @@ export function API({ stack }: StackContext) {
         origin: new HttpOrigin(
           Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
         ),
-        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        originRequestPolicy: new OriginRequestPolicy(
+          stack,
+          "chatApiUrlOriginRequestPolicy",
+          {
+            cookieBehavior: OriginRequestCookieBehavior.all(),
+            headerBehavior:
+              OriginRequestHeaderBehavior.allowList("Content-Type"),
+          }
+        ),
+        smoothStreaming: true,
+        cachePolicy: new CachePolicy(stack, "chatApiUrlCachePolicy", {
+          defaultTtl: Duration.minutes(5),
+          maxTtl: Duration.minutes(5),
+          minTtl: Duration.minutes(5),
+          headerBehavior: CacheHeaderBehavior.allowList("Authorization"),
+          cookieBehavior: OriginRequestCookieBehavior.none(),
+        }),
+        allowedMethods: {
+          methods: [HttpMethod.POST, HttpMethod.OPTIONS],
+        },
+        responseHeadersPolicy: new ResponseHeadersPolicy(
+          stack,
+          "chatApiUrlResponseHeadersPolicy",
+          {
+            corsBehavior: {
+              accessControlAllowCredentials: true,
+              accessControlAllowHeaders: ["*"],
+              accessControlAllowMethods: ["*"],
+              accessControlAllowOrigins: [websiteUrl],
+              accessControlExposeHeaders: ["*"],
+              originOverride: false,
+            },
+          }
+        ),
       },
       domainNames: [`chat.${apiDomainName}`],
       certificate: new Certificate(stack, "chatApiUrlCertificate", {

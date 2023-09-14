@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { generators, Issuer } from "openid-client";
 import { useCookie, useDomainName, useFormData, usePath } from "sst/node/api";
 import { createAdapter } from "sst/node/auth";
@@ -54,17 +53,15 @@ export const AppleAdapter = createAdapter((config: AppleConfig) => {
       const form = useFormData();
       if (!form) throw new Error("Missing body");
       const params = Object.fromEntries(form.entries());
+
       const code_verifier = useCookie("auth-code-verifier");
       const state = useCookie("auth-state");
-      console.log({ params, code_verifier, state });
+
       const tokenset = await client.callback(callback, params, {
         code_verifier,
         state,
       });
-      const idJwt = jwt.decode(tokenset.id_token!, {
-        complete: true,
-      });
-      console.log({ idJwt });
+
       return config.onSuccess(tokenset, client);
     }
 
