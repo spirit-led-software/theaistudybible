@@ -16,8 +16,14 @@ flutter pub get
 # Run code generation scripts.
 flutter pub run build_runner build --delete-conflicting-outputs
 
+# Execute flutter build config command.
+flutter build ios --config-only \
+  --dart-define "WEBSITE_URL=$WEBSITE_URL" \
+  --dart-define "API_URL=$API_URL" \
+  --dart-define "CHAT_API_URL=$CHAT_API_URL"
+
 # Install CocoaPods using Homebrew.
-export HOMEBREW_NO_AUTO_UPDATE=1 # disable homebrew's automatic updates.
+HOMEBREW_NO_AUTO_UPDATE=1 # disable homebrew's automatic updates.
 brew install cocoapods
 
 # Install CocoaPods dependencies.
