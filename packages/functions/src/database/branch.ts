@@ -310,7 +310,7 @@ function formConnectionUrls(
         type: determineDbType(database.name, endpoint.type),
         url: `postgres://${role.name}:${role.password}@${host}/${
           database.name
-        }?options=${encodeURIComponent(`endpoint=${endpoint.id}`)}`,
+        }?options=${encodeURIComponent(`endpoint=${endpoint.id}-pooler`)}`,
       });
     }
   }
