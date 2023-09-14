@@ -11,13 +11,15 @@ import {
   HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
+import { CnameRecord } from "aws-cdk-lib/aws-route53";
 import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
-  const { hostedZone, domainName, websiteUrl } = use(Constants);
+  const { hostedZone, domainName, domainNamePrefix, websiteUrl } =
+    use(Constants);
   const { auth } = use(Auth);
   const { devotionImageBucket } = use(S3);
   const {
@@ -58,6 +60,13 @@ export function API({ stack }: StackContext) {
     },
     authType: FunctionUrlAuthType.NONE,
   });
+  const chatUrlCnameRecord = new CnameRecord(stack, "chatUrlCnameRecord", {
+    zone: hostedZone,
+    recordName: `chat.api.${domainNamePrefix}`,
+    domainName: chatApiFunctionUrl.url.replace("https://", "").replace("/", ""),
+  });
+  const chatApiUrl = `https://${chatUrlCnameRecord.domainName}`;
+  lambdaEnv.CHAT_API_URL = chatApiUrl;
 
   const api = new Api(stack, "api", {
     routes: {
@@ -223,14 +232,14 @@ export function API({ stack }: StackContext) {
   });
 
   stack.addOutputs({
-    ChatApiUrl: chatApiFunctionUrl.url,
+    ChatApiUrl: chatApiUrl,
     ApiUrl: apiUrl,
   });
 
   return {
     chatApiFunction,
     chatApiFunctionUrl,
-    chatApiUrl: chatApiFunctionUrl.url,
+    chatApiUrl,
     api,
     apiDomainName,
     apiUrl,
