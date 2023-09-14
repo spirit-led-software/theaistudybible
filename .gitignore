@@ -21,3 +21,4 @@ volumes
 test
 
 firebase-service-account.json
+apple-auth-key.p8

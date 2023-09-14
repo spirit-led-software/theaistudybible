@@ -10,7 +10,10 @@ import {
 import { addRoleToUser, doesUserHaveRole } from "@services/role";
 import { createUser, getUserByEmail, updateUser } from "@services/user";
 import * as bcrypt from "bcryptjs";
+import fs from "fs";
+import jwt from "jsonwebtoken";
 import { TokenSet } from "openid-client";
+import path from "path";
 import pug from "pug";
 import {
   AuthHandler,
@@ -18,7 +21,7 @@ import {
   GoogleAdapter,
   Session,
 } from "sst/node/auth";
-import { CredentialsAdapter } from "./providers";
+import { AppleAdapter, CredentialsAdapter } from "./providers";
 
 const SessionResponse = (user: User) => {
   const session = Session.create({
@@ -49,6 +52,39 @@ const SessionParameter = (user: User, url?: string) =>
       id: user.id,
     },
   });
+
+const AppleClientSecret = () => {
+  const audience = "https://appleid.apple.com";
+  const keyId = process.env.APPLE_KEY_ID!;
+  const teamId = process.env.APPLE_TEAM_ID!;
+  const clientId = process.env.APPLE_CLIENT_ID!;
+
+  const privateKey = fs
+    .readFileSync(path.resolve("apple-auth-key.p8"))
+    .toString();
+
+  const clientSecret = jwt.sign(
+    {
+      iss: teamId,
+      iat: Math.floor(Date.now() / 1000) - 30, // 30 seconds ago
+      exp: Math.floor(Date.now() / 1000) + 86400 * 180, // 180 days
+      aud: audience,
+      sub: clientId,
+    },
+    privateKey,
+    {
+      algorithm: "ES256",
+      header: {
+        alg: "ES256",
+        kid: keyId,
+      },
+    }
+  );
+
+  return clientSecret;
+};
+
+const appleClientSecret = AppleClientSecret();
 
 const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
   let user = await getUserByEmail(tokenSet.claims().email!);
@@ -102,21 +138,38 @@ export const handler = AuthHandler({
       },
     }),
     google: GoogleAdapter({
-      mode: "oauth",
+      mode: "oidc",
       clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      scope: "openid email",
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
         return SessionParameter(user);
       },
     }),
     "google-mobile": GoogleAdapter({
-      mode: "oauth",
+      mode: "oidc",
       clientID: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      scope: "openid email",
       onSuccess: async (tokenSet) => {
+        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
+        return SessionParameter(
+          user,
+          "revelationsai://revelationsai/auth/callback"
+        );
+      },
+    }),
+    apple: AppleAdapter({
+      clientID: process.env.APPLE_CLIENT_ID!,
+      clientSecret: appleClientSecret,
+      scope: "openid name email",
+      onSuccess: async (tokenSet, client) => {
+        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
+        return SessionParameter(user);
+      },
+    }),
+    "apple-mobile": AppleAdapter({
+      clientID: process.env.APPLE_CLIENT_ID!,
+      clientSecret: appleClientSecret,
+      scope: "openid name email",
+      onSuccess: async (tokenSet, client) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
         return SessionParameter(
           user,

@@ -6,13 +6,22 @@ import {
   S3,
   STATIC_ENV_VARS,
 } from "@stacks";
+import { Fn } from "aws-cdk-lib";
+import {
+  Certificate,
+  CertificateValidation,
+} from "aws-cdk-lib/aws-certificatemanager";
+import { Distribution, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
   FunctionUrlAuthType,
   HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
-import { CnameRecord } from "aws-cdk-lib/aws-route53";
+import { ARecord, AaaaRecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
+
+const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -60,13 +69,45 @@ export function API({ stack }: StackContext) {
     },
     authType: FunctionUrlAuthType.NONE,
   });
-  const chatUrlCnameRecord = new CnameRecord(stack, "chatUrlCnameRecord", {
+  const chatApiUrlDistribution = new Distribution(
+    stack,
+    "chatApiUrlDistribution",
+    {
+      defaultBehavior: {
+        origin: new HttpOrigin(
+          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
+        ),
+        viewerProtocolPolicy: ViewerProtocolPolicy.HTTPS_ONLY,
+      },
+      domainNames: [`chat.${apiDomainName}`],
+      certificate: new Certificate(stack, "chatApiUrlCertificate", {
+        domainName: `chat.${apiDomainName}`,
+        validation: CertificateValidation.fromDns(hostedZone),
+      }),
+    }
+  );
+  const chatApiUrlARecord = new ARecord(stack, "chatApiUrlARecord", {
     zone: hostedZone,
     recordName: `chat.api.${domainNamePrefix}`,
-    domainName: chatApiFunctionUrl.url.replace("https://", "").replace("/", ""),
+    target: RecordTarget.fromAlias({
+      bind: () => ({
+        dnsName: chatApiUrlDistribution.distributionDomainName,
+        hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+      }),
+    }),
   });
-  const chatApiUrl = `https://${chatUrlCnameRecord.domainName}`;
-  lambdaEnv.CHAT_API_URL = chatApiUrl;
+  const chatApiUrlAAAARecord = new AaaaRecord(stack, "chatApiUrlAAAARecord", {
+    zone: hostedZone,
+    recordName: `chat.api.${domainNamePrefix}`,
+    target: RecordTarget.fromAlias({
+      bind: () => ({
+        dnsName: chatApiUrlDistribution.distributionDomainName,
+        hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+      }),
+    }),
+  });
+  chatApiUrlAAAARecord.node.addDependency(chatApiUrlARecord);
+  const chatApiUrl = `https://${chatApiUrlAAAARecord.domainName}`;
 
   const api = new Api(stack, "api", {
     routes: {

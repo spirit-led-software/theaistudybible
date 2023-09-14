@@ -109,6 +109,16 @@
 						Login with Facebook
 					</button>
 				</form>
+				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
+					<input type="hidden" name="provider" value="apple" />
+					<button
+						type="submit"
+						class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
+					>
+						<Icon icon="fa6-brands:apple" class="inline-block mr-2 text-white" />
+						Login with Apple
+					</button>
+				</form>
 			</div>
 			<form
 				class="flex flex-col w-full pt-4 space-y-3"

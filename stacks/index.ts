@@ -36,9 +36,13 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   // Unstructured
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
 
+  // Apple Auth
+  APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID!,
+  APPLE_TEAM_ID: process.env.APPLE_TEAM_ID!,
+  APPLE_KEY_ID: process.env.APPLE_KEY_ID!,
+
   // Google Auth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
 
   // Facebook Auth
   FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID!,

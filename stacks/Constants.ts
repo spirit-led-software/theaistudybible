@@ -8,9 +8,11 @@ export function Constants({ stack, app }: StackContext) {
   });
 
   const domainNamePrefix = `${
-    stack.stage !== "prod" ? `${stack.stage}.test.` : ""
+    stack.stage !== "prod" ? `${stack.stage}.test` : ""
   }`;
-  const domainName = `${domainNamePrefix}${hostedZone.zoneName}`;
+  const domainName = `${
+    domainNamePrefix.length > 0 ? `${domainNamePrefix}.` : ""
+  }${hostedZone.zoneName}`;
 
   const providedDevWebsiteUrl = process.env.WEBSITE_URL;
   const websiteUrl =
