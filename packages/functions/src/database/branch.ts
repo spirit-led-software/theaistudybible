@@ -204,7 +204,7 @@ export async function updateBranch(
           {
             endpoint: {
               provisioner: "k8s-neonvm",
-              autoscaling_limit_min_cu: 0.5,
+              autoscaling_limit_min_cu: 1,
               autoscaling_limit_max_cu: 7,
               suspend_timeout_seconds: 0,
             },
