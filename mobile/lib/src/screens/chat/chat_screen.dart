@@ -66,9 +66,7 @@ class ChatScreen extends HookConsumerWidget {
     }, [chatId]);
 
     useEffect(() {
-      if (messages.value.isNotEmpty) {
-        chatObj.messages.value = messages.value;
-      }
+      chatObj.messages.value = messages.value;
       return () {};
     }, [
       messages.value,
