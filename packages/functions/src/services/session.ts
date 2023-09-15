@@ -1,5 +1,5 @@
 import { apiConfig } from "@core/configs";
-import { UserInfo, UserQueryCount, UserWithRoles } from "@core/model";
+import { UserInfo, UserWithRoles } from "@core/model";
 import {
   createUserQueryCount,
   getUser,
@@ -35,24 +35,23 @@ export async function validApiHandlerSession(): Promise<
     const [user, roles, todaysQueryCount] = await Promise.all([
       getUser(sessionToken.properties.id),
       getUserRoles(sessionToken.properties.id),
-      getUserQueryCountByUserIdAndDate(
-        sessionToken.properties.id,
-        new Date()
-      ).then(async (queryCount): Promise<UserQueryCount> => {
-        if (!queryCount) {
-          return await createUserQueryCount({
-            userId: userWithRoles.id,
-            count: 0,
-          });
-        }
-        return queryCount;
-      }),
+      getUserQueryCountByUserIdAndDate(sessionToken.properties.id, new Date()),
     ]).catch((err) => {
       console.error("Error validating token:", err);
       return [null, null, null];
     });
-    if (!user || !roles || !todaysQueryCount) {
+    if (!user || !roles) {
       return { isValid: false, sessionToken };
+    }
+
+    let count = 0;
+    if (todaysQueryCount) {
+      count = todaysQueryCount.count;
+    } else {
+      await createUserQueryCount({
+        userId: user.id,
+        count: 0,
+      }).then((newCount) => (count = newCount.count));
     }
 
     const userWithRoles = {
@@ -66,7 +65,7 @@ export async function validApiHandlerSession(): Promise<
       sessionToken,
       userWithRoles: userWithRoles,
       maxQueries,
-      remainingQueries: maxQueries - todaysQueryCount.count,
+      remainingQueries: maxQueries - count,
     };
   } catch (err: any) {
     console.error("Error validating token:", err);
