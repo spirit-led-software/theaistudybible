@@ -1,9 +1,11 @@
 import { NeonDocLLMChainExtractor } from "@core/chains/NeonDocLLMChainExtractor";
+import { websiteConfig } from "@core/configs";
 import { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
 import { NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
+import httpCors from "@middy/http-cors";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,
@@ -33,255 +35,276 @@ import {
 } from "langchain/schema";
 import { Readable } from "stream";
 
-export const handler = middy({ streamifyResponse: true }).handler(
-  async (event: APIGatewayProxyEventV2): Promise<any | void> => {
-    console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
+const lambdaHandler = async (
+  event: APIGatewayProxyEventV2
+): Promise<any | void> => {
+  console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
 
-    if (!event.body) {
-      console.log("Missing body");
+  if (!event.body) {
+    console.log("Missing body");
+    return {
+      statusCode: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: Readable.from([JSON.stringify({ error: "Missing body" })]),
+    };
+  }
+
+  const { messages, chatId }: { messages: Message[]; chatId: string } =
+    JSON.parse(event.body);
+
+  try {
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== "user") {
+      console.log("Invalid last message");
       return {
         statusCode: 400,
         headers: {
           "Content-Type": "application/json",
         },
-        body: Readable.from([JSON.stringify({ error: "Missing body" })]),
+        body: Readable.from([
+          JSON.stringify({ error: "Invalid last message" }),
+        ]),
       };
     }
 
-    const { messages, chatId }: { messages: Message[]; chatId: string } =
-      JSON.parse(event.body);
+    const { isValid, userInfo } = await validSessionFromEvent(event);
+    if (!isValid) {
+      console.log("Invalid session token");
+      return {
+        statusCode: 401,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: Readable.from([
+          JSON.stringify({ error: "Invalid session token" }),
+        ]),
+      };
+    }
 
-    try {
-      const lastMessage = messages[messages.length - 1];
-      if (!lastMessage || lastMessage.role !== "user") {
-        console.log("Invalid last message");
-        return {
-          statusCode: 400,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: Readable.from([
-            JSON.stringify({ error: "Invalid last message" }),
-          ]),
-        };
-      }
+    if (userInfo.remainingQueries <= 0) {
+      console.log(`Max daily query count of ${userInfo.maxQueries} reached`);
+      return {
+        statusCode: 429,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: Readable.from([
+          JSON.stringify({
+            error: `Max daily query count of ${userInfo.maxQueries} reached`,
+          }),
+        ]),
+      };
+    } else {
+      await incrementUserQueryCount(userInfo.id);
+    }
 
-      const { isValid, userInfo } = await validSessionFromEvent(event);
-      if (!isValid) {
-        console.log("Invalid session token");
-        return {
-          statusCode: 401,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: Readable.from([
-            JSON.stringify({ error: "Invalid session token" }),
-          ]),
-        };
-      }
-
-      if (userInfo.remainingQueries <= 0) {
-        console.log(`Max daily query count of ${userInfo.maxQueries} reached`);
-        return {
-          statusCode: 429,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: Readable.from([
-            JSON.stringify({
-              error: `Max daily query count of ${userInfo.maxQueries} reached`,
-            }),
-          ]),
-        };
-      } else {
-        await incrementUserQueryCount(userInfo.id);
-      }
-
-      let chat: Chat | undefined;
-      if (!chatId) {
-        chat = await createChat({
-          name: messages[0].content,
-          userId: userInfo.id,
-        });
-      } else {
-        chat = await getChat(chatId);
-
-        if (!chat) {
-          console.log(`Chat ${chatId} not found`);
-          return {
-            statusCode: 404,
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: Readable.from([
-              JSON.stringify({ error: `Chat ${chatId} not found` }),
-            ]),
-          };
-        }
-
-        if (!isObjectOwner(chat, userInfo.id)) {
-          console.log("Unauthorized to access chat");
-          return {
-            statusCode: 403,
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: Readable.from([
-              JSON.stringify({ error: "Unauthorized to access chat" }),
-            ]),
-          };
-        }
-      }
-
-      if (chat.name === "New Chat") {
-        chat = await updateChat(chat.id, {
-          name: messages[0].content,
-        });
-      }
-
-      let userMessage: UserMessage | undefined = (
-        await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
-      )[0];
-
-      if (!userMessage) {
-        userMessage = await createUserMessage({
-          aiId: lastMessage.id,
-          text: lastMessage.content,
-          chatId: chat.id,
-          userId: userInfo.id,
-        });
-      } else {
-        const oldAiResponse = (
-          await getAiResponsesByUserMessageId(userMessage.id)
-        )[0];
-        if (oldAiResponse) {
-          await updateAiResponse(oldAiResponse.id, {
-            regenerated: true,
-          });
-        }
-      }
-
-      let aiResponse = await createAiResponse({
-        chatId: chat.id,
-        userMessageId: userMessage.id,
+    let chat: Chat | undefined;
+    if (!chatId) {
+      chat = await createChat({
+        name: messages[0].content,
         userId: userInfo.id,
       });
+    } else {
+      chat = await getChat(chatId);
 
-      const history: BaseMessage[] = messages.map((message) => {
-        return message.role === "user"
-          ? new HumanMessage(message.content)
-          : new AIMessage(message.content);
+      if (!chat) {
+        console.log(`Chat ${chatId} not found`);
+        return {
+          statusCode: 404,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: Readable.from([
+            JSON.stringify({ error: `Chat ${chatId} not found` }),
+          ]),
+        };
+      }
+
+      if (!isObjectOwner(chat, userInfo.id)) {
+        console.log("Unauthorized to access chat");
+        return {
+          statusCode: 403,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: Readable.from([
+            JSON.stringify({ error: "Unauthorized to access chat" }),
+          ]),
+        };
+      }
+    }
+
+    if (chat.name === "New Chat") {
+      chat = await updateChat(chat.id, {
+        name: messages[0].content,
       });
-      history.unshift(
-        new SystemMessage(
-          `You are a Christian chatbot who can answer questions about Christian faith and theology. 
+    }
+
+    let userMessage: UserMessage | undefined = (
+      await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
+    )[0];
+
+    if (!userMessage) {
+      userMessage = await createUserMessage({
+        aiId: lastMessage.id,
+        text: lastMessage.content,
+        chatId: chat.id,
+        userId: userInfo.id,
+      });
+    } else {
+      await getAiResponsesByUserMessageId(userMessage.id).then(
+        async (aiResponses) => {
+          const oldAiResponse = aiResponses[0];
+          if (oldAiResponse) {
+            await updateAiResponse(oldAiResponse.id, {
+              regenerated: true,
+            });
+          }
+        }
+      );
+    }
+
+    let aiResponse = await createAiResponse({
+      chatId: chat.id,
+      userMessageId: userMessage.id,
+      userId: userInfo.id,
+    });
+
+    const history: BaseMessage[] = messages.map((message) => {
+      return message.role === "user"
+        ? new HumanMessage(message.content)
+        : new AIMessage(message.content);
+    });
+    history.unshift(
+      new SystemMessage(
+        `You are a Christian chatbot who can answer questions about Christian faith and theology. 
           
           Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of
           faith.
           
           If you do not know the answer to a question, say that you do not know the answer. If you are asked a
           question that is not about faith or theology, answer that you are not able to answer the question.`
-        )
-      );
-      console.debug(`Chat history: ${JSON.stringify(history)}`);
+      )
+    );
+    console.debug(`Chat history: ${JSON.stringify(history)}`);
 
-      const vectorStore = await getDocumentVectorStore();
-      const chain = ConversationalRetrievalQAChain.fromLLM(
-        getChatModel(),
-        new ContextualCompressionRetriever({
-          baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
-          baseRetriever: vectorStore.asRetriever(6),
+    const vectorStore = await getDocumentVectorStore();
+    const chain = ConversationalRetrievalQAChain.fromLLM(
+      getChatModel(),
+      new ContextualCompressionRetriever({
+        baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+        baseRetriever: vectorStore.asRetriever(6),
+      }),
+      {
+        returnSourceDocuments: true,
+        memory: new BufferMemory({
+          chatHistory: new ChatMessageHistory(history),
+          memoryKey: "chat_history",
+          inputKey: "question",
+          outputKey: "text",
+          returnMessages: true,
         }),
+        questionGeneratorChainOptions: {
+          llm: getPromptModel(),
+        },
+      }
+    );
+    const { stream, handlers } = LangChainStream();
+    const langchainResponsePromise = chain
+      .call(
         {
-          returnSourceDocuments: true,
-          memory: new BufferMemory({
-            chatHistory: new ChatMessageHistory(history),
-            memoryKey: "chat_history",
-            inputKey: "question",
-            outputKey: "text",
-            returnMessages: true,
+          question: lastMessage.content,
+        },
+        CallbackManager.fromHandlers(handlers)
+      )
+      .then(async (result) => {
+        await Promise.all([
+          updateAiResponse(aiResponse.id, {
+            text: result.text,
           }),
-          questionGeneratorChainOptions: {
-            llm: getPromptModel(),
-          },
-        }
-      );
-      const { stream, handlers } = LangChainStream();
-      const responsePromise = chain
-        .call(
-          {
-            question: lastMessage.content,
-          },
-          CallbackManager.fromHandlers(handlers)
-        )
-        .then(async (result) => {
-          await Promise.all([
-            updateAiResponse(aiResponse.id, {
-              text: result.text,
-            }),
-            ...result.sourceDocuments.map(
-              async (sourceDoc: NeonVectorStoreDocument) => {
-                await readWriteDatabase
-                  .insert(aiResponsesToSourceDocuments)
-                  .values({
-                    aiResponseId: aiResponse.id,
-                    sourceDocumentId: sourceDoc.id,
-                  });
-              }
-            )
-          ]);
-        })
-        .catch(async (err) => {
-          console.error(`${err.stack}`);
-          await updateAiResponse(aiResponse.id, {
-            failed: true,
-          });
+          ...result.sourceDocuments.map(
+            async (sourceDoc: NeonVectorStoreDocument) => {
+              await readWriteDatabase
+                .insert(aiResponsesToSourceDocuments)
+                .values({
+                  aiResponseId: aiResponse.id,
+                  sourceDocumentId: sourceDoc.id,
+                });
+            }
+          ),
+        ]);
+      })
+      .catch(async (err) => {
+        console.error(`${err.stack}`);
+        await updateAiResponse(aiResponse.id, {
+          failed: true,
         });
+      });
 
-      const reader = stream.getReader();
-      return {
-        statusCode: 200,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "x-chat-id": chat.id,
-          "x-user-message-id": userMessage.id,
-          "x-ai-response-id": aiResponse.id,
-        },
-        body: new Readable({
-          read() {
-            reader
-              .read()
-              .then(async ({ done, value }: { done: boolean; value?: any }) => {
-                if (done) {
-                  console.log("Finished chat stream response");
-                  await responsePromise;
-                  this.push(null);
-                  return;
-                }
-                console.log(`Pushing value: ${JSON.stringify(value)}`);
-                this.push(value);
-                this.read();
-              })
-              .catch((err) => {
-                console.error(`${err.stack}`);
+    const reader = stream.getReader();
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "x-chat-id": chat.id,
+        "x-user-message-id": userMessage.id,
+        "x-ai-response-id": aiResponse.id,
+      },
+      body: new Readable({
+        read() {
+          reader
+            .read()
+            .then(async ({ done, value }: { done: boolean; value?: any }) => {
+              if (done) {
+                console.log("Finished chat stream response");
+                await langchainResponsePromise; // make sure everything is done before closing the stream
                 this.push(null);
-              });
-          },
-        }),
-      };
-    } catch (error: any) {
-      console.error("Caught error:", error);
-      return {
-        statusCode: 500,
-        headers: {
-          "Content-Type": "application/json",
+                return;
+              }
+              console.log(`Pushing value: ${JSON.stringify(value)}`);
+              this.push(value);
+              this.read();
+            })
+            .catch((err) => {
+              console.error(`${err.stack}`);
+              this.push(null);
+            });
         },
-        body: Readable.from([
-          JSON.stringify({
-            error: error.stack,
-          }),
-        ]),
-      };
-    }
+      }),
+    };
+  } catch (error: any) {
+    console.error("Caught error:", error);
+    return {
+      statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: Readable.from([
+        JSON.stringify({
+          error: error.stack,
+        }),
+      ]),
+    };
   }
-);
+};
+
+export const handler = middy({ streamifyResponse: true })
+  .use(
+    httpCors({
+      origin: websiteConfig.url,
+      methods: ["POST"].join(","),
+      credentials: true,
+      headers: ["authorization", "content-type"].join(","),
+      requestHeaders: ["authorization", "content-type"].join(","),
+      exposeHeaders: [
+        "x-chat-id",
+        "x-user-message-id",
+        "x-ai-response-id",
+        "content-type",
+      ].join(","),
+      disableBeforePreflightResponse: false,
+    })
+  )
+  .handler(lambdaHandler);

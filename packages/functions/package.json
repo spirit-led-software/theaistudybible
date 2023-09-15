@@ -17,7 +17,9 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "@middy/core": "^4.6.1",
+    "@middy/core": "^4.6.2",
+    "@middy/http-cors": "^4.6.2",
+    "@middy/http-error-handler": "^4.6.2",
     "@revelationsai/core": "^1.0.0",
     "ai": "^2.2.12",
     "bcryptjs": "^2.4.3",
