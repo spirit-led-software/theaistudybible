@@ -233,11 +233,12 @@ class ChatScreen extends HookConsumerWidget {
                     opacity: 0.85,
                     child: TextField(
                       controller: chatObj.inputController,
+                      focusNode: chatObj.inputFocusNode,
                       onSubmitted: (value) {
                         chatObj.handleSubmit();
                       },
                       onTapOutside: (event) {
-                        FocusManager.instance.primaryFocus?.unfocus();
+                        chatObj.inputFocusNode.unfocus();
                       },
                       autocorrect: true,
                       textCapitalization: TextCapitalization.sentences,

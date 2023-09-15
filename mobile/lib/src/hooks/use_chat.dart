@@ -34,6 +34,7 @@ class UseChatReturnObject {
 
   final ValueNotifier<String> input;
   final TextEditingController inputController;
+  final FocusNode inputFocusNode;
   final Function handleSubmit;
 
   final ValueNotifier<List<ChatMessage>> messages;
@@ -50,6 +51,7 @@ class UseChatReturnObject {
     required this.chatId,
     required this.input,
     required this.inputController,
+    required this.inputFocusNode,
     required this.handleSubmit,
     required this.messages,
     required this.loading,
@@ -204,6 +206,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   TextEditingController inputController =
       useTextEditingController(text: input.value);
+  FocusNode inputFocusNode = useFocusNode();
 
   Function(ChatRequest) triggerRequest = useCallback(
     (ChatRequest chatRequest) async {
@@ -228,11 +231,9 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
       }
     },
     [
-      chatId,
-      messages,
-      messagesRef,
-      error,
-      loading,
+      chatId.value,
+      messages.value,
+      messagesRef.value,
       options.onResponse,
       options.onFinish,
       options.onError,
@@ -250,9 +251,9 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     },
     [
       triggerRequest,
-      messagesRef.value,
       options.session,
       chatId.value,
+      messagesRef.value,
     ],
   );
 
@@ -283,9 +284,9 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     },
     [
       triggerRequest,
-      messagesRef.value,
       options.session,
       chatId.value,
+      messagesRef.value,
     ],
   );
 
@@ -297,7 +298,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
         error.value = Exception('Input cannot be empty');
         return;
       }
-      FocusManager.instance.primaryFocus?.unfocus();
+      if (inputFocusNode.hasFocus) inputFocusNode.unfocus();
 
       append(
         ChatMessage(
@@ -311,6 +312,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     },
     [
       input.value,
+      inputFocusNode,
       append,
     ],
   );
@@ -326,7 +328,6 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     },
     [
       input,
-      inputController,
     ],
   );
 
@@ -341,7 +342,6 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     },
     [
       inputController,
-      input,
     ],
   );
 
@@ -349,6 +349,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     chatId: chatId,
     input: input,
     inputController: inputController,
+    inputFocusNode: inputFocusNode,
     handleSubmit: handleSubmit,
     messages: messages,
     loading: loading,
