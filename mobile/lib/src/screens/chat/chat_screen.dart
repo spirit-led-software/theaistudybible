@@ -188,38 +188,6 @@ class ChatScreen extends HookConsumerWidget {
             )
           : Stack(
               children: [
-                if (alert.value != null)
-                  Positioned(
-                    top: 5,
-                    left: 10,
-                    right: 10,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: alert.value!.type == AlertType.error
-                            ? Colors.red
-                            : Colors.green,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Flex(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        direction: Axis.horizontal,
-                        children: [
-                          Flexible(
-                            flex: 1,
-                            fit: FlexFit.loose,
-                            child: Text(
-                              alert.value!.message,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -330,6 +298,38 @@ class ChatScreen extends HookConsumerWidget {
                     ),
                   ),
                 ),
+                if (alert.value != null)
+                  Positioned(
+                    top: 5,
+                    left: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: alert.value!.type == AlertType.error
+                            ? Colors.red
+                            : Colors.green,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.all(10),
+                      child: Flex(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        direction: Axis.horizontal,
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            fit: FlexFit.loose,
+                            child: Text(
+                              alert.value!.message,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
     );
