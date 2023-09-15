@@ -91,22 +91,27 @@ class AccountScreen extends HookConsumerWidget {
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey.shade400,
-                  child: Center(
-                    child: currentUser.requireValue.image != null
-                        ? Image.network(
-                            currentUser.requireValue.image!,
-                          )
-                        : Text(
-                            currentUser.requireValue.name
-                                    ?.substring(0, 1)
-                                    .toUpperCase() ??
-                                currentUser.requireValue.email
-                                    .substring(0, 1)
-                                    .toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 40,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Center(
+                      child: currentUser.requireValue.image != null
+                          ? Image.network(
+                              currentUser.requireValue.image!,
+                              scale: 0.5,
+                              filterQuality: FilterQuality.high,
+                            )
+                          : Text(
+                              currentUser.requireValue.name
+                                      ?.substring(0, 1)
+                                      .toUpperCase() ??
+                                  currentUser.requireValue.email
+                                      .substring(0, 1)
+                                      .toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 40,
+                              ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
                 const SizedBox(

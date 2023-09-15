@@ -79,7 +79,9 @@ class RegisterScreen extends HookConsumerWidget {
         );
         return;
       }
-      await ref.read(currentUserProvider.notifier).loginWithToken(token);
+      final future =
+          ref.read(currentUserProvider.notifier).loginWithToken(token);
+      pendingRegister.value = future;
     }
 
     useEffect(
