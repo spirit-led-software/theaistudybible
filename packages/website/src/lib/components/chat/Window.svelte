@@ -75,14 +75,17 @@
 		},
 		onFinish: (message: ChatMessage) => {
 			lastChatMessage = message;
+			scrollEndIntoView();
 		}
 	}));
 
 	$: scrollEndIntoView = () => {
-		endOfMessagesRef?.scrollIntoView({
-			behavior: 'smooth',
-			block: 'end'
-		});
+		if (!isEndOfMessagesRefShowing) {
+			endOfMessagesRef?.scrollIntoView({
+				behavior: 'smooth',
+				block: 'end'
+			});
+		}
 	};
 
 	$: error?.subscribe((err) => {
@@ -106,6 +109,7 @@
 				}
 			}
 		});
+		scrollEndIntoView();
 	};
 
 	$: handleReload = async () => {
@@ -170,7 +174,14 @@
                     index % Math.floor(Math.random() * 10) === 0 && (
                       <AdMessage />
                     )} -->
-							<Message {user} {chatId} {message} prevMessage={$messages[index - 1]} />
+							<Message
+								{user}
+								{chatId}
+								{message}
+								prevMessage={$messages[index - 1]}
+								isChatLoading={$isLoading}
+								isLastMessage={index === $messages.length - 1}
+							/>
 						</div>
 					{/each}
 					<IntersectionObserver
@@ -212,26 +223,30 @@
 			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
 		>
 			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
-				<div class="flex items-center w-full h-auto mr-1">
-					<Icon icon="icon-park:right" class="text-2xl" />
+				<div class="flex items-center w-full h-auto">
+					<Icon icon="icon-park:right" class="mx-1 text-2xl" />
 					<TextAreaAutosize {input} />
-					<button
-						type="button"
-						tabindex={-1}
-						on:click|preventDefault={handleReload}
-						class="mr-1 text-2xl text-slate-700 hover:text-slate-900"
-					>
-						<Icon icon="gg:redo" />
-					</button>
-					{#if $isLoading}
-						<div class="flex mr-1">
-							<LoadingDots size={'sm'} />
-						</div>
-					{:else}
-						<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
-							<Icon icon="majesticons:send-line" />
-						</button>
-					{/if}
+					<div class="flex mr-2">
+						{#if $isLoading}
+							<div class="flex mr-1">
+								<LoadingDots size={'sm'} />
+							</div>
+						{:else}
+							<div class="flex space-x-1">
+								<button
+									type="button"
+									tabindex={-1}
+									on:click|preventDefault={handleReload}
+									class="mr-1 text-2xl text-slate-700 hover:text-slate-900"
+								>
+									<Icon icon="gg:redo" />
+								</button>
+								<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
+									<Icon icon="majesticons:send-line" />
+								</button>
+							</div>
+						{/if}
+					</div>
 				</div>
 			</form>
 		</div>

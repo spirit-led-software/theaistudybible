@@ -6,18 +6,38 @@ import {
   S3,
   STATIC_ENV_VARS,
 } from "@stacks";
+import { Fn } from "aws-cdk-lib";
+import {
+  Certificate,
+  CertificateValidation,
+} from "aws-cdk-lib/aws-certificatemanager";
+import {
+  CacheHeaderBehavior,
+  CachePolicy,
+  Distribution,
+  OriginRequestCookieBehavior,
+  OriginRequestHeaderBehavior,
+  OriginRequestPolicy,
+  ResponseHeadersPolicy,
+  ViewerProtocolPolicy,
+} from "aws-cdk-lib/aws-cloudfront";
+import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
   FunctionUrlAuthType,
   HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
+import { ARecord, AaaaRecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
+
+const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
-  const { hostedZone, domainName, websiteUrl } = use(Constants);
+  const { hostedZone, domainName, domainNamePrefix, websiteUrl } =
+    use(Constants);
   const { auth } = use(Auth);
   const { devotionImageBucket } = use(S3);
   const {
@@ -51,13 +71,92 @@ export function API({ stack }: StackContext) {
     invokeMode: InvokeMode.RESPONSE_STREAM,
     cors: {
       allowCredentials: true,
-      allowedHeaders: ["*"],
+      allowedHeaders: ["Authorization", "Content-Type"],
       allowedMethods: [HttpMethod.ALL],
       allowedOrigins: [websiteUrl],
-      exposedHeaders: ["*"],
+      exposedHeaders: [
+        "x-chat-id",
+        "x-user-message-id",
+        "x-ai-response-id",
+        "content-type",
+      ],
     },
     authType: FunctionUrlAuthType.NONE,
   });
+  const chatApiUrlDistribution = new Distribution(
+    stack,
+    "chatApiUrlDistribution",
+    {
+      defaultBehavior: {
+        origin: new HttpOrigin(
+          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
+        ),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        originRequestPolicy: new OriginRequestPolicy(
+          stack,
+          "chatApiUrlOriginRequestPolicy",
+          {
+            cookieBehavior: OriginRequestCookieBehavior.all(),
+            headerBehavior:
+              OriginRequestHeaderBehavior.allowList("Content-Type"),
+          }
+        ),
+        cachePolicy: new CachePolicy(stack, "chatApiUrlCachePolicy", {
+          headerBehavior: CacheHeaderBehavior.allowList("Authorization"),
+          cookieBehavior: OriginRequestCookieBehavior.none(),
+        }),
+        allowedMethods: {
+          methods: ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"],
+        },
+        responseHeadersPolicy: new ResponseHeadersPolicy(
+          stack,
+          "chatApiUrlResponseHeadersPolicy",
+          {
+            corsBehavior: {
+              accessControlAllowCredentials: true,
+              accessControlAllowHeaders: ["Authorization", "Content-Type"],
+              accessControlAllowMethods: ["POST", "OPTIONS"],
+              accessControlAllowOrigins: [websiteUrl],
+              accessControlExposeHeaders: [
+                "x-chat-id",
+                "x-user-message-id",
+                "x-ai-response-id",
+                "content-type",
+              ],
+              originOverride: true,
+            },
+          }
+        ),
+      },
+      domainNames: [`chat.${apiDomainName}`],
+      certificate: new Certificate(stack, "chatApiUrlCertificate", {
+        domainName: `chat.${apiDomainName}`,
+        validation: CertificateValidation.fromDns(hostedZone),
+      }),
+    }
+  );
+  const chatApiUrlARecord = new ARecord(stack, "chatApiUrlARecord", {
+    zone: hostedZone,
+    recordName: `chat.api.${domainNamePrefix}`,
+    target: RecordTarget.fromAlias({
+      bind: () => ({
+        dnsName: chatApiUrlDistribution.distributionDomainName,
+        hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+      }),
+    }),
+  });
+  const chatApiUrlAAAARecord = new AaaaRecord(stack, "chatApiUrlAAAARecord", {
+    zone: hostedZone,
+    recordName: `chat.api.${domainNamePrefix}`,
+    target: RecordTarget.fromAlias({
+      bind: () => ({
+        dnsName: chatApiUrlDistribution.distributionDomainName,
+        hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+      }),
+    }),
+  });
+  chatApiUrlAAAARecord.node.addDependency(chatApiUrlARecord);
+  const chatApiUrl = `https://${chatApiUrlAAAARecord.domainName}`;
 
   const api = new Api(stack, "api", {
     routes: {
@@ -212,7 +311,7 @@ export function API({ stack }: StackContext) {
     cors: {
       allowCredentials: true,
       allowOrigins: [websiteUrl],
-      allowHeaders: ["*"],
+      allowHeaders: ["Authorization", "Content-Type"],
       allowMethods: ["ANY"],
       exposeHeaders: ["*"],
     },
@@ -223,14 +322,14 @@ export function API({ stack }: StackContext) {
   });
 
   stack.addOutputs({
-    ChatApiUrl: chatApiFunctionUrl.url,
+    ChatApiUrl: chatApiUrl,
     ApiUrl: apiUrl,
   });
 
   return {
     chatApiFunction,
     chatApiFunctionUrl,
-    chatApiUrl: chatApiFunctionUrl.url,
+    chatApiUrl,
     api,
     apiDomainName,
     apiUrl,

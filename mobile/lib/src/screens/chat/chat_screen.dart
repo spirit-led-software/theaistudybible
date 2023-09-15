@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
@@ -116,27 +117,51 @@ class ChatScreen extends HookConsumerWidget {
               ),
         actions: [
           TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: RAIColors.secondary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () async {
-              await launchUrl(
-                Uri.parse("https://revelationsai.com/upgrade"),
-                mode: LaunchMode.externalApplication,
-                webViewConfiguration: WebViewConfiguration(
-                  headers: {
-                    'rai-session': currentUser.requireValue.session,
-                  },
+              style: TextButton.styleFrom(
+                visualDensity: RAIVisualDensity.tightest,
+                backgroundColor: RAIColors.secondary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  top: 20,
+                  bottom: 20,
                 ),
-              );
-            },
-            child: const Text("Upgrade"),
-          ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                await launchUrl(
+                  Uri.parse("https://revelationsai.com/upgrade"),
+                  mode: LaunchMode.externalApplication,
+                  webViewConfiguration: WebViewConfiguration(
+                    headers: {
+                      'rai-session': currentUser.requireValue.session,
+                    },
+                  ),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries}",
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  const Text(
+                    "Upgrade",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              )),
           IconButton(
             onPressed: () {
               showModalBottomSheet(
@@ -163,6 +188,116 @@ class ChatScreen extends HookConsumerWidget {
             )
           : Stack(
               children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                        reverse: true,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.vertical,
+                        itemCount: chatObj.messages.value.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return const SizedBox(
+                              height: 90,
+                            );
+                          }
+
+                          final messagesReversed =
+                              chatObj.messages.value.reversed.toList();
+                          ChatMessage message = messagesReversed[index - 1];
+                          ChatMessage? previousMessage =
+                              index + 1 < messagesReversed.length
+                                  ? messagesReversed[index]
+                                  : null;
+                          return Message(
+                            chatId: chatObj.chatId.value,
+                            message: message,
+                            previousMessage: previousMessage,
+                            isCurrentResponse:
+                                chatObj.currentResponseId.value == message.id,
+                            isLoading: chatObj.loading.value,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  bottom: 10,
+                  left: 10,
+                  right: 10,
+                  child: Opacity(
+                    opacity: 0.85,
+                    child: TextField(
+                      controller: chatObj.inputController,
+                      onSubmitted: (value) {
+                        chatObj.handleSubmit();
+                      },
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
+                      autocorrect: true,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: InputDecoration(
+                        filled: true,
+                        hintText: "Type a message",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        suffixIcon: chatObj.loading.value
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SpinKitWave(
+                                    color: RAIColors.primary,
+                                    size: 20,
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    visualDensity: const VisualDensity(
+                                      vertical: VisualDensity.minimumDensity,
+                                      horizontal: VisualDensity.minimumDensity,
+                                    ),
+                                    onPressed: () {
+                                      chatObj.reload();
+                                    },
+                                    icon: const FaIcon(
+                                      FontAwesomeIcons.arrowRotateRight,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    visualDensity: const VisualDensity(
+                                      vertical: VisualDensity.minimumDensity,
+                                      horizontal: VisualDensity.minimumDensity,
+                                    ),
+                                    onPressed: () {
+                                      chatObj.handleSubmit();
+                                    },
+                                    icon: const Icon(
+                                      Icons.send,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
                 if (alert.value != null)
                   Positioned(
                     top: 5,
@@ -195,108 +330,6 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                Flex(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  direction: Axis.vertical,
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        reverse: true,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        itemCount: chatObj.messages.value.length,
-                        itemBuilder: (context, index) {
-                          final messagesReversed =
-                              chatObj.messages.value.reversed.toList();
-                          ChatMessage message = messagesReversed[index];
-                          ChatMessage? previousMessage =
-                              index + 1 < messagesReversed.length
-                                  ? messagesReversed[index + 1]
-                                  : null;
-                          return Message(
-                            chatId: chatObj.chatId.value,
-                            message: message,
-                            previousMessage: previousMessage,
-                            isCurrentResponse:
-                                chatObj.currentResponseId.value == message.id,
-                            isLoading: chatObj.loading.value,
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 90,
-                    )
-                  ],
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  right: 10,
-                  child: TextField(
-                    controller: chatObj.inputController,
-                    onSubmitted: (value) {
-                      chatObj.handleSubmit();
-                    },
-                    onTapOutside: (event) {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    autocorrect: true,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      hintText: "Type a message",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      suffixIcon: chatObj.loading.value
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SpinKitWave(
-                                  color: RAIColors.primary,
-                                  size: 20,
-                                ),
-                              ],
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  visualDensity: const VisualDensity(
-                                    vertical: VisualDensity.minimumDensity,
-                                    horizontal: VisualDensity.minimumDensity,
-                                  ),
-                                  onPressed: () {
-                                    chatObj.reload();
-                                  },
-                                  icon: const FaIcon(
-                                    FontAwesomeIcons.arrowRotateRight,
-                                    size: 20,
-                                  ),
-                                ),
-                                IconButton(
-                                  visualDensity: const VisualDensity(
-                                    vertical: VisualDensity.minimumDensity,
-                                    horizontal: VisualDensity.minimumDensity,
-                                  ),
-                                  onPressed: () {
-                                    chatObj.handleSubmit();
-                                  },
-                                  icon: const Icon(
-                                    Icons.send,
-                                    size: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ),
               ],
             ),
     );

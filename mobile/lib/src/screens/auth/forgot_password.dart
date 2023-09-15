@@ -18,10 +18,15 @@ class ForgotPasswordScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TextEditingController emailTextController =
         useTextEditingController();
+    final emailFocusNode = useFocusNode();
+
     final TextEditingController passwordTextController =
         useTextEditingController();
+    final passwordFocusNode = useFocusNode();
+
     final TextEditingController confirmPasswordTextController =
         useTextEditingController();
+    final confirmPasswordFocusNode = useFocusNode();
 
     final pending = useState<Future<void>?>(null);
     final snapshot = useFuture(pending.value);
@@ -29,6 +34,47 @@ class ForgotPasswordScreen extends HookConsumerWidget {
 
     final showPassword = useState(false);
     final showConfirmPassword = useState(false);
+
+    void handleSubmit() {
+      if (token == null) {
+        if (emailTextController.text.isEmpty) {
+          alert.value = Alert(
+            message: "Email is required",
+            type: AlertType.error,
+          );
+          return;
+        }
+        pending.value = ref
+            .read(currentUserProvider.notifier)
+            .forgotPassword(
+              emailTextController.text,
+            )
+            .then((value) {
+          alert.value = Alert(
+            message: "Password reset email sent",
+            type: AlertType.success,
+          );
+        });
+      } else {
+        if (passwordTextController.text != confirmPasswordTextController.text) {
+          alert.value = Alert(
+            message: "Passwords do not match",
+            type: AlertType.error,
+          );
+          return;
+        }
+
+        pending.value = ref
+            .read(currentUserProvider.notifier)
+            .resetPassword(
+              token!,
+              passwordTextController.text,
+            )
+            .then((value) {
+          context.go('/auth/login?resetPassword=success');
+        });
+      }
+    }
 
     useEffect(
       () {
@@ -67,236 +113,220 @@ class ForgotPasswordScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: RAIColors.primary,
       body: Center(
-        child: Card(
-          color: Colors.white,
-          elevation: 3,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(0),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Card(
+            color: Colors.white,
+            elevation: 3,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(0),
+              ),
             ),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                (snapshot.connectionState == ConnectionState.waiting)
-                    ? SpinKitSpinningLines(
-                        color: RAIColors.secondary,
-                        size: 32,
-                      )
-                    : alert.value != null
-                        ? Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: alert.value!.type == AlertType.error
-                                  ? Colors.red
-                                  : Colors.green,
-                            ),
-                            child: Text(
-                              alert.value!.message,
-                              style: const TextStyle(
-                                color: Colors.white,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  (snapshot.connectionState == ConnectionState.waiting)
+                      ? SpinKitSpinningLines(
+                          color: RAIColors.secondary,
+                          size: 32,
+                        )
+                      : alert.value != null
+                          ? Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: alert.value!.type == AlertType.error
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                              child: Text(
+                                alert.value!.message,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: RAIColors.primary,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              padding: const EdgeInsets.all(10),
+                              child: const FittedBox(
+                                child: Logo(
+                                  fontSize: 28,
+                                ),
                               ),
                             ),
-                          )
-                        : Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: RAIColors.primary,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            padding: const EdgeInsets.all(10),
-                            child: const FittedBox(
-                              child: Logo(
-                                fontSize: 28,
-                              ),
-                            ),
-                          ),
-                const SizedBox(
-                  height: 30,
-                ),
-                if (token == null)
-                  TextField(
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    controller: emailTextController,
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Email",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: RAIColors.primary,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                if (token != null) ...[
-                  TextField(
-                    autocorrect: false,
-                    obscureText: !showPassword.value,
-                    keyboardType: TextInputType.visiblePassword,
-                    controller: passwordTextController,
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: RAIColors.primary,
-                          width: 1,
-                        ),
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          showPassword.value = !showPassword.value;
-                        },
-                        icon: FaIcon(
-                          showPassword.value
-                              ? FontAwesomeIcons.eye
-                              : FontAwesomeIcons.eyeSlash,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(
-                    height: 10,
+                    height: 30,
                   ),
-                  TextField(
-                    autocorrect: false,
-                    obscureText: !showConfirmPassword.value,
-                    keyboardType: TextInputType.visiblePassword,
-                    controller: confirmPasswordTextController,
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                    },
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Confirm Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
+                  if (token == null)
+                    TextField(
+                      autocorrect: false,
+                      keyboardType: TextInputType.emailAddress,
+                      controller: emailTextController,
+                      focusNode: emailFocusNode,
+                      onTapOutside: (event) {
+                        emailFocusNode.unfocus();
+                      },
+                      onSubmitted: (value) {
+                        emailFocusNode.unfocus();
+                      },
+                      style: TextStyle(
+                        color: RAIColors.primary,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: RAIColors.primary,
-                          width: 1,
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
                         ),
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          showConfirmPassword.value =
-                              !showConfirmPassword.value;
-                        },
-                        icon: FaIcon(
-                          showConfirmPassword.value
-                              ? FontAwesomeIcons.eye
-                              : FontAwesomeIcons.eyeSlash,
-                          size: 18,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: RAIColors.primary,
+                            width: 1,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: RAIColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          padding: const EdgeInsets.only(
-                            top: 15,
-                            bottom: 15,
+                  if (token != null) ...[
+                    TextField(
+                      autocorrect: false,
+                      obscureText: !showPassword.value,
+                      keyboardType: TextInputType.visiblePassword,
+                      controller: passwordTextController,
+                      focusNode: passwordFocusNode,
+                      onTapOutside: (event) {
+                        passwordFocusNode.unfocus();
+                      },
+                      onSubmitted: (value) {
+                        passwordFocusNode.unfocus();
+                      },
+                      style: TextStyle(
+                        color: RAIColors.primary,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: RAIColors.primary,
+                            width: 1,
                           ),
                         ),
-                        onPressed: () async {
-                          if (token == null) {
-                            pending.value = ref
-                                .read(currentUserProvider.notifier)
-                                .forgotPassword(
-                                  emailTextController.text,
-                                )
-                                .then((value) {
-                              alert.value = Alert(
-                                message: "Password reset email sent",
-                                type: AlertType.success,
-                              );
-                            });
-                          } else {
-                            if (passwordTextController.text !=
-                                confirmPasswordTextController.text) {
-                              alert.value = Alert(
-                                message: "Passwords do not match",
-                                type: AlertType.error,
-                              );
-                              return;
-                            }
-
-                            pending.value = ref
-                                .read(currentUserProvider.notifier)
-                                .resetPassword(
-                                  token!,
-                                  passwordTextController.text,
-                                )
-                                .then((value) {
-                              context.go('/auth/login?resetPassword=success');
-                            });
-                          }
-                        },
-                        child: const Text(
-                          "Submit",
-                          style: TextStyle(
-                            color: Colors.white,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            showPassword.value = !showPassword.value;
+                          },
+                          icon: FaIcon(
+                            showPassword.value
+                                ? FontAwesomeIcons.eye
+                                : FontAwesomeIcons.eyeSlash,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    TextField(
+                      autocorrect: false,
+                      obscureText: !showConfirmPassword.value,
+                      keyboardType: TextInputType.visiblePassword,
+                      controller: confirmPasswordTextController,
+                      focusNode: confirmPasswordFocusNode,
+                      onTapOutside: (event) {
+                        confirmPasswordFocusNode.unfocus();
+                      },
+                      onSubmitted: (value) {
+                        confirmPasswordFocusNode.unfocus();
+                      },
+                      style: TextStyle(
+                        color: RAIColors.primary,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Confirm Password",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: RAIColors.primary,
+                            width: 1,
+                          ),
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            showConfirmPassword.value =
+                                !showConfirmPassword.value;
+                          },
+                          icon: FaIcon(
+                            showConfirmPassword.value
+                                ? FontAwesomeIcons.eye
+                                : FontAwesomeIcons.eyeSlash,
+                            size: 18,
                           ),
                         ),
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    context.go('/auth/login');
-                  },
-                  child: Text(
-                    "Know your password? Login here",
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
+                  const SizedBox(
+                    height: 10,
                   ),
-                )
-              ],
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: RAIColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            padding: const EdgeInsets.only(
+                              top: 15,
+                              bottom: 15,
+                            ),
+                          ),
+                          onPressed: () async {
+                            handleSubmit();
+                          },
+                          child: const Text(
+                            "Submit",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      context.go('/auth/login');
+                    },
+                    child: Text(
+                      "Know your password? Login here",
+                      style: TextStyle(
+                        color: RAIColors.primary,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

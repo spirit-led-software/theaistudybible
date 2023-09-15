@@ -44,21 +44,21 @@ export async function validApiHandlerSession(): Promise<
       return { isValid: false, sessionToken };
     }
 
+    let count = 0;
+    if (todaysQueryCount) {
+      count = todaysQueryCount.count;
+    } else {
+      await createUserQueryCount({
+        userId: user.id,
+        count: 0,
+      }).then((newCount) => (count = newCount.count));
+    }
+
     const userWithRoles = {
       ...user,
       roles,
     };
     const maxQueries = getUserMaxQueries(userWithRoles);
-
-    let count = 0;
-    if (todaysQueryCount) {
-      count = todaysQueryCount.count;
-    } else {
-      createUserQueryCount({
-        userId: userWithRoles.id,
-        count: 0,
-      });
-    }
 
     return {
       isValid: true,

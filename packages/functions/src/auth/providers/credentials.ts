@@ -8,7 +8,7 @@ import { createSigner, createVerifier } from "fast-jwt";
 import { useBody, useDomainName, usePath, useQueryParams } from "sst/node/api";
 import { createAdapter, getPrivateKey, getPublicKey } from "sst/node/auth";
 import isEmail from "validator/lib/isEmail";
-import { verifyPassword } from ".";
+import { verifyPassword } from "..";
 
 interface EmailPasswordConfig {
   onRegister: (

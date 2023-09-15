@@ -20,6 +20,10 @@ export function Auth({ stack }: StackContext) {
           from: "emails",
           to: "emails",
         },
+        {
+          from: "apple-auth-key.p8",
+          to: "apple-auth-key.p8",
+        },
       ],
       environment: {
         WEBSITE_URL: websiteUrl,

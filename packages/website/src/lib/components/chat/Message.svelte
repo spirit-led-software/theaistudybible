@@ -1,13 +1,15 @@
 <script lang="ts">
-	import Email from 'svelte-share-buttons-component/src/Email.svelte';
-	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
-	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
-
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
+	import { cn } from '$lib/utils/class-names';
+	import { squareDimensionClasses } from '$lib/utils/sizing';
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
-	import Cross from '../branding/Cross.svelte';
+	import Moment from 'moment';
+	import Email from 'svelte-share-buttons-component/src/Email.svelte';
+	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
+	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
+	import CompactLogo from '../branding/CompactLogo.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
 	import ResponseSources from './ResponseSources.svelte';
@@ -15,6 +17,8 @@
 	export let chatId: string | undefined;
 	export let message: Message;
 	export let prevMessage: Message | undefined = undefined;
+	export let isChatLoading = false;
+	export let isLastMessage = false;
 	export let user: UserWithRoles;
 
 	const url = `${PUBLIC_WEBSITE_URL}/chat`;
@@ -39,25 +43,31 @@
 	}
 </script>
 
-<div
-	class="flex flex-row items-center w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300"
->
+<div class="flex flex-row w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300">
 	<div class="flex flex-col content-start w-12">
 		{#if role === 'user'}
-			<Avatar {user} size="md" class="border shadow-xl border-slate-100" />
+			<Avatar {user} size="lg" class="border shadow-xl border-slate-100" />
 		{:else}
-			<Cross
-				colorscheme="dark"
-				size="md"
-				class="p-1 border rounded-full shadow-xl border-slate-100"
-			/>
+			<div
+				class={cn(
+					squareDimensionClasses['lg'],
+					'overflow-hidden p-1 rounded-full bg-slate-700 shadow-xl border border-slate-100'
+				)}
+			>
+				<div class="flex justify-center w-full h-full place-items-center">
+					<CompactLogo colorscheme="light" size="xl" />
+				</div>
+			</div>
 		{/if}
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<div class="w-full break-words whitespace-pre-wrap">{content}</div>
-		{#if role !== 'user'}
+		<div class="flex justify-end w-full mt-2 text-xs text-gray-400">
+			{Moment(message.createdAt).format('MMMM Do YYYY h:mm a')}
+		</div>
+		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">
-				<ResponseSources aiResponseId={id} {chatId} />
+				<ResponseSources aiResponseId={id} {chatId} {isChatLoading} />
 				<div class="flex join">
 					<CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
 					<dialog bind:this={shareModal} class="modal">

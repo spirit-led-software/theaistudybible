@@ -3,8 +3,6 @@ concurrency: android
 on:
   push:
     branches: [master]
-    # only run if there are changes to the mobile directory
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#onpushpull_requestpull_request_targetpathspaths-ignore
     paths:
       - mobile/android/**
       - mobile/lib/**
@@ -13,11 +11,11 @@ on:
       - mobile/pubspec.lock
   workflow_dispatch:
 
-# TODO: Figure out how to get these from a single source of truth
 env:
+  # TODO: Figure out how to get these from a single source of truth
   WEBSITE_URL: https://revelationsai.com
   API_URL: https://api.revelationsai.com
-  CHAT_API_URL: https://v2pnd3an3d42xw3hq3stiwij240ssycn.lambda-url.us-east-1.on.aws/
+  CHAT_API_URL: https://chat.api.revelationsai.com
 
   ENCODED_ANDROID_KEYSTORE: ${{ secrets.ENCODED_ANDROID_KEYSTORE }}
   ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}

@@ -11,7 +11,7 @@
 
 <svg
 	class={cn(className)}
-	height={squareDimensions[size] * 2.05}
+	height={squareDimensions[size] * 2.1}
 	width={squareDimensions[size] * 2}
 	viewBox="0 0 1026 1024"
 	fill="none"
