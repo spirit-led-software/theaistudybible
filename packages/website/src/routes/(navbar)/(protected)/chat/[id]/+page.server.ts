@@ -34,7 +34,8 @@ async function getMessages(chatId: string, userId: string, session: string) {
 				const message: Message = {
 					id: userMessage.aiId!,
 					content: userMessage.text,
-					role: 'user'
+					role: 'user',
+					createdAt: userMessage.createdAt
 				};
 
 				const { aiResponses: foundAiResponses } = await searchForAiResponses({
@@ -52,7 +53,8 @@ async function getMessages(chatId: string, userId: string, session: string) {
 					.map((aiResponse) => ({
 						id: aiResponse.aiId!,
 						content: aiResponse.text!,
-						role: 'assistant'
+						role: 'assistant',
+						createdAt: aiResponse.createdAt
 					}));
 				return [responses[0], message];
 			})

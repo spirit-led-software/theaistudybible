@@ -5,6 +5,7 @@
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
+	import Moment from 'moment';
 	import Email from 'svelte-share-buttons-component/src/Email.svelte';
 	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
 	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
@@ -61,6 +62,9 @@
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<div class="w-full break-words whitespace-pre-wrap">{content}</div>
+		<div class="flex justify-end w-full mt-2 text-xs text-gray-400">
+			{Moment(message.createdAt).format('MMMM Do YYYY h:mm a')}
+		</div>
 		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">
 				<ResponseSources aiResponseId={id} {chatId} {isChatLoading} />

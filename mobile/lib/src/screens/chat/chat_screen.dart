@@ -220,24 +220,29 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                Flex(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  direction: Axis.vertical,
                   children: [
                     Expanded(
                       child: ListView.builder(
                         reverse: true,
                         shrinkWrap: true,
                         scrollDirection: Axis.vertical,
-                        itemCount: chatObj.messages.value.length,
+                        itemCount: chatObj.messages.value.length + 1,
                         itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return const SizedBox(
+                              height: 90,
+                            );
+                          }
+
                           final messagesReversed =
                               chatObj.messages.value.reversed.toList();
-                          ChatMessage message = messagesReversed[index];
+                          ChatMessage message = messagesReversed[index - 1];
                           ChatMessage? previousMessage =
                               index + 1 < messagesReversed.length
-                                  ? messagesReversed[index + 1]
+                                  ? messagesReversed[index]
                                   : null;
                           return Message(
                             chatId: chatObj.chatId.value,
@@ -250,75 +255,78 @@ class ChatScreen extends HookConsumerWidget {
                         },
                       ),
                     ),
-                    const SizedBox(
-                      height: 90,
-                    )
                   ],
                 ),
                 Positioned(
                   bottom: 10,
                   left: 10,
                   right: 10,
-                  child: TextField(
-                    controller: chatObj.inputController,
-                    onSubmitted: (value) {
-                      chatObj.handleSubmit();
-                    },
-                    onTapOutside: (event) {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                    },
-                    autocorrect: true,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      hintText: "Type a message",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
+                  child: Opacity(
+                    opacity: 0.85,
+                    child: TextField(
+                      controller: chatObj.inputController,
+                      onSubmitted: (value) {
+                        chatObj.handleSubmit();
+                      },
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
+                      autocorrect: true,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: InputDecoration(
+                        filled: true,
+                        hintText: "Type a message",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        suffixIcon: chatObj.loading.value
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SpinKitWave(
+                                    color: RAIColors.primary,
+                                    size: 20,
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    visualDensity: const VisualDensity(
+                                      vertical: VisualDensity.minimumDensity,
+                                      horizontal: VisualDensity.minimumDensity,
+                                    ),
+                                    onPressed: () {
+                                      chatObj.reload();
+                                    },
+                                    icon: const FaIcon(
+                                      FontAwesomeIcons.arrowRotateRight,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    visualDensity: const VisualDensity(
+                                      vertical: VisualDensity.minimumDensity,
+                                      horizontal: VisualDensity.minimumDensity,
+                                    ),
+                                    onPressed: () {
+                                      chatObj.handleSubmit();
+                                    },
+                                    icon: const Icon(
+                                      Icons.send,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
-                      suffixIcon: chatObj.loading.value
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SpinKitWave(
-                                  color: RAIColors.primary,
-                                  size: 20,
-                                ),
-                              ],
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  visualDensity: const VisualDensity(
-                                    vertical: VisualDensity.minimumDensity,
-                                    horizontal: VisualDensity.minimumDensity,
-                                  ),
-                                  onPressed: () {
-                                    chatObj.reload();
-                                  },
-                                  icon: const FaIcon(
-                                    FontAwesomeIcons.arrowRotateRight,
-                                    size: 20,
-                                  ),
-                                ),
-                                IconButton(
-                                  visualDensity: const VisualDensity(
-                                    vertical: VisualDensity.minimumDensity,
-                                    horizontal: VisualDensity.minimumDensity,
-                                  ),
-                                  onPressed: () {
-                                    chatObj.handleSubmit();
-                                  },
-                                  icon: const Icon(
-                                    Icons.send,
-                                    size: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
                     ),
                   ),
                 ),
