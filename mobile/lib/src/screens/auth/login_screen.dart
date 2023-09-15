@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -11,7 +12,6 @@ import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class LoginScreen extends HookConsumerWidget {
   final bool? resetPassword;
@@ -35,6 +35,23 @@ class LoginScreen extends HookConsumerWidget {
       final future = ref.read(currentUserProvider.notifier).login(
           emailTextController.value.text, passwordTextController.value.text);
       pendingLogin.value = future;
+    }
+
+    void handleSocialLogin(String provider) async {
+      final url = "${API.url}/auth/$provider-mobile/authorize";
+      final authResult = await FlutterWebAuth2.authenticate(
+        url: url,
+        callbackUrlScheme: "revelationsai",
+      );
+      final token = Uri.parse(authResult).queryParameters['token'];
+      if (token == null) {
+        alert.value = Alert(
+          message: "Login failed. Please try again.",
+          type: AlertType.error,
+        );
+        return;
+      }
+      await ref.read(currentUserProvider.notifier).loginWithToken(token);
     }
 
     useEffect(() {
@@ -157,12 +174,7 @@ class LoginScreen extends HookConsumerWidget {
                             ),
                           ),
                           onPressed: () async {
-                            const url =
-                                "${API.url}/auth/apple-mobile/authorize";
-                            await launchUrlString(
-                              url,
-                              mode: LaunchMode.externalApplication,
-                            );
+                            handleSocialLogin("apple");
                           },
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -207,12 +219,7 @@ class LoginScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          const url =
-                              "${API.url}/auth/facebook-mobile/authorize";
-                          await launchUrlString(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
+                          handleSocialLogin("facebook");
                         },
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
@@ -256,11 +263,7 @@ class LoginScreen extends HookConsumerWidget {
                           ),
                         ),
                         onPressed: () async {
-                          const url = "${API.url}/auth/google-mobile/authorize";
-                          await launchUrlString(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
+                          handleSocialLogin("google");
                         },
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
