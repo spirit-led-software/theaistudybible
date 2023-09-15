@@ -150,10 +150,10 @@ class DevotionScreen extends HookConsumerWidget {
                   Text(
                     devotion.value!.bibleReading.split(" - ").last,
                   ),
-                  const SizedBox(
-                    height: 40,
-                  ),
                   Container(
+                    margin: const EdgeInsets.only(
+                      top: 40,
+                    ),
                     alignment: Alignment.center,
                     child: const Text(
                       "Summary",
@@ -166,10 +166,10 @@ class DevotionScreen extends HookConsumerWidget {
                   Text(
                     devotion.value!.summary,
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   Container(
+                    margin: const EdgeInsets.only(
+                      top: 20,
+                    ),
                     alignment: Alignment.center,
                     child: const Text(
                       "Reflection",
@@ -182,10 +182,10 @@ class DevotionScreen extends HookConsumerWidget {
                   Text(
                     devotion.value!.reflection!,
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   Container(
+                    margin: const EdgeInsets.only(
+                      top: 20,
+                    ),
                     alignment: Alignment.center,
                     child: const Text(
                       "Prayer",
@@ -198,16 +198,29 @@ class DevotionScreen extends HookConsumerWidget {
                   Text(
                     devotion.value!.prayer!,
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   Container(
+                    margin: const EdgeInsets.only(
+                      top: 20,
+                    ),
                     alignment: Alignment.center,
                     child: const Text(
                       "Generated Image(s)",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(
+                      top: 10,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      images.value[0].caption ?? "No caption",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
                       ),
                     ),
                   ),
@@ -222,10 +235,10 @@ class DevotionScreen extends HookConsumerWidget {
                       );
                     },
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   Container(
+                    margin: const EdgeInsets.only(
+                      top: 20,
+                    ),
                     alignment: Alignment.center,
                     child: const Text(
                       "Sources",

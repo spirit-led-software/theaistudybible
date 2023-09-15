@@ -22,8 +22,11 @@ class LoginScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final TextEditingController emailTextController =
         useTextEditingController();
+    final emailFocusNode = useFocusNode();
+
     final TextEditingController passwordTextController =
         useTextEditingController();
+    final passwordFocusNode = useFocusNode();
 
     final pendingLogin = useState<Future<void>?>(null);
     final snapshot = useFuture(pendingLogin.value);
@@ -105,61 +108,108 @@ class LoginScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: RAIColors.primary,
       body: Center(
-        child: Card(
-          color: Colors.white,
-          elevation: 3,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(0),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Card(
+            color: Colors.white,
+            elevation: 3,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(0),
+              ),
             ),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                (snapshot.connectionState == ConnectionState.waiting)
-                    ? SpinKitSpinningLines(
-                        color: RAIColors.secondary,
-                        size: 32,
-                      )
-                    : alert.value != null
-                        ? Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: alert.value!.type == AlertType.error
-                                  ? Colors.red
-                                  : Colors.green,
-                            ),
-                            child: Text(
-                              alert.value!.message,
-                              style: const TextStyle(
-                                color: Colors.white,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  (snapshot.connectionState == ConnectionState.waiting)
+                      ? SpinKitSpinningLines(
+                          color: RAIColors.secondary,
+                          size: 32,
+                        )
+                      : alert.value != null
+                          ? Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: alert.value!.type == AlertType.error
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                              child: Text(
+                                alert.value!.message,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: RAIColors.primary,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              padding: const EdgeInsets.all(10),
+                              child: const FittedBox(
+                                child: Logo(
+                                  fontSize: 28,
+                                ),
                               ),
                             ),
-                          )
-                        : Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: RAIColors.primary,
-                                width: 1,
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  if (Platform.isIOS) ...[
+                    Flex(
+                      direction: Axis.horizontal,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: RAIColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
                               ),
-                              borderRadius: BorderRadius.circular(15),
+                              padding: const EdgeInsets.only(
+                                top: 15,
+                                bottom: 15,
+                              ),
                             ),
-                            padding: const EdgeInsets.all(10),
-                            child: const FittedBox(
-                              child: Logo(
-                                fontSize: 28,
-                              ),
+                            onPressed: () async {
+                              handleSocialLogin("apple");
+                            },
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FaIcon(
+                                  FontAwesomeIcons.apple,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Login with Apple",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                const SizedBox(
-                  height: 30,
-                ),
-                if (Platform.isIOS) ...[
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
                   Flex(
                     direction: Axis.horizontal,
                     children: [
@@ -176,21 +226,21 @@ class LoginScreen extends HookConsumerWidget {
                             ),
                           ),
                           onPressed: () async {
-                            handleSocialLogin("apple");
+                            handleSocialLogin("facebook");
                           },
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               FaIcon(
-                                FontAwesomeIcons.apple,
+                                FontAwesomeIcons.facebookF,
                                 color: Colors.white,
                               ),
                               SizedBox(
                                 width: 10,
                               ),
                               Text(
-                                "Login with Apple",
+                                "Login with Facebook",
                                 style: TextStyle(
                                   color: Colors.white,
                                 ),
@@ -204,251 +254,213 @@ class LoginScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 10,
                   ),
-                ],
-                Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: RAIColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          padding: const EdgeInsets.only(
-                            top: 15,
-                            bottom: 15,
-                          ),
-                        ),
-                        onPressed: () async {
-                          handleSocialLogin("facebook");
-                        },
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FaIcon(
-                              FontAwesomeIcons.facebookF,
-                              color: Colors.white,
+                  Flex(
+                    direction: Axis.horizontal,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: RAIColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
                             ),
-                            SizedBox(
-                              width: 10,
+                            padding: const EdgeInsets.only(
+                              top: 15,
+                              bottom: 15,
                             ),
-                            Text(
-                              "Login with Facebook",
-                              style: TextStyle(
+                          ),
+                          onPressed: () async {
+                            handleSocialLogin("google");
+                          },
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              FaIcon(
+                                FontAwesomeIcons.google,
                                 color: Colors.white,
                               ),
-                            ),
-                          ],
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "Login with Google",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Flex(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    direction: Axis.horizontal,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "OR",
+                        style: TextStyle(
+                          color: RAIColors.primary,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextField(
+                    autocorrect: false,
+                    keyboardType: TextInputType.emailAddress,
+                    controller: emailTextController,
+                    focusNode: emailFocusNode,
+                    style: TextStyle(
+                      color: RAIColors.primary,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: RAIColors.primary,
+                          width: 1,
                         ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: RAIColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          padding: const EdgeInsets.only(
-                            top: 15,
-                            bottom: 15,
-                          ),
+                    onTapOutside: (event) {
+                      emailFocusNode.unfocus();
+                    },
+                    onSubmitted: (value) {
+                      emailFocusNode.unfocus();
+                      passwordFocusNode.requestFocus();
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextField(
+                    autocorrect: false,
+                    obscureText: !showPassword.value,
+                    keyboardType: TextInputType.visiblePassword,
+                    controller: passwordTextController,
+                    focusNode: passwordFocusNode,
+                    onSubmitted: (value) {
+                      passwordFocusNode.unfocus();
+                    },
+                    onTapOutside: (event) {
+                      passwordFocusNode.unfocus();
+                    },
+                    style: TextStyle(
+                      color: RAIColors.primary,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: RAIColors.primary,
+                          width: 1,
                         ),
-                        onPressed: () async {
-                          handleSocialLogin("google");
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          showPassword.value = !showPassword.value;
                         },
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FaIcon(
-                              FontAwesomeIcons.google,
+                        icon: FaIcon(
+                          showPassword.value
+                              ? FontAwesomeIcons.eye
+                              : FontAwesomeIcons.eyeSlash,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: RAIColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            padding: const EdgeInsets.only(
+                              top: 15,
+                              bottom: 15,
+                            ),
+                          ),
+                          onPressed: () async {
+                            handleSubmit();
+                          },
+                          child: const Text(
+                            "Login with Email",
+                            style: TextStyle(
                               color: Colors.white,
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              "Login with Google",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Flex(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  direction: Axis.horizontal,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "OR",
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      context.go('/auth/register');
+                    },
+                    child: Text(
+                      "Don't have an account? Register",
                       style: TextStyle(
                         color: RAIColors.primary,
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 1,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextField(
-                  autocorrect: false,
-                  keyboardType: TextInputType.emailAddress,
-                  controller: emailTextController,
-                  style: TextStyle(
-                    color: RAIColors.primary,
                   ),
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      context.go('/auth/forgot-password');
+                    },
+                    child: Text(
+                      "Forgot password?",
+                      style: TextStyle(
                         color: RAIColors.primary,
-                        width: 1,
                       ),
                     ),
                   ),
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextField(
-                  autocorrect: false,
-                  obscureText: !showPassword.value,
-                  keyboardType: TextInputType.visiblePassword,
-                  controller: passwordTextController,
-                  onSubmitted: (value) {
-                    handleSubmit();
-                  },
-                  onTapOutside: (event) {
-                    FocusScope.of(context).unfocus();
-                  },
-                  style: TextStyle(
-                    color: RAIColors.primary,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: RAIColors.primary,
-                        width: 1,
-                      ),
-                    ),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        showPassword.value = !showPassword.value;
-                      },
-                      icon: FaIcon(
-                        showPassword.value
-                            ? FontAwesomeIcons.eye
-                            : FontAwesomeIcons.eyeSlash,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: RAIColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          padding: const EdgeInsets.only(
-                            top: 15,
-                            bottom: 15,
-                          ),
-                        ),
-                        onPressed: () async {
-                          handleSubmit();
-                        },
-                        child: const Text(
-                          "Login with Email",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    context.go('/auth/register');
-                  },
-                  child: Text(
-                    "Don't have an account? Register",
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    context.go('/auth/forgot-password');
-                  },
-                  child: Text(
-                    "Forgot password?",
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
