@@ -35,6 +35,47 @@ class ForgotPasswordScreen extends HookConsumerWidget {
     final showPassword = useState(false);
     final showConfirmPassword = useState(false);
 
+    void handleSubmit() {
+      if (token == null) {
+        if (emailTextController.text.isEmpty) {
+          alert.value = Alert(
+            message: "Email is required",
+            type: AlertType.error,
+          );
+          return;
+        }
+        pending.value = ref
+            .read(currentUserProvider.notifier)
+            .forgotPassword(
+              emailTextController.text,
+            )
+            .then((value) {
+          alert.value = Alert(
+            message: "Password reset email sent",
+            type: AlertType.success,
+          );
+        });
+      } else {
+        if (passwordTextController.text != confirmPasswordTextController.text) {
+          alert.value = Alert(
+            message: "Passwords do not match",
+            type: AlertType.error,
+          );
+          return;
+        }
+
+        pending.value = ref
+            .read(currentUserProvider.notifier)
+            .resetPassword(
+              token!,
+              passwordTextController.text,
+            )
+            .then((value) {
+          context.go('/auth/login?resetPassword=success');
+        });
+      }
+    }
+
     useEffect(
       () {
         if (snapshot.hasError &&
@@ -258,38 +299,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                             ),
                           ),
                           onPressed: () async {
-                            if (token == null) {
-                              pending.value = ref
-                                  .read(currentUserProvider.notifier)
-                                  .forgotPassword(
-                                    emailTextController.text,
-                                  )
-                                  .then((value) {
-                                alert.value = Alert(
-                                  message: "Password reset email sent",
-                                  type: AlertType.success,
-                                );
-                              });
-                            } else {
-                              if (passwordTextController.text !=
-                                  confirmPasswordTextController.text) {
-                                alert.value = Alert(
-                                  message: "Passwords do not match",
-                                  type: AlertType.error,
-                                );
-                                return;
-                              }
-
-                              pending.value = ref
-                                  .read(currentUserProvider.notifier)
-                                  .resetPassword(
-                                    token!,
-                                    passwordTextController.text,
-                                  )
-                                  .then((value) {
-                                context.go('/auth/login?resetPassword=success');
-                              });
-                            }
+                            handleSubmit();
                           },
                           child: const Text(
                             "Submit",

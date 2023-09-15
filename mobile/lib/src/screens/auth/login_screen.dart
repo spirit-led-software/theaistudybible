@@ -20,6 +20,8 @@ class LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final formKey = useState(GlobalKey<FormState>());
+
     final TextEditingController emailTextController =
         useTextEditingController();
     final emailFocusNode = useFocusNode();
@@ -35,9 +37,11 @@ class LoginScreen extends HookConsumerWidget {
     final showPassword = useState(false);
 
     void handleSubmit() {
-      final future = ref.read(currentUserProvider.notifier).login(
-          emailTextController.value.text, passwordTextController.value.text);
-      pendingLogin.value = future;
+      if (formKey.value.currentState?.validate() ?? false) {
+        final future = ref.read(currentUserProvider.notifier).login(
+            emailTextController.value.text, passwordTextController.value.text);
+        pendingLogin.value = future;
+      }
     }
 
     void handleSocialLogin(String provider) async {
@@ -331,105 +335,124 @@ class LoginScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 10,
                   ),
-                  TextField(
-                    autocorrect: false,
-                    keyboardType: TextInputType.emailAddress,
-                    controller: emailTextController,
-                    focusNode: emailFocusNode,
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Email",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: RAIColors.primary,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    onTapOutside: (event) {
-                      emailFocusNode.unfocus();
-                    },
-                    onSubmitted: (value) {
-                      emailFocusNode.unfocus();
-                      passwordFocusNode.requestFocus();
-                    },
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextField(
-                    autocorrect: false,
-                    obscureText: !showPassword.value,
-                    keyboardType: TextInputType.visiblePassword,
-                    controller: passwordTextController,
-                    focusNode: passwordFocusNode,
-                    onSubmitted: (value) {
-                      passwordFocusNode.unfocus();
-                    },
-                    onTapOutside: (event) {
-                      passwordFocusNode.unfocus();
-                    },
-                    style: TextStyle(
-                      color: RAIColors.primary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: RAIColors.primary,
-                          width: 1,
-                        ),
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          showPassword.value = !showPassword.value;
-                        },
-                        icon: FaIcon(
-                          showPassword.value
-                              ? FontAwesomeIcons.eye
-                              : FontAwesomeIcons.eyeSlash,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: RAIColors.primary,
-                            shape: RoundedRectangleBorder(
+                  Form(
+                    key: formKey.value,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          autocorrect: false,
+                          keyboardType: TextInputType.emailAddress,
+                          controller: emailTextController,
+                          focusNode: emailFocusNode,
+                          style: TextStyle(
+                            color: RAIColors.primary,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Email",
+                            border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
-                            padding: const EdgeInsets.only(
-                              top: 15,
-                              bottom: 15,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: RAIColors.primary,
+                                width: 1,
+                              ),
                             ),
                           ),
-                          onPressed: () async {
-                            handleSubmit();
+                          onTapOutside: (event) {
+                            emailFocusNode.unfocus();
                           },
-                          child: const Text(
-                            "Login with Email",
-                            style: TextStyle(
-                              color: Colors.white,
+                          onFieldSubmitted: (value) {
+                            emailFocusNode.unfocus();
+                            passwordFocusNode.requestFocus();
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          autocorrect: false,
+                          obscureText: !showPassword.value,
+                          keyboardType: TextInputType.visiblePassword,
+                          controller: passwordTextController,
+                          focusNode: passwordFocusNode,
+                          onFieldSubmitted: (value) {
+                            passwordFocusNode.unfocus();
+                          },
+                          onTapOutside: (event) {
+                            passwordFocusNode.unfocus();
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Password is required";
+                            }
+                            return null;
+                          },
+                          style: TextStyle(
+                            color: RAIColors.primary,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: "Password",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: RAIColors.primary,
+                                width: 1,
+                              ),
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                showPassword.value = !showPassword.value;
+                              },
+                              icon: FaIcon(
+                                showPassword.value
+                                    ? FontAwesomeIcons.eye
+                                    : FontAwesomeIcons.eyeSlash,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: RAIColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  padding: const EdgeInsets.only(
+                                    top: 15,
+                                    bottom: 15,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  handleSubmit();
+                                },
+                                child: const Text(
+                                  "Login with Email",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(
                     height: 10,
