@@ -94,7 +94,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           ]),
         };
       } else {
-        incrementUserQueryCount(userInfo.id);
+        await incrementUserQueryCount(userInfo.id);
       }
 
       let chat: Chat | undefined;
@@ -134,7 +134,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
       }
 
       if (chat.name === "New Chat") {
-        updateChat(chat.id, {
+        chat = await updateChat(chat.id, {
           name: messages[0].content,
         });
       }
@@ -155,7 +155,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           await getAiResponsesByUserMessageId(userMessage.id)
         )[0];
         if (oldAiResponse) {
-          updateAiResponse(oldAiResponse.id, {
+          await updateAiResponse(oldAiResponse.id, {
             regenerated: true,
           });
         }
@@ -207,7 +207,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
         }
       );
       const { stream, handlers } = LangChainStream();
-      chain
+      const responsePromise = chain
         .call(
           {
             question: lastMessage.content,
@@ -215,12 +215,11 @@ export const handler = middy({ streamifyResponse: true }).handler(
           CallbackManager.fromHandlers(handlers)
         )
         .then(async (result) => {
-          await updateAiResponse(aiResponse.id, {
-            text: result.text,
-          });
-
-          await Promise.all(
-            result.sourceDocuments.map(
+          await Promise.all([
+            updateAiResponse(aiResponse.id, {
+              text: result.text,
+            }),
+            ...result.sourceDocuments.map(
               async (sourceDoc: NeonVectorStoreDocument) => {
                 await readWriteDatabase
                   .insert(aiResponsesToSourceDocuments)
@@ -230,7 +229,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
                   });
               }
             )
-          );
+          ]);
         })
         .catch(async (err) => {
           console.error(`${err.stack}`);
@@ -252,9 +251,10 @@ export const handler = middy({ streamifyResponse: true }).handler(
           read() {
             reader
               .read()
-              .then(({ done, value }: { done: boolean; value?: any }) => {
+              .then(async ({ done, value }: { done: boolean; value?: any }) => {
                 if (done) {
                   console.log("Finished chat stream response");
+                  await responsePromise;
                   this.push(null);
                   return;
                 }
