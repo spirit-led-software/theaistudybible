@@ -54,10 +54,11 @@ export async function validApiHandlerSession(): Promise<
     if (todaysQueryCount) {
       count = todaysQueryCount.count;
     } else {
-      createUserQueryCount({
+      const newQueryCount = await createUserQueryCount({
         userId: userWithRoles.id,
         count: 0,
       });
+      count = newQueryCount.count;
     }
 
     return {
