@@ -251,7 +251,7 @@ export const handler = middy({ streamifyResponse: true }).handler(
           read() {
             reader
               .read()
-              .then(({ done, value }: { done: boolean; value?: any }) => {
+              .then(async ({ done, value }: { done: boolean; value?: any }) => {
                 if (done) {
                   console.log("Finished chat stream response");
                   await responsePromise;
