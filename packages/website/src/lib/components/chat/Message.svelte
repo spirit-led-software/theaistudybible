@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
+	import { cn } from '$lib/utils/class-names';
+	import { squareDimensionClasses } from '$lib/utils/sizing';
 	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
@@ -43,12 +45,17 @@
 >
 	<div class="flex flex-col content-start w-12">
 		{#if role === 'user'}
-			<Avatar {user} size="md" class="border shadow-xl border-slate-100" />
+			<Avatar {user} size="lg" class="border shadow-xl border-slate-100" />
 		{:else}
 			<div
-				class="flex flex-col justify-center p-1 overflow-hidden border rounded-full shadow-xl place-items-center border-slate-100 bg-slate-700"
+				class={cn(
+					squareDimensionClasses['lg'],
+					'overflow-hidden p-1 rounded-full bg-slate-700 shadow-xl'
+				)}
 			>
-				<CompactLogo colorscheme="light" size="xl" />
+				<div class="flex justify-center w-full h-full place-items-center">
+					<CompactLogo colorscheme="light" size="xl" />
+				</div>
 			</div>
 		{/if}
 	</div>

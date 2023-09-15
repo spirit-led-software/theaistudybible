@@ -39,6 +39,7 @@ const lambdaHandler = async (
   event: APIGatewayProxyEventV2
 ): Promise<any | void> => {
   console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
+  const promises: Promise<any>[] = []; // promises to wait for before closing the stream
 
   if (!event.body) {
     console.log("Missing body");
@@ -69,6 +70,7 @@ const lambdaHandler = async (
       };
     }
 
+    console.time("Validating session token");
     const { isValid, userInfo } = await validSessionFromEvent(event);
     if (!isValid) {
       console.log("Invalid session token");
@@ -82,6 +84,7 @@ const lambdaHandler = async (
         ]),
       };
     }
+    console.timeEnd("Validating session token");
 
     if (userInfo.remainingQueries <= 0) {
       console.log(`Max daily query count of ${userInfo.maxQueries} reached`);
@@ -97,9 +100,10 @@ const lambdaHandler = async (
         ]),
       };
     } else {
-      await incrementUserQueryCount(userInfo.id);
+      promises.push(incrementUserQueryCount(userInfo.id));
     }
 
+    console.time("Validating chat");
     let chat: Chat | undefined;
     if (!chatId) {
       chat = await createChat({
@@ -135,13 +139,17 @@ const lambdaHandler = async (
         };
       }
     }
+    console.timeEnd("Validating chat");
 
     if (chat.name === "New Chat") {
-      chat = await updateChat(chat.id, {
-        name: messages[0].content,
-      });
+      promises.push(
+        updateChat(chat.id, {
+          name: messages[0].content,
+        })
+      );
     }
 
+    console.time("Validating user message");
     let userMessage: UserMessage | undefined = (
       await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
     )[0];
@@ -154,17 +162,20 @@ const lambdaHandler = async (
         userId: userInfo.id,
       });
     } else {
-      await getAiResponsesByUserMessageId(userMessage.id).then(
-        async (aiResponses) => {
-          const oldAiResponse = aiResponses[0];
-          if (oldAiResponse) {
-            await updateAiResponse(oldAiResponse.id, {
-              regenerated: true,
-            });
+      promises.push(
+        getAiResponsesByUserMessageId(userMessage.id).then(
+          async (aiResponses) => {
+            const oldAiResponse = aiResponses[0];
+            if (oldAiResponse) {
+              await updateAiResponse(oldAiResponse.id, {
+                regenerated: true,
+              });
+            }
           }
-        }
+        )
       );
     }
+    console.timeEnd("Validating user message");
 
     let aiResponse = await createAiResponse({
       chatId: chat.id,
@@ -209,6 +220,7 @@ const lambdaHandler = async (
         questionGeneratorChainOptions: {
           llm: getPromptModel(),
         },
+        verbose: true,
       }
     );
     const { stream, handlers } = LangChainStream();
@@ -242,6 +254,7 @@ const lambdaHandler = async (
           failed: true,
         });
       });
+    promises.push(langchainResponsePromise);
 
     const reader = stream.getReader();
     return {
@@ -259,7 +272,7 @@ const lambdaHandler = async (
             .then(async ({ done, value }: { done: boolean; value?: any }) => {
               if (done) {
                 console.log("Finished chat stream response");
-                await langchainResponsePromise; // make sure everything is done before closing the stream
+                await Promise.all(promises); // make sure everything is done before closing the stream
                 this.push(null);
                 return;
               }
@@ -270,6 +283,7 @@ const lambdaHandler = async (
             .catch((err) => {
               console.error(`${err.stack}`);
               this.push(null);
+              throw err;
             });
         },
       }),
@@ -294,7 +308,7 @@ export const handler = middy({ streamifyResponse: true })
   .use(
     httpCors({
       origin: websiteConfig.url,
-      methods: ["POST"].join(","),
+      methods: ["POST", "OPTIONS"].join(","),
       credentials: true,
       headers: ["authorization", "content-type"].join(","),
       requestHeaders: ["authorization", "content-type"].join(","),

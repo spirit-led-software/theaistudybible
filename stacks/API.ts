@@ -72,7 +72,7 @@ export function API({ stack }: StackContext) {
     cors: {
       allowCredentials: true,
       allowedHeaders: ["Authorization", "Content-Type"],
-      allowedMethods: [HttpMethod.POST],
+      allowedMethods: [HttpMethod.ALL],
       allowedOrigins: [websiteUrl],
       exposedHeaders: [
         "x-chat-id",
@@ -118,15 +118,7 @@ export function API({ stack }: StackContext) {
             corsBehavior: {
               accessControlAllowCredentials: true,
               accessControlAllowHeaders: ["Authorization", "Content-Type"],
-              accessControlAllowMethods: [
-                "HEAD",
-                "DELETE",
-                "POST",
-                "GET",
-                "OPTIONS",
-                "PUT",
-                "PATCH",
-              ],
+              accessControlAllowMethods: ["POST", "OPTIONS"],
               accessControlAllowOrigins: [websiteUrl],
               accessControlExposeHeaders: [
                 "x-chat-id",
@@ -322,7 +314,7 @@ export function API({ stack }: StackContext) {
     cors: {
       allowCredentials: true,
       allowOrigins: [websiteUrl],
-      allowHeaders: ["*"],
+      allowHeaders: ["Authorization", "Content-Type"],
       allowMethods: ["ANY"],
       exposeHeaders: ["*"],
     },
