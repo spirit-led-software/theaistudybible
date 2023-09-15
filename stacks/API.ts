@@ -137,7 +137,7 @@ export function API({ stack }: StackContext) {
   );
   const chatApiUrlARecord = new ARecord(stack, "chatApiUrlARecord", {
     zone: hostedZone,
-    recordName: `chat.api.${domainNamePrefix}`,
+    recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ""}`,
     target: RecordTarget.fromAlias({
       bind: () => ({
         dnsName: chatApiUrlDistribution.distributionDomainName,
@@ -147,7 +147,7 @@ export function API({ stack }: StackContext) {
   });
   const chatApiUrlAAAARecord = new AaaaRecord(stack, "chatApiUrlAAAARecord", {
     zone: hostedZone,
-    recordName: `chat.api.${domainNamePrefix}`,
+    recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ""}`,
     target: RecordTarget.fromAlias({
       bind: () => ({
         dnsName: chatApiUrlDistribution.distributionDomainName,
