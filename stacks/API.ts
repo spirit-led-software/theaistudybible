@@ -71,10 +71,15 @@ export function API({ stack }: StackContext) {
     invokeMode: InvokeMode.RESPONSE_STREAM,
     cors: {
       allowCredentials: true,
-      allowedHeaders: ["*"],
-      allowedMethods: [HttpMethod.ALL],
+      allowedHeaders: ["Authorization", "Content-Type"],
+      allowedMethods: [HttpMethod.POST],
       allowedOrigins: [websiteUrl],
-      exposedHeaders: ["*"],
+      exposedHeaders: [
+        "x-chat-id",
+        "x-user-message-id",
+        "x-ai-response-id",
+        "content-type",
+      ],
     },
     authType: FunctionUrlAuthType.NONE,
   });
@@ -96,7 +101,6 @@ export function API({ stack }: StackContext) {
               OriginRequestHeaderBehavior.allowList("Content-Type"),
           }
         ),
-        smoothStreaming: true,
         cachePolicy: new CachePolicy(stack, "chatApiUrlCachePolicy", {
           defaultTtl: Duration.minutes(5),
           maxTtl: Duration.minutes(5),
@@ -105,7 +109,7 @@ export function API({ stack }: StackContext) {
           cookieBehavior: OriginRequestCookieBehavior.none(),
         }),
         allowedMethods: {
-          methods: [HttpMethod.POST, HttpMethod.OPTIONS],
+          methods: ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"],
         },
         responseHeadersPolicy: new ResponseHeadersPolicy(
           stack,
@@ -113,11 +117,24 @@ export function API({ stack }: StackContext) {
           {
             corsBehavior: {
               accessControlAllowCredentials: true,
-              accessControlAllowHeaders: ["*"],
-              accessControlAllowMethods: ["*"],
+              accessControlAllowHeaders: ["Authorization", "Content-Type"],
+              accessControlAllowMethods: [
+                "HEAD",
+                "DELETE",
+                "POST",
+                "GET",
+                "OPTIONS",
+                "PUT",
+                "PATCH",
+              ],
               accessControlAllowOrigins: [websiteUrl],
-              accessControlExposeHeaders: ["*"],
-              originOverride: false,
+              accessControlExposeHeaders: [
+                "x-chat-id",
+                "x-user-message-id",
+                "x-ai-response-id",
+                "content-type",
+              ],
+              originOverride: true,
             },
           }
         ),

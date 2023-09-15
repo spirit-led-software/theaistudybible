@@ -215,19 +215,19 @@
 				<div class="flex items-center w-full h-auto mr-1">
 					<Icon icon="icon-park:right" class="text-2xl" />
 					<TextAreaAutosize {input} />
-					<button
-						type="button"
-						tabindex={-1}
-						on:click|preventDefault={handleReload}
-						class="mr-1 text-2xl text-slate-700 hover:text-slate-900"
-					>
-						<Icon icon="gg:redo" />
-					</button>
 					{#if $isLoading}
 						<div class="flex mr-1">
 							<LoadingDots size={'sm'} />
 						</div>
 					{:else}
+						<button
+							type="button"
+							tabindex={-1}
+							on:click|preventDefault={handleReload}
+							class="mr-1 text-2xl text-slate-700 hover:text-slate-900"
+						>
+							<Icon icon="gg:redo" />
+						</button>
 						<button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
 							<Icon icon="majesticons:send-line" />
 						</button>
