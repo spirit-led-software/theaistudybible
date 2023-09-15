@@ -51,7 +51,7 @@ export async function validApiHandlerSession(): Promise<
       console.error("Error validating token:", err);
       return [null, null, null];
     });
-    if (!user || !roles) {
+    if (!user || !roles || !todaysQueryCount) {
       return { isValid: false, sessionToken };
     }
 
@@ -66,7 +66,7 @@ export async function validApiHandlerSession(): Promise<
       sessionToken,
       userWithRoles: userWithRoles,
       maxQueries,
-      remainingQueries: maxQueries - todaysQueryCount!.count,
+      remainingQueries: maxQueries - todaysQueryCount.count,
     };
   } catch (err: any) {
     console.error("Error validating token:", err);

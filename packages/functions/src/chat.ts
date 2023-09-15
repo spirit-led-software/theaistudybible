@@ -280,8 +280,9 @@ const lambdaHandler = async (
               this.push(value);
               this.read();
             })
-            .catch((err) => {
+            .catch(async (err) => {
               console.error(`${err.stack}`);
+              await Promise.all(promises); // make sure everything is done before closing the stream
               this.push(null);
               throw err;
             });

@@ -6,15 +6,21 @@
 	import { getPropertyName } from '@core/util/object';
 	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 	import Icon from '@iconify/svelte';
+	import { onMount } from 'svelte';
 
 	export let aiResponseId: string;
+	export let isChatLoading = false;
 	export let chatId: string | undefined;
 
 	let sources: NeonVectorStoreDocument[] = [];
 	let isLoading = false;
 	let showSources = false;
 
-	const getSources = async (chatId?: string, aiResponseId?: string) => {
+	onMount(() => {
+		getSources(chatId, aiResponseId);
+	});
+
+	$: getSources = async (chatId?: string, aiResponseId?: string) => {
 		if (sources.length === 0) {
 			try {
 				isLoading = true;
@@ -63,12 +69,14 @@
 	};
 
 	$: if (showSources) getSources(chatId, aiResponseId);
+	$: if (!isChatLoading) getSources(chatId, aiResponseId);
 </script>
 
 <div class="flex flex-col overflow-hidden">
 	<button
-		class="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer"
+		class="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
 		on:click|preventDefault={() => (showSources = !showSources)}
+		disabled={isLoading}
 	>
 		<div class="text-sm text-blue-400">Sources</div>
 		{#if isLoading}

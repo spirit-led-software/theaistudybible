@@ -75,14 +75,17 @@
 		},
 		onFinish: (message: ChatMessage) => {
 			lastChatMessage = message;
+			scrollEndIntoView();
 		}
 	}));
 
 	$: scrollEndIntoView = () => {
-		endOfMessagesRef?.scrollIntoView({
-			behavior: 'smooth',
-			block: 'end'
-		});
+		if (!isEndOfMessagesRefShowing) {
+			endOfMessagesRef?.scrollIntoView({
+				behavior: 'smooth',
+				block: 'end'
+			});
+		}
 	};
 
 	$: error?.subscribe((err) => {
@@ -106,6 +109,7 @@
 				}
 			}
 		});
+		scrollEndIntoView();
 	};
 
 	$: handleReload = async () => {
@@ -170,7 +174,14 @@
                     index % Math.floor(Math.random() * 10) === 0 && (
                       <AdMessage />
                     )} -->
-							<Message {user} {chatId} {message} prevMessage={$messages[index - 1]} />
+							<Message
+								{user}
+								{chatId}
+								{message}
+								prevMessage={$messages[index - 1]}
+								isChatLoading={$isLoading}
+								isLastMessage={index === $messages.length - 1}
+							/>
 						</div>
 					{/each}
 					<IntersectionObserver

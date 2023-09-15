@@ -16,6 +16,8 @@
 	export let chatId: string | undefined;
 	export let message: Message;
 	export let prevMessage: Message | undefined = undefined;
+	export let isChatLoading = false;
+	export let isLastMessage = false;
 	export let user: UserWithRoles;
 
 	const url = `${PUBLIC_WEBSITE_URL}/chat`;
@@ -40,9 +42,7 @@
 	}
 </script>
 
-<div
-	class="flex flex-row items-center w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300"
->
+<div class="flex flex-row w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300">
 	<div class="flex flex-col content-start w-12">
 		{#if role === 'user'}
 			<Avatar {user} size="lg" class="border shadow-xl border-slate-100" />
@@ -61,9 +61,9 @@
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<div class="w-full break-words whitespace-pre-wrap">{content}</div>
-		{#if role !== 'user'}
+		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">
-				<ResponseSources aiResponseId={id} {chatId} />
+				<ResponseSources aiResponseId={id} {chatId} {isChatLoading} />
 				<div class="flex join">
 					<CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
 					<dialog bind:this={shareModal} class="modal">
