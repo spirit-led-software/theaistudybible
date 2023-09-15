@@ -6,7 +6,7 @@ import {
   S3,
   STATIC_ENV_VARS,
 } from "@stacks";
-import { Duration, Fn } from "aws-cdk-lib";
+import { Fn } from "aws-cdk-lib";
 import {
   Certificate,
   CertificateValidation,
@@ -102,9 +102,6 @@ export function API({ stack }: StackContext) {
           }
         ),
         cachePolicy: new CachePolicy(stack, "chatApiUrlCachePolicy", {
-          defaultTtl: Duration.minutes(5),
-          maxTtl: Duration.minutes(5),
-          minTtl: Duration.minutes(5),
           headerBehavior: CacheHeaderBehavior.allowList("Authorization"),
           cookieBehavior: OriginRequestCookieBehavior.none(),
         }),
