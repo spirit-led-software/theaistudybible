@@ -51,7 +51,7 @@
 			<div
 				class={cn(
 					squareDimensionClasses['lg'],
-					'overflow-hidden p-1 rounded-full bg-slate-700 shadow-xl'
+					'overflow-hidden p-1 rounded-full bg-slate-700 shadow-xl border border-slate-100'
 				)}
 			>
 				<div class="flex justify-center w-full h-full place-items-center">
