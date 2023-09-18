@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
@@ -47,16 +46,21 @@ class AccountScreen extends HookConsumerWidget {
       body: Stack(
         children: [
           Positioned(
-            top: 10,
-            left: 50,
-            right: 50,
+            top: 25,
+            left: MediaQuery.of(context).size.width * 0.25,
+            right: MediaQuery.of(context).size.width * 0.25,
             child: Container(
-              padding: const EdgeInsets.all(5),
+              padding: const EdgeInsets.only(
+                top: 15,
+                bottom: 15,
+                left: 10,
+                right: 10,
+              ),
               decoration: BoxDecoration(
                 color: RAIColors.secondary,
                 borderRadius: BorderRadius.circular(25),
               ),
-              child: const Column(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,7 +70,7 @@ class AccountScreen extends HookConsumerWidget {
                     color: Colors.white,
                   ),
                   SizedBox(
-                    height: 10,
+                    width: 10,
                   ),
                   Flexible(
                     child: Text(
@@ -74,7 +78,7 @@ class AccountScreen extends HookConsumerWidget {
                       softWrap: true,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 16,
                         color: Colors.white,
                       ),
                     ),
@@ -153,34 +157,6 @@ class AccountScreen extends HookConsumerWidget {
                     );
                   },
                   child: const Text("Upgrade"),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextButton(
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(RAIColors.primary),
-                    foregroundColor: MaterialStateProperty.all(Colors.white),
-                    padding: MaterialStateProperty.all(
-                      const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 50,
-                      ),
-                    ),
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  onPressed: () async {
-                    await ref
-                        .read(currentUserProvider.notifier)
-                        .logout()
-                        .then((value) => context.go("/auth/login"));
-                  },
-                  child: const Text("Logout"),
                 ),
               ],
             ),

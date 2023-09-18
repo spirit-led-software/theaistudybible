@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'router_listenable.g.dart';
@@ -13,14 +14,20 @@ class RouterListenable extends _$RouterListenable implements Listenable {
   @override
   Future<void> build() async {
     // One could watch more providers and write logic accordingly
-
     final currentUserFuture = ref.watch(currentUserProvider.future);
+    final currentUserPreferencesFuture =
+        ref.watch(currentUserPreferencesProvider.future);
 
     await currentUserFuture.then((value) {
       _isAuth = true;
       return;
     }).catchError((_) {
       _isAuth = false;
+      return;
+    });
+    await currentUserPreferencesFuture.then((value) {
+      return;
+    }).catchError((_) {
       return;
     });
 

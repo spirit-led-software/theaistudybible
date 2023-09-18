@@ -12,6 +12,7 @@ import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,12 +28,18 @@ class ChatScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
+    final currentUserPreferences = ref.watch(currentUserPreferencesProvider);
+
     final isMounted = useIsMounted();
 
     final UseChatReturnObject chatObj = useChat(
       options: UseChatOptions(
         session: currentUser.requireValue.session,
         chatId: chatId,
+        hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
+        onFinish: (_) {
+          ref.read(currentUserProvider.notifier).decrementRemainingQueries();
+        },
       ),
     );
 
@@ -150,14 +157,13 @@ class ChatScreen extends HookConsumerWidget {
                   Text(
                     "${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries}",
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 16,
                     ),
                   ),
                   const Text(
-                    "Upgrade",
+                    "Remaining",
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 10,
                     ),
                   ),
                 ],

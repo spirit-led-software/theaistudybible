@@ -29,4 +29,28 @@ class UserService {
 
     return user;
   }
+
+  static Future<void> deleteUser({
+    required String session,
+    String? id,
+  }) async {
+    String url = '${API.url}/users';
+    if (id != null) {
+      url += '/$id';
+    } else {
+      url += '/me';
+    }
+
+    Response res = await delete(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $session',
+      },
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception('Failed to delete user: ${res.statusCode} ${res.body}');
+    }
+  }
 }

@@ -65,7 +65,9 @@
 			<div>
 				{#if user}
 					<div class="flex flex-col justify-center space-y-1 place-items-center">
-						<Avatar {user} size="sm" />
+						<a href="/account">
+							<Avatar {user} size="sm" />
+						</a>
 						<div class="text-xs text-white">
 							{user.remainingQueries}/{user.maxQueries}
 						</div>
@@ -116,7 +118,9 @@
 					Remaining: {user.remainingQueries}
 				</div>
 				<div class="inline-flex items-center justify-center space-x-1">
-					<Avatar {user} size="md" />
+					<a href="/account">
+						<Avatar {user} size="md" />
+					</a>
 				</div>
 				<a
 					href="/auth/logout"

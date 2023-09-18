@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 
-class TabsScaffold extends HookWidget {
+class TabsScaffold extends HookConsumerWidget {
   final Widget child;
 
   const TabsScaffold({Key? key, required this.child}) : super(key: key);
@@ -24,7 +25,10 @@ class TabsScaffold extends HookWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUserPrefs = ref.watch(currentUserPreferencesProvider);
+    bool hapticFeedbackEnabled = currentUserPrefs.requireValue.hapticFeedback;
+
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
@@ -50,20 +54,20 @@ class TabsScaffold extends HookWidget {
         onTap: (value) {
           switch (value) {
             case 0:
+              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/chat");
-              HapticFeedback.mediumImpact();
               break;
             case 1:
+              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/devotions");
-              HapticFeedback.mediumImpact();
               break;
             case 2:
+              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/account");
-              HapticFeedback.mediumImpact();
               break;
             default:
+              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/chat");
-              HapticFeedback.mediumImpact();
               break;
           }
         },

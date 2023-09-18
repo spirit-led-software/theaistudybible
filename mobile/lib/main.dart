@@ -11,8 +11,6 @@ import 'package:revelationsai/src/utils/state_logger.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-FirebaseMessaging messaging = FirebaseMessaging.instance;
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,7 +19,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  messaging.subscribeToTopic('daily-devo');
+  await FirebaseMessaging.instance.subscribeToTopic('daily-devo');
 
   runApp(
     const ProviderScope(

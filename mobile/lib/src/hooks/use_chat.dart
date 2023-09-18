@@ -14,6 +14,7 @@ class UseChatOptions {
   final String? chatId;
   final String initialInput;
   final List<ChatMessage>? initialMessages;
+  final bool hapticFeedback;
   final Function(StreamedResponse)? onResponse;
   final Function(ChatMessage)? onFinish;
   final Function(Exception)? onError;
@@ -23,6 +24,7 @@ class UseChatOptions {
     this.chatId,
     this.initialInput = '',
     this.initialMessages,
+    this.hapticFeedback = true,
     this.onResponse,
     this.onFinish,
     this.onError,
@@ -85,6 +87,7 @@ Future<ChatMessage> getStreamedResponse({
   required ValueNotifier<String?> currentResponseId,
   required ValueNotifier<List<ChatMessage>?> messages,
   required ObjectRef<List<ChatMessage>> messagesRef,
+  bool hapticFeedback = true,
   Function(StreamedResponse)? onResponse,
   Function(ChatMessage)? onFinish,
 }) async {
@@ -145,7 +148,7 @@ Future<ChatMessage> getStreamedResponse({
         ...chatRequest.messages,
         reply,
       ];
-      HapticFeedback.mediumImpact();
+      if (hapticFeedback) HapticFeedback.mediumImpact();
     },
     onDone: () {
       if (onFinish != null) onFinish(reply);
@@ -218,6 +221,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
           currentResponseId: currentResponseId,
           messages: messages,
           messagesRef: messagesRef,
+          hapticFeedback: options.hapticFeedback,
           onResponse: options.onResponse,
           onFinish: options.onFinish,
         );
@@ -234,6 +238,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
       chatId.value,
       messages.value,
       messagesRef.value,
+      options.hapticFeedback,
       options.onResponse,
       options.onFinish,
       options.onError,
@@ -259,7 +264,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() reload = useCallback(
     () {
-      HapticFeedback.mediumImpact();
+      if (options.hapticFeedback) HapticFeedback.mediumImpact();
 
       if (messagesRef.value.isEmpty) {
         error.value = Exception('No messages to reload');
@@ -292,7 +297,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   Function() handleSubmit = useCallback(
     () {
-      HapticFeedback.mediumImpact();
+      if (options.hapticFeedback) HapticFeedback.mediumImpact();
 
       if (input.value.isEmpty) {
         error.value = Exception('Input cannot be empty');

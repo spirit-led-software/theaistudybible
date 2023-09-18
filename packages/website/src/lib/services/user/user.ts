@@ -1,5 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { UserInfo, UserWithRoles } from '@core/model';
+import type { ProtectedApiOptions } from '../types';
 
 export async function getUserInfo(session: string) {
 	const response = await fetch(`${PUBLIC_API_URL}/session`, {
@@ -20,6 +21,23 @@ export async function getUserInfo(session: string) {
 	const user: UserInfo = await response.json();
 
 	return user;
+}
+
+export async function deleteUser(id: string, options: ProtectedApiOptions) {
+	const response = await fetch(`${PUBLIC_API_URL}/users/${id}`, {
+		method: 'DELETE',
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
+	});
+
+	if (!response.ok) {
+		console.error(
+			`Error deleting user. Received response: ${response.status} ${response.statusText}`
+		);
+		const data = await response.json();
+		throw new Error(data.error || 'Error deleting user.');
+	}
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {

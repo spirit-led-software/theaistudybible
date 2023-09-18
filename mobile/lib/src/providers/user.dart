@@ -182,6 +182,13 @@ class CurrentUser extends _$CurrentUser {
       }
     });
   }
+
+  Future<void> decrementRemainingQueries() async {
+    state = AsyncData(state.requireValue.copyWith(
+      remainingQueries: state.requireValue.remainingQueries - 1,
+    ));
+    ref.invalidateSelf();
+  }
 }
 
 class UnauthorizedException implements Exception {
