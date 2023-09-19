@@ -5,14 +5,14 @@
       "type": "shell",
       "label": "mobile-codegen",
       "detail": "Generate mobile code",
-      "command": "cd mobile && dart run build_runner build",
+      "command": "cd mobile && dart run build_runner build -d",
       "problemMatcher": []
     },
     {
       "type": "shell",
       "label": "prep-flutter",
       "detail": "Prep Flutter",
-      "command": "cd mobile && flutter pub get && dart run build_runner build",
+      "command": "cd mobile && flutter clean && flutter pub get && dart run build_runner build -d",
       "problemMatcher": []
     }
   ]

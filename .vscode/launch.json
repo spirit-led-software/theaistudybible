@@ -11,6 +11,15 @@
       "preLaunchTask": "prep-flutter"
     },
     {
+      "name": "Flutter Release",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceRoot}/mobile/lib/main.dart",
+      "args": ["--dart-define-from-file=.env", "--release"],
+      "console": "debugConsole",
+      "preLaunchTask": "prep-flutter"
+    },
+    {
       "name": "Debug SST Start",
       "type": "node",
       "request": "launch",

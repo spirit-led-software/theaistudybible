@@ -18,7 +18,7 @@ class RegisterScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final formKey = useState(GlobalKey<FormState>());
+    final formKey = useRef(GlobalKey<FormState>());
 
     final TextEditingController emailTextController =
         useTextEditingController();

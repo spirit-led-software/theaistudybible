@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
@@ -15,9 +16,6 @@ class RouterListenable extends _$RouterListenable implements Listenable {
   Future<void> build() async {
     // One could watch more providers and write logic accordingly
     final currentUserFuture = ref.watch(currentUserProvider.future);
-    final currentUserPreferencesFuture =
-        ref.watch(currentUserPreferencesProvider.future);
-
     await currentUserFuture.then((value) {
       _isAuth = true;
       return;
@@ -25,11 +23,7 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       _isAuth = false;
       return;
     });
-    await currentUserPreferencesFuture.then((value) {
-      return;
-    }).catchError((_) {
-      return;
-    });
+    await ref.watch(currentUserPreferencesProvider.future);
 
     ref.listenSelf((_, __) {
       // One could write more conditional logic for when to call redirection
@@ -50,6 +44,8 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       return null;
     }
 
+    debugPrint("Router initialize, removing splash screen...");
+    FlutterNativeSplash.remove();
     debugPrint("Router path: ${state.uri.path}");
 
     final isSplash = state.uri.path == "/";

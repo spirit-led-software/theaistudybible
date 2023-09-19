@@ -12,7 +12,6 @@ import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/link.dart';
 
 class Sources extends HookConsumerWidget {
@@ -189,12 +188,10 @@ class Sources extends HookConsumerWidget {
                   return ListTile(
                     dense: true,
                     visualDensity: RAIVisualDensity.tightest,
-                    leading: Skeleton.keep(
-                      child: Icon(
-                        Icons.link,
-                        size: 15,
-                        color: Colors.grey.shade600,
-                      ),
+                    leading: Icon(
+                      Icons.link,
+                      size: 15,
+                      color: Colors.grey.shade600,
                     ),
                     title: Text(
                       source.metadata['name'],

@@ -32,13 +32,6 @@ List<RouteBase> routes = [
     builder: (context, state) {
       return const SplashScreen();
     },
-    pageBuilder: (context, state) {
-      return buildPageWithDefaultTransition(
-        context: context,
-        state: state,
-        child: const SplashScreen(),
-      );
-    },
   ),
   GoRoute(
     path: "/about",

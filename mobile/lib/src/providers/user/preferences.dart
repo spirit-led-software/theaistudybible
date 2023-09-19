@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/user/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -17,6 +18,16 @@ class CurrentUserPreferences extends _$CurrentUserPreferences {
     _sharedPreferences = await SharedPreferences.getInstance();
 
     _persistenceRefreshLogic();
+
+    await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
 
     return _preferenceRecoveryAttempt();
   }
@@ -45,8 +56,8 @@ class CurrentUserPreferences extends _$CurrentUserPreferences {
 
       if (next.hasValue) {
         final prefsString = jsonEncode(next.value!.toJson());
-        debugPrint("Saving preferences to disk $prefsString");
         _sharedPreferences.setString(_sharedPrefsKey, prefsString);
+      } else {
         _sharedPreferences.remove(_sharedPrefsKey);
       }
     });

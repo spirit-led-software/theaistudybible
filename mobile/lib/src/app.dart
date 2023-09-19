@@ -14,24 +14,26 @@ class MyApp extends HookConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.watch(routerListenableProvider.notifier);
+    final routerListenableNotifier =
+        ref.watch(routerListenableProvider.notifier);
 
     final key = useRef(GlobalKey<NavigatorState>(
       debugLabel: 'routerKey',
     ));
+
     final router = useMemoized(
       () => GoRouter(
         navigatorKey: key.value,
-        refreshListenable: notifier,
+        refreshListenable: routerListenableNotifier,
         debugLogDiagnostics: true,
         initialLocation: "/",
         routes: routes,
-        redirect: notifier.redirect,
+        redirect: routerListenableNotifier.redirect,
         errorBuilder: (context, state) {
           return const SplashScreen(redirectPath: "/chat");
         },
       ),
-      [notifier],
+      [routerListenableNotifier],
     );
 
     return MaterialApp.router(
