@@ -23,7 +23,6 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ).then((_) async {
-    await FirebaseMessaging.instance.getAPNSToken();
     await FirebaseMessaging.instance.subscribeToTopic('daily-devo');
   });
 
