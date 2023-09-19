@@ -22,8 +22,8 @@ Future<void> main() async {
   debugPrint('Initializing Firebase...');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  ).then((_) async {
-    await FirebaseMessaging.instance.subscribeToTopic('daily-devo');
+  ).then((_) {
+    FirebaseMessaging.instance.subscribeToTopic('daily-devo');
   });
 
   debugPrint('Running flutter app...');

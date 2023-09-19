@@ -23,12 +23,6 @@ echo "CHAT_API_URL: $CHAT_API_URL"
 git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
 export PATH="$PATH:$HOME/flutter/bin"
 
-# Run flutter doctor.
-flutter doctor -v
-
-# Clean flutter
-flutter clean
-
 # Install Flutter artifacts for iOS (--ios), or macOS (--macos) platforms.
 flutter precache --ios
 
@@ -39,7 +33,7 @@ flutter pub get
 flutter pub run build_runner build --delete-conflicting-outputs
 
 # Execute flutter build config command.
-flutter build ios --release --config-only \
+flutter build ios --config-only \
   --dart-define "WEBSITE_URL=$WEBSITE_URL" \
   --dart-define "API_URL=$API_URL" \
   --dart-define "CHAT_API_URL=$CHAT_API_URL"

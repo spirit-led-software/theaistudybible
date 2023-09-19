@@ -19,7 +19,7 @@ class CurrentUserPreferences extends _$CurrentUserPreferences {
 
     _persistenceRefreshLogic();
 
-    await FirebaseMessaging.instance.requestPermission(
+    FirebaseMessaging.instance.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
