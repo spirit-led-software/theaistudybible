@@ -1,12 +1,12 @@
 #!/bin/sh
 
 # The default execution directory of this script is the ci_scripts directory.
-cd $CI_WORKSPACE/mobile # change working directory to the root of your cloned repo.
+cd $CI_PRIMARY_REPOSITORY_PATH/mobile # change working directory to the root of your cloned repo.
 
 DOMAIN_PREFIX=""
 DOMAIN_NAME="revelationsai.com"
 # Get website url based on pr number
-if [[ "$CI_PRIMARY_REPOSITORY_PATH" != "" ]]; then
+if [[ "$CI_PULL_REQUEST_NUMBER" != "" ]]; then
   DOMAIN_PREFIX="pr-${CI_PULL_REQUEST_NUMBER}.test."
 fi
 
