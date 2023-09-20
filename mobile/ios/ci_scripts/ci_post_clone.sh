@@ -6,7 +6,7 @@ cd $CI_WORKSPACE/mobile # change working directory to the root of your cloned re
 DOMAIN_PREFIX=""
 DOMAIN_NAME="revelationsai.com"
 # Get website url based on pr number
-if [[ "$CI_PULL_REQUEST_NUMBER" != "" ]]; then
+if [[ "$CI_PRIMARY_REPOSITORY_PATH" != "" ]]; then
   DOMAIN_PREFIX="pr-${CI_PULL_REQUEST_NUMBER}.test."
 fi
 
