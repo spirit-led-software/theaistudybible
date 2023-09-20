@@ -99,7 +99,8 @@
 						Login with Google
 					</button>
 				</form>
-				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
+				<!-- Removing facebook login for now due to problems with business verification
+					<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
 					<input type="hidden" name="provider" value="facebook" />
 					<button
 						type="submit"
@@ -108,7 +109,7 @@
 						<Icon icon="fa6-brands:facebook-f" class="inline-block mr-2 text-white" />
 						Login with Facebook
 					</button>
-				</form>
+				</form> -->
 				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
 					<input type="hidden" name="provider" value="apple" />
 					<button

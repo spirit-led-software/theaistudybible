@@ -47,9 +47,11 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   // Google Auth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
 
+  /* Removing facebook login for now due to problems with business verification
   // Facebook Auth
   FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID!,
-  FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET!,
+  FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET!, 
+  */
 
   // Email Auth
   EMAIL_FROM: process.env.EMAIL_FROM!,

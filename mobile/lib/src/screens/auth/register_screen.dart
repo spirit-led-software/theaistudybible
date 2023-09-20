@@ -213,6 +213,7 @@ class RegisterScreen extends HookConsumerWidget {
                       height: 10,
                     ),
                   ],
+                  /* Removing facebook login for now due to problems with business verification
                   Flex(
                     direction: Axis.horizontal,
                     children: [
@@ -256,7 +257,7 @@ class RegisterScreen extends HookConsumerWidget {
                   ),
                   const SizedBox(
                     height: 10,
-                  ),
+                  ), */
                   Flex(
                     direction: Axis.horizontal,
                     children: [

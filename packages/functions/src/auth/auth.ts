@@ -15,12 +15,7 @@ import jwt from "jsonwebtoken";
 import { TokenSet } from "openid-client";
 import path from "path";
 import pug from "pug";
-import {
-  AuthHandler,
-  FacebookAdapter,
-  GoogleAdapter,
-  Session,
-} from "sst/node/auth";
+import { AuthHandler, GoogleAdapter, Session } from "sst/node/auth";
 import { AppleAdapter, CredentialsAdapter } from "./providers";
 
 const SessionResponse = (user: User) => {
@@ -116,6 +111,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
 
 export const handler = AuthHandler({
   providers: {
+    /* Removing facebook login for now due to problems with business verification 
     facebook: FacebookAdapter({
       clientID: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
@@ -136,7 +132,7 @@ export const handler = AuthHandler({
           "revelationsai://revelationsai/auth/callback"
         );
       },
-    }),
+    }), */
     google: GoogleAdapter({
       mode: "oidc",
       clientID: process.env.GOOGLE_CLIENT_ID!,
