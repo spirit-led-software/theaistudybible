@@ -33,8 +33,9 @@ env:
 
   GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
 
-  FACEBOOK_CLIENT_ID: ${{ vars.FACEBOOK_CLIENT_ID }}
-  FACEBOOK_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET }}
+  # Removing facebook for now due to business verification
+  # FACEBOOK_CLIENT_ID: ${{ vars.FACEBOOK_CLIENT_ID }}
+  # FACEBOOK_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET }}
 
   EMAIL_FROM: ${{ vars.EMAIL_FROM }}
   EMAIL_REPLY_TO: ${{ vars.EMAIL_REPLY_TO }}
