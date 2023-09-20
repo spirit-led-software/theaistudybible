@@ -8,6 +8,8 @@
 
 	let className: string = '';
 	export { className as class };
+
+	$: ({ image, name, email } = user);
 </script>
 
 <div
@@ -16,17 +18,20 @@
 		className
 	)}
 >
-	{#if user.image}
+	{#if image}
 		<img
 			class="w-full h-full rounded-full"
-			src={user.image}
+			src={image}
 			width={192}
 			height={192}
 			alt="avatar"
+			on:error={() => {
+				image = null;
+			}}
 		/>
 	{:else}
 		<div class="text-xl font-medium text-white uppercase rounded-full">
-			{user.name ? user.name[0] : user.email ? user.email[0] : '?'}
+			{name ? name[0] : email ? email[0] : '?'}
 		</div>
 	{/if}
 </div>

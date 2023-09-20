@@ -72,26 +72,9 @@ class SettingsModal extends HookConsumerWidget {
                   ),
                 ),
                 leading: const Icon(Icons.info_outlined),
-                title: const Text('About'),
+                title: const Text('About RevelationsAI'),
                 onTap: () {
                   context.go("/about");
-                },
-              ),
-              ListTile(
-                shape: BeveledRectangleBorder(
-                  side: BorderSide(
-                    color: RAIColors.primary,
-                    width: 0.5,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                leading: const Icon(Icons.logout),
-                title: const Text('Logout'),
-                onTap: () async {
-                  await ref
-                      .read(currentUserProvider.notifier)
-                      .logout()
-                      .then((value) => context.go("/auth/login"));
                 },
               ),
               SwitchListTile.adaptive(
@@ -117,6 +100,23 @@ class SettingsModal extends HookConsumerWidget {
                   ref
                       .read(currentUserPreferencesProvider.notifier)
                       .setHapticFeedback(value);
+                },
+              ),
+              ListTile(
+                shape: BeveledRectangleBorder(
+                  side: BorderSide(
+                    color: RAIColors.primary,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: () async {
+                  await ref
+                      .read(currentUserProvider.notifier)
+                      .logout()
+                      .then((value) => context.go("/auth/login"));
                 },
               ),
               ListTile(

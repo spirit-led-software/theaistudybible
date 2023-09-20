@@ -48,16 +48,24 @@ class Message extends HookConsumerWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: message.role == Role.user
-                  ? currentUser.requireValue.image != null
-                      ? Image.network(
-                          currentUser.requireValue.image!,
-                        )
-                      : Text(currentUser.requireValue.name
-                              ?.substring(0, 1)
-                              .toUpperCase() ??
-                          currentUser.requireValue.email
-                              .substring(0, 1)
-                              .toUpperCase())
+                  ? Image.network(
+                      currentUser.requireValue.image ?? "",
+                      scale: 0.5,
+                      filterQuality: FilterQuality.high,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Text(
+                          currentUser.requireValue.name
+                                  ?.substring(0, 1)
+                                  .toUpperCase() ??
+                              currentUser.requireValue.email
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        );
+                      },
+                    )
                   : Image.asset("assets/icons/icon.png"),
             ),
           ),
