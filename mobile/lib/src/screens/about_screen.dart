@@ -46,10 +46,6 @@ class AboutScreen extends HookWidget {
             const Logo(
               fontSize: 32,
             ),
-            const Text(
-              "Copyright 2023",
-              style: TextStyle(fontSize: 20),
-            ),
             Link(
               uri: Uri.parse("https://www.iconfinder.com/"),
               builder: (context, followLink) {
