@@ -17,10 +17,10 @@
     "@types/cfn-response": "^1.0.6",
     "@types/node": "^20.6.3",
     "@types/pg": "^8.10.2",
-    "aws-cdk-lib": "2.91.0",
+    "aws-cdk-lib": "2.95.1",
     "constructs": "10.2.69",
     "drizzle-kit": "^0.19.13",
-    "sst": "2.24.24",
+    "sst": "2.25.6",
     "typescript": "^5.2.2"
   },
   "dependencies": {
