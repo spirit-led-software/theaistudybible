@@ -78,8 +78,6 @@ const Agent = async (
       memory: new BufferMemory({
         chatHistory: new ChatMessageHistory(history),
         memoryKey: "chat_history",
-        inputKey: "question",
-        outputKey: "text",
         returnMessages: true,
       }),
       callbacks: CallbackManager.fromHandlers(handlers),
@@ -259,7 +257,7 @@ const lambdaHandler = async (
     const langchainResponsePromise = agentExecutor
       .call(
         {
-          question: lastMessage.content,
+          input: lastMessage.content,
         },
         CallbackManager.fromHandlers(handlers)
       )

@@ -13,9 +13,9 @@
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
-    "@tsconfig/node18": "^18.2.1",
+    "@tsconfig/node18": "^18.2.2",
     "@types/cfn-response": "^1.0.6",
-    "@types/node": "^20.6.0",
+    "@types/node": "^20.6.3",
     "@types/pg": "^8.10.2",
     "aws-cdk-lib": "2.91.0",
     "constructs": "10.2.69",
@@ -24,10 +24,10 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.409.0",
-    "@aws-sdk/client-sqs": "^3.409.0",
-    "@aws-sdk/credential-providers": "^3.409.0",
-    "@aws-sdk/s3-request-presigner": "^3.409.0",
+    "@aws-sdk/client-s3": "^3.417.0",
+    "@aws-sdk/client-sqs": "^3.414.0",
+    "@aws-sdk/credential-providers": "^3.414.0",
+    "@aws-sdk/s3-request-presigner": "^3.417.0",
     "drizzle-orm": "^0.28.6",
     "drizzle-zod": "^0.5.1",
     "langchain": "^0.0.143",
