@@ -14,6 +14,20 @@
       "detail": "Prep Flutter",
       "command": "cd mobile && flutter clean && flutter pub get && dart run build_runner build -d",
       "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "npm-install",
+      "detail": "Install NPM packages",
+      "command": "npm install",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "npm-clean-install",
+      "detail": "Clean Install NPM packages",
+      "command": "npm ci",
+      "problemMatcher": []
     }
   ]
 }

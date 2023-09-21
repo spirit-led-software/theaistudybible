@@ -23,8 +23,9 @@ import { incrementUserQueryCount } from "@services/user/query-count";
 import { getDocumentVectorStore } from "@services/vector-db";
 import { LangChainStream, Message } from "ai";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { CallbackManager } from "langchain/callbacks";
-import { ConversationalRetrievalQAChain } from "langchain/chains";
+import { initializeAgentExecutorWithOptions } from "langchain/agents";
+import { CallbackHandlerMethods, CallbackManager } from "langchain/callbacks";
+import { RetrievalQAChain } from "langchain/chains";
 import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import {
@@ -33,7 +34,58 @@ import {
   HumanMessage,
   SystemMessage,
 } from "langchain/schema";
+import { ChainTool, GoogleCustomSearch } from "langchain/tools";
+import { Calculator } from "langchain/tools/calculator";
 import { Readable } from "stream";
+
+const Agent = async (
+  history: BaseMessage[],
+  handlers: CallbackHandlerMethods
+) => {
+  const vectorStore = await getDocumentVectorStore();
+  return await initializeAgentExecutorWithOptions(
+    [
+      new Calculator(),
+      new GoogleCustomSearch({
+        apiKey: process.env.GOOGLE_API_KEY,
+        googleCSEId: process.env.GOOGLE_CSE_ID,
+      }),
+      new ChainTool({
+        name: "faith-qa",
+        description:
+          "Faith Q&A - Good for answering questions about faith and theology.",
+        chain: RetrievalQAChain.fromLLM(
+          getChatModel(),
+          new ContextualCompressionRetriever({
+            baseCompressor: NeonDocLLMChainExtractor.fromLLM(
+              getPromptModel(0.5)
+            ),
+            baseRetriever: vectorStore.asRetriever(6),
+          }),
+          {
+            returnSourceDocuments: true,
+            callbacks: CallbackManager.fromHandlers(handlers),
+            verbose: true,
+          }
+        ),
+        returnDirect: true,
+      }),
+    ],
+    getChatModel(),
+    {
+      agentType: "chat-conversational-react-description",
+      verbose: true,
+      memory: new BufferMemory({
+        chatHistory: new ChatMessageHistory(history),
+        memoryKey: "chat_history",
+        inputKey: "question",
+        outputKey: "text",
+        returnMessages: true,
+      }),
+      callbacks: CallbackManager.fromHandlers(handlers),
+    }
+  );
+};
 
 const lambdaHandler = async (
   event: APIGatewayProxyEventV2
@@ -201,30 +253,10 @@ const lambdaHandler = async (
     );
     console.debug(`Chat history: ${JSON.stringify(history)}`);
 
-    const vectorStore = await getDocumentVectorStore();
-    const chain = ConversationalRetrievalQAChain.fromLLM(
-      getChatModel(),
-      new ContextualCompressionRetriever({
-        baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
-        baseRetriever: vectorStore.asRetriever(6),
-      }),
-      {
-        returnSourceDocuments: true,
-        memory: new BufferMemory({
-          chatHistory: new ChatMessageHistory(history),
-          memoryKey: "chat_history",
-          inputKey: "question",
-          outputKey: "text",
-          returnMessages: true,
-        }),
-        questionGeneratorChainOptions: {
-          llm: getPromptModel(),
-        },
-        verbose: true,
-      }
-    );
     const { stream, handlers } = LangChainStream();
-    const langchainResponsePromise = chain
+    const agentExecutor = await Agent(history, handlers);
+
+    const langchainResponsePromise = agentExecutor
       .call(
         {
           question: lastMessage.content,
