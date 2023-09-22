@@ -2,9 +2,9 @@
 	import { page } from '$app/stores';
 	import { getAiResponseSourceDocuments, searchForAiResponses } from '$lib/services/ai-response';
 	import type { Query } from '@core/database/helpers';
+	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 	import { aiResponses } from '@core/schema';
 	import { getPropertyName } from '@core/util/object';
-	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 
@@ -14,61 +14,62 @@
 
 	let sources: NeonVectorStoreDocument[] = [];
 	let isLoading = false;
+	let hasLoaded = false;
+
 	let showSources = false;
 
 	onMount(() => {
 		getSources(chatId, aiResponseId);
 	});
 
-	$: getSources = async (chatId?: string, aiResponseId?: string) => {
-		if (sources.length === 0) {
-			try {
-				isLoading = true;
-				let query: Query = {
-					AND: []
-				};
-				if (aiResponseId) {
-					query.AND!.push({
+	const getSources = async (chatId?: string, aiResponseId?: string) => {
+		if (!chatId && !aiResponseId) return;
+
+		try {
+			isLoading = true;
+			let query: Query = {
+				AND: [
+					{
 						eq: {
 							column: getPropertyName(aiResponses, (aiResponses) => aiResponses.aiId),
 							value: aiResponseId
 						}
-					});
-				}
-				if (chatId) {
-					query.AND!.push({
+					},
+					{
 						eq: {
 							column: getPropertyName(aiResponses, (aiResponses) => aiResponses.chatId),
 							value: chatId
 						}
-					});
-				}
-				const { aiResponses: foundAiResponses } = await searchForAiResponses({
-					session: $page.data.session,
-					query,
-					limit: 1
-				});
-				const aiResponse = foundAiResponses[0];
+					}
+				]
+			};
+			const { aiResponses: foundAiResponses } = await searchForAiResponses({
+				session: $page.data.session,
+				query,
+				limit: 1
+			});
+			const aiResponse = foundAiResponses[0];
+			if (!aiResponse) return;
 
-				const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
-					session: $page.data.session
-				});
-				sources = foundSourceDocuments.filter((sourceDoc, index) => {
-					const firstIndex = foundSourceDocuments.findIndex(
-						(otherSourceDoc) =>
-							(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
-					);
-					return firstIndex === index;
-				});
-			} catch (error) {
-				console.error(error);
-			} finally {
-				isLoading = false;
-			}
+			const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
+				session: $page.data.session
+			});
+			sources = foundSourceDocuments.filter((sourceDoc, index) => {
+				const firstIndex = foundSourceDocuments.findIndex(
+					(otherSourceDoc) =>
+						(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
+				);
+				return firstIndex === index;
+			});
+			hasLoaded = true;
+		} catch (error) {
+			console.error(error);
+		} finally {
+			isLoading = false;
 		}
 	};
 
-	$: if (showSources) getSources(chatId, aiResponseId);
+	$: if (showSources && sources.length === 0 && !hasLoaded) getSources(chatId, aiResponseId);
 	$: if (!isChatLoading) getSources(chatId, aiResponseId);
 </script>
 
@@ -88,7 +89,7 @@
 			/>
 		{/if}
 	</button>
-	{#if sources}
+	{#if sources && sources.length > 0}
 		<ul class={`flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
 			{#each sources as sourceDoc (sourceDoc.id)}
 				<li class={`text-xs text-gray-400 truncate`}>
@@ -102,6 +103,10 @@
 					</a>
 				</li>
 			{/each}
+		</ul>
+	{:else if hasLoaded}
+		<ul class={`flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
+			<li class={`text-xs text-gray-400 truncate`}>None</li>
 		</ul>
 	{/if}
 </div>
