@@ -1,8 +1,7 @@
-import { NeonDocLLMChainExtractor } from "@core/chains/NeonDocLLMChainExtractor";
 import { websiteConfig } from "@core/configs";
+import { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
-import { NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
 import httpCors from "@middy/http-cors";
@@ -12,7 +11,7 @@ import {
   updateAiResponse,
 } from "@services/ai-response";
 import { createChat, getChat, updateChat } from "@services/chat";
-import { getChatModel, getPromptModel } from "@services/llm";
+import { getRAIChatChain } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
 import { isObjectOwner } from "@services/user";
 import {
@@ -20,70 +19,10 @@ import {
   getUserMessagesByChatIdAndText,
 } from "@services/user/message";
 import { incrementUserQueryCount } from "@services/user/query-count";
-import { getDocumentVectorStore } from "@services/vector-db";
 import { LangChainStream, Message } from "ai";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { initializeAgentExecutorWithOptions } from "langchain/agents";
-import { CallbackHandlerMethods, CallbackManager } from "langchain/callbacks";
-import { RetrievalQAChain } from "langchain/chains";
-import { BufferMemory, ChatMessageHistory } from "langchain/memory";
-import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
-import {
-  AIMessage,
-  BaseMessage,
-  HumanMessage,
-  SystemMessage,
-} from "langchain/schema";
-import { ChainTool, GoogleCustomSearch } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
+import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
-
-const Agent = async (
-  history: BaseMessage[],
-  handlers: CallbackHandlerMethods
-) => {
-  const vectorStore = await getDocumentVectorStore();
-  return await initializeAgentExecutorWithOptions(
-    [
-      new Calculator(),
-      new GoogleCustomSearch({
-        apiKey: process.env.GOOGLE_API_KEY,
-        googleCSEId: process.env.GOOGLE_CSE_ID,
-      }),
-      new ChainTool({
-        name: "faith-qa",
-        description:
-          "Faith Q&A - Good for answering questions about faith and theology.",
-        chain: RetrievalQAChain.fromLLM(
-          getChatModel(),
-          new ContextualCompressionRetriever({
-            baseCompressor: NeonDocLLMChainExtractor.fromLLM(
-              getPromptModel(0.5)
-            ),
-            baseRetriever: vectorStore.asRetriever(6),
-          }),
-          {
-            returnSourceDocuments: true,
-            callbacks: CallbackManager.fromHandlers(handlers),
-            verbose: true,
-          }
-        ),
-        returnDirect: true,
-      }),
-    ],
-    getChatModel(),
-    {
-      agentType: "chat-conversational-react-description",
-      verbose: true,
-      memory: new BufferMemory({
-        chatHistory: new ChatMessageHistory(history),
-        memoryKey: "chat_history",
-        returnMessages: true,
-      }),
-      callbacks: CallbackManager.fromHandlers(handlers),
-    }
-  );
-};
 
 const lambdaHandler = async (
   event: APIGatewayProxyEventV2
@@ -233,28 +172,9 @@ const lambdaHandler = async (
       userId: userInfo.id,
     });
 
-    const history: BaseMessage[] = messages.map((message) => {
-      return message.role === "user"
-        ? new HumanMessage(message.content)
-        : new AIMessage(message.content);
-    });
-    history.unshift(
-      new SystemMessage(
-        `You are a Christian chatbot who can answer questions about Christian faith and theology. 
-          
-          Answer questions from the perspective of a non-denominational believer. Do not deviate from the topic of
-          faith.
-          
-          If you do not know the answer to a question, say that you do not know the answer. If you are asked a
-          question that is not about faith or theology, answer that you are not able to answer the question.`
-      )
-    );
-    console.debug(`Chat history: ${JSON.stringify(history)}`);
-
     const { stream, handlers } = LangChainStream();
-    const agentExecutor = await Agent(history, handlers);
-
-    const langchainResponsePromise = agentExecutor
+    const chain = await getRAIChatChain(chat, messages);
+    const langchainResponsePromise = chain
       .call(
         {
           input: lastMessage.content,
@@ -266,7 +186,7 @@ const lambdaHandler = async (
           updateAiResponse(aiResponse.id, {
             text: result.text,
           }),
-          ...result.sourceDocuments.map(
+          ...(result.sourceDocuments?.map(
             async (sourceDoc: NeonVectorStoreDocument) => {
               await readWriteDatabase
                 .insert(aiResponsesToSourceDocuments)
@@ -275,7 +195,7 @@ const lambdaHandler = async (
                   sourceDocumentId: sourceDoc.id,
                 });
             }
-          ),
+          ) ?? []),
         ]);
       })
       .catch(async (err) => {

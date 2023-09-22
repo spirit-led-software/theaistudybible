@@ -1,6 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
+import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Devotion } from '@core/model';
-import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
 

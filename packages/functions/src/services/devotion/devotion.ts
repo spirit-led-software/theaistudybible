@@ -1,9 +1,10 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { axios, replicateConfig, s3Config } from "@core/configs";
+import { NeonDocLLMChainExtractor } from "@core/langchain/retrievers/document_compressors/chain_extract";
+import { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import { CreateDevotionData, Devotion, UpdateDevotionData } from "@core/model";
 import { devotions, devotionsToSourceDocuments } from "@core/schema";
-import { NeonVectorStoreDocument } from "@core/vector-db/neon";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain, RetrievalQAChain } from "langchain/chains";
@@ -12,7 +13,6 @@ import { PromptTemplate } from "langchain/prompts";
 import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import Replicate from "replicate";
 import { z } from "zod";
-import { NeonDocLLMChainExtractor } from "../../../../core/src/chains/NeonDocLLMChainExtractor";
 import { getCompletionsModel, getPromptModel } from "../llm";
 import { getDocumentVectorStore } from "../vector-db";
 import { createDevotionImage } from "./image";
@@ -141,12 +141,7 @@ export async function generateDevotion(bibleReading?: string) {
     const fullPrompt = PromptTemplate.fromTemplate(
       `Given the following Bible reading:\n{bibleReading}\n\n
       Write a non-denominational Christian devotion.\n\n
-      {format_instructions}`,
-      {
-        partialVariables: {
-          format_instructions: outputParser.getFormatInstructions(),
-        },
-      }
+      {format_instructions}`
     );
 
     const vectorStore = await getDocumentVectorStore();
@@ -164,6 +159,7 @@ export async function generateDevotion(bibleReading?: string) {
     const result = await chain.call({
       prompt: await fullPrompt.format({
         bibleReading,
+        format_instructions: outputParser.getFormatInstructions(),
       }),
     });
     const output = await outputParser.parse(result.text);
