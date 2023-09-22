@@ -79,6 +79,12 @@ export class NeonVectorStore extends VectorStore {
     });
   }
 
+  log(message: string, ...optionalParams: any[]): void {
+    if (this.verbose) {
+      console.log(`[NeonVectorStore] ${message}`, optionalParams);
+    }
+  }
+
   static async fromConnectionString(
     embeddings: Embeddings,
     fields: NeonVectorStoreArgs
@@ -88,18 +94,33 @@ export class NeonVectorStore extends VectorStore {
   }
 
   async addDocuments(documents: Document[]): Promise<void> {
-    for (let i = 0; i < documents.length; i += 30) {
-      let sliceEnd = i + 30;
-      if (sliceEnd >= documents.length) {
-        sliceEnd = documents.length - 1;
-      }
-      const docsSlice = documents.slice(i, sliceEnd);
-      console.log(`Adding slice: ${i} to ${sliceEnd}`);
-      const texts = docsSlice.map(({ pageContent }) => pageContent);
+    if (documents.length === 0) {
+      this.log(`No documents to add to vector store`);
+    } else if (documents.length === 1) {
+      this.log(`Adding single document to vector store`);
       await this.addVectors(
-        await this.embeddings.embedDocuments(texts),
-        docsSlice
+        await this.embeddings.embedDocuments(
+          documents.map(({ pageContent }) => pageContent)
+        ),
+        documents
       );
+    } else {
+      for (let i = 0; i < documents.length; i += 30) {
+        let sliceEnd = i + 30;
+        if (sliceEnd >= documents.length) {
+          sliceEnd = documents.length - 1;
+        }
+        const docsSlice = documents.slice(i, sliceEnd);
+        this.log(
+          `Adding slice of documents to vector store: ${i} to ${sliceEnd}`
+        );
+        await this.addVectors(
+          await this.embeddings.embedDocuments(
+            docsSlice.map(({ pageContent }) => pageContent)
+          ),
+          docsSlice
+        );
+      }
     }
   }
 
@@ -117,13 +138,11 @@ export class NeonVectorStore extends VectorStore {
     const chunkSize = 500;
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
-      if (this.verbose) {
-        console.log(
-          `Inserting ${chunk.length} rows into vector store: ${JSON.stringify(
-            chunk
-          )}`
-        );
-      }
+      this.log(
+        `Inserting ${chunk.length} rows into vector store: ${JSON.stringify(
+          chunk
+        )}`
+      );
 
       try {
         await this.writePool.query(
@@ -147,13 +166,11 @@ export class NeonVectorStore extends VectorStore {
     const embeddingString = `{${query.join(",")}}`;
     const _filter = filter ?? "{}";
     const _offset = offset ?? 0;
-    if (this.verbose) {
-      console.log(
-        `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
-          _filter
-        )}`
-      );
-    }
+    this.log(
+      `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
+        _filter
+      )}`
+    );
 
     const documents = await this.readPool.query(
       `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
@@ -178,13 +195,11 @@ export class NeonVectorStore extends VectorStore {
       }
     }
 
-    if (this.verbose) {
-      console.log(
-        `Found ${
-          documents.rows.length
-        } similar results from vector store: ${JSON.stringify(results)}`
-      );
-    }
+    this.log(
+      `Found ${
+        documents.rows.length
+      } similar results from vector store: ${JSON.stringify(results)}`
+    );
     return results;
   }
 
@@ -193,13 +208,11 @@ export class NeonVectorStore extends VectorStore {
     filter?: this["FilterType"]
   ): Promise<NeonVectorStoreDocument[]> {
     const _filter = filter ?? "{}";
-    if (this.verbose) {
-      console.log(
-        `Getting documents by ids from vector store with filter ${JSON.stringify(
-          _filter
-        )}`
-      );
-    }
+    this.log(
+      `Getting documents by ids from vector store with filter ${JSON.stringify(
+        _filter
+      )}`
+    );
 
     const documentsResult = await this.readPool.query(
       `SELECT * FROM ${this.tableName}
@@ -208,15 +221,13 @@ export class NeonVectorStore extends VectorStore {
       [ids, _filter]
     );
 
-    if (this.verbose) {
-      console.log(
-        `Found ${
-          documentsResult.rows.length
-        } documents by ids from vector store: ${JSON.stringify(
-          documentsResult.rows
-        )}`
-      );
-    }
+    this.log(
+      `Found ${
+        documentsResult.rows.length
+      } documents by ids from vector store: ${JSON.stringify(
+        documentsResult.rows
+      )}`
+    );
 
     return documentsResult.rows as NeonVectorStoreDocument[];
   }
@@ -230,14 +241,10 @@ export class NeonVectorStore extends VectorStore {
   async ensureTableInDatabase(): Promise<void> {
     const client = await this.writePool.connect();
     try {
-      if (this.verbose) {
-        console.log("Creating embedding extension");
-      }
+      this.log("Creating embedding extension");
       await client.query("CREATE EXTENSION IF NOT EXISTS embedding;");
 
-      if (this.verbose) {
-        console.log(`Creating table ${this.tableName}`);
-      }
+      this.log(`Creating table ${this.tableName}`);
       await client.query(`
         CREATE TABLE IF NOT EXISTS ${this.tableName} (
           "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -247,9 +254,7 @@ export class NeonVectorStore extends VectorStore {
         );
       `);
 
-      if (this.verbose) {
-        console.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
-      }
+      this.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
       const indexName = `${this.tableName}_hnsw_idx`;
       await client.query(`DROP INDEX IF EXISTS ${indexName};`);
       await client.query(`
@@ -263,10 +268,20 @@ export class NeonVectorStore extends VectorStore {
           );
       `);
 
-      if (this.verbose) {
-        console.log("Turning off seq scan");
-      }
+      this.log("Turning off seq scan");
       await client.query("SET enable_seqscan = off;");
+    } catch (e) {
+      throw e;
+    } finally {
+      await client.release();
+    }
+  }
+
+  async deleteTableInDatabase(): Promise<void> {
+    const client = await this.writePool.connect();
+    try {
+      this.log(`Dropping table ${this.tableName}`);
+      await client.query(`DROP TABLE IF EXISTS ${this.tableName};`);
     } catch (e) {
       throw e;
     } finally {

@@ -1,4 +1,11 @@
 <script lang="ts">
+	// @ts-ignore
+	import Email from 'svelte-share-buttons-component/src/Email.svelte';
+	// @ts-ignore
+	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
+	// @ts-ignore
+	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
+
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import { cn } from '$lib/utils/class-names';
 	import { squareDimensionClasses } from '$lib/utils/sizing';
@@ -6,9 +13,6 @@
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
 	import Moment from 'moment';
-	import Email from 'svelte-share-buttons-component/src/Email.svelte';
-	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
-	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
 	import CompactLogo from '../branding/CompactLogo.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';

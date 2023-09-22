@@ -1,6 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
+import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { AiResponse, CreateAiResponseData, UpdateAiResponseData } from '@core/model';
-import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
 import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
@@ -8,7 +8,6 @@ import type {
 	ProtectedApiOptions,
 	SearchForEntitiesOptions
 } from './types';
-
 export async function getAiResponses(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses?${searchParams.toString()}`, {

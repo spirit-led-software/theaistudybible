@@ -44,13 +44,14 @@ class Sources extends HookConsumerWidget {
             ))
             .value ??
         []);
+    ValueNotifier<bool> hasLoaded = useState(false);
 
     ValueNotifier<bool> showSources = useState(false);
     ValueNotifier<bool> copied = useState(false);
 
     useEffect(
       () {
-        if (sourceDocuments.value.isEmpty) {
+        if (sourceDocuments.value.isEmpty && !hasLoaded.value && !isLoading) {
           loading.value = true;
           final sourceDocumentsFuture =
               ref.read(aiResponseSourceDocumentsProvider(
@@ -60,7 +61,11 @@ class Sources extends HookConsumerWidget {
           ).future);
 
           sourceDocumentsFuture.then((value) {
-            if (isMounted()) sourceDocuments.value = value;
+            if (isMounted()) {
+              sourceDocuments.value = value;
+              hasLoaded.value = true;
+            }
+            ;
           }).catchError((e) {
             debugPrint("Failed to load sources: ${e.toString()}");
           }).whenComplete(() {
@@ -178,8 +183,24 @@ class Sources extends HookConsumerWidget {
             shrinkWrap: true,
             padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: sourceDocuments.value.length,
+            itemCount: sourceDocuments.value.isEmpty
+                ? 1
+                : sourceDocuments.value.length,
             itemBuilder: (context, index) {
+              if (sourceDocuments.value.isEmpty) {
+                return ListTile(
+                  dense: true,
+                  visualDensity: RAIVisualDensity.tightest,
+                  title: Text(
+                    "None",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                );
+              }
+
               final source = sourceDocuments.value[index];
               return Link(
                 uri: Uri.parse(source.metadata['url']),
