@@ -34,52 +34,10 @@
 		});
 	});
 
-	onMount(() => {
-		const searchParamsQuery = $page.url.searchParams.get('query');
-		if (searchParamsQuery) {
-			append(
-				{
-					id: nanoid(),
-					content: searchParamsQuery,
-					role: 'user'
-				},
-				{
-					options: {
-						headers: {
-							authorization: `Bearer ${$page.data.session}`
-						},
-						body: {
-							chatId
-						}
-					}
-				}
-			);
-		}
-	});
-
-	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
-		api: PUBLIC_CHAT_API_URL,
-		initialMessages: initMessages,
-		sendExtraMessageFields: true,
-		onResponse: (response) => {
-			if (response.status === 429) {
-				alert = 'You have reached your daily query limit. Upgrade for more!';
-				return;
-			} else if (!response.ok) {
-				alert = 'Something went wrong. Please try again.';
-				return;
-			}
-			chatId = response.headers.get('x-chat-id') ?? undefined;
-			lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
-			lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
-		},
-		onFinish: (message: ChatMessage) => {
-			lastChatMessage = message;
-			scrollEndIntoView();
-		}
-	}));
-
-	$: scrollEndIntoView = () => {
+	const scrollEndIntoView = (
+		isEndOfMessagesRefShowing: boolean,
+		endOfMessagesRef: HTMLDivElement | undefined
+	) => {
 		if (!isEndOfMessagesRefShowing) {
 			endOfMessagesRef?.scrollIntoView({
 				behavior: 'smooth',
@@ -88,29 +46,33 @@
 		}
 	};
 
+	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
+		api: PUBLIC_CHAT_API_URL,
+		initialMessages: initMessages ?? [],
+		sendExtraMessageFields: true,
+		onError: (err) => {
+			alert = err.message;
+		},
+		onResponse: (response) => {
+			if (response.status === 429) {
+				alert = 'You have reached your daily query limit. Upgrade for more!';
+			} else if (!response.ok) {
+				alert = 'Something went wrong. Please try again.';
+			} else {
+				chatId = response.headers.get('x-chat-id') ?? undefined;
+				lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
+				lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
+			}
+		},
+		onFinish: (message: ChatMessage) => {
+			lastChatMessage = message;
+		}
+	}));
 	$: error?.subscribe((err) => {
 		if (err) {
 			alert = err.message;
 		}
 	});
-
-	$: handleSubmitCustom = async (event?: SubmitEvent) => {
-		event?.preventDefault();
-		if ($input === '') {
-			alert = 'Please enter a message';
-		}
-		handleSubmit(event, {
-			options: {
-				headers: {
-					authorization: `Bearer ${$page.data.session}`
-				},
-				body: {
-					chatId
-				}
-			}
-		});
-		scrollEndIntoView();
-	};
 
 	$: handleReload = async () => {
 		await reload({
@@ -126,6 +88,24 @@
 		queryClient.invalidateQueries(['infinite-chats']);
 	};
 
+	$: handleSubmitCustom = async (event: SubmitEvent) => {
+		event.preventDefault();
+		if ($input === '') {
+			alert = 'Please enter a message';
+		}
+		handleSubmit(event, {
+			options: {
+				headers: {
+					authorization: `Bearer ${$page.data.session}`
+				},
+				body: {
+					chatId
+				}
+			}
+		});
+		scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
+	};
+
 	$: handleAiResponse = async (chatMessage: ChatMessage) => {
 		if (lastAiResponseId) {
 			try {
@@ -138,6 +118,7 @@
 						session: $page.data.session
 					}
 				);
+				scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
 			} catch (err: any) {
 				alert = `Something went wrong: ${err.message}`;
 			} finally {
@@ -149,6 +130,26 @@
 	$: if (initChatId) chatId = initChatId;
 	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
+
+	$: if ($page.url.searchParams.get('query')) {
+		append(
+			{
+				id: nanoid(),
+				content: $page.url.searchParams.get('query')!,
+				role: 'user'
+			},
+			{
+				options: {
+					headers: {
+						authorization: `Bearer ${$page.data.session}`
+					},
+					body: {
+						chatId
+					}
+				}
+			}
+		);
+	}
 </script>
 
 <div class="absolute w-full h-full overflow-hidden lg:static">
@@ -214,7 +215,9 @@
 		{#if !isEndOfMessagesRefShowing}
 			<button
 				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5 text-slate-700 hover:text-slate-900 hover:shadow-xl hover:bg-slate-100"
-				on:click|preventDefault={scrollEndIntoView}
+				on:click|preventDefault={() => {
+					scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
+				}}
 			>
 				<Icon icon="icon-park:down" class="text-2xl" />
 			</button>
@@ -222,7 +225,12 @@
 		<div
 			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
 		>
-			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
+			<form
+				class="flex flex-col w-full"
+				on:submit|preventDefault={(event) => {
+					handleSubmitCustom(event);
+				}}
+			>
 				<div class="flex items-center w-full h-auto">
 					<Icon icon="icon-park:right" class="mx-1 text-2xl" />
 					<TextAreaAutosize {input} />

@@ -12,21 +12,15 @@ import {
   CertificateValidation,
 } from "aws-cdk-lib/aws-certificatemanager";
 import {
-  CacheHeaderBehavior,
   CachePolicy,
+  CachedMethods,
   Distribution,
-  OriginRequestCookieBehavior,
-  OriginRequestHeaderBehavior,
   OriginRequestPolicy,
   ResponseHeadersPolicy,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
-import {
-  FunctionUrlAuthType,
-  HttpMethod,
-  InvokeMode,
-} from "aws-cdk-lib/aws-lambda";
+import { FunctionUrlAuthType, InvokeMode } from "aws-cdk-lib/aws-lambda";
 import { ARecord, AaaaRecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 
@@ -69,18 +63,6 @@ export function API({ stack }: StackContext) {
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
-    cors: {
-      allowCredentials: true,
-      allowedHeaders: ["Authorization", "Content-Type"],
-      allowedMethods: [HttpMethod.ALL],
-      allowedOrigins: [websiteUrl],
-      exposedHeaders: [
-        "x-chat-id",
-        "x-user-message-id",
-        "x-ai-response-id",
-        "content-type",
-      ],
-    },
     authType: FunctionUrlAuthType.NONE,
   });
   const chatApiUrlDistribution = new Distribution(
@@ -92,29 +74,20 @@ export function API({ stack }: StackContext) {
           Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
         ),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        originRequestPolicy: new OriginRequestPolicy(
-          stack,
-          "chatApiUrlOriginRequestPolicy",
-          {
-            cookieBehavior: OriginRequestCookieBehavior.all(),
-            headerBehavior:
-              OriginRequestHeaderBehavior.allowList("Content-Type"),
-          }
-        ),
-        cachePolicy: new CachePolicy(stack, "chatApiUrlCachePolicy", {
-          headerBehavior: CacheHeaderBehavior.allowList("Authorization"),
-          cookieBehavior: OriginRequestCookieBehavior.none(),
-        }),
+        originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
+        cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
+        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
         allowedMethods: {
           methods: ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"],
         },
         responseHeadersPolicy: new ResponseHeadersPolicy(
           stack,
-          "chatApiUrlResponseHeadersPolicy",
+          "chatApiUrlDistResponseHeadersPolicy",
           {
             corsBehavior: {
+              originOverride: true,
               accessControlAllowCredentials: true,
-              accessControlAllowHeaders: ["Authorization", "Content-Type"],
+              accessControlAllowHeaders: ["Authorization", "Content-type"],
               accessControlAllowMethods: ["POST", "OPTIONS"],
               accessControlAllowOrigins: [websiteUrl],
               accessControlExposeHeaders: [
@@ -122,8 +95,8 @@ export function API({ stack }: StackContext) {
                 "x-user-message-id",
                 "x-ai-response-id",
                 "content-type",
+                "content-length",
               ],
-              originOverride: true,
             },
           }
         ),

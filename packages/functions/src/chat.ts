@@ -1,10 +1,8 @@
-import { websiteConfig } from "@core/configs";
 import { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
-import httpCors from "@middy/http-cors";
 import {
   createAiResponse,
   getAiResponsesByUserMessageId,
@@ -20,14 +18,61 @@ import {
 } from "@services/user/message";
 import { incrementUserQueryCount } from "@services/user/query-count";
 import { LangChainStream, Message } from "ai";
-import { APIGatewayProxyEventV2 } from "aws-lambda";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
 
+type StreamedAPIGatewayProxyStructuredResultV2 = Omit<
+  APIGatewayProxyStructuredResultV2,
+  "body"
+> & {
+  body: Readable;
+};
+
+const validateRequest = (
+  event: APIGatewayProxyEventV2
+): StreamedAPIGatewayProxyStructuredResultV2 | undefined => {
+  // Handle CORS preflight request
+  if (event.requestContext.http.method === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: Readable.from([JSON.stringify({})]),
+    };
+  }
+
+  // Reject non-POST requests
+  if (event.requestContext.http.method !== "POST") {
+    console.log("Invalid method");
+    return {
+      statusCode: 405,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: Readable.from([
+        JSON.stringify({ error: "Invalid method, must be POST" }),
+      ]),
+    };
+  }
+
+  return undefined;
+};
+
 const lambdaHandler = async (
   event: APIGatewayProxyEventV2
-): Promise<any | void> => {
+): Promise<StreamedAPIGatewayProxyStructuredResultV2> => {
   console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
+
+  const validationResponse = validateRequest(event);
+  if (validationResponse) {
+    return validationResponse;
+  }
+
   const promises: Promise<any>[] = []; // promises to wait for before closing the stream
 
   if (!event.body) {
@@ -255,21 +300,6 @@ const lambdaHandler = async (
   }
 };
 
-export const handler = middy({ streamifyResponse: true })
-  .use(
-    httpCors({
-      origin: websiteConfig.url,
-      methods: ["POST", "OPTIONS"].join(","),
-      credentials: true,
-      headers: ["authorization", "content-type"].join(","),
-      requestHeaders: ["authorization", "content-type"].join(","),
-      exposeHeaders: [
-        "x-chat-id",
-        "x-user-message-id",
-        "x-ai-response-id",
-        "content-type",
-      ].join(","),
-      disableBeforePreflightResponse: false,
-    })
-  )
-  .handler(lambdaHandler);
+export const handler = middy({ streamifyResponse: true }).handler(
+  lambdaHandler
+);

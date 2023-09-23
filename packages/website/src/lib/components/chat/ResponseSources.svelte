@@ -6,7 +6,6 @@
 	import { aiResponses } from '@core/schema';
 	import { getPropertyName } from '@core/util/object';
 	import Icon from '@iconify/svelte';
-	import { onMount } from 'svelte';
 
 	export let aiResponseId: string;
 	export let isChatLoading = false;
@@ -18,11 +17,7 @@
 
 	let showSources = false;
 
-	onMount(() => {
-		getSources(chatId, aiResponseId);
-	});
-
-	const getSources = async (chatId?: string, aiResponseId?: string) => {
+	$: getSources = async (chatId?: string, aiResponseId?: string) => {
 		if (!chatId && !aiResponseId) return;
 
 		try {

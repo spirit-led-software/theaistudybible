@@ -29,7 +29,12 @@ export const handler = ApiHandler(async (event) => {
 
     const sourceDocuments = await getAiResponseSourceDocuments(aiResponse);
 
-    return OkResponse(sourceDocuments);
+    return OkResponse(
+      sourceDocuments.map((sourceDocument) => {
+        const { embedding, ...rest } = sourceDocument;
+        return rest;
+      })
+    );
   } catch (error: any) {
     console.error(error);
     return InternalServerErrorResponse(error.stack);
