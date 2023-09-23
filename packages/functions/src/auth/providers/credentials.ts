@@ -1,6 +1,6 @@
 import { BadRequestResponse } from "@lib/api-responses";
 import { getUserByEmail } from "@services/user";
-import {
+import type {
   APIGatewayProxyEventQueryStringParameters,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";

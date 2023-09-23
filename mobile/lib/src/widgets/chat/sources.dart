@@ -65,7 +65,6 @@ class Sources extends HookConsumerWidget {
               sourceDocuments.value = value;
               hasLoaded.value = true;
             }
-            ;
           }).catchError((e) {
             debugPrint("Failed to load sources: ${e.toString()}");
           }).whenComplete(() {

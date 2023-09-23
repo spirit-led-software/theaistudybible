@@ -1,4 +1,4 @@
-import { User } from "@core/model";
+import type { User } from "@core/model";
 import { addRoleToUser, removeRoleFromUser } from "@services/role";
 import {
   getUserByEmail,

@@ -1,4 +1,4 @@
-import { userMessages } from "../../schema";
+import type { userMessages } from "../../schema";
 
 export type UserMessage = typeof userMessages.$inferSelect;
 

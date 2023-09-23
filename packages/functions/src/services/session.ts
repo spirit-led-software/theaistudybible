@@ -1,5 +1,5 @@
 import { apiConfig } from "@core/configs";
-import { UserInfo, UserWithRoles } from "@core/model";
+import type { UserInfo, UserWithRoles } from "@core/model";
 import {
   createUserQueryCount,
   getUser,
@@ -7,8 +7,8 @@ import {
   getUserQueryCountByUserIdAndDate,
   getUserRoles,
 } from "@services/user";
-import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { SessionValue, useSession } from "sst/node/auth";
+import type { APIGatewayProxyEventV2 } from "aws-lambda";
+import { useSession, type SessionValue } from "sst/node/auth";
 
 export async function validApiHandlerSession(): Promise<
   | {

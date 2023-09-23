@@ -1,6 +1,6 @@
-import { IndexOperation } from "@core/model";
+import type { IndexOperation } from "@core/model";
 import { getIndexOperation, updateIndexOperation } from "@services/index-op";
-import { SQSHandler } from "aws-lambda";
+import type { SQSHandler } from "aws-lambda";
 import { generatePageContentEmbeddings } from "../lib/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {

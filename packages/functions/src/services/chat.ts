@@ -1,4 +1,4 @@
-import { CreateChatData, UpdateChatData } from "@core/model";
+import type { CreateChatData, UpdateChatData } from "@core/model";
 import { chats } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";

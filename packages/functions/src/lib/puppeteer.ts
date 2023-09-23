@@ -2,14 +2,14 @@ import chromium from "@sparticuz/chromium";
 import { Document } from "langchain/document";
 import {
   BaseDocumentLoader,
-  DocumentLoader,
+  type DocumentLoader,
 } from "langchain/document_loaders/base";
 import {
   Browser,
   Page,
-  PuppeteerLaunchOptions,
-  WaitForOptions,
   launch,
+  type PuppeteerLaunchOptions,
+  type WaitForOptions,
 } from "puppeteer-core";
 
 export type PuppeteerCoreGoToOptions = WaitForOptions & {

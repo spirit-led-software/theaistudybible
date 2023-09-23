@@ -1,4 +1,4 @@
-import {
+import type {
   CreateUserQueryCountData,
   UpdateUserQueryCountData,
 } from "@core/model";

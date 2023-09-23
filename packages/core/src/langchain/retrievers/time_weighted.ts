@@ -1,12 +1,12 @@
-import { CallbackManagerForRetrieverRun } from "langchain/callbacks";
-import { Document } from "langchain/document";
+import type { CallbackManagerForRetrieverRun } from "langchain/callbacks";
+import type { Document } from "langchain/document";
 import {
   VectorStore,
   VectorStoreRetriever,
-  VectorStoreRetrieverInput,
-  VectorStoreRetrieverMMRSearchKwargs,
+  type VectorStoreRetrieverInput,
+  type VectorStoreRetrieverMMRSearchKwargs,
 } from "langchain/vectorstores/base";
-import { NeonVectorStore } from "../vectorstores";
+import type { NeonVectorStore } from "../vectorstores";
 
 /**
  * Interface for the fields required to initialize a

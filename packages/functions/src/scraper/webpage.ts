@@ -1,4 +1,4 @@
-import { IndexOperation } from "@core/model";
+import type { IndexOperation } from "@core/model";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";

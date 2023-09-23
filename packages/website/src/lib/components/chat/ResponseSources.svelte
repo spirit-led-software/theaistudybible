@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { getAiResponseSourceDocuments, searchForAiResponses } from '$lib/services/ai-response';
+	import { session } from '$lib/stores/user';
 	import type { Query } from '@core/database/helpers';
 	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 	import { aiResponses } from '@core/schema';
 	import { getPropertyName } from '@core/util/object';
 	import Icon from '@iconify/svelte';
 
+	export let chatId: string | undefined;
 	export let aiResponseId: string;
 	export let isChatLoading = false;
-	export let chatId: string | undefined;
 
 	let sources: NeonVectorStoreDocument[] = [];
 	let isLoading = false;
@@ -39,7 +39,7 @@
 				]
 			};
 			const { aiResponses: foundAiResponses } = await searchForAiResponses({
-				session: $page.data.session,
+				session: $session!,
 				query,
 				limit: 1
 			});
@@ -47,7 +47,7 @@
 			if (!aiResponse) return;
 
 			const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
-				session: $page.data.session
+				session: $session!
 			});
 			sources = foundSourceDocuments.filter((sourceDoc, index) => {
 				const firstIndex = foundSourceDocuments.findIndex(
@@ -64,7 +64,9 @@
 		}
 	};
 
-	$: if (showSources && sources.length === 0 && !hasLoaded) getSources(chatId, aiResponseId);
+	$: if (showSources && sources.length === 0 && !hasLoaded && !isChatLoading && !isLoading) {
+		getSources(chatId, aiResponseId);
+	}
 	$: if (!isChatLoading) getSources(chatId, aiResponseId);
 </script>
 

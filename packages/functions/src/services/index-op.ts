@@ -1,4 +1,4 @@
-import {
+import type {
   CreateIndexOperationData,
   UpdateIndexOperationData,
 } from "@core/model";

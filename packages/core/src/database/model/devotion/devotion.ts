@@ -1,4 +1,4 @@
-import { devotions } from "../../schema";
+import type { devotions } from "../../schema";
 
 export type Devotion = typeof devotions.$inferSelect;
 

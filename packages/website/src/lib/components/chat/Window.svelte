@@ -3,7 +3,7 @@
 	import { PUBLIC_CHAT_API_URL } from '$env/static/public';
 	import Message from '$lib/components/chat/Message.svelte';
 	import { updateAiResponse } from '$lib/services/ai-response';
-	import type { UserWithRoles } from '@core/model';
+	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { nanoid, type Message as ChatMessage } from 'ai';
@@ -13,7 +13,6 @@
 	import { LoadingDots } from '../loading';
 	import TextAreaAutosize from './TextAreaAutosize.svelte';
 
-	export let user: UserWithRoles;
 	export let initChatId: string | undefined = undefined;
 	export let initMessages: ChatMessage[] | undefined = undefined;
 
@@ -78,7 +77,7 @@
 		await reload({
 			options: {
 				headers: {
-					authorization: `Bearer ${$page.data.session}`
+					authorization: `Bearer ${$session}`
 				},
 				body: {
 					chatId
@@ -96,7 +95,7 @@
 		handleSubmit(event, {
 			options: {
 				headers: {
-					authorization: `Bearer ${$page.data.session}`
+					authorization: `Bearer ${$session}`
 				},
 				body: {
 					chatId
@@ -115,7 +114,7 @@
 						aiId: chatMessage.id
 					},
 					{
-						session: $page.data.session
+						session: $session!
 					}
 				);
 				scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
@@ -141,7 +140,7 @@
 			{
 				options: {
 					headers: {
-						authorization: `Bearer ${$page.data.session}`
+						authorization: `Bearer ${$session}`
 					},
 					body: {
 						chatId
@@ -176,7 +175,6 @@
                       <AdMessage />
                     )} -->
 							<Message
-								{user}
 								{chatId}
 								{message}
 								prevMessage={$messages[index - 1]}

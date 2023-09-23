@@ -1,11 +1,11 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig } from "@core/configs";
-import { IndexOperation } from "@core/model";
+import type { IndexOperation } from "@core/model";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { getDocumentVectorStore } from "@services/vector-db";
-import { S3Handler } from "aws-lambda";
+import type { S3Handler } from "aws-lambda";
 import { mkdtempSync, writeFileSync } from "fs";
-import { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
+import type { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
 import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";

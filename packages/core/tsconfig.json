@@ -1,8 +1,15 @@
 {
   "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
-    "typeRoots": ["./src/types"],
-    "moduleResolution": "Node"
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "preserveValueImports": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "esnext",
+    "ignoreDeprecations": "5.0",
+    "typeRoots": ["./src/types"]
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

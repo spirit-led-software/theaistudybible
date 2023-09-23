@@ -1,8 +1,8 @@
 import { llmConfig, openAiConfig } from "@core/configs";
 import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-multi-route";
 import { NeonDocLLMChainExtractor } from "@core/langchain/retrievers/document_compressors/chain_extract";
-import { Chat } from "@core/model";
-import { Message } from "ai";
+import type { Chat } from "@core/model";
+import type { Message } from "ai";
 import { ConversationalRetrievalQAChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";

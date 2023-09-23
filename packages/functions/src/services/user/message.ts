@@ -1,4 +1,4 @@
-import { CreateUserMessageData, UpdateUserMessageData } from "@core/model";
+import type { CreateUserMessageData, UpdateUserMessageData } from "@core/model";
 import { userMessages } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, and, desc, eq } from "drizzle-orm";

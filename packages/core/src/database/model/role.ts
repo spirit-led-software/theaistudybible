@@ -1,4 +1,4 @@
-import { roles } from "../schema";
+import type { roles } from "../schema";
 
 export type Role = typeof roles.$inferSelect;
 

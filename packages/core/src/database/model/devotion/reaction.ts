@@ -1,4 +1,4 @@
-import { devotionReactions } from "../../schema";
+import type { devotionReactions } from "../../schema";
 
 export type DevotionReaction = typeof devotionReactions.$inferSelect;
 

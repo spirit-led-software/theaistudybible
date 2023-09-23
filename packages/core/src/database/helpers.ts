@@ -12,7 +12,7 @@ import {
   not,
   or,
 } from "drizzle-orm";
-import { PgTableWithColumns } from "drizzle-orm/pg-core";
+import type { PgTableWithColumns } from "drizzle-orm/pg-core";
 
 export interface ColumnValue {
   column: string;

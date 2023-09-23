@@ -1,11 +1,11 @@
 import { PromptTemplate } from "langchain";
-import { BaseLanguageModel } from "langchain/base_language";
+import type { BaseLanguageModel } from "langchain/base_language";
 import {
   BaseChain,
   LLMRouterChain,
-  LLMRouterChainInput,
   MultiRouteChain,
-  MultiRouteChainInput,
+  type LLMRouterChainInput,
+  type MultiRouteChainInput,
 } from "langchain/chains";
 import { RouterOutputParser } from "langchain/output_parsers";
 import { z } from "zod";

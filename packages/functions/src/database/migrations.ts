@@ -1,6 +1,6 @@
 import config from "@core/configs/database";
 import * as schema from "@core/schema";
-import { Handler } from "aws-lambda";
+import type { Handler } from "aws-lambda";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";

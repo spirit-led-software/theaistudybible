@@ -2,6 +2,7 @@
   "extends": "@tsconfig/node16/tsconfig.json",
   "exclude": ["packages", "node_modules"],
   "compilerOptions": {
+    "module": "esnext",
     "moduleResolution": "Node",
     "paths": {
       "@stacks/*": ["./stacks/*"],

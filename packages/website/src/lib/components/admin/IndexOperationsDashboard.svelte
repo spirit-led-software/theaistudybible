@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { getIndexOperations, updateIndexOperation } from '$lib/services/index-op';
+	import { session } from '$lib/stores/user';
 	import type { IndexOperation } from '@core/model';
 	import { indexOperations as indexOperationsTable } from '@core/schema';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -21,7 +21,7 @@
 		const status = event.currentTarget.value;
 		try {
 			isLoading = true;
-			await updateIndexOperation(id, { status: status as any }, { session: $page.data.session });
+			await updateIndexOperation(id, { status: status as any }, { session: $session! });
 			alert = { type: 'success', message: `Successfully updated status to ${status}` };
 		} catch (e: any) {
 			alert = { type: 'error', message: e.message };
@@ -33,8 +33,7 @@
 
 	$: query = createQuery({
 		queryKey: ['index-operations'],
-		queryFn: () =>
-			getIndexOperations({ limit, session: $page.data.session }).then((r) => r.indexOperations),
+		queryFn: () => getIndexOperations({ limit, session: $session! }).then((r) => r.indexOperations),
 		initialData: initIndexOps,
 		refetchInterval: 8000
 	});

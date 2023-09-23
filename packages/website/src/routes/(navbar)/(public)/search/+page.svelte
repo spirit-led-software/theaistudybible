@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { NeonVectorStoreDocument } from '@core/vector-db/neon';
+	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 	import Icon from '@iconify/svelte';
 	import type { ActionData, SubmitFunction } from './$types';
 

@@ -9,7 +9,6 @@
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import { cn } from '$lib/utils/class-names';
 	import { squareDimensionClasses } from '$lib/utils/sizing';
-	import type { UserWithRoles } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
 	import Moment from 'moment';
@@ -23,7 +22,6 @@
 	export let prevMessage: Message | undefined = undefined;
 	export let isChatLoading = false;
 	export let isLastMessage = false;
-	export let user: UserWithRoles;
 
 	const url = `${PUBLIC_WEBSITE_URL}/chat`;
 
@@ -50,7 +48,7 @@
 <div class="flex flex-row w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300">
 	<div class="flex flex-col content-start w-12">
 		{#if role === 'user'}
-			<Avatar {user} size="lg" class="border shadow-xl border-slate-100" />
+			<Avatar size="lg" class="border shadow-xl border-slate-100" />
 		{:else}
 			<div
 				class={cn(

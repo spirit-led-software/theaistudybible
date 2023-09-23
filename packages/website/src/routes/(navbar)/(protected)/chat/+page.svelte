@@ -1,12 +1,9 @@
 <script lang="ts">
 	import Window from '$lib/components/chat/Window.svelte';
-	import type { PageData } from './$types';
-
-	export let data: PageData;
 </script>
 
 <svelte:head>
 	<title>Chat</title>
 </svelte:head>
 
-<Window user={data.user} />
+<Window />

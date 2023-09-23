@@ -1,4 +1,4 @@
-import { aiResponses } from "../schema";
+import type { aiResponses } from "../schema";
 
 export type AiResponse = typeof aiResponses.$inferSelect;
 

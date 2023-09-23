@@ -1,5 +1,5 @@
 import { authConfig } from "@core/configs";
-import { User } from "@core/model";
+import type { User } from "@core/model";
 import {
   addRoleToUser,
   createRole,
@@ -15,7 +15,7 @@ import {
   updateUser,
 } from "@services/user";
 import { getDocumentVectorStore } from "@services/vector-db";
-import { Handler } from "aws-lambda";
+import type { Handler } from "aws-lambda";
 import * as bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import { stripeConfig } from "../configs";
@@ -147,7 +147,9 @@ export const handler: Handler = async () => {
     await createInitialAdminUser();
 
     console.log("Creating vector store");
-    const vectorDb = await getDocumentVectorStore(true);
+    const vectorDb = await getDocumentVectorStore({
+      verbose: true,
+    });
     await vectorDb.ensureTableInDatabase();
 
     console.log("Database seeding complete");

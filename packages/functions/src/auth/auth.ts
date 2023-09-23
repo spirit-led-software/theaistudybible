@@ -1,6 +1,6 @@
 import { authConfig, emailConfig, websiteConfig } from "@core/configs";
 import { emailTransport } from "@core/configs/email";
-import { User } from "@core/model";
+import type { User } from "@core/model";
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
@@ -12,7 +12,7 @@ import { createUser, getUserByEmail, updateUser } from "@services/user";
 import * as bcrypt from "bcryptjs";
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import { TokenSet } from "openid-client";
+import type { TokenSet } from "openid-client";
 import path from "path";
 import pug from "pug";
 import { AuthHandler, GoogleAdapter, Session } from "sst/node/auth";

@@ -1,4 +1,4 @@
-import {
+import type {
   CreateDevotionReactionData,
   UpdateDevotionReactionData,
 } from "@core/model";

@@ -16,7 +16,7 @@
 		Account editing coming soon!
 	</div>
 	<div class="flex flex-col justify-center w-full space-y-5 place-items-center lg:w-1/2">
-		<Avatar {user} size="xl" />
+		<Avatar size="xl" />
 		<h1 class="text-lg font-medium">{user.name ?? user.email}</h1>
 		<div class="flex flex-col space-y-3">
 			<a class="text-white bg-blue-300 btn hover:bg-blue-400 active:bg-blue-400" href="/upgrade"

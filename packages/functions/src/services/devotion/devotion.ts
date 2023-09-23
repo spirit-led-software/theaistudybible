@@ -2,8 +2,12 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { axios, replicateConfig, s3Config } from "@core/configs";
 import { NeonDocLLMChainExtractor } from "@core/langchain/retrievers/document_compressors/chain_extract";
-import { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
-import { CreateDevotionData, Devotion, UpdateDevotionData } from "@core/model";
+import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
+import type {
+  CreateDevotionData,
+  Devotion,
+  UpdateDevotionData,
+} from "@core/model";
 import { devotions, devotionsToSourceDocuments } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";

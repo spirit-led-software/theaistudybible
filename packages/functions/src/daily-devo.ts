@@ -1,5 +1,5 @@
 import { generateDevotion, getDevotionByDate } from "@services/devotion";
-import { Handler } from "aws-lambda";
+import type { Handler } from "aws-lambda";
 import firebase from "firebase-admin";
 import path from "path";
 

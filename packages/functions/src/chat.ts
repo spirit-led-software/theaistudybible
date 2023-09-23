@@ -1,5 +1,5 @@
-import { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
-import { Chat, UserMessage } from "@core/model";
+import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
+import type { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
@@ -17,8 +17,8 @@ import {
   getUserMessagesByChatIdAndText,
 } from "@services/user/message";
 import { incrementUserQueryCount } from "@services/user/query-count";
-import { LangChainStream, Message } from "ai";
-import {
+import { LangChainStream, type Message } from "ai";
+import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";

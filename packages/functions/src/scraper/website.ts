@@ -1,6 +1,6 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { axios } from "@core/configs/axios";
-import { IndexOperation } from "@core/model";
+import type { IndexOperation } from "@core/model";
 import {
   BadRequestResponse,
   ForbiddenResponse,
@@ -179,8 +179,8 @@ async function navigateSitemap(
     const { data: sitemapXml } = await axios.get(url!);
 
     // Parse the XML string to an XML Object
-    const parser = new XMLParser();
-    const sitemapXmlObj = parser.parse(sitemapXml);
+    const parser = new XMLParser({});
+    const sitemapXmlObj = parser.parse(sitemapXml) as any;
 
     let sitemapUrls = [];
     if (sitemapXmlObj.urlset) {

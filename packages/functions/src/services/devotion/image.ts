@@ -1,4 +1,7 @@
-import { CreateDevotionImageData, UpdateDevotionImageData } from "@core/model";
+import type {
+  CreateDevotionImageData,
+  UpdateDevotionImageData,
+} from "@core/model";
 import { devotionImages } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, desc, eq } from "drizzle-orm";

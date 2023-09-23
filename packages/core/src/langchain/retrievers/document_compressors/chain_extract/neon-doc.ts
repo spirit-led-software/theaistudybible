@@ -1,10 +1,10 @@
-import { BaseLanguageModel } from "langchain/base_language";
+import type { BaseLanguageModel } from "langchain/base_language";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { LLMChainExtractor } from "langchain/retrievers/document_compressors/chain_extract";
 import {
   BaseOutputParser,
-  FormatInstructionsOptions,
+  type FormatInstructionsOptions,
 } from "langchain/schema/output_parser";
 import { envConfig } from "../../../../configs";
 import { NeonVectorStoreDocument } from "../../../vectorstores/neon";

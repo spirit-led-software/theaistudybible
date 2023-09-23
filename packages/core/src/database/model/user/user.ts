@@ -1,5 +1,5 @@
-import { users } from "../../schema";
-import { Role } from "../role";
+import type { users } from "../../schema";
+import type { Role } from "../role";
 
 export type User = typeof users.$inferSelect;
 

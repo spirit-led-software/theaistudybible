@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { createChat, deleteChat, getChats, updateChat } from '$lib/services/chat';
+	import { session } from '$lib/stores/user';
 	import type { Chat } from '@core/model';
 	import Icon from '@iconify/svelte';
 	import {
@@ -30,7 +31,7 @@
 				name: 'New Chat'
 			},
 			{
-				session: $page.data.session
+				session: $session!
 			}
 		);
 	};
@@ -76,7 +77,7 @@
 				name: name
 			},
 			{
-				session: $page.data.session
+				session: $session!
 			}
 		);
 	};
@@ -115,7 +116,7 @@
 	};
 
 	const handleDelete = async (id: string) => {
-		await deleteChat(id, { session: $page.data.session }).finally(async () => {
+		await deleteChat(id, { session: $session! }).finally(async () => {
 			if (activeChatId === id) await goto('/chat');
 		});
 	};
@@ -148,9 +149,7 @@
 	};
 
 	const fetchChats = async ({ pageParam = 1 }) => {
-		return await getChats({ limit: 7, page: pageParam, session: $page.data.session }).then(
-			(r) => r.chats
-		);
+		return await getChats({ limit: 7, page: pageParam, session: $session! }).then((r) => r.chats);
 	};
 
 	const query = createInfiniteQuery({

@@ -1,4 +1,4 @@
-import { UserInfo } from "@core/model";
+import type { UserInfo } from "@core/model";
 import { OkResponse, UnauthorizedResponse } from "@lib/api-responses";
 import { validApiHandlerSession } from "@services/session";
 import { ApiHandler } from "sst/node/api";

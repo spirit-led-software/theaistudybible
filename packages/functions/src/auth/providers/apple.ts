@@ -1,7 +1,7 @@
 import { generators, Issuer } from "openid-client";
 import { useCookie, useDomainName, useFormData, usePath } from "sst/node/api";
 import { createAdapter } from "sst/node/auth";
-import { OidcBasicConfig } from "sst/node/auth/adapter/oidc";
+import type { OidcBasicConfig } from "sst/node/auth/adapter/oidc";
 
 export interface AppleConfig extends OidcBasicConfig {
   scope: string;

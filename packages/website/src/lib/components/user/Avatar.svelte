@@ -1,15 +1,14 @@
 <script lang="ts">
+	import { user } from '$lib/stores/user';
 	import { cn } from '$lib/utils/class-names';
 	import { squareDimensionClasses, type ComponentSize } from '$lib/utils/sizing';
-	import type { UserWithRoles } from '@core/model';
 
-	export let user: UserWithRoles;
 	export let size: ComponentSize = 'md';
 
 	let className: string = '';
 	export { className as class };
 
-	$: ({ image, name, email } = user);
+	$: ({ image, name, email } = $user!);
 </script>
 
 <div

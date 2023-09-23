@@ -1,4 +1,4 @@
-import { userQueryCounts } from "../../schema";
+import type { userQueryCounts } from "../../schema";
 
 export type UserQueryCount = typeof userQueryCounts.$inferSelect;
 

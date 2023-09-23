@@ -1,4 +1,4 @@
-import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import type { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 
 export const OkResponse = (data?: any): APIGatewayProxyStructuredResultV2 => {
   return {

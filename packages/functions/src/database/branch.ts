@@ -1,21 +1,21 @@
-import {
+import type {
   CdkCustomResourceHandler,
   CdkCustomResourceResponse,
 } from "aws-lambda";
 import {
-  BranchCreateRequestEndpointOptions,
-  BranchResponse,
-  BranchesResponse,
-  Database,
-  DatabasesResponse,
-  Endpoint,
-  EndpointType,
-  EndpointsResponse,
   NeonClient,
-  ProjectsResponse,
-  Role,
-  RolePasswordResponse,
-  RolesResponse,
+  type BranchCreateRequestEndpointOptions,
+  type BranchResponse,
+  type BranchesResponse,
+  type Database,
+  type DatabasesResponse,
+  type Endpoint,
+  type EndpointType,
+  type EndpointsResponse,
+  type ProjectsResponse,
+  type Role,
+  type RolePasswordResponse,
+  type RolesResponse,
 } from "neon-sdk";
 
 const Neon = () =>

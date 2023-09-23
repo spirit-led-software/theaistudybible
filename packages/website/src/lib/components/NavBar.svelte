@@ -66,7 +66,7 @@
 				{#if user}
 					<div class="flex flex-col justify-center space-y-1 place-items-center">
 						<a href="/account">
-							<Avatar {user} size="sm" />
+							<Avatar size="sm" />
 						</a>
 						<div class="text-xs text-white">
 							{user.remainingQueries}/{user.maxQueries}
@@ -119,7 +119,7 @@
 				</div>
 				<div class="inline-flex items-center justify-center space-x-1">
 					<a href="/account">
-						<Avatar {user} size="md" />
+						<Avatar size="md" />
 					</a>
 				</div>
 				<a
@@ -179,7 +179,7 @@
 					{#if user}
 						<div class="flex flex-col w-full space-y-2">
 							<div class="inline-flex items-center justify-center">
-								<Avatar {user} size="md" />
+								<Avatar size="md" />
 								<span class="ml-2 text-sm font-semibold text-gray-800">
 									{user.name || user.email || 'User'}
 								</span>

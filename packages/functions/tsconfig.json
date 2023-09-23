@@ -1,11 +1,13 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
+  "extends": "@revelationsai/core/tsconfig.json",
   "compilerOptions": {
     "typeRoots": ["./src/types", "../core/src/types"],
     "lib": ["dom", "dom.iterable", "ES2021"],
-    "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "preserveValueImports": true,
     "paths": {
       "@core/configs": ["../core/src/configs"],
       "@core/configs/*": ["../core/src/configs/*"],
