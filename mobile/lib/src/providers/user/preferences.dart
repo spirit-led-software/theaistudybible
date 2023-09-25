@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:revelationsai/src/models/user/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,8 @@ class CurrentUserPreferences extends _$CurrentUserPreferences {
     _sharedPreferences = await SharedPreferences.getInstance();
 
     _persistenceRefreshLogic();
+
+    InAppPurchase.instance.restorePurchases();
 
     FirebaseMessaging.instance.requestPermission(
       alert: true,

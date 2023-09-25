@@ -17,6 +17,7 @@
     "vitest": "^0.33.0"
   },
   "dependencies": {
+    "@apple/app-store-server-library": "^0.1.1",
     "@middy/core": "^4.6.4",
     "@middy/http-cors": "^4.6.4",
     "@middy/http-error-handler": "^4.6.4",

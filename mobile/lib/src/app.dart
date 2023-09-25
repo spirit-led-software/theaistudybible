@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/routes/routes.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
+import 'package:revelationsai/src/services/purchase.dart';
 
 import 'routes/router_listenable.dart';
 
@@ -21,6 +24,9 @@ class MyApp extends HookConsumerWidget {
       debugLabel: 'routerKey',
     ));
 
+    final inAppPurchases = useRef(InAppPurchase.instance);
+    final purchaseStream = useState(inAppPurchases.value.purchaseStream);
+
     final router = useMemoized(
       () => GoRouter(
         navigatorKey: key.value,
@@ -35,6 +41,48 @@ class MyApp extends HookConsumerWidget {
       ),
       [routerListenableNotifier],
     );
+
+    useEffect(() {
+      purchaseStream.value.listen(
+        (event) {
+          debugPrint('Purchase stream event: $event');
+          for (final element in event) {
+            debugPrint('Purchase: $element');
+            if (element.status == PurchaseStatus.canceled ||
+                element.status == PurchaseStatus.error) {
+              debugPrint(
+                  'Purchase cancelled/error: ${element.status} ${element.error}');
+              inAppPurchases.value.completePurchase(element);
+            } else if (element.status == PurchaseStatus.purchased) {
+              debugPrint('Purchase successful');
+              final currentUser = ref.read(currentUserProvider);
+              if (currentUser.hasValue) {
+                PurchaseService.verifyPurchase(currentUser.value!, element)
+                    .then((value) {
+                  if (value) {
+                    debugPrint('Purchase verified');
+                    inAppPurchases.value.completePurchase(element);
+                  } else {
+                    debugPrint('Purchase not verified');
+                  }
+                });
+              } else {
+                debugPrint('No user to verify purchase');
+              }
+            }
+          }
+        },
+        onDone: () {
+          debugPrint('Purchase stream done');
+        },
+        onError: (error) {
+          debugPrint('Purchase stream error: $error');
+        },
+        cancelOnError: true,
+      );
+
+      return () {};
+    }, [purchaseStream.value]);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

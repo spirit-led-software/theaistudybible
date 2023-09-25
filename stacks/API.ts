@@ -157,6 +157,28 @@ export function API({ stack }: StackContext) {
       },
       "GET /session": "packages/functions/src/session.handler",
       "POST /stripe/webhook": "packages/functions/src/webhooks/stripe.handler",
+      "POST /verify-purchase": {
+        function: {
+          handler: "packages/functions/src/verify-purchase.handler",
+          copyFiles: [
+            {
+              from: "apple-app-store-key.p8",
+              to: "apple-app-store-key.p8",
+            },
+          ],
+        },
+      },
+      "POST /app-store/webhook": {
+        function: {
+          handler: "packages/functions/src/webhooks/app-store.handler",
+          copyFiles: [
+            {
+              from: "apple-app-store-key.p8",
+              to: "apple-app-store-key.p8",
+            },
+          ],
+        },
+      },
 
       // REST API
       // AI Responses

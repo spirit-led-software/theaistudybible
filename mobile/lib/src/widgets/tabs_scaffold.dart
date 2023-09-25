@@ -17,7 +17,7 @@ class TabsScaffold extends HookConsumerWidget {
       return 0;
     } else if (path.startsWith("/devotions")) {
       return 1;
-    } else if (path.startsWith("/account")) {
+    } else if (path.startsWith("/account") || path.startsWith("/upgrade")) {
       return 2;
     } else {
       return 0;

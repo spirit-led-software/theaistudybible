@@ -10,9 +10,16 @@
     },
     {
       "type": "shell",
-      "label": "prep-flutter",
-      "detail": "Prep Flutter",
-      "command": "cd mobile && flutter clean && flutter pub get && dart run build_runner build -d",
+      "label": "prep-flutter-dev",
+      "detail": "Prep Flutter for Dev",
+      "command": "cd mobile && flutter pub get && dart run build_runner build && sleep 2",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "prep-flutter-release",
+      "detail": "Prep Flutter for Release",
+      "command": "cd mobile && flutter clean && flutter pub get && dart run build_runner build -d && sleep 2",
       "problemMatcher": []
     },
     {
