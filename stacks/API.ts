@@ -156,6 +156,7 @@ export function API({ stack }: StackContext) {
         },
       },
       "GET /session": "packages/functions/src/session.handler",
+
       "POST /notifications/stripe":
         "packages/functions/src/webhooks/stripe.handler",
       "POST /notifications/revenue-cat":
