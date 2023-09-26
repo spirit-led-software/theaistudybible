@@ -49,11 +49,6 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   GOOGLE_API_KEY: process.env.GOOGLE_API_KEY!,
   GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID!,
 
-  // Apple App Store
-  APPLE_APP_STORE_SHARED_SECRET: process.env.APPLE_APP_STORE_SHARED_SECRET!,
-  APPLE_APP_STORE_KEY_ID: process.env.APPLE_APP_STORE_KEY_ID!,
-  APPLE_APP_STORE_ISSUER_ID: process.env.APPLE_APP_STORE_ISSUER_ID!,
-
   // Apple Auth
   APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID!,
   APPLE_TEAM_ID: process.env.APPLE_TEAM_ID!,
