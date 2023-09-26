@@ -68,7 +68,7 @@ async function createInitialRoles() {
     console.log("Admin role created");
   } else {
     adminRole = await updateRole(adminRole.id, {
-      permissions: ["query:10000"],
+      permissions: [`query:${Infinity}`],
     });
     console.log("Admin role already exists");
   }
@@ -82,7 +82,7 @@ async function createInitialRoles() {
     console.log("Moderator role created");
   } else {
     moderatorRole = await updateRole(moderatorRole.id, {
-      permissions: ["query:10000"],
+      permissions: ["query:500"],
     });
     console.log("Moderator role already exists");
   }
@@ -104,21 +104,21 @@ async function createInitialRoles() {
   console.log("Initial roles created");
 }
 
-interface RCEntitlementsRootObject {
+type RCEntitlementsRootObject = {
   items: RCEntitlement[];
   next_page?: any;
   object: string;
   url: string;
-}
+};
 
-interface RCEntitlement {
+type RCEntitlement = {
   created_at: number;
   display_name: string;
   id: string;
   lookup_key: string;
   object: string;
   project_id: string;
-}
+};
 
 function getQueryCountFromEntitlementLookupKey(lookupKey: string): number {
   if (lookupKey === "serve-staff") {
@@ -155,19 +155,19 @@ async function createRcEntitlementRoles() {
 
   const entitlements: RCEntitlementsRootObject = await response.json();
   for (const entitlement of entitlements.items) {
-    let role = await getRoleByName(`rc:${entitlement.id}`);
+    let role = await getRoleByName(`rc:${entitlement.lookup_key}`);
     if (!role) {
       role = await createRole({
-        name: `rc:${entitlement.id}`,
+        name: `rc:${entitlement.lookup_key}`,
         permissions: [
           `query:${getQueryCountFromEntitlementLookupKey(
             entitlement.lookup_key
           )}`,
         ],
       });
-      console.log(`Role 'rc:${entitlement.id}' created`);
+      console.log(`Role 'rc:${entitlement.lookup_key}' created`);
     } else {
-      console.log(`Role 'rc:${entitlement.id}' already exists`);
+      console.log(`Role 'rc:${entitlement.lookup_key}' already exists`);
       role = await updateRole(role.id, {
         permissions: [
           `query:${getQueryCountFromEntitlementLookupKey(
@@ -180,7 +180,9 @@ async function createRcEntitlementRoles() {
 
   const existingRcRoles = await getRcRoles();
   for (const role of existingRcRoles) {
-    if (!entitlements.items.find((e) => e.id === role.name.split(":")[1])) {
+    if (
+      !entitlements.items.find((e) => e.lookup_key === role.name.split(":")[1])
+    ) {
       console.log(`Role '${role.name}' no longer exists, deleting`);
       await deleteRole(role.id);
     }

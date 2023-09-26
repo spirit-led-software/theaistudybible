@@ -8,18 +8,19 @@ import {
 import {
   addRoleToUser,
   doesUserHaveRole,
-  getRole,
+  getRoleByName,
   removeRoleFromUser,
 } from "@services/role";
 import { getUser, getUserRoles } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
-interface RootEventObject {
+// https://www.revenuecat.com/docs/event-types-and-fields
+type RootEventObject = {
   api_version: string;
   event: Event;
-}
+};
 
-interface Event {
+type Event = {
   aliases: string[];
   app_id: string;
   app_user_id: string;
@@ -59,7 +60,7 @@ interface Event {
     | "PRODUCT_CHANGE"
     | "TRANSFER"
     | "SUBSCRIBER_ALIAS";
-}
+};
 
 export const handler = ApiHandler(async (event) => {
   console.log("Received Revenue Cat event: ", event);
@@ -108,7 +109,7 @@ export const handler = ApiHandler(async (event) => {
 
       // Add new RC roles
       for (const entitlementId of eventObj.entitlement_ids) {
-        const role = await getRole(`rc:${entitlementId}`);
+        const role = await getRoleByName(`rc:${entitlementId}`);
         if (!role) {
           return BadRequestResponse("Role not found");
         }
@@ -133,6 +134,8 @@ export const handler = ApiHandler(async (event) => {
           }
         }
       });
+    } else if (eventObj.type === "TEST") {
+      console.log("Test event: ", eventObj);
     } else {
       console.log("Unhandled event type: ", eventObj.type);
     }

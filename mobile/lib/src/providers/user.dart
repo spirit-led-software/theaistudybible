@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/api.dart';
+import 'package:revelationsai/src/constants/store.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/services/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -188,16 +190,28 @@ class CurrentUser extends _$CurrentUser {
   void _purchasesLoginLogic() {
     ref.listenSelf((_, next) {
       if (next.isLoading) return;
-      if (next.hasError) {
-        Purchases.logOut();
+      if (next.hasError || !next.hasValue) {
         return;
       }
 
-      if (next.hasValue) {
-        Purchases.logIn(next.value!.id);
-      } else {
-        Purchases.logOut();
-      }
+      Purchases.isConfigured.then((isConfigured) {
+        if (!isConfigured) {
+          debugPrint('Initializing Purchases...');
+          Purchases.setLogLevel(LogLevel.debug);
+          PurchasesConfiguration configuration;
+          if (Platform.isAndroid) {
+            configuration = PurchasesConfiguration(RAIStore.playStoreApiKey);
+          } else if (Platform.isIOS) {
+            configuration = PurchasesConfiguration(RAIStore.appStoreApiKey);
+          } else {
+            throw UnsupportedError("Unsupported platform");
+          }
+          configuration.appUserID = next.value!.id;
+          Purchases.configure(configuration);
+        } else {
+          Purchases.logIn(next.value!.id);
+        }
+      });
     });
   }
 

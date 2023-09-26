@@ -28,51 +28,56 @@ export const handler = ApiHandler(async (event) => {
     return BadRequestResponse(err.message);
   }
 
-  switch (stripeEvent.type) {
-    case "customer.subscription.created": {
-      const subscription = stripeEvent.data.object as Stripe.Subscription;
-      console.log("Subscription created: ", subscription);
+  try {
+    switch (stripeEvent.type) {
+      case "customer.subscription.created": {
+        const subscription = stripeEvent.data.object as Stripe.Subscription;
+        console.log("Subscription created: ", subscription);
 
-      const user = await getUserByStripeCustomerId(
-        subscription.customer.toString()
-      );
-      if (!user) {
-        console.error(
-          `User not found for Stripe customer ID: ${subscription.customer}`
+        const user = await getUserByStripeCustomerId(
+          subscription.customer.toString()
         );
-        return InternalServerErrorResponse(
-          `User not found for Stripe customer ID: ${subscription.customer}`
-        );
+        if (!user) {
+          console.error(
+            `User not found for Stripe customer ID: ${subscription.customer}`
+          );
+          return InternalServerErrorResponse(
+            `User not found for Stripe customer ID: ${subscription.customer}`
+          );
+        }
+
+        // Send token to revenue cat
+        const response = await fetch("https://api.revenuecat.com/v1/receipts", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.REVENUECAT_STRIPE_API_KEY}`,
+            "Content-Type": "application/json",
+            "X-Platform": "stripe",
+          },
+          body: JSON.stringify({
+            app_user_id: user.id,
+            fetch_token: subscription.id,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error(
+            `Failed to send token to RevenueCat: ${response.status} ${response.statusText}`
+          );
+          return InternalServerErrorResponse(
+            `Failed to send token to RevenueCat: ${response.status} ${response.statusText}`
+          );
+        }
+
+        return OkResponse();
       }
-
-      // Send token to revenue cat
-      const response = await fetch("https://api.revenuecat.com/v1/receipts", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.REVENUECAT_STRIPE_API_KEY}`,
-          "Content-Type": "application/json",
-          "X-Platform": "stripe",
-        },
-        body: JSON.stringify({
-          app_user_id: user.id,
-          fetch_token: subscription.id,
-        }),
-      });
-
-      if (!response.ok) {
-        console.error(
-          `Failed to send token to RevenueCat: ${response.status} ${response.statusText}`
-        );
-        return InternalServerErrorResponse(
-          `Failed to send token to RevenueCat: ${response.status} ${response.statusText}`
-        );
+      default: {
+        console.warn(`Unhandled event type: ${stripeEvent.type}`);
       }
-
-      return OkResponse();
     }
-    default: {
-      console.warn(`Unhandled event type: ${stripeEvent.type}`);
-      return BadRequestResponse(`Unhandled event type: ${stripeEvent.type}`);
-    }
+    return OkResponse();
+  } catch (err: any) {
+    console.error(err);
+    return InternalServerErrorResponse(err.message);
   }
 });
