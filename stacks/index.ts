@@ -39,6 +39,12 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   // Unstructured
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
 
+  // Revenue Cat
+  REVENUECAT_PROJECT_ID: process.env.REVENUECAT_PROJECT_ID!,
+  REVENUECAT_API_KEY: process.env.REVENUECAT_API_KEY!,
+  REVENUECAT_STRIPE_API_KEY: process.env.REVENUECAT_STRIPE_API_KEY!,
+  REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET!,
+
   // Google APIs
   GOOGLE_API_KEY: process.env.GOOGLE_API_KEY!,
   GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID!,

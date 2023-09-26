@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends HookConsumerWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -146,16 +146,8 @@ class AccountScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  onPressed: () async {
-                    await launchUrl(
-                      Uri.parse("https://revelationsai.com/upgrade"),
-                      mode: LaunchMode.externalApplication,
-                      webViewConfiguration: WebViewConfiguration(
-                        headers: {
-                          'rai-session': currentUser.requireValue.session,
-                        },
-                      ),
-                    );
+                  onPressed: () {
+                    context.push("/upgrade");
                   },
                   child: const Text("Upgrade"),
                 ),

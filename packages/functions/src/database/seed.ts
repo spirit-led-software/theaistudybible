@@ -4,8 +4,9 @@ import {
   addRoleToUser,
   createRole,
   deleteRole,
+  deleteStripeRoles,
+  getRcRoles,
   getRoleByName,
-  getStripeRoles,
   updateRole,
 } from "@services/role";
 import {
@@ -17,8 +18,7 @@ import {
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { Handler } from "aws-lambda";
 import * as bcrypt from "bcryptjs";
-import Stripe from "stripe";
-import { stripeConfig } from "../configs";
+import { revenueCatConfig } from "../configs";
 
 async function createInitialAdminUser() {
   console.log("Creating initial admin user");
@@ -56,7 +56,7 @@ async function createInitialAdminUser() {
   console.log("Initial admin user created");
 }
 
-export async function createInitialRoles() {
+async function createInitialRoles() {
   console.log("Creating initial roles");
 
   console.log("Creating admin role");
@@ -68,7 +68,7 @@ export async function createInitialRoles() {
     console.log("Admin role created");
   } else {
     adminRole = await updateRole(adminRole.id, {
-      permissions: ["query:10000"],
+      permissions: [`query:${Infinity}`],
     });
     console.log("Admin role already exists");
   }
@@ -82,7 +82,7 @@ export async function createInitialRoles() {
     console.log("Moderator role created");
   } else {
     moderatorRole = await updateRole(moderatorRole.id, {
-      permissions: ["query:10000"],
+      permissions: ["query:500"],
     });
     console.log("Moderator role already exists");
   }
@@ -104,37 +104,87 @@ export async function createInitialRoles() {
   console.log("Initial roles created");
 }
 
-export async function createStripeRoles() {
-  const stripe = new Stripe(stripeConfig.apiKey, { apiVersion: "2023-08-16" });
+type RCEntitlementsRootObject = {
+  items: RCEntitlement[];
+  next_page?: any;
+  object: string;
+  url: string;
+};
 
-  console.log("Creating stripe roles");
+type RCEntitlement = {
+  created_at: number;
+  display_name: string;
+  id: string;
+  lookup_key: string;
+  object: string;
+  project_id: string;
+};
 
-  const productsResponse = await stripe.products.list({
-    active: true,
-  });
-  const products = productsResponse.data;
+function getQueryCountFromEntitlementLookupKey(lookupKey: string): number {
+  if (lookupKey === "serve-staff") {
+    return 20;
+  } else if (lookupKey === "youth-pastor") {
+    return 50;
+  } else if (lookupKey === "worship-leader") {
+    return 75;
+  } else if (lookupKey === "lead-pastor") {
+    return 100;
+  } else if (lookupKey === "church-plant") {
+    return Infinity;
+  } else {
+    return 10;
+  }
+}
 
-  for (const product of products) {
-    const productRole = await getRoleByName(`stripe:${product.id}`);
-    if (!productRole) {
-      const role = await createRole({
-        name: `stripe:${product.id}`,
-        permissions: [`query:${product.metadata.queryLimit}`],
+async function createRcEntitlementRoles() {
+  const response = await fetch(
+    `https://api.revenuecat.com/v2/projects/${revenueCatConfig.projectId}/entitlements?limit=25`,
+    {
+      headers: {
+        Authorization: `Bearer ${revenueCatConfig.apiKey}`,
+        Accept: "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `RevenueCat API error: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const entitlements: RCEntitlementsRootObject = await response.json();
+  for (const entitlement of entitlements.items) {
+    let role = await getRoleByName(`rc:${entitlement.lookup_key}`);
+    if (!role) {
+      role = await createRole({
+        name: `rc:${entitlement.lookup_key}`,
+        permissions: [
+          `query:${getQueryCountFromEntitlementLookupKey(
+            entitlement.lookup_key
+          )}`,
+        ],
       });
-      console.log(`Created role ${role.name}`);
+      console.log(`Role 'rc:${entitlement.lookup_key}' created`);
     } else {
-      console.log(`Role stripe:${product.id} already exists`);
+      console.log(`Role 'rc:${entitlement.lookup_key}' already exists`);
+      role = await updateRole(role.id, {
+        permissions: [
+          `query:${getQueryCountFromEntitlementLookupKey(
+            entitlement.lookup_key
+          )}`,
+        ],
+      });
     }
   }
 
-  const existingRoles = await getStripeRoles();
-  for (const existingRole of existingRoles) {
-    const product = products.find(
-      (p) => p.id === existingRole.name.split(":")[1]
-    );
-    if (!product) {
-      await deleteRole(existingRole.id);
-      console.log(`Deleted role ${existingRole.name}`);
+  const existingRcRoles = await getRcRoles();
+  for (const role of existingRcRoles) {
+    if (
+      !entitlements.items.find((e) => e.lookup_key === role.name.split(":")[1])
+    ) {
+      console.log(`Role '${role.name}' no longer exists, deleting`);
+      await deleteRole(role.id);
     }
   }
 }
@@ -143,7 +193,9 @@ export const handler: Handler = async () => {
   try {
     console.log("Creating initial roles and users");
     await createInitialRoles();
-    await createStripeRoles();
+    await createRcEntitlementRoles();
+    await deleteStripeRoles();
+
     await createInitialAdminUser();
 
     console.log("Creating vector store");

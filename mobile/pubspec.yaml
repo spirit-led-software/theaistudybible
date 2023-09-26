@@ -58,6 +58,7 @@ dependencies:
   package_info_plus: ^4.1.0
   flutter_web_auth_2: ^2.2.1
   flutter_native_splash: ^2.3.2
+  purchases_flutter: ^5.7.0
 
 dev_dependencies:
   flutter_test:

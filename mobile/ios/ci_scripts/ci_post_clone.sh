@@ -36,7 +36,8 @@ flutter pub run build_runner build --delete-conflicting-outputs
 flutter build ios --config-only \
   --dart-define "WEBSITE_URL=$WEBSITE_URL" \
   --dart-define "API_URL=$API_URL" \
-  --dart-define "CHAT_API_URL=$CHAT_API_URL"
+  --dart-define "CHAT_API_URL=$CHAT_API_URL" \
+  --dart-define "REVENUECAT_APP_STORE_API_KEY=$REVENUECAT_APP_STORE_API_KEY"
 
 # Install CocoaPods using Homebrew.
 HOMEBREW_NO_AUTO_UPDATE=1 # disable homebrew's automatic updates.

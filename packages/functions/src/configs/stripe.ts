@@ -1,8 +1,4 @@
-export type StripeConfig = {
-  apiKey: string;
-};
-
-export const config: StripeConfig = {
+export const config = {
   apiKey: process.env.STRIPE_API_KEY!,
 };
 

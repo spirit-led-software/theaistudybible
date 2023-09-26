@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/providers/user.dart';
 import 'package:revelationsai/src/screens/about_screen.dart';
 import 'package:revelationsai/src/screens/account/account_screen.dart';
+import 'package:revelationsai/src/screens/account/upgrade_screen.dart';
 import 'package:revelationsai/src/screens/auth/forgot_password.dart';
 import 'package:revelationsai/src/screens/auth/login_screen.dart';
 import 'package:revelationsai/src/screens/auth/register_screen.dart';
@@ -43,6 +44,19 @@ List<RouteBase> routes = [
         context: context,
         state: state,
         child: const AboutScreen(),
+      );
+    },
+  ),
+  GoRoute(
+    path: "/upgrade",
+    builder: (context, state) {
+      return const UpgradeScreen();
+    },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const UpgradeScreen(),
       );
     },
   ),

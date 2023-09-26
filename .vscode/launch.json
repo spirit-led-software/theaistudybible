@@ -8,7 +8,7 @@
       "program": "${workspaceRoot}/mobile/lib/main.dart",
       "args": ["--dart-define-from-file=.env"],
       "console": "debugConsole",
-      "preLaunchTask": "prep-flutter"
+      "preLaunchTask": "prep-flutter-dev"
     },
     {
       "name": "Flutter Release",
@@ -17,7 +17,7 @@
       "program": "${workspaceRoot}/mobile/lib/main.dart",
       "args": ["--dart-define-from-file=.env", "--release"],
       "console": "debugConsole",
-      "preLaunchTask": "prep-flutter"
+      "preLaunchTask": "prep-flutter-release"
     },
     {
       "name": "Backend Dev",

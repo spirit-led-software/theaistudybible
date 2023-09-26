@@ -16,6 +16,8 @@ import type { TokenSet } from "openid-client";
 import path from "path";
 import pug from "pug";
 import { AuthHandler, GoogleAdapter, Session } from "sst/node/auth";
+import Stripe from "stripe";
+import { stripeConfig } from "../configs";
 import { AppleAdapter, CredentialsAdapter } from "./providers";
 
 const SessionResponse = (user: User) => {
@@ -103,11 +105,32 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
   }
 
   await doesUserHaveRole("user", user.id).then(async (hasRole) => {
-    if (!hasRole) return await addRoleToUser("user", user!.id);
+    if (!hasRole) await addRoleToUser("user", user!.id);
   });
+
+  if (!user.stripeCustomerId) {
+    user = await createStripeCustomer(user);
+  }
 
   return user;
 };
+
+async function createStripeCustomer(user: User) {
+  const stripe = new Stripe(stripeConfig.apiKey, {
+    apiVersion: "2023-08-16",
+  });
+
+  const customer = await stripe.customers.create({
+    email: user.email,
+    name: user.name || undefined,
+  });
+
+  user = await updateUser(user.id, {
+    stripeCustomerId: customer.id,
+  });
+
+  return user;
+}
 
 export const handler = AuthHandler({
   providers: {
@@ -210,6 +233,7 @@ export const handler = AuthHandler({
             ),
           });
           await addRoleToUser("user", user.id);
+          await createStripeCustomer(user);
         } else {
           return BadRequestResponse("A user already exists with this email");
         }
@@ -227,6 +251,9 @@ export const handler = AuthHandler({
         }
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
           return BadRequestResponse("Incorrect password");
+        }
+        if (!user.stripeCustomerId) {
+          user = await createStripeCustomer(user);
         }
         return SessionResponse(user);
       },
@@ -325,6 +352,7 @@ export const handler = AuthHandler({
             ),
           });
           await addRoleToUser(user.id, "user");
+          await createStripeCustomer(user);
         } else {
           return BadRequestResponse("A user already exists with this email");
         }
@@ -345,6 +373,9 @@ export const handler = AuthHandler({
         }
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
           return BadRequestResponse("Incorrect password");
+        }
+        if (!user.stripeCustomerId) {
+          user = await createStripeCustomer(user);
         }
         return SessionResponse(user);
       },

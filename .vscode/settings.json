@@ -2,6 +2,6 @@
   "search.exclude": {
     "**/.sst": true
   },
-  "cSpell.words": ["autocorrect", "autofocus"],
+  "cSpell.words": ["autocorrect", "autofocus", "REVENUECAT"],
   "java.configuration.updateBuildConfiguration": "automatic"
 }

@@ -156,7 +156,11 @@ export function API({ stack }: StackContext) {
         },
       },
       "GET /session": "packages/functions/src/session.handler",
-      "POST /stripe/webhook": "packages/functions/src/webhooks/stripe.handler",
+
+      "POST /notifications/stripe":
+        "packages/functions/src/webhooks/stripe.handler",
+      "POST /notifications/revenue-cat":
+        "packages/functions/src/webhooks/revenue-cat.handler",
 
       // REST API
       // AI Responses
