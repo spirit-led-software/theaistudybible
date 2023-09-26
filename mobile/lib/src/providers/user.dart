@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/services/user.dart';
@@ -20,6 +21,7 @@ class CurrentUser extends _$CurrentUser {
     _sharedPreferences = await SharedPreferences.getInstance();
 
     _persistenceRefreshLogic();
+    _purchasesLoginLogic();
 
     return _loginRecoveryAttempt();
   }
@@ -179,6 +181,22 @@ class CurrentUser extends _$CurrentUser {
         _sharedPreferences.setString(_sharedPrefsKey, next.value!.session);
       } else {
         _sharedPreferences.remove(_sharedPrefsKey);
+      }
+    });
+  }
+
+  void _purchasesLoginLogic() {
+    ref.listenSelf((_, next) {
+      if (next.isLoading) return;
+      if (next.hasError) {
+        Purchases.logOut();
+        return;
+      }
+
+      if (next.hasValue) {
+        Purchases.logIn(next.value!.id);
+      } else {
+        Purchases.logOut();
       }
     });
   }

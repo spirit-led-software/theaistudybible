@@ -161,3 +161,23 @@ export async function getStripeRoles() {
     where: like(roles.name, "stripe:%"),
   });
 }
+
+export async function deleteStripeRoles() {
+  return await readWriteDatabase
+    .delete(roles)
+    .where(like(roles.name, "stripe:%"))
+    .returning({ id: roles.id });
+}
+
+export async function getRcRoles() {
+  return await getRoles({
+    where: like(roles.name, "rc:%"),
+  });
+}
+
+export async function deleteRcRoles() {
+  return await readWriteDatabase
+    .delete(roles)
+    .where(like(roles.name, "rc:%"))
+    .returning({ id: roles.id });
+}

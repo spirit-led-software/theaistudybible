@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 
 const productIds = {
@@ -21,25 +20,14 @@ class UpgradeScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isMounted = useIsMounted();
 
-    final inAppPurchases = useRef(InAppPurchase.instance);
-
-    final products = useState<List<ProductDetails>>([]);
+    final packages = useState<List<Package>>([]);
     final loading = useState<bool>(false);
 
     useEffect(() {
       loading.value = true;
-      inAppPurchases.value.isAvailable().then((value) {
-        if (!value) {
-          if (isMounted()) context.go('/account');
-        } else {
-          inAppPurchases.value.queryProductDetails(productIds).then((value) {
-            if (value.notFoundIDs.isNotEmpty) {
-              debugPrint('Not found: ${value.notFoundIDs}');
-            } else {
-              debugPrint('Found: ${value.productDetails.length} products');
-              if (isMounted()) products.value = value.productDetails;
-            }
-          });
+      Purchases.getOfferings().then((offerings) {
+        if (isMounted()) {
+          packages.value = offerings.current?.availablePackages ?? [];
         }
       }).whenComplete(() {
         if (isMounted()) loading.value = false;
@@ -66,9 +54,9 @@ class UpgradeScreen extends HookConsumerWidget {
               children: [
                 ListView.builder(
                   shrinkWrap: true,
-                  itemCount: products.value.length,
+                  itemCount: packages.value.length,
                   itemBuilder: (context, index) {
-                    final product = products.value[index];
+                    final product = packages.value[index].storeProduct;
                     debugPrint('Product: $product');
                     return ListTile(
                       title: Text(
@@ -82,14 +70,8 @@ class UpgradeScreen extends HookConsumerWidget {
                           foregroundColor: Colors.white,
                           backgroundColor: RAIColors.primary,
                         ),
-                        child: Text(product.price),
-                        onPressed: () async {
-                          await inAppPurchases.value.buyNonConsumable(
-                            purchaseParam: PurchaseParam(
-                              productDetails: product,
-                            ),
-                          );
-                        },
+                        child: Text(product.priceString),
+                        onPressed: () async {},
                       ),
                     );
                   },
