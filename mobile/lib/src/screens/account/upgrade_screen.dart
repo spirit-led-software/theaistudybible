@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -23,6 +24,7 @@ class UpgradeScreen extends HookConsumerWidget {
 
     final packages = useState<List<Package>>([]);
     final loading = useState<bool>(false);
+    final restored = useState<bool>(false);
 
     useEffect(() {
       loading.value = true;
@@ -101,10 +103,13 @@ class UpgradeScreen extends HookConsumerWidget {
                       'If you have previously purchased a subscription, you can restore it here.'),
                   trailing: TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor: Colors.white,
+                      foregroundColor:
+                          restored.value ? Colors.green : Colors.white,
                       backgroundColor: RAIColors.primary,
                     ),
-                    child: const Text('Restore'),
+                    child: restored.value
+                        ? const FaIcon(FontAwesomeIcons.check)
+                        : const Text('Restore'),
                     onPressed: () async {
                       try {
                         final purchaserInfo =
@@ -117,6 +122,7 @@ class UpgradeScreen extends HookConsumerWidget {
                             PurchasesErrorCode.purchaseCancelledError) {
                           rethrow;
                         }
+                        restored.value = true;
                       }
                     },
                   ),

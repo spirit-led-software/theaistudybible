@@ -23,7 +23,7 @@ class CurrentUser extends _$CurrentUser {
     _sharedPreferences = await SharedPreferences.getInstance();
 
     _persistenceRefreshLogic();
-    _purchasesLoginLogic();
+    _purchasesConfigurationLogic();
 
     return _loginRecoveryAttempt();
   }
@@ -187,7 +187,7 @@ class CurrentUser extends _$CurrentUser {
     });
   }
 
-  void _purchasesLoginLogic() {
+  void _purchasesConfigurationLogic() {
     ref.listenSelf((_, next) {
       if (next.isLoading) return;
       if (next.hasError || !next.hasValue) {
@@ -197,7 +197,6 @@ class CurrentUser extends _$CurrentUser {
       Purchases.isConfigured.then((isConfigured) {
         if (!isConfigured) {
           debugPrint('Initializing Purchases...');
-          Purchases.setLogLevel(LogLevel.debug);
           PurchasesConfiguration configuration;
           if (Platform.isAndroid) {
             configuration = PurchasesConfiguration(RAIStore.playStoreApiKey);
