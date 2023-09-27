@@ -87,7 +87,7 @@ class SettingsModal extends HookConsumerWidget {
                     style: BorderStyle.solid,
                   ),
                 ),
-                leading: const Icon(Icons.info_outlined),
+                leading: const Icon(Icons.privacy_tip_outlined),
                 title: const Text('Privacy Policy'),
                 onTap: () async {
                   await launchUrlString('${Website.url}/privacy-policy');
