@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:quiver/collection.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/data.dart';
@@ -29,6 +30,9 @@ class LoadedDevotionData extends _$LoadedDevotionData {
                 images: value[0] as List<DevotionImage>,
                 sourceDocuments: value[1] as List<SourceDocument>,
               );
+            }).catchError((error) {
+              debugPrint(
+                  "Failed to load devotion data for ${devotion.id}: $error");
             }),
           );
         }

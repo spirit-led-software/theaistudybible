@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/services/user.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsModal extends HookConsumerWidget {
   const SettingsModal({Key? key}) : super(key: key);
@@ -75,6 +77,20 @@ class SettingsModal extends HookConsumerWidget {
                 title: const Text('About RevelationsAI'),
                 onTap: () {
                   context.go("/about");
+                },
+              ),
+              ListTile(
+                shape: BeveledRectangleBorder(
+                  side: BorderSide(
+                    color: RAIColors.primary,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                leading: const Icon(Icons.info_outlined),
+                title: const Text('Privacy Policy'),
+                onTap: () async {
+                  await launchUrlString('${Website.url}/privacy-policy');
                 },
               ),
               SwitchListTile.adaptive(

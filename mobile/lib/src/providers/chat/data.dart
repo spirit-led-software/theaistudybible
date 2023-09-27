@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:quiver/collection.dart';
 import 'package:revelationsai/src/models/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
@@ -21,6 +22,8 @@ class LoadedChatData extends _$LoadedChatData {
               ref.read(currentChatMessagesProvider(chat.id).future),
             ]).then((value) {
               map[chat.id] = ChatData(chat: chat, messages: value[0]);
+            }).catchError((error) {
+              debugPrint("Failed to load chat data for ${chat.id}: $error");
             }),
           );
         }

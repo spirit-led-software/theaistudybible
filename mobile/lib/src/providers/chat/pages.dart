@@ -20,7 +20,10 @@ class ChatsPages extends _$ChatsPages {
       if (!state.isLoading) {
         _isLoadingInitial = false;
         _isLoadingNextPage = false;
-      } else if (state.isLoading && _page == 1) {
+      } else if (state.isLoading &&
+          _page == 1 &&
+          !state.hasValue &&
+          state.value!.isEmpty) {
         _isLoadingInitial = true;
       } else if (state.isLoading && _page > 1) {
         _isLoadingNextPage = true;
@@ -41,10 +44,19 @@ class ChatsPages extends _$ChatsPages {
         paginationOptions:
             PaginatedEntitiesRequestOptions(page: _page, limit: 7),
       ).then((value) {
-        return [
-          if (state.hasValue) ...state.value!,
-          value.entities,
-        ];
+        if (state.hasValue) {
+          // replace pages previous content with new content
+          return [
+            ...state.value!.sublist(0, _page - 1),
+            value.entities,
+            if (state.value!.length > _page + 1)
+              ...state.value!.sublist(_page + 1, state.value!.length),
+          ];
+        } else {
+          return [
+            value.entities,
+          ];
+        }
       });
     } catch (error) {
       debugPrint("Failed to fetch chats: $error");

@@ -72,44 +72,51 @@ class DevotionScreen extends HookConsumerWidget {
             if (isMounted()) loading.value = false;
           });
         } else {
-          ref.read(devotionsPagesProvider.future).then((value) {
+          ref.read(devotionsPagesProvider.future).then((value) async {
             final foundDevo = value.first.first;
-            final foundSourceDocs = <SourceDocument>[];
-            final foundImages = <DevotionImage>[];
+
+            List<DevotionImage> foundImages;
+            List<SourceDocument> foundSourceDocs;
+            if (loadedDevotions.value?.containsKey(foundDevo.id) ?? false) {
+              foundImages = loadedDevotions.value![foundDevo.id]!.images;
+              foundSourceDocs =
+                  loadedDevotions.value![foundDevo.id]!.sourceDocuments;
+            } else {
+              final foundDevoData = await Future.wait([
+                ref.read(devotionImagesProvider(foundDevo.id).future),
+                ref.read(devotionSourceDocumentsProvider(foundDevo.id).future),
+              ]);
+              foundImages = foundDevoData[0] as List<DevotionImage>;
+              foundSourceDocs = foundDevoData[1] as List<SourceDocument>;
+
+              ref.read(loadedDevotionDataProvider.notifier).addDevotion(
+                    DevotionData(
+                      devotion: foundDevo,
+                      images: foundImages,
+                      sourceDocuments: foundSourceDocs,
+                    ),
+                  );
+            }
 
             if (isMounted()) {
               devotion.value = foundDevo;
-              sourceDocs.value = foundSourceDocs;
               images.value = foundImages;
+              sourceDocs.value = foundSourceDocs;
             }
-
-            ref.read(loadedDevotionDataProvider.notifier).addDevotion(
-                  DevotionData(
-                    devotion: foundDevo,
-                    images: foundImages,
-                    sourceDocuments: foundSourceDocs,
-                  ),
-                );
           }).whenComplete(() {
             if (isMounted()) loading.value = false;
           });
         }
       }
 
-      return () {};
-    }, [devotionId]);
-
-    useEffect(() {
-      if (devotion.value != null) {
+      if (devotionId != null) {
         Future(() {
-          ref
-              .read(currentDevotionIdProvider.notifier)
-              .update(devotion.value!.id);
+          ref.read(currentDevotionIdProvider.notifier).update(devotionId);
         });
       }
 
       return () {};
-    }, [devotion.value]);
+    }, [devotionId]);
 
     return Scaffold(
       appBar: AppBar(

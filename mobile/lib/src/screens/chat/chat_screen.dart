@@ -86,6 +86,13 @@ class ChatScreen extends HookConsumerWidget {
           });
         }
       }
+
+      if (chatId != null) {
+        Future(() {
+          ref.read(currentChatIdProvider.notifier).update(chatId);
+        });
+      }
+
       return () {};
     }, [chatId]);
 
@@ -95,16 +102,6 @@ class ChatScreen extends HookConsumerWidget {
     }, [
       messages.value,
     ]);
-
-    useEffect(() {
-      if (chat.value != null) {
-        Future(() {
-          ref.read(currentChatIdProvider.notifier).update(chat.value!.id);
-        });
-      }
-
-      return () {};
-    }, [chat.value]);
 
     useEffect(() {
       if (chatObj.error.value != null) {
