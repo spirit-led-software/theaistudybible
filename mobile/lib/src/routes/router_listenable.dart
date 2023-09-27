@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/devotion/current_id.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -10,20 +12,22 @@ part 'router_listenable.g.dart';
 @riverpod
 class RouterListenable extends _$RouterListenable implements Listenable {
   VoidCallback? _routerListener;
-  bool _isAuth = false; // Useful for our global redirect function
+  late bool _isAuth = false; // Useful for our global redirect function
 
   @override
   Future<void> build() async {
     // One could watch more providers and write logic accordingly
-    final currentUserFuture = ref.watch(currentUserProvider.future);
-    await currentUserFuture.then((value) {
+    final currentUserFuture =
+        ref.watch(currentUserProvider.future).then((value) {
       _isAuth = true;
       return;
     }).catchError((_) {
       _isAuth = false;
       return;
     });
-    await ref.watch(currentUserPreferencesProvider.future);
+    final currentUserPrefsFuture =
+        ref.watch(currentUserPreferencesProvider.future);
+    await Future.wait([currentUserFuture, currentUserPrefsFuture]);
 
     ref.listenSelf((_, __) {
       // One could write more conditional logic for when to call redirection
@@ -44,19 +48,36 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       return null;
     }
 
-    debugPrint("Router initialize, removing splash screen...");
+    debugPrint("Router initialized, removing splash screen...");
     FlutterNativeSplash.remove();
     debugPrint("Router path: ${state.uri.path}");
 
     final isSplash = state.uri.path == "/";
+    final isChatBase = state.uri.path == "/chat";
+    final isDevotionBase = state.uri.path == "/devotions";
+
+    final currentChatId = ref.read(currentChatIdProvider);
+    final chatPath = "/chat/${currentChatId ?? ""}";
 
     if (isSplash) {
-      debugPrint("Redirecting to ${_isAuth ? "/chat" : "/auth/login"}");
-      return _isAuth ? "/chat" : "/auth/login";
+      debugPrint("Redirecting to $chatPath");
+      return _isAuth ? chatPath : "/auth/login";
     }
 
     final isLoggingIn = state.uri.path.startsWith("/auth");
-    if (isLoggingIn) return _isAuth ? "/chat" : null;
+    if (isLoggingIn) return _isAuth ? chatPath : null;
+
+    if (isChatBase && currentChatId != null) {
+      debugPrint("Redirecting to $chatPath");
+      return chatPath;
+    }
+
+    final currentDevotionId = ref.read(currentDevotionIdProvider);
+    if (isDevotionBase && currentDevotionId != null) {
+      final devoPath = "/devotions/$currentDevotionId";
+      debugPrint("Redirecting to $devoPath");
+      return devoPath;
+    }
 
     return _isAuth ? null : "/";
   }

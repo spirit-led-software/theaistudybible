@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/models/alert.dart';
 
 const productIds = {
   "rai_church_plant",
@@ -25,6 +26,7 @@ class UpgradeScreen extends HookConsumerWidget {
     final packages = useState<List<Package>>([]);
     final loading = useState<bool>(false);
     final restored = useState<bool>(false);
+    final alert = useState<Alert?>(null);
 
     useEffect(() {
       loading.value = true;
@@ -32,12 +34,37 @@ class UpgradeScreen extends HookConsumerWidget {
         if (isMounted()) {
           packages.value = offerings.current?.availablePackages ?? [];
         }
+      }).catchError((error) {
+        alert.value = Alert(
+          type: AlertType.error,
+          message: error.toString(),
+        );
       }).whenComplete(() {
         if (isMounted()) loading.value = false;
       });
 
       return () {};
     }, []);
+
+    useEffect(() {
+      if (alert.value != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              alert.value!.message,
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: alert.value!.type == AlertType.error
+                ? Colors.red
+                : RAIColors.primary,
+            duration: const Duration(seconds: 8),
+          ),
+        );
+        alert.value = null;
+      }
+
+      return () {};
+    }, [alert.value]);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,7 +113,10 @@ class UpgradeScreen extends HookConsumerWidget {
                                 PurchasesErrorHelper.getErrorCode(e);
                             if (errorCode !=
                                 PurchasesErrorCode.purchaseCancelledError) {
-                              rethrow;
+                              alert.value = Alert(
+                                type: AlertType.error,
+                                message: e.toString(),
+                              );
                             }
                           }
                         },
@@ -120,10 +150,14 @@ class UpgradeScreen extends HookConsumerWidget {
                         final errorCode = PurchasesErrorHelper.getErrorCode(e);
                         if (errorCode !=
                             PurchasesErrorCode.purchaseCancelledError) {
-                          rethrow;
+                          alert.value = Alert(
+                            type: AlertType.error,
+                            message: e.toString(),
+                          );
+                          return;
                         }
-                        restored.value = true;
                       }
+                      restored.value = true;
                     },
                   ),
                 )

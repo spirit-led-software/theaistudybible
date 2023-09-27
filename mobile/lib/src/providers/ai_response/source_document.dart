@@ -1,6 +1,6 @@
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/source_document.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/ai_response.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

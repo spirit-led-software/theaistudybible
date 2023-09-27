@@ -6,13 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/devotion.dart';
-import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/devotion.dart';
+import 'package:revelationsai/src/providers/devotion/current_id.dart';
+import 'package:revelationsai/src/providers/devotion/data.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
+import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
-import 'package:revelationsai/src/services/devotion.dart';
 import 'package:url_launcher/link.dart';
 
 class DevotionScreen extends HookConsumerWidget {
@@ -25,62 +27,89 @@ class DevotionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loadedDevotions = ref.watch(loadedDevotionDataProvider);
+
     final isMounted = useIsMounted();
-    ValueNotifier<bool> loading = useState(false);
-    ValueNotifier<Devotion?> devotion = useState(null);
-    ValueNotifier<List<SourceDocument>> sourceDocs = useState([]);
-    ValueNotifier<List<DevotionImage>> images = useState([]);
+    final loading = useState(false);
+    final devotion = useState<Devotion?>(null);
+    final sourceDocs = useState<List<SourceDocument>>([]);
+    final images = useState<List<DevotionImage>>([]);
 
     useEffect(() {
-      loading.value = true;
-      if (devotionId != null) {
-        Future devoFuture =
-            ref.read(currentDevotionProvider(devotionId!).future).then((value) {
-          if (isMounted()) devotion.value = value;
-        });
-        Future devoSourceDocsFuture = ref
-            .read(devotionSourceDocumentsProvider(devotionId!).future)
-            .then((value) {
-          if (isMounted()) sourceDocs.value = value;
-        });
-        Future devoImagesFuture =
-            ref.read(devotionImagesProvider(devotionId!).future).then((value) {
-          if (isMounted()) images.value = value;
-        });
-        Future.wait([devoFuture, devoSourceDocsFuture, devoImagesFuture])
-            .whenComplete(() {
-          if (isMounted()) loading.value = false;
-        });
+      if (loadedDevotions.value?.containsKey(devotionId) ?? false) {
+        if (isMounted()) {
+          final devoData = loadedDevotions.value![devotionId];
+          devotion.value = devoData!.devotion;
+          images.value = devoData.images;
+          sourceDocs.value = devoData.sourceDocuments;
+        }
       } else {
-        DevotionService.getDevotions(
-                paginationOptions:
-                    const PaginatedEntitiesRequestOptions(limit: 1))
-            .then(
-          (value) {
+        loading.value = true;
+        if (devotionId != null) {
+          Future.wait([
+            ref.read(devotionByIdProvider(devotionId!).future),
+            ref.read(devotionSourceDocumentsProvider(devotionId!).future),
+            ref.read(devotionImagesProvider(devotionId!).future),
+          ]).then((value) {
+            final foundDevo = value[0] as Devotion;
+            final foundSourceDocs = value[1] as List<SourceDocument>;
+            final foundImages = value[2] as List<DevotionImage>;
+
             if (isMounted()) {
-              devotion.value = value.entities.first;
-              Future devoSourceDocFuture = ref
-                  .read(devotionSourceDocumentsProvider(value.entities.first.id)
-                      .future)
-                  .then((value) {
-                if (isMounted()) sourceDocs.value = value;
-              });
-              Future devoImagesFuture = ref
-                  .read(devotionImagesProvider(value.entities.first.id).future)
-                  .then((value) {
-                if (isMounted()) images.value = value;
-              });
-              return Future.wait([devoSourceDocFuture, devoImagesFuture]);
+              devotion.value = foundDevo;
+              sourceDocs.value = foundSourceDocs;
+              images.value = foundImages;
             }
-            return Future.value();
-          },
-        ).whenComplete(() {
-          if (isMounted()) loading.value = false;
-        });
+
+            ref.read(loadedDevotionDataProvider.notifier).addDevotion(
+                  DevotionData(
+                    devotion: foundDevo,
+                    images: foundImages,
+                    sourceDocuments: foundSourceDocs,
+                  ),
+                );
+          }).whenComplete(() {
+            if (isMounted()) loading.value = false;
+          });
+        } else {
+          ref.read(devotionsPagesProvider.future).then((value) {
+            final foundDevo = value.first.first;
+            final foundSourceDocs = <SourceDocument>[];
+            final foundImages = <DevotionImage>[];
+
+            if (isMounted()) {
+              devotion.value = foundDevo;
+              sourceDocs.value = foundSourceDocs;
+              images.value = foundImages;
+            }
+
+            ref.read(loadedDevotionDataProvider.notifier).addDevotion(
+                  DevotionData(
+                    devotion: foundDevo,
+                    images: foundImages,
+                    sourceDocuments: foundSourceDocs,
+                  ),
+                );
+          }).whenComplete(() {
+            if (isMounted()) loading.value = false;
+          });
+        }
       }
 
       return () {};
     }, [devotionId]);
+
+    useEffect(() {
+      if (devotion.value != null) {
+        Future(() {
+          ref
+              .read(currentDevotionIdProvider.notifier)
+              .update(devotion.value!.id);
+        });
+      }
+
+      return () {};
+    }, [devotion.value]);
 
     return Scaffold(
       appBar: AppBar(
@@ -198,43 +227,45 @@ class DevotionScreen extends HookConsumerWidget {
                   Text(
                     devotion.value!.prayer!,
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                      top: 20,
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "Generated Image(s)",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
+                  if (images.value.isNotEmpty) ...[
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 20,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Generated Image(s)",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                      top: 10,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      images.value[0].caption ?? "No caption",
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 10,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        images.value[0].caption ?? "No caption",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: images.value.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 10),
-                        child: Image.network(images.value[index].url),
-                      );
-                    },
-                  ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: images.value.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: Image.network(images.value[index].url),
+                        );
+                      },
+                    ),
+                  ],
                   Container(
                     margin: const EdgeInsets.only(
                       top: 20,

@@ -11,7 +11,7 @@ import 'package:revelationsai/src/services/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'user.g.dart';
+part 'current.g.dart';
 
 @riverpod
 class CurrentUser extends _$CurrentUser {

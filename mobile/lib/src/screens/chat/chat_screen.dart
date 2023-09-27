@@ -9,10 +9,13 @@ import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
+import 'package:revelationsai/src/models/chat/data.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/chat.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
@@ -29,6 +32,7 @@ class ChatScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
     final currentUserPreferences = ref.watch(currentUserPreferencesProvider);
+    final loadedChats = ref.watch(loadedChatDataProvider);
 
     final isMounted = useIsMounted();
 
@@ -50,25 +54,37 @@ class ChatScreen extends HookConsumerWidget {
     final alert = useState<Alert?>(null);
 
     useEffect(() {
-      if (chatId != null) {
-        loadingChat.value = true;
+      if (loadedChats.value?.containsKey(chatId) ?? false) {
+        if (isMounted()) {
+          final chatData = loadedChats.value![chatId];
+          chat.value = chatData!.chat;
+          messages.value = chatData.messages;
+        }
+      } else {
+        if (chatId != null) {
+          loadingChat.value = true;
+          Future.wait([
+            ref.read(chatByIdProvider(chatId!).future),
+            ref.read(currentChatMessagesProvider(chatId!).future),
+          ]).then((value) {
+            final foundChat = value[0] as Chat;
+            final foundMessages = value[1] as List<ChatMessage>;
 
-        final chatFuture =
-            ref.read(currentChatProvider(chatId!).future).then((value) {
-          if (isMounted()) chat.value = value;
-        });
+            if (isMounted()) {
+              chat.value = foundChat;
+              messages.value = foundMessages;
+            }
 
-        final messagesFuture =
-            ref.read(currentChatMessagesProvider(chatId!).future).then((value) {
-          if (isMounted()) messages.value = value;
-        });
-
-        Future.wait([
-          chatFuture,
-          messagesFuture,
-        ]).whenComplete(() {
-          if (isMounted()) loadingChat.value = false;
-        });
+            ref.read(loadedChatDataProvider.notifier).addChat(
+                  ChatData(
+                    chat: foundChat,
+                    messages: foundMessages,
+                  ),
+                );
+          }).whenComplete(() {
+            if (isMounted()) loadingChat.value = false;
+          });
+        }
       }
       return () {};
     }, [chatId]);
@@ -79,6 +95,16 @@ class ChatScreen extends HookConsumerWidget {
     }, [
       messages.value,
     ]);
+
+    useEffect(() {
+      if (chat.value != null) {
+        Future(() {
+          ref.read(currentChatIdProvider.notifier).update(chat.value!.id);
+        });
+      }
+
+      return () {};
+    }, [chat.value]);
 
     useEffect(() {
       if (chatObj.error.value != null) {
@@ -139,7 +165,7 @@ class ChatScreen extends HookConsumerWidget {
                 ),
               ),
               onPressed: () {
-                context.push("/upgrade");
+                context.go("/upgrade");
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,

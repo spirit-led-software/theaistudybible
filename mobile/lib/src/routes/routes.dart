@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/about_screen.dart';
 import 'package:revelationsai/src/screens/account/account_screen.dart';
 import 'package:revelationsai/src/screens/account/upgrade_screen.dart';
@@ -50,13 +50,13 @@ List<RouteBase> routes = [
   GoRoute(
     path: "/upgrade",
     builder: (context, state) {
-      return const UpgradeScreen();
+      return const TabsScaffold(child: UpgradeScreen());
     },
     pageBuilder: (context, state) {
       return buildPageWithDefaultTransition(
         context: context,
         state: state,
-        child: const UpgradeScreen(),
+        child: const TabsScaffold(child: UpgradeScreen()),
       );
     },
   ),
@@ -123,6 +123,13 @@ List<RouteBase> routes = [
     navigatorKey: GlobalKey<NavigatorState>(),
     builder: (context, state, child) {
       return TabsScaffold(child: child);
+    },
+    pageBuilder: (context, state, child) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: TabsScaffold(child: child),
+      );
     },
     routes: [
       GoRoute(

@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
 
 class AccountScreen extends HookConsumerWidget {
@@ -147,7 +147,7 @@ class AccountScreen extends HookConsumerWidget {
                     ),
                   ),
                   onPressed: () {
-                    context.push("/upgrade");
+                    context.go("/upgrade");
                   },
                   child: const Text("Upgrade"),
                 ),

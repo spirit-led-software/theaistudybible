@@ -6,6 +6,7 @@ import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/services/ai_response.dart';
 import 'package:revelationsai/src/services/user/message.dart';
+import 'package:uuid/uuid.dart';
 
 import '../constants/api.dart';
 import '../models/chat.dart';
@@ -166,8 +167,7 @@ class ChatService {
         );
 
         final replies = responsesPage.entities
-            .where(
-                (aiResponse) => !aiResponse.failed && !aiResponse.regenerated)
+            .where((element) => !element.failed && !element.regenerated)
             .map(
               (aiResponse) => ChatMessage(
                 id: aiResponse.aiId ?? aiResponse.id,
@@ -177,7 +177,15 @@ class ChatService {
                 role: Role.assistant,
               ),
             );
-        return [replies.first, message];
+        return [
+          replies.firstOrNull ??
+              ChatMessage(
+                id: Uuid().v4(),
+                content: "Failed message",
+                role: Role.assistant,
+              ),
+          message
+        ];
       },
     ));
 

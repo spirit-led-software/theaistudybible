@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
 
 class RegisterScreen extends HookConsumerWidget {

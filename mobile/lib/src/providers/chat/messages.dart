@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/providers/user.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -3,6 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/chat/data.dart';
+import 'package:revelationsai/src/providers/devotion/current_id.dart';
+import 'package:revelationsai/src/providers/devotion/data.dart';
 import 'package:revelationsai/src/routes/routes.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
 
@@ -11,11 +15,15 @@ import 'routes/router_listenable.dart';
 class MyApp extends HookConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final routerListenableNotifier =
         ref.watch(routerListenableProvider.notifier);
+
+    ref.watch(loadedChatDataProvider);
+    ref.watch(loadedDevotionDataProvider);
+    ref.watch(currentChatIdProvider);
+    ref.watch(currentDevotionIdProvider);
 
     final key = useRef(GlobalKey<NavigatorState>(
       debugLabel: 'routerKey',
