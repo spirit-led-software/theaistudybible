@@ -13,7 +13,7 @@ export function Crons({ stack }: StackContext) {
   } = use(DatabaseScripts);
 
   const dailyDevotionCron = new Cron(stack, "dailyDevoCron", {
-    schedule: "cron(0 10 * * ? *)",
+    schedule: "cron(0 12 * * ? *)",
     job: {
       function: {
         handler: "packages/functions/src/daily-devo.handler",
