@@ -10,6 +10,10 @@
 	$: ({ user, session } = data);
 </script>
 
+<svelte:head>
+	<title>Account</title>
+</svelte:head>
+
 <main class="relative flex flex-col justify-center w-full h-full place-items-center">
 	<div class="absolute flex px-10 py-3 text-white bg-blue-300 top-10 rounded-xl">
 		<Icon icon="mdi:alert-circle-outline" class="w-6 h-6 mr-2" />
