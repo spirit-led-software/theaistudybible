@@ -220,6 +220,10 @@ class CurrentUser extends _$CurrentUser {
     ));
     ref.invalidateSelf();
   }
+
+  void refresh() {
+    ref.invalidateSelf();
+  }
 }
 
 class UnauthorizedException implements Exception {

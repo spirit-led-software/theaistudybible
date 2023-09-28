@@ -180,7 +180,7 @@ class ChatService {
         return [
           replies.firstOrNull ??
               ChatMessage(
-                id: Uuid().v4(),
+                id: const Uuid().v4(),
                 content: "Failed message",
                 role: Role.assistant,
               ),

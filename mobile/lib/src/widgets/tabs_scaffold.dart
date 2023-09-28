@@ -1,5 +1,5 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -32,18 +32,19 @@ class TabsScaffold extends HookConsumerWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
+        enableFeedback: hapticFeedbackEnabled,
         elevation: 10,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat_sharp),
+            icon: Icon(CupertinoIcons.chat_bubble_fill),
             label: "Chat",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book_sharp),
+            icon: Icon(CupertinoIcons.book_fill),
             label: "Devotions",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(CupertinoIcons.person_fill),
             label: "Account",
           ),
         ],
@@ -54,19 +55,15 @@ class TabsScaffold extends HookConsumerWidget {
         onTap: (value) {
           switch (value) {
             case 0:
-              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/chat");
               break;
             case 1:
-              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/devotions");
               break;
             case 2:
-              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/account");
               break;
             default:
-              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               context.go("/chat");
               break;
           }

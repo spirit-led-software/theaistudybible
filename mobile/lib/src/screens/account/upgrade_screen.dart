@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 
 const productIds = {
   "rai_church_plant",
@@ -25,7 +26,7 @@ class UpgradeScreen extends HookConsumerWidget {
 
     final packages = useState<List<Package>>([]);
     final loading = useState<bool>(false);
-    final restored = useState<bool>(false);
+    final purchasesRestored = useState(false);
     final alert = useState<Alert?>(null);
 
     useEffect(() {
@@ -88,39 +89,8 @@ class UpgradeScreen extends HookConsumerWidget {
                   itemBuilder: (context, index) {
                     final product = packages.value[index].storeProduct;
                     debugPrint('Product: $product');
-                    return ListTile(
-                      title: Text(
-                        product.title,
-                      ),
-                      subtitle: Text(
-                        product.description,
-                      ),
-                      trailing: TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: RAIColors.primary,
-                        ),
-                        child: Text(product.priceString),
-                        onPressed: () async {
-                          try {
-                            final purchaserInfo =
-                                await Purchases.purchasePackage(
-                                    packages.value[index]);
-                            debugPrint('Purchaser Info: $purchaserInfo');
-                          } on PlatformException catch (e) {
-                            debugPrint('Encountered error on purchase: $e');
-                            final errorCode =
-                                PurchasesErrorHelper.getErrorCode(e);
-                            if (errorCode !=
-                                PurchasesErrorCode.purchaseCancelledError) {
-                              alert.value = Alert(
-                                type: AlertType.error,
-                                message: e.toString(),
-                              );
-                            }
-                          }
-                        },
-                      ),
+                    return ProductTile(
+                      package: packages.value[index],
                     );
                   },
                 ),
@@ -134,10 +104,10 @@ class UpgradeScreen extends HookConsumerWidget {
                   trailing: TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor:
-                          restored.value ? Colors.green : Colors.white,
+                          purchasesRestored.value ? Colors.green : Colors.white,
                       backgroundColor: RAIColors.primary,
                     ),
-                    child: restored.value
+                    child: purchasesRestored.value
                         ? const FaIcon(FontAwesomeIcons.check)
                         : const Text('Restore'),
                     onPressed: () async {
@@ -145,6 +115,8 @@ class UpgradeScreen extends HookConsumerWidget {
                         final purchaserInfo =
                             await Purchases.restorePurchases();
                         debugPrint('Purchaser Info: $purchaserInfo');
+                        purchasesRestored.value = true;
+                        ref.read(currentUserProvider.notifier).refresh();
                       } on PlatformException catch (e) {
                         debugPrint('Encountered error on restore: $e');
                         final errorCode = PurchasesErrorHelper.getErrorCode(e);
@@ -154,15 +126,82 @@ class UpgradeScreen extends HookConsumerWidget {
                             type: AlertType.error,
                             message: e.toString(),
                           );
-                          return;
                         }
                       }
-                      restored.value = true;
                     },
                   ),
                 )
               ],
             ),
+    );
+  }
+}
+
+class ProductTile extends HookConsumerWidget {
+  final Package package;
+
+  const ProductTile({Key? key, required this.package}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final product = package.storeProduct;
+
+    final purchased = useState(false);
+    final alert = useState<Alert?>(null);
+
+    useEffect(() {
+      if (alert.value != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              alert.value!.message,
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: alert.value!.type == AlertType.error
+                ? Colors.red
+                : RAIColors.primary,
+            duration: const Duration(seconds: 8),
+          ),
+        );
+        alert.value = null;
+      }
+
+      return () {};
+    }, [alert.value]);
+
+    return ListTile(
+      title: Text(
+        product.title,
+      ),
+      subtitle: Text(
+        product.description,
+      ),
+      trailing: TextButton(
+        style: TextButton.styleFrom(
+          foregroundColor: purchased.value ? Colors.green : Colors.white,
+          backgroundColor: RAIColors.primary,
+        ),
+        child: purchased.value
+            ? const FaIcon(FontAwesomeIcons.check)
+            : Text(product.priceString),
+        onPressed: () async {
+          try {
+            final purchaserInfo = await Purchases.purchasePackage(package);
+            debugPrint('Purchaser Info: $purchaserInfo');
+            purchased.value = true;
+            ref.read(currentUserProvider.notifier).refresh();
+          } on PlatformException catch (e) {
+            debugPrint('Encountered error on purchase: $e');
+            final errorCode = PurchasesErrorHelper.getErrorCode(e);
+            if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+              alert.value = Alert(
+                type: AlertType.error,
+                message: e.toString(),
+              );
+            }
+          }
+        },
+      ),
     );
   }
 }

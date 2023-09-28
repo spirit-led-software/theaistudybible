@@ -15,6 +15,7 @@ import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
+import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:url_launcher/link.dart';
 
 class DevotionScreen extends HookConsumerWidget {
@@ -159,7 +160,7 @@ class DevotionScreen extends HookConsumerWidget {
           ),
         ],
       ),
-      body: loading.value
+      body: loading.value || devotion.value == null
           ? Center(
               child: SpinKitSpinningLines(
                 color: RAIColors.primary,
@@ -268,7 +269,10 @@ class DevotionScreen extends HookConsumerWidget {
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 10, bottom: 10),
-                          child: Image.network(images.value[index].url),
+                          child: RAINetworkImage(
+                            imageUrl: images.value[index].url,
+                            fallbackText: "Image",
+                          ),
                         );
                       },
                     ),

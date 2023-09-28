@@ -10,7 +10,7 @@ part 'pages.g.dart';
 class DevotionsPages extends _$DevotionsPages {
   int _page = 1;
   bool _isLoadingInitial = true;
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool _isLoadingNextPage = false;
 
   @override

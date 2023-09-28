@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
+import 'package:revelationsai/src/widgets/network_image.dart';
 
 class AccountScreen extends HookConsumerWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -98,23 +99,14 @@ class AccountScreen extends HookConsumerWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
                     child: Center(
-                      child: Image.network(
-                        currentUser.requireValue.image ?? "",
-                        scale: 0.5,
-                        filterQuality: FilterQuality.high,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Text(
-                            currentUser.requireValue.name
-                                    ?.substring(0, 1)
-                                    .toUpperCase() ??
-                                currentUser.requireValue.email
-                                    .substring(0, 1)
-                                    .toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 40,
-                            ),
-                          );
-                        },
+                      child: RAINetworkImage(
+                        imageUrl: currentUser.requireValue.image,
+                        fallbackText: currentUser.requireValue.name
+                                ?.substring(0, 1)
+                                .toUpperCase() ??
+                            currentUser.requireValue.email
+                                .substring(0, 1)
+                                .toUpperCase(),
                       ),
                     ),
                   ),
