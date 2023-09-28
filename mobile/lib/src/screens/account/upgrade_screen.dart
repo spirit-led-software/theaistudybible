@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -110,15 +109,13 @@ class UpgradeScreen extends HookConsumerWidget {
                     child: purchasesRestored.value
                         ? const FaIcon(FontAwesomeIcons.check)
                         : const Text('Restore'),
-                    onPressed: () async {
-                      try {
-                        final purchaserInfo =
-                            await Purchases.restorePurchases();
+                    onPressed: () {
+                      Purchases.restorePurchases().then((purchaserInfo) {
                         debugPrint('Purchaser Info: $purchaserInfo');
                         purchasesRestored.value = true;
                         ref.read(currentUserProvider.notifier).refresh();
-                      } on PlatformException catch (e) {
-                        debugPrint('Encountered error on restore: $e');
+                      }).catchError((e) {
+                        debugPrint('Encountered error on purchase: $e');
                         final errorCode = PurchasesErrorHelper.getErrorCode(e);
                         if (errorCode !=
                             PurchasesErrorCode.purchaseCancelledError) {
@@ -127,7 +124,7 @@ class UpgradeScreen extends HookConsumerWidget {
                             message: e.toString(),
                           );
                         }
-                      }
+                      });
                     },
                   ),
                 )
@@ -184,13 +181,12 @@ class ProductTile extends HookConsumerWidget {
         child: purchased.value
             ? const FaIcon(FontAwesomeIcons.check)
             : Text(product.priceString),
-        onPressed: () async {
-          try {
-            final purchaserInfo = await Purchases.purchasePackage(package);
+        onPressed: () {
+          Purchases.purchasePackage(package).then((purchaserInfo) {
             debugPrint('Purchaser Info: $purchaserInfo');
             purchased.value = true;
             ref.read(currentUserProvider.notifier).refresh();
-          } on PlatformException catch (e) {
+          }).catchError((e) {
             debugPrint('Encountered error on purchase: $e');
             final errorCode = PurchasesErrorHelper.getErrorCode(e);
             if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
@@ -199,7 +195,7 @@ class ProductTile extends HookConsumerWidget {
                 message: e.toString(),
               );
             }
-          }
+          });
         },
       ),
     );

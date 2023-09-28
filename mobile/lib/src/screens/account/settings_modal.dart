@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -90,7 +91,27 @@ class SettingsModal extends HookConsumerWidget {
                 leading: const Icon(Icons.privacy_tip_outlined),
                 title: const Text('Privacy Policy'),
                 onTap: () async {
-                  await launchUrlString('${Website.url}/privacy-policy');
+                  await launchUrlString(
+                    '${Website.url}/privacy-policy',
+                    mode: LaunchMode.inAppWebView,
+                  );
+                },
+              ),
+              ListTile(
+                shape: BeveledRectangleBorder(
+                  side: BorderSide(
+                    color: RAIColors.primary,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                leading: const Icon(Icons.article_outlined),
+                title: const Text('Terms of Use (EULA)'),
+                onTap: () async {
+                  await launchUrlString(
+                    'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                    mode: LaunchMode.inAppWebView,
+                  );
                 },
               ),
               SwitchListTile.adaptive(
@@ -103,7 +124,7 @@ class SettingsModal extends HookConsumerWidget {
                 ),
                 title: const Row(
                   children: [
-                    Icon(Icons.vibration_outlined),
+                    Icon(CupertinoIcons.waveform),
                     SizedBox(width: 10),
                     Text('Haptic Feedback'),
                   ],
