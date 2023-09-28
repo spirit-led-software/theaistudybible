@@ -22,7 +22,6 @@ class UpgradeScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isMounted = useIsMounted();
-
     final packages = useState<List<Package>>([]);
     final loading = useState<bool>(false);
     final purchasesRestored = useState(false);
@@ -35,10 +34,12 @@ class UpgradeScreen extends HookConsumerWidget {
           packages.value = offerings.current?.availablePackages ?? [];
         }
       }).catchError((error) {
-        alert.value = Alert(
-          type: AlertType.error,
-          message: error.toString(),
-        );
+        if (isMounted()) {
+          alert.value = Alert(
+            type: AlertType.error,
+            message: error.toString(),
+          );
+        }
       }).whenComplete(() {
         if (isMounted()) loading.value = false;
       });
@@ -60,7 +61,7 @@ class UpgradeScreen extends HookConsumerWidget {
             duration: const Duration(seconds: 8),
           ),
         );
-        alert.value = null;
+        if (isMounted()) alert.value = null;
       }
 
       return () {};
@@ -112,17 +113,19 @@ class UpgradeScreen extends HookConsumerWidget {
                     onPressed: () {
                       Purchases.restorePurchases().then((purchaserInfo) {
                         debugPrint('Purchaser Info: $purchaserInfo');
-                        purchasesRestored.value = true;
                         ref.read(currentUserProvider.notifier).refresh();
+                        if (isMounted()) purchasesRestored.value = true;
                       }).catchError((e) {
                         debugPrint('Encountered error on purchase: $e');
                         final errorCode = PurchasesErrorHelper.getErrorCode(e);
                         if (errorCode !=
                             PurchasesErrorCode.purchaseCancelledError) {
-                          alert.value = Alert(
-                            type: AlertType.error,
-                            message: e.toString(),
-                          );
+                          if (isMounted()) {
+                            alert.value = Alert(
+                              type: AlertType.error,
+                              message: e.toString(),
+                            );
+                          }
                         }
                       });
                     },
@@ -143,6 +146,7 @@ class ProductTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final product = package.storeProduct;
 
+    final isMounted = useIsMounted();
     final purchased = useState(false);
     final alert = useState<Alert?>(null);
 
@@ -184,16 +188,18 @@ class ProductTile extends HookConsumerWidget {
         onPressed: () {
           Purchases.purchasePackage(package).then((purchaserInfo) {
             debugPrint('Purchaser Info: $purchaserInfo');
-            purchased.value = true;
             ref.read(currentUserProvider.notifier).refresh();
+            if (isMounted()) purchased.value = true;
           }).catchError((e) {
             debugPrint('Encountered error on purchase: $e');
             final errorCode = PurchasesErrorHelper.getErrorCode(e);
             if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-              alert.value = Alert(
-                type: AlertType.error,
-                message: e.toString(),
-              );
+              if (isMounted()) {
+                alert.value = Alert(
+                  type: AlertType.error,
+                  message: e.toString(),
+                );
+              }
             }
           });
         },
