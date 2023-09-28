@@ -3,7 +3,8 @@ import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-m
 import { NeonDocLLMChainExtractor } from "@core/langchain/retrievers/document_compressors/chain_extract";
 import type { Chat } from "@core/model";
 import type { Message } from "ai";
-import { ConversationalRetrievalQAChain } from "langchain/chains";
+import { PromptTemplate } from "langchain";
+import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
@@ -80,6 +81,20 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     returnMessages: true,
   });
 
+  const identityChain = new LLMChain({
+    llm: getChatModel(),
+    prompt: PromptTemplate.fromTemplate(
+      `You are a Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology.
+      Your purpose is to help people discover or deepen a relationship with Jesus Christ and uncover answers about the nature of God.
+      Use that information to answer the following question.
+      
+      Human: {query}
+      AI:`
+    ),
+    outputKey: "text",
+    verbose: true,
+  });
+
   const chatMemoryVectorStore = await getChatMemoryVectorStore(chat.id, {
     verbose: true,
   });
@@ -92,7 +107,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     },
     verbose: true,
   });
-
   const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
     getChatModel(),
     chatMemoryRetriever,
@@ -150,6 +164,11 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
         verbose: true,
       },
       destinationChainsInfo: {
+        identity: {
+          description:
+            "Good for introducing yourself or informing the user of who you are.",
+          chain: identityChain,
+        },
         "chat-history": {
           description:
             "Good for retrieving information about the current chat conversation",
