@@ -8,11 +8,8 @@ part 'chat.g.dart';
 
 @riverpod
 class ChatById extends _$ChatById {
-  String? _id;
-
   @override
   FutureOr<Chat> build(String id) async {
-    _id = id;
     try {
       final currentUser = ref.watch(currentUserProvider);
       if (!currentUser.hasValue) {
@@ -36,10 +33,6 @@ class ChatById extends _$ChatById {
         throw Exception("User is not logged in");
       }
 
-      if (_id == null) {
-        throw Exception("Chat ID not provided");
-      }
-
       final previousState = state;
 
       state = AsyncData(
@@ -51,7 +44,7 @@ class ChatById extends _$ChatById {
 
       await ChatService.updateChat(
         session: currentUser.value!.session,
-        id: _id!,
+        id: id,
         request: request,
       ).catchError((error) {
         debugPrint("Failed to update chat: $error");

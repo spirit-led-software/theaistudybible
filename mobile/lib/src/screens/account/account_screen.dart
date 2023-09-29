@@ -121,8 +121,25 @@ class AccountScreen extends HookConsumerWidget {
                     fontSize: 20,
                   ),
                 ),
+                Text(
+                  currentUser.requireValue.email,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
                 const SizedBox(
                   height: 30,
+                ),
+                Text(
+                  '${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries} Queries Remaining',
+                  style: TextStyle(
+                    color: currentUser.requireValue.remainingQueries <= 3
+                        ? Colors.red
+                        : RAIColors.primary,
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
                 ),
                 TextButton(
                   style: TextButton.styleFrom(

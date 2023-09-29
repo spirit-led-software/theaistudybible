@@ -25,4 +25,8 @@ class CurrentChatMessages extends _$CurrentChatMessages {
       rethrow;
     }
   }
+
+  void refresh() {
+    ref.invalidateSelf();
+  }
 }

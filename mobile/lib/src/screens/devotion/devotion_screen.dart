@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/data.dart';
+import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/data.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
+import 'package:revelationsai/src/providers/devotion/reaction.dart';
+import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:url_launcher/link.dart';
@@ -28,6 +33,7 @@ class DevotionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider);
     final loadedDevotions = ref.watch(loadedDevotionDataProvider);
 
     final isMounted = useIsMounted();
@@ -51,10 +57,15 @@ class DevotionScreen extends HookConsumerWidget {
             ref.read(devotionByIdProvider(devotionId!).future),
             ref.read(devotionSourceDocumentsProvider(devotionId!).future),
             ref.read(devotionImagesProvider(devotionId!).future),
+            ref.read(devotionReactionsProvider(devotionId!).future),
+            ref.read(devotionReactionCountsProvider(devotionId!).future),
           ]).then((value) {
             final foundDevo = value[0] as Devotion;
             final foundSourceDocs = value[1] as List<SourceDocument>;
             final foundImages = value[2] as List<DevotionImage>;
+            final foundReactions = value[3] as List<DevotionReaction>;
+            final foundReactionCounts =
+                value[4] as Map<DevotionReactionType, int>;
 
             if (isMounted()) {
               devotion.value = foundDevo;
@@ -67,6 +78,8 @@ class DevotionScreen extends HookConsumerWidget {
                     devotion: foundDevo,
                     images: foundImages,
                     sourceDocuments: foundSourceDocs,
+                    reactions: foundReactions,
+                    reactionCounts: foundReactionCounts,
                   ),
                 );
           }).whenComplete(() {
@@ -78,23 +91,35 @@ class DevotionScreen extends HookConsumerWidget {
 
             List<DevotionImage> foundImages;
             List<SourceDocument> foundSourceDocs;
+            List<DevotionReaction> foundReactions;
+            Map<DevotionReactionType, int> foundReactionCounts;
             if (loadedDevotions.value?.containsKey(foundDevo.id) ?? false) {
               foundImages = loadedDevotions.value![foundDevo.id]!.images;
               foundSourceDocs =
                   loadedDevotions.value![foundDevo.id]!.sourceDocuments;
+              foundReactions = loadedDevotions.value![foundDevo.id]!.reactions;
+              foundReactionCounts =
+                  loadedDevotions.value![foundDevo.id]!.reactionCounts;
             } else {
               final foundDevoData = await Future.wait([
                 ref.read(devotionImagesProvider(foundDevo.id).future),
                 ref.read(devotionSourceDocumentsProvider(foundDevo.id).future),
+                ref.read(devotionReactionsProvider(foundDevo.id).future),
+                ref.read(devotionReactionCountsProvider(foundDevo.id).future),
               ]);
               foundImages = foundDevoData[0] as List<DevotionImage>;
               foundSourceDocs = foundDevoData[1] as List<SourceDocument>;
+              foundReactions = foundDevoData[2] as List<DevotionReaction>;
+              foundReactionCounts =
+                  foundDevoData[3] as Map<DevotionReactionType, int>;
 
               ref.read(loadedDevotionDataProvider.notifier).addDevotion(
                     DevotionData(
                       devotion: foundDevo,
                       images: foundImages,
                       sourceDocuments: foundSourceDocs,
+                      reactions: foundReactions,
+                      reactionCounts: foundReactionCounts,
                     ),
                   );
             }
@@ -156,10 +181,96 @@ class DevotionScreen extends HookConsumerWidget {
                 ),
               );
             },
-            icon: const Icon(Icons.more_vert),
+            icon: const FaIcon(FontAwesomeIcons.clock),
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButton: loading.value || devotion.value == null
+          ? null
+          : FloatingActionButton(
+              foregroundColor: RAIColors.primary,
+              backgroundColor: Colors.white.withOpacity(0.9),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
+                ),
+                side: BorderSide(
+                  width: 1,
+                ),
+              ),
+              child: const Icon(Icons.thumbs_up_down),
+              onPressed: () {
+                // Show dropdown of reactions
+                showMenu(
+                  color: Colors.white.withOpacity(0.9),
+                  context: context,
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  position: RelativeRect.fromLTRB(
+                    MediaQuery.of(context).size.width,
+                    MediaQuery.of(context).size.height - 275,
+                    0,
+                    0,
+                  ),
+                  items: [
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.thumb_up),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(ref
+                                  .watch(devotionReactionCountsProvider(
+                                      devotion.value!.id))
+                                  .value?[DevotionReactionType.LIKE]
+                                  .toString() ??
+                              '0'),
+                        ],
+                      ),
+                      onTap: () {
+                        ref
+                            .read(devotionReactionsProvider(devotion.value!.id)
+                                .notifier)
+                            .createReaction(
+                              reaction: DevotionReactionType.LIKE,
+                              session: currentUser.requireValue.session,
+                            );
+                      },
+                    ),
+                    PopupMenuItem(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.thumb_down),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(ref
+                                  .watch(
+                                    devotionReactionCountsProvider(
+                                        devotion.value!.id),
+                                  )
+                                  .value?[DevotionReactionType.DISLIKE]
+                                  .toString() ??
+                              '0'),
+                        ],
+                      ),
+                      onTap: () {
+                        ref
+                            .read(devotionReactionsProvider(devotion.value!.id)
+                                .notifier)
+                            .createReaction(
+                              reaction: DevotionReactionType.DISLIKE,
+                              session: currentUser.requireValue.session,
+                            );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
       body: loading.value || devotion.value == null
           ? Center(
               child: SpinKitSpinningLines(

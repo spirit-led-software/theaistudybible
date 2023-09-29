@@ -19,7 +19,7 @@ class LoadedChatData extends _$LoadedChatData {
         for (final chat in chatsPage) {
           futures.add(
             Future.wait([
-              ref.read(currentChatMessagesProvider(chat.id).future),
+              ref.watch(currentChatMessagesProvider(chat.id).future),
             ]).then((value) {
               map[chat.id] = ChatData(chat: chat, messages: value[0]);
             }).catchError((error) {

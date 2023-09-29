@@ -84,6 +84,7 @@ class UpgradeScreen extends HookConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: packages.value.length,
                   itemBuilder: (context, index) {

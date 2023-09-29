@@ -70,12 +70,16 @@ class ChatsPages extends _$ChatsPages {
 
   void fetchNextPage() {
     _page++;
-    ref.invalidateSelf();
+    refresh();
   }
 
   void reset() {
     _page = 1;
     state = AsyncData([state.value?.first ?? []]);
+    refresh();
+  }
+
+  void refresh() {
     ref.invalidateSelf();
   }
 

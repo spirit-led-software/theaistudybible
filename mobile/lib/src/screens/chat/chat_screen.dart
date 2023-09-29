@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
-import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
@@ -15,6 +13,7 @@ import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
+import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
@@ -36,22 +35,27 @@ class ChatScreen extends HookConsumerWidget {
 
     final isMounted = useIsMounted();
 
+    final chat = useState<Chat?>(null);
+    final messages = useState<List<ChatMessage>>([]);
+    final loadingChat = useState(false);
+    final alert = useState<Alert?>(null);
+
     final UseChatReturnObject chatObj = useChat(
       options: UseChatOptions(
         session: currentUser.requireValue.session,
         chatId: chatId,
         hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
         onFinish: (_) {
+          ref.read(chatsPagesProvider.notifier).refresh();
+          if (chat.value != null) {
+            ref
+                .read(currentChatMessagesProvider(chat.value!.id).notifier)
+                .refresh();
+          }
           ref.read(currentUserProvider.notifier).decrementRemainingQueries();
         },
       ),
     );
-
-    final chat = useState<Chat?>(null);
-    final messages = useState<List<ChatMessage>>([]);
-    final loadingChat = useState(false);
-
-    final alert = useState<Alert?>(null);
 
     useEffect(() {
       if (loadedChats.value?.containsKey(chatId) ?? false) {
@@ -146,43 +150,6 @@ class ChatScreen extends HookConsumerWidget {
                 chat.value?.name ?? "New Chat",
               ),
         actions: [
-          TextButton(
-              style: TextButton.styleFrom(
-                visualDensity: RAIVisualDensity.tightest,
-                backgroundColor: RAIColors.secondary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                  top: 20,
-                  bottom: 20,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () {
-                context.go("/upgrade");
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                  const Text(
-                    "Remaining",
-                    style: TextStyle(
-                      fontSize: 10,
-                    ),
-                  ),
-                ],
-              )),
           IconButton(
             onPressed: () {
               showModalBottomSheet(
@@ -196,7 +163,7 @@ class ChatScreen extends HookConsumerWidget {
                 ),
               );
             },
-            icon: const Icon(Icons.more_vert),
+            icon: const FaIcon(FontAwesomeIcons.clock),
           ),
         ],
       ),
