@@ -156,7 +156,10 @@ class ChatModal extends HookConsumerWidget {
                                 showDialog(
                                   context: context,
                                   builder: (context) {
-                                    return EditDialog(id: chatsFlat[index].id);
+                                    return EditDialog(
+                                      id: chatsFlat[index].id,
+                                      name: chatsFlat[index].name,
+                                    );
                                   },
                                 );
                               },

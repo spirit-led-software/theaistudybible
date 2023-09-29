@@ -203,9 +203,9 @@ class DevotionScreen extends HookConsumerWidget {
               onPressed: () {
                 // Show dropdown of reactions
                 showMenu(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white,
                   context: context,
-                  shape: BeveledRectangleBorder(
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                   position: RelativeRect.fromLTRB(
@@ -379,6 +379,7 @@ class DevotionScreen extends HookConsumerWidget {
                       itemCount: images.value.length,
                       itemBuilder: (context, index) {
                         return Padding(
+                          key: ValueKey(images.value[index].id),
                           padding: const EdgeInsets.only(top: 10, bottom: 10),
                           child: RAINetworkImage(
                             imageUrl: images.value[index].url,
@@ -408,6 +409,7 @@ class DevotionScreen extends HookConsumerWidget {
                     itemCount: sourceDocs.value.length,
                     itemBuilder: (context, index) {
                       return Link(
+                        key: ValueKey(sourceDocs.value[index].id),
                         uri: Uri.parse(
                           sourceDocs.value[index].metadata['url'],
                         ),

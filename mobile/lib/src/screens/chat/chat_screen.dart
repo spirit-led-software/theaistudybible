@@ -47,11 +47,6 @@ class ChatScreen extends HookConsumerWidget {
         hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
         onFinish: (_) {
           ref.read(chatsPagesProvider.notifier).refresh();
-          if (chat.value != null) {
-            ref
-                .read(currentChatMessagesProvider(chat.value!.id).notifier)
-                .refresh();
-          }
           ref.read(currentUserProvider.notifier).decrementRemainingQueries();
         },
       ),
@@ -109,10 +104,12 @@ class ChatScreen extends HookConsumerWidget {
 
     useEffect(() {
       if (chatObj.error.value != null) {
-        alert.value = Alert(
-          type: AlertType.error,
-          message: chatObj.error.value!.toString(),
-        );
+        if (isMounted()) {
+          alert.value = Alert(
+            type: AlertType.error,
+            message: chatObj.error.value!.toString(),
+          );
+        }
       }
       return () {};
     }, [chatObj.error.value]);
@@ -120,7 +117,7 @@ class ChatScreen extends HookConsumerWidget {
     useEffect(() {
       if (alert.value != null) {
         Future.delayed(const Duration(seconds: 8)).then((value) {
-          alert.value = null;
+          if (isMounted()) alert.value = null;
         });
       }
       return () {};
@@ -201,6 +198,7 @@ class ChatScreen extends HookConsumerWidget {
                                   ? messagesReversed[index]
                                   : null;
                           return Message(
+                            key: ValueKey(message.id),
                             chatId: chatObj.chatId.value,
                             message: message,
                             previousMessage: previousMessage,

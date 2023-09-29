@@ -31,43 +31,49 @@ class TabsScaffold extends HookConsumerWidget {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        enableFeedback: hapticFeedbackEnabled,
-        elevation: 10,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.chat_bubble_fill),
-            label: "Chat",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.book_fill),
-            label: "Devotions",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.person_fill),
-            label: "Account",
-          ),
-        ],
-        backgroundColor: RAIColors.primary,
-        selectedItemColor: RAIColors.secondary,
-        unselectedItemColor: Colors.white,
-        currentIndex: _calculateCurrentIndex(context),
-        onTap: (value) {
-          switch (value) {
-            case 0:
-              context.go("/chat");
-              break;
-            case 1:
-              context.go("/devotions");
-              break;
-            case 2:
-              context.go("/account");
-              break;
-            default:
-              context.go("/chat");
-              break;
-          }
-        },
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+        ),
+        child: BottomNavigationBar(
+          enableFeedback: hapticFeedbackEnabled,
+          elevation: 10,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.chat_bubble_fill),
+              label: "Chat",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.book_fill),
+              label: "Devotions",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.person_fill),
+              label: "Account",
+            ),
+          ],
+          backgroundColor: RAIColors.primary,
+          selectedItemColor: RAIColors.secondary,
+          unselectedItemColor: Colors.white,
+          currentIndex: _calculateCurrentIndex(context),
+          onTap: (value) {
+            switch (value) {
+              case 0:
+                context.go("/chat");
+                break;
+              case 1:
+                context.go("/devotions");
+                break;
+              case 2:
+                context.go("/account");
+                break;
+              default:
+                context.go("/chat");
+                break;
+            }
+          },
+        ),
       ),
     );
   }

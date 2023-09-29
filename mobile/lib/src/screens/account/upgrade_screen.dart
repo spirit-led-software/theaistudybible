@@ -27,6 +27,9 @@ class UpgradeScreen extends HookConsumerWidget {
     final purchasesRestored = useState(false);
     final alert = useState<Alert?>(null);
 
+    final purchasesRestoreFuture = useState<Future?>(null);
+    final purchasesRestoreSnapshot = useFuture(purchasesRestoreFuture.value);
+
     useEffect(() {
       loading.value = true;
       Purchases.getOfferings().then((offerings) {
@@ -48,20 +51,34 @@ class UpgradeScreen extends HookConsumerWidget {
     }, []);
 
     useEffect(() {
-      if (alert.value != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              alert.value!.message,
-              style: const TextStyle(color: Colors.white),
-            ),
-            backgroundColor: alert.value!.type == AlertType.error
-                ? Colors.red
-                : RAIColors.primary,
-            duration: const Duration(seconds: 8),
-          ),
+      if (purchasesRestoreSnapshot.hasError &&
+          purchasesRestoreSnapshot.connectionState != ConnectionState.waiting) {
+        alert.value = Alert(
+          type: AlertType.error,
+          message: purchasesRestoreSnapshot.error.toString(),
         );
-        if (isMounted()) alert.value = null;
+      }
+
+      return () {};
+    }, [purchasesRestoreSnapshot.hasError]);
+
+    useEffect(() {
+      if (alert.value != null) {
+        Future(() {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                alert.value!.message,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: alert.value!.type == AlertType.error
+                  ? Colors.red
+                  : RAIColors.primary,
+              duration: const Duration(seconds: 8),
+            ),
+          );
+          if (isMounted()) alert.value = null;
+        });
       }
 
       return () {};
@@ -88,15 +105,11 @@ class UpgradeScreen extends HookConsumerWidget {
                   shrinkWrap: true,
                   itemCount: packages.value.length,
                   itemBuilder: (context, index) {
-                    final product = packages.value[index].storeProduct;
-                    debugPrint('Product: $product');
                     return ProductTile(
+                      key: ValueKey(packages.value[index].identifier),
                       package: packages.value[index],
                     );
                   },
-                ),
-                const SizedBox(
-                  height: 20,
                 ),
                 ListTile(
                   title: const Text('Restore Purchases'),
@@ -104,15 +117,28 @@ class UpgradeScreen extends HookConsumerWidget {
                       'If you have previously purchased a subscription, you can restore it here.'),
                   trailing: TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor:
-                          purchasesRestored.value ? Colors.green : Colors.white,
+                      foregroundColor: purchasesRestoreSnapshot.hasError &&
+                              purchasesRestoreSnapshot.connectionState !=
+                                  ConnectionState.waiting
+                          ? Colors.red
+                          : purchasesRestored.value
+                              ? Colors.green
+                              : Colors.white,
                       backgroundColor: RAIColors.primary,
                     ),
-                    child: purchasesRestored.value
-                        ? const FaIcon(FontAwesomeIcons.check)
-                        : const Text('Restore'),
+                    child: purchasesRestoreSnapshot.connectionState ==
+                            ConnectionState.waiting
+                        ? const CircularProgressIndicator.adaptive(
+                            backgroundColor: Colors.white,
+                          )
+                        : purchasesRestoreSnapshot.hasError
+                            ? const FaIcon(FontAwesomeIcons.x)
+                            : purchasesRestored.value
+                                ? const FaIcon(FontAwesomeIcons.check)
+                                : const Text('Restore'),
                     onPressed: () {
-                      Purchases.restorePurchases().then((purchaserInfo) {
+                      purchasesRestoreFuture.value =
+                          Purchases.restorePurchases().then((purchaserInfo) {
                         debugPrint('Purchaser Info: $purchaserInfo');
                         ref.read(currentUserProvider.notifier).refresh();
                         if (isMounted()) purchasesRestored.value = true;
@@ -121,12 +147,7 @@ class UpgradeScreen extends HookConsumerWidget {
                         final errorCode = PurchasesErrorHelper.getErrorCode(e);
                         if (errorCode !=
                             PurchasesErrorCode.purchaseCancelledError) {
-                          if (isMounted()) {
-                            alert.value = Alert(
-                              type: AlertType.error,
-                              message: e.toString(),
-                            );
-                          }
+                          throw e;
                         }
                       });
                     },
@@ -151,21 +172,42 @@ class ProductTile extends HookConsumerWidget {
     final purchased = useState(false);
     final alert = useState<Alert?>(null);
 
+    final purchasingFuture = useState<Future?>(null);
+    final purchasingSnapshot = useFuture(purchasingFuture.value);
+
+    final scaffoldMessenger = useRef(ScaffoldMessenger.of(context));
+
+    useEffect(() {
+      if (purchasingSnapshot.hasError &&
+          purchasingSnapshot.connectionState != ConnectionState.waiting) {
+        alert.value = Alert(
+          type: AlertType.error,
+          message: purchasingSnapshot.error.toString(),
+        );
+      }
+
+      return () {};
+    }, [purchasingSnapshot.hasError]);
+
     useEffect(() {
       if (alert.value != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              alert.value!.message,
-              style: const TextStyle(color: Colors.white),
+        Future(() {
+          scaffoldMessenger.value.showSnackBar(
+            SnackBar(
+              content: Flexible(
+                child: Text(
+                  alert.value!.message,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              backgroundColor: alert.value!.type == AlertType.error
+                  ? Colors.red
+                  : RAIColors.primary,
+              duration: const Duration(seconds: 8),
             ),
-            backgroundColor: alert.value!.type == AlertType.error
-                ? Colors.red
-                : RAIColors.primary,
-            duration: const Duration(seconds: 8),
-          ),
-        );
-        alert.value = null;
+          );
+          if (isMounted()) alert.value = null;
+        });
       }
 
       return () {};
@@ -180,27 +222,34 @@ class ProductTile extends HookConsumerWidget {
       ),
       trailing: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: purchased.value ? Colors.green : Colors.white,
+          foregroundColor: purchasingSnapshot.hasError &&
+                  purchasingSnapshot.connectionState != ConnectionState.waiting
+              ? Colors.red
+              : purchased.value
+                  ? Colors.green
+                  : Colors.white,
           backgroundColor: RAIColors.primary,
         ),
-        child: purchased.value
-            ? const FaIcon(FontAwesomeIcons.check)
-            : Text(product.priceString),
+        child: purchasingSnapshot.connectionState == ConnectionState.waiting
+            ? const CircularProgressIndicator.adaptive(
+                backgroundColor: Colors.white,
+              )
+            : purchasingSnapshot.hasError
+                ? const FaIcon(FontAwesomeIcons.x)
+                : purchased.value
+                    ? const FaIcon(FontAwesomeIcons.check)
+                    : Text(product.priceString),
         onPressed: () {
-          Purchases.purchasePackage(package).then((purchaserInfo) {
+          purchasingFuture.value =
+              Purchases.purchasePackage(package).then((purchaserInfo) {
             debugPrint('Purchaser Info: $purchaserInfo');
-            ref.read(currentUserProvider.notifier).refresh();
             if (isMounted()) purchased.value = true;
+            ref.read(currentUserProvider.notifier).refresh();
           }).catchError((e) {
             debugPrint('Encountered error on purchase: $e');
             final errorCode = PurchasesErrorHelper.getErrorCode(e);
             if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-              if (isMounted()) {
-                alert.value = Alert(
-                  type: AlertType.error,
-                  message: e.toString(),
-                );
-              }
+              throw e;
             }
           });
         },

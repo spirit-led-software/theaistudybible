@@ -5,16 +5,18 @@ import 'package:revelationsai/src/providers/chat/pages.dart';
 
 class EditDialog extends HookConsumerWidget {
   final String id;
+  final String name;
 
   const EditDialog({
     Key? key,
     required this.id,
+    required this.name,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final chatsNotifier = ref.watch(chatsPagesProvider.notifier);
-    final TextEditingController controller = TextEditingController();
+    final TextEditingController controller = TextEditingController(text: name);
 
     return AlertDialog(
       title: const Text('Edit Chat'),

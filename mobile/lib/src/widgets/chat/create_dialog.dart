@@ -18,6 +18,7 @@ class CreateDialog extends HookConsumerWidget {
         controller: controller,
         decoration: const InputDecoration(
           labelText: 'Name',
+          hintText: "New Chat",
         ),
       ),
       actions: [
@@ -29,13 +30,14 @@ class CreateDialog extends HookConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            if (controller.value.text.isEmpty) {
-              return;
+            String name = controller.value.text;
+            if (name.isEmpty) {
+              name = "New Chat";
             }
             chatsNotifier.createChat(
               CreateChatRequest(
                 id: const Uuid().v4(),
-                name: controller.value.text,
+                name: name,
               ),
             );
             Navigator.of(context).pop();
