@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,23 +13,6 @@ class DevotionModal extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final devotions = ref.watch(devotionsPagesProvider);
     final devotionsNotifier = ref.watch(devotionsPagesProvider.notifier);
-
-    ScrollController controller = useScrollController();
-
-    useEffect(() {
-      controller.addListener(() {
-        if (controller.position.atEdge) {
-          if (controller.position.pixels == 0) {
-            // You're at the top.
-          } else {
-            if (devotionsNotifier.hasNextPage()) {
-              devotionsNotifier.fetchNextPage();
-            }
-          }
-        }
-      });
-      return () {};
-    }, []);
 
     return Container(
       decoration: const BoxDecoration(
@@ -92,7 +74,6 @@ class DevotionModal extends HookConsumerWidget {
                 )
               : Expanded(
                   child: ListView.builder(
-                    controller: controller,
                     itemCount: devotions.requireValue
                         .expand((element) => element)
                         .toList()

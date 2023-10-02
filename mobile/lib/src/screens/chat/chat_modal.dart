@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -16,23 +15,6 @@ class ChatModal extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final chats = ref.watch(chatsPagesProvider);
     final chatsNotifier = ref.watch(chatsPagesProvider.notifier);
-
-    ScrollController controller = useScrollController();
-
-    useEffect(() {
-      controller.addListener(() {
-        if (controller.position.atEdge) {
-          if (controller.position.pixels == 0) {
-            // You're at the top.
-          } else {
-            if (chatsNotifier.hasNextPage()) {
-              chatsNotifier.fetchNextPage();
-            }
-          }
-        }
-      });
-      return () {};
-    }, []);
 
     return Container(
       decoration: const BoxDecoration(
@@ -125,8 +107,6 @@ class ChatModal extends HookConsumerWidget {
                 )
               : Expanded(
                   child: ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    controller: controller,
                     itemCount: chats.requireValue
                         .expand((element) => element)
                         .toList()
