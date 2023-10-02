@@ -49,6 +49,12 @@
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
 
+<svelte:head>
+	<title>
+		AI Vector Search
+	</title>
+</svelte:head>
+
 <div class="flex flex-col flex-1">
 	<div class="flex flex-col w-full h-full p-3 space-y-2 overflow-hidden lg:px-16">
 		<form
