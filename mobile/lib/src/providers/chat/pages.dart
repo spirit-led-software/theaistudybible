@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -121,7 +122,7 @@ class ChatsPages extends _$ChatsPages {
       throw error;
     });
 
-    ref.invalidateSelf();
+    refresh();
   }
 
   FutureOr<void> updateChat(String id, UpdateChatRequest request) async {
@@ -151,7 +152,7 @@ class ChatsPages extends _$ChatsPages {
       throw error;
     });
 
-    ref.invalidateSelf();
+    refresh();
   }
 
   FutureOr<void> deleteChat(String id) async {
@@ -171,6 +172,10 @@ class ChatsPages extends _$ChatsPages {
       state = previousState;
     });
 
-    ref.invalidateSelf();
+    if (ref.read(currentChatIdProvider) == id) {
+      ref.read(currentChatIdProvider.notifier).update(null);
+    }
+
+    refresh();
   }
 }

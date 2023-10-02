@@ -125,6 +125,7 @@ class ChatModal extends HookConsumerWidget {
                 )
               : Expanded(
                   child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     controller: controller,
                     itemCount: chats.requireValue
                         .expand((element) => element)

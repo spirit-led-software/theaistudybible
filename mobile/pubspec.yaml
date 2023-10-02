@@ -60,6 +60,7 @@ dependencies:
   flutter_native_splash: ^2.3.2
   purchases_flutter: ^5.7.0
   quiver: ^3.2.1
+  another_flushbar: ^1.12.30
 
 dev_dependencies:
   flutter_test:

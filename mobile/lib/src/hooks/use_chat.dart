@@ -34,7 +34,6 @@ class UseChatOptions {
 class UseChatReturnObject {
   final ValueNotifier<String?> chatId;
 
-  final ValueNotifier<String> input;
   final TextEditingController inputController;
   final FocusNode inputFocusNode;
   final Function handleSubmit;
@@ -51,7 +50,6 @@ class UseChatReturnObject {
 
   UseChatReturnObject({
     required this.chatId,
-    required this.input,
     required this.inputController,
     required this.inputFocusNode,
     required this.handleSubmit,
@@ -173,15 +171,6 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     [options.chatId],
   );
 
-  ValueNotifier<String> input = useState(options.initialInput);
-  useEffect(
-    () {
-      input.value = options.initialInput;
-      return () {};
-    },
-    [options.initialInput],
-  );
-
   ValueNotifier<List<ChatMessage>> messages =
       useState(options.initialMessages ?? []);
   useEffect(
@@ -208,7 +197,14 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
   ValueNotifier<String?> currentResponseId = useState(null);
 
   TextEditingController inputController =
-      useTextEditingController(text: input.value);
+      useTextEditingController(text: options.initialInput);
+  useEffect(
+    () {
+      inputController.text = options.initialInput;
+      return () {};
+    },
+    [options.initialInput],
+  );
   FocusNode inputFocusNode = useFocusNode();
 
   Function(ChatRequest) triggerRequest = useCallback(
@@ -299,7 +295,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     () {
       if (options.hapticFeedback) HapticFeedback.mediumImpact();
 
-      if (input.value.isEmpty) {
+      if (inputController.text.isEmpty) {
         error.value = Exception('Input cannot be empty');
         return;
       }
@@ -308,51 +304,22 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
       append(
         ChatMessage(
           id: nanoid(),
-          content: input.value,
+          content: inputController.text,
           role: Role.user,
         ),
       );
 
-      input.value = '';
+      inputController.clear();
     },
     [
-      input.value,
+      inputController,
       inputFocusNode,
       append,
     ],
   );
 
-  useEffect(
-    () {
-      input.addListener(() {
-        inputController.text = input.value;
-      });
-      return () {
-        input.removeListener(() {});
-      };
-    },
-    [
-      input,
-    ],
-  );
-
-  useEffect(
-    () {
-      inputController.addListener(() {
-        input.value = inputController.text;
-      });
-      return () {
-        inputController.removeListener(() {});
-      };
-    },
-    [
-      inputController,
-    ],
-  );
-
   return UseChatReturnObject(
     chatId: chatId,
-    input: input,
     inputController: inputController,
     inputFocusNode: inputFocusNode,
     handleSubmit: handleSubmit,

@@ -64,11 +64,15 @@ class DevotionsPages extends _$DevotionsPages {
   void fetchNextPage() {
     _page++;
     _isLoadingNextPage = true;
-    ref.invalidateSelf();
+    refresh();
   }
 
   void reset() {
     _page = 1;
+    refresh();
+  }
+
+  void refresh() {
     ref.invalidateSelf();
   }
 
