@@ -26,13 +26,6 @@
 
 	const queryClient = useQueryClient();
 
-	onMount(() => {
-		endOfMessagesRef.scrollIntoView({
-			behavior: 'instant',
-			block: 'end'
-		});
-	});
-
 	const { input, handleSubmit, messages, setMessages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
 		initialMessages: initMessages,
@@ -60,6 +53,13 @@
 		if (err) {
 			alert = err.message;
 		}
+	});
+
+	onMount(() => {
+		endOfMessagesRef.scrollIntoView({
+			behavior: 'instant',
+			block: 'end'
+		});
 	});
 
 	$: scrollEndIntoView = () => {
@@ -121,14 +121,12 @@
 	$: if (initChatId) {
 		chatId = initChatId;
 	}
-
 	$: if (initMessages) {
 		setMessages(initMessages);
 		scrollEndIntoView();
 	}
 
 	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
-
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 
 	$: if ($page.url.searchParams.get('query')) {
