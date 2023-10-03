@@ -2,6 +2,12 @@
   "search.exclude": {
     "**/.sst": true
   },
-  "cSpell.words": ["autocorrect", "autofocus", "Devo", "REVENUECAT"],
+  "cSpell.words": [
+    "autocorrect",
+    "autofocus",
+    "Devo",
+    "flushbar",
+    "REVENUECAT"
+  ],
   "java.configuration.updateBuildConfiguration": "automatic"
 }

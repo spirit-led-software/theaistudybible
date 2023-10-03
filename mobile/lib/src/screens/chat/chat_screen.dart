@@ -126,7 +126,7 @@ class ChatScreen extends HookConsumerWidget {
             isDismissible: true,
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.GROUNDED,
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             dismissDirection: FlushbarDismissDirection.HORIZONTAL,
             animationDuration: const Duration(milliseconds: 200),
           ).show(context);

@@ -61,6 +61,7 @@ dependencies:
   purchases_flutter: ^5.7.0
   quiver: ^3.2.1
   another_flushbar: ^1.12.30
+  visibility_detector: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:
