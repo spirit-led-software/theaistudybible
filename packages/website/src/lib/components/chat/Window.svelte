@@ -20,34 +20,22 @@
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
-	let endOfMessagesRef: HTMLDivElement | undefined = undefined;
 	let alert: string | undefined = undefined;
+	let endOfMessagesRef: HTMLDivElement;
 	let isEndOfMessagesRefShowing = true;
 
 	const queryClient = useQueryClient();
 
 	onMount(() => {
-		endOfMessagesRef?.scrollIntoView({
+		endOfMessagesRef.scrollIntoView({
 			behavior: 'instant',
 			block: 'end'
 		});
 	});
 
-	const scrollEndIntoView = (
-		isEndOfMessagesRefShowing: boolean,
-		endOfMessagesRef: HTMLDivElement | undefined
-	) => {
-		if (!isEndOfMessagesRefShowing) {
-			endOfMessagesRef?.scrollIntoView({
-				behavior: 'smooth',
-				block: 'end'
-			});
-		}
-	};
-
-	$: ({ input, handleSubmit, messages, append, error, isLoading, reload } = useChat({
+	const { input, handleSubmit, messages, setMessages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
-		initialMessages: initMessages ?? [],
+		initialMessages: initMessages,
 		sendExtraMessageFields: true,
 		onError: (err) => {
 			alert = err.message;
@@ -65,13 +53,23 @@
 		},
 		onFinish: (message: ChatMessage) => {
 			lastChatMessage = message;
+			queryClient.invalidateQueries(['infinite-chats']);
 		}
-	}));
-	$: error?.subscribe((err) => {
+	});
+	error.subscribe((err) => {
 		if (err) {
 			alert = err.message;
 		}
 	});
+
+	$: scrollEndIntoView = () => {
+		if (!isEndOfMessagesRefShowing) {
+			endOfMessagesRef.scrollIntoView({
+				behavior: 'smooth',
+				block: 'end'
+			});
+		}
+	};
 
 	$: handleReload = async () => {
 		await reload({
@@ -84,11 +82,9 @@
 				}
 			}
 		});
-		queryClient.invalidateQueries(['infinite-chats']);
 	};
 
-	$: handleSubmitCustom = async (event: SubmitEvent) => {
-		event.preventDefault();
+	$: handleSubmitCustom = (event: SubmitEvent) => {
 		if ($input === '') {
 			alert = 'Please enter a message';
 		}
@@ -102,7 +98,6 @@
 				}
 			}
 		});
-		scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
 	};
 
 	$: handleAiResponse = async (chatMessage: ChatMessage) => {
@@ -117,17 +112,23 @@
 						session: $session!
 					}
 				);
-				scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
 			} catch (err: any) {
 				alert = `Something went wrong: ${err.message}`;
-			} finally {
-				queryClient.invalidateQueries(['infinite-chats']);
 			}
 		}
 	};
 
-	$: if (initChatId) chatId = initChatId;
+	$: if (initChatId) {
+		chatId = initChatId;
+	}
+
+	$: if (initMessages) {
+		setMessages(initMessages);
+		scrollEndIntoView();
+	}
+
 	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
+
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 
 	$: if ($page.url.searchParams.get('query')) {
@@ -213,9 +214,7 @@
 		{#if !isEndOfMessagesRefShowing}
 			<button
 				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5 text-slate-700 hover:text-slate-900 hover:shadow-xl hover:bg-slate-100"
-				on:click|preventDefault={() => {
-					scrollEndIntoView(isEndOfMessagesRefShowing, endOfMessagesRef);
-				}}
+				on:click|preventDefault={scrollEndIntoView}
 			>
 				<Icon icon="icon-park:down" class="text-2xl" />
 			</button>
@@ -223,12 +222,7 @@
 		<div
 			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
 		>
-			<form
-				class="flex flex-col w-full"
-				on:submit|preventDefault={(event) => {
-					handleSubmitCustom(event);
-				}}
-			>
+			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
 				<div class="flex items-center w-full h-auto">
 					<Icon icon="icon-park:right" class="mx-1 text-2xl" />
 					<TextAreaAutosize {input} />

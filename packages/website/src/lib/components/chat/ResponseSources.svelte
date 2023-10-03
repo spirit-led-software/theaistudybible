@@ -6,6 +6,7 @@
 	import { aiResponses } from '@core/schema';
 	import { getPropertyName } from '@core/util/object';
 	import Icon from '@iconify/svelte';
+	import { validate as uuidValidate } from 'uuid';
 
 	export let chatId: string | undefined;
 	export let aiResponseId: string;
@@ -14,15 +15,16 @@
 	let sources: NeonVectorStoreDocument[] = [];
 	let isLoading = false;
 	let hasLoaded = false;
-	let retryCount = 0;
-
+	let tryCount = 0;
 	let showSources = false;
 
-	$: getSources = async (chatId?: string, aiResponseId?: string) => {
-		if (retryCount > 10) return;
+	const maxTries = 5;
+
+	$: fetchSources = async (chatId?: string, aiResponseId?: string) => {
+		tryCount++;
 
 		if (!chatId && !aiResponseId) {
-			retryCount++;
+			await new Promise((resolve) => setTimeout(resolve, 1000 * tryCount));
 			return;
 		}
 
@@ -31,20 +33,12 @@
 			let query: Query = {
 				AND: [
 					{
-						OR: [
-							{
-								eq: {
-									column: getPropertyName(aiResponses, (aiResponses) => aiResponses.id),
-									value: aiResponseId
-								}
-							},
-							{
-								eq: {
-									column: getPropertyName(aiResponses, (aiResponses) => aiResponses.aiId),
-									value: aiResponseId
-								}
-							}
-						]
+						eq: {
+							column: getPropertyName(aiResponses, (aiResponses) =>
+								uuidValidate(aiResponseId!) ? aiResponses.id : aiResponses.aiId
+							),
+							value: aiResponseId
+						}
 					},
 					{
 						eq: {
@@ -75,22 +69,30 @@
 			hasLoaded = true;
 		} catch (error) {
 			console.error(error);
-			retryCount++;
 		} finally {
 			isLoading = false;
 		}
 	};
 
-	$: if (showSources && sources.length === 0 && !hasLoaded && !isChatLoading && !isLoading) {
-		getSources(chatId, aiResponseId);
+	$: fetchSourcesHandler = () => {
+		if (!hasLoaded && !isLoading && tryCount < maxTries && sources.length === 0 && !isChatLoading) {
+			fetchSources(chatId, aiResponseId);
+		}
+	};
+
+	$: if (showSources) {
+		fetchSourcesHandler();
 	}
-	$: if (!isChatLoading) getSources(chatId, aiResponseId);
+
+	$: fetchSourcesHandler();
 </script>
 
 <div class="flex flex-col overflow-hidden">
 	<button
 		class="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-		on:click|preventDefault={() => (showSources = !showSources)}
+		on:click|preventDefault={() => {
+			showSources = !showSources;
+		}}
 		disabled={isLoading}
 	>
 		<div class="text-sm text-blue-400">Sources</div>

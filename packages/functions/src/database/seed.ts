@@ -68,7 +68,7 @@ async function createInitialRoles() {
     console.log("Admin role created");
   } else {
     adminRole = await updateRole(adminRole.id, {
-      permissions: [`query:${Infinity}`],
+      permissions: [`query:${999999999}`],
     });
     console.log("Admin role already exists");
   }
@@ -130,7 +130,7 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): number {
   } else if (lookupKey === "lead-pastor") {
     return 100;
   } else if (lookupKey === "church-plant") {
-    return Infinity;
+    return 999999999;
   } else {
     return 10;
   }
