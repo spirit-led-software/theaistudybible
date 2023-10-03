@@ -1,4 +1,3 @@
-import { PromptTemplate } from "langchain";
 import type { BaseLanguageModel } from "langchain/base_language";
 import {
   BaseChain,
@@ -8,6 +7,7 @@ import {
   type MultiRouteChainInput,
 } from "langchain/chains";
 import { RouterOutputParser } from "langchain/output_parsers";
+import { PromptTemplate } from "langchain/prompts";
 import { z } from "zod";
 
 const ROUTER_TEMPLATE = (

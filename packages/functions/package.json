@@ -11,9 +11,9 @@
     "@types/aws-lambda": "^8.10.122",
     "@types/bcryptjs": "^2.4.4",
     "@types/busboy": "^1.5.1",
-    "@types/node": "^20.7.0",
+    "@types/node": "^20.8.2",
     "@types/nodemailer": "^6.4.11",
-    "sst": "2.26.7",
+    "sst": "2.26.10",
     "vitest": "^0.33.0"
   },
   "dependencies": {
@@ -22,19 +22,19 @@
     "@middy/http-cors": "^4.6.4",
     "@middy/http-error-handler": "^4.6.4",
     "@revelationsai/core": "^1.0.0",
-    "ai": "^2.2.13",
+    "ai": "^2.2.14",
     "bcryptjs": "^2.4.3",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
-    "fast-xml-parser": "^4.3.1",
-    "firebase-admin": "^11.10.1",
+    "fast-xml-parser": "^4.3.2",
+    "firebase-admin": "^11.11.0",
     "lambda-stream": "^0.5.0",
     "mammoth": "^1.6.0",
-    "openai": "^4.10.0",
+    "openai": "^4.11.1",
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
     "puppeteer-core": "^20.9.0",
-    "stripe": "^13.7.0",
+    "stripe": "^13.8.0",
     "validator": "^13.11.0"
   }
 }

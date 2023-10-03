@@ -3,7 +3,6 @@ import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-m
 import { NeonDocLLMChainExtractor } from "@core/langchain/retrievers/document_compressors/chain_extract";
 import type { Chat } from "@core/model";
 import type { Message } from "ai";
-import { PromptTemplate } from "langchain";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
@@ -13,6 +12,7 @@ import {
   ChatMessageHistory,
   VectorStoreRetrieverMemory,
 } from "langchain/memory";
+import { PromptTemplate } from "langchain/prompts";
 import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import { AIMessage, BaseMessage, HumanMessage } from "langchain/schema";
 import { OpenAI as OpenAIClient } from "openai";

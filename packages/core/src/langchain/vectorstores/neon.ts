@@ -1,6 +1,6 @@
 import type { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
-import type { Embeddings } from "langchain/embeddings";
+import type { Embeddings } from "langchain/embeddings/base";
 import { VectorStore } from "langchain/vectorstores/base";
 import { Pool } from "pg";
 
