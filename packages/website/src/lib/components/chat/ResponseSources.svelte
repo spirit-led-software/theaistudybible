@@ -14,21 +14,37 @@
 	let sources: NeonVectorStoreDocument[] = [];
 	let isLoading = false;
 	let hasLoaded = false;
+	let retryCount = 0;
 
 	let showSources = false;
 
 	$: getSources = async (chatId?: string, aiResponseId?: string) => {
-		if (!chatId && !aiResponseId) return;
+		if (retryCount > 10) return;
+
+		if (!chatId && !aiResponseId) {
+			retryCount++;
+			return;
+		}
 
 		try {
 			isLoading = true;
 			let query: Query = {
 				AND: [
 					{
-						eq: {
-							column: getPropertyName(aiResponses, (aiResponses) => aiResponses.aiId),
-							value: aiResponseId
-						}
+						OR: [
+							{
+								eq: {
+									column: getPropertyName(aiResponses, (aiResponses) => aiResponses.id),
+									value: aiResponseId
+								}
+							},
+							{
+								eq: {
+									column: getPropertyName(aiResponses, (aiResponses) => aiResponses.aiId),
+									value: aiResponseId
+								}
+							}
+						]
 					},
 					{
 						eq: {
@@ -59,6 +75,7 @@
 			hasLoaded = true;
 		} catch (error) {
 			console.error(error);
+			retryCount++;
 		} finally {
 			isLoading = false;
 		}

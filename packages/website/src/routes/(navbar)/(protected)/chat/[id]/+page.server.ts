@@ -4,7 +4,7 @@ import { searchForUserMessages } from '$lib/services/user';
 import { aiResponses, userMessages } from '@core/schema';
 import { getPropertyName } from '@core/util/object';
 import { redirect } from '@sveltejs/kit';
-import type { Message } from 'ai';
+import { nanoid, type Message } from 'ai';
 import type { PageServerLoad } from './$types';
 
 async function getMessages(chatId: string, userId: string, session: string) {
@@ -32,7 +32,7 @@ async function getMessages(chatId: string, userId: string, session: string) {
 		await Promise.all(
 			foundUserMessages.map(async (userMessage) => {
 				const message: Message = {
-					id: userMessage.aiId!,
+					id: userMessage.aiId || userMessage.id,
 					content: userMessage.text,
 					role: 'user',
 					createdAt: userMessage.createdAt
@@ -51,12 +51,20 @@ async function getMessages(chatId: string, userId: string, session: string) {
 				const responses: Message[] = foundAiResponses
 					.filter((aiResponse) => !aiResponse.failed && !aiResponse.regenerated)
 					.map((aiResponse) => ({
-						id: aiResponse.aiId!,
-						content: aiResponse.text!,
+						id: aiResponse.aiId || aiResponse.id,
+						content: aiResponse.text || 'Failed Response',
 						role: 'assistant',
 						createdAt: aiResponse.createdAt
 					}));
-				return [responses[0], message];
+				return [
+					responses[0] ?? {
+						id: nanoid(),
+						content: 'Failed Response',
+						role: 'assistant',
+						createdAt: message.createdAt
+					},
+					message
+				];
 			})
 		)
 	)
