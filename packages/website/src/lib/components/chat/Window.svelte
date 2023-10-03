@@ -123,7 +123,6 @@
 	}
 	$: if (initMessages) {
 		setMessages(initMessages);
-		scrollEndIntoView();
 	}
 
 	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
