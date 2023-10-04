@@ -60,6 +60,7 @@ export function API({ stack }: StackContext) {
     timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
+    memory: "512 MB",
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
@@ -139,7 +140,7 @@ export function API({ stack }: StackContext) {
           bind: [webpageIndexQueue],
           permissions: [webpageIndexQueue],
           timeout: "15 minutes",
-          memorySize: "4 GB",
+          memorySize: "2 GB",
         },
       },
       "POST /scraper/webpage": {
@@ -152,7 +153,7 @@ export function API({ stack }: StackContext) {
             },
           },
           timeout: "15 minutes",
-          memorySize: "2 GB",
+          memorySize: "1 GB",
         },
       },
       "GET /session": "packages/functions/src/session.handler",
@@ -279,6 +280,7 @@ export function API({ stack }: StackContext) {
         environment: lambdaEnv,
         runtime: "nodejs18.x",
         timeout: "60 seconds",
+        memory: "256 MB",
       },
     },
     customDomain: {
