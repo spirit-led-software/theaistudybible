@@ -93,12 +93,12 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
     });
   } else {
     if (tokenSet.claims().name && user.name !== tokenSet.claims().name) {
-      updateUser(user.id, {
+      user = await updateUser(user.id, {
         name: tokenSet.claims().name!,
       });
     }
     if (tokenSet.claims().picture && user.image !== tokenSet.claims().picture) {
-      updateUser(user.id, {
+      user = await updateUser(user.id, {
         image: tokenSet.claims().picture!,
       });
     }
@@ -351,7 +351,7 @@ export const handler = AuthHandler({
               authConfig.bcrypt.saltRounds
             ),
           });
-          await addRoleToUser(user.id, "user");
+          await addRoleToUser("user", user.id);
           await createStripeCustomer(user);
         } else {
           return BadRequestResponse("A user already exists with this email");
