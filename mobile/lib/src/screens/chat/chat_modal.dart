@@ -114,10 +114,45 @@ class ChatModal extends HookConsumerWidget {
               : Expanded(
                   child: ListView.builder(
                     itemCount: chats.requireValue
-                        .expand((element) => element)
-                        .toList()
-                        .length,
+                            .expand((element) => element)
+                            .toList()
+                            .length +
+                        1,
                     itemBuilder: (context, index) {
+                      if (index ==
+                          chats.requireValue
+                              .expand((element) => element)
+                              .toList()
+                              .length) {
+                        return chatsNotifier.isLoadingNextPage()
+                            ? Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Center(
+                                  child: SpinKitSpinningLines(
+                                    color: RAIColors.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              )
+                            : chatsNotifier.hasNextPage()
+                                ? Container(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              chatsNotifier.fetchNextPage();
+                                            },
+                                            child: const Text('Show More'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Container();
+                      }
+
                       final chatsFlat = chats.requireValue
                           .expand((element) => element)
                           .toList();
@@ -129,33 +164,6 @@ class ChatModal extends HookConsumerWidget {
                     },
                   ),
                 ),
-          chatsNotifier.isLoadingNextPage()
-              ? Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Center(
-                    child: SpinKitSpinningLines(
-                      color: RAIColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                )
-              : chatsNotifier.hasNextPage()
-                  ? Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                chatsNotifier.fetchNextPage();
-                              },
-                              child: const Text('Show More'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Container(),
         ],
       ),
     );

@@ -394,6 +394,38 @@ class ChatScreen extends HookConsumerWidget {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
+      floatingActionButton:
+          currentUserPreferences.value?.chatSuggestions ?? true
+              ? Container(
+                  margin: const EdgeInsets.only(top: 35),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showSuggestions.value = !showSuggestions.value;
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: RAIColors.secondary,
+                      foregroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 18,
+                      ),
+                      elevation: 15,
+                    ),
+                    child: FaIcon(
+                      showSuggestions.value
+                          ? FontAwesomeIcons.x
+                          : FontAwesomeIcons.lightbulb,
+                      size: 32,
+                    ),
+                  ),
+                )
+              : null,
       body: loadingChat.value
           ? Center(
               child: SpinKitSpinningLines(
@@ -571,7 +603,7 @@ class ChatScreen extends HookConsumerWidget {
                         scrollDirection: Axis.horizontal,
                         slivers: [
                           SliverPadding(
-                            padding: const EdgeInsets.only(left: 75),
+                            padding: const EdgeInsets.only(left: 80),
                             sliver: SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
@@ -615,35 +647,6 @@ class ChatScreen extends HookConsumerWidget {
                     ),
                   ),
                 ],
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showSuggestions.value = !showSuggestions.value;
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: RAIColors.secondary,
-                      foregroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 18,
-                      ),
-                      elevation: 15,
-                    ),
-                    child: FaIcon(
-                      showSuggestions.value
-                          ? FontAwesomeIcons.x
-                          : FontAwesomeIcons.lightbulb,
-                      size: 32,
-                    ),
-                  ),
-                )
               ],
             ),
     );

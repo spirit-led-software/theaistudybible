@@ -86,10 +86,45 @@ class DevotionModal extends HookConsumerWidget {
               : Expanded(
                   child: ListView.builder(
                     itemCount: devotions.requireValue
-                        .expand((element) => element)
-                        .toList()
-                        .length,
+                            .expand((element) => element)
+                            .toList()
+                            .length +
+                        1,
                     itemBuilder: (context, index) {
+                      if (index ==
+                          devotions.requireValue
+                              .expand((element) => element)
+                              .toList()
+                              .length) {
+                        return devotionsNotifier.isLoadingNextPage()
+                            ? Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Center(
+                                  child: SpinKitSpinningLines(
+                                    color: RAIColors.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              )
+                            : devotionsNotifier.hasNextPage()
+                                ? Container(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              devotionsNotifier.fetchNextPage();
+                                            },
+                                            child: const Text('Show More'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Container();
+                      }
+                      
                       final devotionsFlat = devotions.requireValue
                           .expand((element) => element)
                           .toList();
@@ -101,33 +136,6 @@ class DevotionModal extends HookConsumerWidget {
                     },
                   ),
                 ),
-          devotionsNotifier.isLoadingNextPage()
-              ? Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Center(
-                    child: SpinKitSpinningLines(
-                      color: RAIColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                )
-              : devotionsNotifier.hasNextPage()
-                  ? Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                devotionsNotifier.fetchNextPage();
-                              },
-                              child: const Text('Show More'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Container(),
         ],
       ),
     );
