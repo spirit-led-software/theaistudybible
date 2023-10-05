@@ -12,7 +12,6 @@ import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
-import 'package:revelationsai/src/widgets/chat/edit_dialog.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class ChatModal extends HookConsumerWidget {
@@ -209,39 +208,6 @@ class ChatListItem extends HookConsumerWidget {
           DateFormat.yMMMd().format(chat.createdAt),
         ),
         dense: true,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              visualDensity: const VisualDensity(
-                horizontal: VisualDensity.minimumDensity,
-                vertical: VisualDensity.minimumDensity,
-              ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return EditDialog(
-                      id: chat.id,
-                      name: chat.name,
-                    );
-                  },
-                );
-              },
-              icon: const Icon(Icons.edit),
-            ),
-            IconButton(
-              visualDensity: const VisualDensity(
-                horizontal: VisualDensity.minimumDensity,
-                vertical: VisualDensity.minimumDensity,
-              ),
-              onPressed: () {
-                ref.read(chatsPagesProvider.notifier).deleteChat(chat.id);
-              },
-              icon: const Icon(Icons.delete),
-            )
-          ],
-        ),
         onTap: () {
           context.go(
             '/chat/${chat.id}',

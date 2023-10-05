@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
+import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
@@ -21,6 +22,7 @@ import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
 
 class DevotionScreen extends HookConsumerWidget {
@@ -173,7 +175,6 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: PopupMenuButton(
                 offset: const Offset(0, 60),
-                padding: const EdgeInsets.all(0),
                 color: RAIColors.primary,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
@@ -182,21 +183,18 @@ class DevotionScreen extends HookConsumerWidget {
                 ),
                 itemBuilder: (context) => [
                   PopupMenuItem(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(Icons.thumb_up),
                         const SizedBox(
                           width: 10,
                         ),
                         Text(
-                          ref
-                                  .watch(devotionReactionCountsProvider(
-                                      devotion.value!.id))
-                                  .value?[DevotionReactionType.LIKE]
-                                  .toString() ??
-                              '0',
+                          "${ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.LIKE].toString() ?? '0'}"
+                          " Likes",
                           style: const TextStyle(color: Colors.white),
                         ),
                       ],
@@ -212,21 +210,18 @@ class DevotionScreen extends HookConsumerWidget {
                     },
                   ),
                   PopupMenuItem(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Icon(Icons.thumb_down),
                         const SizedBox(
                           width: 10,
                         ),
                         Text(
-                          ref
-                                  .watch(devotionReactionCountsProvider(
-                                      devotion.value!.id))
-                                  .value?[DevotionReactionType.DISLIKE]
-                                  .toString() ??
-                              '0',
+                          "${(ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.DISLIKE].toString() ?? '0')}"
+                          " Dislikes",
                           style: const TextStyle(color: Colors.white),
                         ),
                       ],
@@ -239,6 +234,27 @@ class DevotionScreen extends HookConsumerWidget {
                             reaction: DevotionReactionType.DISLIKE,
                             session: currentUser.requireValue.session,
                           );
+                    },
+                  ),
+                  PopupMenuItem(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        FaIcon(FontAwesomeIcons.shareFromSquare),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Share",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      Share.shareUri(Uri.parse(
+                          '${Website.url}/devotions/${devotion.value!.id}'));
                     },
                   ),
                 ],

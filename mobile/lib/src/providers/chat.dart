@@ -3,6 +3,7 @@ import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'chat.g.dart';
 
@@ -36,10 +37,17 @@ class Chats extends _$Chats {
       final previousState = state;
 
       state = AsyncData(
-        previousState.requireValue.copyWith(
-          name: request.name,
-          updatedAt: DateTime.now(),
-        ),
+        previousState.value?.copyWith(
+              name: request.name,
+              updatedAt: DateTime.now(),
+            ) ??
+            Chat(
+              id: Uuid().v4(),
+              userId: currentUser.value!.id,
+              name: request.name,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
       );
 
       await ChatService.updateChat(
@@ -51,8 +59,7 @@ class Chats extends _$Chats {
         state = previousState;
         throw error;
       });
-
-      ref.invalidateSelf();
+      refresh();
     } catch (error) {
       debugPrint("Failed to update chat: $error");
       rethrow;
