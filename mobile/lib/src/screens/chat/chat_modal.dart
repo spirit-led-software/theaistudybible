@@ -172,7 +172,7 @@ class ChatListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> fetchChatData() async {
       await Future.wait([
-        ref.read(chatByIdProvider(chat.id).future),
+        ref.read(chatsProvider(chat.id).future),
         ref.read(currentChatMessagesProvider(chat.id).future),
       ]).then((value) {
         final foundChat = value[0] as Chat;

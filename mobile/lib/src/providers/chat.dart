@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'chat.g.dart';
 
 @riverpod
-class ChatById extends _$ChatById {
+class Chats extends _$Chats {
   @override
   FutureOr<Chat> build(String id) async {
     try {
@@ -57,5 +57,9 @@ class ChatById extends _$ChatById {
       debugPrint("Failed to update chat: $error");
       rethrow;
     }
+  }
+
+  void refresh() {
+    ref.invalidateSelf();
   }
 }

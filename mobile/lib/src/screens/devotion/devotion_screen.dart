@@ -49,7 +49,7 @@ class DevotionScreen extends HookConsumerWidget {
               .then((value) => value.first.first.id);
 
       await Future.wait([
-        ref.read(devotionByIdProvider(devoId!).future),
+        ref.read(devotionsProvider(devoId!).future),
         ref.read(devotionSourceDocumentsProvider(devoId).future),
         ref.read(devotionImagesProvider(devoId).future),
         ref.read(devotionReactionsProvider(devoId).future),
@@ -105,7 +105,7 @@ class DevotionScreen extends HookConsumerWidget {
     }, [devotionId]);
 
     useEffect(() {
-      if (devotion.value?.id != null) {
+      if (devotion.value != null) {
         Future(() {
           ref
               .read(currentDevotionIdProvider.notifier)
@@ -158,18 +158,15 @@ class DevotionScreen extends HookConsumerWidget {
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
       floatingActionButton: loading.value || devotion.value == null
           ? null
           : FloatingActionButton(
-              foregroundColor: RAIColors.primary,
-              backgroundColor: Colors.white.withOpacity(0.9),
+              foregroundColor: Colors.white,
+              backgroundColor: RAIColors.secondary,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(15),
-                ),
-                side: BorderSide(
-                  width: 1,
                 ),
               ),
               child: const Icon(Icons.thumbs_up_down),
@@ -181,15 +178,17 @@ class DevotionScreen extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  position: RelativeRect.fromLTRB(
-                    MediaQuery.of(context).size.width,
-                    MediaQuery.of(context).size.height - 275,
+                  position: const RelativeRect.fromLTRB(
+                    0,
+                    150,
                     0,
                     0,
                   ),
                   items: [
                     PopupMenuItem(
                       child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.thumb_up),
                           const SizedBox(
@@ -215,6 +214,8 @@ class DevotionScreen extends HookConsumerWidget {
                     ),
                     PopupMenuItem(
                       child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Icon(Icons.thumb_down),
                           const SizedBox(
@@ -258,7 +259,16 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: RefreshIndicator(
                 onRefresh: () async {
-                  await fetchDevoData(devotion.value!.id);
+                  String? id = devotion.value?.id ?? devotionId;
+                  if (id != null) {
+                    ref.read(devotionsProvider(id).notifier).refresh();
+                    ref
+                        .read(devotionSourceDocumentsProvider(id).notifier)
+                        .refresh();
+                    ref.read(devotionImagesProvider(id).notifier).refresh();
+                    ref.read(devotionReactionsProvider(id).notifier).refresh();
+                    await fetchDevoData(id);
+                  }
                 },
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -399,7 +409,7 @@ class DevotionScreen extends HookConsumerWidget {
                             uri: Uri.parse(
                               sourceDocs.value[index].metadata['url'],
                             ),
-                            target: LinkTarget.self,
+                            target: LinkTarget.blank,
                             builder: (context, followLink) => ListTile(
                               dense: true,
                               visualDensity: RAIVisualDensity.tightest,

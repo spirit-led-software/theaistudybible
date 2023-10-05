@@ -21,6 +21,17 @@ import 'package:revelationsai/src/screens/chat/chat_modal.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
 
 class ChatScreen extends HookConsumerWidget {
+  static const chatSuggestions = <String>{
+    "Who is Jesus?",
+    "What is the meaning of life?",
+    "Explain the gospel to me.",
+    "What is the gospel?",
+    "What is the Trinity?",
+    "Is Jesus real?",
+    "What is the Bible about?",
+    "Why did Jesus have to die?",
+  };
+
   final String? chatId;
 
   const ChatScreen({
@@ -37,7 +48,11 @@ class ChatScreen extends HookConsumerWidget {
     final isMounted = useIsMounted();
     final chat = useState<Chat?>(null);
     final loadingChat = useState(false);
+    final showSuggestions = useState(false);
     final alert = useState<Alert?>(null);
+
+    final shuffledSuggestions = <String>[...chatSuggestions];
+    shuffledSuggestions.shuffle();
 
     final chatHook = useChat(
       options: UseChatOptions(
@@ -50,10 +65,10 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
-    Future<void> fetchChatData() async {
+    Future<void> fetchChatData(String id) async {
       await Future.wait([
-        ref.read(chatByIdProvider(chatId!).future),
-        ref.read(currentChatMessagesProvider(chatId!).future),
+        ref.read(chatsProvider(id).future),
+        ref.read(currentChatMessagesProvider(id).future),
       ]).then((value) {
         final foundChat = value[0] as Chat;
         final foundMessages = value[1] as List<ChatMessage>;
@@ -82,14 +97,40 @@ class ChatScreen extends HookConsumerWidget {
       } else {
         if (chatId != null) {
           loadingChat.value = true;
-          fetchChatData().whenComplete(() {
+          fetchChatData(chatId!).whenComplete(() {
             if (isMounted()) loadingChat.value = false;
           });
+        } else {
+          chatHook.chatId.value = null;
+          chatHook.messages.value = [];
         }
       }
 
       return () {};
     }, [chatId]);
+
+    useEffect(() {
+      if (chatHook.chatId.value != null) {
+        if (loadedChats.value?.containsKey(chatHook.chatId.value) ?? false) {
+          if (isMounted()) {
+            final chatData = loadedChats.value![chatHook.chatId.value];
+            chat.value = chatData!.chat;
+          }
+        } else {
+          if (chatHook.chatId.value != null) {
+            ref.read(chatsProvider(chatHook.chatId.value!).future).then(
+              (value) {
+                if (isMounted()) {
+                  chat.value = value as Chat;
+                }
+              },
+            );
+          }
+        }
+      }
+
+      return () {};
+    }, [chatHook.chatId.value]);
 
     useEffect(() {
       if (chat.value != null) {
@@ -126,7 +167,7 @@ class ChatScreen extends HookConsumerWidget {
             isDismissible: true,
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.GROUNDED,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(30),
             dismissDirection: FlushbarDismissDirection.HORIZONTAL,
             animationDuration: const Duration(milliseconds: 200),
           ).show(context);
@@ -180,6 +221,23 @@ class ChatScreen extends HookConsumerWidget {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
+      floatingActionButton:
+          currentUserPreferences.value?.chatSuggestions ?? true
+              ? FloatingActionButton(
+                  onPressed: () {
+                    showSuggestions.value = !showSuggestions.value;
+                  },
+                  backgroundColor:
+                      showSuggestions.value ? Colors.red : Colors.yellow,
+                  foregroundColor: Colors.white,
+                  child: FaIcon(
+                    showSuggestions.value
+                        ? FontAwesomeIcons.x
+                        : FontAwesomeIcons.lightbulb,
+                  ),
+                )
+              : null,
       body: loadingChat.value
           ? Center(
               child: SpinKitSpinningLines(
@@ -189,46 +247,69 @@ class ChatScreen extends HookConsumerWidget {
             )
           : Stack(
               children: [
+                if (chatHook.messages.value.isEmpty) ...[
+                  const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Not sure what to say?",
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("Click the "),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            FaIcon(
+                              FontAwesomeIcons.lightbulb,
+                              color: Colors.yellow,
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      child: RefreshIndicator(
-                        onRefresh: () async {
-                          await fetchChatData();
-                        },
-                        child: ListView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          reverse: true,
-                          shrinkWrap: true,
-                          itemCount: chatHook.messages.value.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return const SizedBox(
-                                height: 90,
-                              );
-                            }
-
-                            final messagesReversed =
-                                chatHook.messages.value.reversed.toList();
-                            ChatMessage message = messagesReversed[index - 1];
-                            ChatMessage? previousMessage =
-                                index + 1 < messagesReversed.length
-                                    ? messagesReversed[index]
-                                    : null;
-                            return Message(
-                              key: ValueKey(message.id),
-                              chatId: chatHook.chatId.value,
-                              message: message,
-                              previousMessage: previousMessage,
-                              isCurrentResponse:
-                                  chatHook.currentResponseId.value ==
-                                      message.id,
-                              isLoading: chatHook.loading.value,
+                      flex: 1,
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        reverse: true,
+                        shrinkWrap: true,
+                        itemCount: chatHook.messages.value.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return const SizedBox(
+                              height: 90,
                             );
-                          },
-                        ),
+                          }
+
+                          final messagesReversed =
+                              chatHook.messages.value.reversed.toList();
+                          ChatMessage message = messagesReversed[index - 1];
+                          ChatMessage? previousMessage =
+                              index + 1 < messagesReversed.length
+                                  ? messagesReversed[index]
+                                  : null;
+                          return Message(
+                            key: ValueKey(message.id),
+                            chatId: chatHook.chatId.value,
+                            message: message,
+                            previousMessage: previousMessage,
+                            isCurrentResponse:
+                                chatHook.currentResponseId.value == message.id,
+                            isLoading: chatHook.loading.value,
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -307,6 +388,65 @@ class ChatScreen extends HookConsumerWidget {
                     ),
                   ),
                 ),
+                if (showSuggestions.value)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      color: Colors.grey.shade200.withOpacity(0.8),
+                      padding: const EdgeInsets.only(
+                        top: 10,
+                        bottom: 15,
+                      ),
+                      height: 75,
+                      child: CustomScrollView(
+                        scrollDirection: Axis.horizontal,
+                        slivers: [
+                          SliverPadding(
+                            padding: const EdgeInsets.only(left: 70),
+                            sliver: SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 5,
+                                    ),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        chatHook.append(
+                                          ChatMessage(
+                                            id: nanoid(),
+                                            content: shuffledSuggestions[index],
+                                            role: Role.user,
+                                          ),
+                                        );
+                                        showSuggestions.value = false;
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: RAIColors.primary,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        shuffledSuggestions[index],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                childCount: shuffledSuggestions.length,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
     );

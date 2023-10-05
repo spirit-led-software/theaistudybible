@@ -11,4 +11,8 @@ class DevotionImages extends _$DevotionImages {
     return DevotionImageService.getDevotionImages(id: id)
         .then((value) => value.entities);
   }
+
+  void refresh() {
+    ref.invalidateSelf();
+  }
 }

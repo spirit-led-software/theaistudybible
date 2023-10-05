@@ -143,7 +143,7 @@ class DevotionListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> fetchDevoData() async {
       await Future.wait([
-        ref.read(devotionByIdProvider(devotion.id).future),
+        ref.read(devotionsProvider(devotion.id).future),
         ref.read(devotionSourceDocumentsProvider(devotion.id).future),
         ref.read(devotionImagesProvider(devotion.id).future),
         ref.read(devotionReactionsProvider(devotion.id).future),

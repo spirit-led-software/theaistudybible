@@ -63,11 +63,7 @@ class CurrentUserPreferences extends _$CurrentUserPreferences {
     });
   }
 
-  FutureOr<UserPreferences> setHapticFeedback(bool value) async {
-    final newPrefs = state.requireValue.copyWith(
-      hapticFeedback: value,
-    );
-    state = AsyncData(newPrefs);
-    return newPrefs;
+  void updatePrefs(UserPreferences preferences) {
+    state = AsyncData(preferences);
   }
 }

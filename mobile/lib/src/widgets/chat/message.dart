@@ -58,7 +58,7 @@ class Message extends HookConsumerWidget {
                               .substring(0, 1)
                               .toUpperCase(),
                     )
-                  : Image.asset("assets/icons/icon.png"),
+                  : Image.asset("assets/icons/ios-icon.png"),
             ),
           ),
           const SizedBox(
@@ -82,7 +82,7 @@ class Message extends HookConsumerWidget {
               DateFormat()
                   .add_yMMMMd()
                   .addPattern(DateFormat.HOUR_MINUTE)
-                  .format(message.createdAt ?? DateTime.now()),
+                  .format((message.createdAt ?? DateTime.now()).toLocal()),
               style: const TextStyle(fontSize: 10),
             ),
             if (message.role == Role.assistant && !isCurrentResponse) ...[

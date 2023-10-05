@@ -5,11 +5,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'devotion.g.dart';
 
 @riverpod
-class DevotionById extends _$DevotionById {
+class Devotions extends _$Devotions {
   @override
   FutureOr<Devotion> build(String id) {
     return DevotionService.getDevotion(
       id: id,
     );
+  }
+
+  void refresh() {
+    ref.invalidateSelf();
   }
 }

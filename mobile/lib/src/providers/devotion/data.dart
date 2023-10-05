@@ -64,4 +64,8 @@ class LoadedDevotionData extends _$LoadedDevotionData {
     map[devotionData.devotion.id] = devotionData;
     state = AsyncData(map);
   }
+
+  void refresh() {
+    ref.invalidateSelf();
+  }
 }
