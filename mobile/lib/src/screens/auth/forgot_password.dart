@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
-import 'package:revelationsai/src/widgets/branding/logo.dart';
+import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 
 class ForgotPasswordScreen extends HookConsumerWidget {
   final String? token;
@@ -151,21 +151,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                                 ),
                               ),
                             )
-                          : Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              child: const FittedBox(
-                                child: Logo(
-                                  fontSize: 28,
-                                ),
-                              ),
-                            ),
+                          : const CircularLogo(radius: 30),
                   const SizedBox(
                     height: 30,
                   ),

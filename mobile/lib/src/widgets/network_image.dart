@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class RAINetworkImage extends StatelessWidget {
   final String? imageUrl;
   final String? fallbackText;
+  final double? fallbackTextSize;
   final double? width;
   final double? height;
   final double scale;
@@ -12,6 +13,7 @@ class RAINetworkImage extends StatelessWidget {
     Key? key,
     required this.imageUrl,
     required this.fallbackText,
+    this.fallbackTextSize = 20,
     this.width,
     this.height,
     this.scale = 1.0,
@@ -38,10 +40,12 @@ class RAINetworkImage extends StatelessWidget {
         );
       },
       errorBuilder: (context, error, stackTrace) {
-        return Text(
-          fallbackText ?? "",
-          style: const TextStyle(
-            fontSize: 20,
+        return Center(
+          child: Text(
+            fallbackText ?? "",
+            style: TextStyle(
+              fontSize: fallbackTextSize,
+            ),
           ),
         );
       },

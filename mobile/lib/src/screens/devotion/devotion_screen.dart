@@ -158,10 +158,12 @@ class DevotionScreen extends HookConsumerWidget {
           ),
         ],
       ),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
       floatingActionButton: loading.value || devotion.value == null
           ? null
           : FloatingActionButton(
+              onPressed: null, // delegate to popup menu
               foregroundColor: Colors.white,
               backgroundColor: RAIColors.secondary,
               shape: const RoundedRectangleBorder(
@@ -169,81 +171,82 @@ class DevotionScreen extends HookConsumerWidget {
                   Radius.circular(15),
                 ),
               ),
-              child: const Icon(Icons.thumbs_up_down),
-              onPressed: () {
-                // Show dropdown of reactions
-                showMenu(
-                  color: Colors.white,
-                  context: context,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              child: PopupMenuButton(
+                offset: const Offset(0, 60),
+                padding: const EdgeInsets.all(0),
+                color: RAIColors.primary,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(15),
                   ),
-                  position: const RelativeRect.fromLTRB(
-                    0,
-                    150,
-                    0,
-                    0,
-                  ),
-                  items: [
-                    PopupMenuItem(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.thumb_up),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(ref
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.thumb_up),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          ref
                                   .watch(devotionReactionCountsProvider(
                                       devotion.value!.id))
                                   .value?[DevotionReactionType.LIKE]
                                   .toString() ??
-                              '0'),
-                        ],
-                      ),
-                      onTap: () {
-                        ref
-                            .read(devotionReactionsProvider(devotion.value!.id)
-                                .notifier)
-                            .createReaction(
-                              reaction: DevotionReactionType.LIKE,
-                              session: currentUser.requireValue.session,
-                            );
-                      },
+                              '0',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
-                    PopupMenuItem(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.thumb_down),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(ref
-                                  .watch(
-                                    devotionReactionCountsProvider(
-                                        devotion.value!.id),
-                                  )
+                    onTap: () {
+                      ref
+                          .read(devotionReactionsProvider(devotion.value!.id)
+                              .notifier)
+                          .createReaction(
+                            reaction: DevotionReactionType.LIKE,
+                            session: currentUser.requireValue.session,
+                          );
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.thumb_down),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          ref
+                                  .watch(devotionReactionCountsProvider(
+                                      devotion.value!.id))
                                   .value?[DevotionReactionType.DISLIKE]
                                   .toString() ??
-                              '0'),
-                        ],
-                      ),
-                      onTap: () {
-                        ref
-                            .read(devotionReactionsProvider(devotion.value!.id)
-                                .notifier)
-                            .createReaction(
-                              reaction: DevotionReactionType.DISLIKE,
-                              session: currentUser.requireValue.session,
-                            );
-                      },
+                              '0',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
-                  ],
-                );
-              },
+                    onTap: () {
+                      ref
+                          .read(devotionReactionsProvider(devotion.value!.id)
+                              .notifier)
+                          .createReaction(
+                            reaction: DevotionReactionType.DISLIKE,
+                            session: currentUser.requireValue.session,
+                          );
+                    },
+                  ),
+                ],
+                icon: const Icon(
+                  Icons.thumbs_up_down,
+                  color: Colors.white,
+                ),
+              ),
             ),
       body: loading.value || devotion.value == null
           ? Center(
