@@ -23,8 +23,8 @@ class ChatsPages extends _$ChatsPages {
         _isLoadingNextPage = false;
       } else if (state.isLoading &&
           _page == 1 &&
-          !state.hasValue &&
-          state.value!.isEmpty) {
+          (!state.hasValue ||
+          state.value!.isEmpty)) {
         _isLoadingInitial = true;
       } else if (state.isLoading && _page > 1) {
         _isLoadingNextPage = true;
