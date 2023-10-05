@@ -203,7 +203,7 @@ class Sources extends HookConsumerWidget {
               final source = sourceDocuments.value[index];
               return Link(
                 uri: Uri.parse(source.metadata['url']),
-                target: LinkTarget.self,
+                target: LinkTarget.blank,
                 builder: (context, followLink) {
                   return ListTile(
                     dense: true,

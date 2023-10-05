@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
-import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:revelationsai/src/widgets/user_avatar.dart';
 
 class AccountScreen extends HookConsumerWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -93,23 +93,8 @@ class AccountScreen extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
+                const UserAvatar(
                   radius: 50,
-                  backgroundColor: Colors.grey.shade400,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: Center(
-                      child: RAINetworkImage(
-                        imageUrl: currentUser.requireValue.image,
-                        fallbackText: currentUser.requireValue.name
-                                ?.substring(0, 1)
-                                .toUpperCase() ??
-                            currentUser.requireValue.email
-                                .substring(0, 1)
-                                .toUpperCase(),
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(
                   height: 10,

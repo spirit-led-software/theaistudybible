@@ -50,4 +50,8 @@ class LoadedChatData extends _$LoadedChatData {
     map[chatData.chat.id] = chatData;
     state = AsyncData(map);
   }
+
+  void refresh() {
+    ref.invalidateSelf();
+  }
 }

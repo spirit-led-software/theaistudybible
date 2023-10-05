@@ -12,7 +12,6 @@ import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
-import 'package:revelationsai/src/widgets/chat/edit_dialog.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class ChatModal extends HookConsumerWidget {
@@ -115,10 +114,45 @@ class ChatModal extends HookConsumerWidget {
               : Expanded(
                   child: ListView.builder(
                     itemCount: chats.requireValue
-                        .expand((element) => element)
-                        .toList()
-                        .length,
+                            .expand((element) => element)
+                            .toList()
+                            .length +
+                        1,
                     itemBuilder: (context, index) {
+                      if (index ==
+                          chats.requireValue
+                              .expand((element) => element)
+                              .toList()
+                              .length) {
+                        return chatsNotifier.isLoadingNextPage()
+                            ? Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Center(
+                                  child: SpinKitSpinningLines(
+                                    color: RAIColors.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              )
+                            : chatsNotifier.hasNextPage()
+                                ? Container(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              chatsNotifier.fetchNextPage();
+                                            },
+                                            child: const Text('Show More'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Container();
+                      }
+
                       final chatsFlat = chats.requireValue
                           .expand((element) => element)
                           .toList();
@@ -130,33 +164,6 @@ class ChatModal extends HookConsumerWidget {
                     },
                   ),
                 ),
-          chatsNotifier.isLoadingNextPage()
-              ? Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Center(
-                    child: SpinKitSpinningLines(
-                      color: RAIColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                )
-              : chatsNotifier.hasNextPage()
-                  ? Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                chatsNotifier.fetchNextPage();
-                              },
-                              child: const Text('Show More'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Container(),
         ],
       ),
     );
@@ -172,7 +179,7 @@ class ChatListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> fetchChatData() async {
       await Future.wait([
-        ref.read(chatByIdProvider(chat.id).future),
+        ref.read(chatsProvider(chat.id).future),
         ref.read(currentChatMessagesProvider(chat.id).future),
       ]).then((value) {
         final foundChat = value[0] as Chat;
@@ -209,39 +216,6 @@ class ChatListItem extends HookConsumerWidget {
           DateFormat.yMMMd().format(chat.createdAt),
         ),
         dense: true,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              visualDensity: const VisualDensity(
-                horizontal: VisualDensity.minimumDensity,
-                vertical: VisualDensity.minimumDensity,
-              ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return EditDialog(
-                      id: chat.id,
-                      name: chat.name,
-                    );
-                  },
-                );
-              },
-              icon: const Icon(Icons.edit),
-            ),
-            IconButton(
-              visualDensity: const VisualDensity(
-                horizontal: VisualDensity.minimumDensity,
-                vertical: VisualDensity.minimumDensity,
-              ),
-              onPressed: () {
-                ref.read(chatsPagesProvider.notifier).deleteChat(chat.id);
-              },
-              icon: const Icon(Icons.delete),
-            )
-          ],
-        ),
         onTap: () {
           context.go(
             '/chat/${chat.id}',

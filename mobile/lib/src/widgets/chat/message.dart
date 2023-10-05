@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
-import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:revelationsai/src/widgets/user_avatar.dart';
 
 class Message extends HookConsumerWidget {
   final String? chatId;
@@ -25,8 +24,6 @@ class Message extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
-
     return ListTile(
       dense: true,
       contentPadding: const EdgeInsets.only(
@@ -44,23 +41,10 @@ class Message extends HookConsumerWidget {
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: RAIColors.secondary,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: message.role == Role.user
-                  ? RAINetworkImage(
-                      imageUrl: currentUser.requireValue.image,
-                      fallbackText: currentUser.requireValue.name
-                              ?.substring(0, 1)
-                              .toUpperCase() ??
-                          currentUser.requireValue.email
-                              .substring(0, 1)
-                              .toUpperCase(),
-                    )
-                  : Image.asset("assets/icons/icon.png"),
-            ),
-          ),
+          if (message.role == Role.user)
+            const UserAvatar()
+          else
+            const CircularLogo(),
           const SizedBox(
             width: 15,
           ),
@@ -82,7 +66,7 @@ class Message extends HookConsumerWidget {
               DateFormat()
                   .add_yMMMMd()
                   .addPattern(DateFormat.HOUR_MINUTE)
-                  .format(message.createdAt ?? DateTime.now()),
+                  .format((message.createdAt ?? DateTime.now()).toLocal()),
               style: const TextStyle(fontSize: 10),
             ),
             if (message.role == Role.assistant && !isCurrentResponse) ...[

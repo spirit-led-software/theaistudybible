@@ -12,4 +12,8 @@ class DevotionSourceDocuments extends _$DevotionSourceDocuments {
       id: id,
     );
   }
+
+  void refresh() {
+    ref.invalidateSelf();
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -94,6 +96,9 @@ class SettingsModal extends HookConsumerWidget {
                   await launchUrlString(
                     '${Website.url}/privacy-policy',
                     mode: LaunchMode.inAppWebView,
+                    webViewConfiguration: const WebViewConfiguration(
+                      enableJavaScript: true,
+                    ),
                   );
                 },
               ),
@@ -109,8 +114,13 @@ class SettingsModal extends HookConsumerWidget {
                 title: const Text('Terms of Use (EULA)'),
                 onTap: () async {
                   await launchUrlString(
-                    'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                    Platform.isIOS
+                        ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
+                        : 'https://play.google.com/about/play-terms/',
                     mode: LaunchMode.inAppWebView,
+                    webViewConfiguration: const WebViewConfiguration(
+                      enableJavaScript: true,
+                    ),
                   );
                 },
               ),
@@ -134,9 +144,40 @@ class SettingsModal extends HookConsumerWidget {
                     .requireValue
                     .hapticFeedback,
                 onChanged: (value) {
-                  ref
-                      .read(currentUserPreferencesProvider.notifier)
-                      .setHapticFeedback(value);
+                  ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
+                        ref
+                            .read(currentUserPreferencesProvider)
+                            .requireValue
+                            .copyWith(hapticFeedback: value),
+                      );
+                },
+              ),
+              SwitchListTile.adaptive(
+                shape: BeveledRectangleBorder(
+                  side: BorderSide(
+                    color: RAIColors.primary,
+                    width: 0.5,
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                title: const Row(
+                  children: [
+                    Icon(CupertinoIcons.chat_bubble_2_fill),
+                    SizedBox(width: 10),
+                    Text('Chat Suggestions'),
+                  ],
+                ),
+                value: ref
+                    .watch(currentUserPreferencesProvider)
+                    .requireValue
+                    .chatSuggestions,
+                onChanged: (value) {
+                  ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
+                        ref
+                            .read(currentUserPreferencesProvider)
+                            .requireValue
+                            .copyWith(chatSuggestions: value),
+                      );
                 },
               ),
               ListTile(

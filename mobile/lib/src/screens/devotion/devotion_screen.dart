@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
+import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
@@ -21,6 +22,7 @@ import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
 
 class DevotionScreen extends HookConsumerWidget {
@@ -49,7 +51,7 @@ class DevotionScreen extends HookConsumerWidget {
               .then((value) => value.first.first.id);
 
       await Future.wait([
-        ref.read(devotionByIdProvider(devoId!).future),
+        ref.read(devotionsProvider(devoId!).future),
         ref.read(devotionSourceDocumentsProvider(devoId).future),
         ref.read(devotionImagesProvider(devoId).future),
         ref.read(devotionReactionsProvider(devoId).future),
@@ -105,7 +107,7 @@ class DevotionScreen extends HookConsumerWidget {
     }, [devotionId]);
 
     useEffect(() {
-      if (devotion.value?.id != null) {
+      if (devotion.value != null) {
         Future(() {
           ref
               .read(currentDevotionIdProvider.notifier)
@@ -158,91 +160,109 @@ class DevotionScreen extends HookConsumerWidget {
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
       floatingActionButton: loading.value || devotion.value == null
           ? null
           : FloatingActionButton(
-              foregroundColor: RAIColors.primary,
-              backgroundColor: Colors.white.withOpacity(0.9),
+              onPressed: null, // delegate to popup menu
+              foregroundColor: Colors.white,
+              backgroundColor: RAIColors.secondary,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(15),
                 ),
-                side: BorderSide(
-                  width: 1,
+              ),
+              child: PopupMenuButton(
+                offset: const Offset(0, 60),
+                color: RAIColors.primary,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(15),
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.thumb_up),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "${ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.LIKE].toString() ?? '0'}"
+                          " Likes",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      ref
+                          .read(devotionReactionsProvider(devotion.value!.id)
+                              .notifier)
+                          .createReaction(
+                            reaction: DevotionReactionType.LIKE,
+                            session: currentUser.requireValue.session,
+                          );
+                    },
+                  ),
+                  PopupMenuItem(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.thumb_down),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "${(ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.DISLIKE].toString() ?? '0')}"
+                          " Dislikes",
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      ref
+                          .read(devotionReactionsProvider(devotion.value!.id)
+                              .notifier)
+                          .createReaction(
+                            reaction: DevotionReactionType.DISLIKE,
+                            session: currentUser.requireValue.session,
+                          );
+                    },
+                  ),
+                  PopupMenuItem(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        FaIcon(FontAwesomeIcons.shareFromSquare),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Share",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      Share.shareUri(Uri.parse(
+                          '${Website.url}/devotions/${devotion.value!.id}'));
+                    },
+                  ),
+                ],
+                icon: const Icon(
+                  Icons.thumbs_up_down,
+                  color: Colors.white,
                 ),
               ),
-              child: const Icon(Icons.thumbs_up_down),
-              onPressed: () {
-                // Show dropdown of reactions
-                showMenu(
-                  color: Colors.white,
-                  context: context,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  position: RelativeRect.fromLTRB(
-                    MediaQuery.of(context).size.width,
-                    MediaQuery.of(context).size.height - 275,
-                    0,
-                    0,
-                  ),
-                  items: [
-                    PopupMenuItem(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.thumb_up),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(ref
-                                  .watch(devotionReactionCountsProvider(
-                                      devotion.value!.id))
-                                  .value?[DevotionReactionType.LIKE]
-                                  .toString() ??
-                              '0'),
-                        ],
-                      ),
-                      onTap: () {
-                        ref
-                            .read(devotionReactionsProvider(devotion.value!.id)
-                                .notifier)
-                            .createReaction(
-                              reaction: DevotionReactionType.LIKE,
-                              session: currentUser.requireValue.session,
-                            );
-                      },
-                    ),
-                    PopupMenuItem(
-                      child: Row(
-                        children: [
-                          const Icon(Icons.thumb_down),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(ref
-                                  .watch(
-                                    devotionReactionCountsProvider(
-                                        devotion.value!.id),
-                                  )
-                                  .value?[DevotionReactionType.DISLIKE]
-                                  .toString() ??
-                              '0'),
-                        ],
-                      ),
-                      onTap: () {
-                        ref
-                            .read(devotionReactionsProvider(devotion.value!.id)
-                                .notifier)
-                            .createReaction(
-                              reaction: DevotionReactionType.DISLIKE,
-                              session: currentUser.requireValue.session,
-                            );
-                      },
-                    ),
-                  ],
-                );
-              },
             ),
       body: loading.value || devotion.value == null
           ? Center(
@@ -258,7 +278,16 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: RefreshIndicator(
                 onRefresh: () async {
-                  await fetchDevoData(devotion.value!.id);
+                  String? id = devotion.value?.id ?? devotionId;
+                  if (id != null) {
+                    ref.read(devotionsProvider(id).notifier).refresh();
+                    ref
+                        .read(devotionSourceDocumentsProvider(id).notifier)
+                        .refresh();
+                    ref.read(devotionImagesProvider(id).notifier).refresh();
+                    ref.read(devotionReactionsProvider(id).notifier).refresh();
+                    await fetchDevoData(id);
+                  }
                 },
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -399,7 +428,7 @@ class DevotionScreen extends HookConsumerWidget {
                             uri: Uri.parse(
                               sourceDocs.value[index].metadata['url'],
                             ),
-                            target: LinkTarget.self,
+                            target: LinkTarget.blank,
                             builder: (context, followLink) => ListTile(
                               dense: true,
                               visualDensity: RAIVisualDensity.tightest,

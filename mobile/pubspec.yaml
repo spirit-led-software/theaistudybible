@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.5+2
+version: 1.0.6+1
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
@@ -77,17 +77,26 @@ dev_dependencies:
   change_app_package_name: ^1.1.0
 
 flutter_launcher_icons:
-  android: true
   ios: true
-  image_path: "assets/icons/icon.png"
+  image_path_ios: "assets/icons/ios-icon.png"
   remove_alpha_ios: true
-  background_color_ios: "#ffffff"
+
+  android: true
+  image_path_android: "assets/icons/android-icon.png"
+  adaptive_icon_background: "#334155"
+  adaptive_icon_foreground: "assets/icons/android-icon.png"
 
 flutter_native_splash:
   color: "#334155"
-  image: "assets/icons/icon.png"
-  android: true
+  color_dark: "#334155"
+  image: "assets/icons/splash-icon.png"
+
   ios: true
+
+  android: true
+  android_12:
+    image: "assets/icons/android-12-splash-icon.png"
+    color: "#334155"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -101,9 +110,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/icons/icon.png
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+    - assets/icons/ios-icon.png
+    - assets/icons/android-icon.png
+    - assets/icons/splash-icon.png
+    - assets/icons/android-12-splash-icon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

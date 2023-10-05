@@ -23,8 +23,8 @@ class ChatsPages extends _$ChatsPages {
         _isLoadingNextPage = false;
       } else if (state.isLoading &&
           _page == 1 &&
-          !state.hasValue &&
-          state.value!.isEmpty) {
+          (!state.hasValue ||
+          state.value!.isEmpty)) {
         _isLoadingInitial = true;
       } else if (state.isLoading && _page > 1) {
         _isLoadingNextPage = true;
@@ -92,7 +92,7 @@ class ChatsPages extends _$ChatsPages {
     return _isLoadingNextPage;
   }
 
-  FutureOr<void> createChat(CreateChatRequest request) async {
+  Future<Chat> createChat(CreateChatRequest request) async {
     final currentUser = ref.read(currentUserProvider);
 
     final previousState = state;
@@ -113,7 +113,7 @@ class ChatsPages extends _$ChatsPages {
       ...state.requireValue.sublist(1)
     ]);
 
-    await ChatService.createChat(
+    final chat = await ChatService.createChat(
       session: currentUser.value!.session,
       request: request,
     ).catchError((error, stackTrace) {
@@ -123,6 +123,8 @@ class ChatsPages extends _$ChatsPages {
     });
 
     refresh();
+
+    return chat;
   }
 
   FutureOr<void> updateChat(String id, UpdateChatRequest request) async {

@@ -7,10 +7,12 @@ part 'preferences.g.dart';
 class UserPreferences with _$UserPreferences {
   factory UserPreferences({
     required bool hapticFeedback,
+    required bool chatSuggestions,
   }) = _UserPreferences;
 
   factory UserPreferences.defaults() => UserPreferences(
         hapticFeedback: true,
+        chatSuggestions: true,
       );
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) =>
