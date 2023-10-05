@@ -454,7 +454,7 @@ class ChatScreen extends HookConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Text(
-                              "Click the ",
+                              "Tap the ",
                               style: TextStyle(fontSize: 20),
                             ),
                             const SizedBox(
