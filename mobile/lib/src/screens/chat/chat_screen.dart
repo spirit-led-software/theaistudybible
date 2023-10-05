@@ -23,13 +23,14 @@ import 'package:revelationsai/src/widgets/chat/message.dart';
 class ChatScreen extends HookConsumerWidget {
   static const chatSuggestions = <String>{
     "Who is Jesus?",
-    "What is the meaning of life?",
     "Explain the gospel to me.",
     "What is the gospel?",
     "What is the Trinity?",
     "Is Jesus real?",
     "What is the Bible about?",
     "Why did Jesus have to die?",
+    "Is God real?",
+    "What does it mean to be saved?",
   };
 
   final String? chatId;
