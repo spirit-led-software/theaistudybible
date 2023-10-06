@@ -18,7 +18,7 @@ export const readOnlyDatabase = drizzle(
 export const readWriteDatabase = drizzle(
   new Pool({
     connectionString: databaseConfig.readWriteUrl,
-    max: 50,
+    max: 75,
     ssl: true,
   }),
   {

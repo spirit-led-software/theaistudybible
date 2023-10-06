@@ -73,7 +73,7 @@ export class NeonVectorStore extends VectorStore {
     });
     this.writePool = new Pool({
       connectionString: fields.connectionOptions.readWriteUrl,
-      max: 50,
+      max: 75,
       ssl: true,
       log: this.verbose ? console.log : undefined,
     });
