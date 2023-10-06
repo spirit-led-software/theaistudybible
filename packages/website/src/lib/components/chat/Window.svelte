@@ -21,7 +21,7 @@
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
 	let alert: string | undefined = undefined;
-	let endOfMessagesRef: HTMLDivElement;
+	let endOfMessagesRef: HTMLDivElement | undefined;
 	let isEndOfMessagesRefShowing = true;
 
 	const queryClient = useQueryClient();
@@ -56,7 +56,7 @@
 	});
 
 	onMount(() => {
-		endOfMessagesRef.scrollIntoView({
+		endOfMessagesRef?.scrollIntoView({
 			behavior: 'instant',
 			block: 'end'
 		});
@@ -64,7 +64,7 @@
 
 	$: scrollEndIntoView = () => {
 		if (!isEndOfMessagesRefShowing) {
-			endOfMessagesRef.scrollIntoView({
+			endOfMessagesRef?.scrollIntoView({
 				behavior: 'smooth',
 				block: 'end'
 			});

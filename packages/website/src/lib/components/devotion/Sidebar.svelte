@@ -84,13 +84,13 @@
 					>
 						<button
 							class="flex flex-col w-full text-lg truncate"
-							on:click|preventDefault={() => {
+							on:click|preventDefault={async () => {
 								if (activeDevoId === devotion.id) {
 									isOpen = false;
 									return;
 								} else {
 									loadingDevoId = devotion.id;
-									goto(`/devotions/${devotion.id}`);
+									await goto(`/devotions/${devotion.id}`);
 								}
 							}}
 						>

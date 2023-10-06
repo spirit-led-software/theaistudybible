@@ -224,14 +224,14 @@
 					>
 						<button
 							class="flex flex-col w-full truncate"
-							on:click|preventDefault={() => {
+							on:click|preventDefault={async () => {
 								if (editChatId === chat.id) {
 									editChatInput?.focus();
 								} else if (activeChatId === chat.id) {
 									isOpen = false;
 								} else {
 									loadingChatId = chat.id;
-									goto(`/chat/${chat.id}`);
+									await goto(`/chat/${chat.id}`, { replaceState: true });
 								}
 							}}
 						>
