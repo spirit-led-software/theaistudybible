@@ -1,5 +1,5 @@
 import { getDocumentVectorStore } from "@services/vector-db";
-import { TokenTextSplitter } from "langchain/text_splitter";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
 
 export async function generatePageContentEmbeddings(
@@ -17,24 +17,21 @@ export async function generatePageContentEmbeddings(
           await page.waitForNetworkIdle();
           await page.waitForSelector("body");
           return await page.evaluate(() => {
-            let foundTitle = document.querySelector("title")?.innerText;
-            if (!foundTitle) {
-              foundTitle = document.querySelector("h1")?.innerText;
-            }
+            let foundTitle =
+              document.querySelector("title")?.innerText ??
+              document.querySelector("h1")?.innerText;
             if (foundTitle) {
               pageTitle = foundTitle;
             }
-            const text = document.querySelector("body")!.innerText;
-            return text.replace(/\n/g, " ").trim();
+            return document.querySelector("body")!.innerHTML;
           });
         },
       });
       console.log(`Loading and splitting documents from url '${url}'`);
       let docs = await loader.loadAndSplit(
-        new TokenTextSplitter({
-          chunkSize: 400,
-          chunkOverlap: 50,
-          encodingName: "cl100k_base",
+        RecursiveCharacterTextSplitter.fromLanguage("html", {
+          chunkSize: 512,
+          chunkOverlap: 128,
         })
       );
       console.log(

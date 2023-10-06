@@ -11,7 +11,7 @@ import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
-import { TokenTextSplitter } from "langchain/text_splitter";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -96,10 +96,9 @@ export const handler: S3Handler = async (event) => {
 
     console.log("Starting load and split");
     let docs = await loader.loadAndSplit(
-      new TokenTextSplitter({
-        chunkSize: 400,
-        chunkOverlap: 50,
-        encodingName: "cl100k_base",
+      new RecursiveCharacterTextSplitter({
+        chunkSize: 256,
+        chunkOverlap: 64,
       })
     );
 
