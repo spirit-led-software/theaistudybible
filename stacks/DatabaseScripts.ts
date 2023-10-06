@@ -8,6 +8,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     branchName: stack.stage === "prod" ? "main" : stack.stage,
     roleName: app.name,
     isProd: stack.stage === "prod",
+    apiKey: STATIC_ENV_VARS.NEON_API_KEY,
   });
 
   const dbScriptEnv = {

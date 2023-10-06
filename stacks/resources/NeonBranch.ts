@@ -1,4 +1,3 @@
-import { STATIC_ENV_VARS } from "@stacks";
 import { CustomResource } from "aws-cdk-lib";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
@@ -9,6 +8,7 @@ export type NeonBranchProps = {
   projectName: string;
   branchName: string;
   roleName: string;
+  apiKey: string;
 };
 
 export type NeonDatabases = {
@@ -29,7 +29,7 @@ export class NeonBranch extends Construct {
     const neonBranchFunction = new Function(this, "neonBranchFunction", {
       handler: "packages/functions/src/database/branch.handler",
       environment: {
-        ...STATIC_ENV_VARS,
+        NEON_API_KEY: props.apiKey,
       },
       runtime: "nodejs18.x",
       architecture: "x86_64",
