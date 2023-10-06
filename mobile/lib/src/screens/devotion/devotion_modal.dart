@@ -23,8 +23,8 @@ class DevotionModal extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final devotions = ref.watch(devotionsPagesProvider);
-    final devotionsNotifier = ref.watch(devotionsPagesProvider.notifier);
+    final devotionsPages = ref.watch(devotionsPagesProvider);
+    final devotionsPagesNotifier = ref.watch(devotionsPagesProvider.notifier);
 
     return Container(
       decoration: const BoxDecoration(
@@ -75,7 +75,7 @@ class DevotionModal extends HookConsumerWidget {
               ],
             ),
           ),
-          devotionsNotifier.isLoadingInitial()
+          devotionsPagesNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
                     child: SpinKitSpinningLines(
@@ -85,56 +85,64 @@ class DevotionModal extends HookConsumerWidget {
                   ),
                 )
               : Expanded(
-                  child: ListView.builder(
-                    itemCount: devotions.requireValue
-                            .expand((element) => element)
-                            .toList()
-                            .length +
-                        1,
-                    itemBuilder: (context, index) {
-                      if (index ==
-                          devotions.requireValue
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      devotionsPagesNotifier.refresh();
+                      await ref.read(devotionsPagesProvider.future);
+                    },
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: devotionsPages.requireValue
                               .expand((element) => element)
                               .toList()
-                              .length) {
-                        return devotionsNotifier.isLoadingNextPage()
-                            ? Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Center(
-                                  child: SpinKitSpinningLines(
-                                    color: RAIColors.primary,
-                                    size: 20,
-                                  ),
-                                ),
-                              )
-                            : devotionsNotifier.hasNextPage()
-                                ? Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              devotionsNotifier.fetchNextPage();
-                                            },
-                                            child: const Text('Show More'),
-                                          ),
-                                        ),
-                                      ],
+                              .length +
+                          1,
+                      itemBuilder: (context, index) {
+                        if (index ==
+                            devotionsPages.requireValue
+                                .expand((element) => element)
+                                .toList()
+                                .length) {
+                          return devotionsPagesNotifier.isLoadingNextPage()
+                              ? Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Center(
+                                    child: SpinKitSpinningLines(
+                                      color: RAIColors.primary,
+                                      size: 20,
                                     ),
-                                  )
-                                : Container();
-                      }
+                                  ),
+                                )
+                              : devotionsPagesNotifier.hasNextPage()
+                                  ? Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                devotionsPagesNotifier
+                                                    .fetchNextPage();
+                                              },
+                                              child: const Text('Show More'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Container();
+                        }
 
-                      final devotionsFlat = devotions.requireValue
-                          .expand((element) => element)
-                          .toList();
-                      final devotion = devotionsFlat[index];
-                      return DevotionListItem(
-                        key: ValueKey(devotion.id),
-                        devotion: devotion,
-                      );
-                    },
+                        final devotionsFlat = devotionsPages.requireValue
+                            .expand((element) => element)
+                            .toList();
+                        final devotion = devotionsFlat[index];
+                        return DevotionListItem(
+                          key: ValueKey(devotion.id),
+                          devotion: devotion,
+                        );
+                      },
+                    ),
                   ),
                 ),
         ],
