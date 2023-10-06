@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
+import { Constants, Database, STATIC_ENV_VARS } from "@stacks";
 import {
   Auth as AuthConstruct,
   StackContext,
@@ -7,10 +7,10 @@ import {
 } from "sst/constructs";
 
 export function Auth({ stack }: StackContext) {
-  dependsOn(DatabaseScripts);
+  dependsOn(Database);
 
   const { websiteUrl } = use(Constants);
-  const { dbReadOnlyUrl, dbReadWriteUrl } = use(DatabaseScripts);
+  const { dbReadOnlyUrl, dbReadWriteUrl } = use(Database);
 
   const auth = new AuthConstruct(stack, "auth", {
     authenticator: {

@@ -1,7 +1,7 @@
 import {
   Auth,
   Constants,
-  DatabaseScripts,
+  Database,
   Queues,
   S3,
   STATIC_ENV_VARS,
@@ -27,7 +27,7 @@ import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
 
 export function API({ stack }: StackContext) {
-  dependsOn(DatabaseScripts);
+  dependsOn(Database);
 
   const { webpageIndexQueue } = use(Queues);
   const { hostedZone, domainName, domainNamePrefix, websiteUrl } =
@@ -39,7 +39,7 @@ export function API({ stack }: StackContext) {
     dbReadWriteUrl,
     vectorDbReadOnlyUrl,
     vectorDbReadWriteUrl,
-  } = use(DatabaseScripts);
+  } = use(Database);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;

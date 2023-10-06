@@ -30,7 +30,6 @@ export class NeonBranch extends Construct {
       handler: "packages/functions/src/database/branch.handler",
       environment: {
         DEPLOY_DATE_TIME: Date.now().toString(), // Force update on every deploy
-        NEON_API_KEY: props.apiKey,
       },
       runtime: "nodejs18.x",
       architecture: "x86_64",
@@ -52,6 +51,7 @@ export class NeonBranch extends Construct {
           projectName: props.projectName,
           branchName: props.branchName,
           roleName: props.roleName,
+          apiKey: props.apiKey,
           deployDateTime: Date.now().toString(), // Force update on every deploy
         },
       }

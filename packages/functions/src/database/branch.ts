@@ -18,9 +18,9 @@ import {
   type RolesResponse,
 } from "neon-sdk";
 
-const Neon = () =>
+const Neon = (apiKey: string) =>
   new NeonClient({
-    TOKEN: process.env.NEON_API_KEY!,
+    TOKEN: apiKey,
   });
 
 export enum DatabaseType {
@@ -48,12 +48,13 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     const branchName = event.ResourceProperties.branchName as string;
     const roleName = event.ResourceProperties.roleName as string;
     const isProd = event.ResourceProperties.isProd === "true";
+    const apiKey = event.ResourceProperties.apiKey as string;
 
     console.log(
       `Neon branch inputs: projectName=${projectName}, branchName=${branchName}, roleName=${roleName}, isProd=${isProd}`
     );
 
-    const project = await getProjectByName(projectName);
+    const project = await getProjectByName(apiKey, projectName);
     if (!project) {
       response.Status = "FAILED";
       response.Reason = `Project ${projectName} not found`;
@@ -63,25 +64,26 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     switch (event.RequestType) {
       case "Delete": {
         if (!isProd) {
-          const branch = await getBranchByName(project.id, branchName);
+          const branch = await getBranchByName(apiKey, project.id, branchName);
           if (!branch) {
             response.Status = "FAILED";
             response.Reason = `Branch ${branchName} not found`;
             break;
           }
-          await deleteBranch(project.id, branch.id);
+          await deleteBranch(apiKey, project.id, branch.id);
         }
         response.Status = "SUCCESS";
         break;
       }
       default: {
-        let branch = await getBranchByName(project.id, branchName);
+        let branch = await getBranchByName(apiKey, project.id, branchName);
         if (!branch) {
-          branch = await createBranch(project.id, branchName, isProd);
+          branch = await createBranch(apiKey, project.id, branchName, isProd);
         } else {
-          branch = await updateBranch(project.id, branch.id, isProd);
+          branch = await updateBranch(apiKey, project.id, branch.id, isProd);
         }
         const connectionUrls = await getAllNeonConnectionUrls(
+          apiKey,
           project.id,
           branch.id,
           roleName
@@ -109,8 +111,8 @@ export const handler: CdkCustomResourceHandler = async (event) => {
   }
 };
 
-export async function getProjectByName(projectName: string) {
-  const neonClient = Neon();
+export async function getProjectByName(apiKey: string, projectName: string) {
+  const neonClient = Neon(apiKey);
   const listProjectsResponse =
     (await neonClient.project.listProjects()) as ProjectsResponse;
   const project = listProjectsResponse.projects.find(
@@ -119,8 +121,12 @@ export async function getProjectByName(projectName: string) {
   return project;
 }
 
-export async function getBranch(projectId: string, branchId: string) {
-  const neonClient = Neon();
+export async function getBranch(
+  apiKey: string,
+  projectId: string,
+  branchId: string
+) {
+  const neonClient = Neon(apiKey);
   const branchResponse = (await neonClient.branch.getProjectBranch(
     projectId,
     branchId
@@ -128,8 +134,12 @@ export async function getBranch(projectId: string, branchId: string) {
   return branchResponse.branch;
 }
 
-export async function getBranchByName(projectId: string, branchName: string) {
-  const neonClient = Neon();
+export async function getBranchByName(
+  apiKey: string,
+  projectId: string,
+  branchName: string
+) {
+  const neonClient = Neon(apiKey);
   const branches = (await neonClient.branch.listProjectBranches(
     projectId
   )) as BranchesResponse;
@@ -138,11 +148,12 @@ export async function getBranchByName(projectId: string, branchName: string) {
 }
 
 export async function createBranch(
+  apiKey: string,
   projectId: string,
   branchName: string,
   isProd: boolean
 ) {
-  const neonClient = Neon();
+  const neonClient = Neon(apiKey);
   const endpoints: BranchCreateRequestEndpointOptions[] = [
     {
       type: "read_write",
@@ -175,11 +186,12 @@ export async function createBranch(
 }
 
 export async function updateBranch(
+  apiKey: string,
   projectId: string,
   branchId: string,
   isProd: boolean
 ) {
-  const neonClient = Neon();
+  const neonClient = Neon(apiKey);
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
     branchId
@@ -217,13 +229,17 @@ export async function updateBranch(
       throw new Error(`Unknown endpoint type ${endpoint.type}`);
     }
   }
-  return await getBranch(projectId, branchId);
+  return await getBranch(apiKey, projectId, branchId);
 }
 
-export async function deleteBranch(projectId: string, branchId: string) {
-  const branch = await getBranch(projectId, branchId);
+export async function deleteBranch(
+  apiKey: string,
+  projectId: string,
+  branchId: string
+) {
+  const branch = await getBranch(apiKey, projectId, branchId);
 
-  const neonClient = Neon();
+  const neonClient = Neon(apiKey);
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
     branch.id
@@ -237,11 +253,12 @@ export async function deleteBranch(projectId: string, branchId: string) {
 }
 
 export async function getAllNeonConnectionUrls(
+  apiKey: string,
   projectId: string,
   branchId: string,
   roleName: string
 ): Promise<NeonConnectionUrl[]> {
-  const neonClient = Neon();
+  const neonClient = Neon(apiKey);
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
     projectId,
     branchId

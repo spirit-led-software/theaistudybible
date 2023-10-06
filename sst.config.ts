@@ -3,7 +3,7 @@ import {
   Auth,
   Constants,
   Crons,
-  DatabaseScripts,
+  Database,
   Queues,
   S3,
   Website,
@@ -20,7 +20,7 @@ export default {
   async stacks(app) {
     app
       .stack(Constants)
-      .stack(DatabaseScripts)
+      .stack(Database)
       .stack(S3)
       .stack(Queues)
       .stack(Auth)
