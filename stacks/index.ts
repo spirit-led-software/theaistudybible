@@ -9,7 +9,7 @@ export * from "./Website";
 
 export const STATIC_ENV_VARS: Record<string, string> = {
   // Current time so env vars are reloaded on every deploy
-  DEPLOY_DATETIME: Date.now().toString(),
+  DEPLOY_DATE_TIME: Date.now().toString(),
 
   // Environment
   IS_LOCAL: process.env.IS_LOCAL!,
