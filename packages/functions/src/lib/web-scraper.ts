@@ -23,13 +23,16 @@ export async function generatePageContentEmbeddings(
             if (foundTitle) {
               pageTitle = foundTitle;
             }
-            return document.querySelector("body")!.innerHTML;
+            return (
+              document.querySelector("main")?.innerText ??
+              document.body.innerText
+            );
           });
         },
       });
       console.log(`Loading and splitting documents from url '${url}'`);
       let docs = await loader.loadAndSplit(
-        RecursiveCharacterTextSplitter.fromLanguage("html", {
+        new RecursiveCharacterTextSplitter({
           chunkSize: 512,
           chunkOverlap: 128,
         })
