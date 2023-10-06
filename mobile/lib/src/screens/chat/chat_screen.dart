@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -55,9 +56,7 @@ class ChatScreen extends HookConsumerWidget {
     final updatingChat = useState(false);
     final showSuggestions = useState(false);
     final alert = useState<Alert?>(null);
-
-    final shuffledSuggestions = <String>[...chatSuggestions];
-    shuffledSuggestions.shuffle();
+    final shuffledSuggestions = useRef(<String>[...chatSuggestions]..shuffle());
 
     final chatHook = useChat(
       options: UseChatOptions(
@@ -174,481 +173,482 @@ class ChatScreen extends HookConsumerWidget {
       return () {};
     }, [alert.value]);
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: RAIColors.primary,
-        foregroundColor: Colors.white,
-        title: loadingChat.value
-            ? const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("Loading Chat"),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  SpinKitSpinningLines(
-                    color: Colors.white,
-                    size: 20,
-                  )
-                ],
-              )
-            : updatingChat.value
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(chat.value?.name ?? "New Chat"),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      const SpinKitSpinningLines(
-                        color: Colors.white,
-                        size: 20,
-                      )
-                    ],
-                  )
-                : Text(
-                    chat.value?.name ?? "New Chat",
-                  ),
-        actions: [
-          PopupMenuButton(
-            offset: const Offset(0, 55),
-            color: RAIColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  onTap: () {
-                    String? id = chat.value?.id ?? chatId;
-                    if (id != null) {
-                      ref.read(chatsProvider(id).notifier).refresh();
-                      ref
-                          .read(currentChatMessagesProvider(id).notifier)
-                          .refresh();
-                      updatingChat.value = true;
-                      fetchChatData(id).whenComplete(() {
-                        if (isMounted()) updatingChat.value = false;
-                      });
-                    }
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      FaIcon(
-                        FontAwesomeIcons.arrowsRotate,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Refresh",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-                    ref.read(chatsPagesProvider.notifier).refresh();
-                    showModalBottomSheet(
-                      elevation: 20,
-                      isScrollControlled: true,
-                      context: context,
-                      backgroundColor: Colors.white,
-                      builder: (_) => const FractionallySizedBox(
-                        widthFactor: 1.0,
-                        heightFactor: 0.90,
-                        child: ChatModal(),
-                      ),
-                    );
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      FaIcon(
-                        FontAwesomeIcons.clock,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Chat History",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  onTap: () async {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const CreateDialog();
-                      },
-                    );
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      FaIcon(
-                        FontAwesomeIcons.plus,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Create Chat",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-                    String? id = chat.value?.id ?? chatId;
-                    if (id != null) {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return EditDialog(
-                            id: id,
-                            name: chat.value?.name ?? "",
-                          );
-                        },
-                      ).whenComplete(() {
-                        ref.read(chatsProvider(id).notifier).refresh();
-                        updatingChat.value = true;
-                        ref.read(chatsProvider(id).future).then(
-                          (value) {
-                            if (isMounted()) {
-                              chat.value = value;
-                            }
-                          },
-                        ).whenComplete(() {
-                          if (isMounted()) updatingChat.value = false;
-                        });
-                      });
-                    }
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      FaIcon(
-                        FontAwesomeIcons.penToSquare,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Edit Chat",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-                    String? id = chat.value?.id ?? chatId;
-                    if (id != null) {
-                      ref.read(chatsPagesProvider.notifier).deleteChat(id);
-                      ref.read(currentChatIdProvider.notifier).update(null);
-                      context.go("/chat");
-                    }
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.delete,
-                        color: Colors.red,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Delete Chat",
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ),
-              ];
-            },
-            icon: const Icon(
-              Icons.more_vert,
-              color: Colors.white,
-            ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
+        floatingActionButton: Container(
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: RAIColors.secondary,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade300,
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
-      floatingActionButton:
-          currentUserPreferences.value?.chatSuggestions ?? true
-              ? Container(
-                  margin: const EdgeInsets.only(top: 35),
-                  child: ElevatedButton(
+          child: IntrinsicHeight(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (currentUserPreferences.value?.chatSuggestions ?? true) ...[
+                  IconButton(
                     onPressed: () {
                       showSuggestions.value = !showSuggestions.value;
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: RAIColors.secondary,
-                      foregroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 18,
-                      ),
-                      elevation: 15,
-                    ),
-                    child: FaIcon(
+                    icon: FaIcon(
                       showSuggestions.value
-                          ? FontAwesomeIcons.x
+                          ? FontAwesomeIcons.xmark
                           : FontAwesomeIcons.lightbulb,
                       size: 32,
+                      color: Colors.white,
                     ),
                   ),
-                )
-              : null,
-      body: loadingChat.value
-          ? Center(
-              child: SpinKitSpinningLines(
-                color: RAIColors.primary,
-                size: 40,
-              ),
-            )
-          : Stack(
-              children: [
-                if (chatHook.messages.value.isEmpty) ...[
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "Not sure what to say?",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
+                  const VerticalDivider(
+                    color: Colors.white,
+                    thickness: 1,
+                    width: 10,
+                  )
+                ],
+                PopupMenuButton(
+                  offset: const Offset(0, 55),
+                  color: RAIColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        onTap: () {
+                          String? id = chat.value?.id ?? chatId;
+                          if (id != null) {
+                            ref.read(chatsProvider(id).notifier).refresh();
+                            ref
+                                .read(currentChatMessagesProvider(id).notifier)
+                                .refresh();
+                            updatingChat.value = true;
+                            fetchChatData(id).whenComplete(() {
+                              if (isMounted()) updatingChat.value = false;
+                            });
+                          }
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Tap the ",
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
                             FaIcon(
-                              FontAwesomeIcons.lightbulb,
-                              color: RAIColors.secondary,
-                              size: 32,
+                              FontAwesomeIcons.arrowsRotate,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Refresh",
+                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 40,
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        reverse: true,
-                        shrinkWrap: true,
-                        itemCount: chatHook.messages.value.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return const SizedBox(
-                              height: 90,
-                            );
-                          }
-
-                          final messagesReversed =
-                              chatHook.messages.value.reversed.toList();
-                          ChatMessage message = messagesReversed[index - 1];
-                          ChatMessage? previousMessage =
-                              index + 1 < messagesReversed.length
-                                  ? messagesReversed[index]
-                                  : null;
-                          return Message(
-                            key: ValueKey(message.id),
-                            chatId: chatHook.chatId.value,
-                            message: message,
-                            previousMessage: previousMessage,
-                            isCurrentResponse:
-                                chatHook.currentResponseId.value == message.id,
-                            isLoading: chatHook.loading.value,
+                      ),
+                      PopupMenuItem(
+                        onTap: () {
+                          ref.read(chatsPagesProvider.notifier).refresh();
+                          showModalBottomSheet(
+                            elevation: 20,
+                            isScrollControlled: true,
+                            context: context,
+                            backgroundColor: Colors.white,
+                            builder: (_) => const FractionallySizedBox(
+                              widthFactor: 1.0,
+                              heightFactor: 0.90,
+                              child: ChatModal(),
+                            ),
                           );
                         },
-                      ),
-                    ),
-                  ],
-                ),
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  right: 10,
-                  child: Opacity(
-                    opacity: 0.85,
-                    child: TextField(
-                      controller: chatHook.inputController,
-                      focusNode: chatHook.inputFocusNode,
-                      onSubmitted: (value) {
-                        chatHook.handleSubmit();
-                      },
-                      onTapOutside: (event) {
-                        chatHook.inputFocusNode.unfocus();
-                      },
-                      autocorrect: true,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        filled: true,
-                        hintText: "Type a message",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.clock,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "History",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
                         ),
-                        suffixIcon: chatHook.loading.value
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  SpinKitWave(
-                                    color: RAIColors.primary,
-                                    size: 20,
-                                  ),
-                                ],
-                              )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    visualDensity: const VisualDensity(
-                                      vertical: VisualDensity.minimumDensity,
-                                      horizontal: VisualDensity.minimumDensity,
-                                    ),
-                                    onPressed: () {
-                                      chatHook.reload();
-                                    },
-                                    icon: const FaIcon(
-                                      FontAwesomeIcons.arrowRotateRight,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    visualDensity: const VisualDensity(
-                                      vertical: VisualDensity.minimumDensity,
-                                      horizontal: VisualDensity.minimumDensity,
-                                    ),
-                                    onPressed: () {
-                                      chatHook.handleSubmit();
-                                    },
-                                    icon: const Icon(
-                                      Icons.send,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
                       ),
-                    ),
+                      PopupMenuItem(
+                        onTap: () async {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const CreateDialog();
+                            },
+                          );
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.plus,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "New Chat",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        onTap: () {
+                          String? id = chat.value?.id ?? chatId;
+                          if (id != null) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return EditDialog(
+                                  id: id,
+                                  name: chat.value?.name ?? "",
+                                );
+                              },
+                            ).whenComplete(() {
+                              ref.read(chatsProvider(id).notifier).refresh();
+                              updatingChat.value = true;
+                              ref.read(chatsProvider(id).future).then(
+                                (value) {
+                                  if (isMounted()) {
+                                    chat.value = value;
+                                  }
+                                },
+                              ).whenComplete(() {
+                                if (isMounted()) updatingChat.value = false;
+                              });
+                            });
+                          }
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.penToSquare,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Edit Chat",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        onTap: () {
+                          String? id = chat.value?.id ?? chatId;
+                          if (id != null) {
+                            ref
+                                .read(chatsPagesProvider.notifier)
+                                .deleteChat(id);
+                            ref
+                                .read(currentChatIdProvider.notifier)
+                                .update(null);
+                            context.go("/chat");
+                          }
+                        },
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Delete Chat",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ];
+                  },
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: Colors.white,
                   ),
                 ),
-                if (showSuggestions.value) ...[
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      color: Colors.grey.shade200.withOpacity(0.8),
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                        bottom: 15,
-                      ),
-                      height: 75,
-                      child: CustomScrollView(
-                        scrollDirection: Axis.horizontal,
-                        slivers: [
-                          SliverPadding(
-                            padding: const EdgeInsets.only(left: 80),
-                            sliver: SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        chatHook.append(
-                                          ChatMessage(
-                                            id: nanoid(),
-                                            content: shuffledSuggestions[index],
-                                            role: Role.user,
-                                          ),
-                                        );
-                                        showSuggestions.value = false;
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: RAIColors.primary,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        shuffledSuggestions[index],
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                childCount: shuffledSuggestions.length,
-                              ),
+              ],
+            ),
+          ),
+        ),
+        body: loadingChat.value
+            ? Center(
+                child: SpinKitSpinningLines(
+                  color: RAIColors.primary,
+                  size: 40,
+                ),
+              )
+            : Stack(
+                children: [
+                  if (chatHook.messages.value.isEmpty &&
+                      (currentUserPreferences.value?.chatSuggestions ??
+                          true)) ...[
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "Not sure what to say?",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
                             ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                "Tap the ",
+                                style: TextStyle(fontSize: 20),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              FaIcon(
+                                FontAwesomeIcons.lightbulb,
+                                color: RAIColors.secondary,
+                                size: 32,
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
+                  ],
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          reverse: true,
+                          shrinkWrap: true,
+                          itemCount: chatHook.messages.value.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == 0) {
+                              return const SizedBox(
+                                height: 90,
+                              );
+                            }
+
+                            final messagesReversed =
+                                chatHook.messages.value.reversed.toList();
+                            ChatMessage message = messagesReversed[index - 1];
+                            ChatMessage? previousMessage =
+                                index + 1 < messagesReversed.length
+                                    ? messagesReversed[index]
+                                    : null;
+                            return Message(
+                              key: ValueKey(message.id),
+                              chatId: chatHook.chatId.value,
+                              message: message,
+                              previousMessage: previousMessage,
+                              isCurrentResponse:
+                                  chatHook.currentResponseId.value ==
+                                      message.id,
+                              isLoading: chatHook.loading.value,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
+                  Positioned(
+                    bottom: 10,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      children: [
+                        if (showSuggestions.value) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 0,
+                            ),
+                            height: 75,
+                            child: CustomScrollView(
+                              scrollDirection: Axis.horizontal,
+                              slivers: [
+                                SliverPadding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                          ),
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              chatHook.append(
+                                                ChatMessage(
+                                                  id: nanoid(),
+                                                  content: shuffledSuggestions
+                                                      .value[index],
+                                                  role: Role.user,
+                                                ),
+                                              );
+                                              showSuggestions.value = false;
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  RAIColors.primary,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              shuffledSuggestions.value[index],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      childCount:
+                                          shuffledSuggestions.value.length,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Opacity(
+                            opacity: 0.85,
+                            child: TextField(
+                              controller: chatHook.inputController,
+                              focusNode: chatHook.inputFocusNode,
+                              onSubmitted: (value) {
+                                chatHook.handleSubmit();
+                              },
+                              onTapOutside: (event) {
+                                chatHook.inputFocusNode.unfocus();
+                              },
+                              autocorrect: true,
+                              textCapitalization: TextCapitalization.sentences,
+                              decoration: InputDecoration(
+                                filled: true,
+                                hintText: "Type a message",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey.shade300),
+                                ),
+                                suffixIcon: chatHook.loading.value
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          SpinKitWave(
+                                            color: RAIColors.primary,
+                                            size: 20,
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          IconButton(
+                                            visualDensity: const VisualDensity(
+                                              vertical:
+                                                  VisualDensity.minimumDensity,
+                                              horizontal:
+                                                  VisualDensity.minimumDensity,
+                                            ),
+                                            onPressed: () {
+                                              chatHook.reload();
+                                            },
+                                            icon: const FaIcon(
+                                              FontAwesomeIcons.arrowRotateRight,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            visualDensity: const VisualDensity(
+                                              vertical:
+                                                  VisualDensity.minimumDensity,
+                                              horizontal:
+                                                  VisualDensity.minimumDensity,
+                                            ),
+                                            onPressed: () {
+                                              chatHook.handleSubmit();
+                                            },
+                                            icon: const Icon(
+                                              Icons.send,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (updatingChat.value) ...[
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.3),
+                        child: const Center(
+                          child: SpinKitSpinningLines(
+                            color: Colors.white,
+                            size: 60,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]
                 ],
-              ],
-            ),
+              ),
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/devotion.dart';
+import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/data.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
@@ -124,7 +125,7 @@ class DevotionModal extends HookConsumerWidget {
                                   )
                                 : Container();
                       }
-                      
+
                       final devotionsFlat = devotions.requireValue
                           .expand((element) => element)
                           .toList();
@@ -149,6 +150,8 @@ class DevotionListItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentDevotionId = ref.watch(currentDevotionIdProvider);
+
     Future<void> fetchDevoData() async {
       await Future.wait([
         ref.read(devotionsProvider(devotion.id).future),
@@ -187,17 +190,28 @@ class DevotionListItem extends HookConsumerWidget {
           fetchDevoData();
         }
       },
-      child: ListTile(
-        title: Text(DateFormat.yMMMd().format(devotion.date)),
-        subtitle: Text(
-          devotion.bibleReading.split(" - ").first,
+      child: Container(
+        color: currentDevotionId == devotion.id
+            ? RAIColors.primary.withOpacity(0.1)
+            : null,
+        child: ListTile(
+          title: Text(DateFormat.yMMMd().format(devotion.date)),
+          subtitle: Text(
+            devotion.bibleReading.split(" - ").first,
+          ),
+          trailing: currentDevotionId == devotion.id
+              ? Icon(
+                  Icons.check,
+                  color: RAIColors.primary,
+                )
+              : null,
+          onTap: () {
+            context.go(
+              '/devotions/${devotion.id}',
+            );
+            Navigator.of(context).pop();
+          },
         ),
-        onTap: () {
-          context.go(
-            '/devotions/${devotion.id}',
-          );
-          Navigator.of(context).pop();
-        },
       ),
     );
   }

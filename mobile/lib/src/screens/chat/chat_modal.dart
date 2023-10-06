@@ -8,6 +8,7 @@ import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/data.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/chat.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
@@ -19,8 +20,8 @@ class ChatModal extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chats = ref.watch(chatsPagesProvider);
-    final chatsNotifier = ref.watch(chatsPagesProvider.notifier);
+    final chatsPages = ref.watch(chatsPagesProvider);
+    final chatsPagesNotifier = ref.watch(chatsPagesProvider.notifier);
 
     return Container(
       decoration: const BoxDecoration(
@@ -71,7 +72,7 @@ class ChatModal extends HookConsumerWidget {
               ],
             ),
           ),
-          if (!chatsNotifier.isLoadingInitial())
+          if (!chatsPagesNotifier.isLoadingInitial())
             Container(
               padding: const EdgeInsets.all(10),
               child: Row(
@@ -102,7 +103,7 @@ class ChatModal extends HookConsumerWidget {
                 ],
               ),
             ),
-          chatsNotifier.isLoadingInitial()
+          chatsPagesNotifier.isLoadingInitial()
               ? Expanded(
                   child: Center(
                     child: SpinKitSpinningLines(
@@ -112,56 +113,64 @@ class ChatModal extends HookConsumerWidget {
                   ),
                 )
               : Expanded(
-                  child: ListView.builder(
-                    itemCount: chats.requireValue
-                            .expand((element) => element)
-                            .toList()
-                            .length +
-                        1,
-                    itemBuilder: (context, index) {
-                      if (index ==
-                          chats.requireValue
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      chatsPagesNotifier.refresh();
+                      await ref.read(chatsPagesProvider.future);
+                    },
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: chatsPages.requireValue
                               .expand((element) => element)
                               .toList()
-                              .length) {
-                        return chatsNotifier.isLoadingNextPage()
-                            ? Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Center(
-                                  child: SpinKitSpinningLines(
-                                    color: RAIColors.primary,
-                                    size: 20,
-                                  ),
-                                ),
-                              )
-                            : chatsNotifier.hasNextPage()
-                                ? Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              chatsNotifier.fetchNextPage();
-                                            },
-                                            child: const Text('Show More'),
-                                          ),
-                                        ),
-                                      ],
+                              .length +
+                          1,
+                      itemBuilder: (context, index) {
+                        if (index ==
+                            chatsPages.requireValue
+                                .expand((element) => element)
+                                .toList()
+                                .length) {
+                          return chatsPagesNotifier.isLoadingNextPage()
+                              ? Container(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Center(
+                                    child: SpinKitSpinningLines(
+                                      color: RAIColors.primary,
+                                      size: 20,
                                     ),
-                                  )
-                                : Container();
-                      }
+                                  ),
+                                )
+                              : chatsPagesNotifier.hasNextPage()
+                                  ? Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                chatsPagesNotifier
+                                                    .fetchNextPage();
+                                              },
+                                              child: const Text('Show More'),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Container();
+                        }
 
-                      final chatsFlat = chats.requireValue
-                          .expand((element) => element)
-                          .toList();
-                      final chat = chatsFlat[index];
-                      return ChatListItem(
-                        key: ValueKey(chat.id),
-                        chat: chat,
-                      );
-                    },
+                        final chatsFlat = chatsPages.requireValue
+                            .expand((element) => element)
+                            .toList();
+                        final chat = chatsFlat[index];
+                        return ChatListItem(
+                          key: ValueKey(chat.id),
+                          chat: chat,
+                        );
+                      },
+                    ),
                   ),
                 ),
         ],
@@ -177,6 +186,8 @@ class ChatListItem extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentChatId = ref.watch(currentChatIdProvider);
+
     Future<void> fetchChatData() async {
       await Future.wait([
         ref.read(chatsProvider(chat.id).future),
@@ -206,22 +217,35 @@ class ChatListItem extends HookConsumerWidget {
           fetchChatData();
         }
       },
-      child: ListTile(
-        title: Text(
-          chat.name,
-          softWrap: false,
-          overflow: TextOverflow.fade,
+      child: Container(
+        decoration: BoxDecoration(
+          color: currentChatId == chat.id
+              ? RAIColors.primary.withOpacity(0.1)
+              : Colors.transparent,
         ),
-        subtitle: Text(
-          DateFormat.yMMMd().format(chat.createdAt),
+        child: ListTile(
+          title: Text(
+            chat.name,
+            softWrap: false,
+            overflow: TextOverflow.fade,
+          ),
+          subtitle: Text(
+            DateFormat.yMMMd().format(chat.createdAt),
+          ),
+          trailing: currentChatId == chat.id
+              ? Icon(
+                  Icons.check,
+                  color: RAIColors.primary,
+                )
+              : null,
+          dense: true,
+          onTap: () {
+            context.go(
+              '/chat/${chat.id}',
+            );
+            Navigator.of(context).pop();
+          },
         ),
-        dense: true,
-        onTap: () {
-          context.go(
-            '/chat/${chat.id}',
-          );
-          Navigator.of(context).pop();
-        },
       ),
     );
   }

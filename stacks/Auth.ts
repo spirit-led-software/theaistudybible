@@ -32,7 +32,7 @@ export function Auth({ stack }: StackContext) {
         ...STATIC_ENV_VARS,
       },
       timeout: "30 seconds",
-      memory: "256 MB",
+      memorySize: "512 MB",
     },
   });
 

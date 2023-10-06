@@ -21,21 +21,21 @@
     "aws-cdk-lib": "2.95.1",
     "constructs": "10.2.69",
     "drizzle-kit": "^0.19.13",
-    "sst": "2.26.10",
+    "sst": "2.26.11",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.423.0",
-    "@aws-sdk/client-sqs": "^3.423.0",
-    "@aws-sdk/credential-providers": "^3.423.0",
-    "@aws-sdk/s3-request-presigner": "^3.423.0",
+    "@aws-sdk/client-s3": "^3.425.0",
+    "@aws-sdk/client-sqs": "^3.425.0",
+    "@aws-sdk/credential-providers": "^3.425.0",
+    "@aws-sdk/s3-request-presigner": "^3.425.0",
     "drizzle-orm": "^0.28.6",
     "drizzle-zod": "^0.5.1",
-    "langchain": "^0.0.157",
+    "langchain": "^0.0.161",
     "neon-sdk": "^1.12.0",
     "pg": "^8.11.3",
-    "replicate": "^0.18.1",
-    "zod": "^3.22.2"
+    "replicate": "^0.20.0",
+    "zod": "^3.22.4"
   },
   "overrides": {
     "langchain": {

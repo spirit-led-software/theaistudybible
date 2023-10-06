@@ -212,11 +212,20 @@ async function generateDevotionImages(devo: Devotion) {
   const imagePromptChain = new LLMChain({
     llm: getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
     prompt: PromptTemplate.fromTemplate(
-      `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Try to only use adjectives and nouns if possible in each. Base it on the following devotion:\n
-      Bible Reading:\n{bibleReading}\n\n
-      Summary:\n{summary}\n\n
-      Reflection:\n{reflection}\n\n
-      Prayer:\n{prayer}\n\n
+      `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Start with what should or shouldn't be in the image and then follow it with adjectives to describe the image. For example:
+
+      Prompt: A beautiful sunset over the ocean. 8k, beautiful, high-quality, realistic.
+      Negative prompt: A dark night. Ugly, unrealistic, blurry, fake, cartoon, text, words, extra fingers, extra toes, extra limbs.
+      
+      Base it on the following devotion:
+      Bible Reading:\n{bibleReading}
+
+      Summary:\n{summary}
+
+      Reflection:\n{reflection}
+
+      Prayer:\n{prayer}
+
       {format_instructions}`,
       {
         partialVariables: {
@@ -323,7 +332,7 @@ async function getRandomBibleReading() {
     getCompletionsModel(0.5), // Temperature needs to be lower here for the more concise response
     new ContextualCompressionRetriever({
       baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
-      baseRetriever: vectorStore.asRetriever(10),
+      baseRetriever: vectorStore.asRetriever(25),
     }),
     {
       returnSourceDocuments: true,

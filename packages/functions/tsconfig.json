@@ -8,6 +8,7 @@
     "importsNotUsedAsValues": "error",
     "isolatedModules": true,
     "preserveValueImports": true,
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@core/configs": ["../core/src/configs"],
       "@core/configs/*": ["../core/src/configs/*"],

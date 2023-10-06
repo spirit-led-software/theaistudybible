@@ -42,7 +42,7 @@ class Chats extends _$Chats {
               updatedAt: DateTime.now(),
             ) ??
             Chat(
-              id: Uuid().v4(),
+              id: const Uuid().v4(),
               userId: currentUser.value!.id,
               name: request.name,
               createdAt: DateTime.now(),

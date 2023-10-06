@@ -101,7 +101,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   await chatMemoryVectorStore.ensureTableInDatabase();
   const chatMemoryRetriever = new RAITimeWeightedVectorStoreRetriever({
     vectorStore: chatMemoryVectorStore,
-    k: 10,
+    k: 12,
     searchKwargs: {
       fetchK: 100,
     },
@@ -125,7 +125,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const documentRetriever = new ContextualCompressionRetriever({
     baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
     baseRetriever: documentVectorStore.asRetriever({
-      k: 6,
+      k: 10,
       verbose: true,
     }),
     verbose: true,
