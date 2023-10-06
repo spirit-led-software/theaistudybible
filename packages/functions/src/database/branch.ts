@@ -304,13 +304,18 @@ function formConnectionUrls(
   const connectionUrls: NeonConnectionUrl[] = [];
   for (const database of databases) {
     for (const endpoint of endpoints) {
-      const hostPieces = endpoint.host.split(".");
-      const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
+      // Below is implementation for pgbouncer.
+      // It is not working right now, so we are using direct connection to the database.
+      // const hostPieces = endpoint.host.split(".");
+      // const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
+
       connectionUrls.push({
         type: determineDbType(database.name, endpoint.type),
-        url: `postgres://${role.name}:${role.password}@${host}/${
+        url: `postgres://${role.name}:${role.password}@${endpoint.host}/${
           database.name
-        }?options=${encodeURIComponent(`endpoint=${endpoint.id}-pooler`)}`,
+        }?options=${encodeURIComponent(
+          `endpoint=${endpoint.id}` /* -pooler` add here for pgbouncer */
+        )}`,
       });
     }
   }
