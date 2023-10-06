@@ -1,8 +1,8 @@
-import { Database, S3, STATIC_ENV_VARS } from "@stacks";
+import { DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
 import { Cron, StackContext, dependsOn, use } from "sst/constructs";
 
 export function Crons({ stack }: StackContext) {
-  dependsOn(Database);
+  dependsOn(DatabaseScripts);
 
   const { devotionImageBucket } = use(S3);
   const {
@@ -10,7 +10,7 @@ export function Crons({ stack }: StackContext) {
     dbReadOnlyUrl,
     vectorDbReadWriteUrl,
     vectorDbReadOnlyUrl,
-  } = use(Database);
+  } = use(DatabaseScripts);
 
   const dailyDevotionCron = new Cron(stack, "dailyDevoCron", {
     schedule: "cron(0 12 * * ? *)",

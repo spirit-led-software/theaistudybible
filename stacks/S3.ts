@@ -1,16 +1,16 @@
-import { Database, STATIC_ENV_VARS } from "@stacks";
+import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { RemovalPolicy } from "aws-cdk-lib/core";
 import { Bucket, StackContext, dependsOn, use } from "sst/constructs";
 
 export function S3({ stack }: StackContext) {
-  dependsOn(Database);
+  dependsOn(DatabaseScripts);
 
   const {
     dbReadWriteUrl,
     dbReadOnlyUrl,
     vectorDbReadWriteUrl,
     vectorDbReadOnlyUrl,
-  } = use(Database);
+  } = use(DatabaseScripts);
 
   const indexFileBucket = new Bucket(stack, "indexFileBucket", {
     defaults: {

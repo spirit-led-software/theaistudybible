@@ -1,8 +1,8 @@
-import { API, Constants, Database, S3, STATIC_ENV_VARS } from "@stacks";
+import { API, Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
 import { StackContext, SvelteKitSite, dependsOn, use } from "sst/constructs";
 
 export function Website({ stack }: StackContext) {
-  dependsOn(Database);
+  dependsOn(DatabaseScripts);
 
   const { indexFileBucket } = use(S3);
   const { api, apiUrl, chatApiUrl } = use(API);
