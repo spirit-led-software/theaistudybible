@@ -77,7 +77,7 @@ export const handler = ApiHandler(async (event) => {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
         metadata: {
-          ...(indexOp.metadata as any),
+          ...indexOp.metadata,
           error: err.stack,
         },
       });

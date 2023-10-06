@@ -61,8 +61,7 @@
 			});
 			sources = foundSourceDocuments.filter((sourceDoc, index) => {
 				const firstIndex = foundSourceDocuments.findIndex(
-					(otherSourceDoc) =>
-						(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
+					(otherSourceDoc) => sourceDoc.metadata.name === otherSourceDoc.metadata.name
 				);
 				return firstIndex === index;
 			});

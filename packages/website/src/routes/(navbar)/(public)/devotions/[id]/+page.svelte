@@ -60,7 +60,7 @@
 	$: sourceDocuments = sourceDocs?.filter((sourceDoc: NeonVectorStoreDocument, index: number) => {
 		const firstIndex = sourceDocs.findIndex(
 			(otherSourceDoc: NeonVectorStoreDocument) =>
-				(sourceDoc.metadata as any).name === (otherSourceDoc.metadata as any).name
+				sourceDoc.metadata.name === otherSourceDoc.metadata.name
 		);
 		return firstIndex === index;
 	});

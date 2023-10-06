@@ -143,7 +143,7 @@
 		if (confirm('Are you sure you want to delete this chat?')) {
 			$deleteChatMutation.mutate(id);
 			if (activeChatId === id) {
-				goto('/chat');
+				await goto('/chat');
 			}
 		}
 	};

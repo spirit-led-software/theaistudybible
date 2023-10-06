@@ -292,7 +292,7 @@ export const indexOperations = pgTable(
     status: text("status", {
       enum: ["FAILED", "SUCCEEDED", "RUNNING", "COMPLETED"],
     }).notNull(),
-    metadata: json("metadata").default({}).notNull(),
+    metadata: json("metadata").$type<any>().default({}).notNull(),
   },
   (table) => {
     return {

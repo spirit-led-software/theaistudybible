@@ -31,8 +31,8 @@ export const consumer: SQSHandler = async (event) => {
     indexOp = await getIndexOperation(indexOp.id);
     indexOp = await updateIndexOperation(indexOp!.id, {
       metadata: {
-        ...(indexOp?.metadata as any),
-        succeeded: [...((indexOp?.metadata as any)?.succeeded ?? []), url],
+        ...indexOp?.metadata,
+        succeeded: [...(indexOp?.metadata.succeeded ?? []), url],
       },
     });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
@@ -44,9 +44,9 @@ export const consumer: SQSHandler = async (event) => {
       indexOp = await updateIndexOperation(indexOp!.id, {
         status: "FAILED",
         metadata: {
-          ...(indexOp?.metadata as any),
+          ...indexOp?.metadata,
           failed: [
-            ...((indexOp?.metadata as any)?.failed ?? []),
+            ...(indexOp?.metadata?.failed ?? []),
             {
               url,
               error: err.stack,
@@ -65,13 +65,12 @@ const checkIfIndexOpIsCompletedAndUpdate = async (
 ) => {
   if (indexOp) {
     indexOp = await getIndexOperation(indexOp.id);
-    const indexOpMetadata = indexOp!.metadata as any;
     if (
-      indexOpMetadata.succeeded &&
-      indexOpMetadata.failed &&
-      indexOpMetadata.urlCount &&
-      indexOpMetadata.succeeded.length + indexOpMetadata.failed.length ===
-        indexOpMetadata.urlCount
+      indexOp?.metadata.succeeded &&
+      indexOp.metadata.failed &&
+      indexOp.metadata.urlCount &&
+      indexOp.metadata.succeeded.length + indexOp.metadata.failed.length ===
+        indexOp.metadata.urlCount
     ) {
       await updateIndexOperation(indexOp!.id, {
         status: "COMPLETED",

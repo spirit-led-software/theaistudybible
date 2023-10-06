@@ -152,9 +152,9 @@
 								class={`flex w-full px-4 py-3 mb-3 text-md font-semibold leading-none rounded-xl text-slate-800 hover:bg-slate-200 active:bg-slate-200 ${
 									isActive(navItem.href) ? ' bg-slate-100' : ''
 								}`}
-								on:click={() => {
+								on:click={async () => {
 									if (isActive(navItem.href)) isOpen = false;
-									else goto(navItem.href);
+									else await goto(navItem.href);
 								}}
 							>
 								{navItem.label}
@@ -164,9 +164,9 @@
 					<li>
 						<button
 							class="flex w-full px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400 active:bg-blue-400"
-							on:click={() => {
+							on:click={async () => {
 								if (isActive('/upgrade')) isOpen = false;
-								else goto('/upgrade');
+								else await goto('/upgrade');
 							}}
 						>
 							Upgrade

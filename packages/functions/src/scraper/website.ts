@@ -115,7 +115,7 @@ export const handler = ApiHandler(async (event) => {
     indexOp = await getIndexOperation(indexOp!.id);
     indexOp = await updateIndexOperation(indexOp!.id, {
       metadata: {
-        ...(indexOp!.metadata as any),
+        ...indexOp!.metadata,
         urlCount,
       },
     });
@@ -131,7 +131,7 @@ export const handler = ApiHandler(async (event) => {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
         metadata: {
-          ...(indexOp.metadata as any),
+          ...indexOp.metadata,
           error: err.stack,
         },
       });
@@ -243,9 +243,9 @@ async function sendUrlToQueue(name: string, url: string, indexOpId: string) {
     await updateIndexOperation(indexOp!.id, {
       status: "FAILED",
       metadata: {
-        ...(indexOp!.metadata as any),
+        ...indexOp!.metadata,
         errors: [
-          ...((indexOp!.metadata as any).errors ?? []),
+          ...(indexOp!.metadata.errors ?? []),
           {
             url,
             error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,

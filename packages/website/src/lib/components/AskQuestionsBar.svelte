@@ -24,9 +24,9 @@
 	const handleAskQuestion = async (query: string) => {
 		try {
 			if (query) {
-				goto(`/chat?query=${query}`);
+				await goto(`/chat?query=${query}`);
 			} else {
-				goto('/chat');
+				await goto('/chat');
 			}
 		} catch (error) {
 			console.error(error);
