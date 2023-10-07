@@ -158,7 +158,7 @@ export async function createBranch(
     {
       type: "read_write",
       provisioner: "k8s-neonvm",
-      autoscaling_limit_min_cu: isProd ? 1 : 0.25,
+      autoscaling_limit_min_cu: isProd ? 2 : 0.25,
       autoscaling_limit_max_cu: isProd ? 7 : 1,
       suspend_timeout_seconds: 0,
     },
@@ -168,7 +168,7 @@ export async function createBranch(
     endpoints.push({
       type: "read_only",
       provisioner: "k8s-neonvm",
-      autoscaling_limit_min_cu: 1,
+      autoscaling_limit_min_cu: 2,
       autoscaling_limit_max_cu: 7,
       suspend_timeout_seconds: 0,
     });
@@ -203,7 +203,7 @@ export async function updateBranch(
       await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
         endpoint: {
           provisioner: "k8s-neonvm",
-          autoscaling_limit_min_cu: isProd ? 1 : 0.25,
+          autoscaling_limit_min_cu: isProd ? 2 : 0.25,
           autoscaling_limit_max_cu: isProd ? 7 : 1,
           suspend_timeout_seconds: 0,
         },
@@ -216,7 +216,7 @@ export async function updateBranch(
           {
             endpoint: {
               provisioner: "k8s-neonvm",
-              autoscaling_limit_min_cu: 1,
+              autoscaling_limit_min_cu: 2,
               autoscaling_limit_max_cu: 7,
               suspend_timeout_seconds: 0,
             },
@@ -322,17 +322,14 @@ function formConnectionUrls(
   for (const database of databases) {
     for (const endpoint of endpoints) {
       // Below is implementation for pgbouncer.
-      // It is not working right now, so we are using direct connection to the database.
-      // const hostPieces = endpoint.host.split(".");
-      // const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
+      const hostPieces = endpoint.host.split(".");
+      const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
 
       connectionUrls.push({
         type: determineDbType(database.name, endpoint.type),
-        url: `postgres://${role.name}:${role.password}@${endpoint.host}/${
+        url: `postgres://${role.name}:${role.password}@${host}/${
           database.name
-        }?options=${encodeURIComponent(
-          `endpoint=${endpoint.id}` /* -pooler` add here for pgbouncer */
-        )}`,
+        }?options=${encodeURIComponent(`endpoint=${endpoint.id}-pooler`)}`,
       });
     }
   }
