@@ -67,11 +67,13 @@ export class NeonVectorStore extends VectorStore {
       connectionString:
         fields.connectionOptions.readOnlyUrl ||
         fields.connectionOptions.readWriteUrl,
+      max: 5,
       ssl: true,
       log: this.verbose ? console.log : undefined,
     });
     this.writePool = new Pool({
       connectionString: fields.connectionOptions.readWriteUrl,
+      max: 5,
       ssl: true,
       log: this.verbose ? console.log : undefined,
     });
@@ -150,7 +152,7 @@ export class NeonVectorStore extends VectorStore {
           [JSON.stringify(chunk)]
         );
       } catch (e) {
-        throw new Error(`Error inserting: ${chunk[0].page_content}`);
+        throw new Error(`Error inserting chunk: ${e}`);
       }
     }
   }
