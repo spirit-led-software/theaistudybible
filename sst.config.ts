@@ -8,7 +8,6 @@ import {
   S3,
   Website,
 } from "@stacks";
-import { Fn } from "aws-cdk-lib";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { CfnFunction, LayerVersion } from "aws-cdk-lib/aws-lambda";
 import { SSTConfig } from "sst";
@@ -29,8 +28,8 @@ export default {
         const newRelicLayer = LayerVersion.fromLayerVersionArn(
           stack,
           "NewRelicLayer",
-          // Find your "<ARN>" here: https://layers.newrelic-external.com/
-          "arn:aws:lambda:us-east-1:451483290750:layer:NewRelicNodeJS18X:43"
+          // Find the right ARN here: https://layers.newrelic-external.com/
+          "arn:aws:lambda:us-east-1:451483290750:layer:NewRelicNodeJS18X:45"
         );
 
         return {
@@ -52,45 +51,40 @@ export default {
     if (enableNR) {
       await app.finish();
 
-      // Loop through each stack in the app
       app.node.children.forEach((stack) => {
         if (stack instanceof Stack) {
           const policy = new PolicyStatement({
             actions: ["secretsmanager:GetSecretValue"],
             effect: Effect.ALLOW,
-            resources: [
-              Fn.importValue(
-                "NewRelicLicenseKeySecret-NewRelic-LicenseKeySecretARN"
-              ),
-            ],
+            resources: [process.env.NEW_RELIC_LICENSE_KEY_SECRET_ARN!],
           });
 
           stack.getAllFunctions().forEach((fn) => {
             const cfnFunction = fn.node.defaultChild as CfnFunction;
-            if (cfnFunction.handler) {
+            if (
+              cfnFunction.handler &&
+              !cfnFunction.functionName?.includes("chatApi")
+            ) {
               fn.addEnvironment(
                 "NEW_RELIC_LAMBDA_HANDLER",
                 cfnFunction.handler
               );
+              fn.addEnvironment("NEW_RELIC_USE_ESM", "true");
               fn.addEnvironment(
                 "NEW_RELIC_ACCOUNT_ID",
                 process.env.NEW_RELIC_ACCOUNT_ID!
               );
-              // If your New Relic account has a parent account, this value should be that account ID. Otherwise, just
-              // your account id.
+              // Same as account ID unless we are using sub-accounts
               fn.addEnvironment(
                 "NEW_RELIC_TRUSTED_ACCOUNT_KEY",
                 process.env.NEW_RELIC_TRUSTED_ACCOUNT_KEY!
               );
             }
 
-            // Give your function access to the secret containing your New Relic license key
-            // You will set this key using the `newrelic-lambda integrations install` command
+            // Give functions access to the secret containing New Relic license key
             // More info: https://docs.newrelic.com/docs/serverless-function-monitoring/aws-lambda-monitoring/enable-lambda-monitoring/account-linking/
             fn.attachPermissions([policy]);
 
-            // See #3 on the link below for the correct handler name to use based on your runtime
-            // The handler name below is for NodeJS
             // https://github.com/newrelic/newrelic-lambda-layers#manual-instrumentation-using-layers
             cfnFunction.handler = "newrelic-lambda-wrapper.handler";
           });

@@ -680,6 +680,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  newrelic_mobile:
+    dependency: "direct main"
+    description:
+      name: newrelic_mobile
+      sha256: "3fd08d04a943fc16512021e1f0135a1d60097c26f0f714118248f4eb7cb5696a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   package_config:
     dependency: transitive
     description:
