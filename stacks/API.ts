@@ -60,7 +60,7 @@ export function API({ stack }: StackContext) {
     timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: "1 GB",
+    memorySize: "2 GB",
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
