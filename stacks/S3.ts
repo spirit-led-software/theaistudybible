@@ -24,6 +24,7 @@ export function S3({ stack }: StackContext) {
         },
         permissions: ["s3"],
         timeout: "60 seconds",
+        memorySize: "1 GB",
       },
     },
     notifications: {

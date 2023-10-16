@@ -60,7 +60,7 @@ export function API({ stack }: StackContext) {
     timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: "512 MB",
+    memorySize: "2 GB",
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
@@ -208,6 +208,7 @@ export function API({ stack }: StackContext) {
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           },
           timeout: "5 minutes",
+          memorySize: "1 GB",
         },
       },
       "GET /devotions/{id}":
@@ -286,7 +287,7 @@ export function API({ stack }: StackContext) {
         environment: lambdaEnv,
         runtime: "nodejs18.x",
         timeout: "60 seconds",
-        memorySize: "256 MB",
+        memorySize: "512 MB",
       },
     },
     customDomain: {
