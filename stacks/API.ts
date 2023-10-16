@@ -6,7 +6,7 @@ import {
   S3,
   STATIC_ENV_VARS,
 } from "@stacks";
-import { Fn } from "aws-cdk-lib";
+import { Duration, Fn } from "aws-cdk-lib";
 import {
   Certificate,
   CertificateValidation,
@@ -72,7 +72,13 @@ export function API({ stack }: StackContext) {
     {
       defaultBehavior: {
         origin: new HttpOrigin(
-          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
+          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url)),
+          {
+            connectionAttempts: 3,
+            readTimeout: Duration.seconds(60),
+            keepaliveTimeout: Duration.seconds(60),
+            connectionTimeout: Duration.seconds(10),
+          }
         ),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
