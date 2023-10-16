@@ -267,18 +267,20 @@ const lambdaHandler = async (
             .then(async ({ done, value }: { done: boolean; value?: any }) => {
               if (done) {
                 console.log("Finished chat stream response");
-                this.push(null);
                 await Promise.all(promises); // make sure everything is done before closing the stream
+                this.destroy();
                 return;
               }
-              console.log(`Pushing value: ${JSON.stringify(value)}`);
-              this.push(value);
+              if (value) {
+                console.log(`Pushing value: ${JSON.stringify(value)}`);
+                this.push(value, "utf-8");
+              }
               this.read();
             })
             .catch(async (err) => {
-              console.error(`${err.stack}`);
-              this.push(null);
+              console.error(`Error while streaming response: ${err}`);
               await Promise.all(promises); // make sure everything is done before closing the stream
+              this.destroy(err);
               throw err;
             });
         },
