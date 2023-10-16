@@ -1,9 +1,9 @@
 import config from "@core/configs/database";
 import * as schema from "@core/schema";
+import { neon } from "@neondatabase/serverless";
 import type { Handler } from "aws-lambda";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { migrate } from "drizzle-orm/node-postgres/migrator";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/neon-http";
+import { migrate } from "drizzle-orm/neon-http/migrator";
 
 export const handler: Handler = async () => {
   try {
@@ -12,21 +12,14 @@ export const handler: Handler = async () => {
       config.readWriteUrl
     );
 
-    const migrationClient = drizzle(
-      new Pool({
-        connectionString: config.readWriteUrl,
-        max: 1,
-        ssl: true,
-      }),
-      {
-        schema,
-        logger: {
-          logQuery(query, params) {
-            console.log("Executing query:", query, params);
-          },
+    const migrationClient = drizzle(neon(config.readWriteUrl), {
+      schema,
+      logger: {
+        logQuery(query, params) {
+          console.log("Executing query:", query, params);
         },
-      }
-    );
+      },
+    });
 
     console.log("Running database migrations...");
     await migrate(migrationClient, {

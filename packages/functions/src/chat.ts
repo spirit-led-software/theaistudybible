@@ -11,16 +11,16 @@ import {
 import { createChat, getChat, updateChat } from "@services/chat";
 import { getRAIChatChain } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
-import { isObjectOwner } from "@services/user";
+import { incrementUserQueryCount, isObjectOwner } from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@services/user/message";
-import { incrementUserQueryCount } from "@services/user/query-count";
 import { LangChainStream, type Message } from "ai";
 import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
+  Context,
 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
@@ -64,7 +64,8 @@ const validateRequest = (
 };
 
 const lambdaHandler = async (
-  event: APIGatewayProxyEventV2
+  event: APIGatewayProxyEventV2,
+  context: Context
 ): Promise<StreamedAPIGatewayProxyStructuredResultV2> => {
   console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
 
@@ -133,8 +134,6 @@ const lambdaHandler = async (
           }),
         ]),
       };
-    } else {
-      promises.push(incrementUserQueryCount(userInfo.id));
     }
 
     console.time("Validating chat");
@@ -227,11 +226,12 @@ const lambdaHandler = async (
         CallbackManager.fromHandlers(handlers)
       )
       .then(async (result) => {
-        await Promise.all([
+        return await Promise.all([
+          incrementUserQueryCount(userInfo.id),
           updateAiResponse(aiResponse.id, {
             text: result.text,
           }),
-          ...(result.sourceDocuments?.map(
+          ...result.sourceDocuments?.map(
             async (sourceDoc: NeonVectorStoreDocument) => {
               await readWriteDatabase
                 .insert(aiResponsesToSourceDocuments)
@@ -240,7 +240,7 @@ const lambdaHandler = async (
                   sourceDocumentId: sourceDoc.id,
                 });
             }
-          ) ?? []),
+          ),
         ]);
       })
       .catch(async (err) => {
@@ -267,8 +267,8 @@ const lambdaHandler = async (
             .then(async ({ done, value }: { done: boolean; value?: any }) => {
               if (done) {
                 console.log("Finished chat stream response");
-                await Promise.all(promises); // make sure everything is done before closing the stream
                 this.push(null);
+                await Promise.all(promises); // make sure everything is done before closing the stream
                 return;
               }
               console.log(`Pushing value: ${JSON.stringify(value)}`);
@@ -277,8 +277,8 @@ const lambdaHandler = async (
             })
             .catch(async (err) => {
               console.error(`${err.stack}`);
-              await Promise.all(promises); // make sure everything is done before closing the stream
               this.push(null);
+              await Promise.all(promises); // make sure everything is done before closing the stream
               throw err;
             });
         },
