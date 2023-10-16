@@ -97,7 +97,7 @@ jobs:
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - id: sst_build
         name: Build SST
-        run: npm run build
+        run: npx sst build --stage pr-${{ github.event.pull_request.number }}
       - id: typecheck
         name: Type check All Workspaces
         run: npm run typecheck --workspaces
