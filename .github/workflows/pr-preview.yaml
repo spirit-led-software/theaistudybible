@@ -95,8 +95,11 @@ jobs:
         name: Setup Apple Auth Key
         run: |
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
+      - id: sst_build
+        name: Build SST
+        run: npm run build
       - id: typecheck
-        name: Type check
+        name: Type check All Workspaces
         run: npm run typecheck --workspaces
       - id: sst_deploy
         name: Deploy to AWS
