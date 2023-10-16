@@ -34,6 +34,7 @@ export function Crons({ stack }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         timeout: "5 minutes",
+        memorySize: "1 GB",
       },
     },
   });
