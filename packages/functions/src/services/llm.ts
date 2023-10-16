@@ -34,16 +34,6 @@ export const getChatModel = (temperature?: number) =>
     maxTokens: -1,
   });
 
-export const getAgentModel = (temperature?: number) =>
-  new ChatOpenAI({
-    openAIApiKey: openAiConfig.apiKey,
-    temperature: temperature ?? 1.0,
-    modelName: llmConfig.chatModelName,
-    streaming: true,
-    callbacks: [{}],
-    maxTokens: -1,
-  });
-
 export const getPromptModel = (temperature?: number) =>
   new OpenAI({
     openAIApiKey: openAiConfig.apiKey,
@@ -101,7 +91,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   await chatMemoryVectorStore.ensureTableInDatabase();
   const chatMemoryRetriever = new RAITimeWeightedVectorStoreRetriever({
     vectorStore: chatMemoryVectorStore,
-    k: 12,
+    k: 8,
     searchKwargs: {
       fetchK: 100,
     },
@@ -125,7 +115,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const documentRetriever = new ContextualCompressionRetriever({
     baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
     baseRetriever: documentVectorStore.asRetriever({
-      k: 10,
+      k: 6,
       verbose: true,
     }),
     verbose: true,
