@@ -268,6 +268,7 @@ const lambdaHandler = async (
               if (done) {
                 console.log("Finished chat stream response");
                 await Promise.all(promises); // make sure everything is done before closing the stream
+                this.push(null);
                 this.destroy();
                 return;
               }
@@ -280,6 +281,7 @@ const lambdaHandler = async (
             .catch(async (err) => {
               console.error(`Error while streaming response: ${err}`);
               await Promise.all(promises); // make sure everything is done before closing the stream
+              this.push(null);
               this.destroy(err);
               throw err;
             });
