@@ -118,7 +118,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
 
   const documentVectorStore = await getDocumentVectorStore({ verbose: true });
   const documentRetriever = new ContextualCompressionRetriever({
-    baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel(0.5)),
+    baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel()),
     baseRetriever: documentVectorStore.asRetriever({
       k: 8,
       verbose: true,
