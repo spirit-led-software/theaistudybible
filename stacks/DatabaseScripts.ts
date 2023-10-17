@@ -29,7 +29,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     ],
     enableLiveDev: false,
     environment: dbScriptEnv,
-    timeout: "5 minutes",
+    timeout: "15 minutes",
   });
   dbMigrationsFunction.node.addDependency(neonBranch);
   const dbMigrationsScript = new Script(stack, "dbMigrationsScript", {
@@ -41,7 +41,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     handler: "packages/functions/src/database/seed.handler",
     enableLiveDev: false,
     environment: dbScriptEnv,
-    timeout: "5 minutes",
+    timeout: "15 minutes",
   });
   dbSeedFunction.node.addDependency(neonBranch);
   dbSeedFunction.node.addDependency(dbMigrationsScript);
