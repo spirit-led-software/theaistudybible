@@ -11,9 +11,9 @@ import { LLM, type BaseLLMParams } from "langchain/llms/base";
 import { GenerationChunk } from "langchain/schema";
 import type { BedrockInput } from "../types/bedrock-types";
 
-export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
+export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   static lc_name() {
-    return "AmazonBedrock";
+    return "RAIBedrock";
   }
 
   get callKeys() {
@@ -34,25 +34,29 @@ export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
 
   modelId = "amazon.titan-text-express-v1";
 
-  body: string | Record<string, any>;
+  private provider: string;
+
+  body: Record<string, any>;
 
   streaming = false;
 
   client: BedrockRuntimeClient;
 
-  promptPrefix: string;
-
-  promptSuffix: string;
-
   constructor(fields?: Partial<BedrockInput> & BaseLLMParams) {
     super(fields ?? {});
 
     this.modelId = fields?.modelId ?? this.modelId;
-    this.body = fields?.body ?? "";
-    this.streaming = fields?.streaming ?? false;
+    this.provider = this.modelId.split(".")[0];
+
+    this.body = fields?.body ?? {};
+    this.streaming = fields?.stream ?? false;
     this.client = fields?.client ?? new BedrockRuntimeClient();
-    this.promptPrefix = fields?.promptPrefix ?? "";
-    this.promptSuffix = fields?.promptSuffix ?? "";
+  }
+
+  _log(message: any, ...optionalParams: any[]) {
+    if (this.verbose) {
+      console.log(`[RAIBedrock] ${message}`, ...optionalParams);
+    }
   }
 
   /**
@@ -63,7 +67,7 @@ export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
     "body"
   > &
     Omit<InvokeModelCommandInput, "body"> & {
-      body: string | Record<string, any>;
+      body: Record<string, any>;
     } {
     return {
       modelId: this.modelId,
@@ -80,15 +84,13 @@ export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
   ): AsyncGenerator<GenerationChunk> {
     const params = this.invocationParams(options);
 
-    const body = this._createBody(prompt, params);
-    const invocationParams: InvokeModelWithResponseStreamCommandInput = {
+    const body = this._createRequestBody(prompt, params);
+    const invokeCommand = new InvokeModelWithResponseStreamCommand({
       ...params,
       body,
-    };
-    const invokeCommand = new InvokeModelWithResponseStreamCommand(
-      invocationParams
-    );
+    });
 
+    this._log("Invoking bedrock model with params:", invokeCommand.input);
     const response = await this.client.send(invokeCommand);
     if (
       (response.$metadata?.httpStatusCode ?? 0) < 200 ||
@@ -104,16 +106,19 @@ export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
       throw new Error("No stream returned from bedrock invocation");
     }
 
+    const decoder = new TextDecoder();
     for await (const streamPart of stream) {
       if (!streamPart.chunk) {
         continue;
       }
 
+      const responseBody = decoder.decode(streamPart.chunk.bytes);
+      const text = this._extractOutputFromResponseBody(responseBody);
       const generationChunk = new GenerationChunk({
-        text: new TextDecoder().decode(streamPart.chunk.bytes),
+        text,
       });
       yield generationChunk;
-      void runManager?.handleLLMNewToken(generationChunk.text ?? "");
+      void runManager?.handleLLMNewToken(generationChunk.text);
     }
     if (options.signal?.aborted) {
       throw new Error("AbortError");
@@ -144,13 +149,13 @@ export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
       }
       return finalChunk?.text ?? "";
     } else {
-      const body = this._createBody(prompt, params);
-      const invocationParams: InvokeModelWithResponseStreamCommandInput = {
+      const body = this._createRequestBody(prompt, params);
+      const invokeCommand = new InvokeModelCommand({
         ...params,
         body,
-      };
-      const invokeCommand = new InvokeModelCommand(invocationParams);
+      });
 
+      this._log("Invoking bedrock model with params:", invokeCommand.input);
       const response = await this.client.send(invokeCommand);
       if (
         (response.$metadata?.httpStatusCode ?? 0) < 200 ||
@@ -161,33 +166,67 @@ export class Bedrock extends LLM<BaseLanguageModelCallOptions> {
         );
       }
 
-      return new TextDecoder().decode(response.body);
+      const responseBody = new TextDecoder().decode(response.body);
+      return this._extractOutputFromResponseBody(responseBody);
     }
   }
 
-  _createBody(
+  _createRequestBody(
     prompt: string,
     params: ReturnType<typeof this.invocationParams>
-  ) {
+  ):
+    | InvokeModelCommandInput["body"]
+    | InvokeModelWithResponseStreamCommandInput["body"] {
     let body:
       | InvokeModelCommandInput["body"]
       | InvokeModelWithResponseStreamCommandInput["body"];
-    if (this.modelId === "amazon.titan-text-express-v1") {
+    if (this.provider === "amazon") {
       body = JSON.stringify({
-        inputText: `${this.promptPrefix}${prompt}${this.promptSuffix}`,
-        ...JSON.parse(params.body.toString()),
+        ...params.body,
+        inputText: prompt,
+      });
+    } else if (this.provider === "cohere") {
+      body = JSON.stringify({
+        ...params.body,
+        stream: this.streaming,
+        prompt,
+      });
+    } else if (this.provider === "anthropic") {
+      body = JSON.stringify({
+        ...params.body,
+        stop_sequences: ["\n\nHuman:", ...(params.body.stop_sequences ?? [])],
+        prompt: `\n\nHuman: ${prompt}\n\nAssistant: `,
       });
     } else {
-      body = JSON.stringify({
-        prompt: `${this.promptPrefix}${prompt}${this.promptSuffix}`,
-        ...JSON.parse(JSON.stringify(params.body)),
-      });
+      throw new Error(`Unknown provider: ${this.provider}`);
     }
 
+    this._log("Created bedrock invoke body:", body);
     return body;
   }
 
+  _extractOutputFromResponseBody(response: string): string {
+    this._log("Extracting output from bedrock response:", response);
+    if (this.provider === "amazon") {
+      return JSON.parse(response).outputText;
+    } else if (this.provider === "cohere") {
+      if (this.streaming) {
+        const text = JSON.parse(response).text;
+        if (!text || text === "<EOS_TOKEN>") {
+          return "";
+        }
+        return text;
+      } else {
+        return JSON.parse(response).generations[0].text;
+      }
+    } else if (this.provider === "anthropic") {
+      return JSON.parse(response).completion;
+    } else {
+      throw new Error(`Unknown provider: ${this.provider}`);
+    }
+  }
+
   _llmType() {
-    return "amazon-bedrock";
+    return "rai-amazon-bedrock";
   }
 }
