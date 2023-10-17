@@ -19,7 +19,7 @@ export interface NeonVectorStoreArgs {
   dimensions: number;
   filter?: Metadata;
   verbose?: boolean;
-  distance?: "cosine" | "l2" | "manhattan";
+  distance?: "cosine" | "l2" | "innerProduct";
 }
 
 export class NeonVectorStoreDocument extends Document {
@@ -43,7 +43,7 @@ const defaultDocumentTableName = "documents";
 const distanceOperators = {
   l2: "<->",
   cosine: "<=>",
-  manhattan: "<~>",
+  innerProduct: "<#>",
 };
 
 export class NeonVectorStore extends VectorStore {
@@ -52,7 +52,7 @@ export class NeonVectorStore extends VectorStore {
   filter?: Metadata;
   dimensions: number;
   verbose: boolean;
-  distance: "l2" | "cosine" | "manhattan";
+  distance: "l2" | "cosine" | "innerProduct";
 
   readOnlyQueryFn: NeonQueryFunction<false, false>;
   readWriteQueryFn: NeonQueryFunction<false, false>;
@@ -70,7 +70,7 @@ export class NeonVectorStore extends VectorStore {
     this.filter = fields.filter;
     this.dimensions = fields.dimensions;
     this.verbose = fields.verbose ?? false;
-    this.distance = fields.distance ?? "cosine";
+    this.distance = fields.distance ?? "l2";
 
     neonConfig.fetchConnectionCache = true;
     this.readOnlyQueryFn = neon(
@@ -93,9 +93,9 @@ export class NeonVectorStore extends VectorStore {
     });
   }
 
-  log(message: string, ...optionalParams: any[]): void {
+  _log(message: any, ...optionalParams: any[]): void {
     if (this.verbose) {
-      console.log(`[NeonVectorStore] ${message}`, optionalParams);
+      console.log(`[NeonVectorStore] ${message}`, ...optionalParams);
     }
   }
 
@@ -109,9 +109,9 @@ export class NeonVectorStore extends VectorStore {
 
   async addDocuments(documents: Document[]): Promise<void> {
     if (documents.length === 0) {
-      this.log(`No documents to add to vector store`);
+      this._log(`No documents to add to vector store`);
     } else if (documents.length === 1) {
-      this.log(`Adding single document to vector store`);
+      this._log(`Adding single document to vector store`);
       await this.addVectors(
         await this.embeddings.embedDocuments(
           documents.map(({ pageContent }) => pageContent)
@@ -125,7 +125,7 @@ export class NeonVectorStore extends VectorStore {
           sliceEnd = documents.length - 1;
         }
         const docsSlice = documents.slice(i, sliceEnd);
-        this.log(
+        this._log(
           `Adding slice of documents to vector store: ${i} to ${sliceEnd}`
         );
         await this.addVectors(
@@ -140,7 +140,7 @@ export class NeonVectorStore extends VectorStore {
 
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
     const rows = vectors.map((embedding, idx) => {
-      const embeddingString = `{${embedding.join(",")}}`;
+      const embeddingString = `[${embedding.join(",")}]`;
       const documentRow = {
         page_content: documents[idx].pageContent,
         embedding: embeddingString,
@@ -153,7 +153,7 @@ export class NeonVectorStore extends VectorStore {
     const chunkSize = 100;
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
-      this.log(
+      this._log(
         `Inserting ${chunk.length} rows into vector store: ${JSON.stringify(
           chunk
         )}`
@@ -163,11 +163,11 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteQueryFn(
           `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
           SELECT * FROM jsonb_to_recordset($1::jsonb)
-          AS x(page_content text, embedding real[], metadata jsonb);`,
+          AS x(page_content text, embedding vector(${this.dimensions}), metadata jsonb);`,
           [JSON.stringify(chunk)]
         );
       } catch (e) {
-        this.log(`Error inserting chunk: ${e}`);
+        this._log(`Error inserting chunk: ${e}`);
         errors.push(e);
       }
     }
@@ -183,10 +183,10 @@ export class NeonVectorStore extends VectorStore {
     filter?: this["FilterType"],
     offset?: number
   ): Promise<[NeonVectorStoreDocument, number][]> {
-    const embeddingString = `{${query.join(",")}}`;
+    const embeddingString = `[${query.join(",")}]`;
     const _filter = filter ?? "{}";
     const _offset = offset ?? 0;
-    this.log(
+    this._log(
       `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
         _filter
       )}`
@@ -215,7 +215,7 @@ export class NeonVectorStore extends VectorStore {
       }
     }
 
-    this.log(
+    this._log(
       `Found ${
         documents.length
       } similar results from vector store: ${JSON.stringify(results)}`
@@ -228,7 +228,7 @@ export class NeonVectorStore extends VectorStore {
     filter?: this["FilterType"]
   ): Promise<NeonVectorStoreDocument[]> {
     const _filter = filter ?? "{}";
-    this.log(
+    this._log(
       `Getting documents by ids from vector store with filter ${JSON.stringify(
         _filter
       )}`
@@ -241,7 +241,7 @@ export class NeonVectorStore extends VectorStore {
       [ids, _filter]
     );
 
-    this.log(
+    this._log(
       `Found ${
         documentsResult.length
       } documents by ids from vector store: ${JSON.stringify(documentsResult)}`
@@ -258,49 +258,57 @@ export class NeonVectorStore extends VectorStore {
    */
   async ensureTableInDatabase(): Promise<void> {
     try {
-      this.log("Connecting to database");
+      this._log("Connecting to database");
       await this.readWriteClient.connect();
 
-      this.log("Creating embedding extension");
+      this._log("Creating embedding extension");
       await this.readWriteClient.query(
-        "CREATE EXTENSION IF NOT EXISTS embedding;"
+        "CREATE EXTENSION IF NOT EXISTS vector;"
       );
 
-      this.log(`Creating table ${this.tableName}`);
+      this._log(`Creating table ${this.tableName}`);
       await this.readWriteClient.query(`
         CREATE TABLE IF NOT EXISTS ${this.tableName} (
           "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
           page_content text,
           metadata jsonb,
-          embedding real[]
+          embedding vector(${this.dimensions})
         );
       `);
 
-      this.log(`Creating HNSW index on ${this.tableName}. Drop if exists`);
-      const indexName = `${this.tableName}_hnsw_idx`;
-      await this.readWriteClient.query(`DROP INDEX IF EXISTS ${indexName};`);
-      await this.readWriteClient.query(
-        `CREATE INDEX IF NOT EXISTS ${indexName} ON ${this.tableName}
-          USING hnsw(embedding)
-          WITH (
-            dims=${this.dimensions}, 
-            m=64,
-            efconstruction=128, 
-            efsearch=256
-          );
-      `
-      );
-
-      this.log("Turning off seq scan");
-      await this.readWriteClient.query("SET enable_seqscan = off;");
+      if (this.distance === "l2") {
+        this._log(`Creating L2 HNSW index on ${this.tableName}.`);
+        const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
+        await this.readWriteClient.query(`
+        CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
+          USING hnsw (embedding vector_l2_ops)
+          WITH (m = 32, ef_construction = 64);
+      `);
+      } else if (this.distance === "cosine") {
+        this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
+        const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
+        await this.readWriteClient.query(`
+        CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
+          USING hnsw (embedding vector_cosine_ops)
+          WITH (m = 32, ef_construction = 64);
+      `);
+      } else if (this.distance === "innerProduct") {
+        this._log(`Creating inner product HNSW index on ${this.tableName}.`);
+        const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
+        await this.readWriteClient.query(`
+        CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
+          USING hnsw (embedding vector_ip_ops)
+          WITH (m = 32, ef_construction = 64);
+      `);
+      }
     } finally {
-      this.log("Closing database connection");
+      this._log("Closing database connection");
       await this.readWriteClient.end();
     }
   }
 
   async deleteTableInDatabase(): Promise<void> {
-    this.log(`Dropping table ${this.tableName}`);
+    this._log(`Dropping table ${this.tableName}`);
     await this.readWriteQueryFn(`DROP TABLE IF EXISTS ${this.tableName};`);
   }
 

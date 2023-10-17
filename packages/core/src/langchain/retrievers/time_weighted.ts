@@ -79,17 +79,20 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
   constructor(fields: RAITimeWeightedVectorStoreRetrieverFields) {
     super(fields);
     this.vectorStore = fields.vectorStore;
-    this.searchKwargs = fields.searchKwargs ?? { fetchK: 100 };
+    this.searchKwargs = fields.searchKwargs ?? { fetchK: 4 };
     this.memoryStream = fields.memoryStream ?? [];
     this.decayRate = fields.decayRate ?? 0.01;
-    this.k = fields.k ?? 4;
+    this.k = fields.k ?? fields.searchKwargs?.fetchK ?? 4;
     this.otherScoreKeys = fields.otherScoreKeys ?? [];
     this.defaultSalience = fields.defaultSalience ?? null;
   }
 
-  log(message: string, ...args: any[]) {
+  _log(message: any, ...optionalParams: any[]) {
     if (this.verbose) {
-      console.log(`[RAITimeWeightedVectorStoreRetriever] ${message}`, ...args);
+      console.log(
+        `[RAITimeWeightedVectorStoreRetriever] ${message}`,
+        ...optionalParams
+      );
     }
   }
 
@@ -154,7 +157,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     number,
     { doc: Document; score: number }
   > {
-    this.log(`Getting memory documents and scores`);
+    this._log(`Getting memory documents and scores`);
 
     const memoryDocsAndScores: Record<
       number,
@@ -173,7 +176,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
       };
     }
 
-    this.log(
+    this._log(
       `Found ${
         Object.keys(memoryDocsAndScores).length
       } memory documents and scores: ${JSON.stringify(memoryDocsAndScores)}`
@@ -190,12 +193,12 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     query: string,
     runManager?: CallbackManagerForRetrieverRun
   ): Promise<Record<number, { doc: Document; score: number }>> {
-    this.log(`Searching vector store for query: ${query}`);
+    this._log(`Searching vector store for query: ${query}`);
 
     const docAndScores: [Document, number][] =
       await this.vectorStore.similaritySearchWithScore(
         query,
-        this.searchKwargs.fetchK,
+        this.k,
         undefined,
         runManager?.getChild()
       );
@@ -211,7 +214,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
       results[bufferIdx] = { doc: fetchedDoc, score };
     }
 
-    this.log(
+    this._log(
       `Found ${
         docAndScores.length
       } salient documents from vector store: ${JSON.stringify(docAndScores)}`
@@ -229,7 +232,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     docsAndScores: Record<number, { doc: Document; score: number }>,
     now: number
   ): Document[] {
-    this.log(
+    this._log(
       `Computing results from ${JSON.stringify(
         docsAndScores
       )} with now=${now} and decay_rate=${this.decayRate}`
@@ -252,7 +255,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
       }
     }
 
-    this.log(`Computed results: ${JSON.stringify(results)}`);
+    this._log(`Computed results: ${JSON.stringify(results)}`);
     return results;
   }
 
@@ -286,7 +289,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     vectorRelevance: number | null,
     nowMsec: number
   ): number {
-    this.log(
+    this._log(
       `Computing combined score for ${JSON.stringify(
         doc
       )} with vector_relevance=${vectorRelevance} and now_msec=${nowMsec}`
@@ -304,7 +307,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
       score += vectorRelevance;
     }
 
-    this.log(`Computed combined score: ${score}`);
+    this._log(`Computed combined score: ${score}`);
     return score;
   }
 

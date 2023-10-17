@@ -11,6 +11,8 @@ buildscript {
         classpath 'com.google.gms:google-services:4.4.0'
         // END: FlutterFire Configuration
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+
+        classpath "com.newrelic.agent.android:agent-gradle-plugin:7.0.0"
     }
 }
 

@@ -1,9 +1,10 @@
-import { DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
+import { Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
 import { Cron, StackContext, dependsOn, use } from "sst/constructs";
 
 export function Crons({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { invokeBedrockPolicy } = use(Constants);
   const { devotionImageBucket } = use(S3);
   const {
     dbReadWriteUrl,
@@ -18,7 +19,7 @@ export function Crons({ stack }: StackContext) {
       function: {
         handler: "packages/functions/src/daily-devo.handler",
         bind: [devotionImageBucket],
-        permissions: [devotionImageBucket],
+        permissions: [devotionImageBucket, invokeBedrockPolicy],
         copyFiles: [
           {
             from: "firebase-service-account.json",

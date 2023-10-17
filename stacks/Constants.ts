@@ -1,4 +1,5 @@
 import { STATIC_ENV_VARS } from "@stacks";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { HostedZone } from "aws-cdk-lib/aws-route53";
 import { StackContext } from "sst/constructs";
 
@@ -36,10 +37,17 @@ export function Constants({ stack, app }: StackContext) {
     architecture: "x86_64",
   });
 
+  const invokeBedrockPolicy = new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+    resources: ["*"],
+  });
+
   return {
     hostedZone,
     domainName,
     domainNamePrefix,
     websiteUrl,
+    invokeBedrockPolicy,
   };
 }

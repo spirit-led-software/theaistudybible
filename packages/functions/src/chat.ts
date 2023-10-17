@@ -231,7 +231,7 @@ const lambdaHandler = async (
           updateAiResponse(aiResponse.id, {
             text: result.text,
           }),
-          ...result.sourceDocuments?.map(
+          ...(result.sourceDocuments?.map(
             async (sourceDoc: NeonVectorStoreDocument) => {
               await readWriteDatabase
                 .insert(aiResponsesToSourceDocuments)
@@ -240,7 +240,7 @@ const lambdaHandler = async (
                   sourceDocumentId: sourceDoc.id,
                 });
             }
-          ),
+          ) ?? []),
         ]);
       })
       .catch(async (err) => {

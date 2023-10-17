@@ -155,115 +155,127 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 30,
                   ),
-                  if (token == null)
-                    TextField(
-                      autocorrect: false,
-                      keyboardType: TextInputType.emailAddress,
-                      controller: emailTextController,
-                      focusNode: emailFocusNode,
-                      onTapOutside: (event) {
-                        emailFocusNode.unfocus();
-                      },
-                      onSubmitted: (value) {
-                        emailFocusNode.unfocus();
-                      },
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Email",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
+                  if (token == null) ...[
+                    AutofillGroup(
+                      child: TextField(
+                        autofillHints: const [AutofillHints.email],
+                        autocorrect: false,
+                        keyboardType: TextInputType.emailAddress,
+                        controller: emailTextController,
+                        focusNode: emailFocusNode,
+                        onTapOutside: (event) {
+                          emailFocusNode.unfocus();
+                        },
+                        onSubmitted: (value) {
+                          emailFocusNode.unfocus();
+                        },
+                        style: TextStyle(
+                          color: RAIColors.primary,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RAIColors.primary,
-                            width: 1,
+                        decoration: InputDecoration(
+                          hintText: "Email",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: RAIColors.primary,
+                              width: 1,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  ],
                   if (token != null) ...[
-                    TextField(
-                      autocorrect: false,
-                      obscureText: !showPassword.value,
-                      keyboardType: TextInputType.visiblePassword,
-                      controller: passwordTextController,
-                      focusNode: passwordFocusNode,
-                      onTapOutside: (event) {
-                        passwordFocusNode.unfocus();
-                      },
-                      onSubmitted: (value) {
-                        passwordFocusNode.unfocus();
-                      },
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RAIColors.primary,
-                            width: 1,
+                    AutofillGroup(
+                      child: Column(
+                        children: [
+                          TextField(
+                            autofillHints: const [AutofillHints.newPassword],
+                            autocorrect: false,
+                            obscureText: !showPassword.value,
+                            keyboardType: TextInputType.visiblePassword,
+                            controller: passwordTextController,
+                            focusNode: passwordFocusNode,
+                            onTapOutside: (event) {
+                              passwordFocusNode.unfocus();
+                            },
+                            onSubmitted: (value) {
+                              passwordFocusNode.unfocus();
+                            },
+                            style: TextStyle(
+                              color: RAIColors.primary,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Password",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: RAIColors.primary,
+                                  width: 1,
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  showPassword.value = !showPassword.value;
+                                },
+                                icon: FaIcon(
+                                  showPassword.value
+                                      ? FontAwesomeIcons.eye
+                                      : FontAwesomeIcons.eyeSlash,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            showPassword.value = !showPassword.value;
-                          },
-                          icon: FaIcon(
-                            showPassword.value
-                                ? FontAwesomeIcons.eye
-                                : FontAwesomeIcons.eyeSlash,
-                            size: 18,
+                          const SizedBox(
+                            height: 10,
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextField(
-                      autocorrect: false,
-                      obscureText: !showConfirmPassword.value,
-                      keyboardType: TextInputType.visiblePassword,
-                      controller: confirmPasswordTextController,
-                      focusNode: confirmPasswordFocusNode,
-                      onTapOutside: (event) {
-                        confirmPasswordFocusNode.unfocus();
-                      },
-                      onSubmitted: (value) {
-                        confirmPasswordFocusNode.unfocus();
-                      },
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Confirm Password",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: RAIColors.primary,
-                            width: 1,
+                          TextField(
+                            autofillHints: const [AutofillHints.newPassword],
+                            autocorrect: false,
+                            obscureText: !showConfirmPassword.value,
+                            keyboardType: TextInputType.visiblePassword,
+                            controller: confirmPasswordTextController,
+                            focusNode: confirmPasswordFocusNode,
+                            onTapOutside: (event) {
+                              confirmPasswordFocusNode.unfocus();
+                            },
+                            onSubmitted: (value) {
+                              confirmPasswordFocusNode.unfocus();
+                            },
+                            style: TextStyle(
+                              color: RAIColors.primary,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Confirm Password",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: RAIColors.primary,
+                                  width: 1,
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  showConfirmPassword.value =
+                                      !showConfirmPassword.value;
+                                },
+                                icon: FaIcon(
+                                  showConfirmPassword.value
+                                      ? FontAwesomeIcons.eye
+                                      : FontAwesomeIcons.eyeSlash,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            showConfirmPassword.value =
-                                !showConfirmPassword.value;
-                          },
-                          icon: FaIcon(
-                            showConfirmPassword.value
-                                ? FontAwesomeIcons.eye
-                                : FontAwesomeIcons.eyeSlash,
-                            size: 18,
-                          ),
-                        ),
+                        ],
                       ),
                     ),
                   ],

@@ -1,10 +1,11 @@
-import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
+import { Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { RemovalPolicy } from "aws-cdk-lib/core";
 import { Bucket, StackContext, dependsOn, use } from "sst/constructs";
 
 export function S3({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { invokeBedrockPolicy } = use(Constants);
   const {
     dbReadWriteUrl,
     dbReadOnlyUrl,
@@ -22,7 +23,7 @@ export function S3({ stack }: StackContext) {
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
           ...STATIC_ENV_VARS,
         },
-        permissions: ["s3"],
+        permissions: ["s3", invokeBedrockPolicy],
         timeout: "60 seconds",
         memorySize: "1 GB",
       },

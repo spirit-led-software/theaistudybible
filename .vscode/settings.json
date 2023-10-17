@@ -7,7 +7,8 @@
     "autofocus",
     "Devo",
     "flushbar",
-    "REVENUECAT"
+    "REVENUECAT",
+    "unfocus"
   ],
   "java.configuration.updateBuildConfiguration": "automatic"
 }

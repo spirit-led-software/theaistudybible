@@ -25,6 +25,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.429.0",
     "@aws-sdk/client-s3": "^3.428.0",
     "@aws-sdk/client-sqs": "^3.428.0",
     "@aws-sdk/credential-providers": "^3.428.0",

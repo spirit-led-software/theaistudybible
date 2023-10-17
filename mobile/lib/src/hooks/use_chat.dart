@@ -113,8 +113,7 @@ Future<ChatMessage> getStreamedResponse({
     messages.value = prevMessages;
     final data =
         jsonDecode(await response.stream.transform(utf8.decoder).join());
-    throw Exception(
-        data['error'] ?? response.reasonPhrase ?? 'An unknown error occured');
+    throw Exception(data['error'] ?? 'An unknown error occured');
   }
 
   response.headers.containsKey("x-chat-id")

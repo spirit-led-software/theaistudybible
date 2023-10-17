@@ -1,10 +1,11 @@
-import { DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
+import { Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import { Duration } from "aws-cdk-lib/core";
 import { Queue, StackContext, dependsOn, use } from "sst/constructs";
 
 export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { invokeBedrockPolicy } = use(Constants);
   const {
     dbReadWriteUrl,
     dbReadOnlyUrl,
@@ -28,7 +29,7 @@ export function Queues({ stack }: StackContext) {
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
           ...STATIC_ENV_VARS,
         },
-        permissions: ["sqs"],
+        permissions: ["sqs", invokeBedrockPolicy],
         nodejs: {
           install: ["@sparticuz/chromium"],
           esbuild: {
