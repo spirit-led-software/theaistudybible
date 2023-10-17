@@ -20,7 +20,11 @@ import {
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
-import { FunctionUrlAuthType, InvokeMode } from "aws-cdk-lib/aws-lambda";
+import {
+  CfnFunction,
+  FunctionUrlAuthType,
+  InvokeMode,
+} from "aws-cdk-lib/aws-lambda";
 import { ARecord, AaaaRecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 
@@ -30,8 +34,13 @@ export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
-  const { hostedZone, domainName, domainNamePrefix, websiteUrl } =
-    use(Constants);
+  const {
+    hostedZone,
+    domainName,
+    domainNamePrefix,
+    websiteUrl,
+    invokeBedrockPolicy,
+  } = use(Constants);
   const { auth } = use(Auth);
   const { devotionImageBucket } = use(S3);
   const {
@@ -61,7 +70,12 @@ export function API({ stack }: StackContext) {
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
     memorySize: "2 GB",
+    permissions: [invokeBedrockPolicy],
   });
+  (chatApiFunction.node.defaultChild as CfnFunction).tags.setTag(
+    "newrelic-ignore",
+    "true"
+  );
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
     authType: FunctionUrlAuthType.NONE,
@@ -158,6 +172,7 @@ export function API({ stack }: StackContext) {
               external: ["@sparticuz/chromium"],
             },
           },
+          permissions: [invokeBedrockPolicy],
           timeout: "15 minutes",
           memorySize: "1 GB",
         },
@@ -202,7 +217,7 @@ export function API({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/rest/devotions/post.handler",
           bind: [devotionImageBucket],
-          permissions: [devotionImageBucket],
+          permissions: [devotionImageBucket, invokeBedrockPolicy],
           environment: {
             ...lambdaEnv,
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,

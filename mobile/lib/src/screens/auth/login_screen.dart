@@ -324,121 +324,125 @@ class LoginScreen extends HookConsumerWidget {
                   ),
                   Form(
                     key: formKey.value,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          autocorrect: false,
-                          keyboardType: TextInputType.emailAddress,
-                          controller: emailTextController,
-                          focusNode: emailFocusNode,
-                          style: TextStyle(
-                            color: RAIColors.primary,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Email",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
+                    child: AutofillGroup(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            autofillHints: const [AutofillHints.email],
+                            autocorrect: false,
+                            keyboardType: TextInputType.emailAddress,
+                            controller: emailTextController,
+                            focusNode: emailFocusNode,
+                            style: TextStyle(
+                              color: RAIColors.primary,
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: RAIColors.primary,
-                                width: 1,
+                            decoration: InputDecoration(
+                              hintText: "Email",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
                               ),
-                            ),
-                          ),
-                          onTapOutside: (event) {
-                            emailFocusNode.unfocus();
-                          },
-                          onFieldSubmitted: (value) {
-                            emailFocusNode.unfocus();
-                            passwordFocusNode.requestFocus();
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Email is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          autocorrect: false,
-                          obscureText: !showPassword.value,
-                          keyboardType: TextInputType.visiblePassword,
-                          controller: passwordTextController,
-                          focusNode: passwordFocusNode,
-                          onFieldSubmitted: (value) {
-                            passwordFocusNode.unfocus();
-                          },
-                          onTapOutside: (event) {
-                            passwordFocusNode.unfocus();
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Password is required";
-                            }
-                            return null;
-                          },
-                          style: TextStyle(
-                            color: RAIColors.primary,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "Password",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: RAIColors.primary,
-                                width: 1,
-                              ),
-                            ),
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                showPassword.value = !showPassword.value;
-                              },
-                              icon: FaIcon(
-                                showPassword.value
-                                    ? FontAwesomeIcons.eye
-                                    : FontAwesomeIcons.eyeSlash,
-                                size: 18,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: RAIColors.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  padding: const EdgeInsets.only(
-                                    top: 15,
-                                    bottom: 15,
-                                  ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: RAIColors.primary,
+                                  width: 1,
                                 ),
-                                onPressed: () async {
-                                  handleSubmit();
+                              ),
+                            ),
+                            onTapOutside: (event) {
+                              emailFocusNode.unfocus();
+                            },
+                            onFieldSubmitted: (value) {
+                              emailFocusNode.unfocus();
+                              passwordFocusNode.requestFocus();
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Email is required";
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            autofillHints: const [AutofillHints.password],
+                            autocorrect: false,
+                            obscureText: !showPassword.value,
+                            keyboardType: TextInputType.visiblePassword,
+                            controller: passwordTextController,
+                            focusNode: passwordFocusNode,
+                            onFieldSubmitted: (value) {
+                              passwordFocusNode.unfocus();
+                            },
+                            onTapOutside: (event) {
+                              passwordFocusNode.unfocus();
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Password is required";
+                              }
+                              return null;
+                            },
+                            style: TextStyle(
+                              color: RAIColors.primary,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: "Password",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: RAIColors.primary,
+                                  width: 1,
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  showPassword.value = !showPassword.value;
                                 },
-                                child: const Text(
-                                  "Login with Email",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
+                                icon: FaIcon(
+                                  showPassword.value
+                                      ? FontAwesomeIcons.eye
+                                      : FontAwesomeIcons.eyeSlash,
+                                  size: 18,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: RAIColors.primary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    padding: const EdgeInsets.only(
+                                      top: 15,
+                                      bottom: 15,
+                                    ),
+                                  ),
+                                  onPressed: () async {
+                                    handleSubmit();
+                                  },
+                                  child: const Text(
+                                    "Login with Email",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(

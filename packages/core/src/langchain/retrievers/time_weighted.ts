@@ -79,10 +79,10 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
   constructor(fields: RAITimeWeightedVectorStoreRetrieverFields) {
     super(fields);
     this.vectorStore = fields.vectorStore;
-    this.searchKwargs = fields.searchKwargs ?? { fetchK: 100 };
+    this.searchKwargs = fields.searchKwargs ?? { fetchK: 4 };
     this.memoryStream = fields.memoryStream ?? [];
     this.decayRate = fields.decayRate ?? 0.01;
-    this.k = fields.k ?? 4;
+    this.k = fields.k ?? fields.searchKwargs?.fetchK ?? 4;
     this.otherScoreKeys = fields.otherScoreKeys ?? [];
     this.defaultSalience = fields.defaultSalience ?? null;
   }
@@ -195,7 +195,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     const docAndScores: [Document, number][] =
       await this.vectorStore.similaritySearchWithScore(
         query,
-        this.searchKwargs.fetchK,
+        this.k,
         undefined,
         runManager?.getChild()
       );
