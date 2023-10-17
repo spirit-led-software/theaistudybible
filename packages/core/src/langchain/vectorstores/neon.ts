@@ -281,21 +281,24 @@ export class NeonVectorStore extends VectorStore {
         const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
-          USING hnsw (embedding vector_l2_ops);
+          USING hnsw (embedding vector_l2_ops)
+          WITH (m = 32, ef_construction = 64);
       `);
       } else if (this.distance === "cosine") {
         this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
         const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
-          USING hnsw (embedding vector_cosine_ops);
+          USING hnsw (embedding vector_cosine_ops)
+          WITH (m = 32, ef_construction = 64);
       `);
       } else if (this.distance === "innerProduct") {
         this._log(`Creating inner product HNSW index on ${this.tableName}.`);
         const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
-          USING hnsw (embedding vector_ip_ops);
+          USING hnsw (embedding vector_ip_ops)
+          WITH (m = 32, ef_construction = 64);
       `);
       }
     } finally {
