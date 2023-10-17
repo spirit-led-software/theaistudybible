@@ -282,7 +282,7 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
           USING hnsw (embedding vector_l2_ops)
-          WITH (m = 10, ef_construction = 64);
+          WITH (m = 32, ef_construction = 64);
       `);
       } else if (this.distance === "cosine") {
         this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
@@ -290,7 +290,7 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
           USING hnsw (embedding vector_cosine_ops)
-          WITH (m = 10, ef_construction = 64);
+          WITH (m = 32, ef_construction = 64);
       `);
       } else if (this.distance === "innerProduct") {
         this._log(`Creating inner product HNSW index on ${this.tableName}.`);
@@ -298,7 +298,7 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
           USING hnsw (embedding vector_ip_ops)
-          WITH (m = 10, ef_construction = 64);
+          WITH (m = 32, ef_construction = 64);
       `);
       }
     } finally {

@@ -1,6 +1,5 @@
 import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-multi-route";
 import { RAIBedrock } from "@core/langchain/llms/bedrock";
-import { NeonDocLLMChainExtractor } from "@core/langchain/retrievers/document_compressors/chain_extract";
 import { RAITimeWeightedVectorStoreRetriever } from "@core/langchain/retrievers/time_weighted";
 import type { Chat } from "@core/model";
 import type { Message } from "ai";
@@ -12,7 +11,6 @@ import {
   VectorStoreRetrieverMemory,
 } from "langchain/memory";
 import { PromptTemplate } from "langchain/prompts";
-import { ContextualCompressionRetriever } from "langchain/retrievers/contextual_compression";
 import { AIMessage, BaseMessage, HumanMessage } from "langchain/schema";
 import { getChatMemoryVectorStore, getDocumentVectorStore } from "./vector-db";
 
@@ -117,12 +115,8 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   );
 
   const documentVectorStore = await getDocumentVectorStore({ verbose: true });
-  const documentRetriever = new ContextualCompressionRetriever({
-    baseCompressor: NeonDocLLMChainExtractor.fromLLM(getPromptModel()),
-    baseRetriever: documentVectorStore.asRetriever({
-      k: 20,
-      verbose: true,
-    }),
+  const documentRetriever = documentVectorStore.asRetriever({
+    k: 20,
     verbose: true,
   });
   const documentRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
