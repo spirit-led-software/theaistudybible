@@ -1,7 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { axios, replicateConfig, s3Config } from "@core/configs";
-import { RAIBedrock } from "@core/langchain/llms/bedrock";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import type {
   CreateDevotionData,
@@ -143,16 +142,10 @@ export async function generateDevotion(bibleReading?: string) {
 
     const vectorStore = await getDocumentVectorStore();
     const chain = RetrievalQAChain.fromLLM(
-      new RAIBedrock({
+      getCreativeModel({
         modelId: "anthropic.claude-v2",
-        stream: false,
-        body: {
-          max_tokens_to_sample: 2048,
-          temperature: 0.8,
-          top_p: 0.5,
-          top_k: 100,
-          stop_sequences: ["</schema>"],
-        },
+        maxTokens: 4096,
+        stopSequences: ["</schema>"],
         promptSuffix: "<schema>",
       }),
       vectorStore.asRetriever(25),
@@ -374,16 +367,11 @@ async function getRandomBibleReading() {
 
   const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
-    new RAIBedrock({
+    getCreativeModel({
       modelId: "anthropic.claude-v2",
       stream: false,
-      body: {
-        max_tokens_to_sample: 256,
-        temperature: 0.1,
-        top_p: 0.01,
-        top_k: 0,
-        stop_sequences: ["</schema>"],
-      },
+      maxTokens: 2048,
+      stopSequences: ["</schema>"],
       promptSuffix: "<schema>",
     }),
     vectorStore.asRetriever(50),

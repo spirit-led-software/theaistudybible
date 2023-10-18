@@ -200,7 +200,7 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
     } else if (this.provider === "anthropic") {
       body = JSON.stringify({
         ...params.body,
-        stop_sequences: ["\n\nHuman:", ...(params.body.stop_sequences ?? [])],
+        stop_sequences: [...(params.body.stop_sequences ?? []), "\n\nHuman:"],
         prompt: `\n\nHuman: ${this.promptPrefix}${prompt}\n\nAssistant: ${this.promptSuffix}`,
       });
     } else {

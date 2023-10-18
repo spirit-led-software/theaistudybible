@@ -1,6 +1,10 @@
 import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-multi-route";
 import { RAIBedrock } from "@core/langchain/llms/bedrock";
 import { RAITimeWeightedVectorStoreRetriever } from "@core/langchain/retrievers/time_weighted";
+import type {
+  AnthropicModelId,
+  CohereModelId,
+} from "@core/langchain/types/bedrock-types";
 import type { Chat } from "@core/model";
 import type { Message } from "ai";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
@@ -21,6 +25,8 @@ export type StandardModelInput = {
   topP?: number;
   topK?: number;
   stopSequences?: string[];
+  promptPrefix?: string;
+  promptSuffix?: string;
 };
 
 export const getEmbeddingsModel = () =>
@@ -29,36 +35,44 @@ export const getEmbeddingsModel = () =>
   });
 
 export const getCreativeModel = ({
+  modelId = "anthropic.claude-instant-v1",
   temperature = 0.7,
   maxTokens = 512,
   stopSequences = [],
   stream = false,
   topK = 100,
   topP = 0.5,
-}: StandardModelInput = {}) =>
+  promptPrefix,
+  promptSuffix,
+}: StandardModelInput & { modelId?: AnthropicModelId } = {}) =>
   new RAIBedrock({
-    modelId: "anthropic.claude-instant-v1",
+    modelId: modelId,
     stream: stream,
     body: {
       max_tokens_to_sample: maxTokens,
       temperature: temperature,
       top_p: topP,
       top_k: topK,
-      stop_sequences: ["\n\nHuman:", ...stopSequences],
+      stop_sequences: stopSequences,
     },
+    promptPrefix,
+    promptSuffix,
     verbose: true,
   });
 
 export const getCommandModel = ({
+  modelId = "cohere.command-text-v14",
   temperature = 0.3,
   maxTokens = 256,
   stopSequences = [],
   stream = false,
   topK = 0,
   topP = 0.1,
-}: StandardModelInput = {}) =>
+  promptPrefix,
+  promptSuffix,
+}: StandardModelInput & { modelId?: CohereModelId } = {}) =>
   new RAIBedrock({
-    modelId: "cohere.command-text-v14",
+    modelId: modelId,
     stream: stream,
     body: {
       max_tokens: maxTokens,
@@ -68,6 +82,8 @@ export const getCommandModel = ({
       stop_sequences: stopSequences,
       return_likelihoods: "NONE",
     },
+    promptPrefix,
+    promptSuffix,
     verbose: true,
   });
 
