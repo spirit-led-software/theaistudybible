@@ -70,14 +70,11 @@ export class NeonVectorStore extends VectorStore {
     this.filter = fields.filter;
     this.dimensions = fields.dimensions;
     this.verbose = fields.verbose ?? false;
-    this.distance = fields.distance ?? "cosine";
+    this.distance = fields.distance ?? "l2";
 
     this.readOnlyQueryFn = neon(
       fields.connectionOptions.readOnlyUrl ||
-        fields.connectionOptions.readWriteUrl,
-      {
-        readOnly: true,
-      }
+        fields.connectionOptions.readWriteUrl
     );
     this.readWriteQueryFn = neon(fields.connectionOptions.readWriteUrl);
 
