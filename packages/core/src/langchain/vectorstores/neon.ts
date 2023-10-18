@@ -335,6 +335,8 @@ export class NeonVectorStore extends VectorStore {
           USING hnsw (embedding vector_ip_ops)
           WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
       `);
+      } else {
+        throw new Error(`Unknown distance metric ${this.distance}`);
       }
 
       this._log("Disabling sequential scans. Enabling index scans.");
@@ -373,6 +375,8 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(
           `DROP INDEX IF EXISTS ${ipIndexName};`
         );
+      } else {
+        throw new Error(`Unknown distance metric ${this.distance}`);
       }
     } finally {
       this._log("Closing database connection");

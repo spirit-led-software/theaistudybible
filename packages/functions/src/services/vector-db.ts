@@ -13,6 +13,8 @@ export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
         readOnlyUrl: vectorDBConfig.readUrl,
       },
       dimensions: 1536, // !! Must match embedding model output size. See ./llm.ts
+      hnswIdxM: 32,
+      hnswIdxEfConstruction: 128,
       verbose: envConfig.isLocal ? true : verbose,
     }
   );
