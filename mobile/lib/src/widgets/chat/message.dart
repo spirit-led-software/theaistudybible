@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
@@ -49,8 +51,31 @@ class Message extends HookConsumerWidget {
             width: 15,
           ),
           Flexible(
-            child: Text(
-              message.content + (isCurrentResponse ? "|" : ""),
+            child: SelectableText.rich(
+              TextSpan(
+                children: <InlineSpan>[
+                  TextSpan(
+                    text: message.content.trim(),
+                  ),
+                  if (isCurrentResponse) ...[
+                    WidgetSpan(
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        margin: const EdgeInsets.only(
+                          left: 5,
+                        ),
+                        child: SpinKitSpinningLines(
+                          color: RAIColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+              textAlign: TextAlign.start,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],
@@ -81,7 +106,7 @@ class Message extends HookConsumerWidget {
                       chatId: chatId,
                       message: message,
                       previousMessage: previousMessage,
-                      isLoading: isLoading,
+                      isChatLoading: isLoading,
                       isCurrentResponse: isCurrentResponse,
                     ),
                   ),

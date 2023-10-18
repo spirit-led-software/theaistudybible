@@ -297,7 +297,7 @@ class DevotionScreen extends HookConsumerWidget {
                     Container(
                       margin: const EdgeInsets.only(top: 20),
                       alignment: Alignment.center,
-                      child: Text(
+                      child: SelectableText(
                         devotion.value!.bibleReading.split(" - ").first,
                         style: const TextStyle(
                           fontSize: 20,
@@ -308,7 +308,7 @@ class DevotionScreen extends HookConsumerWidget {
                     const SizedBox(
                       height: 5,
                     ),
-                    Text(
+                    SelectableText(
                       devotion.value!.bibleReading.split(" - ").last,
                     ),
                     Container(
@@ -316,7 +316,7 @@ class DevotionScreen extends HookConsumerWidget {
                         top: 40,
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
+                      child: const SelectableText(
                         "Summary",
                         style: TextStyle(
                           fontSize: 20,
@@ -324,7 +324,7 @@ class DevotionScreen extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                    Text(
+                    SelectableText(
                       devotion.value!.summary,
                     ),
                     Container(
@@ -332,7 +332,7 @@ class DevotionScreen extends HookConsumerWidget {
                         top: 20,
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
+                      child: const SelectableText(
                         "Reflection",
                         style: TextStyle(
                           fontSize: 20,
@@ -340,7 +340,7 @@ class DevotionScreen extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                    Text(
+                    SelectableText(
                       devotion.value!.reflection!,
                     ),
                     Container(
@@ -348,7 +348,7 @@ class DevotionScreen extends HookConsumerWidget {
                         top: 20,
                       ),
                       alignment: Alignment.center,
-                      child: const Text(
+                      child: const SelectableText(
                         "Prayer",
                         style: TextStyle(
                           fontSize: 20,
@@ -356,7 +356,7 @@ class DevotionScreen extends HookConsumerWidget {
                         ),
                       ),
                     ),
-                    Text(
+                    SelectableText(
                       devotion.value!.prayer!,
                     ),
                     if (images.value.isNotEmpty) ...[
@@ -403,53 +403,64 @@ class DevotionScreen extends HookConsumerWidget {
                       ),
                     ],
                     Container(
-                      margin: const EdgeInsets.only(
-                        top: 20,
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        "Sources",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Container(
                       margin: const EdgeInsets.only(bottom: 20),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: sourceDocs.value.length,
-                        itemBuilder: (context, index) {
-                          return Link(
-                            key: ValueKey(sourceDocs.value[index].id),
-                            uri: Uri.parse(
-                              sourceDocs.value[index].metadata['url'],
-                            ),
-                            target: LinkTarget.blank,
-                            builder: (context, followLink) => ListTile(
-                              dense: true,
-                              visualDensity: RAIVisualDensity.tightest,
-                              leading: Icon(
-                                Icons.link,
-                                size: 15,
-                                color: Colors.grey.shade600,
-                              ),
-                              title: Text(
-                                sourceDocs.value[index].metadata['name'],
-                                softWrap: false,
-                                overflow: TextOverflow.fade,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
+                      child: ExpansionTile(
+                        title: const Text(
+                          "Sources",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: sourceDocs.value.length,
+                            itemBuilder: (context, index) {
+                              return Link(
+                                key: ValueKey(sourceDocs.value[index].id),
+                                uri: Uri.parse(
+                                  sourceDocs.value[index].metadata['url'],
                                 ),
-                              ),
-                              onTap: followLink,
-                            ),
-                          );
-                        },
+                                target: LinkTarget.blank,
+                                builder: (context, followLink) => ListTile(
+                                  dense: true,
+                                  visualDensity: RAIVisualDensity.tightest,
+                                  leading: Icon(
+                                    Icons.link,
+                                    size: 15,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                  title: Text(
+                                    sourceDocs.value[index].metadata['name']
+                                        .split(" - ")
+                                        .first
+                                        .toString(),
+                                    softWrap: false,
+                                    overflow: TextOverflow.fade,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    sourceDocs.value[index].metadata['url']
+                                        .toString(),
+                                    softWrap: false,
+                                    overflow: TextOverflow.fade,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  onTap: followLink,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ],

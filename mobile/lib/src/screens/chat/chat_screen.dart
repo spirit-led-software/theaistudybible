@@ -92,38 +92,51 @@ class ChatScreen extends HookConsumerWidget {
     }
 
     useEffect(() {
-      bool hookChanged = chatHook.chatId.value != chatId && chatId == null;
-      String? id = chatId ?? chatHook.chatId.value;
-      if (id != null) {
-        if (loadedChats.value?.containsKey(id) ?? false) {
+      if (chatId != null) {
+        if (loadedChats.value?.containsKey(chatId) ?? false) {
           if (isMounted()) {
-            final chatData = loadedChats.value![id];
+            final chatData = loadedChats.value![chatId];
             chat.value = chatData!.chat;
             chatHook.messages.value = chatData.messages;
           }
         } else {
-          if (hookChanged) {
-            ref.read(chatsProvider(chatHook.chatId.value!).future).then(
-              (value) {
-                if (isMounted()) {
-                  chat.value = value;
-                }
-              },
-            );
-          } else {
-            loadingChat.value = true;
-            fetchChatData(chatId!).whenComplete(() {
-              if (isMounted()) loadingChat.value = false;
-            });
-          }
+          loadingChat.value = true;
+          fetchChatData(chatId!).whenComplete(() {
+            if (isMounted()) loadingChat.value = false;
+          });
         }
       } else {
-        chatHook.chatId.value = null;
-        chatHook.messages.value = [];
+        if (isMounted()) {
+          chat.value = null;
+          chatHook.chatId.value = null;
+          chatHook.messages.value = [];
+        }
       }
 
       return () {};
-    }, [chatId, chatHook.chatId.value]);
+    }, [chatId]);
+
+    useEffect(() {
+      if (chatHook.chatId.value != null && chatHook.chatId.value != chatId) {
+        if (loadedChats.value?.containsKey(chatHook.chatId.value) ?? false) {
+          if (isMounted()) {
+            final chatData = loadedChats.value![chatHook.chatId.value];
+            chat.value = chatData!.chat;
+            chatHook.messages.value = chatData.messages;
+          }
+        } else {
+          ref.read(chatsProvider(chatHook.chatId.value!).future).then(
+            (value) {
+              if (isMounted()) {
+                chat.value = value;
+              }
+            },
+          );
+        }
+      }
+
+      return () {};
+    }, [chatHook.chatId.value]);
 
     useEffect(() {
       if (chat.value != null) {

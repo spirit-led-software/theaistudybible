@@ -89,8 +89,19 @@ Future<ChatMessage> getStreamedResponse({
   Function(StreamedResponse)? onResponse,
   Function(ChatMessage)? onFinish,
 }) async {
-  List<ChatMessage> prevMessages = messagesRef.value;
   messages.value = chatRequest.messages;
+  final prevMessages = messagesRef.value;
+
+  final reply = ChatMessage(
+    id: nanoid(),
+    content: '',
+    role: Role.assistant,
+  );
+  currentResponseId.value = reply.id;
+  messages.value = [
+    ...chatRequest.messages,
+    reply,
+  ];
 
   final uri = Uri.parse(API.chatUrl);
   final client = Client();
@@ -110,7 +121,15 @@ Future<ChatMessage> getStreamedResponse({
   final response = await client.send(request);
   if (onResponse != null) onResponse(response);
   if (response.statusCode != 200) {
-    messages.value = prevMessages;
+    messages.value = [
+      ...prevMessages,
+      ChatMessage(
+        id: nanoid(),
+        uuid: null,
+        content: "Failed to generate a response.",
+        role: Role.assistant,
+      ),
+    ];
     final data =
         jsonDecode(await response.stream.transform(utf8.decoder).join());
     throw Exception(data['error'] ?? 'An unknown error occured');
@@ -129,14 +148,7 @@ Future<ChatMessage> getStreamedResponse({
           Uuid.isValidUUID(fromString: response.headers["x-ai-response-id"]!)
       ? response.headers["x-ai-response-id"]
       : null;
-
-  final reply = ChatMessage(
-    id: nanoid(),
-    uuid: aiResponseUuid,
-    content: '',
-    role: Role.assistant,
-  );
-  currentResponseId.value = reply.id;
+  reply.uuid = aiResponseUuid;
 
   response.stream.transform(utf8.decoder).listen(
     (value) {
@@ -152,6 +164,16 @@ Future<ChatMessage> getStreamedResponse({
       currentResponseId.value = null;
     },
     onError: (error) {
+      messages.value = [
+        ...prevMessages,
+        ChatMessage(
+          id: nanoid(),
+          uuid: aiResponseUuid,
+          content: "Failed to generate a response.",
+          role: Role.assistant,
+        ),
+      ];
+      currentResponseId.value = null;
       throw error;
     },
     cancelOnError: true,
