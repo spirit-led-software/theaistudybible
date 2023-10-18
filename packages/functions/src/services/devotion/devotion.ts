@@ -1,6 +1,7 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { axios, replicateConfig, s3Config } from "@core/configs";
+import { RAIBedrock } from "@core/langchain/llms/bedrock";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import type {
   CreateDevotionData,
@@ -141,15 +142,25 @@ export async function generateDevotion(bibleReading?: string) {
     );
 
     const fullPrompt = PromptTemplate.fromTemplate(
-      `Given the following Bible reading:\n{bibleReading}\n\n
-      Write a non-denominational Christian devotion.\n\n
+      `Given the following Bible reading:\n{bibleReading}
+
+      Write a non-denominational Christian devotion.
+
+      **RETURN EXACTLY THE FORMAT BELOW WITHOUT ANY ADDITIONAL TEXT**
       {format_instructions}`
     );
 
     const vectorStore = await getDocumentVectorStore();
     const chain = RetrievalQAChain.fromLLM(
-      getCreativeModel({
-        maxTokens: 2048,
+      new RAIBedrock({
+        modelId: "anthropic.claude-v2",
+        stream: false,
+        body: {
+          max_tokens_to_sample: 2048,
+          temperature: 0.8,
+          top_p: 0.5,
+          top_k: 100,
+        },
       }),
       vectorStore.asRetriever(30),
       {
@@ -343,11 +354,16 @@ async function generateDevotionImages(devo: Devotion) {
 async function getRandomBibleReading() {
   const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
-    getCreativeModel({
-      temperature: 0.3,
-      topK: 0,
-      topP: 0.1,
-    }), // Need the larger context model here to fetch bible verses.
+    new RAIBedrock({
+      modelId: "anthropic.claude-v2",
+      stream: false,
+      body: {
+        max_tokens_to_sample: 256,
+        temperature: 0.1,
+        top_p: 0.01,
+        top_k: 0,
+      },
+    }),
     vectorStore.asRetriever(100),
     {
       returnSourceDocuments: true,
@@ -376,7 +392,9 @@ async function getRandomBibleReading() {
   const formatInstructions = bibleReadingOutputParser.getFormatInstructions();
   console.log(`Format instructions: ${formatInstructions}`);
   const bibleReading = await bibleReadingChain.call({
-    prompt: `Find a bible passage that is between 1 and 20 verses long about ${topic}\n\n${formatInstructions}`,
+    prompt: `Find a bible passage that is between 1 and 20 verses long about ${topic}
+    **RETURN EXACTLY THE FORMAT BELOW WITHOUT ANY ADDITIONAL TEXT**
+    ${formatInstructions}`,
   });
   const bibleReadingOutput = await bibleReadingOutputParser.parse(
     bibleReading.text

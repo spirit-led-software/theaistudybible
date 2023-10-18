@@ -23,7 +23,7 @@ export type AnthropicModelBody = {
   top_p: number;
   top_k: number;
   max_tokens_to_sample: number;
-  stop_sequences: ["\n\nHuman:", ...string[]];
+  stop_sequences?: string[];
 };
 
 export type AI21ModelId = "ai21.j2-ultra-v1" | "ai21.j2-mid-v1";
