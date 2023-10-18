@@ -72,7 +72,6 @@ export class NeonVectorStore extends VectorStore {
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "cosine";
 
-    neonConfig.fetchConnectionCache = true;
     this.readOnlyQueryFn = neon(
       fields.connectionOptions.readOnlyUrl ||
         fields.connectionOptions.readWriteUrl,
