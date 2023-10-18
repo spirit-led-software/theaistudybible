@@ -351,7 +351,9 @@ export class NeonVectorStore extends VectorStore {
 
   async deleteTableInDatabase(): Promise<void> {
     this._log(`Dropping table ${this.tableName}`);
-    await this.readWriteQueryFn(`DROP TABLE IF EXISTS ${this.tableName};`);
+    await this.readWriteQueryFn(
+      `DROP TABLE IF EXISTS ${this.tableName} CASCADE;`
+    );
   }
 
   async dropHnswIndex(): Promise<void> {
