@@ -87,7 +87,9 @@ export class NeonVectorStore extends VectorStore {
     });
 
     this.readWriteUrl = fields.connectionOptions.readWriteUrl;
-    this.readWriteQueryFn = neon(fields.connectionOptions.readWriteUrl);
+    this.readWriteQueryFn = neon(this.readWriteUrl, {
+      readOnly: false,
+    });
   }
 
   _log(message: any, ...optionalParams: any[]): void {
