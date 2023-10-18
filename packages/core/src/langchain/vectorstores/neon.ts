@@ -8,7 +8,6 @@ import type { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
 import type { Embeddings } from "langchain/embeddings/base";
 import { VectorStore } from "langchain/vectorstores/base";
-import ws from "ws";
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -58,11 +57,11 @@ export class NeonVectorStore extends VectorStore {
   hnswIdxM: number;
   hnswIdxEfConstruction: number;
 
+  readOnlyUrl: string;
   readOnlyQueryFn: NeonQueryFunction<false, false>;
-  readWriteQueryFn: NeonQueryFunction<false, false>;
 
-  readOnlyClient: Client;
-  readWriteClient: Client;
+  readWriteUrl: string;
+  readWriteQueryFn: NeonQueryFunction<false, false>;
 
   _vectorstoreType(): string {
     return "neon";
@@ -79,24 +78,16 @@ export class NeonVectorStore extends VectorStore {
     this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
 
     neonConfig.fetchConnectionCache = true;
-    this.readOnlyQueryFn = neon(
-      fields.connectionOptions.readOnlyUrl ||
-        fields.connectionOptions.readWriteUrl,
-      {
-        readOnly: true,
-      }
-    );
-    this.readWriteQueryFn = neon(fields.connectionOptions.readWriteUrl);
 
-    neonConfig.webSocketConstructor = ws;
-    this.readOnlyClient = new Client({
-      connectionString:
-        fields.connectionOptions.readOnlyUrl ||
-        fields.connectionOptions.readWriteUrl,
+    this.readOnlyUrl =
+      fields.connectionOptions.readOnlyUrl ||
+      fields.connectionOptions.readWriteUrl;
+    this.readOnlyQueryFn = neon(this.readOnlyUrl, {
+      readOnly: true,
     });
-    this.readWriteClient = new Client({
-      connectionString: fields.connectionOptions.readWriteUrl,
-    });
+
+    this.readWriteUrl = fields.connectionOptions.readWriteUrl;
+    this.readWriteQueryFn = neon(fields.connectionOptions.readWriteUrl);
   }
 
   _log(message: any, ...optionalParams: any[]): void {
@@ -292,17 +283,19 @@ export class NeonVectorStore extends VectorStore {
    * Only needs to be called once. Will not overwrite existing table or index.
    */
   async ensureTableInDatabase(): Promise<void> {
+    let client: Client | undefined;
     try {
+      client = new Client(this.readWriteUrl);
+      client.neonConfig.webSocketConstructor = await import("ws");
+
       this._log("Connecting to database");
-      await this.readWriteClient.connect();
+      await client.connect();
 
       this._log("Creating vector extension");
-      await this.readWriteClient.query(
-        "CREATE EXTENSION IF NOT EXISTS vector;"
-      );
+      await client.query("CREATE EXTENSION IF NOT EXISTS vector;");
 
       this._log(`Creating table ${this.tableName}`);
-      await this.readWriteClient.query(`
+      await client.query(`
         CREATE TABLE IF NOT EXISTS ${this.tableName} (
           "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
           page_content text,
@@ -314,7 +307,7 @@ export class NeonVectorStore extends VectorStore {
       if (this.distance === "l2") {
         this._log(`Creating L2 HNSW index on ${this.tableName}.`);
         const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
-        await this.readWriteClient.query(`
+        await client.query(`
         CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
           USING hnsw (embedding vector_l2_ops)
           WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
@@ -322,7 +315,7 @@ export class NeonVectorStore extends VectorStore {
       } else if (this.distance === "cosine") {
         this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
         const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
-        await this.readWriteClient.query(`
+        await client.query(`
         CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
           USING hnsw (embedding vector_cosine_ops)
           WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
@@ -330,7 +323,7 @@ export class NeonVectorStore extends VectorStore {
       } else if (this.distance === "innerProduct") {
         this._log(`Creating inner product HNSW index on ${this.tableName}.`);
         const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
-        await this.readWriteClient.query(`
+        await client.query(`
         CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
           USING hnsw (embedding vector_ip_ops)
           WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
@@ -340,15 +333,17 @@ export class NeonVectorStore extends VectorStore {
       }
 
       this._log("Disabling sequential scans. Enabling index scans.");
-      await this.readWriteClient.query(
+      await client.query(
         "SET enable_seqscan = OFF; SET enable_indexscan = ON;"
       );
     } catch (e) {
       this._log("Error ensuring table in database:", e);
       throw e;
     } finally {
-      this._log("Closing database connection");
-      await this.readWriteClient.end();
+      if (client) {
+        this._log("Closing database connection");
+        await client.end();
+      }
     }
   }
 
@@ -358,26 +353,26 @@ export class NeonVectorStore extends VectorStore {
   }
 
   async dropHnswIndex(): Promise<void> {
+    let client: Client | undefined;
     try {
-      await this.readWriteClient.connect();
+      client = new Client(this.readWriteUrl);
+      client.neonConfig.webSocketConstructor = await import("ws");
+
+      this._log("Connecting to database");
+      await client.connect();
+
       if (this.distance === "l2") {
         this._log(`Dropping L2 HNSW index on ${this.tableName}.`);
         const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
-        await this.readWriteClient.query(
-          `DROP INDEX IF EXISTS ${l2IndexName};`
-        );
+        await client.query(`DROP INDEX IF EXISTS ${l2IndexName};`);
       } else if (this.distance === "cosine") {
         this._log(`Dropping Cosine HNSW index on ${this.tableName}.`);
         const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
-        await this.readWriteClient.query(
-          `DROP INDEX IF EXISTS ${cosineIndexName};`
-        );
+        await client.query(`DROP INDEX IF EXISTS ${cosineIndexName};`);
       } else if (this.distance === "innerProduct") {
         this._log(`Dropping inner product HNSW index on ${this.tableName}.`);
         const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
-        await this.readWriteClient.query(
-          `DROP INDEX IF EXISTS ${ipIndexName};`
-        );
+        await client.query(`DROP INDEX IF EXISTS ${ipIndexName};`);
       } else {
         throw new Error(`Unknown distance metric ${this.distance}`);
       }
@@ -385,8 +380,10 @@ export class NeonVectorStore extends VectorStore {
       this._log("Error dropping HNSW index:", e);
       throw e;
     } finally {
-      this._log("Closing database connection");
-      await this.readWriteClient.end();
+      if (client) {
+        this._log("Closing database connection");
+        await client.end();
+      }
     }
   }
 
