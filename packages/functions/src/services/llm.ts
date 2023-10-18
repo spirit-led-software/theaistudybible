@@ -103,10 +103,9 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const chatMemoryVectorStore = await getChatMemoryVectorStore(chat.id, {
     verbose: true,
   });
-  await chatMemoryVectorStore.ensureTableInDatabase();
   const chatMemoryRetriever = new RAITimeWeightedVectorStoreRetriever({
     vectorStore: chatMemoryVectorStore,
-    k: 30,
+    k: 100,
     verbose: true,
   });
   const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
@@ -126,15 +125,14 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   );
 
   const documentVectorStore = await getDocumentVectorStore({ verbose: true });
-  const documentRetriever = documentVectorStore.asRetriever({
-    k: 20,
-    verbose: true,
-  });
   const documentRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
     getCreativeModel({
       stream: true,
     }),
-    documentRetriever,
+    documentVectorStore.asRetriever({
+      k: 25,
+      verbose: true,
+    }),
     {
       questionGeneratorChainOptions: {
         llm: getCommandModel(),
@@ -155,8 +153,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       },
       multiRouteChainOpts: {
         memory: new VectorStoreRetrieverMemory({
-          // TODO: Remove this hack
-          // @ts-ignore
           vectorStoreRetriever: chatMemoryRetriever,
           inputKey: "input",
           outputKey: "text",

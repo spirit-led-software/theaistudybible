@@ -6,7 +6,7 @@ import {
   S3,
   STATIC_ENV_VARS,
 } from "@stacks";
-import { Duration, Fn } from "aws-cdk-lib";
+import { Fn } from "aws-cdk-lib";
 import {
   Certificate,
   CertificateValidation,
@@ -69,7 +69,7 @@ export function API({ stack }: StackContext) {
     timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: "2 GB",
+    memorySize: "512 GB",
     permissions: [invokeBedrockPolicy],
   });
   (chatApiFunction.node.defaultChild as CfnFunction).tags.setTag(
@@ -86,13 +86,7 @@ export function API({ stack }: StackContext) {
     {
       defaultBehavior: {
         origin: new HttpOrigin(
-          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url)),
-          {
-            connectionAttempts: 3,
-            readTimeout: Duration.seconds(60),
-            keepaliveTimeout: Duration.seconds(60),
-            connectionTimeout: Duration.seconds(10),
-          }
+          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
         ),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
@@ -223,7 +217,7 @@ export function API({ stack }: StackContext) {
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           },
           timeout: "5 minutes",
-          memorySize: "1 GB",
+          memorySize: "512 GB",
         },
       },
       "GET /devotions/{id}":
@@ -294,15 +288,19 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/users/me/query-counts/get.handler",
 
       // Vector similarity search
-      "POST /vector-search":
-        "packages/functions/src/rest/vector-search/post.handler",
+      "POST /vector-search": {
+        function: {
+          handler: "packages/functions/src/rest/vector-search/post.handler",
+          permissions: [invokeBedrockPolicy],
+        },
+      },
     },
     defaults: {
       function: {
         environment: lambdaEnv,
         runtime: "nodejs18.x",
         timeout: "60 seconds",
-        memorySize: "512 MB",
+        memorySize: "256 MB",
       },
     },
     customDomain: {

@@ -20,6 +20,8 @@ export interface NeonVectorStoreArgs {
   filter?: Metadata;
   verbose?: boolean;
   distance?: "cosine" | "l2" | "innerProduct";
+  hnswIdxM?: number;
+  hnswIdxEfConstruction?: number;
 }
 
 export class NeonVectorStoreDocument extends Document {
@@ -53,6 +55,8 @@ export class NeonVectorStore extends VectorStore {
   dimensions: number;
   verbose: boolean;
   distance: "l2" | "cosine" | "innerProduct";
+  hnswIdxM: number;
+  hnswIdxEfConstruction: number;
 
   readOnlyQueryFn: NeonQueryFunction<false, false>;
   readWriteQueryFn: NeonQueryFunction<false, false>;
@@ -71,6 +75,8 @@ export class NeonVectorStore extends VectorStore {
     this.dimensions = fields.dimensions;
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "l2";
+    this.hnswIdxM = fields.hnswIdxM ?? 16;
+    this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
 
     neonConfig.fetchConnectionCache = true;
     this.readOnlyQueryFn = neon(
@@ -283,16 +289,14 @@ export class NeonVectorStore extends VectorStore {
 
   /**
    * Ensure that the table exists in the database.
-   * Only needs to be called once. Will not overwrite existing table.
-   * But will recreate the HNSW index.
-   * https://neon.tech/docs/extensions/pg_embedding
+   * Only needs to be called once. Will not overwrite existing table or index.
    */
   async ensureTableInDatabase(): Promise<void> {
     try {
       this._log("Connecting to database");
       await this.readWriteClient.connect();
 
-      this._log("Creating embedding extension");
+      this._log("Creating vector extension");
       await this.readWriteClient.query(
         "CREATE EXTENSION IF NOT EXISTS vector;"
       );
@@ -313,7 +317,7 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
           USING hnsw (embedding vector_l2_ops)
-          WITH (m = 32, ef_construction = 64);
+          WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
       `);
       } else if (this.distance === "cosine") {
         this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
@@ -321,7 +325,7 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
           USING hnsw (embedding vector_cosine_ops)
-          WITH (m = 32, ef_construction = 64);
+          WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
       `);
       } else if (this.distance === "innerProduct") {
         this._log(`Creating inner product HNSW index on ${this.tableName}.`);
@@ -329,12 +333,14 @@ export class NeonVectorStore extends VectorStore {
         await this.readWriteClient.query(`
         CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
           USING hnsw (embedding vector_ip_ops)
-          WITH (m = 32, ef_construction = 64);
+          WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
       `);
       }
 
-      this._log("Disabling sequential scans.");
-      await this.readWriteClient.query("SET enable_seqscan = OFF;");
+      this._log("Disabling sequential scans. Enabling index scans.");
+      await this.readWriteClient.query(
+        "SET enable_seqscan = OFF; SET enable_indexscan = ON;"
+      );
     } finally {
       this._log("Closing database connection");
       await this.readWriteClient.end();

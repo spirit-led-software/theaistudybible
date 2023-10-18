@@ -12,7 +12,7 @@ export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
         readWriteUrl: vectorDBConfig.writeUrl,
         readOnlyUrl: vectorDBConfig.readUrl,
       },
-      dimensions: vectorDBConfig.documents.dimensions,
+      dimensions: 1536, // !! Must match embedding model output size. See ./llm.ts
       verbose: envConfig.isLocal ? true : verbose,
     }
   );
@@ -32,7 +32,9 @@ export async function getChatMemoryVectorStore(
         readWriteUrl: vectorDBConfig.writeUrl,
         readOnlyUrl: vectorDBConfig.readUrl,
       },
-      dimensions: vectorDBConfig.documents.dimensions,
+      dimensions: 1536, // !! Must match embedding model output size. See ./llm.ts
+      hnswIdxM: 8,
+      hnswIdxEfConstruction: 32,
       verbose: envConfig.isLocal ? true : verbose,
     }
   );

@@ -16,6 +16,7 @@ import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
 } from "@services/user/message";
+import { getChatMemoryVectorStore } from "@services/vector-db";
 import { LangChainStream, type Message } from "ai";
 import type {
   APIGatewayProxyEventV2,
@@ -143,6 +144,8 @@ const lambdaHandler = async (
         name: messages[0].content,
         userId: userInfo.id,
       });
+      const memoryVectorStore = await getChatMemoryVectorStore(chat.id);
+      await memoryVectorStore.ensureTableInDatabase();
     } else {
       chat = await getChat(chatId);
 
@@ -245,7 +248,7 @@ const lambdaHandler = async (
       })
       .catch(async (err) => {
         console.error(`${err.stack}`);
-        await updateAiResponse(aiResponse.id, {
+        return await updateAiResponse(aiResponse.id, {
           failed: true,
         });
       });

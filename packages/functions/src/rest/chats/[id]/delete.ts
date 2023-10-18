@@ -23,10 +23,10 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse("You are not authorized to delete this chat");
     }
 
-    await deleteChat(chat!.id);
-    await deleteChatMemoryVectorStore(chat!.id);
+    await deleteChat(chat.id);
+    await deleteChatMemoryVectorStore(chat.id);
 
-    return DeletedResponse(chat!.id);
+    return DeletedResponse(chat.id);
   } catch (error: any) {
     console.error(error);
     return InternalServerErrorResponse(error.stack);

@@ -38,7 +38,7 @@ export const readWriteDatabaseConfig = new RAIDatabaseConfig({
   connectionString: databaseConfig.readWriteUrl,
   readOnly: false,
 });
-export const readWriteDatabase = readOnlyDatabaseConfig.database;
+export const readWriteDatabase = readWriteDatabaseConfig.database;
 
 export default {
   readOnlyDatabase,

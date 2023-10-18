@@ -5,6 +5,7 @@ import {
 } from "@lib/api-responses";
 import { createChat } from "@services/chat";
 import { validApiHandlerSession } from "@services/session";
+import { getChatMemoryVectorStore } from "@services/vector-db";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -18,6 +19,8 @@ export const handler = ApiHandler(async (event) => {
       ...data,
       userId: userWithRoles.id,
     });
+    const memoryVectorStore = await getChatMemoryVectorStore(chat.id);
+    await memoryVectorStore.ensureTableInDatabase();
     return CreatedResponse(chat);
   } catch (error: any) {
     console.error(error);
