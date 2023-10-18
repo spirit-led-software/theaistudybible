@@ -198,10 +198,11 @@ export const handler: Handler = async () => {
 
     await createInitialAdminUser();
 
-    console.log("Creating vector store");
+    console.log("Creating vector store and HNSW index");
     const vectorDb = await getDocumentVectorStore({
       verbose: true,
     });
+    await vectorDb.dropHnswIndex();
     await vectorDb.ensureTableInDatabase();
 
     console.log("Database seeding complete");

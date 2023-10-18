@@ -72,9 +72,13 @@ export class NeonVectorStore extends VectorStore {
     this.verbose = fields.verbose ?? false;
     this.distance = fields.distance ?? "l2";
 
+    neonConfig.fetchConnectionCache = true;
     this.readOnlyQueryFn = neon(
       fields.connectionOptions.readOnlyUrl ||
-        fields.connectionOptions.readWriteUrl
+        fields.connectionOptions.readWriteUrl,
+      {
+        readOnly: true,
+      }
     );
     this.readWriteQueryFn = neon(fields.connectionOptions.readWriteUrl);
 
@@ -188,15 +192,46 @@ export class NeonVectorStore extends VectorStore {
       )}`
     );
 
-    const documents = await this.readOnlyQueryFn(
-      `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
+    let documents: Record<string, any>[];
+    if (this.distance === "l2") {
+      documents = await this.readOnlyQueryFn(
+        `SELECT *, embedding ${
+          distanceOperators[this.distance]
+        } $1 AS "_distance"
         FROM ${this.tableName}
         WHERE metadata @> $2
-        ORDER BY "_distance" ASC
+        ORDER BY "_distance"
         LIMIT $3
         OFFSET $4;`,
-      [embeddingString, _filter, k, _offset]
-    );
+        [embeddingString, _filter, k, _offset]
+      );
+    } else if (this.distance === "cosine") {
+      documents = await this.readOnlyQueryFn(
+        `SELECT *, 1 - (embedding ${
+          distanceOperators[this.distance]
+        } $1) AS "_distance"
+        FROM ${this.tableName}
+        WHERE metadata @> $2
+        ORDER BY "_distance"
+        LIMIT $3
+        OFFSET $4;`,
+        [embeddingString, _filter, k, _offset]
+      );
+    } else if (this.distance === "innerProduct") {
+      documents = await this.readOnlyQueryFn(
+        `SELECT *, (embedding ${
+          distanceOperators[this.distance]
+        } $1) * -1 AS "_distance"
+        FROM ${this.tableName}
+        WHERE metadata @> $2
+        ORDER BY "_distance"
+        LIMIT $3
+        OFFSET $4;`,
+        [embeddingString, _filter, k, _offset]
+      );
+    } else {
+      throw new Error(`Unknown distance metric ${this.distance}`);
+    }
 
     const results: [NeonVectorStoreDocument, number][] = [];
     for (const doc of documents) {
@@ -297,6 +332,9 @@ export class NeonVectorStore extends VectorStore {
           WITH (m = 32, ef_construction = 64);
       `);
       }
+
+      this._log("Disabling sequential scans.");
+      await this.readWriteClient.query("SET enable_seqscan = OFF;");
     } finally {
       this._log("Closing database connection");
       await this.readWriteClient.end();
@@ -306,6 +344,34 @@ export class NeonVectorStore extends VectorStore {
   async deleteTableInDatabase(): Promise<void> {
     this._log(`Dropping table ${this.tableName}`);
     await this.readWriteQueryFn(`DROP TABLE IF EXISTS ${this.tableName};`);
+  }
+
+  async dropHnswIndex(): Promise<void> {
+    try {
+      await this.readWriteClient.connect();
+      if (this.distance === "l2") {
+        this._log(`Dropping L2 HNSW index on ${this.tableName}.`);
+        const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
+        await this.readWriteClient.query(
+          `DROP INDEX IF EXISTS ${l2IndexName};`
+        );
+      } else if (this.distance === "cosine") {
+        this._log(`Dropping Cosine HNSW index on ${this.tableName}.`);
+        const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
+        await this.readWriteClient.query(
+          `DROP INDEX IF EXISTS ${cosineIndexName};`
+        );
+      } else if (this.distance === "innerProduct") {
+        this._log(`Dropping inner product HNSW index on ${this.tableName}.`);
+        const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
+        await this.readWriteClient.query(
+          `DROP INDEX IF EXISTS ${ipIndexName};`
+        );
+      }
+    } finally {
+      this._log("Closing database connection");
+      await this.readWriteClient.end();
+    }
   }
 
   static async fromTexts(
