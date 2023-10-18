@@ -141,15 +141,6 @@ export async function generateDevotion(bibleReading?: string) {
       `Devotion format instructions: ${outputParser.getFormatInstructions()}`
     );
 
-    const fullPrompt = PromptTemplate.fromTemplate(
-      `Given the following Bible reading:\n{bibleReading}
-
-      Write a non-denominational Christian devotion.
-
-      **RETURN EXACTLY THE FORMAT BELOW WITHOUT ANY ADDITIONAL TEXT**
-      {format_instructions}`
-    );
-
     const vectorStore = await getDocumentVectorStore();
     const chain = RetrievalQAChain.fromLLM(
       new RAIBedrock({
@@ -160,20 +151,33 @@ export async function generateDevotion(bibleReading?: string) {
           temperature: 0.8,
           top_p: 0.5,
           top_k: 100,
+          stop_sequences: ["</schema>"],
         },
+        promptSuffix: "<schema>",
       }),
-      vectorStore.asRetriever(30),
+      vectorStore.asRetriever(25),
       {
         returnSourceDocuments: true,
         inputKey: "prompt",
       }
     );
+
+    const prompt = PromptTemplate.fromTemplate(
+      `Given the following Bible reading:\n{bibleReading}
+
+      Write a non-denominational Christian devotion.
+
+      {format_instructions}
+      
+      Please output the schema within <schema></schema> tags.`
+    );
     const result = await chain.call({
-      prompt: await fullPrompt.format({
+      prompt: await prompt.format({
         bibleReading,
         format_instructions: outputParser.getFormatInstructions(),
       }),
     });
+
     const output = await outputParser.parse(result.text);
     devo = await createDevotion({
       bibleReading,
@@ -352,25 +356,6 @@ async function generateDevotionImages(devo: Devotion) {
 }
 
 async function getRandomBibleReading() {
-  const vectorStore = await getDocumentVectorStore();
-  const bibleReadingChain = RetrievalQAChain.fromLLM(
-    new RAIBedrock({
-      modelId: "anthropic.claude-v2",
-      stream: false,
-      body: {
-        max_tokens_to_sample: 256,
-        temperature: 0.1,
-        top_p: 0.01,
-        top_k: 0,
-      },
-    }),
-    vectorStore.asRetriever(100),
-    {
-      returnSourceDocuments: true,
-      inputKey: "prompt",
-    }
-  );
-
   const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
     z.object({
       book: z
@@ -387,15 +372,44 @@ async function getRandomBibleReading() {
     })
   );
 
+  const vectorStore = await getDocumentVectorStore();
+  const bibleReadingChain = RetrievalQAChain.fromLLM(
+    new RAIBedrock({
+      modelId: "anthropic.claude-v2",
+      stream: false,
+      body: {
+        max_tokens_to_sample: 256,
+        temperature: 0.1,
+        top_p: 0.01,
+        top_k: 0,
+        stop_sequences: ["</schema>"],
+      },
+      promptSuffix: "<schema>",
+    }),
+    vectorStore.asRetriever(50),
+    {
+      returnSourceDocuments: true,
+      inputKey: "prompt",
+    }
+  );
+
   const topic = getRandomTopic();
   console.log(`Devotion topic: ${topic}`);
-  const formatInstructions = bibleReadingOutputParser.getFormatInstructions();
-  console.log(`Format instructions: ${formatInstructions}`);
+
+  const prompt = PromptTemplate.fromTemplate(
+    `Find a bible passage that is between 1 and 20 verses long about {topic}.
+
+    {format_instructions}
+
+    Please output the schema within <schema></schema> tags.`
+  );
   const bibleReading = await bibleReadingChain.call({
-    prompt: `Find a bible passage that is between 1 and 20 verses long about ${topic}
-    **RETURN EXACTLY THE FORMAT BELOW WITHOUT ANY ADDITIONAL TEXT**
-    ${formatInstructions}`,
+    prompt: await prompt.format({
+      topic,
+      format_instructions: bibleReadingOutputParser.getFormatInstructions(),
+    }),
   });
+
   const bibleReadingOutput = await bibleReadingOutputParser.parse(
     bibleReading.text
   );

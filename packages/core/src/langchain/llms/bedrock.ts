@@ -42,6 +42,10 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
 
   client: BedrockRuntimeClient;
 
+  promptPrefix: string;
+
+  promptSuffix: string;
+
   constructor(fields?: Partial<BedrockInput> & BaseLLMParams) {
     super(fields ?? {});
 
@@ -51,6 +55,8 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
     this.body = fields?.body ?? {};
     this.streaming = fields?.stream ?? false;
     this.client = fields?.client ?? new BedrockRuntimeClient();
+    this.promptPrefix = fields?.promptPrefix ?? "";
+    this.promptSuffix = fields?.promptSuffix ?? "";
   }
 
   _log(message: any, ...optionalParams: any[]) {
@@ -183,19 +189,19 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
     if (this.provider === "amazon") {
       body = JSON.stringify({
         ...params.body,
-        inputText: prompt,
+        inputText: `${this.promptPrefix}${prompt}${this.promptSuffix}`,
       });
     } else if (this.provider === "cohere") {
       body = JSON.stringify({
         ...params.body,
         stream: this.streaming,
-        prompt,
+        prompt: `${this.promptPrefix}${prompt}${this.promptSuffix}`,
       });
     } else if (this.provider === "anthropic") {
       body = JSON.stringify({
         ...params.body,
         stop_sequences: ["\n\nHuman:", ...(params.body.stop_sequences ?? [])],
-        prompt: `\n\nHuman: ${prompt}\n\nAssistant: `,
+        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}\n\nAssistant: ${this.promptSuffix}`,
       });
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);

@@ -66,6 +66,8 @@ export type BedrockInput = {
   region: string;
   stream: boolean;
   client?: BedrockRuntimeClient;
+  promptPrefix?: string;
+  promptSuffix?: string;
 } & (
   | {
       modelId: AmazonModelId;
