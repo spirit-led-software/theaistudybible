@@ -29,8 +29,8 @@ export async function generatePageContentEmbeddings(
         console.log(`Loading and splitting documents from url '${url}'`);
         docs = await loader.loadAndSplit(
           new RecursiveCharacterTextSplitter({
-            chunkSize: 1024,
-            chunkOverlap: 256,
+            chunkSize: 512,
+            chunkOverlap: 128,
           })
         );
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);

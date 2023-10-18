@@ -185,42 +185,45 @@ class Sources extends HookConsumerWidget {
                                           borderRadius:
                                               BorderRadius.circular(20),
                                         ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              source.metadata["name"]
-                                                  .split(" - ")[0],
-                                              textAlign: TextAlign.center,
-                                              softWrap: false,
-                                              overflow: TextOverflow.fade,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            if ((source.metadata["type"]
-                                                        as String)
-                                                    .toLowerCase() ==
-                                                "webpage") ...[
+                                        child: InkWell(
+                                          onTap: followLink,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
                                               Text(
-                                                Uri.parse(
-                                                  source.metadata["url"],
-                                                ).pathSegments.lastWhere(
-                                                    (element) =>
-                                                        element.isNotEmpty),
+                                                source.metadata["name"]
+                                                    .split(" - ")[0],
                                                 textAlign: TextAlign.center,
                                                 softWrap: false,
-                                                overflow: TextOverflow.ellipsis,
+                                                overflow: TextOverflow.fade,
                                                 style: const TextStyle(
-                                                  fontSize: 10,
+                                                  fontSize: 12,
                                                   color: Colors.white,
                                                 ),
                                               ),
+                                              if ((source.metadata["type"]
+                                                          as String)
+                                                      .toLowerCase() ==
+                                                  "webpage") ...[
+                                                Text(
+                                                  Uri.parse(
+                                                    source.metadata["url"],
+                                                  ).pathSegments.lastWhere(
+                                                      (element) =>
+                                                          element.isNotEmpty),
+                                                  textAlign: TextAlign.center,
+                                                  softWrap: false,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
                                             ],
-                                          ],
+                                          ),
                                         ),
                                       ),
                                     );

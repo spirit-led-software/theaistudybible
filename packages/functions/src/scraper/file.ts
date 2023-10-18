@@ -97,8 +97,8 @@ export const handler: S3Handler = async (event) => {
     console.log("Starting load and split");
     let docs = await loader.loadAndSplit(
       new RecursiveCharacterTextSplitter({
-        chunkSize: 1024,
-        chunkOverlap: 256,
+        chunkSize: 512,
+        chunkOverlap: 128,
       })
     );
 
