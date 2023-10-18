@@ -10,7 +10,28 @@ class DevotionSourceDocuments extends _$DevotionSourceDocuments {
   FutureOr<List<SourceDocument>> build(String id) {
     return DevotionService.getDevotionSourceDocuments(
       id: id,
-    );
+    ).then((value) => _filterSourceDocuments(value));
+  }
+
+  List<SourceDocument> _filterSourceDocuments(List<SourceDocument> value) {
+    final sourceDocuments = <SourceDocument>[];
+    for (final sourceDocument in value) {
+      final foundMatch = sourceDocuments.any((element) {
+        if (element.id == sourceDocument.id) {
+          return true;
+        }
+        if (sourceDocument.metadata["name"] == element.metadata["name"] &&
+            sourceDocument.metadata["url"] == element.metadata["url"]) {
+          return true;
+        }
+        return false;
+      });
+      if (foundMatch) {
+        continue;
+      }
+      sourceDocuments.add(sourceDocument);
+    }
+    return sourceDocuments;
   }
 
   void refresh() {

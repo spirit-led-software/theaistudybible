@@ -1,4 +1,5 @@
 import { getDocumentVectorStore } from "@services/vector-db";
+import type { Document } from "langchain/document";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
 
@@ -8,45 +9,41 @@ export async function generatePageContentEmbeddings(
 ): Promise<void> {
   console.log(`Generating page content embeddings for url '${url}'`);
   let success = false;
+  let docs: Document<Record<string, any>>[] | undefined = undefined;
   for (let retries = 0; retries < 5; retries++) {
     console.log(`Attempt ${retries + 1} of 5`);
     try {
-      let pageTitle = `${url}`;
-      const loader = new PuppeteerCoreWebBaseLoader(url, {
-        evaluate: async (page) => {
-          await page.waitForNetworkIdle();
-          await page.waitForSelector("body");
-          return await page.evaluate(() => {
-            let foundTitle =
-              document.querySelector("title")?.innerText ??
-              document.querySelector("h1")?.innerText;
-            if (foundTitle) {
-              pageTitle = foundTitle;
-            }
-            return (
-              document.querySelector("main")?.innerText ??
-              document.body.innerText
-            );
-          });
-        },
-      });
-      console.log(`Loading and splitting documents from url '${url}'`);
-      let docs = await loader.loadAndSplit(
-        new RecursiveCharacterTextSplitter({
-          chunkSize: 1024,
-          chunkOverlap: 256,
-        })
-      );
-      console.log(
-        `Loaded ${docs.length} documents from url '${url}'. Manipulating metadata...`
-      );
+      if (!docs) {
+        const loader = new PuppeteerCoreWebBaseLoader(url, {
+          evaluate: async (page) => {
+            await page.waitForNetworkIdle();
+            await page.waitForSelector("body");
+            return await page.evaluate(() => {
+              return (
+                document.querySelector("main")?.innerText ??
+                document.body.innerText
+              );
+            });
+          },
+        });
+        console.log(`Loading and splitting documents from url '${url}'`);
+        docs = await loader.loadAndSplit(
+          new RecursiveCharacterTextSplitter({
+            chunkSize: 1024,
+            chunkOverlap: 256,
+          })
+        );
+        console.log(`Loaded ${docs.length} documents from url '${url}'.`);
+      }
+
+      console.log("Adding metadata to documents.");
       docs = docs.map((doc) => {
         doc.metadata = {
           ...doc.metadata,
           indexDate: new Date().toISOString(),
-          name: `${name} - ${pageTitle}`,
+          name,
           url,
-          type: "Webpage",
+          type: "webpage",
         };
         return doc;
       });

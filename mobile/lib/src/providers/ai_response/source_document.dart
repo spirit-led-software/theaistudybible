@@ -47,14 +47,40 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
         session: currentUser.requireValue.session,
       ).then((value) {
         return AiResponseService.getAiResponseSourceDocuments(
-            id: value.entities.first.id,
-            session: currentUser.requireValue.session);
+          id: value.entities.first.id,
+          session: currentUser.requireValue.session,
+        ).then((value) => _filterSourceDocuments(value));
       });
     } else {
       return AiResponseService.getAiResponseSourceDocuments(
         id: messageUuid,
         session: currentUser.requireValue.session,
-      );
+      ).then((value) => _filterSourceDocuments(value));
     }
+  }
+
+  List<SourceDocument> _filterSourceDocuments(List<SourceDocument> value) {
+    final sourceDocuments = <SourceDocument>[];
+    for (final sourceDocument in value) {
+      final foundMatch = sourceDocuments.any((element) {
+        if (element.id == sourceDocument.id) {
+          return true;
+        }
+        if (sourceDocument.metadata["name"] == element.metadata["name"] &&
+            sourceDocument.metadata["url"] == element.metadata["url"]) {
+          return true;
+        }
+        return false;
+      });
+      if (foundMatch) {
+        continue;
+      }
+      sourceDocuments.add(sourceDocument);
+    }
+    return sourceDocuments;
+  }
+
+  void refresh() {
+    ref.invalidateSelf();
   }
 }

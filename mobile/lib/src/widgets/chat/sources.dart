@@ -1,9 +1,6 @@
-import 'package:accordion/accordion.dart';
-import 'package:accordion/controllers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -35,8 +32,8 @@ class Sources extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isMounted = useIsMounted();
 
-    ValueNotifier<bool> loading = useState(false);
-    ValueNotifier<List<SourceDocument>> sourceDocuments = useState(ref
+    final loading = useState(false);
+    final sourceDocuments = useState<List<SourceDocument>>(ref
             .read(aiResponseSourceDocumentsProvider(
               message.id,
               message.uuid,
@@ -44,10 +41,10 @@ class Sources extends HookConsumerWidget {
             ))
             .value ??
         []);
-    ValueNotifier<bool> hasLoaded = useState(false);
+    final hasLoaded = useState(false);
 
-    ValueNotifier<bool> showSources = useState(false);
-    ValueNotifier<bool> copied = useState(false);
+    final showSources = useState(false);
+    final copied = useState(false);
 
     useEffect(
       () {
@@ -82,154 +79,164 @@ class Sources extends HookConsumerWidget {
       ],
     );
 
-    return Accordion(
-      paddingListTop: 0,
-      paddingListBottom: 0,
-      paddingListHorizontal: 0,
-      disableScrolling: true,
-      scaleWhenAnimating: false,
-      flipLeftIconIfOpen: false,
-      flipRightIconIfOpen: false,
-      headerBackgroundColor: Colors.white,
-      children: [
-        AccordionSection(
-          headerPadding: EdgeInsets.zero,
-          headerBackgroundColor: Colors.transparent,
-          contentBackgroundColor: Colors.transparent,
-          contentBorderColor: Colors.transparent,
-          leftIcon: IconButton(
-            visualDensity: RAIVisualDensity.tightest,
-            iconSize: 14,
-            alignment: Alignment.center,
-            constraints: BoxConstraints.tight(const Size.square(14)),
-            icon: FaIcon(
-              showSources.value
-                  ? FontAwesomeIcons.angleUp
-                  : FontAwesomeIcons.angleDown,
-              color: RAIColors.primary,
-            ),
-            onPressed: () => showSources.value = !showSources.value,
-          ),
-          rightIcon: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                visualDensity: RAIVisualDensity.tightest,
-                iconSize: 14,
-                icon: FaIcon(
-                  copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
-                  color: copied.value ? Colors.green : RAIColors.primary,
-                ),
-                onPressed: () {
-                  copied.value = true;
-                  Clipboard.setData(
-                    ClipboardData(text: message.content),
-                  );
-                  HapticFeedback.mediumImpact();
-
-                  Future.delayed(
-                    const Duration(seconds: 2),
-                    () => copied.value = false,
-                  );
-                },
-              ),
-              IconButton(
-                visualDensity: RAIVisualDensity.tightest,
-                iconSize: 14,
-                icon: FaIcon(
-                  FontAwesomeIcons.shareFromSquare,
-                  color: RAIColors.primary,
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return ShareDialog(
-                        message: message,
-                        previousMessage: previousMessage,
-                      );
-                    },
-                  );
-                },
-              )
-            ],
-          ),
-          isOpen: showSources.value,
-          onCloseSection: () => showSources.value = false,
-          onOpenSection: () => showSources.value = true,
-          scrollIntoViewOfItems: ScrollIntoViewOfItems.none,
-          header: Row(
-            children: [
-              Text(
-                "Sources",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: RAIColors.primary,
-                ),
-              ),
-              if (loading.value) ...[
-                const SizedBox(width: 5),
-                SpinKitRipple(
-                  color: RAIColors.primary,
-                  size: 10,
-                )
-              ],
-            ],
-          ),
-          content: ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: sourceDocuments.value.isEmpty
-                ? 1
-                : sourceDocuments.value.length,
-            itemBuilder: (context, index) {
-              if (sourceDocuments.value.isEmpty) {
-                return ListTile(
-                  dense: true,
-                  visualDensity: RAIVisualDensity.tightest,
-                  title: Text(
-                    "None",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                );
-              }
-
-              final source = sourceDocuments.value[index];
-              return Link(
-                uri: Uri.parse(source.metadata['url']),
-                target: LinkTarget.blank,
-                builder: (context, followLink) {
-                  return ListTile(
-                    dense: true,
-                    visualDensity: RAIVisualDensity.tightest,
-                    leading: Icon(
-                      Icons.link,
-                      size: 15,
-                      color: Colors.grey.shade600,
-                    ),
-                    title: Text(
-                      source.metadata['name'],
-                      softWrap: false,
-                      overflow: TextOverflow.fade,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    onTap: followLink,
-                  );
-                },
-              );
-            },
+    return Theme(
+      data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+          visualDensity: RAIVisualDensity.tightest),
+      child: ExpansionTile(
+        leading: Icon(
+          showSources.value
+              ? Icons.keyboard_arrow_up
+              : Icons.keyboard_arrow_down,
+          size: 15,
+          color: RAIColors.primary,
+        ),
+        title: Text(
+          "Sources",
+          style: TextStyle(
+            fontSize: 12,
+            color: RAIColors.primary,
           ),
         ),
-      ],
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            IconButton(
+              visualDensity: RAIVisualDensity.tightest,
+              iconSize: 14,
+              icon: FaIcon(
+                copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
+                color: copied.value ? Colors.green : RAIColors.primary,
+              ),
+              onPressed: () {
+                copied.value = true;
+                Clipboard.setData(
+                  ClipboardData(text: message.content),
+                );
+                HapticFeedback.mediumImpact();
+
+                Future.delayed(
+                  const Duration(seconds: 2),
+                  () => copied.value = false,
+                );
+              },
+            ),
+            IconButton(
+              visualDensity: RAIVisualDensity.tightest,
+              iconSize: 14,
+              icon: FaIcon(
+                FontAwesomeIcons.shareFromSquare,
+                color: RAIColors.primary,
+              ),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return ShareDialog(
+                      message: message,
+                      previousMessage: previousMessage,
+                    );
+                  },
+                );
+              },
+            )
+          ],
+        ),
+        onExpansionChanged: (value) {
+          showSources.value = value;
+        },
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 0,
+            ),
+            height: 100,
+            child: sourceDocuments.value.isEmpty
+                ? const Text("None")
+                : CustomScrollView(
+                    scrollDirection: Axis.horizontal,
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final source = sourceDocuments.value[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                child: Link(
+                                  uri: Uri.parse(source.metadata["url"]),
+                                  builder: (context, followLink) {
+                                    return SizedBox(
+                                      width: 150,
+                                      height: 50,
+                                      child: Card(
+                                        color: RAIColors.primary,
+                                        margin: const EdgeInsets.all(5),
+                                        elevation: 1,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              source.metadata["name"]
+                                                  .split(" - ")[0],
+                                              textAlign: TextAlign.center,
+                                              softWrap: false,
+                                              overflow: TextOverflow.fade,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            if ((source.metadata["type"]
+                                                        as String)
+                                                    .toLowerCase() ==
+                                                "webpage") ...[
+                                              Text(
+                                                Uri.parse(
+                                                  source.metadata["url"],
+                                                ).pathSegments.lastWhere(
+                                                    (element) =>
+                                                        element.isNotEmpty),
+                                                textAlign: TextAlign.center,
+                                                softWrap: false,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            childCount: sourceDocuments.value.length,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -108,7 +108,7 @@ export const handler: S3Handler = async (event) => {
       doc.metadata = {
         ...doc.metadata,
         ...indexOpMetadata,
-        type: "File",
+        type: "file",
         indexDate: new Date().toISOString(),
       };
       return doc;
