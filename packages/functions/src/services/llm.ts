@@ -14,51 +14,58 @@ import { PromptTemplate } from "langchain/prompts";
 import { AIMessage, BaseMessage, HumanMessage } from "langchain/schema";
 import { getChatMemoryVectorStore, getDocumentVectorStore } from "./vector-db";
 
+export type StandardModelInput = {
+  stream?: boolean;
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  topK?: number;
+  stopSequences?: string[];
+};
+
 export const getEmbeddingsModel = () =>
   new BedrockEmbeddings({
     model: "amazon.titan-embed-text-v1",
   });
 
-export const getChatModel = (temperature?: number) =>
+export const getCreativeModel = ({
+  temperature = 0.7,
+  maxTokens = 512,
+  stopSequences = [],
+  stream = false,
+  topK = 100,
+  topP = 0.5,
+}: StandardModelInput = {}) =>
   new RAIBedrock({
-    modelId: "cohere.command-text-v14",
-    stream: true,
+    modelId: "anthropic.claude-instant-v1",
+    stream: stream,
     body: {
-      max_tokens: 512,
-      temperature: temperature ?? 2,
-      p: 0.1,
-      k: 0,
-      stop_sequences: [],
-      return_likelihoods: "NONE",
+      max_tokens_to_sample: maxTokens,
+      temperature: temperature,
+      top_p: topP,
+      top_k: topK,
+      stop_sequences: ["\n\nHuman:", ...stopSequences],
     },
     verbose: true,
   });
 
-export const getPromptModel = (temperature?: number) =>
+export const getCommandModel = ({
+  temperature = 0.3,
+  maxTokens = 256,
+  stopSequences = [],
+  stream = false,
+  topK = 0,
+  topP = 0.1,
+}: StandardModelInput = {}) =>
   new RAIBedrock({
     modelId: "cohere.command-text-v14",
-    stream: false,
+    stream: stream,
     body: {
-      max_tokens: 256,
-      temperature: temperature ?? 0.5,
-      p: 0.1,
-      k: 0,
-      stop_sequences: [],
-      return_likelihoods: "NONE",
-    },
-    verbose: true,
-  });
-
-export const getCompletionsModel = (temperature?: number) =>
-  new RAIBedrock({
-    modelId: "cohere.command-text-v14",
-    stream: false,
-    body: {
-      max_tokens: 1024,
-      temperature: temperature ?? 2,
-      p: 0.1,
-      k: 0,
-      stop_sequences: [],
+      max_tokens: maxTokens,
+      temperature: temperature,
+      p: topP,
+      k: topK,
+      stop_sequences: stopSequences,
       return_likelihoods: "NONE",
     },
     verbose: true,
@@ -79,7 +86,9 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   });
 
   const identityChain = new LLMChain({
-    llm: getChatModel(),
+    llm: getCommandModel({
+      stream: true,
+    }),
     prompt: PromptTemplate.fromTemplate(
       `You are a Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology.
       Your purpose is to help people discover or deepen a relationship with Jesus Christ and uncover answers about the nature of God.
@@ -101,11 +110,13 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     verbose: true,
   });
   const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
-    getChatModel(),
+    getCreativeModel({
+      stream: true,
+    }),
     chatMemoryRetriever,
     {
       questionGeneratorChainOptions: {
-        llm: getPromptModel(),
+        llm: getCommandModel(),
       },
       inputKey: "query",
       outputKey: "text",
@@ -120,11 +131,13 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     verbose: true,
   });
   const documentRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
-    getChatModel(),
+    getCreativeModel({
+      stream: true,
+    }),
     documentRetriever,
     {
       questionGeneratorChainOptions: {
-        llm: getPromptModel(),
+        llm: getCommandModel(),
       },
       inputKey: "query",
       outputKey: "text",
@@ -135,7 +148,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   );
 
   const multiRouteChain = await RAIChatMultiRouteChain.fromLLMAndChains(
-    getPromptModel(),
+    getCommandModel(),
     {
       routerChainOpts: {
         verbose: true,

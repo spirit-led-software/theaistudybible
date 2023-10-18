@@ -23,7 +23,7 @@ export type AnthropicModelBody = {
   top_p: number;
   top_k: number;
   max_tokens_to_sample: number;
-  stop_sequences: ["\n\nHuman:"] & string[];
+  stop_sequences: ["\n\nHuman:", ...string[]];
 };
 
 export type AI21ModelId = "ai21.j2-ultra-v1" | "ai21.j2-mid-v1";
@@ -55,6 +55,12 @@ export type CohereModelBody = {
   return_likelihoods?: "NONE" | "GENERATIONS" | "ALL";
   num_generations?: number;
 };
+
+export type BedrockModelId =
+  | AmazonModelId
+  | AnthropicModelId
+  | AI21ModelId
+  | CohereModelId;
 
 export type BedrockInput = {
   region: string;
