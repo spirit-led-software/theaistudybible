@@ -8,15 +8,15 @@ import {
 import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
 
 export type RAIDatabaseConfigInput = {
-  readOnly?: boolean;
   connectionString: string;
+  readOnly?: boolean;
 };
 
 export class RAIDatabaseConfig {
   queryFn: NeonQueryFunction<false, false>;
   database: NeonHttpDatabase<typeof schema>;
 
-  constructor({ readOnly, connectionString }: RAIDatabaseConfigInput) {
+  constructor({ connectionString, readOnly }: RAIDatabaseConfigInput) {
     neonConfig.fetchConnectionCache = true;
     this.queryFn = neon(connectionString, {
       readOnly,
@@ -28,15 +28,17 @@ export class RAIDatabaseConfig {
   }
 }
 
-export const readOnlyDatabase = new RAIDatabaseConfig({
-  readOnly: true,
+export const readOnlyDatabaseConfig = new RAIDatabaseConfig({
   connectionString: databaseConfig.readOnlyUrl,
-}).database;
+  readOnly: true,
+});
+export const readOnlyDatabase = readOnlyDatabaseConfig.database;
 
-export const readWriteDatabase = new RAIDatabaseConfig({
-  readOnly: false,
+export const readWriteDatabaseConfig = new RAIDatabaseConfig({
   connectionString: databaseConfig.readWriteUrl,
-}).database;
+  readOnly: false,
+});
+export const readWriteDatabase = readOnlyDatabaseConfig.database;
 
 export default {
   readOnlyDatabase,
