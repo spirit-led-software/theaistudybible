@@ -69,7 +69,7 @@ export function API({ stack }: StackContext) {
     timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: "512 GB",
+    memorySize: "512 MB",
     permissions: [invokeBedrockPolicy],
   });
   (chatApiFunction.node.defaultChild as CfnFunction).tags.setTag(
@@ -217,7 +217,7 @@ export function API({ stack }: StackContext) {
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           },
           timeout: "5 minutes",
-          memorySize: "512 GB",
+          memorySize: "512 MB",
         },
       },
       "GET /devotions/{id}":
