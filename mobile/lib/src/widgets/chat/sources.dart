@@ -153,7 +153,7 @@ class Sources extends HookConsumerWidget {
               vertical: 10,
               horizontal: 0,
             ),
-            height: 100,
+            height: sourceDocuments.value.isEmpty ? 50 : 100,
             child: sourceDocuments.value.isEmpty
                 ? const Text("None")
                 : CustomScrollView(
@@ -169,13 +169,13 @@ class Sources extends HookConsumerWidget {
                               final source = sourceDocuments.value[index];
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 5,
+                                  horizontal: 0,
                                 ),
                                 child: Link(
                                   uri: Uri.parse(source.metadata["url"]),
                                   builder: (context, followLink) {
                                     return SizedBox(
-                                      width: 150,
+                                      width: 175,
                                       height: 50,
                                       child: Card(
                                         color: RAIColors.primary,
@@ -183,46 +183,98 @@ class Sources extends HookConsumerWidget {
                                         elevation: 1,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(20),
+                                              BorderRadius.circular(25),
                                         ),
                                         child: InkWell(
                                           onTap: followLink,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                source.metadata["name"]
-                                                    .split(" - ")[0],
-                                                textAlign: TextAlign.center,
-                                                softWrap: false,
-                                                overflow: TextOverflow.fade,
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              if ((source.metadata["type"]
-                                                          as String)
-                                                      .toLowerCase() ==
-                                                  "webpage") ...[
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
                                                 Text(
-                                                  Uri.parse(
-                                                    source.metadata["url"],
-                                                  ).pathSegments.lastWhere(
-                                                      (element) =>
-                                                          element.isNotEmpty),
+                                                  source.metadata["name"]
+                                                      .split(" - ")[0],
                                                   textAlign: TextAlign.center,
                                                   softWrap: false,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                   style: const TextStyle(
-                                                    fontSize: 10,
+                                                    fontSize: 12,
                                                     color: Colors.white,
                                                   ),
                                                 ),
+                                                if ((source.metadata["type"]
+                                                            as String)
+                                                        .toLowerCase() ==
+                                                    "webpage") ...[
+                                                  Text(
+                                                    Uri.parse(
+                                                      source.metadata["url"],
+                                                    ).pathSegments.lastWhere(
+                                                        (element) =>
+                                                            element.isNotEmpty),
+                                                    textAlign: TextAlign.center,
+                                                    softWrap: false,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 10,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                                if ((source.metadata["type"]
+                                                            as String)
+                                                        .toLowerCase() ==
+                                                    "file") ...[
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      if (source.metadata["loc"]
+                                                              ["pageNumber"] !=
+                                                          null) ...[
+                                                        Container(
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 5,
+                                                          ),
+                                                          child: Text(
+                                                            'Page: ${source.metadata["loc"]["pageNumber"].toString()}',
+                                                            style:
+                                                                const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 10,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                      if (source.metadata["loc"]
+                                                              ["lines"] !=
+                                                          null) ...[
+                                                        Text(
+                                                          'Lines: ${source.metadata["loc"]["lines"]["from"]}-${source.metadata["loc"]["lines"]["to"]}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 10,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ],
+                                                  )
+                                                ],
                                               ],
-                                            ],
+                                            ),
                                           ),
                                         ),
                                       ),
