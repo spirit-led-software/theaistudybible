@@ -8,6 +8,7 @@ import type { Metadata } from "@opensearch-project/opensearch/api/types";
 import { Document } from "langchain/document";
 import type { Embeddings } from "langchain/embeddings/base";
 import { VectorStore } from "langchain/vectorstores/base";
+import ws from "ws";
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -78,6 +79,7 @@ export class NeonVectorStore extends VectorStore {
     this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
 
     neonConfig.fetchConnectionCache = true;
+    neonConfig.webSocketConstructor = ws;
 
     this.readOnlyUrl =
       fields.connectionOptions.readOnlyUrl ||
@@ -288,7 +290,6 @@ export class NeonVectorStore extends VectorStore {
     let client: Client | undefined;
     try {
       client = new Client(this.readWriteUrl);
-      client.neonConfig.webSocketConstructor = await import("ws");
 
       this._log("Connecting to database");
       await client.connect();
@@ -360,7 +361,6 @@ export class NeonVectorStore extends VectorStore {
     let client: Client | undefined;
     try {
       client = new Client(this.readWriteUrl);
-      client.neonConfig.webSocketConstructor = await import("ws");
 
       this._log("Connecting to database");
       await client.connect();
