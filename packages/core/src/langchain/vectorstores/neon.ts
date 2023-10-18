@@ -343,6 +343,9 @@ export class NeonVectorStore extends VectorStore {
       await this.readWriteClient.query(
         "SET enable_seqscan = OFF; SET enable_indexscan = ON;"
       );
+    } catch (e) {
+      this._log("Error ensuring table in database:", e);
+      throw e;
     } finally {
       this._log("Closing database connection");
       await this.readWriteClient.end();
@@ -378,6 +381,9 @@ export class NeonVectorStore extends VectorStore {
       } else {
         throw new Error(`Unknown distance metric ${this.distance}`);
       }
+    } catch (e) {
+      this._log("Error dropping HNSW index:", e);
+      throw e;
     } finally {
       this._log("Closing database connection");
       await this.readWriteClient.end();
