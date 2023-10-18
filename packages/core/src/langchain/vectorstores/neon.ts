@@ -1,3 +1,4 @@
+import type { QueryResult } from "@neondatabase/serverless";
 import {
   Client,
   neon,
@@ -193,66 +194,82 @@ export class NeonVectorStore extends VectorStore {
       )}`
     );
 
-    let documents: Record<string, any>[];
-    if (this.distance === "l2") {
-      documents = await this.readOnlyQueryFn(
-        `SELECT *, embedding ${
-          distanceOperators[this.distance]
-        } $1 AS "_distance"
-        FROM ${this.tableName}
-        WHERE metadata @> $2
-        ORDER BY "_distance"
-        LIMIT $3
-        OFFSET $4;`,
-        [embeddingString, _filter, k, _offset]
-      );
-    } else if (this.distance === "cosine") {
-      documents = await this.readOnlyQueryFn(
-        `SELECT *, 1 - (embedding ${
-          distanceOperators[this.distance]
-        } $1) AS "_distance"
-        FROM ${this.tableName}
-        WHERE metadata @> $2
-        ORDER BY "_distance"
-        LIMIT $3
-        OFFSET $4;`,
-        [embeddingString, _filter, k, _offset]
-      );
-    } else if (this.distance === "innerProduct") {
-      documents = await this.readOnlyQueryFn(
-        `SELECT *, (embedding ${
-          distanceOperators[this.distance]
-        } $1) * -1 AS "_distance"
-        FROM ${this.tableName}
-        WHERE metadata @> $2
-        ORDER BY "_distance"
-        LIMIT $3
-        OFFSET $4;`,
-        [embeddingString, _filter, k, _offset]
-      );
-    } else {
-      throw new Error(`Unknown distance metric ${this.distance}`);
-    }
+    let client: Client | undefined;
+    try {
+      client = new Client(this.readOnlyUrl);
 
-    const results: [NeonVectorStoreDocument, number][] = [];
-    for (const doc of documents) {
-      if (doc._distance != null && doc.page_content != null) {
-        const document = new NeonVectorStoreDocument({
-          id: doc.id,
-          metadata: doc.metadata,
-          pageContent: doc.page_content,
-          embedding: doc.embedding,
-        });
-        results.push([document, doc._distance]);
+      this._log("Connecting to database");
+      await client.connect();
+
+      let documents: QueryResult<any>;
+      if (this.distance === "l2") {
+        documents = await client.query(
+          `SELECT *, embedding ${
+            distanceOperators[this.distance]
+          } $1 AS "_distance"
+        FROM ${this.tableName}
+        WHERE metadata @> $2
+        ORDER BY "_distance"
+        LIMIT $3
+        OFFSET $4;`,
+          [embeddingString, _filter, k, _offset]
+        );
+      } else if (this.distance === "cosine") {
+        documents = await client.query(
+          `SELECT *, 1 - (embedding ${
+            distanceOperators[this.distance]
+          } $1) AS "_distance"
+        FROM ${this.tableName}
+        WHERE metadata @> $2
+        ORDER BY "_distance"
+        LIMIT $3
+        OFFSET $4;`,
+          [embeddingString, _filter, k, _offset]
+        );
+      } else if (this.distance === "innerProduct") {
+        documents = await client.query(
+          `SELECT *, (embedding ${
+            distanceOperators[this.distance]
+          } $1) * -1 AS "_distance"
+        FROM ${this.tableName}
+        WHERE metadata @> $2
+        ORDER BY "_distance"
+        LIMIT $3
+        OFFSET $4;`,
+          [embeddingString, _filter, k, _offset]
+        );
+      } else {
+        throw new Error(`Unknown distance metric ${this.distance}`);
+      }
+
+      const results: [NeonVectorStoreDocument, number][] = [];
+      for (const doc of documents.rows) {
+        if (doc._distance != null && doc.page_content != null) {
+          const document = new NeonVectorStoreDocument({
+            id: doc.id,
+            metadata: doc.metadata,
+            pageContent: doc.page_content,
+            embedding: doc.embedding,
+          });
+          results.push([document, doc._distance]);
+        }
+      }
+
+      this._log(
+        `Found ${
+          documents.rows.length
+        } similar results from vector store: ${JSON.stringify(results)}`
+      );
+      return results;
+    } catch (e) {
+      this._log(`Error searching vector store: ${e}`);
+      throw e;
+    } finally {
+      if (client) {
+        this._log("Closing database connection");
+        await client.end();
       }
     }
-
-    this._log(
-      `Found ${
-        documents.length
-      } similar results from vector store: ${JSON.stringify(results)}`
-    );
-    return results;
   }
 
   async getDocumentsByIds(
