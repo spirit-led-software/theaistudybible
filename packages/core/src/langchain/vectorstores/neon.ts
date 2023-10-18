@@ -79,7 +79,6 @@ export class NeonVectorStore extends VectorStore {
     this.hnswIdxM = fields.hnswIdxM ?? 16;
     this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
 
-    neonConfig.fetchConnectionCache = true;
     neonConfig.webSocketConstructor = ws;
 
     this.readOnlyUrl =
@@ -283,20 +282,37 @@ export class NeonVectorStore extends VectorStore {
       )}`
     );
 
-    const documentsResult = await this.readOnlyQueryFn(
-      `SELECT * FROM ${this.tableName}
+    let client: Client | undefined;
+    try {
+      client = new Client(this.readOnlyUrl);
+
+      this._log("Connecting to database");
+      await client.connect();
+
+      const documentsResult = await client.query(
+        `SELECT * FROM ${this.tableName}
         WHERE id = ANY($1)
         AND metadata @> $2;`,
-      [ids, _filter]
-    );
+        [ids, _filter]
+      );
 
-    this._log(
-      `Found ${
-        documentsResult.length
-      } documents by ids from vector store: ${JSON.stringify(documentsResult)}`
-    );
-
-    return documentsResult as NeonVectorStoreDocument[];
+      this._log(
+        `Found ${
+          documentsResult.rows.length
+        } documents by ids from vector store: ${JSON.stringify(
+          documentsResult.rows
+        )}`
+      );
+      return documentsResult.rows as NeonVectorStoreDocument[];
+    } catch (e) {
+      this._log(`Error getting documents by ids from vector store: ${e}`);
+      throw e;
+    } finally {
+      if (client) {
+        this._log("Closing database connection");
+        await client.end();
+      }
+    }
   }
 
   /**
@@ -351,11 +367,6 @@ export class NeonVectorStore extends VectorStore {
       } else {
         throw new Error(`Unknown distance metric ${this.distance}`);
       }
-
-      this._log("Disabling sequential scans. Enabling index scans.");
-      await client.query(
-        "SET enable_seqscan = OFF; SET enable_indexscan = ON;"
-      );
     } catch (e) {
       this._log("Error ensuring table in database:", e);
       throw e;

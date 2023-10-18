@@ -1,10 +1,6 @@
 import { databaseConfig, envConfig } from "@core/configs";
 import * as schema from "@core/database/schema";
-import {
-  neon,
-  neonConfig,
-  type NeonQueryFunction,
-} from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
 
 export type RAIDatabaseConfigInput = {
@@ -17,7 +13,6 @@ export class RAIDatabaseConfig {
   database: NeonHttpDatabase<typeof schema>;
 
   constructor({ connectionString, readOnly }: RAIDatabaseConfigInput) {
-    neonConfig.fetchConnectionCache = true;
     this.queryFn = neon(connectionString, {
       readOnly,
     });
