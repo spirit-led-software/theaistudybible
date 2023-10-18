@@ -169,7 +169,7 @@ export async function generateDevotion(bibleReading?: string) {
 
       {format_instructions}
       
-      Please output the schema within <schema></schema> tags.`
+      Please put your output that matches the schema within <schema></schema> XML tags.`
     );
     const result = await chain.call({
       prompt: await prompt.format({
@@ -401,7 +401,7 @@ async function getRandomBibleReading() {
 
     {format_instructions}
 
-    Please output the schema within <schema></schema> tags.`
+    Please put your output that matches the schema within <schema></schema> XML tags.`
   );
   const bibleReading = await bibleReadingChain.call({
     prompt: await prompt.format({
