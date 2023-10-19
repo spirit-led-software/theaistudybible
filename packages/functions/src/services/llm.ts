@@ -132,6 +132,25 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     }),
     chatMemoryRetriever,
     {
+      qaChainOptions: {
+        type: "stuff",
+        prompt: PromptTemplate.fromTemplate(
+          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the current chat conversation. Some the chat history is provided to help you answer the question. Use that information to answer the following question. If you are unsure about your correctness, you can admit that you are not confident in your answer.
+
+          The chat history is within <chat_history></chat_history> XML tags.
+          The question is within <question></question> XML tags.
+
+          <chat_history>
+          {context}
+          </chat_history>
+
+          <question>
+          {question}
+          </question>
+          
+          Put your answer to the question within <answer></answer> XML tags.`
+        ),
+      },
       questionGeneratorChainOptions: {
         llm: getCommandModel(),
       },
@@ -160,7 +179,8 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
           `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology.
           Use the context provided to answer the following question. If you truly do not have enough context to answer the question, just admit that you don't know the answer. Otherwise, confidently answer the question as if you believe it to be true.
 
-          The context is within <context></context> XML tags, and the question is within <question></question> XML tags.
+          The context is within <context></context> XML tags.
+          The question is within <question></question> XML tags.
 
           <context>
           {context}

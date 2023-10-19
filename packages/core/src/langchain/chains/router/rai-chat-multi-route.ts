@@ -12,22 +12,23 @@ import { z } from "zod";
 
 const ROUTER_TEMPLATE = (
   formatting: string
-) => `Given a query to a question answering system, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. You may also revise the original input if you think that revising it will ultimately lead to a better response.
+) => `Given a query to a question answering system, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. You may also revise the original input if you think that revising it will ultimately lead to a better response. The formatting must match the the following instructions exactly.
 
-<< FORMATTING >>
+The formatting instructions are within <format_instructions></format_instructions> XML tags.
+The candidate systems are within <candidates></candidates> XML tags. IMPORTANT: The candidates are in the format of "[name]: [description]" where [name] is the name of the question answering system and [description] is a description of what questions the system is best suited for. Only the name of the system should be returned.
+The input is within <input></input> XML tags.
+
+<format_instructions>
 ${formatting}
+</format_instructions>
 
-REMEMBER: "destination" MUST be one of the candidate prompt names specified below OR it can be "DEFAULT" if the input is not well suited for any of the candidate prompts.
-REMEMBER: "next_inputs.query" can just be the original input if you don't think any modifications are needed.
-
-<< CANDIDATE PROMPTS >>
+<candidates>
 {destinations}
+</candidates>
 
-<< INPUT >>
+<input>
 {{input}}
-
-<< OUTPUT >>
-`;
+</input>`;
 
 export type DestinationChainsInfo = {
   [name in string]: {
