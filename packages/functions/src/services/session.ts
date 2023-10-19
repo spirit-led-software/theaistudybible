@@ -47,11 +47,6 @@ export async function validApiHandlerSession(): Promise<
     let count = 0;
     if (todaysQueryCount) {
       count = todaysQueryCount.count;
-    } else {
-      await createUserQueryCount({
-        userId: user.id,
-        count: 0,
-      }).then((newCount) => (count = newCount.count));
     }
 
     const userWithRoles = {
