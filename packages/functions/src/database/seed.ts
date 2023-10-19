@@ -213,7 +213,7 @@ export const handler: Handler = async () => {
     const allChats = await getChats({
       limit: Number.MAX_SAFE_INTEGER,
     });
-    const sliceSize = 15;
+    const sliceSize = 5;
     for (let i = 0; i < allChats.length; i + sliceSize) {
       const chatsSlice = allChats.slice(i, i + sliceSize);
       await Promise.all(
