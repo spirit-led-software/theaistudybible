@@ -40,8 +40,8 @@ export const getCreativeModel = ({
   maxTokens = 512,
   stopSequences = [],
   stream = false,
-  topK = 100,
-  topP = 0.5,
+  topK = 250,
+  topP = 0.75,
   promptPrefix,
   promptSuffix,
 }: StandardModelInput & { modelId?: AnthropicModelId } = {}) =>
@@ -62,12 +62,12 @@ export const getCreativeModel = ({
 
 export const getCommandModel = ({
   modelId = "cohere.command-text-v14",
-  temperature = 0.3,
+  temperature = 2,
   maxTokens = 256,
   stopSequences = [],
   stream = false,
-  topK = 0,
-  topP = 0.1,
+  topK = 100,
+  topP = 0.25,
   promptPrefix,
   promptSuffix,
 }: StandardModelInput & { modelId?: CohereModelId } = {}) =>

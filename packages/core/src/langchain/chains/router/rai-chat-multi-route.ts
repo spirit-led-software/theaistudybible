@@ -12,7 +12,7 @@ import { z } from "zod";
 
 const ROUTER_TEMPLATE = (
   formatting: string
-) => `Given a query to a question answering system, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. The formatting must match the the following instructions exactly. If you do not know which one would be best, just return "DEFAULT" without the quotes.
+) => `Given a query to a question answering system, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. The formatting must match the the following instructions exactly.
 
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
 The candidate systems are within <candidates></candidates> XML tags. IMPORTANT: The candidates are in the format of "[name]: [description]" where [name] is the name of the question answering system and [description] is a description of what questions the system is best suited for. Only the name of the system should be returned.
@@ -67,7 +67,7 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
         .string()
         .optional()
         .describe(
-          'The name of the question answering system to use or "DEFAULT".'
+          'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
         ),
       next_inputs: z
         .object({
