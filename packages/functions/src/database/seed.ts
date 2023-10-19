@@ -1,6 +1,5 @@
 import { authConfig } from "@core/configs";
 import type { User } from "@core/model";
-import { getChats } from "@services/chat";
 import {
   addRoleToUser,
   createRole,
@@ -16,10 +15,7 @@ import {
   isAdmin,
   updateUser,
 } from "@services/user";
-import {
-  getChatMemoryVectorStore,
-  getDocumentVectorStore,
-} from "@services/vector-db";
+import { getDocumentVectorStore } from "@services/vector-db";
 import type { Handler } from "aws-lambda";
 import * as bcrypt from "bcryptjs";
 import { revenueCatConfig } from "../configs";
@@ -202,28 +198,29 @@ export const handler: Handler = async () => {
 
     await createInitialAdminUser();
 
-    console.log("Creating vector store and HNSW index");
+    console.log("Creating vector store and (re)creating HNSW index");
     const vectorDb = await getDocumentVectorStore({
       verbose: true,
     });
     await vectorDb.dropHnswIndex();
     await vectorDb.ensureTableInDatabase();
 
-    console.log("Creating chat memory vector stores and HNSW indexes");
-    const allChats = await getChats({
-      limit: Number.MAX_SAFE_INTEGER,
-    });
-    const sliceSize = 5;
-    for (let i = 0; i < allChats.length; i + sliceSize) {
-      const chatsSlice = allChats.slice(i, i + sliceSize);
-      await Promise.all(
-        chatsSlice.map(async (chat) => {
-          const chatVectorDb = await getChatMemoryVectorStore(chat.id);
-          await chatVectorDb.dropHnswIndex();
-          await chatVectorDb.ensureTableInDatabase();
-        })
-      );
-    }
+    // This code below should only be a one-off thing. Leaving it here just in case.
+    // console.log("Creating chat memory vector stores and HNSW indexes");
+    // const allChats = await getChats({
+    //   limit: Number.MAX_SAFE_INTEGER,
+    // });
+    // const sliceSize = 5;
+    // for (let i = 0; i < allChats.length; i + sliceSize) {
+    //   const chatsSlice = allChats.slice(i, i + sliceSize);
+    //   await Promise.all(
+    //     chatsSlice.map(async (chat) => {
+    //       const chatVectorDb = await getChatMemoryVectorStore(chat.id);
+    //       await chatVectorDb.dropHnswIndex();
+    //       await chatVectorDb.ensureTableInDatabase();
+    //     })
+    //   );
+    // }
 
     console.log("Database seeding complete");
   } catch (e) {
