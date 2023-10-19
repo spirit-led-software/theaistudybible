@@ -145,30 +145,43 @@ export async function generateDevotion(bibleReading?: string) {
       getCreativeModel({
         modelId: "anthropic.claude-v2",
         maxTokens: 4096,
-        stopSequences: ["</schema>"],
-        promptSuffix: "<schema>",
+        stopSequences: ["</output>"],
+        promptSuffix: "<output>",
       }),
       vectorStore.asRetriever(25),
       {
+        prompt: PromptTemplate.fromTemplate(
+          `You need to write a non-denominational Christian devotion based on the following context and Bible reading. Your output should match the formatting instructions exactly.
+
+          The context is within <context></context> XML tags.
+          The Bible reading is within <bible_reading></bible_reading> XML tags.
+          The formatting instructions are within <format_instructions></format_instructions> XML tags.
+
+          <context>
+          {context}
+          </context>
+
+          <bible_reading>
+          {question}
+          </bible_reading>
+
+          <format_instructions>
+          {format_instructions}
+          </format_instructions>
+
+          Put your output that follows the formatting instructions within <output></output> XML tags.`,
+          {
+            partialVariables: {
+              format_instructions: outputParser.getFormatInstructions(),
+            },
+          }
+        ),
         returnSourceDocuments: true,
-        inputKey: "prompt",
+        inputKey: "bibleReading",
       }
     );
-
-    const prompt = PromptTemplate.fromTemplate(
-      `Given the following Bible reading:\n{bibleReading}
-
-      Write a non-denominational Christian devotion.
-
-      {format_instructions}
-      
-      Please put your output that matches the schema within <schema></schema> XML tags.`
-    );
     const result = await chain.call({
-      prompt: await prompt.format({
-        bibleReading,
-        format_instructions: outputParser.getFormatInstructions(),
-      }),
+      bibleReading,
     });
 
     const output = await outputParser.parse(result.text);
@@ -371,31 +384,47 @@ async function getRandomBibleReading() {
       modelId: "anthropic.claude-v2",
       stream: false,
       maxTokens: 2048,
-      stopSequences: ["</schema>"],
-      promptSuffix: "<schema>",
+      stopSequences: ["</output>"],
+      promptSuffix: "<output>",
     }),
     vectorStore.asRetriever(50),
     {
+      prompt: PromptTemplate.fromTemplate(
+        `You need to find a Bible reading within the following context and based on the following topic. Your output should match the formatting instructions exactly.
+
+        The context is within <context></context> XML tags.
+        The topic is within <topic></topic> XML tags.
+        The formatting instructions are within <format_instructions></format_instructions> XML tags.
+
+        <context>
+        {context}
+        </context>
+
+        <topic>
+        {question}
+        </topic>
+
+        <format_instructions>
+        {format_instructions}
+        </format_instructions>
+
+        Put your output that follows the formatting instructions within <output></output> XML tags.`,
+        {
+          partialVariables: {
+            format_instructions:
+              bibleReadingOutputParser.getFormatInstructions(),
+          },
+        }
+      ),
       returnSourceDocuments: true,
-      inputKey: "prompt",
+      inputKey: "topic",
     }
   );
 
   const topic = getRandomTopic();
   console.log(`Devotion topic: ${topic}`);
-
-  const prompt = PromptTemplate.fromTemplate(
-    `Find a bible passage that is between 1 and 20 verses long about {topic}.
-
-    {format_instructions}
-
-    Please put your output that matches the schema within <schema></schema> XML tags.`
-  );
   const bibleReading = await bibleReadingChain.call({
-    prompt: await prompt.format({
-      topic,
-      format_instructions: bibleReadingOutputParser.getFormatInstructions(),
-    }),
+    topic,
   });
 
   const bibleReadingOutput = await bibleReadingOutputParser.parse(
