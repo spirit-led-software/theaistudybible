@@ -92,17 +92,19 @@ export async function updateUserQueryCount(
 }
 
 export async function incrementUserQueryCount(userId: string) {
+  console.log("Incrementing user query count for user:", userId);
+
   const todaysQueries = await getUserQueryCountByUserIdAndDate(
     userId,
     new Date()
   );
 
   if (todaysQueries) {
-    await updateUserQueryCount(todaysQueries.id, {
+    return await updateUserQueryCount(todaysQueries.id, {
       count: todaysQueries.count + 1,
     });
   } else {
-    await createUserQueryCount({
+    return await createUserQueryCount({
       userId,
       count: 1,
       date: new Date(),

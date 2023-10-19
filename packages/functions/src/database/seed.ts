@@ -1,5 +1,6 @@
 import { authConfig } from "@core/configs";
 import type { User } from "@core/model";
+import { getChats } from "@services/chat";
 import {
   addRoleToUser,
   createRole,
@@ -15,7 +16,10 @@ import {
   isAdmin,
   updateUser,
 } from "@services/user";
-import { getDocumentVectorStore } from "@services/vector-db";
+import {
+  getChatMemoryVectorStore,
+  getDocumentVectorStore,
+} from "@services/vector-db";
 import type { Handler } from "aws-lambda";
 import * as bcrypt from "bcryptjs";
 import { revenueCatConfig } from "../configs";
@@ -204,6 +208,16 @@ export const handler: Handler = async () => {
     });
     await vectorDb.dropHnswIndex();
     await vectorDb.ensureTableInDatabase();
+
+    const allChats = await getChats({
+      limit: Infinity,
+    });
+    await Promise.all(
+      allChats.map(async (chat) => {
+        const chatVectorDb = await getChatMemoryVectorStore(chat.id);
+        await chatVectorDb.ensureTableInDatabase();
+      })
+    );
 
     console.log("Database seeding complete");
   } catch (e) {

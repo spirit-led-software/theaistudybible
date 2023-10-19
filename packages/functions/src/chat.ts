@@ -75,7 +75,7 @@ const lambdaHandler = async (
     return validationResponse;
   }
 
-  const promises: Promise<any>[] = []; // promises to wait for before closing the stream
+  const pendingPromises: Promise<any>[] = []; // promises to wait for before closing the stream
 
   if (!event.body) {
     console.log("Missing body");
@@ -178,7 +178,7 @@ const lambdaHandler = async (
     console.timeEnd("Validating chat");
 
     if (chat.name === "New Chat") {
-      promises.push(
+      pendingPromises.push(
         updateChat(chat.id, {
           name: messages[0].content,
         })
@@ -198,7 +198,7 @@ const lambdaHandler = async (
         userId: userInfo.id,
       });
     } else {
-      promises.push(
+      pendingPromises.push(
         getAiResponsesByUserMessageId(userMessage.id).then(
           async (aiResponses) => {
             const oldAiResponse = aiResponses[0];
@@ -229,7 +229,7 @@ const lambdaHandler = async (
         CallbackManager.fromHandlers(handlers)
       )
       .then(async (result) => {
-        return await Promise.all([
+        await Promise.all([
           incrementUserQueryCount(userInfo.id),
           updateAiResponse(aiResponse.id, {
             text: result.text,
@@ -245,14 +245,16 @@ const lambdaHandler = async (
             }
           ) ?? []),
         ]);
+        return result;
       })
       .catch(async (err) => {
         console.error(`${err.stack}`);
-        return await updateAiResponse(aiResponse.id, {
+        await updateAiResponse(aiResponse.id, {
           failed: true,
         });
+        throw err;
       });
-    promises.push(langchainResponsePromise);
+    pendingPromises.push(langchainResponsePromise);
 
     const reader = stream.getReader();
     return {
@@ -270,7 +272,7 @@ const lambdaHandler = async (
             .then(async ({ done, value }: { done: boolean; value?: any }) => {
               if (done) {
                 console.log("Finished chat stream response");
-                await Promise.all(promises); // make sure everything is done before closing the stream
+                await Promise.all(pendingPromises); // make sure everything is done before closing the stream
                 this.push(null);
                 this.destroy();
                 return;
@@ -283,7 +285,7 @@ const lambdaHandler = async (
             })
             .catch(async (err) => {
               console.error(`Error while streaming response: ${err}`);
-              await Promise.all(promises); // make sure everything is done before closing the stream
+              await Promise.all(pendingPromises); // make sure everything is done before closing the stream
               this.push(null);
               this.destroy(err);
               throw err;
