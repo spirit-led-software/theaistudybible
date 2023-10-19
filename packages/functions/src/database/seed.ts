@@ -213,8 +213,9 @@ export const handler: Handler = async () => {
     const allChats = await getChats({
       limit: Number.MAX_SAFE_INTEGER,
     });
-    for (let i = 0; i < allChats.length; i + 15) {
-      const chatsSlice = allChats.slice(i, i + 10);
+    const sliceSize = 15;
+    for (let i = 0; i < allChats.length; i + sliceSize) {
+      const chatsSlice = allChats.slice(i, i + sliceSize);
       await Promise.all(
         chatsSlice.map(async (chat) => {
           const chatVectorDb = await getChatMemoryVectorStore(chat.id);
