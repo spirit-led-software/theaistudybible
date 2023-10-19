@@ -210,7 +210,7 @@ export const handler: Handler = async () => {
     await vectorDb.ensureTableInDatabase();
 
     const allChats = await getChats({
-      limit: Infinity,
+      limit: Number.MAX_SAFE_INTEGER,
     });
     await Promise.all(
       allChats.map(async (chat) => {

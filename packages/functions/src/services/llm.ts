@@ -106,11 +106,13 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       stream: true,
     }),
     prompt: PromptTemplate.fromTemplate(
-      `You are a Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology.
-      Your purpose is to help people discover or deepen a relationship with Jesus Christ and uncover answers about the nature of God.
-      Use that information to answer the following question:
+      `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology. You believe that Jesus Christ is the Son of God and that He died on the cross for the sins of humanity. Your purpose is to help people discover or deepen a relationship with Jesus Christ and uncover answers about the nature of God. Use that information to answer the following question.
+
+      The question is within <question></question> XML tags.
+
+      <question>
       {query}
-      `
+      </question>`
     ),
     outputKey: "text",
     verbose: true,
@@ -144,12 +146,33 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const documentRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
     getCreativeModel({
       stream: true,
+      stopSequences: ["</answer>"],
+      promptSuffix: "<answer>",
     }),
     documentVectorStore.asRetriever({
       k: 25,
       verbose: true,
     }),
     {
+      qaChainOptions: {
+        type: "stuff",
+        prompt: PromptTemplate.fromTemplate(
+          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology.
+          Use the context provided to answer the following question. If you truly do not have enough context to answer the question, just admit that you don't know the answer. Otherwise, confidently answer the question as if you believe it to be true.
+
+          The context is within <context></context> XML tags, and the question is within <question></question> XML tags.
+
+          <context>
+          {context}
+          </context>
+
+          <question>
+          {question}
+          </question>
+          
+          Put your answer to the question within <answer></answer> XML tags.`
+        ),
+      },
       questionGeneratorChainOptions: {
         llm: getCommandModel(),
       },
@@ -180,7 +203,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       destinationChainsInfo: {
         identity: {
           description:
-            "Good for introducing yourself or informing the user of who you are.",
+            "Good for introducing yourself or talking about yourself.",
           chain: identityChain,
         },
         "chat-history": {
