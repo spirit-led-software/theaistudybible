@@ -129,13 +129,15 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
     getCreativeModel({
       stream: true,
+      stopSequences: ["</answer>"],
+      promptSuffix: "<answer>",
     }),
     chatMemoryRetriever,
     {
       qaChainOptions: {
         type: "stuff",
         prompt: PromptTemplate.fromTemplate(
-          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the current chat conversation. Some the chat history is provided to help you answer the question. Use that information to answer the following question. If you are unsure about your correctness, you can admit that you are not confident in your answer.
+          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the current chat conversation. Some the chat history is provided to help you answer the question. Use that information to answer the following question. If you are unsure about your correctness, you can admit that you are not confident in your answer. Refer to the user as 'you' and yourself as 'me' or 'I'.
 
           The chat history is within <chat_history></chat_history> XML tags.
           The question is within <question></question> XML tags.

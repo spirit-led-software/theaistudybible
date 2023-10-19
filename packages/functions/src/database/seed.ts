@@ -209,15 +209,20 @@ export const handler: Handler = async () => {
     await vectorDb.dropHnswIndex();
     await vectorDb.ensureTableInDatabase();
 
+    console.log("Creating chat memory vector stores and HNSW indexes");
     const allChats = await getChats({
       limit: Number.MAX_SAFE_INTEGER,
     });
-    await Promise.all(
-      allChats.map(async (chat) => {
-        const chatVectorDb = await getChatMemoryVectorStore(chat.id);
-        await chatVectorDb.ensureTableInDatabase();
-      })
-    );
+    for (let i = 0; i < allChats.length; i + 15) {
+      const chatsSlice = allChats.slice(i, i + 10);
+      await Promise.all(
+        chatsSlice.map(async (chat) => {
+          const chatVectorDb = await getChatMemoryVectorStore(chat.id);
+          await chatVectorDb.dropHnswIndex();
+          await chatVectorDb.ensureTableInDatabase();
+        })
+      );
+    }
 
     console.log("Database seeding complete");
   } catch (e) {
