@@ -52,6 +52,8 @@ class ChatScreen extends HookConsumerWidget {
     final loadedChats = ref.watch(loadedChatDataProvider);
 
     final isMounted = useIsMounted();
+    final scrollController = useScrollController();
+    final scrollableEndIsInView = useState(true);
     final isLoadingChat = useState(false);
     final isRefreshingChat = useState(false);
     final showSuggestions = useState(false);
@@ -176,10 +178,29 @@ class ChatScreen extends HookConsumerWidget {
       return () {};
     }, [alert.value]);
 
+    useEffect(() {
+      if (scrollController.hasClients) {
+        scrollController.addListener(() {
+          if (scrollController.position.outOfRange) {
+            return;
+          }
+
+          if (scrollController.offset <=
+              scrollController.position.minScrollExtent) {
+            if (isMounted()) scrollableEndIsInView.value = true;
+          } else {
+            if (isMounted()) scrollableEndIsInView.value = false;
+          }
+        });
+      }
+
+      return () {};
+    }, [scrollController.hasClients]);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: context.brightness == Brightness.light
-          ? SystemUiOverlayStyle.dark
-          : SystemUiOverlayStyle.light,
+      value: context.isDarkMode
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
         floatingActionButton: Container(
@@ -472,6 +493,7 @@ class ChatScreen extends HookConsumerWidget {
                       Expanded(
                         flex: 1,
                         child: ListView.builder(
+                          controller: scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
                           reverse: true,
                           shrinkWrap: true,
@@ -509,164 +531,205 @@ class ChatScreen extends HookConsumerWidget {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: showSuggestions.value
-                            ? context.colorScheme.background.withOpacity(0.8)
-                            : Colors.transparent,
-                      ),
-                      padding: EdgeInsets.only(
-                        top: showSuggestions.value ? 10 : 0,
-                        bottom: 10,
-                      ),
-                      child: Column(
-                        children: [
-                          if (showSuggestions.value) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 0,
+                    child: Column(
+                      children: [
+                        if (!scrollableEndIsInView.value) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: IconButton(
+                              onPressed: () {
+                                scrollController.animateTo(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                              style: IconButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(5),
+                                backgroundColor: context.secondaryColor,
+                                foregroundColor:
+                                    context.colorScheme.onSecondary,
+                                shadowColor: context.theme.shadowColor,
+                                elevation: 5,
                               ),
-                              height: 75,
-                              child: CustomScrollView(
-                                scrollDirection: Axis.horizontal,
-                                slivers: [
-                                  SliverPadding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    sliver: SliverList(
-                                      delegate: SliverChildBuilderDelegate(
-                                        (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 5,
-                                            ),
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                chatHook.append(
-                                                  ChatMessage(
-                                                    id: nanoid(),
-                                                    content: shuffledSuggestions
-                                                        .value[index],
-                                                    role: Role.user,
-                                                  ),
-                                                );
-                                                showSuggestions.value = false;
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    context.colorScheme.primary,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                shuffledSuggestions
-                                                    .value[index],
-                                                style: TextStyle(
-                                                  color: context
-                                                      .colorScheme.onPrimary,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        childCount:
-                                            shuffledSuggestions.value.length,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Opacity(
-                              opacity: 0.9,
-                              child: TextField(
-                                minLines: 1,
-                                maxLines: 5,
-                                controller: chatHook.inputController,
-                                focusNode: chatHook.inputFocusNode,
-                                onSubmitted: (value) {
-                                  chatHook.handleSubmit();
-                                },
-                                onTapOutside: (event) {
-                                  chatHook.inputFocusNode.unfocus();
-                                },
-                                autocorrect: true,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: context.isDarkMode
-                                      ? context.primaryColor
-                                      : null,
-                                  hintText: "Type a message",
-                                  suffixIcon: chatHook.loading.value
-                                      ? Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            SpinKitWave(
-                                              color: context
-                                                  .colorScheme.onBackground,
-                                              size: 20,
-                                            ),
-                                          ],
-                                        )
-                                      : Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            IconButton(
-                                              visualDensity:
-                                                  const VisualDensity(
-                                                vertical: VisualDensity
-                                                    .minimumDensity,
-                                                horizontal: VisualDensity
-                                                    .minimumDensity,
-                                              ),
-                                              onPressed: () {
-                                                chatHook.reload();
-                                              },
-                                              icon: const FaIcon(
-                                                FontAwesomeIcons
-                                                    .arrowRotateRight,
-                                                size: 20,
-                                              ),
-                                            ),
-                                            IconButton(
-                                              visualDensity:
-                                                  const VisualDensity(
-                                                vertical: VisualDensity
-                                                    .minimumDensity,
-                                                horizontal: VisualDensity
-                                                    .minimumDensity,
-                                              ),
-                                              onPressed: () {
-                                                chatHook.handleSubmit();
-                                              },
-                                              icon: const Icon(
-                                                Icons.send,
-                                                size: 20,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                ),
+                              icon: const Icon(
+                                Icons.arrow_downward,
+                                size: 32,
                               ),
                             ),
                           ),
                         ],
-                      ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: showSuggestions.value
+                                ? context.colorScheme.background
+                                    .withOpacity(0.8)
+                                : Colors.transparent,
+                          ),
+                          padding: EdgeInsets.only(
+                            top: showSuggestions.value ? 10 : 0,
+                            bottom: 10,
+                          ),
+                          child: Column(
+                            children: [
+                              if (showSuggestions.value) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 0,
+                                  ),
+                                  height: 75,
+                                  child: CustomScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    slivers: [
+                                      SliverPadding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                        sliver: SliverList(
+                                          delegate: SliverChildBuilderDelegate(
+                                            (context, index) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 5,
+                                                ),
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    chatHook.append(
+                                                      ChatMessage(
+                                                        id: nanoid(),
+                                                        content:
+                                                            shuffledSuggestions
+                                                                .value[index],
+                                                        role: Role.user,
+                                                      ),
+                                                    );
+                                                    showSuggestions.value =
+                                                        false;
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor: context
+                                                        .colorScheme.primary,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                  ),
+                                                  child: Text(
+                                                    shuffledSuggestions
+                                                        .value[index],
+                                                    style: TextStyle(
+                                                      color: context.colorScheme
+                                                          .onPrimary,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            childCount: shuffledSuggestions
+                                                .value.length,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Opacity(
+                                  opacity: 0.9,
+                                  child: TextField(
+                                    minLines: 1,
+                                    maxLines: 5,
+                                    controller: chatHook.inputController,
+                                    focusNode: chatHook.inputFocusNode,
+                                    onSubmitted: (value) {
+                                      chatHook.handleSubmit();
+                                    },
+                                    onTapOutside: (event) {
+                                      chatHook.inputFocusNode.unfocus();
+                                    },
+                                    autocorrect: true,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: context.isDarkMode
+                                          ? context.primaryColor
+                                          : null,
+                                      hintText: "Type a message",
+                                      suffixIcon: chatHook.loading.value
+                                          ? Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                SpinKitWave(
+                                                  color: context
+                                                      .colorScheme.onBackground,
+                                                  size: 20,
+                                                ),
+                                              ],
+                                            )
+                                          : Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                IconButton(
+                                                  visualDensity:
+                                                      const VisualDensity(
+                                                    vertical: VisualDensity
+                                                        .minimumDensity,
+                                                    horizontal: VisualDensity
+                                                        .minimumDensity,
+                                                  ),
+                                                  onPressed: () {
+                                                    chatHook.reload();
+                                                  },
+                                                  icon: const FaIcon(
+                                                    FontAwesomeIcons
+                                                        .arrowRotateRight,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  visualDensity:
+                                                      const VisualDensity(
+                                                    vertical: VisualDensity
+                                                        .minimumDensity,
+                                                    horizontal: VisualDensity
+                                                        .minimumDensity,
+                                                  ),
+                                                  onPressed: () {
+                                                    chatHook.handleSubmit();
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.send,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   if (isRefreshingChat.value) ...[

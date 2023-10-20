@@ -23,7 +23,7 @@ class DevotionReactions extends _$DevotionReactions {
       session: session,
     ).then((value) {
       refresh();
-      ref.read(devotionReactionCountsProvider(id).notifier).refresh();
+      ref.read(devotionReactionCountsProvider(id).notifier).increment(reaction);
     });
   }
 
