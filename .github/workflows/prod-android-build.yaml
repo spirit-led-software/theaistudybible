@@ -67,11 +67,13 @@ jobs:
           echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
           echo "storeFile=keystore.jks" >> android/key.properties
         working-directory: mobile
-      - name: Bump version code
-        uses: chkfung/android-version-actions@v1.2.1
+      - name: Update version code
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
-          gradlePath: mobile/android/app/build.gradle
-          versionCode: ${{github.run_number}}
+          find: ^flutter.versionCode=.*$
+          replace: flutter.versionCode=${{ github.run_number }}
+          include: mobile/android/local.properties
+          regex: true
       - id: build_appbundle
         name: Build App Bundle for Android
         run: |
