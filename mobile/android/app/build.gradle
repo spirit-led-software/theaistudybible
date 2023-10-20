@@ -21,12 +21,12 @@ if (keystorePropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = System.getenv().containsKey('FLUTTER_VERSION_CODE') ? System.getenv('FLUTTER_VERSION_CODE') : '1'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
+    flutterVersionName = System.getenv().containsKey('FLUTTER_VERSION_NAME') ? System.getenv('FLUTTER_VERSION_NAME') : '1.0'
 }
 
 android {

@@ -12,6 +12,8 @@ on:
   workflow_dispatch:
 
 env:
+  FLUTTER_VERSION_CODE: ${{ github.run_number }}
+
   WEBSITE_URL: https://revelationsai.com
   API_URL: https://api.revelationsai.com
   CHAT_API_URL: https://chat.api.revelationsai.com
@@ -67,8 +69,6 @@ jobs:
           echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
           echo "storeFile=keystore.jks" >> android/key.properties
         working-directory: mobile
-      - name: Update version code
-        run: echo "flutter.versionCode=${{ github.run_number }}" >> mobile/android/local.properties
       - id: build_appbundle
         name: Build App Bundle for Android
         run: |
