@@ -97,3 +97,4 @@ jobs:
           packageName: com.passgoco.revelationsai
           releaseFiles: mobile/build/app/outputs/bundle/release/app-release.aab
           track: production
+          changesNotSentForReview: true
