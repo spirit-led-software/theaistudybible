@@ -82,7 +82,8 @@ jobs:
             --dart-define WEBSITE_URL=$WEBSITE_URL \
             --dart-define API_URL=$API_URL \
             --dart-define CHAT_API_URL=$CHAT_API_URL \
-            --dart-define REVENUECAT_PLAY_STORE_API_KEY=$REVENUECAT_PLAY_STORE_API_KEY
+            --dart-define REVENUECAT_PLAY_STORE_API_KEY=$REVENUECAT_PLAY_STORE_API_KEY \
+            --dart-define NEW_RELIC_ANDROID_APP_TOKEN=$NEW_RELIC_ANDROID_APP_TOKEN
         working-directory: mobile
       - name: Archive App Bundle
         uses: actions/upload-artifact@v2
@@ -94,3 +95,10 @@ jobs:
         with:
           name: android-obfuscation-mapping
           path: mobile/build/android/debug-info/*.symbols
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_CLOUD_SVC_ACCOUNT_JSON }}
+          packageName: com.passgoco.revelationsai
+          releaseFiles: mobile/build/app/outputs/bundle/release/app-release.aab
+          track: production
