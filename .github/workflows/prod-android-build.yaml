@@ -90,10 +90,12 @@ jobs:
         with:
           name: android-obfuscation-mapping
           path: mobile/build/android/debug-info/*.symbols
+      - name: Create google cloud service account key file
+        run: echo ${{ secrets.ENCODED_GOOGLE_CLOUD_SVC_ACCOUNT_JSON }} | base64 --decode > google-cloud-key.json
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1
         with:
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_CLOUD_SVC_ACCOUNT_JSON }}
+          serviceAccountJson: google-cloud-key.json
           packageName: com.passgoco.revelationsai
           releaseFiles: mobile/build/app/outputs/bundle/release/app-release.aab
           track: production
