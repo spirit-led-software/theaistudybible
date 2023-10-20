@@ -212,7 +212,7 @@ class Sources extends HookConsumerWidget {
                         ),
                         titleAlignment: ListTileTitleAlignment.center,
                         title: Text(
-                          source.metadata["name"].split(" - ")[0],
+                          source.metadata["name"].toString(),
                           textAlign: TextAlign.center,
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
@@ -223,12 +223,13 @@ class Sources extends HookConsumerWidget {
                         subtitle: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if ((source.metadata["type"] as String)
+                            if (source.metadata["type"]
+                                    .toString()
                                     .toLowerCase() ==
                                 "webpage") ...[
                               Text(
                                 Uri.parse(
-                                  source.metadata["url"],
+                                  source.metadata["url"].toString(),
                                 )
                                     .pathSegments
                                     .lastWhere((element) => element.isNotEmpty),
@@ -237,7 +238,8 @@ class Sources extends HookConsumerWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
-                            if ((source.metadata["type"] as String)
+                            if (source.metadata["type"]
+                                    .toString()
                                     .toLowerCase() ==
                                 "file") ...[
                               ClipRRect(
