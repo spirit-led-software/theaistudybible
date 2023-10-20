@@ -68,12 +68,7 @@ jobs:
           echo "storeFile=keystore.jks" >> android/key.properties
         working-directory: mobile
       - name: Update version code
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: ^flutter.versionCode=.*$
-          replace: flutter.versionCode=${{ github.run_number }}
-          include: mobile/android/local.properties
-          regex: true
+        run: echo "flutter.versionCode=${{ github.run_number }}" >> mobile/android/local.properties
       - id: build_appbundle
         name: Build App Bundle for Android
         run: |
