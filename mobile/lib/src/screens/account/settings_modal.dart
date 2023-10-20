@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -10,6 +11,7 @@ import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/services/user.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsModal extends HookConsumerWidget {
@@ -91,7 +93,7 @@ class SettingsModal extends HookConsumerWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.article_outlined),
-                title: const Text('Terms of Use (EULA)'),
+                title: const Text('Terms of Use'),
                 onTap: () async {
                   await launchUrlString(
                     Platform.isIOS
@@ -101,6 +103,17 @@ class SettingsModal extends HookConsumerWidget {
                     webViewConfiguration: const WebViewConfiguration(
                       enableJavaScript: true,
                     ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const FaIcon(FontAwesomeIcons.headset),
+                title: const Text('Support'),
+                onTap: () async {
+                  await launchUrl(
+                    Uri.parse(
+                        'mailto:support@revelationsai.com?subject=${Uri.encodeComponent('RevelationsAI Support Request')}'),
+                    mode: LaunchMode.externalApplication,
                   );
                 },
               ),
