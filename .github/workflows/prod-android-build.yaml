@@ -67,6 +67,11 @@ jobs:
           echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
           echo "storeFile=keystore.jks" >> android/key.properties
         working-directory: mobile
+      - name: Bump version code
+        uses: chkfung/android-version-actions@v1.2.1
+        with:
+          gradlePath: mobile/android/app/build.gradle
+          versionCode: ${{github.run_number}}
       - id: build_appbundle
         name: Build App Bundle for Android
         run: |
