@@ -3,7 +3,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/data.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
@@ -12,6 +11,7 @@ import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -24,12 +24,12 @@ class ChatModal extends HookConsumerWidget {
     final chatsPagesNotifier = ref.watch(chatsPagesProvider.notifier);
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
+        color: context.colorScheme.background,
       ),
       child: Column(
         children: [
@@ -46,27 +46,27 @@ class ChatModal extends HookConsumerWidget {
                   topRight: Radius.circular(20),
                 ),
               ),
-              color: RAIColors.primary,
+              color: context.primaryColor,
             ),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'All chats',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: context.colorScheme.onPrimary,
                     ),
                   ),
                 ),
                 IconButton(
+                  color: context.colorScheme.onPrimary,
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                   icon: const Icon(
                     Icons.close,
-                    color: Colors.white,
                   ),
                 ),
               ],
@@ -107,7 +107,7 @@ class ChatModal extends HookConsumerWidget {
               ? Expanded(
                   child: Center(
                     child: SpinKitSpinningLines(
-                      color: RAIColors.primary,
+                      color: context.primaryColor,
                       size: 32,
                     ),
                   ),
@@ -136,7 +136,7 @@ class ChatModal extends HookConsumerWidget {
                                   padding: const EdgeInsets.all(10),
                                   child: Center(
                                     child: SpinKitSpinningLines(
-                                      color: RAIColors.primary,
+                                      color: context.primaryColor,
                                       size: 20,
                                     ),
                                   ),
@@ -220,7 +220,7 @@ class ChatListItem extends HookConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           color: currentChatId == chat.id
-              ? RAIColors.primary.withOpacity(0.1)
+              ? context.secondaryColor.withOpacity(0.2)
               : Colors.transparent,
         ),
         child: ListTile(
@@ -235,7 +235,7 @@ class ChatListItem extends HookConsumerWidget {
           trailing: currentChatId == chat.id
               ? Icon(
                   Icons.check,
-                  color: RAIColors.primary,
+                  color: context.secondaryColor,
                 )
               : null,
           dense: true,

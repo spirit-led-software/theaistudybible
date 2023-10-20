@@ -8,9 +8,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/api.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 
 class LoginScreen extends HookConsumerWidget {
@@ -110,12 +110,10 @@ class LoginScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: RAIColors.primary,
       body: Center(
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Card(
-            color: Colors.white,
             elevation: 3,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -131,7 +129,7 @@ class LoginScreen extends HookConsumerWidget {
                 children: [
                   (snapshot.connectionState == ConnectionState.waiting)
                       ? SpinKitSpinningLines(
-                          color: RAIColors.secondary,
+                          color: context.secondaryColor,
                           size: 32,
                         )
                       : alert.value != null
@@ -145,8 +143,8 @@ class LoginScreen extends HookConsumerWidget {
                               ),
                               child: Text(
                                 alert.value!.message,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.colorScheme.onError,
                                 ),
                               ),
                             )
@@ -161,7 +159,6 @@ class LoginScreen extends HookConsumerWidget {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: RAIColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -179,16 +176,12 @@ class LoginScreen extends HookConsumerWidget {
                               children: [
                                 FaIcon(
                                   FontAwesomeIcons.apple,
-                                  color: Colors.white,
                                 ),
                                 SizedBox(
                                   width: 10,
                                 ),
                                 Text(
                                   "Login with Apple",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
                                 ),
                               ],
                             ),
@@ -225,7 +218,7 @@ class LoginScreen extends HookConsumerWidget {
                             children: [
                               FaIcon(
                                 FontAwesomeIcons.facebookF,
-                                color: Colors.white,
+                                color: context.primaryColor,
                               ),
                               SizedBox(
                                 width: 10,
@@ -233,7 +226,7 @@ class LoginScreen extends HookConsumerWidget {
                               Text(
                                 "Login with Facebook",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: context.primaryColor,
                                 ),
                               ),
                             ],
@@ -251,7 +244,6 @@ class LoginScreen extends HookConsumerWidget {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: RAIColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -269,16 +261,12 @@ class LoginScreen extends HookConsumerWidget {
                             children: [
                               FaIcon(
                                 FontAwesomeIcons.google,
-                                color: Colors.white,
                               ),
                               SizedBox(
                                 width: 10,
                               ),
                               Text(
                                 "Login with Google",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
                               ),
                             ],
                           ),
@@ -296,17 +284,15 @@ class LoginScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: Colors.grey.shade300,
+                          color:
+                              context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      const Text(
                         "OR",
-                        style: TextStyle(
-                          color: RAIColors.primary,
-                        ),
                       ),
                       const SizedBox(
                         width: 10,
@@ -314,7 +300,8 @@ class LoginScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: Colors.grey.shade300,
+                          color:
+                              context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                     ],
@@ -333,20 +320,8 @@ class LoginScreen extends HookConsumerWidget {
                             keyboardType: TextInputType.emailAddress,
                             controller: emailTextController,
                             focusNode: emailFocusNode,
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: "Email",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                             ),
                             onTapOutside: (event) {
                               emailFocusNode.unfocus();
@@ -384,20 +359,8 @@ class LoginScreen extends HookConsumerWidget {
                               }
                               return null;
                             },
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
                             decoration: InputDecoration(
                               hintText: "Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   showPassword.value = !showPassword.value;
@@ -419,7 +382,6 @@ class LoginScreen extends HookConsumerWidget {
                               Expanded(
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: RAIColors.primary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
@@ -433,9 +395,6 @@ class LoginScreen extends HookConsumerWidget {
                                   },
                                   child: const Text(
                                     "Login with Email",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
                                   ),
                                 ),
                               ),
@@ -452,11 +411,8 @@ class LoginScreen extends HookConsumerWidget {
                     onTap: () {
                       context.go('/auth/register');
                     },
-                    child: Text(
+                    child: const Text(
                       "Don't have an account? Register",
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
                     ),
                   ),
                   const SizedBox(
@@ -466,11 +422,8 @@ class LoginScreen extends HookConsumerWidget {
                     onTap: () {
                       context.go('/auth/forgot-password');
                     },
-                    child: Text(
+                    child: const Text(
                       "Forgot password?",
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
                     ),
                   ),
                 ],

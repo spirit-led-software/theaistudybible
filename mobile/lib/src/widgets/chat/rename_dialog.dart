@@ -3,11 +3,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/providers/chat.dart';
 
-class EditDialog extends HookConsumerWidget {
+class RenameDialog extends HookConsumerWidget {
   final String id;
   final String name;
 
-  const EditDialog({
+  const RenameDialog({
     Key? key,
     required this.id,
     required this.name,
@@ -19,7 +19,7 @@ class EditDialog extends HookConsumerWidget {
     final TextEditingController controller = TextEditingController(text: name);
 
     return AlertDialog(
-      title: const Text('Edit Chat'),
+      title: const Text('Rename Chat'),
       content: TextField(
         controller: controller,
         decoration: const InputDecoration(

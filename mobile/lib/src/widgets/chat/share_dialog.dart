@@ -35,7 +35,7 @@ class ShareDialog extends HookWidget {
       ],
     );
 
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Share"),
       content: Row(
         mainAxisAlignment: MainAxisAlignment.center,

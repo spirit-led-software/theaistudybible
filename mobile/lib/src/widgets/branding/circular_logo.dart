@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class CircularLogo extends StatelessWidget {
   final double radius;
@@ -10,10 +10,22 @@ class CircularLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: RAIColors.secondary,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: Image.asset("assets/icons/ios-icon.png"),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.primaryColor,
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: [
+            BoxShadow(
+              color: context.theme.shadowColor.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: Image.asset("assets/icons/ios-icon.png"),
+        ),
       ),
     );
   }

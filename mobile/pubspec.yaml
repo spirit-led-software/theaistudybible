@@ -62,6 +62,7 @@ dependencies:
   another_flushbar: ^1.12.30
   visibility_detector: ^0.4.0+2
   newrelic_mobile: ^1.0.4
+  in_app_review: ^2.0.8
 
 dev_dependencies:
   flutter_test:

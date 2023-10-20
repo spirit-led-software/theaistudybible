@@ -6,7 +6,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
@@ -20,9 +19,11 @@ import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/utils/in_app_review.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
-import 'package:revelationsai/src/widgets/chat/edit_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
+import 'package:revelationsai/src/widgets/chat/rename_dialog.dart';
 
 class ChatScreen extends HookConsumerWidget {
   static const chatSuggestions = <String>{
@@ -51,9 +52,8 @@ class ChatScreen extends HookConsumerWidget {
     final loadedChats = ref.watch(loadedChatDataProvider);
 
     final isMounted = useIsMounted();
-    final chat = useState<Chat?>(null);
-    final loadingChat = useState(false);
-    final updatingChat = useState(false);
+    final isLoadingChat = useState(false);
+    final isRefreshingChat = useState(false);
     final showSuggestions = useState(false);
     final alert = useState<Alert?>(null);
     final shuffledSuggestions = useRef(<String>[...chatSuggestions]..shuffle());
@@ -65,9 +65,12 @@ class ChatScreen extends HookConsumerWidget {
         hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
         onFinish: (_) {
           ref.read(currentUserProvider.notifier).decrementRemainingQueries();
+          inAppReviewLogic();
         },
       ),
     );
+
+    final chat = ref.watch(chatsProvider(chatHook.chatId.value ?? chatId));
 
     Future<void> fetchChatData(String id) async {
       await Future.wait([
@@ -78,7 +81,6 @@ class ChatScreen extends HookConsumerWidget {
         final foundMessages = value[1] as List<ChatMessage>;
 
         if (isMounted()) {
-          chat.value = foundChat;
           chatHook.messages.value = foundMessages;
         }
 
@@ -96,18 +98,17 @@ class ChatScreen extends HookConsumerWidget {
         if (loadedChats.value?.containsKey(chatId) ?? false) {
           if (isMounted()) {
             final chatData = loadedChats.value![chatId];
-            chat.value = chatData!.chat;
-            chatHook.messages.value = chatData.messages;
+            chatHook.messages.value = chatData!.messages;
           }
         } else {
-          loadingChat.value = true;
+          isLoadingChat.value = true;
           fetchChatData(chatId!).whenComplete(() {
-            if (isMounted()) loadingChat.value = false;
+            if (isMounted()) isLoadingChat.value = false;
           });
         }
+        if (isMounted()) chatHook.chatId.value = chatId;
       } else {
         if (isMounted()) {
-          chat.value = null;
           chatHook.chatId.value = null;
           chatHook.messages.value = [];
         }
@@ -121,17 +122,8 @@ class ChatScreen extends HookConsumerWidget {
         if (loadedChats.value?.containsKey(chatHook.chatId.value) ?? false) {
           if (isMounted()) {
             final chatData = loadedChats.value![chatHook.chatId.value];
-            chat.value = chatData!.chat;
-            chatHook.messages.value = chatData.messages;
+            chatHook.messages.value = chatData!.messages;
           }
-        } else {
-          ref.read(chatsProvider(chatHook.chatId.value!).future).then(
-            (value) {
-              if (isMounted()) {
-                chat.value = value;
-              }
-            },
-          );
         }
       }
 
@@ -185,17 +177,19 @@ class ChatScreen extends HookConsumerWidget {
     }, [alert.value]);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: context.brightness == Brightness.light
+          ? SystemUiOverlayStyle.dark
+          : SystemUiOverlayStyle.light,
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
         floatingActionButton: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: RAIColors.secondary,
+            color: context.secondaryColor,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.shade300,
+                color: context.theme.shadowColor.withOpacity(0.2),
                 blurRadius: 10,
                 offset: const Offset(0, 5),
               ),
@@ -207,6 +201,7 @@ class ChatScreen extends HookConsumerWidget {
               children: [
                 if (currentUserPreferences.value?.chatSuggestions ?? true) ...[
                   IconButton(
+                    color: context.colorScheme.onSecondary,
                     onPressed: () {
                       showSuggestions.value = !showSuggestions.value;
                     },
@@ -215,18 +210,17 @@ class ChatScreen extends HookConsumerWidget {
                           ? FontAwesomeIcons.xmark
                           : FontAwesomeIcons.lightbulb,
                       size: 32,
-                      color: Colors.white,
                     ),
                   ),
-                  const VerticalDivider(
-                    color: Colors.white,
+                  VerticalDivider(
+                    color: context.colorScheme.onSecondary,
                     thickness: 1,
                     width: 10,
                   )
                 ],
                 PopupMenuButton(
                   offset: const Offset(0, 55),
-                  color: RAIColors.primary,
+                  color: context.primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -235,10 +229,19 @@ class ChatScreen extends HookConsumerWidget {
                       PopupMenuItem(
                         enabled: false,
                         child: Text(
-                          chat.value?.name ?? "New Chat",
+                          chat.valueOrNull?.name ?? "New Chat",
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: context.colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        enabled: false,
+                        height: double.minPositive,
+                        child: Divider(
+                          color: context.colorScheme.onPrimary,
                         ),
                       ),
                       PopupMenuItem(
@@ -249,26 +252,28 @@ class ChatScreen extends HookConsumerWidget {
                             ref
                                 .read(currentChatMessagesProvider(id).notifier)
                                 .refresh();
-                            updatingChat.value = true;
+                            isRefreshingChat.value = true;
                             fetchChatData(id).whenComplete(() {
-                              if (isMounted()) updatingChat.value = false;
+                              if (isMounted()) isRefreshingChat.value = false;
                             });
                           }
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             FaIcon(
                               FontAwesomeIcons.arrowsRotate,
-                              color: Colors.white,
+                              color: context.colorScheme.onPrimary,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Text(
                               "Refresh",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: context.colorScheme.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -280,7 +285,6 @@ class ChatScreen extends HookConsumerWidget {
                             elevation: 20,
                             isScrollControlled: true,
                             context: context,
-                            backgroundColor: Colors.white,
                             builder: (_) => const FractionallySizedBox(
                               widthFactor: 1.0,
                               heightFactor: 0.90,
@@ -288,20 +292,22 @@ class ChatScreen extends HookConsumerWidget {
                             ),
                           );
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             FaIcon(
                               FontAwesomeIcons.clock,
-                              color: Colors.white,
+                              color: context.colorScheme.onPrimary,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Text(
                               "History",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: context.colorScheme.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -315,20 +321,22 @@ class ChatScreen extends HookConsumerWidget {
                             },
                           );
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             FaIcon(
                               FontAwesomeIcons.plus,
-                              color: Colors.white,
+                              color: context.colorScheme.onPrimary,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Text(
                               "New Chat",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                color: context.colorScheme.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -340,40 +348,30 @@ class ChatScreen extends HookConsumerWidget {
                             showDialog(
                               context: context,
                               builder: (context) {
-                                return EditDialog(
+                                return RenameDialog(
                                   id: id,
                                   name: chat.value?.name ?? "",
                                 );
                               },
-                            ).whenComplete(() {
-                              ref.read(chatsProvider(id).notifier).refresh();
-                              updatingChat.value = true;
-                              ref.read(chatsProvider(id).future).then(
-                                (value) {
-                                  if (isMounted()) {
-                                    chat.value = value;
-                                  }
-                                },
-                              ).whenComplete(() {
-                                if (isMounted()) updatingChat.value = false;
-                              });
-                            });
+                            );
                           }
                         },
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             FaIcon(
                               FontAwesomeIcons.penToSquare,
-                              color: Colors.white,
+                              color: context.colorScheme.onPrimary,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Text(
-                              "Edit Chat",
-                              style: TextStyle(color: Colors.white),
+                              "Rename Chat",
+                              style: TextStyle(
+                                color: context.colorScheme.onPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -411,19 +409,19 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                     ];
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.more_vert,
-                    color: Colors.white,
+                    color: context.colorScheme.onSecondary,
                   ),
                 ),
               ],
             ),
           ),
         ),
-        body: loadingChat.value
+        body: isLoadingChat.value
             ? Center(
                 child: SpinKitSpinningLines(
-                  color: RAIColors.primary,
+                  color: context.secondaryColor,
                   size: 40,
                 ),
               )
@@ -458,7 +456,7 @@ class ChatScreen extends HookConsumerWidget {
                               ),
                               FaIcon(
                                 FontAwesomeIcons.lightbulb,
-                                color: RAIColors.secondary,
+                                color: context.secondaryColor,
                                 size: 32,
                               ),
                             ],
@@ -489,7 +487,7 @@ class ChatScreen extends HookConsumerWidget {
                                 chatHook.messages.value.reversed.toList();
                             ChatMessage message = messagesReversed[index - 1];
                             ChatMessage? previousMessage =
-                                index + 1 < messagesReversed.length
+                                index + 1 <= messagesReversed.length
                                     ? messagesReversed[index]
                                     : null;
                             return Message(
@@ -514,7 +512,7 @@ class ChatScreen extends HookConsumerWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         color: showSuggestions.value
-                            ? Colors.grey.shade200.withOpacity(0.9)
+                            ? context.colorScheme.background.withOpacity(0.8)
                             : Colors.transparent,
                       ),
                       padding: EdgeInsets.only(
@@ -558,7 +556,7 @@ class ChatScreen extends HookConsumerWidget {
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
-                                                    RAIColors.primary,
+                                                    context.colorScheme.primary,
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(10),
@@ -567,8 +565,9 @@ class ChatScreen extends HookConsumerWidget {
                                               child: Text(
                                                 shuffledSuggestions
                                                     .value[index],
-                                                style: const TextStyle(
-                                                  color: Colors.white,
+                                                style: TextStyle(
+                                                  color: context
+                                                      .colorScheme.onPrimary,
                                                 ),
                                               ),
                                             ),
@@ -586,8 +585,10 @@ class ChatScreen extends HookConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: Opacity(
-                              opacity: 0.85,
+                              opacity: 0.9,
                               child: TextField(
+                                minLines: 1,
+                                maxLines: 5,
                                 controller: chatHook.inputController,
                                 focusNode: chatHook.inputFocusNode,
                                 onSubmitted: (value) {
@@ -601,12 +602,10 @@ class ChatScreen extends HookConsumerWidget {
                                     TextCapitalization.sentences,
                                 decoration: InputDecoration(
                                   filled: true,
+                                  fillColor: context.isDarkMode
+                                      ? context.primaryColor
+                                      : null,
                                   hintText: "Type a message",
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide:
-                                        BorderSide(color: Colors.grey.shade300),
-                                  ),
                                   suffixIcon: chatHook.loading.value
                                       ? Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -614,7 +613,8 @@ class ChatScreen extends HookConsumerWidget {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             SpinKitWave(
-                                              color: RAIColors.primary,
+                                              color: context
+                                                  .colorScheme.onBackground,
                                               size: 20,
                                             ),
                                           ],
@@ -669,13 +669,13 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  if (updatingChat.value) ...[
+                  if (isRefreshingChat.value) ...[
                     Positioned.fill(
                       child: Container(
-                        color: Colors.black.withOpacity(0.3),
-                        child: const Center(
+                        color: Colors.black.withOpacity(0.1),
+                        child: Center(
                           child: SpinKitSpinningLines(
-                            color: Colors.white,
+                            color: context.colorScheme.onBackground,
                             size: 60,
                           ),
                         ),

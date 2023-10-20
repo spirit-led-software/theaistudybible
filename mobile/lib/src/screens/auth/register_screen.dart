@@ -8,9 +8,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/api.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 
 class RegisterScreen extends HookConsumerWidget {
@@ -109,12 +109,10 @@ class RegisterScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: RAIColors.primary,
       body: Center(
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Card(
-            color: Colors.white,
             elevation: 3,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -130,7 +128,7 @@ class RegisterScreen extends HookConsumerWidget {
                 children: [
                   (snapshot.connectionState == ConnectionState.waiting)
                       ? SpinKitSpinningLines(
-                          color: RAIColors.secondary,
+                          color: context.secondaryColor,
                           size: 32,
                         )
                       : alert.value != null
@@ -144,8 +142,8 @@ class RegisterScreen extends HookConsumerWidget {
                               ),
                               child: Text(
                                 alert.value!.message,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.colorScheme.onError,
                                 ),
                               ),
                             )
@@ -160,7 +158,6 @@ class RegisterScreen extends HookConsumerWidget {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: RAIColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -178,16 +175,12 @@ class RegisterScreen extends HookConsumerWidget {
                               children: [
                                 FaIcon(
                                   FontAwesomeIcons.apple,
-                                  color: Colors.white,
                                 ),
                                 SizedBox(
                                   width: 10,
                                 ),
                                 Text(
                                   "Register with Apple",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
                                 ),
                               ],
                             ),
@@ -250,7 +243,6 @@ class RegisterScreen extends HookConsumerWidget {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: RAIColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -268,16 +260,12 @@ class RegisterScreen extends HookConsumerWidget {
                             children: [
                               FaIcon(
                                 FontAwesomeIcons.google,
-                                color: Colors.white,
                               ),
                               SizedBox(
                                 width: 10,
                               ),
                               Text(
                                 "Register with Google",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
                               ),
                             ],
                           ),
@@ -295,17 +283,15 @@ class RegisterScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: Colors.grey.shade300,
+                          color:
+                              context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                       const SizedBox(
                         width: 10,
                       ),
-                      Text(
+                      const Text(
                         "OR",
-                        style: TextStyle(
-                          color: RAIColors.primary,
-                        ),
                       ),
                       const SizedBox(
                         width: 10,
@@ -313,7 +299,8 @@ class RegisterScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: Colors.grey.shade300,
+                          color:
+                              context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                     ],
@@ -332,20 +319,8 @@ class RegisterScreen extends HookConsumerWidget {
                             keyboardType: TextInputType.emailAddress,
                             controller: emailTextController,
                             focusNode: emailFocusNode,
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: "Email",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                             ),
                             onTapOutside: (event) {
                               emailFocusNode.unfocus();
@@ -371,20 +346,8 @@ class RegisterScreen extends HookConsumerWidget {
                             keyboardType: TextInputType.visiblePassword,
                             controller: passwordTextController,
                             focusNode: passwordFocusNode,
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
                             decoration: InputDecoration(
                               hintText: "Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   showPassword.value = !showPassword.value;
@@ -421,20 +384,8 @@ class RegisterScreen extends HookConsumerWidget {
                             keyboardType: TextInputType.visiblePassword,
                             controller: confirmPasswordTextController,
                             focusNode: confirmPasswordFocusNode,
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
                             decoration: InputDecoration(
                               hintText: "Confirm Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   showConfirmPassword.value =
@@ -472,7 +423,6 @@ class RegisterScreen extends HookConsumerWidget {
                               Expanded(
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: RAIColors.primary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(5),
                                     ),
@@ -486,9 +436,6 @@ class RegisterScreen extends HookConsumerWidget {
                                   },
                                   child: const Text(
                                     "Register with Email",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
                                   ),
                                 ),
                               ),
@@ -505,11 +452,8 @@ class RegisterScreen extends HookConsumerWidget {
                     onTap: () {
                       context.go('/auth/login');
                     },
-                    child: Text(
+                    child: const Text(
                       "Already have an account? Login",
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
                     ),
                   )
                 ],

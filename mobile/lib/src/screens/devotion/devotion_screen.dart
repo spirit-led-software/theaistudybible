@@ -1,10 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/models/devotion.dart';
@@ -21,6 +21,7 @@ import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
@@ -120,19 +121,18 @@ class DevotionScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: RAIColors.primary,
-        foregroundColor: Colors.white,
         title: loading.value || devotion.value == null
-            ? const Row(
+            ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Loading Devotion"),
-                  SizedBox(
+                  const Text("Loading Devotion"),
+                  const SizedBox(
                     width: 15,
                   ),
                   SpinKitSpinningLines(
-                    color: Colors.white,
+                    color: context.appBarTheme.foregroundColor ??
+                        context.colorScheme.onBackground,
                     size: 20,
                   )
                 ],
@@ -148,7 +148,6 @@ class DevotionScreen extends HookConsumerWidget {
                 elevation: 20,
                 isScrollControlled: true,
                 context: context,
-                backgroundColor: Colors.white,
                 builder: (_) => const FractionallySizedBox(
                   widthFactor: 1.0,
                   heightFactor: 0.90,
@@ -166,8 +165,8 @@ class DevotionScreen extends HookConsumerWidget {
           ? null
           : FloatingActionButton(
               onPressed: null, // delegate to popup menu
-              foregroundColor: Colors.white,
-              backgroundColor: RAIColors.secondary,
+              foregroundColor: context.colorScheme.onSecondary,
+              backgroundColor: context.secondaryColor,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                   Radius.circular(15),
@@ -175,7 +174,7 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: PopupMenuButton(
                 offset: const Offset(0, 60),
-                color: RAIColors.primary,
+                color: context.primaryColor,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(15),
@@ -195,7 +194,9 @@ class DevotionScreen extends HookConsumerWidget {
                         Text(
                           "${ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.LIKE].toString() ?? '0'}"
                           " Likes",
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: context.colorScheme.onPrimary,
+                          ),
                         ),
                       ],
                     ),
@@ -222,7 +223,9 @@ class DevotionScreen extends HookConsumerWidget {
                         Text(
                           "${(ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.DISLIKE].toString() ?? '0')}"
                           " Dislikes",
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: context.colorScheme.onPrimary,
+                          ),
                         ),
                       ],
                     ),
@@ -238,17 +241,19 @@ class DevotionScreen extends HookConsumerWidget {
                   ),
                   PopupMenuItem(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        FaIcon(FontAwesomeIcons.shareFromSquare),
-                        SizedBox(
+                        const FaIcon(FontAwesomeIcons.shareFromSquare),
+                        const SizedBox(
                           width: 10,
                         ),
                         Text(
                           "Share",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: context.colorScheme.onPrimary,
+                          ),
                         ),
                       ],
                     ),
@@ -258,16 +263,16 @@ class DevotionScreen extends HookConsumerWidget {
                     },
                   ),
                 ],
-                icon: const Icon(
+                icon: Icon(
                   Icons.thumbs_up_down,
-                  color: Colors.white,
+                  color: context.colorScheme.onSecondary,
                 ),
               ),
             ),
       body: loading.value || devotion.value == null
           ? Center(
               child: SpinKitSpinningLines(
-                color: RAIColors.primary,
+                color: context.secondaryColor,
                 size: 40,
               ),
             )
@@ -380,9 +385,8 @@ class DevotionScreen extends HookConsumerWidget {
                         alignment: Alignment.center,
                         child: Text(
                           images.value[0].caption ?? "No caption",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
                           ),
                         ),
                       ),
@@ -428,10 +432,9 @@ class DevotionScreen extends HookConsumerWidget {
                                 builder: (context, followLink) => ListTile(
                                   dense: true,
                                   visualDensity: RAIVisualDensity.tightest,
-                                  leading: Icon(
-                                    Icons.link,
+                                  leading: const Icon(
+                                    CupertinoIcons.link,
                                     size: 15,
-                                    color: Colors.grey.shade600,
                                   ),
                                   title: Text(
                                     sourceDocs.value[index].metadata['name']
@@ -440,9 +443,8 @@ class DevotionScreen extends HookConsumerWidget {
                                         .toString(),
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey.shade600,
                                     ),
                                   ),
                                   subtitle: Text(
@@ -450,9 +452,8 @@ class DevotionScreen extends HookConsumerWidget {
                                         .toString(),
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey.shade600,
                                     ),
                                   ),
                                   onTap: followLink,

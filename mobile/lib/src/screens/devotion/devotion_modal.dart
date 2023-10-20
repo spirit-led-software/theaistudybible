@@ -3,7 +3,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
@@ -16,6 +15,7 @@ import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class DevotionModal extends HookConsumerWidget {
@@ -28,7 +28,6 @@ class DevotionModal extends HookConsumerWidget {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -49,17 +48,17 @@ class DevotionModal extends HookConsumerWidget {
                   topRight: Radius.circular(20),
                 ),
               ),
-              color: RAIColors.primary,
+              color: context.primaryColor,
             ),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'All Devotions',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: context.colorScheme.onPrimary,
                     ),
                   ),
                 ),
@@ -67,9 +66,9 @@ class DevotionModal extends HookConsumerWidget {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close,
-                    color: Colors.white,
+                    color: context.colorScheme.onPrimary,
                   ),
                 ),
               ],
@@ -79,7 +78,7 @@ class DevotionModal extends HookConsumerWidget {
               ? Expanded(
                   child: Center(
                     child: SpinKitSpinningLines(
-                      color: RAIColors.primary,
+                      color: context.colorScheme.onBackground,
                       size: 32,
                     ),
                   ),
@@ -108,7 +107,7 @@ class DevotionModal extends HookConsumerWidget {
                                   padding: const EdgeInsets.all(10),
                                   child: Center(
                                     child: SpinKitSpinningLines(
-                                      color: RAIColors.primary,
+                                      color: context.colorScheme.onBackground,
                                       size: 20,
                                     ),
                                   ),
@@ -200,7 +199,7 @@ class DevotionListItem extends HookConsumerWidget {
       },
       child: Container(
         color: currentDevotionId == devotion.id
-            ? RAIColors.primary.withOpacity(0.1)
+            ? context.secondaryColor.withOpacity(0.2)
             : null,
         child: ListTile(
           title: Text(DateFormat.yMMMd().format(devotion.date)),
@@ -210,7 +209,7 @@ class DevotionListItem extends HookConsumerWidget {
           trailing: currentDevotionId == devotion.id
               ? Icon(
                   Icons.check,
-                  color: RAIColors.primary,
+                  color: context.secondaryColor,
                 )
               : null,
           onTap: () {

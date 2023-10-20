@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/user_avatar.dart';
 
 class AccountScreen extends HookConsumerWidget {
@@ -38,7 +39,6 @@ class AccountScreen extends HookConsumerWidget {
                 elevation: 20,
                 isScrollControlled: true,
                 context: context,
-                backgroundColor: Colors.white,
                 builder: (_) => const FractionallySizedBox(
                   heightFactor: 0.90,
                   widthFactor: 1,
@@ -86,7 +86,7 @@ class AccountScreen extends HookConsumerWidget {
                     style: TextStyle(
                       color: currentUser.requireValue.remainingQueries <= 3
                           ? Colors.red
-                          : RAIColors.primary,
+                          : context.textTheme.bodyText1!.color,
                     ),
                   ),
                   const SizedBox(
@@ -118,8 +118,8 @@ class AccountScreen extends HookConsumerWidget {
             ),
             Positioned(
               top: 50,
-              left: MediaQuery.of(context).size.width * 0.25,
-              right: MediaQuery.of(context).size.width * 0.25,
+              left: context.width * 0.25,
+              right: context.width * 0.25,
               child: Container(
                 padding: const EdgeInsets.only(
                   top: 15,

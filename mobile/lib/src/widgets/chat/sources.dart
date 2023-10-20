@@ -1,14 +1,15 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
 import 'package:url_launcher/link.dart';
 
@@ -83,23 +84,23 @@ class Sources extends HookConsumerWidget {
     );
 
     return Theme(
-      data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent,
-          visualDensity: RAIVisualDensity.tightest),
+      data: context.theme.copyWith(
+        dividerColor: Colors.transparent,
+        visualDensity: RAIVisualDensity.tightest,
+      ),
       child: ExpansionTile(
         leading: Icon(
           showSources.value
               ? Icons.keyboard_arrow_up
               : Icons.keyboard_arrow_down,
           size: 15,
-          color: RAIColors.primary,
+          color: context.colorScheme.onBackground,
         ),
         title: Text.rich(
           TextSpan(
             text: "Sources",
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
-              color: RAIColors.primary,
             ),
             children: [
               if (isLoading.value) ...[
@@ -112,7 +113,7 @@ class Sources extends HookConsumerWidget {
                       horizontal: 5,
                     ),
                     child: SpinKitPulse(
-                      color: RAIColors.primary,
+                      color: context.colorScheme.onBackground,
                       size: 10,
                     ),
                   ),
@@ -131,15 +132,16 @@ class Sources extends HookConsumerWidget {
               iconSize: 14,
               icon: FaIcon(
                 copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
-                color: copied.value ? Colors.green : RAIColors.primary,
               ),
+              color: copied.value
+                  ? Colors.green
+                  : context.colorScheme.onBackground,
               onPressed: () {
+                HapticFeedback.mediumImpact();
                 copied.value = true;
                 Clipboard.setData(
                   ClipboardData(text: message.content),
                 );
-                HapticFeedback.mediumImpact();
-
                 Future.delayed(
                   const Duration(seconds: 2),
                   () => copied.value = false,
@@ -149,11 +151,12 @@ class Sources extends HookConsumerWidget {
             IconButton(
               visualDensity: RAIVisualDensity.tightest,
               iconSize: 14,
-              icon: FaIcon(
+              icon: const FaIcon(
                 FontAwesomeIcons.shareFromSquare,
-                color: RAIColors.primary,
               ),
+              color: context.colorScheme.onBackground,
               onPressed: () {
+                HapticFeedback.mediumImpact();
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -167,157 +170,120 @@ class Sources extends HookConsumerWidget {
             )
           ],
         ),
+        tilePadding: const EdgeInsets.only(left: 10),
         onExpansionChanged: (value) {
           showSources.value = value;
         },
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 0,
-            ),
-            height: sourceDocuments.value.isEmpty ? 50 : 100,
-            child: sourceDocuments.value.isEmpty
-                ? const Text("None")
-                : CustomScrollView(
-                    scrollDirection: Axis.horizontal,
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
+          SizedBox(
+            height: sourceDocuments.value.isNotEmpty ? 50 : 25,
+            child: ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: sourceDocuments.value.isNotEmpty
+                  ? sourceDocuments.value.length
+                  : 1,
+              itemBuilder: (context, index) {
+                if (sourceDocuments.value.isEmpty) {
+                  return const Text("None");
+                }
+
+                final source = sourceDocuments.value[index];
+                return Link(
+                  uri: Uri.parse(source.metadata["url"]),
+                  builder: (context, followLink) {
+                    return Container(
+                      width: 200,
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      child: ListTile(
+                        onTap: () {
+                          followLink!();
+                        },
+                        dense: true,
+                        visualDensity: RAIVisualDensity.tightest,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
                         ),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final source = sourceDocuments.value[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                ),
-                                child: Link(
-                                  uri: Uri.parse(source.metadata["url"]),
-                                  builder: (context, followLink) {
-                                    return SizedBox(
-                                      width: 125,
-                                      height: 50,
-                                      child: Card(
-                                        color: RAIColors.primary,
-                                        margin: const EdgeInsets.all(5),
-                                        elevation: 1,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(25),
-                                        ),
-                                        child: InkWell(
-                                          onTap: followLink,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  source.metadata["name"]
-                                                      .split(" - ")[0],
-                                                  textAlign: TextAlign.center,
-                                                  softWrap: false,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                if ((source.metadata["type"]
-                                                            as String)
-                                                        .toLowerCase() ==
-                                                    "webpage") ...[
-                                                  Text(
-                                                    Uri.parse(
-                                                      source.metadata["url"],
-                                                    ).pathSegments.lastWhere(
-                                                        (element) =>
-                                                            element.isNotEmpty),
-                                                    textAlign: TextAlign.center,
-                                                    softWrap: false,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontSize: 10,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                                if ((source.metadata["type"]
-                                                            as String)
-                                                        .toLowerCase() ==
-                                                    "file") ...[
-                                                  Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      if (source.metadata["loc"]
-                                                              ["pageNumber"] !=
-                                                          null) ...[
-                                                        Text(
-                                                          'Page: ${source.metadata["loc"]["pageNumber"].toString()}',
-                                                          softWrap: false,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 10,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 5,
-                                                        )
-                                                      ],
-                                                      if (source.metadata["loc"]
-                                                              ["lines"] !=
-                                                          null) ...[
-                                                        Text(
-                                                          'Lines: ${source.metadata["loc"]["lines"]["from"].toString()}'
-                                                          '-${source.metadata["loc"]["lines"]["to"].toString()}',
-                                                          softWrap: false,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 10,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 5,
-                                                        )
-                                                      ],
-                                                    ],
-                                                  )
-                                                ],
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                        tileColor: context.primaryColor,
+                        leading: Icon(
+                          CupertinoIcons.link,
+                          color: context.colorScheme.onPrimary,
+                          size: 20,
+                        ),
+                        titleAlignment: ListTileTitleAlignment.center,
+                        title: Text(
+                          source.metadata["name"].split(" - ")[0],
+                          textAlign: TextAlign.center,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        titleTextStyle: TextStyle(
+                          color: context.colorScheme.onPrimary,
+                        ),
+                        subtitle: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if ((source.metadata["type"] as String)
+                                    .toLowerCase() ==
+                                "webpage") ...[
+                              Text(
+                                Uri.parse(
+                                  source.metadata["url"],
+                                )
+                                    .pathSegments
+                                    .lastWhere((element) => element.isNotEmpty),
+                                textAlign: TextAlign.center,
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                            if ((source.metadata["type"] as String)
+                                    .toLowerCase() ==
+                                "file") ...[
+                              ClipRRect(
+                                clipBehavior: Clip.hardEdge,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (source.metadata["loc"]["pageNumber"] !=
+                                        null) ...[
+                                      Text(
+                                        'P:${source.metadata["loc"]["pageNumber"].toString()}',
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    );
-                                  },
+                                      const SizedBox(
+                                        width: 5,
+                                      )
+                                    ],
+                                    if (source.metadata["loc"]["lines"] !=
+                                        null) ...[
+                                      Text(
+                                        'L:${source.metadata["loc"]["lines"]["from"].toString()}'
+                                        '-${source.metadata["loc"]["lines"]["to"].toString()}',
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(
+                                        width: 5,
+                                      )
+                                    ],
+                                  ],
                                 ),
-                              );
-                            },
-                            childCount: sourceDocuments.value.length,
-                          ),
+                              )
+                            ],
+                          ],
+                        ),
+                        subtitleTextStyle: TextStyle(
+                          color: context.colorScheme.onPrimary,
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

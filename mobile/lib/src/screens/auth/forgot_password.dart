@@ -4,9 +4,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 
 class ForgotPasswordScreen extends HookConsumerWidget {
@@ -111,12 +111,10 @@ class ForgotPasswordScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: RAIColors.primary,
       body: Center(
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Card(
-            color: Colors.white,
             elevation: 3,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(
@@ -132,7 +130,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                 children: [
                   (snapshot.connectionState == ConnectionState.waiting)
                       ? SpinKitSpinningLines(
-                          color: RAIColors.secondary,
+                          color: context.colorScheme.secondary,
                           size: 32,
                         )
                       : alert.value != null
@@ -146,8 +144,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                               ),
                               child: Text(
                                 alert.value!.message,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: context.colorScheme.onError,
                                 ),
                               ),
                             )
@@ -169,20 +167,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                         onSubmitted: (value) {
                           emailFocusNode.unfocus();
                         },
-                        style: TextStyle(
-                          color: RAIColors.primary,
-                        ),
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: "Email",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: RAIColors.primary,
-                              width: 1,
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -204,20 +190,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                             onSubmitted: (value) {
                               passwordFocusNode.unfocus();
                             },
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
                             decoration: InputDecoration(
                               hintText: "Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   showPassword.value = !showPassword.value;
@@ -247,20 +221,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                             onSubmitted: (value) {
                               confirmPasswordFocusNode.unfocus();
                             },
-                            style: TextStyle(
-                              color: RAIColors.primary,
-                            ),
                             decoration: InputDecoration(
                               hintText: "Confirm Password",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: RAIColors.primary,
-                                  width: 1,
-                                ),
-                              ),
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   showConfirmPassword.value =
@@ -287,7 +249,6 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: RAIColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -301,9 +262,6 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                           },
                           child: const Text(
                             "Submit",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
                           ),
                         ),
                       ),
@@ -316,11 +274,8 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                     onTap: () {
                       context.go('/auth/login');
                     },
-                    child: Text(
+                    child: const Text(
                       "Know your password? Login here",
-                      style: TextStyle(
-                        color: RAIColors.primary,
-                      ),
                     ),
                   )
                 ],

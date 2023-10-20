@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
 import 'package:revelationsai/src/widgets/user_avatar.dart';
@@ -34,10 +34,9 @@ class Message extends HookConsumerWidget {
         left: 10,
         right: 5,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0),
-        side: BorderSide(
-          color: Colors.grey.shade300,
+      shape: Border(
+        bottom: BorderSide(
+          color: context.colorScheme.onBackground.withOpacity(0.3),
         ),
       ),
       title: Row(
@@ -66,7 +65,7 @@ class Message extends HookConsumerWidget {
                           left: 5,
                         ),
                         child: SpinKitSpinningLines(
-                          color: RAIColors.primary,
+                          color: context.colorScheme.onBackground,
                           size: 20,
                         ),
                       ),
@@ -75,7 +74,7 @@ class Message extends HookConsumerWidget {
                 ],
               ),
               textAlign: TextAlign.start,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: context.textTheme.bodyMedium,
             ),
           ),
         ],

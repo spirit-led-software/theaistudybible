@@ -84,13 +84,11 @@ Future<ChatMessage> getStreamedResponse({
   required ValueNotifier<String?> chatId,
   required ValueNotifier<String?> currentResponseId,
   required ValueNotifier<List<ChatMessage>?> messages,
-  required ObjectRef<List<ChatMessage>> messagesRef,
   bool hapticFeedback = true,
   Function(StreamedResponse)? onResponse,
   Function(ChatMessage)? onFinish,
 }) async {
   messages.value = chatRequest.messages;
-  final prevMessages = messagesRef.value;
 
   final reply = ChatMessage(
     id: nanoid(),
@@ -122,7 +120,7 @@ Future<ChatMessage> getStreamedResponse({
   if (onResponse != null) onResponse(response);
   if (response.statusCode != 200) {
     messages.value = [
-      ...prevMessages,
+      ...chatRequest.messages,
       ChatMessage(
         id: nanoid(),
         uuid: null,
@@ -165,7 +163,7 @@ Future<ChatMessage> getStreamedResponse({
     },
     onError: (error) {
       messages.value = [
-        ...prevMessages,
+        ...chatRequest.messages,
         ChatMessage(
           id: nanoid(),
           uuid: aiResponseUuid,
@@ -237,7 +235,6 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
           chatId: chatId,
           currentResponseId: currentResponseId,
           messages: messages,
-          messagesRef: messagesRef,
           hapticFeedback: options.hapticFeedback,
           onResponse: options.onResponse,
           onFinish: options.onFinish,
@@ -254,7 +251,6 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     [
       chatId.value,
       messages.value,
-      messagesRef.value,
       options.hapticFeedback,
       options.onResponse,
       options.onFinish,

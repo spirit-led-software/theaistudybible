@@ -4,9 +4,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 const productIds = {
   "rai_church_plant",
@@ -69,11 +69,11 @@ class UpgradeScreen extends HookConsumerWidget {
             SnackBar(
               content: Text(
                 alert.value!.message,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: context.colorScheme.onError),
               ),
               backgroundColor: alert.value!.type == AlertType.error
-                  ? Colors.red
-                  : RAIColors.primary,
+                  ? context.colorScheme.error
+                  : context.colorScheme.secondary,
               duration: const Duration(seconds: 8),
             ),
           );
@@ -86,13 +86,12 @@ class UpgradeScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        foregroundColor: RAIColors.primary,
         title: const Text('Upgrade'),
       ),
       body: loading.value
           ? Center(
               child: SpinKitDualRing(
-                color: RAIColors.primary,
+                color: context.colorScheme.secondary,
               ),
             )
           : Column(
@@ -123,14 +122,11 @@ class UpgradeScreen extends HookConsumerWidget {
                           ? Colors.red
                           : purchasesRestored.value
                               ? Colors.green
-                              : Colors.white,
-                      backgroundColor: RAIColors.primary,
+                              : null,
                     ),
                     child: purchasesRestoreSnapshot.connectionState ==
                             ConnectionState.waiting
-                        ? const CircularProgressIndicator.adaptive(
-                            backgroundColor: Colors.white,
-                          )
+                        ? const CircularProgressIndicator.adaptive()
                         : purchasesRestoreSnapshot.hasError
                             ? const FaIcon(FontAwesomeIcons.x)
                             : purchasesRestored.value
@@ -197,12 +193,12 @@ class ProductTile extends HookConsumerWidget {
               content: Flexible(
                 child: Text(
                   alert.value!.message,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: context.colorScheme.onError),
                 ),
               ),
               backgroundColor: alert.value!.type == AlertType.error
                   ? Colors.red
-                  : RAIColors.primary,
+                  : context.colorScheme.secondary,
               duration: const Duration(seconds: 8),
             ),
           );
@@ -227,13 +223,10 @@ class ProductTile extends HookConsumerWidget {
               ? Colors.red
               : purchased.value
                   ? Colors.green
-                  : Colors.white,
-          backgroundColor: RAIColors.primary,
+                  : null,
         ),
         child: purchasingSnapshot.connectionState == ConnectionState.waiting
-            ? const CircularProgressIndicator.adaptive(
-                backgroundColor: Colors.white,
-              )
+            ? const CircularProgressIndicator.adaptive()
             : purchasingSnapshot.hasError
                 ? const FaIcon(FontAwesomeIcons.x)
                 : purchased.value
