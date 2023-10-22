@@ -37,7 +37,7 @@ export const getEmbeddingsModel = () =>
 export const getCreativeModel = ({
   modelId = "anthropic.claude-instant-v1",
   temperature = 0.7,
-  maxTokens = 4096,
+  maxTokens = 512,
   stopSequences = [],
   stream = false,
   topK = 250,
@@ -63,7 +63,7 @@ export const getCreativeModel = ({
 export const getCommandModel = ({
   modelId = "cohere.command-text-v14",
   temperature = 2,
-  maxTokens = 4096,
+  maxTokens = 256,
   stopSequences = [],
   stream = false,
   topK = 100,
