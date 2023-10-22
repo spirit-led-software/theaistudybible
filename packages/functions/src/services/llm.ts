@@ -37,7 +37,7 @@ export const getEmbeddingsModel = () =>
 export const getCreativeModel = ({
   modelId = "anthropic.claude-instant-v1",
   temperature = 0.7,
-  maxTokens = 512,
+  maxTokens = 2048,
   stopSequences = [],
   stream = false,
   topK = 250,
@@ -63,7 +63,7 @@ export const getCreativeModel = ({
 export const getCommandModel = ({
   modelId = "cohere.command-text-v14",
   temperature = 2,
-  maxTokens = 256,
+  maxTokens = 2048,
   stopSequences = [],
   stream = false,
   topK = 100,
@@ -207,7 +207,11 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   );
 
   const multiRouteChain = await RAIChatMultiRouteChain.fromLLMAndChains(
-    getCommandModel(),
+    getCreativeModel({
+      maxTokens: 4096,
+      promptSuffix: "<output>",
+      stopSequences: ["</output>"],
+    }),
     {
       routerChainOpts: {
         verbose: true,

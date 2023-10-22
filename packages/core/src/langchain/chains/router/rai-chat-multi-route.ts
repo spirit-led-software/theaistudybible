@@ -28,7 +28,9 @@ ${formatting}
 
 <input>
 {{input}}
-</input>`;
+</input>
+
+Put your output matching the formatting instructions within <output></output> XML tags.`;
 
 export type DestinationChainsInfo = {
   [name in string]: {

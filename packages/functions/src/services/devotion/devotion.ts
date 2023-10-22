@@ -381,7 +381,7 @@ async function getRandomBibleReading() {
   const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
     getCreativeModel({
-      modelId: "anthropic.claude-v2",
+      modelId: "anthropic.claude-instant-v1",
       stream: false,
       maxTokens: 2048,
       stopSequences: ["</output>"],
