@@ -104,6 +104,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
     ) {
       user = await updateUser(user.id, {
         image: tokenSet.claims().picture!,
+        customImage: false,
       });
     }
   }
