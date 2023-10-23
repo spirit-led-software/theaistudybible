@@ -7,43 +7,61 @@ import 'package:revelationsai/src/widgets/network_image.dart';
 class UserAvatar extends HookConsumerWidget {
   final double radius;
   final Color backgroundColor;
+  final Widget Function(BuildContext context)? badgeBuilder;
 
   const UserAvatar({
     Key? key,
     this.radius = 25,
     this.backgroundColor = Colors.grey,
+    this.badgeBuilder,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
 
-    return CircleAvatar(
-      radius: radius,
-      child: Container(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(100),
-          boxShadow: [
-            BoxShadow(
-              color: context.theme.shadowColor.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+    return Stack(
+      children: [
+        CircleAvatar(
+          radius: radius,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(100),
+              boxShadow: [
+                BoxShadow(
+                  color: context.theme.shadowColor.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(100),
-          child: RAINetworkImage(
-            imageUrl: currentUser.requireValue.image,
-            fallbackText: currentUser.requireValue.name
-                    ?.substring(0, 1)
-                    .toUpperCase() ??
-                currentUser.requireValue.email.substring(0, 1).toUpperCase(),
-            fallbackTextSize: radius * 0.75,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: RAINetworkImage(
+                imageUrl: currentUser.requireValue.image,
+                fallbackText: currentUser.requireValue.name
+                        ?.substring(0, 1)
+                        .toUpperCase() ??
+                    currentUser.requireValue.email
+                        .substring(0, 1)
+                        .toUpperCase(),
+                fallbackTextSize: radius * 0.75,
+              ),
+            ),
           ),
         ),
-      ),
+        if (badgeBuilder != null) ...[
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: CircleAvatar(
+              radius: radius * 0.3,
+              child: badgeBuilder!(context),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -63,15 +64,28 @@ class AccountScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const UserAvatar(
+                  UserAvatar(
                     radius: 50,
+                    badgeBuilder: (context) {
+                      return IconButton(
+                        visualDensity: RAIVisualDensity.tightest,
+                        onPressed: () {
+                          context.go("/edit-profile");
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
+                        iconSize: 15,
+                      );
+                    },
                   ),
                   const SizedBox(
                     height: 20,
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: context.width * 0.2,
+                      horizontal: context.width * 0.1,
                     ),
                     child: Column(
                       children: [
