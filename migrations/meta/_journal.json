@@ -71,6 +71,20 @@
       "when": 1692360243069,
       "tag": "0009_chilly_morgan_stark",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1698020038321,
+      "tag": "0010_bizarre_korg",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1698020216741,
+      "tag": "0011_silent_exodus",
+      "breakpoints": true
     }
   ]
 }

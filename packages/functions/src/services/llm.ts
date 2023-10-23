@@ -34,33 +34,7 @@ export const getEmbeddingsModel = () =>
     model: "amazon.titan-embed-text-v1",
   });
 
-export const getCreativeModel = ({
-  modelId = "anthropic.claude-instant-v1",
-  temperature = 0.7,
-  maxTokens = 2048,
-  stopSequences = [],
-  stream = false,
-  topK = 250,
-  topP = 0.75,
-  promptPrefix,
-  promptSuffix,
-}: StandardModelInput & { modelId?: AnthropicModelId } = {}) =>
-  new RAIBedrock({
-    modelId: modelId,
-    stream: stream,
-    body: {
-      max_tokens_to_sample: maxTokens,
-      temperature: temperature,
-      top_p: topP,
-      top_k: topK,
-      stop_sequences: stopSequences,
-    },
-    promptPrefix,
-    promptSuffix,
-    verbose: true,
-  });
-
-export const getCommandModel = ({
+export const getSmallContextModel = ({
   modelId = "cohere.command-text-v14",
   temperature = 2,
   maxTokens = 2048,
@@ -87,6 +61,32 @@ export const getCommandModel = ({
     verbose: true,
   });
 
+export const getLargeContextModel = ({
+  modelId = "anthropic.claude-instant-v1",
+  temperature = 0.7,
+  maxTokens = 2048,
+  stopSequences = [],
+  stream = false,
+  topK = 250,
+  topP = 0.75,
+  promptPrefix,
+  promptSuffix,
+}: StandardModelInput & { modelId?: AnthropicModelId } = {}) =>
+  new RAIBedrock({
+    modelId: modelId,
+    stream: stream,
+    body: {
+      max_tokens_to_sample: maxTokens,
+      temperature: temperature,
+      top_p: topP,
+      top_k: topK,
+      stop_sequences: stopSequences,
+    },
+    promptPrefix,
+    promptSuffix,
+    verbose: true,
+  });
+
 export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const history: BaseMessage[] = messages.slice(0, -1).map((message) => {
     return message.role === "user"
@@ -102,7 +102,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   });
 
   const identityChain = new LLMChain({
-    llm: getCommandModel({
+    llm: getSmallContextModel({
       stream: true,
     }),
     prompt: PromptTemplate.fromTemplate(
@@ -127,7 +127,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     verbose: true,
   });
   const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
-    getCreativeModel({
+    getLargeContextModel({
       stream: true,
       stopSequences: ["</answer>"],
       promptSuffix: "<answer>",
@@ -137,7 +137,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       qaChainOptions: {
         type: "stuff",
         prompt: PromptTemplate.fromTemplate(
-          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the current chat conversation. Some the chat history is provided to help you answer the question. Use that information to answer the following question. If you are unsure about your correctness, you can admit that you are not confident in your answer. Refer to the user as 'you' and yourself as 'me' or 'I'.
+          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the current chat conversation. Some of the chat history is provided to help you answer the question. Use that information to answer the following question. If you are unsure about your correctness, you can admit that you are not confident in your answer. Refer to the user as 'you' and yourself as 'me' or 'I'.
 
           The chat history is within <chat_history></chat_history> XML tags.
           The question is within <question></question> XML tags.
@@ -154,7 +154,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
         ),
       },
       questionGeneratorChainOptions: {
-        llm: getCommandModel(),
+        llm: getSmallContextModel(),
       },
       inputKey: "query",
       outputKey: "text",
@@ -165,7 +165,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
 
   const documentVectorStore = await getDocumentVectorStore({ verbose: true });
   const documentRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
-    getCreativeModel({
+    getLargeContextModel({
       stream: true,
       stopSequences: ["</answer>"],
       promptSuffix: "<answer>",
@@ -196,7 +196,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
         ),
       },
       questionGeneratorChainOptions: {
-        llm: getCommandModel(),
+        llm: getSmallContextModel(),
       },
       inputKey: "query",
       outputKey: "text",
@@ -207,7 +207,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   );
 
   const multiRouteChain = await RAIChatMultiRouteChain.fromLLMAndChains(
-    getCreativeModel({
+    getLargeContextModel({
       maxTokens: 4096,
       promptSuffix: "<output>",
       stopSequences: ["</output>"],
@@ -234,12 +234,12 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
         },
         "chat-history": {
           description:
-            "Good for retrieving information about the current chat conversation",
+            "Good for retrieving information about the current chat conversation.",
           chain: chatMemoryRetrieverChain,
         },
         "faith-qa": {
           description:
-            "Good for answering questions about the Christian faith and theology",
+            "Good for answering questions or generating content about the Christian faith and theology.",
           chain: documentRetrieverChain,
         },
       },

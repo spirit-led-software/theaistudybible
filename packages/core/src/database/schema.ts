@@ -308,7 +308,8 @@ export const chats = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    name: text("name").notNull(),
+    name: text("name").notNull().default("New Chat"),
+    userNamed: boolean("user_named").notNull().default(false),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),

@@ -8,7 +8,7 @@ import {
   getAiResponsesByUserMessageId,
   updateAiResponse,
 } from "@services/ai-response";
-import { createChat, getChat, updateChat } from "@services/chat";
+import { aiRenameChat, createChat, getChat } from "@services/chat";
 import { getRAIChatChain } from "@services/llm";
 import { validSessionFromEvent } from "@services/session";
 import { incrementUserQueryCount, isObjectOwner } from "@services/user";
@@ -141,7 +141,6 @@ const lambdaHandler = async (
     let chat: Chat | undefined;
     if (!chatId) {
       chat = await createChat({
-        name: messages[0].content,
         userId: userInfo.id,
       });
       const memoryVectorStore = await getChatMemoryVectorStore(chat.id);
@@ -176,14 +175,6 @@ const lambdaHandler = async (
       }
     }
     console.timeEnd("Validating chat");
-
-    if (chat.name === "New Chat") {
-      pendingPromises.push(
-        updateChat(chat.id, {
-          name: messages[0].content,
-        })
-      );
-    }
 
     console.time("Validating user message");
     let userMessage: UserMessage | undefined = (
@@ -244,6 +235,15 @@ const lambdaHandler = async (
                 });
             }
           ) ?? []),
+          !chat!.userNamed &&
+            aiRenameChat(chat!.id, [
+              ...messages,
+              {
+                id: aiResponse.id,
+                role: "assistant",
+                content: result.text,
+              },
+            ]),
         ]);
         return result;
       })

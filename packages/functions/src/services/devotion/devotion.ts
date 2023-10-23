@@ -15,7 +15,7 @@ import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
 import Replicate from "replicate";
 import { z } from "zod";
-import { getCommandModel, getCreativeModel } from "../llm";
+import { getLargeContextModel, getSmallContextModel } from "../llm";
 import { getDocumentVectorStore } from "../vector-db";
 import { createDevotionImage } from "./image";
 
@@ -142,7 +142,7 @@ export async function generateDevotion(bibleReading?: string) {
 
     const vectorStore = await getDocumentVectorStore();
     const chain = RetrievalQAChain.fromLLM(
-      getCreativeModel({
+      getLargeContextModel({
         modelId: "anthropic.claude-v2",
         maxTokens: 4096,
         stopSequences: ["</output>"],
@@ -228,7 +228,7 @@ async function generateDevotionImages(devo: Devotion) {
     })
   );
   const imagePromptChain = new LLMChain({
-    llm: getCommandModel(),
+    llm: getSmallContextModel(),
     prompt: PromptTemplate.fromTemplate(
       `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Start with what should or shouldn't be in the image and then follow it with adjectives to describe the image.
       
@@ -265,7 +265,7 @@ async function generateDevotionImages(devo: Devotion) {
   );
 
   const imageCaptionChain = new LLMChain({
-    llm: getCreativeModel({
+    llm: getLargeContextModel({
       maxTokens: 100,
     }),
     prompt: PromptTemplate.fromTemplate(`
@@ -380,7 +380,7 @@ async function getRandomBibleReading() {
 
   const vectorStore = await getDocumentVectorStore();
   const bibleReadingChain = RetrievalQAChain.fromLLM(
-    getCreativeModel({
+    getLargeContextModel({
       modelId: "anthropic.claude-instant-v1",
       stream: false,
       maxTokens: 2048,
