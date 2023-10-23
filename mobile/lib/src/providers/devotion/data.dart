@@ -4,6 +4,7 @@ import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
+import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
@@ -15,7 +16,7 @@ part 'data.g.dart';
 
 @riverpod
 class LoadedDevotionData extends _$LoadedDevotionData {
-  static const int maxSize = 10;
+  static const int maxSize = 7;
 
   @override
   FutureOr<LruMap<String, DevotionData>> build() async {
@@ -30,17 +31,18 @@ class LoadedDevotionData extends _$LoadedDevotionData {
           if (amountFetched < maxSize) {
             futures.add(
               Future.wait([
+                ref.watch(devotionsProvider(devotion.id).future),
                 ref.watch(devotionImagesProvider(devotion.id).future),
                 ref.watch(devotionSourceDocumentsProvider(devotion.id).future),
                 ref.watch(devotionReactionsProvider(devotion.id).future),
                 ref.watch(devotionReactionCountsProvider(devotion.id).future),
               ]).then((value) {
                 map[devotion.id] = DevotionData(
-                  devotion: devotion,
-                  images: value[0] as List<DevotionImage>,
-                  sourceDocuments: value[1] as List<SourceDocument>,
-                  reactions: value[2] as List<DevotionReaction>,
-                  reactionCounts: value[3] as Map<DevotionReactionType, int>,
+                  devotion: value[0] as Devotion,
+                  images: value[1] as List<DevotionImage>,
+                  sourceDocuments: value[2] as List<SourceDocument>,
+                  reactions: value[3] as List<DevotionReaction>,
+                  reactionCounts: value[4] as Map<DevotionReactionType, int>,
                 );
               }).catchError((error) {
                 debugPrint(

@@ -45,12 +45,14 @@ class DevotionScreen extends HookConsumerWidget {
     final sourceDocs = useState<List<SourceDocument>>([]);
     final images = useState<List<DevotionImage>>([]);
 
-    Future<void> fetchDevoData(String? id) async {
+    final fetchDevoData = useCallback((String? id) async {
       var devoId = id ??
           await ref
               .read(devotionsPagesProvider.future)
               .then((value) => value.first.first.id);
 
+      final loadedDevotionDataNotifier =
+          ref.read(loadedDevotionDataProvider.notifier);
       await Future.wait([
         ref.read(devotionsProvider(devoId!).future),
         ref.read(devotionSourceDocumentsProvider(devoId).future),
@@ -70,17 +72,17 @@ class DevotionScreen extends HookConsumerWidget {
           images.value = foundImages;
         }
 
-        ref.read(loadedDevotionDataProvider.notifier).addDevotion(
-              DevotionData(
-                devotion: foundDevo,
-                images: foundImages,
-                sourceDocuments: foundSourceDocs,
-                reactions: foundReactions,
-                reactionCounts: foundReactionCounts,
-              ),
-            );
+        loadedDevotionDataNotifier.addDevotion(
+          DevotionData(
+            devotion: foundDevo,
+            images: foundImages,
+            sourceDocuments: foundSourceDocs,
+            reactions: foundReactions,
+            reactionCounts: foundReactionCounts,
+          ),
+        );
       });
-    }
+    }, [ref, isMounted]);
 
     useEffect(() {
       var id = devotionId ??
@@ -285,13 +287,38 @@ class DevotionScreen extends HookConsumerWidget {
                 onRefresh: () async {
                   String? id = devotion.value?.id ?? devotionId;
                   if (id != null) {
-                    ref.read(devotionsProvider(id).notifier).refresh();
-                    ref
-                        .read(devotionSourceDocumentsProvider(id).notifier)
-                        .refresh();
-                    ref.read(devotionImagesProvider(id).notifier).refresh();
-                    ref.read(devotionReactionsProvider(id).notifier).refresh();
-                    await fetchDevoData(id);
+                    final loadedDevotionsDataNotifier =
+                        ref.read(loadedDevotionDataProvider.notifier);
+                    return await Future.wait([
+                      ref.refresh(devotionsProvider(id).future),
+                      ref.refresh(devotionSourceDocumentsProvider(id).future),
+                      ref.refresh(devotionImagesProvider(id).future),
+                      ref.refresh(devotionReactionsProvider(id).future),
+                      ref.refresh(devotionReactionCountsProvider(id).future),
+                    ]).then((value) {
+                      final foundDevo = value[0] as Devotion;
+                      final foundSourceDocs = value[1] as List<SourceDocument>;
+                      final foundImages = value[2] as List<DevotionImage>;
+                      final foundReactions = value[3] as List<DevotionReaction>;
+                      final foundReactionCounts =
+                          value[4] as Map<DevotionReactionType, int>;
+                      if (isMounted()) {
+                        devotion.value = foundDevo;
+                        sourceDocs.value = foundSourceDocs;
+                        images.value = foundImages;
+                      }
+                      loadedDevotionsDataNotifier.addDevotion(
+                        DevotionData(
+                          devotion: foundDevo,
+                          images: foundImages,
+                          sourceDocuments: foundSourceDocs,
+                          reactions: foundReactions,
+                          reactionCounts: foundReactionCounts,
+                        ),
+                      );
+                    }).catchError((error) {
+                      debugPrint("Failed to refresh devotion: $error");
+                    });
                   }
                 },
                 child: ListView(

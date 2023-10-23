@@ -15,7 +15,6 @@ class RenameDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final chatsNotifier = ref.read(chatsProvider(id).notifier);
     final TextEditingController controller = TextEditingController(text: name);
 
     return AlertDialog(
@@ -38,11 +37,11 @@ class RenameDialog extends HookConsumerWidget {
             if (controller.value.text.isEmpty) {
               return;
             }
-            chatsNotifier.updateChat(
-              UpdateChatRequest(
-                name: controller.value.text,
-              ),
-            );
+            ref.read(chatsProvider(id).notifier).updateChat(
+                  UpdateChatRequest(
+                    name: controller.value.text,
+                  ),
+                );
             Navigator.of(context).pop();
           },
           child: const Text('Update'),

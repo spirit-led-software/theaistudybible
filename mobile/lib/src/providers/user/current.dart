@@ -7,6 +7,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/constants/store.dart';
 import 'package:revelationsai/src/models/user.dart';
+import 'package:revelationsai/src/models/user/request.dart';
 import 'package:revelationsai/src/services/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ class CurrentUser extends _$CurrentUser {
   static const _sharedPrefsKey = 'token';
 
   @override
-  FutureOr<User> build() async {
+  FutureOr<UserInfo> build() async {
     _sharedPreferences = await SharedPreferences.getInstance();
 
     _persistenceRefreshLogic();
@@ -28,7 +29,7 @@ class CurrentUser extends _$CurrentUser {
     return _loginRecoveryAttempt();
   }
 
-  FutureOr<User> _loginRecoveryAttempt() async {
+  FutureOr<UserInfo> _loginRecoveryAttempt() async {
     try {
       final savedSession = _sharedPreferences.getString(_sharedPrefsKey);
       if (savedSession == null) {
@@ -70,7 +71,7 @@ class CurrentUser extends _$CurrentUser {
 
   Future<void> loginWithToken(String session) async {
     try {
-      state = AsyncData<User>(await _loginWithToken(session));
+      state = AsyncData<UserInfo>(await _loginWithToken(session));
     } catch (e) {
       debugPrint("Failed to login with token: $e");
       throw Exception('Failed to login with token');
@@ -102,12 +103,46 @@ class CurrentUser extends _$CurrentUser {
     await loginWithToken(session);
   }
 
+  Future<UserInfo> updateUser(UpdateUserRequest request) async {
+    final currentUser = state.value;
+    if (currentUser == null) {
+      throw Exception('No user logged in');
+    }
+
+    final prevState = state;
+
+    state = AsyncData(currentUser.copyWith(
+      name: request.name ?? currentUser.name,
+      email: request.email ?? currentUser.email,
+      image: request.image ?? currentUser.image,
+    ));
+
+    final user = await UserService.updateUser(
+      session: currentUser.session,
+      id: currentUser.id,
+      request: request,
+    ).then((user) {
+      state = AsyncData(state.requireValue.copyWith(
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      ));
+    }).catchError((error, stackTrace) {
+      debugPrint("Failed to update user: $error $stackTrace");
+      state = prevState;
+    });
+
+    refresh();
+
+    return user;
+  }
+
   Future<void> logout() async {
     state = AsyncValue.error(
         const UnauthorizedException("Not logged in"), StackTrace.current);
   }
 
-  FutureOr<User> _loginWithToken(String session) async {
+  FutureOr<UserInfo> _loginWithToken(String session) async {
     try {
       return await UserService.getUserInfo(session);
     } catch (e) {

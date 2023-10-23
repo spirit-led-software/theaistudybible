@@ -6,7 +6,7 @@ import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
-import 'package:revelationsai/src/widgets/user_avatar.dart';
+import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 
 class Message extends HookConsumerWidget {
   final String? chatId;

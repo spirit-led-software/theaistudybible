@@ -13,6 +13,21 @@ class User with _$User {
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
+    required String email,
+    String? name,
+    String? image,
+    String? stripeCustomerId,
+  }) = _User;
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+}
+
+@freezed
+class UserInfo with _$UserInfo {
+  factory UserInfo({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
     required String session,
     required String email,
     String? name,
@@ -21,7 +36,8 @@ class User with _$User {
     required List<Role> roles,
     required int maxQueries,
     required int remainingQueries,
-  }) = _User;
+  }) = _UserInfo;
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  factory UserInfo.fromJson(Map<String, dynamic> json) =>
+      _$UserInfoFromJson(json);
 }

@@ -63,6 +63,8 @@ dependencies:
   visibility_detector: ^0.4.0+2
   newrelic_mobile: ^1.0.4
   in_app_review: ^2.0.8
+  flutter_app_badger: ^1.5.0
+  email_validator: ^2.1.17
 
 dev_dependencies:
   flutter_test:
