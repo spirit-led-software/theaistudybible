@@ -199,9 +199,7 @@ export const handler: Handler = async () => {
     await createInitialAdminUser();
 
     console.log("Creating vector store and (re)creating HNSW index");
-    const vectorDb = await getDocumentVectorStore({
-      verbose: true,
-    });
+    const vectorDb = await getDocumentVectorStore();
     await vectorDb.dropHnswIndex();
     await vectorDb.ensureTableInDatabase();
 

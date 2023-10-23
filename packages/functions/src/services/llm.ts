@@ -58,7 +58,6 @@ export const getSmallContextModel = ({
     },
     promptPrefix,
     promptSuffix,
-    verbose: true,
   });
 
 export const getLargeContextModel = ({
@@ -84,7 +83,6 @@ export const getLargeContextModel = ({
     },
     promptPrefix,
     promptSuffix,
-    verbose: true,
   });
 
 export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
@@ -115,16 +113,12 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       </question>`
     ),
     outputKey: "text",
-    verbose: true,
   });
 
-  const chatMemoryVectorStore = await getChatMemoryVectorStore(chat.id, {
-    verbose: true,
-  });
+  const chatMemoryVectorStore = await getChatMemoryVectorStore(chat.id, {});
   const chatMemoryRetriever = new RAITimeWeightedVectorStoreRetriever({
     vectorStore: chatMemoryVectorStore,
     k: 100,
-    verbose: true,
   });
   const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
     getLargeContextModel({
@@ -159,7 +153,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       inputKey: "query",
       outputKey: "text",
       memory: retrievalChainMemory,
-      verbose: true,
     }
   );
 
@@ -172,7 +165,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     }),
     documentVectorStore.asRetriever({
       k: 25,
-      verbose: true,
     }),
     {
       qaChainOptions: {
@@ -202,7 +194,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       outputKey: "text",
       memory: retrievalChainMemory,
       returnSourceDocuments: true,
-      verbose: true,
     }
   );
 
@@ -213,9 +204,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       stopSequences: ["</output>"],
     }),
     {
-      routerChainOpts: {
-        verbose: true,
-      },
       multiRouteChainOpts: {
         memory: new VectorStoreRetrieverMemory({
           vectorStoreRetriever: chatMemoryRetriever,
@@ -224,7 +212,6 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
           memoryKey: "chat_history",
           returnDocs: true,
         }),
-        verbose: true,
       },
       destinationChainsInfo: {
         identity: {

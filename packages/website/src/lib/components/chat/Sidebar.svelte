@@ -50,7 +50,8 @@
 								name: 'New Chat',
 								createdAt: new Date(),
 								updatedAt: new Date(),
-								userId: $page.data.user.id
+								userId: $page.data.user.id,
+								userNamed: false
 							},
 							...previousChats.pages[0]
 						],
