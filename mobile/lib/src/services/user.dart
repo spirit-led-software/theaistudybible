@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:path/path.dart' as path;
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/models/user/request.dart';
@@ -89,7 +90,7 @@ class UserService {
   }
 
   static Future<String> uploadProfilePicture({
-    required XFile file,
+    required CroppedFile file,
     required String session,
   }) async {
     final urlRequest = await post(
@@ -99,7 +100,7 @@ class UserService {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'fileType': file.mimeType!,
+        'fileType': path.extension(file.path),
       }),
     );
 
@@ -115,8 +116,7 @@ class UserService {
     final uploadRequest = await put(
       Uri.parse(url),
       headers: <String, String>{
-        'Content-Type': file.mimeType!,
-        'Content-Length': (await file.length()).toString(),
+        'Content-Type': path.extension(file.path),
       },
       body: await file.readAsBytes(),
     );

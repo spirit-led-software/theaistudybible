@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cross_file/src/types/interface.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/constants/store.dart';
@@ -263,7 +263,7 @@ class CurrentUser extends _$CurrentUser {
     ref.invalidateSelf();
   }
 
-  Future<User> updateUserImage(XFile value) async {
+  Future<User> updateUserImage(CroppedFile value) async {
     final imageUrl = await UserService.uploadProfilePicture(
       file: value,
       session: state.requireValue.session,

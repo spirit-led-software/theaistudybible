@@ -74,10 +74,10 @@
 			<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		</array>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>$(PRODUCT_NAME) would like access to your photo gallery</string>
+		<string>To upload pictures.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>$(PRODUCT_NAME) would like to access your camera</string>
+		<string>To take pictures for upload.</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>$(PRODUCT_NAME) would like to access your microphone (for videos)</string>
+		<string>To obtain sound from your videos.</string>
 	</dict>
 </plist>

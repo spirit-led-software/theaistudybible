@@ -57,6 +57,7 @@ class UserAvatar extends HookConsumerWidget {
             right: 0,
             child: CircleAvatar(
               radius: radius * 0.3,
+              backgroundColor: context.secondaryColor,
               child: badgeBuilder!(context),
             ),
           ),

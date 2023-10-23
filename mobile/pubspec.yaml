@@ -66,6 +66,8 @@ dependencies:
   flutter_app_badger: ^1.5.0
   email_validator: ^2.1.17
   image_picker: ^1.0.4
+  path: ^1.8.3
+  image_cropper: ^5.0.0
 
 dev_dependencies:
   flutter_test:

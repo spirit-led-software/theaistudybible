@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
@@ -74,22 +75,43 @@ class AccountScreen extends HookConsumerWidget {
                           if (ImagePicker().supportsImageSource(
                             ImageSource.gallery,
                           )) {
-                            await ImagePicker()
-                                .pickImage(source: ImageSource.gallery)
-                                .then((value) {
-                              if (value != null) {
+                            final image = await ImagePicker().pickImage(
+                              source: ImageSource.gallery,
+                            );
+
+                            if (image != null) {
+                              final croppedImage = await ImageCropper()
+                                  .cropImage(
+                                      sourcePath: image.path,
+                                      maxHeight: 512,
+                                      maxWidth: 512,
+                                      cropStyle: CropStyle.circle,
+                                      aspectRatioPresets: [
+                                    CropAspectRatioPreset.square,
+                                  ],
+                                      uiSettings: [
+                                    IOSUiSettings(
+                                      title: 'Crop Image',
+                                    ),
+                                    AndroidUiSettings(
+                                      toolbarTitle: 'Crop Image',
+                                    )
+                                  ]);
+
+                              if (croppedImage != null) {
                                 ref
                                     .read(currentUserProvider.notifier)
-                                    .updateUserImage(value);
+                                    .updateUserImage(croppedImage);
                               }
-                            });
+                            }
                           }
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.edit,
-                          color: Colors.white,
+                          color: context.colorScheme.onSecondary,
                         ),
                         iconSize: 15,
+                        color: context.secondaryColor,
                       );
                     },
                   ),
