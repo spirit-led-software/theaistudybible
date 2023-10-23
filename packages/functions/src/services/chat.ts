@@ -60,7 +60,8 @@ export async function createChat(data: CreateChatData) {
 export async function updateChat(id: string, data: UpdateChatData) {
   return (
     await readWriteDatabase
-      .update({
+      .update(chats)
+      .set({
         userNamed: data.name && data.name != "New Chat" ? true : false,
         ...data,
         updatedAt: new Date(),
