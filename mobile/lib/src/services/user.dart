@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/models/user/request.dart';
@@ -85,5 +86,46 @@ class UserService {
     if (res.statusCode != 200) {
       throw Exception('Failed to delete user: ${res.statusCode} ${res.body}');
     }
+  }
+
+  static Future<String> uploadProfilePicture({
+    required XFile file,
+    required String session,
+  }) async {
+    final urlRequest = await post(
+      Uri.parse('${API.url}/users/profile-pictures/presigned-url'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $session',
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        'fileType': file.mimeType!,
+      }),
+    );
+
+    if (urlRequest.statusCode != 200) {
+      throw Exception(
+          'Failed to get upload url: ${urlRequest.statusCode} ${urlRequest.body}');
+    }
+
+    var data = jsonDecode(utf8.decode(urlRequest.bodyBytes));
+
+    final url = data['url'];
+
+    final uploadRequest = await put(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': file.mimeType!,
+        'Content-Length': (await file.length()).toString(),
+      },
+      body: await file.readAsBytes(),
+    );
+
+    if (uploadRequest.statusCode != 200) {
+      throw Exception(
+          'Failed to upload image: ${uploadRequest.statusCode} ${uploadRequest.body}');
+    }
+
+    return Uri.parse(url).replace(queryParameters: {}).toString();
   }
 }

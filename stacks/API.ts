@@ -42,7 +42,7 @@ export function API({ stack }: StackContext) {
     invokeBedrockPolicy,
   } = use(Constants);
   const { auth } = use(Auth);
-  const { devotionImageBucket } = use(S3);
+  const { devotionImageBucket, userProfilePictureBucket } = use(S3);
   const {
     dbReadOnlyUrl,
     dbReadWriteUrl,
@@ -286,6 +286,19 @@ export function API({ stack }: StackContext) {
         "packages/functions/src/rest/users/[id]/query-counts/get.handler",
       "GET /users/me/query-counts":
         "packages/functions/src/rest/users/me/query-counts/get.handler",
+
+      "POST /users/profile-pictures/presigned-url": {
+        function: {
+          handler:
+            "packages/functions/src/rest/users/profile-pictures/presigned-url/post.handler",
+          bind: [userProfilePictureBucket],
+          permissions: [userProfilePictureBucket],
+          environment: {
+            ...lambdaEnv,
+            USER_PROFILE_PICTURE_BUCKET: userProfilePictureBucket.bucketName,
+          },
+        },
+      },
 
       // Vector similarity search
       "POST /vector-search": {

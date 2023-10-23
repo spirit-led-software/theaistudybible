@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cross_file/src/types/interface.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -103,7 +104,7 @@ class CurrentUser extends _$CurrentUser {
     await loginWithToken(session);
   }
 
-  Future<UserInfo> updateUser(UpdateUserRequest request) async {
+  Future<User> updateUser(UpdateUserRequest request) async {
     final currentUser = state.value;
     if (currentUser == null) {
       throw Exception('No user logged in');
@@ -111,30 +112,32 @@ class CurrentUser extends _$CurrentUser {
 
     final prevState = state;
 
-    state = AsyncData(currentUser.copyWith(
-      name: request.name ?? currentUser.name,
-      email: request.email ?? currentUser.email,
-      image: request.image ?? currentUser.image,
-    ));
-
-    final user = await UserService.updateUser(
-      session: currentUser.session,
-      id: currentUser.id,
-      request: request,
-    ).then((user) {
-      state = AsyncData(state.requireValue.copyWith(
-        name: user.name,
-        email: user.email,
-        image: user.image,
+    try {
+      state = AsyncData(currentUser.copyWith(
+        name: request.name ?? currentUser.name,
+        email: request.email ?? currentUser.email,
+        image: request.image ?? currentUser.image,
       ));
-    }).catchError((error, stackTrace) {
-      debugPrint("Failed to update user: $error $stackTrace");
+
+      final user = await UserService.updateUser(
+        session: currentUser.session,
+        id: currentUser.id,
+        request: request,
+      ).then((user) {
+        state = AsyncData(state.requireValue.copyWith(
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        ));
+        return user;
+      });
+      return user;
+    } catch (e) {
       state = prevState;
-    });
-
-    refresh();
-
-    return user;
+      rethrow;
+    } finally {
+      refresh();
+    }
   }
 
   Future<void> logout() async {
@@ -258,6 +261,15 @@ class CurrentUser extends _$CurrentUser {
 
   void refresh() {
     ref.invalidateSelf();
+  }
+
+  Future<User> updateUserImage(XFile value) async {
+    final imageUrl = await UserService.uploadProfilePicture(
+      file: value,
+      session: state.requireValue.session,
+    );
+
+    return await updateUser(UpdateUserRequest(image: imageUrl));
   }
 }
 

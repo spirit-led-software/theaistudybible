@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
@@ -69,8 +70,20 @@ class AccountScreen extends HookConsumerWidget {
                     badgeBuilder: (context) {
                       return IconButton(
                         visualDensity: RAIVisualDensity.tightest,
-                        onPressed: () {
-                          context.go("/edit-profile");
+                        onPressed: () async {
+                          if (ImagePicker().supportsImageSource(
+                            ImageSource.gallery,
+                          )) {
+                            await ImagePicker()
+                                .pickImage(source: ImageSource.gallery)
+                                .then((value) {
+                              if (value != null) {
+                                ref
+                                    .read(currentUserProvider.notifier)
+                                    .updateUserImage(value);
+                              }
+                            });
+                          }
                         },
                         icon: const Icon(
                           Icons.edit,
