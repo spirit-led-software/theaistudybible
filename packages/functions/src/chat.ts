@@ -176,6 +176,10 @@ const lambdaHandler = async (
     }
     console.timeEnd("Validating chat");
 
+    if (!chat.userNamed) {
+      pendingPromises.push(aiRenameChat(chat!.id, messages));
+    }
+
     console.time("Validating user message");
     let userMessage: UserMessage | undefined = (
       await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
@@ -235,15 +239,6 @@ const lambdaHandler = async (
                 });
             }
           ) ?? []),
-          !chat!.userNamed &&
-            aiRenameChat(chat!.id, [
-              ...messages,
-              {
-                id: aiResponse.id,
-                role: "assistant",
-                content: result.text,
-              },
-            ]),
         ]);
         return result;
       })
