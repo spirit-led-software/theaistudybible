@@ -50,8 +50,8 @@ export async function createChat(data: CreateChatData) {
     await readWriteDatabase
       .insert(chats)
       .values({
+        userNamed: data.name && data.name != "New Chat" ? true : false,
         ...data,
-        userNamed: data.name ? true : false,
       })
       .returning()
   )[0];
@@ -60,10 +60,9 @@ export async function createChat(data: CreateChatData) {
 export async function updateChat(id: string, data: UpdateChatData) {
   return (
     await readWriteDatabase
-      .update(chats)
-      .set({
+      .update({
+        userNamed: data.name && data.name != "New Chat" ? true : false,
         ...data,
-        userNamed: data.name ? true : false,
         updatedAt: new Date(),
       })
       .where(eq(chats.id, id))
@@ -110,6 +109,6 @@ export async function aiRenameChat(id: string, history: Message[]) {
 
   return await updateChat(id, {
     name: result.text,
-    userNamed: true,
+    userNamed: false,
   });
 }
