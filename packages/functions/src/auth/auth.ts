@@ -90,6 +90,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
       email: tokenSet.claims().email!,
       name: tokenSet.claims().name!,
       image: tokenSet.claims().picture!,
+      customImage: false,
     });
   } else {
     if (tokenSet.claims().name && user.name !== tokenSet.claims().name) {
