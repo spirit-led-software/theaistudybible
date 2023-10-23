@@ -97,7 +97,11 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
         name: tokenSet.claims().name!,
       });
     }
-    if (tokenSet.claims().picture && user.image !== tokenSet.claims().picture) {
+    if (
+      tokenSet.claims().picture &&
+      user.image !== tokenSet.claims().picture &&
+      !user.customImage
+    ) {
       user = await updateUser(user.id, {
         image: tokenSet.claims().picture!,
       });

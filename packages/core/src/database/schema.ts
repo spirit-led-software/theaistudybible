@@ -85,6 +85,7 @@ export const users = pgTable(
     passwordHash: text("password_hash"),
     stripeCustomerId: text("stripe_customer_id"),
     image: text("image"),
+    customImage: boolean("custom_image").notNull().default(false),
   },
   (table) => {
     return {
@@ -309,7 +310,7 @@ export const chats = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name").notNull().default("New Chat"),
-    userNamed: boolean("user_named").notNull().default(false),
+    customName: boolean("custom_name").notNull().default(false),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),

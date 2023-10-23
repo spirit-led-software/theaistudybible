@@ -51,7 +51,7 @@
 								createdAt: new Date(),
 								updatedAt: new Date(),
 								userId: $page.data.user.id,
-								userNamed: false
+								customName: false
 							},
 							...previousChats.pages[0]
 						],
