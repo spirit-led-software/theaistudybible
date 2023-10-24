@@ -143,6 +143,7 @@ export const devotions = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     date: date("date", { mode: "date" }).notNull().defaultNow(),
+    topic: text("topic").notNull().default("general"),
     bibleReading: text("bible_reading").notNull(),
     summary: text("summary").notNull(),
     reflection: text("reflection"),
