@@ -9,6 +9,9 @@ import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/constants/store.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/models/user/request.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/services/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,7 +43,7 @@ class CurrentUser extends _$CurrentUser {
       return await _loginWithToken(savedSession);
     } catch (_, __) {
       await _sharedPreferences.remove(_sharedPrefsKey);
-      throw const UnauthorizedException('No auth token found');
+      rethrow;
     }
   }
 
@@ -214,6 +217,9 @@ class CurrentUser extends _$CurrentUser {
       if (next.isLoading) return;
       if (next.hasError) {
         _sharedPreferences.remove(_sharedPrefsKey);
+        ref.read(currentChatIdProvider.notifier).update(null);
+        ref.read(currentDevotionIdProvider.notifier).update(null);
+        ref.read(chatsPagesProvider.notifier).reset();
         return;
       }
 
@@ -221,6 +227,9 @@ class CurrentUser extends _$CurrentUser {
         _sharedPreferences.setString(_sharedPrefsKey, next.value!.session);
       } else {
         _sharedPreferences.remove(_sharedPrefsKey);
+        ref.read(currentChatIdProvider.notifier).update(null);
+        ref.read(currentDevotionIdProvider.notifier).update(null);
+        ref.read(chatsPagesProvider.notifier).reset();
       }
     });
   }

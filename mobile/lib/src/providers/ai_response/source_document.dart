@@ -2,6 +2,7 @@ import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/ai_response.dart';
+import 'package:revelationsai/src/utils/filter_source_document.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'source_document.g.dart';
@@ -49,35 +50,14 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
         return AiResponseService.getAiResponseSourceDocuments(
           id: value.entities.first.id,
           session: currentUser.requireValue.session,
-        ).then((value) => _filterSourceDocuments(value));
+        ).then((value) => filterSourceDocuments(value));
       });
     } else {
       return AiResponseService.getAiResponseSourceDocuments(
         id: messageUuid,
         session: currentUser.requireValue.session,
-      ).then((value) => _filterSourceDocuments(value));
+      ).then((value) => filterSourceDocuments(value));
     }
-  }
-
-  List<SourceDocument> _filterSourceDocuments(List<SourceDocument> value) {
-    final sourceDocuments = <SourceDocument>[];
-    for (final sourceDocument in value) {
-      final foundMatch = sourceDocuments.any((element) {
-        if (element.id == sourceDocument.id) {
-          return true;
-        }
-        if (sourceDocument.metadata["name"] == element.metadata["name"] &&
-            sourceDocument.metadata["url"] == element.metadata["url"]) {
-          return true;
-        }
-        return false;
-      });
-      if (foundMatch) {
-        continue;
-      }
-      sourceDocuments.add(sourceDocument);
-    }
-    return sourceDocuments;
   }
 
   void refresh() {
