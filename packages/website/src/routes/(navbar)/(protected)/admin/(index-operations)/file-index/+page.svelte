@@ -16,6 +16,7 @@
 		const url = formData.get('url') as string;
 
 		try {
+			isLoading = true;
 			const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
 				method: 'POST',
 				headers: {
@@ -51,7 +52,8 @@
 			console.error(e);
 			alert = { type: 'error', message: e.message };
 		} finally {
-			queryClient.invalidateQueries(['index-operations']);
+			await queryClient.invalidateQueries(['index-operations']);
+			isLoading = false;
 		}
 	};
 
