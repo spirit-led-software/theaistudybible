@@ -64,6 +64,9 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       return _isAuth ? chatPath : "/auth/login";
     }
 
+    final isForgotPassword = state.uri.path.startsWith("/auth/forgot-password");
+    if (isForgotPassword) return null;
+
     final isLoggingIn = state.uri.path.startsWith("/auth");
     if (isLoggingIn) return _isAuth ? chatPath : null;
 

@@ -275,7 +275,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                       context.go('/auth/login');
                     },
                     child: const Text(
-                      "Know your password? Login here",
+                      "Know your password?",
                     ),
                   )
                 ],

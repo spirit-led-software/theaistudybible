@@ -453,7 +453,7 @@ class RegisterScreen extends HookConsumerWidget {
                       context.go('/auth/login');
                     },
                     child: const Text(
-                      "Already have an account? Login",
+                      "Already have an account?",
                     ),
                   )
                 ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/user/request.dart';
@@ -15,12 +17,15 @@ class ChangePasswordDialog extends HookConsumerWidget {
 
     final currentPasswordController = useTextEditingController();
     final currentPasswordFocusNode = useFocusNode();
+    final showCurrentPassword = useState(false);
 
     final newPasswordController = useTextEditingController();
     final newPasswordFocusNode = useFocusNode();
+    final showNewPassword = useState(false);
 
     final newPasswordConfirmationController = useTextEditingController();
     final newPasswordConfirmationFocusNode = useFocusNode();
+    final showNewPasswordConfirmation = useState(false);
 
     final loading = useState(false);
     final alert = useState<Alert?>(null);
@@ -46,8 +51,20 @@ class ChangePasswordDialog extends HookConsumerWidget {
             TextFormField(
               controller: currentPasswordController,
               focusNode: currentPasswordFocusNode,
-              decoration: const InputDecoration(
+              obscureText: !showCurrentPassword.value,
+              decoration: InputDecoration(
                 labelText: "Current Password",
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    showCurrentPassword.value = !showCurrentPassword.value;
+                  },
+                  icon: FaIcon(
+                    showCurrentPassword.value
+                        ? FontAwesomeIcons.eye
+                        : FontAwesomeIcons.eyeSlash,
+                    size: 20,
+                  ),
+                ),
               ),
               onFieldSubmitted: (value) {
                 currentPasswordFocusNode.unfocus();
@@ -65,8 +82,20 @@ class ChangePasswordDialog extends HookConsumerWidget {
             TextFormField(
               controller: newPasswordController,
               focusNode: newPasswordFocusNode,
-              decoration: const InputDecoration(
+              obscureText: !showNewPassword.value,
+              decoration: InputDecoration(
                 labelText: "New Password",
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    showNewPassword.value = !showNewPassword.value;
+                  },
+                  icon: FaIcon(
+                    showNewPassword.value
+                        ? FontAwesomeIcons.eye
+                        : FontAwesomeIcons.eyeSlash,
+                    size: 20,
+                  ),
+                ),
               ),
               onFieldSubmitted: (value) {
                 newPasswordFocusNode.unfocus();
@@ -88,8 +117,21 @@ class ChangePasswordDialog extends HookConsumerWidget {
             TextFormField(
               controller: newPasswordConfirmationController,
               focusNode: newPasswordConfirmationFocusNode,
-              decoration: const InputDecoration(
+              obscureText: !showNewPasswordConfirmation.value,
+              decoration: InputDecoration(
                 labelText: "Confirm New Password",
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    showNewPasswordConfirmation.value =
+                        !showNewPasswordConfirmation.value;
+                  },
+                  icon: FaIcon(
+                    showNewPasswordConfirmation.value
+                        ? FontAwesomeIcons.eye
+                        : FontAwesomeIcons.eyeSlash,
+                    size: 20,
+                  ),
+                ),
               ),
               onFieldSubmitted: (value) {
                 newPasswordConfirmationFocusNode.unfocus();
@@ -106,6 +148,19 @@ class ChangePasswordDialog extends HookConsumerWidget {
                 return null;
               },
             ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                context.go("/auth/forgot-password");
+              },
+              child: Text(
+                "Forgot Password?",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            )
           ],
         ),
       ),

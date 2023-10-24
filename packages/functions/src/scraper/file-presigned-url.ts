@@ -16,10 +16,10 @@ const s3Client = new S3Client({});
 export const handler = ApiHandler(async (event) => {
   console.log("Received index file url generation event:", event);
 
-  const { fileName, fileType } = JSON.parse(event.body || "{}");
+  const { name, url, fileName, fileType } = JSON.parse(event.body || "{}");
 
-  if (!fileName || !fileType) {
-    return BadRequestResponse("Missing fileName or fileType");
+  if (!name || !url || !fileName || !fileType) {
+    return BadRequestResponse("Missing required fields");
   }
 
   try {
@@ -34,7 +34,11 @@ export const handler = ApiHandler(async (event) => {
         ACL: "public-read",
         ContentType: fileType,
         Bucket: s3Config.indexFileBucket,
-        Key: `${fileName}-${Date.now()}`,
+        Key: fileName,
+        Metadata: {
+          name,
+          url,
+        },
       })
     );
 
