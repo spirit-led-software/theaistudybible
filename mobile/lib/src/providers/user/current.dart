@@ -215,7 +215,7 @@ class CurrentUser extends _$CurrentUser {
   void _persistenceRefreshLogic() {
     ref.listenSelf((_, next) {
       if (next.isLoading) return;
-      if (next.hasError) {
+      if (next.hasError || !next.hasValue) {
         _sharedPreferences.remove(_sharedPrefsKey);
         ref.read(currentChatIdProvider.notifier).update(null);
         ref.read(currentDevotionIdProvider.notifier).update(null);
@@ -225,11 +225,6 @@ class CurrentUser extends _$CurrentUser {
 
       if (next.hasValue) {
         _sharedPreferences.setString(_sharedPrefsKey, next.value!.session);
-      } else {
-        _sharedPreferences.remove(_sharedPrefsKey);
-        ref.read(currentChatIdProvider.notifier).update(null);
-        ref.read(currentDevotionIdProvider.notifier).update(null);
-        ref.read(chatsPagesProvider.notifier).reset();
       }
     });
   }
