@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { SolidLineSpinner } from '$lib/components/loading';
+	import { session } from '$lib/stores/user';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import type { EventHandler } from 'svelte/elements';
 
@@ -20,7 +21,8 @@
 			const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${$session}`
 				},
 				body: JSON.stringify({ name, url, fileType: file.type, fileName: file.name })
 			});
