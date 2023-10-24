@@ -63,10 +63,6 @@ class ChatScreen extends HookConsumerWidget {
     final chatHook = useChat(
       options: UseChatOptions(
         session: currentUser.requireValue.session,
-        chatId: initChatId,
-        initialMessages:
-            ref.watch(currentChatMessagesProvider(initChatId)).valueOrNull ??
-                <ChatMessage>[],
         hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
         onFinish: (_) {
           ref.read(currentUserProvider.notifier).decrementRemainingQueries();
@@ -102,6 +98,7 @@ class ChatScreen extends HookConsumerWidget {
 
     useEffect(() {
       if (chatId != null) {
+        if (isMounted()) chatHook.chatId.value = chatId;
         if (loadedChats.value?.containsKey(chatId) ?? false) {
           if (isMounted()) {
             final chatData = loadedChats.value![chatId];
@@ -113,7 +110,6 @@ class ChatScreen extends HookConsumerWidget {
             if (isMounted()) isLoadingChat.value = false;
           });
         }
-        if (isMounted()) chatHook.chatId.value = chatId;
       } else {
         if (isMounted()) {
           chatHook.chatId.value = null;
