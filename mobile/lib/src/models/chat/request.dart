@@ -5,6 +5,7 @@ part 'request.g.dart';
 
 @freezed
 class CreateChatRequest with _$CreateChatRequest {
+  @JsonSerializable(includeIfNull: false)
   factory CreateChatRequest({
     String? id,
     required String name,
@@ -16,6 +17,7 @@ class CreateChatRequest with _$CreateChatRequest {
 
 @freezed
 class UpdateChatRequest with _$UpdateChatRequest {
+  @JsonSerializable(includeIfNull: false)
   factory UpdateChatRequest({
     required String name,
   }) = _UpdateChatRequest;

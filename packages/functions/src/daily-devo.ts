@@ -17,11 +17,15 @@ export const handler: Handler = async (event, _) => {
     firebase.initializeApp({
       credential: firebase.credential.cert(serviceAccount),
     });
-
     await firebase.messaging().sendToTopic("daily-devo", {
       notification: {
         title: "New Daily Devo",
         body: devo?.bibleReading,
+        badge: "1",
+      },
+      data: {
+        task: "daily-devo",
+        id: devo!.id,
       },
     });
   }

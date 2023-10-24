@@ -38,11 +38,11 @@ class ChatScreen extends HookConsumerWidget {
     "What does it mean to be saved?",
   };
 
-  final String? chatId;
+  final String? initChatId;
 
   const ChatScreen({
     super.key,
-    this.chatId,
+    this.initChatId,
   });
 
   @override
@@ -63,7 +63,6 @@ class ChatScreen extends HookConsumerWidget {
     final chatHook = useChat(
       options: UseChatOptions(
         session: currentUser.requireValue.session,
-        chatId: chatId,
         hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
         onFinish: (_) {
           ref.read(currentUserProvider.notifier).decrementRemainingQueries();
@@ -72,9 +71,11 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
-    final chat = ref.watch(chatsProvider(chatHook.chatId.value ?? chatId));
+    final chatId = initChatId ?? chatHook.chatId.value;
+    final chat = ref.watch(chatsProvider(chatId));
 
-    Future<void> fetchChatData(String id) async {
+    final fetchChatData = useCallback((String id) async {
+      final loadedChatDataNotifier = ref.read(loadedChatDataProvider.notifier);
       await Future.wait([
         ref.read(chatsProvider(id).future),
         ref.read(currentChatMessagesProvider(id).future),
@@ -86,17 +87,18 @@ class ChatScreen extends HookConsumerWidget {
           chatHook.messages.value = foundMessages;
         }
 
-        ref.read(loadedChatDataProvider.notifier).addChat(
-              ChatData(
-                chat: foundChat,
-                messages: foundMessages,
-              ),
-            );
+        loadedChatDataNotifier.addChat(
+          ChatData(
+            chat: foundChat,
+            messages: foundMessages,
+          ),
+        );
       });
-    }
+    }, [ref, chatHook, isMounted]);
 
     useEffect(() {
       if (chatId != null) {
+        if (isMounted()) chatHook.chatId.value = chatId;
         if (loadedChats.value?.containsKey(chatId) ?? false) {
           if (isMounted()) {
             final chatData = loadedChats.value![chatId];
@@ -104,11 +106,10 @@ class ChatScreen extends HookConsumerWidget {
           }
         } else {
           isLoadingChat.value = true;
-          fetchChatData(chatId!).whenComplete(() {
+          fetchChatData(chatId).whenComplete(() {
             if (isMounted()) isLoadingChat.value = false;
           });
         }
-        if (isMounted()) chatHook.chatId.value = chatId;
       } else {
         if (isMounted()) {
           chatHook.chatId.value = null;
@@ -118,19 +119,6 @@ class ChatScreen extends HookConsumerWidget {
 
       return () {};
     }, [chatId]);
-
-    useEffect(() {
-      if (chatHook.chatId.value != null && chatHook.chatId.value != chatId) {
-        if (loadedChats.value?.containsKey(chatHook.chatId.value) ?? false) {
-          if (isMounted()) {
-            final chatData = loadedChats.value![chatHook.chatId.value];
-            chatHook.messages.value = chatData!.messages;
-          }
-        }
-      }
-
-      return () {};
-    }, [chatHook.chatId.value]);
 
     useEffect(() {
       if (chat.value != null) {
@@ -245,7 +233,7 @@ class ChatScreen extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  itemBuilder: (context) {
+                  itemBuilder: (popupMenuContext) {
                     return [
                       PopupMenuItem(
                         enabled: false,
@@ -254,7 +242,7 @@ class ChatScreen extends HookConsumerWidget {
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: context.colorScheme.onPrimary,
+                            color: popupMenuContext.colorScheme.onPrimary,
                           ),
                         ),
                       ),
@@ -262,19 +250,39 @@ class ChatScreen extends HookConsumerWidget {
                         enabled: false,
                         height: double.minPositive,
                         child: Divider(
-                          color: context.colorScheme.onPrimary,
+                          color: popupMenuContext.colorScheme.onPrimary,
                         ),
                       ),
                       PopupMenuItem(
-                        onTap: () {
-                          String? id = chat.value?.id ?? chatId;
-                          if (id != null) {
-                            ref.read(chatsProvider(id).notifier).refresh();
-                            ref
-                                .read(currentChatMessagesProvider(id).notifier)
-                                .refresh();
+                        onTap: () async {
+                          if (chatId != null) {
                             isRefreshingChat.value = true;
-                            fetchChatData(id).whenComplete(() {
+                            final loadedChatsNotifier =
+                                ref.read(loadedChatDataProvider.notifier);
+                            return await Future.wait([
+                              ref.refresh(chatsProvider(chatId).future),
+                              ref.refresh(
+                                currentChatMessagesProvider(chatId).future,
+                              ),
+                            ]).then((value) {
+                              final foundChat = value[0] as Chat;
+                              final foundMessages =
+                                  value[1] as List<ChatMessage>;
+                              if (isMounted()) {
+                                chatHook.messages.value = foundMessages;
+                              }
+                              loadedChatsNotifier.addChat(
+                                ChatData(
+                                  chat: foundChat,
+                                  messages: foundMessages,
+                                ),
+                              );
+                            }).catchError(
+                              (error) {
+                                debugPrint(
+                                    "Failed to refresh chat: $error $error");
+                              },
+                            ).whenComplete(() {
                               if (isMounted()) isRefreshingChat.value = false;
                             });
                           }
@@ -285,7 +293,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.arrowsRotate,
-                              color: context.colorScheme.onPrimary,
+                              color: popupMenuContext.colorScheme.onPrimary,
                             ),
                             const SizedBox(
                               width: 10,
@@ -293,7 +301,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "Refresh",
                               style: TextStyle(
-                                color: context.colorScheme.onPrimary,
+                                color: popupMenuContext.colorScheme.onPrimary,
                               ),
                             ),
                           ],
@@ -305,7 +313,7 @@ class ChatScreen extends HookConsumerWidget {
                           showModalBottomSheet(
                             elevation: 20,
                             isScrollControlled: true,
-                            context: context,
+                            context: popupMenuContext,
                             builder: (_) => const FractionallySizedBox(
                               widthFactor: 1.0,
                               heightFactor: 0.90,
@@ -319,7 +327,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.clock,
-                              color: context.colorScheme.onPrimary,
+                              color: popupMenuContext.colorScheme.onPrimary,
                             ),
                             const SizedBox(
                               width: 10,
@@ -327,7 +335,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "History",
                               style: TextStyle(
-                                color: context.colorScheme.onPrimary,
+                                color: popupMenuContext.colorScheme.onPrimary,
                               ),
                             ),
                           ],
@@ -336,7 +344,7 @@ class ChatScreen extends HookConsumerWidget {
                       PopupMenuItem(
                         onTap: () async {
                           showDialog(
-                            context: context,
+                            context: popupMenuContext,
                             builder: (context) {
                               return const CreateDialog();
                             },
@@ -348,7 +356,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.plus,
-                              color: context.colorScheme.onPrimary,
+                              color: popupMenuContext.colorScheme.onPrimary,
                             ),
                             const SizedBox(
                               width: 10,
@@ -356,7 +364,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "New Chat",
                               style: TextStyle(
-                                color: context.colorScheme.onPrimary,
+                                color: popupMenuContext.colorScheme.onPrimary,
                               ),
                             ),
                           ],
@@ -364,14 +372,13 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () {
-                          String? id = chat.value?.id ?? chatId;
-                          if (id != null) {
+                          if (chatId != null) {
                             showDialog(
-                              context: context,
+                              context: popupMenuContext,
                               builder: (context) {
                                 return RenameDialog(
-                                  id: id,
-                                  name: chat.value?.name ?? "",
+                                  id: chatId,
+                                  name: chat.value!.name,
                                 );
                               },
                             );
@@ -383,7 +390,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.penToSquare,
-                              color: context.colorScheme.onPrimary,
+                              color: popupMenuContext.colorScheme.onPrimary,
                             ),
                             const SizedBox(
                               width: 10,
@@ -391,7 +398,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "Rename Chat",
                               style: TextStyle(
-                                color: context.colorScheme.onPrimary,
+                                color: popupMenuContext.colorScheme.onPrimary,
                               ),
                             ),
                           ],
@@ -399,15 +406,14 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () {
-                          String? id = chat.value?.id ?? chatId;
-                          if (id != null) {
+                          if (chatId != null) {
                             ref
                                 .read(chatsPagesProvider.notifier)
-                                .deleteChat(id);
+                                .deleteChat(chatId);
                             ref
                                 .read(currentChatIdProvider.notifier)
                                 .update(null);
-                            context.go("/chat");
+                            popupMenuContext.go("/chat");
                           }
                         },
                         child: const Row(

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -14,8 +15,8 @@ import 'package:revelationsai/src/screens/splash_screen.dart';
 
 import 'routes/router_listenable.dart';
 
-class MyApp extends HookConsumerWidget {
-  const MyApp({super.key});
+class RAIApp extends HookConsumerWidget {
+  const RAIApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,6 +47,40 @@ class MyApp extends HookConsumerWidget {
       ),
       [routerListenableNotifier],
     );
+
+    final pendingLaunchMessage = useMemoized(
+      () => FirebaseMessaging.instance.getInitialMessage(),
+      [FirebaseMessaging.instance],
+    );
+    final launchMessageSnapshot = useFuture(pendingLaunchMessage);
+
+    useMemoized(
+      () => FirebaseMessaging.onMessage.listen((message) {
+        switch (message.data['type']) {
+          case 'daily-devo':
+            context.go('/devotions/${message.data['id'] ?? ''}');
+            break;
+          default:
+            break;
+        }
+      }),
+      [FirebaseMessaging.onMessage],
+    );
+
+    useEffect(() {
+      if (launchMessageSnapshot.hasData && launchMessageSnapshot.data != null) {
+        switch (launchMessageSnapshot.data?.data['type']) {
+          case 'daily-devo':
+            context.go(
+                '/devotions/${launchMessageSnapshot.data?.data['id'] ?? ''}');
+            break;
+          default:
+            break;
+        }
+      }
+
+      return () {};
+    }, [launchMessageSnapshot]);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

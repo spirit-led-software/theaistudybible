@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -86,8 +87,7 @@ class DevotionModal extends HookConsumerWidget {
               : Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      devotionsPagesNotifier.refresh();
-                      await ref.read(devotionsPagesProvider.future);
+                      return await ref.refresh(devotionsPagesProvider.future);
                     },
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -96,7 +96,7 @@ class DevotionModal extends HookConsumerWidget {
                               .toList()
                               .length +
                           1,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (listItemContext, index) {
                         if (index ==
                             devotionsPages.requireValue
                                 .expand((element) => element)
@@ -107,7 +107,8 @@ class DevotionModal extends HookConsumerWidget {
                                   padding: const EdgeInsets.all(10),
                                   child: Center(
                                     child: SpinKitSpinningLines(
-                                      color: context.colorScheme.onBackground,
+                                      color: listItemContext
+                                          .colorScheme.onBackground,
                                       size: 20,
                                     ),
                                   ),
@@ -159,7 +160,9 @@ class DevotionListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDevotionId = ref.watch(currentDevotionIdProvider);
 
-    Future<void> fetchDevoData() async {
+    final fetchDevoData = useCallback(() async {
+      final loadedDevotionDataNotifier =
+          ref.read(loadedDevotionDataProvider.notifier);
       await Future.wait([
         ref.read(devotionsProvider(devotion.id).future),
         ref.read(devotionSourceDocumentsProvider(devotion.id).future),
@@ -173,28 +176,28 @@ class DevotionListItem extends HookConsumerWidget {
         final foundReactions = value[3] as List<DevotionReaction>;
         final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
 
-        ref.read(loadedDevotionDataProvider.notifier).addDevotion(
-              DevotionData(
-                devotion: foundDevo,
-                images: foundImages,
-                sourceDocuments: foundSourceDocs,
-                reactions: foundReactions,
-                reactionCounts: foundReactionCounts,
-              ),
-            );
+        loadedDevotionDataNotifier.addDevotion(
+          DevotionData(
+            devotion: foundDevo,
+            images: foundImages,
+            sourceDocuments: foundSourceDocs,
+            reactions: foundReactions,
+            reactionCounts: foundReactionCounts,
+          ),
+        );
       });
-    }
+    }, [ref, devotion.id]);
 
     return VisibilityDetector(
       key: ValueKey(devotion.id),
-      onVisibilityChanged: (info) {
+      onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1 &&
             !(ref
                     .read(loadedDevotionDataProvider)
                     .valueOrNull
                     ?.containsKey(devotion.id) ??
                 false)) {
-          fetchDevoData();
+          await fetchDevoData();
         }
       },
       child: Container(

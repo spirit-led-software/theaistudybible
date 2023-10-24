@@ -176,7 +176,7 @@ const lambdaHandler = async (
     }
     console.timeEnd("Validating chat");
 
-    if (!chat.userNamed) {
+    if (!chat.customName) {
       pendingPromises.push(aiRenameChat(chat!.id, messages));
     }
 

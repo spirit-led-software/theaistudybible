@@ -31,7 +31,7 @@ export default {
       .stack(Website)
       .stack(Crons);
 
-    if (!app.local) {
+    if (!app.local && app.stage === "prod") {
       await app.finish();
 
       app.node.children.forEach((stack) => {

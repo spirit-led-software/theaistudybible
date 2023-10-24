@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -107,7 +108,7 @@ class ChatModal extends HookConsumerWidget {
               ? Expanded(
                   child: Center(
                     child: SpinKitSpinningLines(
-                      color: context.primaryColor,
+                      color: context.colorScheme.onBackground,
                       size: 32,
                     ),
                   ),
@@ -115,8 +116,7 @@ class ChatModal extends HookConsumerWidget {
               : Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      chatsPagesNotifier.refresh();
-                      await ref.read(chatsPagesProvider.future);
+                      return await ref.refresh(chatsPagesProvider.future);
                     },
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -125,7 +125,7 @@ class ChatModal extends HookConsumerWidget {
                               .toList()
                               .length +
                           1,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (listItemContext, index) {
                         if (index ==
                             chatsPages.requireValue
                                 .expand((element) => element)
@@ -136,7 +136,8 @@ class ChatModal extends HookConsumerWidget {
                                   padding: const EdgeInsets.all(10),
                                   child: Center(
                                     child: SpinKitSpinningLines(
-                                      color: context.primaryColor,
+                                      color: listItemContext
+                                          .colorScheme.onBackground,
                                       size: 20,
                                     ),
                                   ),
@@ -188,7 +189,8 @@ class ChatListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentChatId = ref.watch(currentChatIdProvider);
 
-    Future<void> fetchChatData() async {
+    final fetchChatData = useCallback(() async {
+      final loadChatDataNotifier = ref.read(loadedChatDataProvider.notifier);
       await Future.wait([
         ref.read(chatsProvider(chat.id).future),
         ref.read(currentChatMessagesProvider(chat.id).future),
@@ -196,25 +198,26 @@ class ChatListItem extends HookConsumerWidget {
         final foundChat = value[0] as Chat;
         final foundMessages = value[1] as List<ChatMessage>;
 
-        ref.read(loadedChatDataProvider.notifier).addChat(
-              ChatData(
-                chat: foundChat,
-                messages: foundMessages,
-              ),
-            );
+        loadChatDataNotifier.addChat(
+          ChatData(
+            chat: foundChat,
+            messages: foundMessages,
+          ),
+        );
       });
-    }
+      return;
+    }, [ref, chat.id]);
 
     return VisibilityDetector(
       key: ValueKey(chat.id),
-      onVisibilityChanged: (info) {
+      onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1 &&
             !(ref
                     .read(loadedChatDataProvider)
                     .valueOrNull
                     ?.containsKey(chat.id) ??
                 false)) {
-          fetchChatData();
+          await fetchChatData();
         }
       },
       child: Container(

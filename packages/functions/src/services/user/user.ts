@@ -94,7 +94,12 @@ export async function getUserByStripeCustomerId(stripeCustomerId: string) {
 }
 
 export async function createUser(data: CreateUserData) {
-  return (await readWriteDatabase.insert(users).values(data).returning())[0];
+  return (
+    await readWriteDatabase
+      .insert(users)
+      .values({ customImage: data.image ? true : false, ...data })
+      .returning()
+  )[0];
 }
 
 export async function updateUser(id: string, data: UpdateUserData) {
@@ -102,6 +107,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
     await readWriteDatabase
       .update(users)
       .set({
+        customImage: data.image ? true : false,
         ...data,
         updatedAt: new Date(),
       })
@@ -126,6 +132,10 @@ export async function isAdmin(userId: string) {
   return userRolesRelation.some((userRoleRelation) => {
     return userRoleRelation.roles.name === "admin";
   });
+}
+
+export function isAdminSync(userWithRoles: UserWithRoles) {
+  return userWithRoles.roles.some((role) => role.name === "admin");
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {

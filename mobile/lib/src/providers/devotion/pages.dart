@@ -8,6 +8,8 @@ part 'pages.g.dart';
 
 @riverpod
 class DevotionsPages extends _$DevotionsPages {
+  static const int pageSize = 7;
+
   int _page = 1;
   bool _isLoadingInitial = true;
   final bool _isLoading = false;
@@ -21,8 +23,7 @@ class DevotionsPages extends _$DevotionsPages {
         _isLoadingNextPage = false;
       } else if (state.isLoading &&
           _page == 1 &&
-          (!state.hasValue ||
-          state.value!.isEmpty)) {
+          (!state.hasValue || state.value!.isEmpty)) {
         _isLoadingInitial = true;
       } else if (state.isLoading && _page > 1) {
         _isLoadingNextPage = true;
@@ -35,7 +36,7 @@ class DevotionsPages extends _$DevotionsPages {
     try {
       return await DevotionService.getDevotions(
         paginationOptions:
-            PaginatedEntitiesRequestOptions(page: _page, limit: 7),
+            PaginatedEntitiesRequestOptions(page: _page, limit: pageSize),
       ).then((value) {
         if (state.hasValue) {
           // replace pages previous content with new content

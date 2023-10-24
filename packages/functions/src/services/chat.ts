@@ -50,7 +50,7 @@ export async function createChat(data: CreateChatData) {
     await readWriteDatabase
       .insert(chats)
       .values({
-        userNamed: data.name && data.name != "New Chat" ? true : false,
+        customName: data.name && data.name != "New Chat" ? true : false,
         ...data,
       })
       .returning()
@@ -62,7 +62,7 @@ export async function updateChat(id: string, data: UpdateChatData) {
     await readWriteDatabase
       .update(chats)
       .set({
-        userNamed: data.name && data.name != "New Chat" ? true : false,
+        customName: data.name && data.name != "New Chat" ? true : false,
         ...data,
         updatedAt: new Date(),
       })
@@ -79,7 +79,7 @@ export async function deleteChat(id: string) {
 
 export async function aiRenameChat(id: string, history: Message[]) {
   const chat = await getChatOrThrow(id);
-  if (chat.userNamed) {
+  if (chat.customName) {
     throw new Error("Chat has already been named by the user");
   }
 
@@ -110,6 +110,6 @@ export async function aiRenameChat(id: string, history: Message[]) {
 
   return await updateChat(id, {
     name: result.text,
-    userNamed: false,
+    customName: false,
   });
 }

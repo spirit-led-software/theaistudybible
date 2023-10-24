@@ -30,7 +30,7 @@ import { Api, Function, StackContext, dependsOn, use } from "sst/constructs";
 
 const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
 
-export function API({ stack }: StackContext) {
+export function API({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
@@ -42,7 +42,8 @@ export function API({ stack }: StackContext) {
     invokeBedrockPolicy,
   } = use(Constants);
   const { auth } = use(Auth);
-  const { devotionImageBucket } = use(S3);
+  const { indexFileBucket, devotionImageBucket, userProfilePictureBucket } =
+    use(S3);
   const {
     dbReadOnlyUrl,
     dbReadWriteUrl,
@@ -80,71 +81,84 @@ export function API({ stack }: StackContext) {
     invokeMode: InvokeMode.RESPONSE_STREAM,
     authType: FunctionUrlAuthType.NONE,
   });
-  const chatApiUrlDistribution = new Distribution(
-    stack,
-    "chatApiUrlDistribution",
-    {
-      defaultBehavior: {
-        origin: new HttpOrigin(
-          Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
-        ),
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
-        cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-        allowedMethods: {
-          methods: ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"],
+
+  let chatApiUrl = chatApiFunctionUrl.url;
+  // Create cloudfront distribution for non-dev environments
+  if (app.mode !== "dev") {
+    const chatApiUrlDistribution = new Distribution(
+      stack,
+      "chatApiUrlDistribution",
+      {
+        defaultBehavior: {
+          origin: new HttpOrigin(
+            Fn.select(2, Fn.split("/", chatApiFunctionUrl.url))
+          ),
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
+          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          allowedMethods: {
+            methods: [
+              "HEAD",
+              "DELETE",
+              "POST",
+              "GET",
+              "OPTIONS",
+              "PUT",
+              "PATCH",
+            ],
+          },
+          responseHeadersPolicy: new ResponseHeadersPolicy(
+            stack,
+            "chatApiUrlDistResponseHeadersPolicy",
+            {
+              corsBehavior: {
+                originOverride: true,
+                accessControlAllowCredentials: true,
+                accessControlAllowHeaders: ["Authorization", "Content-type"],
+                accessControlAllowMethods: ["POST", "OPTIONS"],
+                accessControlAllowOrigins: [websiteUrl],
+                accessControlExposeHeaders: [
+                  "x-chat-id",
+                  "x-user-message-id",
+                  "x-ai-response-id",
+                  "content-type",
+                  "content-length",
+                ],
+              },
+            }
+          ),
         },
-        responseHeadersPolicy: new ResponseHeadersPolicy(
-          stack,
-          "chatApiUrlDistResponseHeadersPolicy",
-          {
-            corsBehavior: {
-              originOverride: true,
-              accessControlAllowCredentials: true,
-              accessControlAllowHeaders: ["Authorization", "Content-type"],
-              accessControlAllowMethods: ["POST", "OPTIONS"],
-              accessControlAllowOrigins: [websiteUrl],
-              accessControlExposeHeaders: [
-                "x-chat-id",
-                "x-user-message-id",
-                "x-ai-response-id",
-                "content-type",
-                "content-length",
-              ],
-            },
-          }
-        ),
-      },
-      domainNames: [`chat.${apiDomainName}`],
-      certificate: new Certificate(stack, "chatApiUrlCertificate", {
-        domainName: `chat.${apiDomainName}`,
-        validation: CertificateValidation.fromDns(hostedZone),
+        domainNames: [`chat.${apiDomainName}`],
+        certificate: new Certificate(stack, "chatApiUrlCertificate", {
+          domainName: `chat.${apiDomainName}`,
+          validation: CertificateValidation.fromDns(hostedZone),
+        }),
+      }
+    );
+    const chatApiUrlARecord = new ARecord(stack, "chatApiUrlARecord", {
+      zone: hostedZone,
+      recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ""}`,
+      target: RecordTarget.fromAlias({
+        bind: () => ({
+          dnsName: chatApiUrlDistribution.distributionDomainName,
+          hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+        }),
       }),
-    }
-  );
-  const chatApiUrlARecord = new ARecord(stack, "chatApiUrlARecord", {
-    zone: hostedZone,
-    recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ""}`,
-    target: RecordTarget.fromAlias({
-      bind: () => ({
-        dnsName: chatApiUrlDistribution.distributionDomainName,
-        hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+    });
+    const chatApiUrlAAAARecord = new AaaaRecord(stack, "chatApiUrlAAAARecord", {
+      zone: hostedZone,
+      recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ""}`,
+      target: RecordTarget.fromAlias({
+        bind: () => ({
+          dnsName: chatApiUrlDistribution.distributionDomainName,
+          hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
+        }),
       }),
-    }),
-  });
-  const chatApiUrlAAAARecord = new AaaaRecord(stack, "chatApiUrlAAAARecord", {
-    zone: hostedZone,
-    recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ""}`,
-    target: RecordTarget.fromAlias({
-      bind: () => ({
-        dnsName: chatApiUrlDistribution.distributionDomainName,
-        hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID,
-      }),
-    }),
-  });
-  chatApiUrlAAAARecord.node.addDependency(chatApiUrlARecord);
-  const chatApiUrl = `https://${chatApiUrlAAAARecord.domainName}`;
+    });
+    chatApiUrlAAAARecord.node.addDependency(chatApiUrlARecord);
+    chatApiUrl = `https://${chatApiUrlAAAARecord.domainName}`;
+  }
 
   const api = new Api(stack, "api", {
     routes: {
@@ -169,6 +183,17 @@ export function API({ stack }: StackContext) {
           permissions: [invokeBedrockPolicy],
           timeout: "15 minutes",
           memorySize: "1 GB",
+        },
+      },
+      "POST /scraper/file/presigned-url": {
+        function: {
+          handler: "packages/functions/src/scraper/file-presigned-url.handler",
+          bind: [indexFileBucket],
+          permissions: [indexFileBucket],
+          environment: {
+            ...lambdaEnv,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
         },
       },
       "GET /session": "packages/functions/src/session.handler",
@@ -276,16 +301,27 @@ export function API({ stack }: StackContext) {
       "DELETE /users/{id}":
         "packages/functions/src/rest/users/[id]/delete.handler",
 
-      // Current user
-      "GET /users/me": "packages/functions/src/rest/users/me/get.handler",
-      "PUT /users/me": "packages/functions/src/rest/users/me/put.handler",
-      "DELETE /users/me": "packages/functions/src/rest/users/me/delete.handler",
-
       // User query counts
       "GET /users/{id}/query-counts":
         "packages/functions/src/rest/users/[id]/query-counts/get.handler",
-      "GET /users/me/query-counts":
-        "packages/functions/src/rest/users/me/query-counts/get.handler",
+
+      // Change user password endpoint
+      "POST /users/change-password":
+        "packages/functions/src/rest/users/change-password/post.handler",
+
+      // Generate presigned url for user profile picture upload
+      "POST /users/profile-pictures/presigned-url": {
+        function: {
+          handler:
+            "packages/functions/src/rest/users/profile-pictures/presigned-url/post.handler",
+          bind: [userProfilePictureBucket],
+          permissions: [userProfilePictureBucket],
+          environment: {
+            ...lambdaEnv,
+            USER_PROFILE_PICTURE_BUCKET: userProfilePictureBucket.bucketName,
+          },
+        },
+      },
 
       // Vector similarity search
       "POST /vector-search": {

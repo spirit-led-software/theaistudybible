@@ -9,8 +9,9 @@ import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
-  const data = JSON.parse(event.body ?? "{}");
-  const { bibleVerse } = data;
+  console.log("Received devotion create event:", event);
+
+  const { topic, bibleVerse } = JSON.parse(event.body ?? "{}");
 
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
@@ -18,7 +19,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse();
     }
 
-    const devo = await generateDevotion(bibleVerse);
+    const devo = await generateDevotion(topic, bibleVerse);
 
     return CreatedResponse(devo);
   } catch (error: any) {

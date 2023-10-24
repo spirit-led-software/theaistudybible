@@ -9,8 +9,12 @@ part 'messages.g.dart';
 @riverpod
 class CurrentChatMessages extends _$CurrentChatMessages {
   @override
-  FutureOr<List<ChatMessage>> build(String chatId) async {
+  FutureOr<List<ChatMessage>> build(String? chatId) async {
     try {
+      if (chatId == null) {
+        return <ChatMessage>[];
+      }
+
       final currentUser = ref.watch(currentUserProvider);
       if (!currentUser.hasValue) {
         throw Exception("User is not logged in");

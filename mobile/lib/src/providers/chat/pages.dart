@@ -11,6 +11,8 @@ part 'pages.g.dart';
 
 @riverpod
 class ChatsPages extends _$ChatsPages {
+  static const int pageSize = 7;
+
   int _page = 1;
   bool _isLoadingInitial = true;
   bool _isLoadingNextPage = false;
@@ -23,8 +25,7 @@ class ChatsPages extends _$ChatsPages {
         _isLoadingNextPage = false;
       } else if (state.isLoading &&
           _page == 1 &&
-          (!state.hasValue ||
-          state.value!.isEmpty)) {
+          (!state.hasValue || state.value!.isEmpty)) {
         _isLoadingInitial = true;
       } else if (state.isLoading && _page > 1) {
         _isLoadingNextPage = true;
@@ -43,7 +44,7 @@ class ChatsPages extends _$ChatsPages {
       return ChatService.getChats(
         session: currentUser.value!.session,
         paginationOptions:
-            PaginatedEntitiesRequestOptions(page: _page, limit: 7),
+            PaginatedEntitiesRequestOptions(page: _page, limit: pageSize),
       ).then((value) {
         if (state.hasValue) {
           // replace pages previous content with new content
@@ -122,6 +123,13 @@ class ChatsPages extends _$ChatsPages {
       throw error;
     });
 
+    state = AsyncData([
+      [
+        chat,
+        ...previousState.requireValue.first,
+      ],
+      ...previousState.requireValue.sublist(1)
+    ]);
     refresh();
 
     return chat;

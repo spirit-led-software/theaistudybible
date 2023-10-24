@@ -3,11 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
-import 'package:revelationsai/src/widgets/user_avatar.dart';
+import 'package:revelationsai/src/widgets/account/change_password_dialog.dart';
+import 'package:revelationsai/src/widgets/account/edit_email_dialog.dart';
+import 'package:revelationsai/src/widgets/account/rename_dialog.dart';
+import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 
 class AccountScreen extends HookConsumerWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -61,34 +67,211 @@ class AccountScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const UserAvatar(
+                  UserAvatar(
                     radius: 50,
+                    badgeBuilder: (context) {
+                      return IconButton(
+                        visualDensity: RAIVisualDensity.tightest,
+                        onPressed: () async {
+                          if (ImagePicker().supportsImageSource(
+                            ImageSource.gallery,
+                          )) {
+                            final image = await ImagePicker().pickImage(
+                              source: ImageSource.gallery,
+                            );
+
+                            if (image != null) {
+                              final croppedImage = await ImageCropper()
+                                  .cropImage(
+                                      sourcePath: image.path,
+                                      maxHeight: 512,
+                                      maxWidth: 512,
+                                      cropStyle: CropStyle.circle,
+                                      aspectRatioPresets: [
+                                    CropAspectRatioPreset.square,
+                                  ],
+                                      uiSettings: [
+                                    IOSUiSettings(
+                                      title: 'Crop Image',
+                                    ),
+                                    AndroidUiSettings(
+                                      toolbarTitle: 'Crop Image',
+                                    )
+                                  ]);
+
+                              if (croppedImage != null) {
+                                ref
+                                    .read(currentUserProvider.notifier)
+                                    .updateUserImage(croppedImage);
+                              }
+                            }
+                          }
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          color: context.colorScheme.onSecondary,
+                        ),
+                        iconSize: 15,
+                        color: context.secondaryColor,
+                      );
+                    },
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 20,
                   ),
-                  Text(
-                    currentUser.requireValue.name ??
-                        currentUser.requireValue.email,
-                    style: const TextStyle(
-                      fontSize: 20,
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.width * 0.1,
                     ),
-                  ),
-                  Text(
-                    currentUser.requireValue.email,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: "Name:",
+                                  children: [
+                                    const WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: currentUser.requireValue.name ??
+                                          currentUser.requireValue.email,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const RenameDialog();
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            )
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: "Email:",
+                                  children: [
+                                    const WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: currentUser.requireValue.email,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const EditEmailDialog();
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            )
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: "Password:",
+                                  children: [
+                                    WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "***********",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const ChangePasswordDialog();
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            )
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(
                     height: 30,
                   ),
                   Text(
-                    '${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries} Queries Remaining',
+                    '${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries}',
                     style: TextStyle(
                       color: currentUser.requireValue.remainingQueries <= 3
                           ? Colors.red
-                          : context.textTheme.bodyText1!.color,
+                          : null,
+                    ),
+                  ),
+                  Text(
+                    'Queries Remaining',
+                    style: TextStyle(
+                      color: currentUser.requireValue.remainingQueries <= 3
+                          ? Colors.red
+                          : null,
                     ),
                   ),
                   const SizedBox(
@@ -116,55 +299,6 @@ class AccountScreen extends HookConsumerWidget {
                     child: const Text("Upgrade"),
                   ),
                 ],
-              ),
-            ),
-            Positioned(
-              top: 50,
-              left: context.width * 0.25,
-              right: context.width * 0.25,
-              child: Container(
-                padding: const EdgeInsets.only(
-                  top: 15,
-                  bottom: 15,
-                  left: 10,
-                  right: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: RAIColors.secondary,
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.info,
-                      color: Colors.white,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(
-                      child: Text(
-                        "Account Editing Coming Soon!",
-                        softWrap: true,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

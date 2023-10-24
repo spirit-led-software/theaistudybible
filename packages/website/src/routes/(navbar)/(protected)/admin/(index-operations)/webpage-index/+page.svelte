@@ -1,32 +1,50 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { PUBLIC_API_URL } from '$env/static/public';
 	import { SolidLineSpinner } from '$lib/components/loading';
+	import { session } from '$lib/stores/user';
 	import { useQueryClient } from '@tanstack/svelte-query';
-	import type { ActionData, SubmitFunction } from './$types';
-
-	export let form: ActionData;
+	import type { EventHandler } from 'svelte/elements';
 
 	let alert: { type: 'error' | 'success'; message: string } | undefined = undefined;
 	let isLoading = false;
 
 	const queryClient = useQueryClient();
 
-	const submit: SubmitFunction = () => {
-		isLoading = true;
+	const handleSubmit: EventHandler<SubmitEvent, HTMLFormElement> = async (event) => {
+		const formData = new FormData(event.currentTarget);
+		const name = formData.get('name') as string;
+		const url = formData.get('url') as string;
 
-		return async ({ update }) => {
+		if (!name || !url) {
+			alert = { type: 'error', message: 'Please fill out all fields' };
+			return;
+		}
+
+		try {
+			isLoading = true;
+			const response = await fetch(`${PUBLIC_API_URL}/scraper/webpage`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${$session}`
+				},
+				body: JSON.stringify({ name, url })
+			});
+
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.error || 'Something went wrong');
+			}
+
+			alert = { type: 'success', message: 'Successfully started webpage index.' };
+		} catch (e: any) {
+			console.error(e);
+			alert = { type: 'error', message: e.message };
+		} finally {
+			await queryClient.invalidateQueries(['index-operations']);
 			isLoading = false;
-			await update();
-			queryClient.invalidateQueries(['index-operations']);
-		};
+		}
 	};
-
-	$: if (form?.error?.banner) {
-		alert = { type: 'error', message: form.error.banner };
-	}
-	$: if (form?.success?.banner) {
-		alert = { type: 'success', message: form.success.banner };
-	}
 
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
@@ -35,7 +53,7 @@
 	<title>Admin: Index Webpage</title>
 </svelte:head>
 
-<form class="relative flex-col w-full" method="post" use:enhance={submit}>
+<form class="relative flex-col w-full" on:submit|preventDefault={handleSubmit}>
 	{#if isLoading}
 		<div class="absolute left-0 right-0 flex justify-center">
 			<SolidLineSpinner size="md" colorscheme={'dark'} />

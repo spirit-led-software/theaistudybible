@@ -1,0 +1,1 @@
+ALTER TABLE "chats" RENAME COLUMN "user_named" TO "custom_name";

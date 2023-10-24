@@ -1,5 +1,6 @@
 import type { UpdateUserData } from "@core/model";
 import {
+  BadRequestResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
@@ -25,9 +26,7 @@ export const handler = ApiHandler(async (event) => {
     }
 
     if (data.passwordHash) {
-      return UnauthorizedResponse(
-        "You are not authorized to update this field"
-      );
+      return BadRequestResponse("You cannot change your password here.");
     }
 
     user = await updateUser(user.id, data);

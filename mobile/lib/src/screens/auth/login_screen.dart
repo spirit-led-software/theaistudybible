@@ -412,7 +412,7 @@ class LoginScreen extends HookConsumerWidget {
                       context.go('/auth/register');
                     },
                     child: const Text(
-                      "Don't have an account? Register",
+                      "Don't have an account?",
                     ),
                   ),
                   const SizedBox(
