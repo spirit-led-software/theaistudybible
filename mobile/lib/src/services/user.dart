@@ -6,6 +6,7 @@ import 'package:path/path.dart' as path;
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/models/user/request.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 
 class UserService {
   static Future<UserInfo> getUserInfo(String session) async {
@@ -17,17 +18,15 @@ class UserService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to get user: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-
     UserInfo user = UserInfo.fromJson({
       ...data,
       'session': session,
     });
-
     return user;
   }
 
@@ -46,14 +45,12 @@ class UserService {
       body: jsonEncode(request.toJson()),
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to update user: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-
     User user = User.fromJson(data);
-
     return user;
   }
 
@@ -71,8 +68,8 @@ class UserService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to delete user: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
   }
 
@@ -91,29 +88,26 @@ class UserService {
       }),
     );
 
-    if (urlRequest.statusCode != 200) {
-      throw Exception(
-          'Failed to get upload url: ${urlRequest.statusCode} ${urlRequest.body}');
+    if (!urlRequest.ok) {
+      throw urlRequest.exception;
     }
 
     final data = jsonDecode(utf8.decode(urlRequest.bodyBytes));
-
-    final url = data['url'];
+    final url = Uri.parse(data['url']);
 
     final uploadRequest = await put(
-      Uri.parse(url),
+      url,
       headers: <String, String>{
         'Content-Type': path.extension(file.path),
       },
       body: await file.readAsBytes(),
     );
 
-    if (uploadRequest.statusCode != 200) {
-      throw Exception(
-          'Failed to upload image: ${uploadRequest.statusCode} ${uploadRequest.body}');
+    if (!uploadRequest.ok) {
+      throw uploadRequest.exception;
     }
 
-    return Uri.parse(url).replace(queryParameters: {}).toString();
+    return url.toString().split('?')[0];
   }
 
   static Future<void> updatePassword({
@@ -122,7 +116,7 @@ class UserService {
   }) async {
     const url = '${API.url}/users/change-password';
 
-    Response res = await post(
+    final res = await post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -131,9 +125,8 @@ class UserService {
       body: jsonEncode(request.toJson()),
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to update password: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
   }
 }

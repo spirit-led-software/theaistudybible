@@ -5,6 +5,7 @@ import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/source_document.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 
 export 'devotion/image.dart' show DevotionImageService;
 
@@ -20,13 +21,11 @@ class DevotionService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load devotions: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(
         data, (json) => Devotion.fromJson(json as Map<String, dynamic>));
   }
@@ -41,12 +40,11 @@ class DevotionService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to load devotion: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return Devotion.fromJson(data);
   }
 
@@ -60,13 +58,11 @@ class DevotionService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to load devotion source documents: '
-          '${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return (data as List<dynamic>)
         .map((e) => SourceDocument.fromJson(e as Map<String, dynamic>))
         .toList();

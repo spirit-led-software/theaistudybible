@@ -36,9 +36,10 @@ class ChatsPages extends _$ChatsPages {
     });
 
     try {
+      await ref.watch(currentUserProvider.future);
       final currentUser = ref.watch(currentUserProvider);
       if (!currentUser.hasValue) {
-        throw Exception("User is not logged in");
+        return [];
       }
 
       return ChatService.getChats(

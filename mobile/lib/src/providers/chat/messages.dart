@@ -15,13 +15,14 @@ class CurrentChatMessages extends _$CurrentChatMessages {
         return <ChatMessage>[];
       }
 
+      await ref.watch(currentUserProvider.future);
       final currentUser = ref.watch(currentUserProvider);
       if (!currentUser.hasValue) {
         throw Exception("User is not logged in");
       }
 
       return ChatService.getChatMessages(
-        session: currentUser.value!.session,
+        session: currentUser.requireValue.session,
         chatId: chatId,
       );
     } catch (error) {

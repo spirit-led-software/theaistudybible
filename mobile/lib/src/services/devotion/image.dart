@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/devotion/image.dart';
 import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 
 class DevotionImageService {
   static Future<PaginatedEntitiesResponseData<DevotionImage>>
@@ -20,13 +21,11 @@ class DevotionImageService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load devotion images: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(
       data,
       (json) => DevotionImage.fromJson(json as Map<String, dynamic>),

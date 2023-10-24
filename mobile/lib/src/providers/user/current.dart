@@ -13,6 +13,7 @@ import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/services/user.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,12 +38,14 @@ class CurrentUser extends _$CurrentUser {
     try {
       final savedSession = _sharedPreferences.getString(_sharedPrefsKey);
       if (savedSession == null) {
-        throw const UnauthorizedException('No auth token found');
+        throw Exception('No auth token found');
       }
 
       return await _loginWithToken(savedSession);
-    } catch (_, __) {
-      await _sharedPreferences.remove(_sharedPrefsKey);
+    } catch (e) {
+      if (e is RAIHttpException && e.isUnauthorized) {
+        await _sharedPreferences.remove(_sharedPrefsKey);
+      }
       rethrow;
     }
   }
@@ -144,8 +147,7 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> logout() async {
-    state = AsyncValue.error(
-        const UnauthorizedException("Not logged in"), StackTrace.current);
+    state = AsyncValue.error(Exception("Not logged in"), StackTrace.current);
   }
 
   FutureOr<UserInfo> _loginWithToken(String session) async {
@@ -216,10 +218,13 @@ class CurrentUser extends _$CurrentUser {
     ref.listenSelf((_, next) {
       if (next.isLoading) return;
       if (next.hasError || !next.hasValue) {
-        _sharedPreferences.remove(_sharedPrefsKey);
-        ref.read(currentChatIdProvider.notifier).update(null);
-        ref.read(currentDevotionIdProvider.notifier).update(null);
-        ref.read(chatsPagesProvider.notifier).reset();
+        if (next.error is RAIHttpException &&
+            (next.error as RAIHttpException).isUnauthorized) {
+          _sharedPreferences.remove(_sharedPrefsKey);
+          ref.read(currentChatIdProvider.notifier).update(null);
+          ref.read(currentDevotionIdProvider.notifier).update(null);
+          ref.read(chatsPagesProvider.notifier).reset();
+        }
         return;
       }
 
@@ -282,9 +287,4 @@ class CurrentUser extends _$CurrentUser {
       request: request,
     );
   }
-}
-
-class UnauthorizedException implements Exception {
-  const UnauthorizedException(this.message);
-  final String message;
 }

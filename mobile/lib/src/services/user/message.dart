@@ -5,6 +5,7 @@ import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/user/message.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 
 class UserMessageService {
   static Future<PaginatedEntitiesResponseData<UserMessage>> getUserMessages({
@@ -20,13 +21,11 @@ class UserMessageService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load user messages: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return UserMessage.fromJson(json as Map<String, dynamic>);
     });
@@ -44,13 +43,11 @@ class UserMessageService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load user message: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return UserMessage.fromJson(data);
   }
 
@@ -72,13 +69,11 @@ class UserMessageService {
       body: jsonEncode(query.toJson()),
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to search for user messages: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return UserMessage.fromJson(json as Map<String, dynamic>);
     });

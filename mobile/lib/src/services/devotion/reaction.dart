@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 
 class DevotionReactionService {
   static Future<PaginatedEntitiesResponseData<DevotionReaction>>
@@ -20,13 +21,11 @@ class DevotionReactionService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load devotion images: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-
     return PaginatedEntitiesResponseData.fromJson(
       data,
       (json) => DevotionReaction.fromJson(json as Map<String, dynamic>),
@@ -43,13 +42,11 @@ class DevotionReactionService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load devotion images: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-
     return {
       DevotionReactionType.LIKE: data[DevotionReactionType.LIKE.name],
       DevotionReactionType.DISLIKE: data[DevotionReactionType.DISLIKE.name],
@@ -72,9 +69,8 @@ class DevotionReactionService {
       }),
     );
 
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception(
-          'Failed to create devotion reaction: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
   }
 }

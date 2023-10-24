@@ -6,6 +6,7 @@ import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/services/ai_response.dart';
 import 'package:revelationsai/src/services/user/message.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 import 'package:uuid/uuid.dart';
 
 import '../constants/api.dart';
@@ -25,12 +26,11 @@ class ChatService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to load chats: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return Chat.fromJson(json as Map<String, dynamic>);
     });
@@ -48,12 +48,11 @@ class ChatService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to get chat: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return Chat.fromJson(data);
   }
 
@@ -70,12 +69,11 @@ class ChatService {
       body: jsonEncode(request.toJson()),
     );
 
-    if (res.statusCode != 201) {
-      throw Exception('Failed to create chat ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return Chat.fromJson(data);
   }
 
@@ -93,12 +91,11 @@ class ChatService {
       body: jsonEncode(request.toJson()),
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to update chat ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return Chat.fromJson(data);
   }
 
@@ -113,8 +110,8 @@ class ChatService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception('Failed to delete chat ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
   }
 

@@ -27,8 +27,8 @@ class LoadedChatData extends _$LoadedChatData {
           if (amountFetched < maxSize) {
             futures.add(
               Future.wait([
-                ref.read(chatsProvider(chat.id).future),
-                ref.read(currentChatMessagesProvider(chat.id).future),
+                ref.watch(chatsProvider(chat.id).future),
+                ref.watch(currentChatMessagesProvider(chat.id).future),
               ]).then((value) {
                 final foundChat = value[0] as Chat;
                 final foundMessages = value[1] as List<ChatMessage>;

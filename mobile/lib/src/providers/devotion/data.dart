@@ -31,11 +31,11 @@ class LoadedDevotionData extends _$LoadedDevotionData {
           if (amountFetched < maxSize) {
             futures.add(
               Future.wait([
-                ref.read(devotionsProvider(devotion.id).future),
-                ref.read(devotionImagesProvider(devotion.id).future),
-                ref.read(devotionSourceDocumentsProvider(devotion.id).future),
-                ref.read(devotionReactionsProvider(devotion.id).future),
-                ref.read(devotionReactionCountsProvider(devotion.id).future),
+                ref.watch(devotionsProvider(devotion.id).future),
+                ref.watch(devotionImagesProvider(devotion.id).future),
+                ref.watch(devotionSourceDocumentsProvider(devotion.id).future),
+                ref.watch(devotionReactionsProvider(devotion.id).future),
+                ref.watch(devotionReactionCountsProvider(devotion.id).future),
               ]).then((value) {
                 map[devotion.id] = DevotionData(
                   devotion: value[0] as Devotion,

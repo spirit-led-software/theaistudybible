@@ -6,6 +6,7 @@ import 'package:revelationsai/src/models/ai_response.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
 import 'package:revelationsai/src/models/source_document.dart';
+import 'package:revelationsai/src/utils/http_helpers.dart';
 
 class AiResponseService {
   static Future<PaginatedEntitiesResponseData<AiResponse>> getAiResponses({
@@ -21,13 +22,11 @@ class AiResponseService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load ai responses: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return AiResponse.fromJson(json as Map<String, dynamic>);
     });
@@ -45,13 +44,11 @@ class AiResponseService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load ai response: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return AiResponse.fromJson(data);
   }
 
@@ -73,13 +70,11 @@ class AiResponseService {
       body: jsonEncode(query.toJson()),
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to search for ai responses: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return AiResponse.fromJson(json as Map<String, dynamic>);
     });
@@ -97,13 +92,11 @@ class AiResponseService {
       },
     );
 
-    if (res.statusCode != 200) {
-      throw Exception(
-          'Failed to load AI response source documents: ${res.statusCode} ${res.body}');
+    if (!res.ok) {
+      throw res.exception;
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
-
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
     return (data as List<dynamic>)
         .map((e) => SourceDocument.fromJson(e as Map<String, dynamic>))
         .toList();

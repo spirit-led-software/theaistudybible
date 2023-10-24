@@ -14,8 +14,12 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
     String? messageId,
     String? messageUuid,
     String? chatId,
-  ) {
+  ) async {
+    await ref.watch(currentUserProvider.future);
     final currentUser = ref.watch(currentUserProvider);
+    if (!currentUser.hasValue) {
+      throw Exception("User is not logged in");
+    }
 
     if (messageUuid == null) {
       return AiResponseService.searchForAiResponses(
