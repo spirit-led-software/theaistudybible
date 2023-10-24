@@ -122,7 +122,7 @@ class UserService {
   }) async {
     const url = '${API.url}/users/change-password';
 
-    Response res = await put(
+    Response res = await post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',

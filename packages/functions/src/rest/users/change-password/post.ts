@@ -5,18 +5,18 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
+import { verifyPassword } from "@lib/util/password";
 import { validApiHandlerSession } from "@services/session";
 import { updateUser } from "@services/user";
 import * as bcrypt from "bcryptjs";
 import { ApiHandler } from "sst/node/api";
-import { verifyPassword } from "../../../auth";
 
 export const handler = ApiHandler(async (event) => {
   console.log("Received change password event:", event);
 
   const { currentPassword, newPassword } = JSON.parse(event.body ?? "{}");
   if (!currentPassword || !newPassword) {
-    return BadRequestResponse("Missing previousPassword or newPassword");
+    return BadRequestResponse("Missing currentPassword or newPassword");
   }
 
   try {

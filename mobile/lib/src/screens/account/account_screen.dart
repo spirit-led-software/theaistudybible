@@ -10,6 +10,7 @@ import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/widgets/account/change_password_dialog.dart';
 import 'package:revelationsai/src/widgets/account/edit_email_dialog.dart';
 import 'package:revelationsai/src/widgets/account/rename_dialog.dart';
 import 'package:revelationsai/src/widgets/account/user_avatar.dart';
@@ -212,25 +213,25 @@ class AccountScreen extends HookConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Flexible(
+                            const Flexible(
                               child: Text.rich(
                                 TextSpan(
-                                  text: "Email:",
+                                  text: "Password:",
                                   children: [
-                                    const WidgetSpan(
+                                    WidgetSpan(
                                       child: SizedBox(
                                         width: 10,
                                       ),
                                     ),
                                     TextSpan(
-                                      text: currentUser.requireValue.email,
-                                      style: const TextStyle(
+                                      text: "***********",
+                                      style: TextStyle(
                                         fontWeight: FontWeight.normal,
                                       ),
                                     ),
                                   ],
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -243,7 +244,7 @@ class AccountScreen extends HookConsumerWidget {
                                 showDialog(
                                   context: context,
                                   builder: (context) {
-                                    return const EditEmailDialog();
+                                    return const ChangePasswordDialog();
                                   },
                                 );
                               },

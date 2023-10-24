@@ -123,6 +123,13 @@ class ChatsPages extends _$ChatsPages {
       throw error;
     });
 
+    state = AsyncData([
+      [
+        chat,
+        ...previousState.requireValue.first,
+      ],
+      ...previousState.requireValue.sublist(1)
+    ]);
     refresh();
 
     return chat;

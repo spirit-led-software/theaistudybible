@@ -27,15 +27,26 @@ class LoadedChatData extends _$LoadedChatData {
           if (amountFetched < maxSize) {
             futures.add(
               Future.wait([
-                ref.watch(chatsProvider(chat.id).future),
-                ref.watch(currentChatMessagesProvider(chat.id).future),
+                ref.read(chatsProvider(chat.id).future),
+                ref.read(currentChatMessagesProvider(chat.id).future),
               ]).then((value) {
                 final foundChat = value[0] as Chat;
                 final foundMessages = value[1] as List<ChatMessage>;
                 map[chat.id] =
                     ChatData(chat: foundChat, messages: foundMessages);
-              }).catchError((error) {
-                debugPrint("Failed to load chat data for ${chat.id}: $error");
+              }).catchError((error) async {
+                await Future.wait([
+                  ref.refresh(chatsProvider(chat.id).future),
+                  ref.refresh(currentChatMessagesProvider(chat.id).future),
+                ]).then((value) {
+                  final foundChat = value[0] as Chat;
+                  final foundMessages = value[1] as List<ChatMessage>;
+                  map[chat.id] =
+                      ChatData(chat: foundChat, messages: foundMessages);
+                }).catchError((error) {
+                  debugPrint(
+                      "Failed to load chat data for ${chat.id} after refresh: $error");
+                });
               }),
             );
             amountFetched++;

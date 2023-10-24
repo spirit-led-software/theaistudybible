@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateDialog extends HookConsumerWidget {
@@ -56,7 +57,9 @@ class CreateDialog extends HookConsumerWidget {
             });
           },
           child: loading.value
-              ? const CircularProgressIndicator.adaptive()
+              ? CircularProgressIndicator.adaptive(
+                  backgroundColor: context.colorScheme.onPrimary,
+                )
               : const Text('Create'),
         ),
       ],

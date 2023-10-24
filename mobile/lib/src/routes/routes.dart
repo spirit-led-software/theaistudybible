@@ -154,7 +154,7 @@ List<RouteBase> routes = [
             path: ":id",
             builder: (context, state) {
               return ChatScreen(
-                chatId: state.pathParameters['id'],
+                initChatId: state.pathParameters['id'],
               );
             },
             pageBuilder: (context, state) {
@@ -162,7 +162,7 @@ List<RouteBase> routes = [
                 context: context,
                 state: state,
                 child: ChatScreen(
-                  chatId: state.pathParameters['id'],
+                  initChatId: state.pathParameters['id'],
                 ),
               );
             },

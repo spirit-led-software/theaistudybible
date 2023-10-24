@@ -31,11 +31,11 @@ class LoadedDevotionData extends _$LoadedDevotionData {
           if (amountFetched < maxSize) {
             futures.add(
               Future.wait([
-                ref.watch(devotionsProvider(devotion.id).future),
-                ref.watch(devotionImagesProvider(devotion.id).future),
-                ref.watch(devotionSourceDocumentsProvider(devotion.id).future),
-                ref.watch(devotionReactionsProvider(devotion.id).future),
-                ref.watch(devotionReactionCountsProvider(devotion.id).future),
+                ref.read(devotionsProvider(devotion.id).future),
+                ref.read(devotionImagesProvider(devotion.id).future),
+                ref.read(devotionSourceDocumentsProvider(devotion.id).future),
+                ref.read(devotionReactionsProvider(devotion.id).future),
+                ref.read(devotionReactionCountsProvider(devotion.id).future),
               ]).then((value) {
                 map[devotion.id] = DevotionData(
                   devotion: value[0] as Devotion,
@@ -45,8 +45,26 @@ class LoadedDevotionData extends _$LoadedDevotionData {
                   reactionCounts: value[4] as Map<DevotionReactionType, int>,
                 );
               }).catchError((error) {
-                debugPrint(
-                    "Failed to load devotion data for ${devotion.id}: $error");
+                Future.wait([
+                  ref.refresh(devotionsProvider(devotion.id).future),
+                  ref.refresh(devotionImagesProvider(devotion.id).future),
+                  ref.refresh(
+                      devotionSourceDocumentsProvider(devotion.id).future),
+                  ref.refresh(devotionReactionsProvider(devotion.id).future),
+                  ref.refresh(
+                      devotionReactionCountsProvider(devotion.id).future),
+                ]).then((value) {
+                  map[devotion.id] = DevotionData(
+                    devotion: value[0] as Devotion,
+                    images: value[1] as List<DevotionImage>,
+                    sourceDocuments: value[2] as List<SourceDocument>,
+                    reactions: value[3] as List<DevotionReaction>,
+                    reactionCounts: value[4] as Map<DevotionReactionType, int>,
+                  );
+                }).catchError((error) {
+                  debugPrint(
+                      "Failed to load devotion data for ${devotion.id} after refresh: $error");
+                });
               }),
             );
           } else {

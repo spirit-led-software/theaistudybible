@@ -38,11 +38,11 @@ class ChatScreen extends HookConsumerWidget {
     "What does it mean to be saved?",
   };
 
-  final String? chatId;
+  final String? initChatId;
 
   const ChatScreen({
     super.key,
-    this.chatId,
+    this.initChatId,
   });
 
   @override
@@ -63,7 +63,10 @@ class ChatScreen extends HookConsumerWidget {
     final chatHook = useChat(
       options: UseChatOptions(
         session: currentUser.requireValue.session,
-        chatId: chatId,
+        chatId: initChatId,
+        initialMessages:
+            ref.watch(currentChatMessagesProvider(initChatId)).valueOrNull ??
+                <ChatMessage>[],
         hapticFeedback: currentUserPreferences.requireValue.hapticFeedback,
         onFinish: (_) {
           ref.read(currentUserProvider.notifier).decrementRemainingQueries();
@@ -72,7 +75,8 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
-    final chat = ref.watch(chatsProvider(chatHook.chatId.value ?? chatId));
+    final chatId = initChatId ?? chatHook.chatId.value;
+    final chat = ref.watch(chatsProvider(chatId));
 
     final fetchChatData = useCallback((String id) async {
       final loadedChatDataNotifier = ref.read(loadedChatDataProvider.notifier);
@@ -105,7 +109,7 @@ class ChatScreen extends HookConsumerWidget {
           }
         } else {
           isLoadingChat.value = true;
-          fetchChatData(chatId!).whenComplete(() {
+          fetchChatData(chatId).whenComplete(() {
             if (isMounted()) isLoadingChat.value = false;
           });
         }
@@ -119,19 +123,6 @@ class ChatScreen extends HookConsumerWidget {
 
       return () {};
     }, [chatId]);
-
-    useEffect(() {
-      if (chatHook.chatId.value != null && chatHook.chatId.value != chatId) {
-        if (loadedChats.value?.containsKey(chatHook.chatId.value) ?? false) {
-          if (isMounted()) {
-            final chatData = loadedChats.value![chatHook.chatId.value];
-            chatHook.messages.value = chatData!.messages;
-          }
-        }
-      }
-
-      return () {};
-    }, [chatHook.chatId.value]);
 
     useEffect(() {
       if (chat.value != null) {
@@ -268,15 +259,14 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () async {
-                          String? id = chat.value?.id ?? chatId;
-                          if (id != null) {
+                          if (chatId != null) {
                             isRefreshingChat.value = true;
                             final loadedChatsNotifier =
                                 ref.read(loadedChatDataProvider.notifier);
                             return await Future.wait([
-                              ref.refresh(chatsProvider(id).future),
+                              ref.refresh(chatsProvider(chatId).future),
                               ref.refresh(
-                                currentChatMessagesProvider(id).future,
+                                currentChatMessagesProvider(chatId).future,
                               ),
                             ]).then((value) {
                               final foundChat = value[0] as Chat;
@@ -386,14 +376,13 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () {
-                          String? id = chat.value?.id ?? chatId;
-                          if (id != null) {
+                          if (chatId != null) {
                             showDialog(
                               context: popupMenuContext,
                               builder: (context) {
                                 return RenameDialog(
-                                  id: id,
-                                  name: chat.value?.name ?? "",
+                                  id: chatId,
+                                  name: chat.value!.name,
                                 );
                               },
                             );
@@ -421,11 +410,10 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () {
-                          String? id = chat.value?.id ?? chatId;
-                          if (id != null) {
+                          if (chatId != null) {
                             ref
                                 .read(chatsPagesProvider.notifier)
-                                .deleteChat(id);
+                                .deleteChat(chatId);
                             ref
                                 .read(currentChatIdProvider.notifier)
                                 .update(null);

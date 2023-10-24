@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/user/request.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class ChangePasswordDialog extends HookConsumerWidget {
   const ChangePasswordDialog({Key? key}) : super(key: key);
@@ -20,6 +22,9 @@ class ChangePasswordDialog extends HookConsumerWidget {
     final newPasswordConfirmationController = useTextEditingController();
     final newPasswordConfirmationFocusNode = useFocusNode();
 
+    final loading = useState(false);
+    final alert = useState<Alert?>(null);
+
     return AlertDialog(
       title: const Text("Change Password"),
       content: Form(
@@ -27,6 +32,17 @@ class ChangePasswordDialog extends HookConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (alert.value != null) ...[
+              Text(
+                alert.value!.message,
+                style: TextStyle(
+                  color: alert.value!.type == AlertType.error
+                      ? Colors.red
+                      : Colors.green,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
             TextFormField(
               controller: currentPasswordController,
               focusNode: currentPasswordFocusNode,
@@ -45,6 +61,7 @@ class ChangePasswordDialog extends HookConsumerWidget {
                 return null;
               },
             ),
+            const SizedBox(height: 10),
             TextFormField(
               controller: newPasswordController,
               focusNode: newPasswordFocusNode,
@@ -67,6 +84,7 @@ class ChangePasswordDialog extends HookConsumerWidget {
                 return null;
               },
             ),
+            const SizedBox(height: 10),
             TextFormField(
               controller: newPasswordConfirmationController,
               focusNode: newPasswordConfirmationFocusNode,
@@ -99,32 +117,38 @@ class ChangePasswordDialog extends HookConsumerWidget {
           child: const Text("Cancel"),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             if (!formKey.value.currentState!.validate()) {
               return;
             }
 
-            ref
-                .read(currentUserProvider.notifier)
-                .updateUserPassword(
-                  UpdatePasswordRequest(
-                    currentPassword: currentPasswordController.text,
-                    newPassword: newPasswordController.text,
-                  ),
-                )
-                .catchError(
-              (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Failed to update password: $e"),
-                  ),
-                );
-              },
-            );
-
-            Navigator.pop(context);
+            try {
+              loading.value = true;
+              await ref
+                  .read(currentUserProvider.notifier)
+                  .updateUserPassword(
+                    UpdatePasswordRequest(
+                      currentPassword: currentPasswordController.text,
+                      newPassword: newPasswordController.text,
+                    ),
+                  )
+                  .then((value) {
+                Navigator.of(context).pop();
+              });
+            } catch (e) {
+              alert.value = Alert(
+                type: AlertType.error,
+                message: e.toString(),
+              );
+            } finally {
+              loading.value = false;
+            }
           },
-          child: const Text("Change"),
+          child: loading.value
+              ? CircularProgressIndicator.adaptive(
+                  backgroundColor: context.colorScheme.onPrimary,
+                )
+              : const Text("Change"),
         ),
       ],
     );
