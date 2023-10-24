@@ -271,6 +271,13 @@ class CurrentUser extends _$CurrentUser {
 
     return await updateUser(UpdateUserRequest(image: imageUrl));
   }
+
+  Future<void> updateUserPassword(UpdatePasswordRequest request) async {
+    return await UserService.updatePassword(
+      session: state.requireValue.session,
+      request: request,
+    );
+  }
 }
 
 class UnauthorizedException implements Exception {

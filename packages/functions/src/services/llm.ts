@@ -100,8 +100,10 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   });
 
   const identityChain = new LLMChain({
-    llm: getSmallContextModel({
+    llm: getLargeContextModel({
       stream: true,
+      stopSequences: ["</answer>"],
+      promptSuffix: "<answer>",
     }),
     prompt: PromptTemplate.fromTemplate(
       `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology. You believe that Jesus Christ is the Son of God and that He died on the cross for the sins of humanity. Your purpose is to help people discover or deepen a relationship with Jesus Christ and uncover answers about the nature of God. Use that information to answer the following question.
@@ -110,7 +112,9 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
 
       <question>
       {query}
-      </question>`
+      </question>
+      
+      Put your answer to the question within <answer></answer> XML tags.`
     ),
     outputKey: "text",
   });
@@ -170,8 +174,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       qaChainOptions: {
         type: "stuff",
         prompt: PromptTemplate.fromTemplate(
-          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology.
-          Use the context provided to answer the following question. If you truly do not have enough context to answer the question, just admit that you don't know the answer. Otherwise, confidently answer the question as if you believe it to be true.
+          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology. Use the context provided below to answer the following question. Do not say that you are referencing a context, just act like it is within your knowledge. If you truly do not have enough context to answer the question, just admit that you don't know the answer. Otherwise, confidently answer the question as if you believe it to be true.
 
           The context is within <context></context> XML tags.
           The question is within <question></question> XML tags.

@@ -42,7 +42,8 @@ export function API({ stack, app }: StackContext) {
     invokeBedrockPolicy,
   } = use(Constants);
   const { auth } = use(Auth);
-  const { devotionImageBucket, userProfilePictureBucket } = use(S3);
+  const { indexFileBucket, devotionImageBucket, userProfilePictureBucket } =
+    use(S3);
   const {
     dbReadOnlyUrl,
     dbReadWriteUrl,
@@ -184,6 +185,17 @@ export function API({ stack, app }: StackContext) {
           memorySize: "1 GB",
         },
       },
+      "POST /scraper/file/presigned-url": {
+        function: {
+          handler: "packages/functions/src/scraper/file-presigned-url.handler",
+          bind: [indexFileBucket],
+          permissions: [indexFileBucket],
+          environment: {
+            ...lambdaEnv,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
+        },
+      },
       "GET /session": "packages/functions/src/session.handler",
 
       "POST /notifications/stripe":
@@ -289,20 +301,15 @@ export function API({ stack, app }: StackContext) {
       "DELETE /users/{id}":
         "packages/functions/src/rest/users/[id]/delete.handler",
 
-      // Current user
-      "GET /users/me": "packages/functions/src/rest/users/me/get.handler",
-      "PUT /users/me": "packages/functions/src/rest/users/me/put.handler",
-      "DELETE /users/me": "packages/functions/src/rest/users/me/delete.handler",
-
       // User query counts
       "GET /users/{id}/query-counts":
         "packages/functions/src/rest/users/[id]/query-counts/get.handler",
-      "GET /users/me/query-counts":
-        "packages/functions/src/rest/users/me/query-counts/get.handler",
 
+      // Change user password endpoint
       "POST /users/change-password":
         "packages/functions/src/rest/users/change-password/post.handler",
 
+      // Generate presigned url for user profile picture upload
       "POST /users/profile-pictures/presigned-url": {
         function: {
           handler:

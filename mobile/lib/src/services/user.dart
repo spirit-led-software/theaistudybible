@@ -21,7 +21,7 @@ class UserService {
       throw Exception('Failed to get user: ${res.statusCode} ${res.body}');
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
 
     UserInfo user = UserInfo.fromJson({
       ...data,
@@ -33,16 +33,10 @@ class UserService {
 
   static Future<User> updateUser({
     required String session,
-    String? id,
+    required String id,
     required UpdateUserRequest request,
   }) async {
-    String url = '${API.url}/users';
-    if (id != null) {
-      url += '/$id';
-    } else {
-      url += '/me';
-    }
-
+    final url = '${API.url}/users/$id';
     Response res = await put(
       Uri.parse(url),
       headers: <String, String>{
@@ -56,25 +50,18 @@ class UserService {
       throw Exception('Failed to update user: ${res.statusCode} ${res.body}');
     }
 
-    var data = jsonDecode(utf8.decode(res.bodyBytes));
+    final data = jsonDecode(utf8.decode(res.bodyBytes));
 
-    User user = User.fromJson({
-      ...data,
-    });
+    User user = User.fromJson(data);
 
     return user;
   }
 
   static Future<void> deleteUser({
     required String session,
-    String? id,
+    required String id,
   }) async {
-    String url = '${API.url}/users';
-    if (id != null) {
-      url += '/$id';
-    } else {
-      url += '/me';
-    }
+    final url = '${API.url}/users/$id';
 
     Response res = await delete(
       Uri.parse(url),
@@ -109,7 +96,7 @@ class UserService {
           'Failed to get upload url: ${urlRequest.statusCode} ${urlRequest.body}');
     }
 
-    var data = jsonDecode(utf8.decode(urlRequest.bodyBytes));
+    final data = jsonDecode(utf8.decode(urlRequest.bodyBytes));
 
     final url = data['url'];
 
@@ -127,5 +114,26 @@ class UserService {
     }
 
     return Uri.parse(url).replace(queryParameters: {}).toString();
+  }
+
+  static Future<void> updatePassword({
+    required String session,
+    required UpdatePasswordRequest request,
+  }) async {
+    const url = '${API.url}/users/change-password';
+
+    Response res = await put(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $session',
+      },
+      body: jsonEncode(request.toJson()),
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception(
+          'Failed to update password: ${res.statusCode} ${res.body}');
+    }
   }
 }

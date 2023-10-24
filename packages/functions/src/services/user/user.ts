@@ -134,6 +134,10 @@ export async function isAdmin(userId: string) {
   });
 }
 
+export function isAdminSync(userWithRoles: UserWithRoles) {
+  return userWithRoles.roles.some((role) => role.name === "admin");
+}
+
 export function isObjectOwner(object: { userId: string }, userId: string) {
   return object.userId === userId;
 }

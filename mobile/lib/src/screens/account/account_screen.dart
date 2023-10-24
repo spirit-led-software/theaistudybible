@@ -209,6 +209,48 @@ class AccountScreen extends HookConsumerWidget {
                             )
                           ],
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text.rich(
+                                TextSpan(
+                                  text: "Email:",
+                                  children: [
+                                    const WidgetSpan(
+                                      child: SizedBox(
+                                        width: 10,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: currentUser.requireValue.email,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: false,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const EditEmailDialog();
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                            )
+                          ],
+                        ),
                       ],
                     ),
                   ),

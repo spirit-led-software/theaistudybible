@@ -14,8 +14,8 @@ import { verifyPassword } from "../../../auth";
 export const handler = ApiHandler(async (event) => {
   console.log("Received change password event:", event);
 
-  const { previousPassword, newPassword } = JSON.parse(event.body ?? "{}");
-  if (!previousPassword || !newPassword) {
+  const { currentPassword, newPassword } = JSON.parse(event.body ?? "{}");
+  if (!currentPassword || !newPassword) {
     return BadRequestResponse("Missing previousPassword or newPassword");
   }
 
@@ -26,11 +26,11 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse();
     }
 
-    if (!bcrypt.compareSync(previousPassword, userWithRoles.passwordHash!)) {
+    if (!bcrypt.compareSync(currentPassword, userWithRoles.passwordHash!)) {
       return UnauthorizedResponse("Previous password is incorrect.");
     }
 
-    if (previousPassword === newPassword) {
+    if (currentPassword === newPassword) {
       return BadRequestResponse(
         "New password cannot be the same as the previous password"
       );

@@ -8,21 +8,23 @@ import {
   UnauthorizedResponse,
 } from "@lib/api-responses";
 import { validApiHandlerSession } from "@services/session";
+import { isAdminSync } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 const s3Client = new S3Client({});
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Received profile picture url generation event:", event);
+  console.log("Received index file url generation event:", event);
 
-  const { fileType } = JSON.parse(event.body || "{}");
-  if (!fileType) {
-    return BadRequestResponse("Missing fileType");
+  const { fileName, fileType } = JSON.parse(event.body || "{}");
+
+  if (!fileName || !fileType) {
+    return BadRequestResponse("Missing fileName or fileType");
   }
 
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid) {
+    if (!isValid || !isAdminSync(userWithRoles)) {
       return UnauthorizedResponse();
     }
 
@@ -31,8 +33,8 @@ export const handler = ApiHandler(async (event) => {
       new PutObjectCommand({
         ACL: "public-read",
         ContentType: fileType,
-        Bucket: s3Config.userProfilePictureBucket,
-        Key: `${userWithRoles.id}-${Date.now()}`,
+        Bucket: s3Config.indexFileBucket,
+        Key: `${fileName}-${Date.now()}`,
       })
     );
 
