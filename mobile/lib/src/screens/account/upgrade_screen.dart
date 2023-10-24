@@ -210,8 +210,17 @@ class ProductTile extends HookConsumerWidget {
     }, [alert.value]);
 
     return ListTile(
-      title: Text(
-        product.title,
+      title: Text.rich(
+        TextSpan(text: product.title, children: [
+          const WidgetSpan(child: SizedBox(width: 10)),
+          TextSpan(
+            text:
+                '${product.priceString}/${(product.subscriptionPeriod ?? 'P1M').replaceFirst("P", "")}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ]),
       ),
       subtitle: Text(
         product.description,
@@ -231,7 +240,7 @@ class ProductTile extends HookConsumerWidget {
                 ? const FaIcon(FontAwesomeIcons.x)
                 : purchased.value
                     ? const FaIcon(FontAwesomeIcons.check)
-                    : Text(product.priceString),
+                    : const Text('Purchase'),
         onPressed: () {
           purchasingFuture.value =
               Purchases.purchasePackage(package).then((purchaserInfo) {
