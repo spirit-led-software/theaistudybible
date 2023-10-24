@@ -7,7 +7,7 @@ export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
   const vectorStore = await NeonVectorStore.fromConnectionString(
     getEmbeddingsModel(),
     {
-      tableName: vectorDBConfig.documents.tableName,
+      tableName: "documents",
       connectionOptions: {
         readWriteUrl: vectorDBConfig.writeUrl,
         readOnlyUrl: vectorDBConfig.readUrl,

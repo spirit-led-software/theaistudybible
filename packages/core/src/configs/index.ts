@@ -4,8 +4,6 @@ export { default as axios } from "./axios";
 export { default as databaseConfig } from "./database";
 export { default as emailConfig } from "./email";
 export { default as envConfig } from "./env";
-export { default as llmConfig } from "./llm";
-export { default as openAiConfig } from "./openai";
 export { default as replicateConfig } from "./replicate";
 export { default as s3Config } from "./s3";
 export { default as unstructuredConfig } from "./unstructured";
