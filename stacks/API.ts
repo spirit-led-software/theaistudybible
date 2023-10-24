@@ -300,6 +300,9 @@ export function API({ stack, app }: StackContext) {
       "GET /users/me/query-counts":
         "packages/functions/src/rest/users/me/query-counts/get.handler",
 
+      "POST /users/change-password":
+        "packages/functions/src/rest/users/change-password/post.handler",
+
       "POST /users/profile-pictures/presigned-url": {
         function: {
           handler:

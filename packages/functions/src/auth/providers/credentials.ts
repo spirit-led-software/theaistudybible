@@ -77,7 +77,7 @@ export const CredentialsAdapter = createAdapter(
           }
           if (!verifyPassword(claims.password)) {
             return BadRequestResponse(
-              "Password must be at least 8 characters long and contain at least 1 uppercase letter, 1 number, and 1 symbol"
+              "Password must be at least 8 characters long and contain at least 1 uppercase letter, 1 number, and 1 symbol."
             );
           }
           const url = new URL(registerCallback);
