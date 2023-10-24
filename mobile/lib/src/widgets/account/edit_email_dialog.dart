@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/user/request.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class EditEmailDialog extends HookConsumerWidget {
   const EditEmailDialog({Key? key}) : super(key: key);
@@ -14,23 +15,43 @@ class EditEmailDialog extends HookConsumerWidget {
     final textEditingController = useTextEditingController(
       text: currentUser.requireValue.email,
     );
+
     final formKey = useRef(GlobalKey<FormState>());
+
+    final updateFuture = useState<Future?>(null);
+    final updateSnapshot = useFuture(updateFuture.value);
 
     return AlertDialog(
       title: const Text("Edit Email"),
       content: Form(
         key: formKey.value,
-        child: TextFormField(
-          controller: textEditingController,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Email cannot be empty.';
-            }
-            if (!EmailValidator.validate(value)) {
-              return 'Please enter a valid email.';
-            }
-            return null;
-          },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (updateSnapshot.hasError) ...[
+              Text(
+                updateSnapshot.error.toString(),
+                overflow: TextOverflow.fade,
+                maxLines: 3,
+                style: TextStyle(
+                  color: context.colorScheme.error,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+            TextFormField(
+              controller: textEditingController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Email cannot be empty.';
+                }
+                if (!EmailValidator.validate(value)) {
+                  return 'Please enter a valid email.';
+                }
+                return null;
+              },
+            ),
+          ],
         ),
       ),
       actions: [
@@ -42,17 +63,32 @@ class EditEmailDialog extends HookConsumerWidget {
         ),
         TextButton(
           onPressed: () async {
-            if (formKey.value.currentState?.validate() == false) return;
+            if (!formKey.value.currentState!.validate()) return;
 
-            ref.read(currentUserProvider.notifier).updateUser(
+            updateFuture.value = ref
+                .read(currentUserProvider.notifier)
+                .updateUser(
                   UpdateUserRequest(
                     email: textEditingController.text,
                   ),
-                );
+                )
+                .then((value) {
+              Navigator.pop(context);
+            });
 
-            Navigator.pop(context);
+            await updateFuture.value;
           },
-          child: const Text("Save"),
+          child: updateSnapshot.hasError &&
+                  updateSnapshot.connectionState != ConnectionState.waiting
+              ? Icon(
+                  Icons.close,
+                  color: context.colorScheme.error,
+                )
+              : updateSnapshot.connectionState == ConnectionState.waiting
+                  ? CircularProgressIndicator.adaptive(
+                      backgroundColor: context.colorScheme.onPrimary,
+                    )
+                  : const Text("Save"),
         ),
       ],
     );
