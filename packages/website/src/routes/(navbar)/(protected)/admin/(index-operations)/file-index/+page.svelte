@@ -16,6 +16,11 @@
 		const name = formData.get('name') as string;
 		const url = formData.get('url') as string;
 
+		if (!file || !name || !url) {
+			alert = { type: 'error', message: 'Please fill out all fields' };
+			return;
+		}
+
 		try {
 			isLoading = true;
 			const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
