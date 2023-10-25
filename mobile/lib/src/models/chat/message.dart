@@ -60,7 +60,7 @@ class ChatMessage {
     return EmbeddedChatMessage(
       id: id,
       uuid: uuid,
-      createdAt: createdAt,
+      createdAt: createdAt?.toUtc(),
       content: content,
       role: role,
       name: name,

@@ -37,8 +37,8 @@ class DevotionImage with _$DevotionImage {
   EmbeddedDevotionImage toEmbedded() {
     return EmbeddedDevotionImage(
       id: id,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      createdAt: createdAt.toUtc(),
+      updatedAt: updatedAt.toUtc(),
       devotionId: devotionId,
       url: url,
       caption: caption,

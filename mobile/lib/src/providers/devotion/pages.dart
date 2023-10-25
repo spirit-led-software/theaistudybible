@@ -27,6 +27,7 @@ class DevotionsPages extends _$DevotionsPages {
   @override
   FutureOr<List<List<Devotion>>> build() async {
     _loadingLogic();
+    _persistenceLogic();
 
     try {
       return await DevotionService.getDevotions(

@@ -38,8 +38,8 @@ class DevotionReaction with _$DevotionReaction {
   EmbeddedDevotionReaction toEmbedded() {
     return EmbeddedDevotionReaction(
       id: id,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      createdAt: createdAt.toUtc(),
+      updatedAt: updatedAt.toUtc(),
       devotionId: devotionId,
       userId: userId,
       reaction: reaction,

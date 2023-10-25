@@ -23,8 +23,8 @@ class Chat with _$Chat {
   EmbeddedChat toEmbedded() {
     return EmbeddedChat(
       id: id,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      createdAt: createdAt.toUtc(),
+      updatedAt: updatedAt.toUtc(),
       name: name,
       userId: userId,
     );

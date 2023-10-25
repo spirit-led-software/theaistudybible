@@ -29,9 +29,9 @@ class Devotion with _$Devotion {
   EmbeddedDevotion toEmbedded() {
     return EmbeddedDevotion(
       id: id,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      date: date,
+      createdAt: createdAt.toUtc(),
+      updatedAt: updatedAt.toUtc(),
+      date: date.toUtc(),
       bibleReading: bibleReading,
       summary: summary,
       reflection: reflection,

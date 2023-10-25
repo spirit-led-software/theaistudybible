@@ -29,7 +29,7 @@ class DevotionDataManager {
   }
 
   Future<bool> hasDevotion(String id) async {
-    return await _isar.devotionDatas.get(fastHash(id)) != null;
+    return (await _isar.devotionDatas.get(fastHash(id))) != null;
   }
 
   Future<void> deleteDevotion(String id) async {
