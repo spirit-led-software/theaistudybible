@@ -14,7 +14,7 @@ export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
       },
       dimensions: 1536, //! Must match embedding model output size. See ./llm.ts
       distance: "cosine",
-      hnswIdxM: 32,
+      hnswIdxM: 64,
       hnswIdxEfConstruction: 128,
       verbose: envConfig.isLocal ? true : verbose,
     }
@@ -37,7 +37,7 @@ export async function getChatMemoryVectorStore(
       },
       dimensions: 1536, //! Must match embedding model output size. See ./llm.ts
       distance: "cosine",
-      hnswIdxM: 8,
+      hnswIdxM: 16,
       hnswIdxEfConstruction: 32,
       verbose: envConfig.isLocal ? true : verbose,
     }
