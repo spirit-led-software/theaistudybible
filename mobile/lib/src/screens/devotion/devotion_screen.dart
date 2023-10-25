@@ -150,7 +150,7 @@ class DevotionScreen extends HookConsumerWidget {
                 ],
               )
             : Text(
-                DateFormat.yMMMd().format(devotion.value!.date.toLocal()),
+                DateFormat.yMMMd().format(devotion.value!.date.toUtc()),
               ),
         actions: [
           IconButton(
