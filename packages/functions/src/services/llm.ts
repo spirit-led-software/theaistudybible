@@ -6,6 +6,12 @@ import type {
   CohereModelId,
 } from "@core/langchain/types/bedrock-types";
 import type { Chat } from "@core/model";
+import {
+  CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
+  CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
+  CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
+  CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
+} from "@lib/prompts";
 import type { Message } from "ai";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
 import { BedrockEmbeddings } from "langchain/embeddings/bedrock";
@@ -102,20 +108,10 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   const identityChain = new LLMChain({
     llm: getLargeContextModel({
       stream: true,
-      stopSequences: ["</answer>"],
       promptSuffix: "<answer>",
+      stopSequences: ["</answer>"],
     }),
-    prompt: PromptTemplate.fromTemplate(
-      `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology. You believe that Jesus Christ is the Son of God and that He died on the cross for the sins of humanity. Your purpose is to help people discover or deepen a relationship with Jesus Christ and uncover answers about the nature of God. Use that information to answer the following question.
-
-      The question is within <question></question> XML tags.
-
-      <question>
-      {query}
-      </question>
-      
-      Put your answer to the question within <answer></answer> XML tags.`
-    ),
+    prompt: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE),
     outputKey: "text",
   });
 
@@ -124,35 +120,25 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     vectorStore: chatMemoryVectorStore,
     k: 100,
   });
-  const chatMemoryRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
+  const chatHistoryChain = ConversationalRetrievalQAChain.fromLLM(
     getLargeContextModel({
       stream: true,
-      stopSequences: ["</answer>"],
       promptSuffix: "<answer>",
+      stopSequences: ["</answer>"],
     }),
     chatMemoryRetriever,
     {
       qaChainOptions: {
         type: "stuff",
-        prompt: PromptTemplate.fromTemplate(
-          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the current chat conversation. Some of the chat history is provided to help you answer the question. Use that information to answer the following question. If you are unsure about your correctness, you can admit that you are not confident in your answer. Refer to the user as 'you' and yourself as 'me' or 'I'.
-
-          The chat history is within <chat_history></chat_history> XML tags.
-          The question is within <question></question> XML tags.
-
-          <chat_history>
-          {context}
-          </chat_history>
-
-          <question>
-          {question}
-          </question>
-          
-          Put your answer to the question within <answer></answer> XML tags.`
-        ),
+        prompt: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE),
       },
       questionGeneratorChainOptions: {
-        llm: getSmallContextModel(),
+        llm: getLargeContextModel({
+          stream: false,
+          promptSuffix: "<new_question>",
+          stopSequences: ["</new_question>"],
+        }),
+        template: CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
       },
       inputKey: "query",
       outputKey: "text",
@@ -161,11 +147,11 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
   );
 
   const documentVectorStore = await getDocumentVectorStore({ verbose: true });
-  const documentRetrieverChain = ConversationalRetrievalQAChain.fromLLM(
+  const faithQaChain = ConversationalRetrievalQAChain.fromLLM(
     getLargeContextModel({
       stream: true,
-      stopSequences: ["</answer>"],
       promptSuffix: "<answer>",
+      stopSequences: ["</answer>"],
     }),
     documentVectorStore.asRetriever({
       k: 25,
@@ -174,24 +160,16 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       qaChainOptions: {
         type: "stuff",
         prompt: PromptTemplate.fromTemplate(
-          `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer questions about the Christian faith and theology. Use the context provided below to answer the following question. Do not say that you are referencing a context, just act like it is within your knowledge. If you truly do not have enough context to answer the question, just admit that you don't know the answer. Otherwise, confidently answer the question as if you believe it to be true.
-
-          The context is within <context></context> XML tags.
-          The question is within <question></question> XML tags.
-
-          <context>
-          {context}
-          </context>
-
-          <question>
-          {question}
-          </question>
-          
-          Put your answer to the question within <answer></answer> XML tags.`
+          CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE
         ),
       },
       questionGeneratorChainOptions: {
-        llm: getSmallContextModel(),
+        llm: getLargeContextModel({
+          stream: false,
+          promptSuffix: "<new_question>",
+          stopSequences: ["</new_question>"],
+        }),
+        template: CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
       },
       inputKey: "query",
       outputKey: "text",
@@ -225,12 +203,12 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
         "chat-history": {
           description:
             "Good for retrieving information about the current chat conversation.",
-          chain: chatMemoryRetrieverChain,
+          chain: chatHistoryChain,
         },
         "faith-qa": {
           description:
             "Good for answering questions or generating content about the Christian faith and theology.",
-          chain: documentRetrieverChain,
+          chain: faithQaChain,
         },
       },
       defaultChain: "faith-qa",

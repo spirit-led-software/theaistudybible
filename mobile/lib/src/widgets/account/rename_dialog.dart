@@ -25,6 +25,7 @@ class RenameDialog extends HookConsumerWidget {
       content: Form(
         key: formKey.value,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (updateSnapshot.hasError) ...[
               Text(
