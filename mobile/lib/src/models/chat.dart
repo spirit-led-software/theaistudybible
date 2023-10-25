@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:revelationsai/src/models/chat/data.dart';
 
 export 'chat/request.dart' show CreateChatRequest, UpdateChatRequest;
 
@@ -7,6 +8,8 @@ part 'chat.g.dart';
 
 @freezed
 class Chat with _$Chat {
+  const Chat._();
+
   factory Chat({
     required String id,
     required DateTime createdAt,
@@ -16,4 +19,14 @@ class Chat with _$Chat {
   }) = _Chat;
 
   factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
+
+  EmbeddedChat toEmbedded() {
+    return EmbeddedChat(
+      id: id,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      name: name,
+      userId: userId,
+    );
+  }
 }

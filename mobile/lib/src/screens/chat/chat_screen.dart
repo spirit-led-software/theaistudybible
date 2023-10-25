@@ -49,7 +49,7 @@ class ChatScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
     final currentUserPreferences = ref.watch(currentUserPreferencesProvider);
-    final loadedChats = ref.watch(loadedChatDataProvider);
+    final chatDataManager = ref.watch(chatDataManagerProvider);
 
     final isMounted = useIsMounted();
     final scrollController = useScrollController();
@@ -75,10 +75,9 @@ class ChatScreen extends HookConsumerWidget {
     final chat = ref.watch(chatsProvider(chatId));
 
     final fetchChatData = useCallback((String id) async {
-      final loadedChatDataNotifier = ref.read(loadedChatDataProvider.notifier);
       await Future.wait([
-        ref.read(chatsProvider(id).future),
-        ref.read(currentChatMessagesProvider(id).future),
+        ref.refresh(chatsProvider(id).future),
+        ref.refresh(currentChatMessagesProvider(id).future),
       ]).then((value) {
         final foundChat = value[0] as Chat;
         final foundMessages = value[1] as List<ChatMessage>;
@@ -87,10 +86,11 @@ class ChatScreen extends HookConsumerWidget {
           chatHook.messages.value = foundMessages;
         }
 
-        loadedChatDataNotifier.addChat(
+        chatDataManager.value?.addChat(
           ChatData(
-            chat: foundChat,
-            messages: foundMessages,
+            id: foundChat.id,
+            chat: foundChat.toEmbedded(),
+            messages: foundMessages.map((e) => e.toEmbedded()).toList(),
           ),
         );
       });
@@ -99,11 +99,22 @@ class ChatScreen extends HookConsumerWidget {
     useEffect(() {
       if (chatId != null) {
         if (isMounted()) chatHook.chatId.value = chatId;
-        if (loadedChats.value?.containsKey(chatId) ?? false) {
-          if (isMounted()) {
-            final chatData = loadedChats.value![chatId];
-            chatHook.messages.value = chatData!.messages;
-          }
+        if (chatDataManager.hasValue) {
+          chatDataManager.value!.hasChat(chatId).then((value) async {
+            if (value) {
+              if (isMounted()) {
+                final chatData = await chatDataManager.value!.getChat(chatId);
+                chatHook.messages.value =
+                    chatData!.messages.map((e) => e.toRegular()).toList();
+              }
+              fetchChatData(chatId);
+            } else {
+              if (isMounted()) isLoadingChat.value = true;
+              fetchChatData(chatId).whenComplete(() {
+                if (isMounted()) isLoadingChat.value = false;
+              });
+            }
+          });
         } else {
           isLoadingChat.value = true;
           fetchChatData(chatId).whenComplete(() {
@@ -121,11 +132,9 @@ class ChatScreen extends HookConsumerWidget {
     }, [chatId]);
 
     useEffect(() {
-      if (chat.value != null) {
-        Future(() {
-          ref.read(currentChatIdProvider.notifier).update(chat.value!.id);
-        });
-      }
+      Future(() {
+        ref.read(currentChatIdProvider.notifier).update(chat.value?.id);
+      });
       return () {};
     }, [chat.value]);
 
@@ -238,7 +247,7 @@ class ChatScreen extends HookConsumerWidget {
                       PopupMenuItem(
                         enabled: false,
                         child: Text(
-                          chat.valueOrNull?.name ?? "New Chat",
+                          chat.value?.name ?? "New Chat",
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -257,8 +266,6 @@ class ChatScreen extends HookConsumerWidget {
                         onTap: () async {
                           if (chatId != null) {
                             isRefreshingChat.value = true;
-                            final loadedChatsNotifier =
-                                ref.read(loadedChatDataProvider.notifier);
                             return await Future.wait([
                               ref.refresh(chatsProvider(chatId).future),
                               ref.refresh(
@@ -271,10 +278,13 @@ class ChatScreen extends HookConsumerWidget {
                               if (isMounted()) {
                                 chatHook.messages.value = foundMessages;
                               }
-                              loadedChatsNotifier.addChat(
+                              chatDataManager.value?.addChat(
                                 ChatData(
-                                  chat: foundChat,
-                                  messages: foundMessages,
+                                  id: foundChat.id,
+                                  chat: foundChat.toEmbedded(),
+                                  messages: foundMessages
+                                      .map((e) => e.toEmbedded())
+                                      .toList(),
                                 ),
                               );
                             }).catchError(

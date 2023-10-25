@@ -19,7 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'current.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CurrentUser extends _$CurrentUser {
   late SharedPreferences _sharedPreferences;
   static const _sharedPrefsKey = 'token';
@@ -222,7 +222,7 @@ class CurrentUser extends _$CurrentUser {
             (next.error as RAIHttpException).isUnauthorized) {
           _sharedPreferences.remove(_sharedPrefsKey);
           ref.read(currentChatIdProvider.notifier).update(null);
-          ref.read(currentDevotionIdProvider.notifier).update(null);
+          ref.read(currentDevotionIdProvider.notifier).updateId(null);
           ref.read(chatsPagesProvider.notifier).reset();
         }
         return;

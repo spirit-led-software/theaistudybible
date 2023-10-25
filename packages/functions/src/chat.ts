@@ -224,21 +224,26 @@ const lambdaHandler = async (
         CallbackManager.fromHandlers(handlers)
       )
       .then(async (result) => {
+        const sourceDocuments: NeonVectorStoreDocument[] =
+          (
+            result.sourceDocuments as NeonVectorStoreDocument[] | undefined
+          )?.filter((d1, i, arr) => {
+            return arr.findIndex((d2) => d2.id === d1.id) === i;
+          }) ?? [];
+
         await Promise.all([
           incrementUserQueryCount(userInfo.id),
           updateAiResponse(aiResponse.id, {
             text: result.text,
           }),
-          ...(result.sourceDocuments?.map(
-            async (sourceDoc: NeonVectorStoreDocument) => {
-              await readWriteDatabase
-                .insert(aiResponsesToSourceDocuments)
-                .values({
-                  aiResponseId: aiResponse.id,
-                  sourceDocumentId: sourceDoc.id,
-                });
-            }
-          ) ?? []),
+          ...sourceDocuments.map(async (sourceDoc) => {
+            await readWriteDatabase
+              .insert(aiResponsesToSourceDocuments)
+              .values({
+                aiResponseId: aiResponse.id,
+                sourceDocumentId: sourceDoc.id,
+              });
+          }),
         ]);
         return result;
       })

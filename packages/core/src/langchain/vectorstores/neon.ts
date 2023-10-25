@@ -220,7 +220,7 @@ export class NeonVectorStore extends VectorStore {
           } $1) AS "_distance"
         FROM ${this.tableName}
         WHERE metadata @> $2
-        ORDER BY "_distance" ASC
+        ORDER BY "_distance" DESC
         LIMIT $3
         OFFSET $4;`,
           [embeddingString, _filter, k, _offset]
@@ -232,7 +232,7 @@ export class NeonVectorStore extends VectorStore {
           } $1) * -1 AS "_distance"
         FROM ${this.tableName}
         WHERE metadata @> $2
-        ORDER BY "_distance" ASC
+        ORDER BY "_distance" DESC
         LIMIT $3
         OFFSET $4;`,
           [embeddingString, _filter, k, _offset]

@@ -76,8 +76,8 @@ class RouterListenable extends _$RouterListenable implements Listenable {
     }
 
     final currentDevotionId = ref.read(currentDevotionIdProvider);
-    if (isDevotionBase && currentDevotionId != null) {
-      final devoPath = "/devotions/$currentDevotionId";
+    if (isDevotionBase && currentDevotionId.value != null) {
+      final devoPath = "/devotions/${currentDevotionId.value}";
       debugPrint("Redirecting to $devoPath");
       return devoPath;
     }

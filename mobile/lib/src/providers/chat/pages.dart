@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/chat.dart';
+import 'package:revelationsai/src/models/chat/data.dart';
+import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/chat/data.dart';
+import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -9,7 +14,7 @@ import 'package:uuid/uuid.dart';
 
 part 'pages.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ChatsPages extends _$ChatsPages {
   static const int pageSize = 7;
 
@@ -19,21 +24,8 @@ class ChatsPages extends _$ChatsPages {
 
   @override
   FutureOr<List<List<Chat>>> build() async {
-    ref.listenSelf((_, __) {
-      if (!state.isLoading) {
-        _isLoadingInitial = false;
-        _isLoadingNextPage = false;
-      } else if (state.isLoading &&
-          _page == 1 &&
-          (!state.hasValue || state.value!.isEmpty)) {
-        _isLoadingInitial = true;
-      } else if (state.isLoading && _page > 1) {
-        _isLoadingNextPage = true;
-      } else {
-        _isLoadingInitial = false;
-        _isLoadingNextPage = false;
-      }
-    });
+    _loadingLogic();
+    _persistenceLogic();
 
     try {
       await ref.watch(currentUserProvider.future);
@@ -183,10 +175,70 @@ class ChatsPages extends _$ChatsPages {
       state = previousState;
     });
 
+    ref.read(chatDataManagerProvider).value?.deleteChat(id);
+
     if (ref.read(currentChatIdProvider) == id) {
       ref.read(currentChatIdProvider.notifier).update(null);
     }
 
     refresh();
+  }
+
+  void _loadingLogic() {
+    ref.listenSelf((_, __) {
+      if (!state.isLoading) {
+        _isLoadingInitial = false;
+        _isLoadingNextPage = false;
+      } else if (state.isLoading &&
+          _page == 1 &&
+          (!state.hasValue || state.value!.isEmpty)) {
+        _isLoadingInitial = true;
+      } else if (state.isLoading && _page > 1) {
+        _isLoadingNextPage = true;
+      } else {
+        _isLoadingInitial = false;
+        _isLoadingNextPage = false;
+      }
+    });
+  }
+
+  void _persistenceLogic() {
+    ref.listenSelf((previous, next) async {
+      final chatDataManager = ref.read(chatDataManagerProvider).value;
+      if (next.hasValue && previous?.value != next.value) {
+        for (final chatsPage in next.value!) {
+          for (final chat in chatsPage) {
+            Future.wait([
+              ref.read(chatsProvider(chat.id).future),
+              ref.read(currentChatMessagesProvider(chat.id).future),
+            ]).then(
+              (value) {
+                final foundChat = value[0] as Chat;
+                final foundMessages = value[1] as List<ChatMessage>;
+
+                chatDataManager?.addChat(
+                  ChatData(
+                    id: foundChat.id,
+                    chat: foundChat.toEmbedded(),
+                    messages: foundMessages.map((e) => e.toEmbedded()).toList(),
+                  ),
+                );
+              },
+            );
+          }
+        }
+
+        final savedChats = await chatDataManager?.getAllChats();
+
+        if (savedChats != null) {
+          final chatsPagesFlat = next.value!.expand((element) => element);
+          for (final savedChat in savedChats) {
+            if (!chatsPagesFlat.any((element) => element.id == savedChat.id)) {
+              chatDataManager?.deleteChat(savedChat.id);
+            }
+          }
+        }
+      }
+    });
   }
 }

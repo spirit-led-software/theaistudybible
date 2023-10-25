@@ -161,8 +161,7 @@ class DevotionListItem extends HookConsumerWidget {
     final currentDevotionId = ref.watch(currentDevotionIdProvider);
 
     final fetchDevoData = useCallback(() async {
-      final loadedDevotionDataNotifier =
-          ref.read(loadedDevotionDataProvider.notifier);
+      final devotionDataManager = ref.read(devotionDataManagerProvider);
       await Future.wait([
         ref.read(devotionsProvider(devotion.id).future),
         ref.read(devotionSourceDocumentsProvider(devotion.id).future),
@@ -176,13 +175,20 @@ class DevotionListItem extends HookConsumerWidget {
         final foundReactions = value[3] as List<DevotionReaction>;
         final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
 
-        loadedDevotionDataNotifier.addDevotion(
+        devotionDataManager.value?.addDevotion(
           DevotionData(
-            devotion: foundDevo,
-            images: foundImages,
-            sourceDocuments: foundSourceDocs,
-            reactions: foundReactions,
-            reactionCounts: foundReactionCounts,
+            id: foundDevo.id,
+            devotion: foundDevo.toEmbedded(),
+            images: foundImages.map((e) => e.toEmbedded()).toList(),
+            sourceDocuments:
+                foundSourceDocs.map((e) => e.toEmbedded()).toList(),
+            reactions: foundReactions.map((e) => e.toEmbedded()).toList(),
+            reactionCounts: foundReactionCounts.entries
+                .map((e) => EmbeddedReactionCounts(
+                      type: e.key,
+                      count: e.value,
+                    ))
+                .toList(),
           ),
         );
       });
@@ -192,16 +198,16 @@ class DevotionListItem extends HookConsumerWidget {
       key: ValueKey(devotion.id),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1 &&
-            !(ref
-                    .read(loadedDevotionDataProvider)
-                    .valueOrNull
-                    ?.containsKey(devotion.id) ??
+            !(await ref
+                    .read(devotionDataManagerProvider)
+                    .value
+                    ?.hasDevotion(devotion.id) ??
                 false)) {
           await fetchDevoData();
         }
       },
       child: Container(
-        color: currentDevotionId == devotion.id
+        color: currentDevotionId.value == devotion.id
             ? context.secondaryColor.withOpacity(0.2)
             : null,
         child: ListTile(
@@ -209,7 +215,7 @@ class DevotionListItem extends HookConsumerWidget {
           subtitle: Text(
             devotion.bibleReading.split(" - ").first,
           ),
-          trailing: currentDevotionId == devotion.id
+          trailing: currentDevotionId.value == devotion.id
               ? Icon(
                   Icons.check,
                   color: context.secondaryColor,

@@ -188,9 +188,9 @@ class ChatListItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentChatId = ref.watch(currentChatIdProvider);
+    final chatDataManager = ref.watch(chatDataManagerProvider);
 
     final fetchChatData = useCallback(() async {
-      final loadChatDataNotifier = ref.read(loadedChatDataProvider.notifier);
       await Future.wait([
         ref.read(chatsProvider(chat.id).future),
         ref.read(currentChatMessagesProvider(chat.id).future),
@@ -198,10 +198,11 @@ class ChatListItem extends HookConsumerWidget {
         final foundChat = value[0] as Chat;
         final foundMessages = value[1] as List<ChatMessage>;
 
-        loadChatDataNotifier.addChat(
+        chatDataManager.value?.addChat(
           ChatData(
-            chat: foundChat,
-            messages: foundMessages,
+            id: foundChat.id,
+            chat: foundChat.toEmbedded(),
+            messages: foundMessages.map((e) => e.toEmbedded()).toList(),
           ),
         );
       });
@@ -212,10 +213,7 @@ class ChatListItem extends HookConsumerWidget {
       key: ValueKey(chat.id),
       onVisibilityChanged: (info) async {
         if (info.visibleFraction == 1 &&
-            !(ref
-                    .read(loadedChatDataProvider)
-                    .valueOrNull
-                    ?.containsKey(chat.id) ??
+            !(await ref.read(chatDataManagerProvider).value?.hasChat(chat.id) ??
                 false)) {
           await fetchChatData();
         }

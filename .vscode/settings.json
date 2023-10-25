@@ -10,6 +10,7 @@
     "flushbar",
     "Hnsw",
     "REVENUECAT",
+    "Riverpod",
     "unfocus"
   ],
   "java.configuration.updateBuildConfiguration": "automatic"

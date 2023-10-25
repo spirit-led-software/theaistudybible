@@ -48,6 +48,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   dbSeedFunction.node.addDependency(neonBranch);
   dbSeedFunction.node.addDependency(dbMigrationsScript);
   const dbSeedScript = new Script(stack, "dbSeedScript", {
+    version: process.env.DATABASE_SEED === "false" ? "1" : undefined, // only run seed script on first deploy if DATABASE_SEED is false
     onCreate: dbSeedFunction,
     onUpdate: dbSeedFunction,
   });

@@ -1,74 +1,43 @@
-import 'package:flutter/material.dart';
-import 'package:quiver/collection.dart';
-import 'package:revelationsai/src/models/chat.dart';
+import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/chat/data.dart';
-import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/providers/chat.dart';
-import 'package:revelationsai/src/providers/chat/messages.dart';
-import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/providers/isar.dart';
+import 'package:revelationsai/src/utils/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'data.g.dart';
 
-@riverpod
-class LoadedChatData extends _$LoadedChatData {
-  static const int maxSize = 7;
+@Riverpod(keepAlive: true)
+Future<ChatDataManager> chatDataManager(ChatDataManagerRef ref) async {
+  final isar = await ref.watch(isarInstanceProvider.future);
+  return ChatDataManager(isar);
+}
 
-  @override
-  FutureOr<LruMap<String, ChatData>> build() async {
-    final map = state.value ?? LruMap(maximumSize: maxSize);
-    final chatsPages = ref.watch(chatsPagesProvider);
-    if (chatsPages.hasValue) {
-      int amountFetched = 0;
-      outerLoop:
-      for (final chatsPage in chatsPages.value!) {
-        final futures = <Future>[];
-        for (final chat in chatsPage) {
-          if (amountFetched < maxSize) {
-            futures.add(
-              Future.wait([
-                ref.watch(chatsProvider(chat.id).future),
-                ref.watch(currentChatMessagesProvider(chat.id).future),
-              ]).then((value) {
-                final foundChat = value[0] as Chat;
-                final foundMessages = value[1] as List<ChatMessage>;
-                map[chat.id] =
-                    ChatData(chat: foundChat, messages: foundMessages);
-              }).catchError((error) async {
-                await Future.wait([
-                  ref.refresh(chatsProvider(chat.id).future),
-                  ref.refresh(currentChatMessagesProvider(chat.id).future),
-                ]).then((value) {
-                  final foundChat = value[0] as Chat;
-                  final foundMessages = value[1] as List<ChatMessage>;
-                  map[chat.id] =
-                      ChatData(chat: foundChat, messages: foundMessages);
-                }).catchError((error) {
-                  debugPrint(
-                      "Failed to load chat data for ${chat.id} after refresh: $error");
-                });
-              }),
-            );
-            amountFetched++;
-          } else {
-            await Future.wait(futures);
-            break outerLoop;
-          }
-        }
-        await Future.wait(futures);
-      }
-    }
+class ChatDataManager {
+  final Isar _isar;
 
-    return map;
+  ChatDataManager(this._isar);
+
+  void addChat(ChatData chatData) async {
+    await _isar.writeTxn(() async {
+      await _isar.chatDatas.put(chatData);
+    });
   }
 
-  void addChat(ChatData chatData) {
-    final map = state.value ?? LruMap(maximumSize: maxSize);
-    map[chatData.chat.id] = chatData;
-    state = AsyncData(map);
+  Future<ChatData?> getChat(String id) async {
+    return await _isar.chatDatas.get(fastHash(id));
   }
 
-  void refresh() {
-    ref.invalidateSelf();
+  Future<bool> hasChat(String id) async {
+    return await _isar.chatDatas.get(fastHash(id)) != null;
+  }
+
+  Future<void> deleteChat(String id) async {
+    await _isar.writeTxn(() async {
+      await _isar.chatDatas.delete(fastHash(id));
+    });
+  }
+
+  Future<List<ChatData>> getAllChats() async {
+    return await _isar.chatDatas.where().findAll();
   }
 }

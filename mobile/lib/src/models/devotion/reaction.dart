@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:revelationsai/src/models/devotion/data.dart';
 
 part 'reaction.freezed.dart';
 part 'reaction.g.dart';
@@ -10,6 +11,8 @@ enum DevotionReactionType {
 
 @freezed
 class DevotionReaction with _$DevotionReaction {
+  const DevotionReaction._();
+
   factory DevotionReaction({
     /* Convert from TypeScript:
     type DevotionReaction = {
@@ -31,4 +34,15 @@ class DevotionReaction with _$DevotionReaction {
 
   factory DevotionReaction.fromJson(Map<String, dynamic> json) =>
       _$DevotionReactionFromJson(json);
+
+  EmbeddedDevotionReaction toEmbedded() {
+    return EmbeddedDevotionReaction(
+      id: id,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      devotionId: devotionId,
+      userId: userId,
+      reaction: reaction,
+    );
+  }
 }

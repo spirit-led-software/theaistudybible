@@ -1,3 +1,5 @@
+import 'package:revelationsai/src/models/chat/data.dart';
+
 enum Role {
   user,
   assistant,
@@ -53,4 +55,15 @@ class ChatMessage {
 
   @override
   int get hashCode => uuid.hashCode;
+
+  EmbeddedChatMessage toEmbedded() {
+    return EmbeddedChatMessage(
+      id: id,
+      uuid: uuid,
+      createdAt: createdAt,
+      content: content,
+      role: role,
+      name: name,
+    );
+  }
 }
