@@ -14,8 +14,8 @@ export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
       },
       dimensions: 1536, //! Must match embedding model output size. See ./llm.ts
       distance: "cosine",
-      hnswIdxM: 16,
-      hnswIdxEfConstruction: 64,
+      hnswIdxM: 32,
+      hnswIdxEfConstruction: 128,
       verbose: envConfig.isLocal ? true : verbose,
     }
   );
