@@ -36,6 +36,7 @@ export async function getChatMemoryVectorStore(
         readOnlyUrl: vectorDBConfig.readUrl,
       },
       dimensions: 1536, //! Must match embedding model output size. See ./llm.ts
+      distance: "cosine",
       hnswIdxM: 8,
       hnswIdxEfConstruction: 32,
       verbose: envConfig.isLocal ? true : verbose,
