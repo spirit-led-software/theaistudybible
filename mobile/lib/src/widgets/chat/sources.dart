@@ -50,12 +50,9 @@ class Sources extends HookConsumerWidget {
 
     useEffect(
       () {
-        if (sourceDocuments.value.isEmpty &&
-            !hasLoaded.value &&
-            !isChatLoading) {
+        if (sourceDocuments.value.isEmpty && !hasLoaded.value && !isChatLoading) {
           isLoading.value = true;
-          final sourceDocumentsFuture =
-              ref.read(aiResponseSourceDocumentsProvider(
+          final sourceDocumentsFuture = ref.read(aiResponseSourceDocumentsProvider(
             message.id,
             message.uuid,
             chatId,
@@ -90,9 +87,7 @@ class Sources extends HookConsumerWidget {
       ),
       child: ExpansionTile(
         leading: Icon(
-          showSources.value
-              ? Icons.keyboard_arrow_up
-              : Icons.keyboard_arrow_down,
+          showSources.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
           size: 15,
           color: context.colorScheme.onBackground,
         ),
@@ -133,9 +128,7 @@ class Sources extends HookConsumerWidget {
               icon: FaIcon(
                 copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
               ),
-              color: copied.value
-                  ? Colors.green
-                  : context.colorScheme.onBackground,
+              color: copied.value ? Colors.green : context.colorScheme.onBackground,
               onPressed: () {
                 HapticFeedback.mediumImpact();
                 copied.value = true;
@@ -180,9 +173,7 @@ class Sources extends HookConsumerWidget {
             child: ListView.builder(
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
-              itemCount: sourceDocuments.value.isNotEmpty
-                  ? sourceDocuments.value.length
-                  : 1,
+              itemCount: sourceDocuments.value.isNotEmpty ? sourceDocuments.value.length : 1,
               itemBuilder: (context, index) {
                 final sourcesSorted = sourceDocuments.value
                   ..sort(
@@ -230,11 +221,11 @@ class Sources extends HookConsumerWidget {
                           children: [
                             if (source.isWebpage) ...[
                               Text(
-                                Uri.parse(
-                                  source.url,
-                                )
-                                    .pathSegments
-                                    .lastWhere((element) => element.isNotEmpty),
+                                source.hasTitle
+                                    ? source.title
+                                    : Uri.parse(
+                                        source.url,
+                                      ).pathSegments.lastWhere((element) => element.isNotEmpty),
                                 textAlign: TextAlign.center,
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis,

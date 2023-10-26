@@ -26,8 +26,7 @@ class SourceDocument with _$SourceDocument {
     required DistanceMetric distanceMetric,
   }) = _SourceDocument;
 
-  factory SourceDocument.fromJson(Map<String, dynamic> json) =>
-      _$SourceDocumentFromJson(json);
+  factory SourceDocument.fromJson(Map<String, dynamic> json) => _$SourceDocumentFromJson(json);
 
   EmbeddedSourceDocument toEmbedded() {
     return EmbeddedSourceDocument(
@@ -45,6 +44,9 @@ class SourceDocument with _$SourceDocument {
 
   bool get isFile => metadata['type'].toString().toLowerCase() == 'file';
   bool get isWebpage => metadata['type'].toString().toLowerCase() == 'webpage';
+
+  bool get hasTitle => metadata['title'] != null;
+  String get title => metadata['title'] ?? '';
 
   bool get hasPageNumber => metadata["loc"]["pageNumber"] != null;
   int get pageNumber => metadata["loc"]["pageNumber"] ?? 0;
