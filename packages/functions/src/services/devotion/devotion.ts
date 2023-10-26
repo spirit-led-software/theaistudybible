@@ -358,11 +358,15 @@ async function getRandomBibleReading() {
         .describe("The book name from within the bible. For example: Genesis"),
       chapter: z
         .string()
-        .describe("The chapter number from within the book. For example: 1"),
+        .describe(
+          "The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**"
+        ),
       verseRange: z
         .string()
-        .regex(/(\d+)(-(\d+))?/)
-        .describe("The verse range. For example: 1-3"),
+        .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
+        .describe(
+          "The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**"
+        ),
       text: z.string().describe("The exact text of the bible reading."),
     })
   );

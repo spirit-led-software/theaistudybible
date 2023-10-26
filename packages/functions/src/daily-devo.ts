@@ -14,14 +14,15 @@ export const handler: Handler = async (event, _) => {
     const serviceAccount = require(path.resolve(
       "firebase-service-account.json"
     ));
-    firebase.initializeApp({
-      credential: firebase.credential.cert(serviceAccount),
-    });
+    if (firebase.apps.length === 0) {
+      firebase.initializeApp({
+        credential: firebase.credential.cert(serviceAccount),
+      });
+    }
     await firebase.messaging().sendToTopic("daily-devo", {
       notification: {
         title: "New Daily Devo",
         body: devo?.bibleReading,
-        badge: "1",
       },
       data: {
         task: "daily-devo",

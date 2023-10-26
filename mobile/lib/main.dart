@@ -15,6 +15,18 @@ import 'package:revelationsai/src/app.dart';
 import 'package:revelationsai/src/constants/new_relic.dart';
 import 'package:revelationsai/src/utils/state_logger.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
+  debugPrint('Handling a background message ${message.messageId}');
+  await FlutterAppBadger.isAppBadgeSupported().then((value) {
+    if (value) {
+      FlutterAppBadger.updateBadgeCount(1);
+    }
+  });
+}
+
 Future<void> main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: binding);
@@ -23,13 +35,14 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ).then((_) {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.instance.subscribeToTopic('daily-devo');
   });
 
   debugPrint("Removing all previous notification badges");
   FlutterAppBadger.isAppBadgeSupported().then((value) {
     if (value) {
-      FlutterAppBadger.updateBadgeCount(0);
+      FlutterAppBadger.removeBadge();
     }
   });
 
