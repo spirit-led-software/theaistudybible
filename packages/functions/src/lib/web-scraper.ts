@@ -1,7 +1,7 @@
 import { vectorDBConfig } from "@core/configs";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { Document } from "langchain/document";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { TokenTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
 
 export async function generatePageContentEmbeddings(
@@ -29,9 +29,10 @@ export async function generatePageContentEmbeddings(
         });
         console.log(`Loading and splitting documents from url '${url}'`);
         docs = await loader.loadAndSplit(
-          new RecursiveCharacterTextSplitter({
+          new TokenTextSplitter({
             chunkSize: vectorDBConfig.docEmbeddingContentLength,
             chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+            encodingName: "cl100k_base",
           })
         );
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);
@@ -39,11 +40,11 @@ export async function generatePageContentEmbeddings(
 
       console.log("Adding metadata to documents.");
       docs = docs.map((doc) => {
-        let newPageContent = `[TITLE] ${name}\n[CONTENT] ${doc.pageContent}`;
+        let newPageContent = `TITLE: ${name}\n---\n\n${doc.pageContent}`;
         if (doc.metadata.title) {
-          newPageContent = `[TITLE] ${doc.metadata.title}\n[CONTENT] ${doc.pageContent}`;
+          newPageContent = `TITLE: ${doc.metadata.title}\n---\n\n${doc.pageContent}`;
         }
-        doc.pageContent = newPageContent.trim().replace(/\s+/g, " ");
+        doc.pageContent = newPageContent;
         doc.metadata = {
           ...doc.metadata,
           indexDate: new Date().toISOString(),

@@ -11,7 +11,7 @@ import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { TokenTextSplitter } from "langchain/text_splitter";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -96,20 +96,21 @@ export const handler: S3Handler = async (event) => {
 
     console.log("Starting load and split");
     let docs = await loader.loadAndSplit(
-      new RecursiveCharacterTextSplitter({
+      new TokenTextSplitter({
         chunkSize: vectorDBConfig.docEmbeddingContentLength,
         chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+        encodingName: "cl100k_base",
       })
     );
 
     console.log("Finished load and split");
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
-      let newPageContent = `[TITLE] ${doc.metadata.name}\n[CONTENT] ${doc.pageContent}`;
+      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n\n${doc.pageContent}`;
       if (doc.metadata.title) {
-        newPageContent = `[TITLE] ${doc.metadata.title}\n[CONTENT] ${doc.pageContent}`;
+        newPageContent = `TITLE: ${doc.metadata.title}\n---\n\n${doc.pageContent}`;
       }
-      doc.pageContent = newPageContent.trim().replace(/\s+/g, " ");
+      doc.pageContent = newPageContent;
       doc.metadata = {
         ...doc.metadata,
         ...indexOpMetadata,
