@@ -1,7 +1,6 @@
 import { envConfig } from "@core/configs";
 import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-multi-route";
 import { RAIBedrock } from "@core/langchain/llms/bedrock";
-import { QueryInterpreterRetriever } from "@core/langchain/retrievers/query-interpreter";
 import { RAITimeWeightedVectorStoreRetriever } from "@core/langchain/retrievers/time_weighted";
 import type {
   AnthropicModelId,
@@ -13,7 +12,6 @@ import {
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
   CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-  QUERY_INTERPRETER_PROMPT_TEMPLATE,
 } from "@lib/prompts";
 import type { Message } from "ai";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
@@ -163,18 +161,22 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       promptSuffix: "<answer>",
       stopSequences: ["</answer>"],
     }),
-    new QueryInterpreterRetriever({
-      llm: getLargeContextModel({
-        stream: false,
-        promptSuffix: "<output>",
-        stopSequences: ["</output>"],
-      }),
-      baseRetriever: documentVectorStore.asRetriever({
-        k: 5,
-        verbose: envConfig.isLocal,
-      }),
-      numSearchTerms: 7,
-      prompt: PromptTemplate.fromTemplate(QUERY_INTERPRETER_PROMPT_TEMPLATE),
+    // new QueryInterpreterRetriever({
+    //   llm: getLargeContextModel({
+    //     stream: false,
+    //     promptSuffix: "<output>",
+    //     stopSequences: ["</output>"],
+    //   }),
+    //   baseRetriever: documentVectorStore.asRetriever({
+    //     k: 5,
+    //     verbose: envConfig.isLocal,
+    //   }),
+    //   numSearchTerms: 7,
+    //   prompt: PromptTemplate.fromTemplate(QUERY_INTERPRETER_PROMPT_TEMPLATE),
+    //   verbose: envConfig.isLocal,
+    // }),
+    documentVectorStore.asRetriever({
+      k: 25,
       verbose: envConfig.isLocal,
     }),
     {

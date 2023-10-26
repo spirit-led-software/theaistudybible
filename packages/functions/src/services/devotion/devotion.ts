@@ -194,7 +194,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
     await Promise.all(
       result.sourceDocuments.map(async (c: NeonVectorStoreDocument) => {
-        if (c.distance && c.distance <= 0.5) {
+        if (c.distance && c.distance <= 0.7) {
           await readWriteDatabase.insert(devotionsToSourceDocuments).values({
             devotionId: devo!.id,
             sourceDocumentId: c.id,

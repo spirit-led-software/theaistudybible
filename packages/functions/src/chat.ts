@@ -237,7 +237,7 @@ const lambdaHandler = async (
             text: result.text,
           }),
           ...sourceDocuments.map(async (sourceDoc) => {
-            if (sourceDoc.distance && sourceDoc.distance <= 0.5) {
+            if (sourceDoc.distance && sourceDoc.distance <= 0.7) {
               await readWriteDatabase
                 .insert(aiResponsesToSourceDocuments)
                 .values({

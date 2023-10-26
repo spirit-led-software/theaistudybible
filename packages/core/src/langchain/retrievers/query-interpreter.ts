@@ -141,6 +141,7 @@ export class QueryInterpreterRetriever extends BaseRetriever {
     );
 
     const searchTerms = await this.outputParser.parse(searchTermsResult.text);
+    searchTerms.push(query); // Add the original query to the search terms.
 
     const docs = await Promise.all(
       searchTerms.map(async (searchTerm) => {
