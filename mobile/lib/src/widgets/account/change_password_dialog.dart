@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/user/request.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -27,8 +26,8 @@ class ChangePasswordDialog extends HookConsumerWidget {
     final newPasswordConfirmationFocusNode = useFocusNode();
     final showNewPasswordConfirmation = useState(false);
 
-    final loading = useState(false);
-    final alert = useState<Alert?>(null);
+    final updateFuture = useState<Future?>(null);
+    final updateSnapshot = useFuture(updateFuture.value);
 
     return AlertDialog(
       title: const Text("Change Password"),
@@ -37,13 +36,11 @@ class ChangePasswordDialog extends HookConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (alert.value != null) ...[
+            if (updateSnapshot.hasError) ...[
               Text(
-                alert.value!.message,
+                updateSnapshot.error.toString(),
                 style: TextStyle(
-                  color: alert.value!.type == AlertType.error
-                      ? Colors.red
-                      : Colors.green,
+                  color: context.colorScheme.error,
                 ),
               ),
               const SizedBox(height: 10),
@@ -59,9 +56,7 @@ class ChangePasswordDialog extends HookConsumerWidget {
                     showCurrentPassword.value = !showCurrentPassword.value;
                   },
                   icon: FaIcon(
-                    showCurrentPassword.value
-                        ? FontAwesomeIcons.eye
-                        : FontAwesomeIcons.eyeSlash,
+                    showCurrentPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                     size: 20,
                   ),
                 ),
@@ -90,9 +85,7 @@ class ChangePasswordDialog extends HookConsumerWidget {
                     showNewPassword.value = !showNewPassword.value;
                   },
                   icon: FaIcon(
-                    showNewPassword.value
-                        ? FontAwesomeIcons.eye
-                        : FontAwesomeIcons.eyeSlash,
+                    showNewPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                     size: 20,
                   ),
                 ),
@@ -122,13 +115,10 @@ class ChangePasswordDialog extends HookConsumerWidget {
                 labelText: "Confirm New Password",
                 suffixIcon: IconButton(
                   onPressed: () {
-                    showNewPasswordConfirmation.value =
-                        !showNewPasswordConfirmation.value;
+                    showNewPasswordConfirmation.value = !showNewPasswordConfirmation.value;
                   },
                   icon: FaIcon(
-                    showNewPasswordConfirmation.value
-                        ? FontAwesomeIcons.eye
-                        : FontAwesomeIcons.eyeSlash,
+                    showNewPasswordConfirmation.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                     size: 20,
                   ),
                 ),
@@ -167,6 +157,9 @@ class ChangePasswordDialog extends HookConsumerWidget {
       actions: [
         TextButton(
           onPressed: () {
+            if (updateSnapshot.connectionState == ConnectionState.waiting) {
+              return;
+            }
             Navigator.pop(context);
           },
           child: const Text("Cancel"),
@@ -176,34 +169,33 @@ class ChangePasswordDialog extends HookConsumerWidget {
             if (!formKey.value.currentState!.validate()) {
               return;
             }
-
-            try {
-              loading.value = true;
-              await ref
-                  .read(currentUserProvider.notifier)
-                  .updateUserPassword(
-                    UpdatePasswordRequest(
-                      currentPassword: currentPasswordController.text,
-                      newPassword: newPasswordController.text,
-                    ),
-                  )
-                  .then((value) {
-                Navigator.of(context).pop();
-              });
-            } catch (e) {
-              alert.value = Alert(
-                type: AlertType.error,
-                message: e.toString(),
-              );
-            } finally {
-              loading.value = false;
+            if (updateSnapshot.connectionState == ConnectionState.waiting) {
+              return;
             }
-          },
-          child: loading.value
-              ? CircularProgressIndicator.adaptive(
-                  backgroundColor: context.colorScheme.onPrimary,
+
+            updateFuture.value = ref
+                .read(currentUserProvider.notifier)
+                .updateUserPassword(
+                  UpdatePasswordRequest(
+                    currentPassword: currentPasswordController.text,
+                    newPassword: newPasswordController.text,
+                  ),
                 )
-              : const Text("Change"),
+                .then((value) {
+              Navigator.of(context).pop();
+            });
+            await updateFuture.value;
+          },
+          child: updateSnapshot.hasError && updateSnapshot.connectionState != ConnectionState.waiting
+              ? Icon(
+                  Icons.close,
+                  color: context.colorScheme.error,
+                )
+              : updateSnapshot.connectionState == ConnectionState.waiting
+                  ? CircularProgressIndicator.adaptive(
+                      backgroundColor: context.colorScheme.onPrimary,
+                    )
+                  : const Text("Change"),
         ),
       ],
     );

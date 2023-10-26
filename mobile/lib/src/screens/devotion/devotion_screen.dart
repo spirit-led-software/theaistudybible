@@ -47,10 +47,7 @@ class DevotionScreen extends HookConsumerWidget {
     final reactionCounts = useState<Map<DevotionReactionType, int>>({});
 
     final fetchDevoData = useCallback((String? id) async {
-      var devoId = id ??
-          await ref
-              .refresh(devotionsPagesProvider.future)
-              .then((value) => value.first.first.id);
+      var devoId = id ?? await ref.refresh(devotionsPagesProvider.future).then((value) => value.first.first.id);
 
       await Future.wait([
         ref.refresh(devotionsProvider(devoId!).future),
@@ -77,8 +74,7 @@ class DevotionScreen extends HookConsumerWidget {
             id: foundDevo.id,
             devotion: foundDevo.toEmbedded(),
             images: foundImages.map((e) => e.toEmbedded()).toList(),
-            sourceDocuments:
-                foundSourceDocs.map((e) => e.toEmbedded()).toList(),
+            sourceDocuments: foundSourceDocs.map((e) => e.toEmbedded()).toList(),
             reactions: foundReactions.map((e) => e.toEmbedded()).toList(),
             reactionCounts: foundReactionCounts.entries
                 .map((e) => EmbeddedReactionCounts(
@@ -92,8 +88,7 @@ class DevotionScreen extends HookConsumerWidget {
     }, [ref, isMounted]);
 
     useEffect(() {
-      final id = devotionId ??
-          ref.read(devotionsPagesProvider).value?.firstOrNull?.firstOrNull?.id;
+      final id = devotionId ?? ref.read(devotionsPagesProvider).value?.firstOrNull?.firstOrNull?.id;
       if (devotionDataManager.hasValue) {
         devotionDataManager.value!.hasDevotion(id!).then((value) async {
           if (value) {
@@ -101,11 +96,8 @@ class DevotionScreen extends HookConsumerWidget {
               final devoData = await devotionDataManager.value!.getDevotion(id);
               devotion.value = devoData!.devotion.toRegular();
               images.value = devoData.images.map((e) => e.toRegular()).toList();
-              sourceDocs.value =
-                  devoData.sourceDocuments.map((e) => e.toRegular()).toList();
-              reactionCounts.value = {
-                for (final e in devoData.reactionCounts) e.type: e.count!
-              };
+              sourceDocs.value = devoData.sourceDocuments.map((e) => e.toRegular()).toList();
+              reactionCounts.value = {for (final e in devoData.reactionCounts) e.type: e.count!};
             }
           } else {
             loading.value = true;
@@ -127,9 +119,7 @@ class DevotionScreen extends HookConsumerWidget {
     useEffect(() {
       if (devotion.value != null) {
         Future(() {
-          ref
-              .read(currentDevotionIdProvider.notifier)
-              .updateId(devotion.value!.id);
+          ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value!.id);
         });
       }
       return () {};
@@ -148,8 +138,7 @@ class DevotionScreen extends HookConsumerWidget {
                     width: 15,
                   ),
                   SpinKitSpinningLines(
-                    color: context.appBarTheme.foregroundColor ??
-                        context.colorScheme.onBackground,
+                    color: context.appBarTheme.foregroundColor ?? context.colorScheme.onBackground,
                     size: 20,
                   )
                 ],
@@ -219,18 +208,30 @@ class DevotionScreen extends HookConsumerWidget {
                     ),
                     onTap: () {
                       ref
-                          .read(devotionReactionsProvider(devotion.value!.id)
-                              .notifier)
+                          .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
                             reaction: DevotionReactionType.LIKE,
                             session: currentUser.requireValue.session,
                           )
                           .then((value) {
-                        if (isMounted()) {
-                          reactionCounts.value[DevotionReactionType.LIKE] =
-                              reactionCounts.value[DevotionReactionType.LIKE]! +
-                                  1;
-                        }
+                        ref.refresh(devotionReactionCountsProvider(devotion.value!.id).future).then((value) {
+                          if (isMounted()) {
+                            reactionCounts.value[DevotionReactionType.LIKE] = value[DevotionReactionType.LIKE]!;
+                          }
+                        });
+                      }).catchError((error) {
+                        debugPrint("Failed to create reaction: $error");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "$error",
+                              style: TextStyle(
+                                color: context.colorScheme.onError,
+                              ),
+                            ),
+                            backgroundColor: context.colorScheme.error,
+                          ),
+                        );
                       });
                     },
                   ),
@@ -255,19 +256,30 @@ class DevotionScreen extends HookConsumerWidget {
                     ),
                     onTap: () {
                       ref
-                          .read(devotionReactionsProvider(devotion.value!.id)
-                              .notifier)
+                          .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
                             reaction: DevotionReactionType.DISLIKE,
                             session: currentUser.requireValue.session,
                           )
                           .then((value) {
-                        if (isMounted()) {
-                          reactionCounts.value[DevotionReactionType.DISLIKE] =
-                              reactionCounts
-                                      .value[DevotionReactionType.DISLIKE]! +
-                                  1;
-                        }
+                        ref.refresh(devotionReactionCountsProvider(devotion.value!.id).future).then((value) {
+                          if (isMounted()) {
+                            reactionCounts.value[DevotionReactionType.DISLIKE] = value[DevotionReactionType.DISLIKE]!;
+                          }
+                        });
+                      }).catchError((error) {
+                        debugPrint("Failed to create reaction: $error");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "$error",
+                              style: TextStyle(
+                                color: context.colorScheme.onError,
+                              ),
+                            ),
+                            backgroundColor: context.colorScheme.error,
+                          ),
+                        );
                       });
                     },
                   ),
@@ -290,8 +302,7 @@ class DevotionScreen extends HookConsumerWidget {
                       ],
                     ),
                     onTap: () {
-                      Share.shareUri(Uri.parse(
-                          '${Website.url}/devotions/${devotion.value!.id}'));
+                      Share.shareUri(Uri.parse('${Website.url}/devotions/${devotion.value!.id}'));
                     },
                   ),
                 ],
@@ -328,8 +339,7 @@ class DevotionScreen extends HookConsumerWidget {
                       final foundSourceDocs = value[1] as List<SourceDocument>;
                       final foundImages = value[2] as List<DevotionImage>;
                       final foundReactions = value[3] as List<DevotionReaction>;
-                      final foundReactionCounts =
-                          value[4] as Map<DevotionReactionType, int>;
+                      final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
                       if (isMounted()) {
                         devotion.value = foundDevo;
                         sourceDocs.value = foundSourceDocs;
@@ -340,14 +350,9 @@ class DevotionScreen extends HookConsumerWidget {
                         DevotionData(
                           id: foundDevo.id,
                           devotion: foundDevo.toEmbedded(),
-                          images:
-                              foundImages.map((e) => e.toEmbedded()).toList(),
-                          sourceDocuments: foundSourceDocs
-                              .map((e) => e.toEmbedded())
-                              .toList(),
-                          reactions: foundReactions
-                              .map((e) => e.toEmbedded())
-                              .toList(),
+                          images: foundImages.map((e) => e.toEmbedded()).toList(),
+                          sourceDocuments: foundSourceDocs.map((e) => e.toEmbedded()).toList(),
+                          reactions: foundReactions.map((e) => e.toEmbedded()).toList(),
                           reactionCounts: foundReactionCounts.entries
                               .map((e) => EmbeddedReactionCounts(
                                     type: e.key,
@@ -504,10 +509,7 @@ class DevotionScreen extends HookConsumerWidget {
                                     size: 15,
                                   ),
                                   title: Text(
-                                    sourceDocs.value[index].metadata['name']
-                                        .split(" - ")
-                                        .first
-                                        .toString(),
+                                    sourceDocs.value[index].metadata['name'].split(" - ").first.toString(),
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
                                     style: const TextStyle(
@@ -515,8 +517,7 @@ class DevotionScreen extends HookConsumerWidget {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    sourceDocs.value[index].metadata['url']
-                                        .toString(),
+                                    sourceDocs.value[index].metadata['url'].toString(),
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
                                     style: const TextStyle(

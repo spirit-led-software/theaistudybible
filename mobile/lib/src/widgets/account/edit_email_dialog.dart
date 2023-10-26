@@ -57,6 +57,9 @@ class EditEmailDialog extends HookConsumerWidget {
       actions: [
         TextButton(
           onPressed: () {
+            if (updateSnapshot.connectionState == ConnectionState.waiting) {
+              return;
+            }
             Navigator.pop(context);
           },
           child: const Text("Cancel"),
@@ -64,6 +67,7 @@ class EditEmailDialog extends HookConsumerWidget {
         TextButton(
           onPressed: () async {
             if (!formKey.value.currentState!.validate()) return;
+            if (updateSnapshot.connectionState == ConnectionState.waiting) return;
 
             updateFuture.value = ref
                 .read(currentUserProvider.notifier)
@@ -75,11 +79,9 @@ class EditEmailDialog extends HookConsumerWidget {
                 .then((value) {
               Navigator.pop(context);
             });
-
             await updateFuture.value;
           },
-          child: updateSnapshot.hasError &&
-                  updateSnapshot.connectionState != ConnectionState.waiting
+          child: updateSnapshot.hasError && updateSnapshot.connectionState != ConnectionState.waiting
               ? Icon(
                   Icons.close,
                   color: context.colorScheme.error,

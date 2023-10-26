@@ -12,38 +12,55 @@ class CreateDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController controller = TextEditingController();
+    final formKey = useRef(GlobalKey<FormState>());
+    final controller = useTextEditingController();
 
-    final isMounted = useIsMounted();
-    final loading = useState(false);
+    final createFuture = useState<Future?>(null);
+    final createSnapshot = useFuture(createFuture.value);
 
     return AlertDialog(
       title: const Text('New Chat'),
-      content: TextField(
-        controller: controller,
-        decoration: const InputDecoration(
-          labelText: 'Name (Optional)',
-          hintText: "New Chat",
+      content: Form(
+        key: formKey.value,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: 'Name (Optional)',
+                hintText: "New Chat",
+              ),
+              validator: (value) {
+                return null;
+              },
+            ),
+          ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () {
-            if (loading.value) return;
+            if (createSnapshot.connectionState == ConnectionState.waiting) return;
             Navigator.of(context).pop();
           },
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
-            if (loading.value) return;
+          onPressed: () async {
+            if (!formKey.value.currentState!.validate()) {
+              return;
+            }
+            if (createSnapshot.connectionState == ConnectionState.waiting) {
+              return;
+            }
 
             String name = controller.value.text;
             if (name.isEmpty) {
               name = "New Chat";
             }
-            loading.value = true;
-            ref
+
+            createFuture.value = ref
                 .watch(chatsPagesProvider.notifier)
                 .createChat(CreateChatRequest(
                   id: const Uuid().v4(),
@@ -52,15 +69,19 @@ class CreateDialog extends HookConsumerWidget {
                 .then((chat) {
               Navigator.of(context).pop();
               context.go('/chat/${chat.id}');
-            }).whenComplete(() {
-              if (isMounted()) loading.value = false;
             });
+            await createFuture.value;
           },
-          child: loading.value
-              ? CircularProgressIndicator.adaptive(
-                  backgroundColor: context.colorScheme.onPrimary,
+          child: createSnapshot.hasError && createSnapshot.connectionState != ConnectionState.waiting
+              ? Icon(
+                  Icons.close,
+                  color: context.colorScheme.error,
                 )
-              : const Text('Create'),
+              : createSnapshot.connectionState == ConnectionState.waiting
+                  ? CircularProgressIndicator.adaptive(
+                      backgroundColor: context.colorScheme.onPrimary,
+                    )
+                  : const Text("Create"),
         ),
       ],
     );

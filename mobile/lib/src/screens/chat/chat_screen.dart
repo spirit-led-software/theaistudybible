@@ -72,8 +72,6 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
-    final chatId = initChatId ?? chatHook.chatId.value;
-
     final fetchChatData = useCallback((String id) async {
       await Future.wait([
         ref.refresh(chatsProvider(id).future),
@@ -98,28 +96,29 @@ class ChatScreen extends HookConsumerWidget {
     }, [ref, chatHook, isMounted]);
 
     useEffect(() {
-      if (chatId != null) {
-        if (isMounted()) chatHook.chatId.value = chatId;
+      final id = initChatId;
+      if (id != null) {
+        if (isMounted()) chatHook.chatId.value = initChatId;
         if (chatDataManager.hasValue) {
-          chatDataManager.value!.hasChat(chatId).then((value) async {
+          chatDataManager.value!.hasChat(id).then((value) async {
             if (value) {
               if (isMounted()) {
-                final chatData = await chatDataManager.value!.getChat(chatId);
+                final chatData = await chatDataManager.value!.getChat(id);
                 chat.value = chatData!.chat.toRegular();
                 chatHook.messages.value =
                     chatData.messages.map((e) => e.toRegular()).toList();
               }
-              fetchChatData(chatId);
+              fetchChatData(id);
             } else {
               if (isMounted()) isLoadingChat.value = true;
-              fetchChatData(chatId).whenComplete(() {
+              fetchChatData(id).whenComplete(() {
                 if (isMounted()) isLoadingChat.value = false;
               });
             }
           });
         } else {
           isLoadingChat.value = true;
-          fetchChatData(chatId).whenComplete(() {
+          fetchChatData(id).whenComplete(() {
             if (isMounted()) isLoadingChat.value = false;
           });
         }
@@ -131,10 +130,44 @@ class ChatScreen extends HookConsumerWidget {
         }
       }
       Future(() {
-        ref.read(currentChatIdProvider.notifier).update(chatId);
+        ref.read(currentChatIdProvider.notifier).update(id);
       });
       return () {};
-    }, [chatId]);
+    }, [initChatId]);
+
+    useEffect(() {
+      final id = chatHook.chatId.value;
+      if (id != null && id != initChatId) {
+        ref.read(chatsProvider(id).future).then((value) {
+          if (isMounted()) chat.value = value;
+        });
+
+        Future(() {
+          ref.read(currentChatIdProvider.notifier).update(id);
+        });
+      }
+      return () {};
+    }, [chatHook.chatId.value]);
+
+    useEffect(() {
+      if (chatHook.chatId.value != null &&
+          chat.value != null &&
+          chatHook.currentResponseId.value == null) {
+        chatDataManager.value?.addChat(
+          ChatData(
+            id: chatHook.chatId.value!,
+            chat: chat.value!.toEmbedded(),
+            messages:
+                chatHook.messages.value.map((e) => e.toEmbedded()).toList(),
+          ),
+        );
+      }
+      return () {};
+    }, [
+      chatHook.currentResponseId.value,
+      chatHook.chatId.value,
+      chatHook.messages.value,
+    ]);
 
     useEffect(() {
       if (chatHook.error.value != null) {
@@ -172,22 +205,6 @@ class ChatScreen extends HookConsumerWidget {
       }
       return () {};
     }, [alert.value]);
-
-    useEffect(() {
-      if (chatId != null &&
-          chat.value != null &&
-          chatHook.currentResponseId.value == null) {
-        chatDataManager.value?.addChat(
-          ChatData(
-            id: chatId,
-            chat: chat.value!.toEmbedded(),
-            messages:
-                chatHook.messages.value.map((e) => e.toEmbedded()).toList(),
-          ),
-        );
-      }
-      return () {};
-    }, [chatHook.currentResponseId.value, chatHook.messages.value]);
 
     useEffect(() {
       if (scrollController.hasClients) {
@@ -278,12 +295,15 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () async {
-                          if (chatId != null) {
+                          if (chatHook.chatId.value != null) {
                             isRefreshingChat.value = true;
                             return await Future.wait([
-                              ref.refresh(chatsProvider(chatId).future),
                               ref.refresh(
-                                currentChatMessagesProvider(chatId).future,
+                                  chatsProvider(chatHook.chatId.value).future),
+                              ref.refresh(
+                                currentChatMessagesProvider(
+                                        chatHook.chatId.value)
+                                    .future,
                               ),
                             ]).then((value) {
                               final foundChat = value[0] as Chat;
@@ -397,18 +417,19 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () {
-                          if (chatId != null) {
+                          if (chatHook.chatId.value != null) {
                             showDialog(
                               context: popupMenuContext,
                               builder: (context) {
                                 return RenameDialog(
-                                  id: chatId,
+                                  id: chatHook.chatId.value!,
                                   name: chat.value!.name,
                                 );
                               },
                             ).then((_) async {
                               await ref
-                                  .refresh(chatsProvider(chatId).future)
+                                  .refresh(chatsProvider(chatHook.chatId.value)
+                                      .future)
                                   .then((value) {
                                 chat.value = value;
                               });
@@ -437,10 +458,10 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                       PopupMenuItem(
                         onTap: () {
-                          if (chatId != null) {
+                          if (chatHook.chatId.value != null) {
                             ref
                                 .read(chatsPagesProvider.notifier)
-                                .deleteChat(chatId);
+                                .deleteChat(chatHook.chatId.value!);
                             ref
                                 .read(currentChatIdProvider.notifier)
                                 .update(null);
