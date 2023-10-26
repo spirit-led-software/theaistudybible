@@ -67,6 +67,7 @@ export class PuppeteerCoreWebBaseLoader
     const bodyHTML = options?.evaluate
       ? await options?.evaluate(page, browser)
       : await page.evaluate(() => document.body.innerHTML);
+    const title = await page.title();
 
     console.log(`Scraped url '${url}'. Closing all pages...`);
     const pages = await browser.pages();
@@ -76,7 +77,7 @@ export class PuppeteerCoreWebBaseLoader
     await browser.close();
 
     return {
-      title: await page.title(),
+      title: title,
       content: bodyHTML,
     };
   }
