@@ -1,8 +1,7 @@
-import { vectorDBConfig } from "@core/configs";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { Document } from "langchain/document";
-import { TokenTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
+import { textSplitter } from "./text-splitter";
 
 export async function generatePageContentEmbeddings(
   name: string,
@@ -28,13 +27,7 @@ export async function generatePageContentEmbeddings(
           },
         });
         console.log(`Loading and splitting documents from url '${url}'`);
-        docs = await loader.loadAndSplit(
-          new TokenTextSplitter({
-            chunkSize: vectorDBConfig.docEmbeddingContentLength,
-            chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
-            encodingName: "cl100k_base",
-          })
-        );
+        docs = await loader.loadAndSplit(textSplitter);
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);
       }
 

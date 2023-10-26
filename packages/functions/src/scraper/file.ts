@@ -1,6 +1,7 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { unstructuredConfig, vectorDBConfig } from "@core/configs";
+import { unstructuredConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
+import { textSplitter } from "@lib/text-splitter";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { S3Handler } from "aws-lambda";
@@ -11,7 +12,6 @@ import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
-import { TokenTextSplitter } from "langchain/text_splitter";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -95,13 +95,7 @@ export const handler: S3Handler = async (event) => {
     });
 
     console.log("Starting load and split");
-    let docs = await loader.loadAndSplit(
-      new TokenTextSplitter({
-        chunkSize: vectorDBConfig.docEmbeddingContentLength,
-        chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
-        encodingName: "cl100k_base",
-      })
-    );
+    let docs = await loader.loadAndSplit(textSplitter);
 
     console.log("Finished load and split");
     console.log(`Loaded ${docs.length} documents`);
