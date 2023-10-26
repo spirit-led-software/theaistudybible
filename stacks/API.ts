@@ -182,7 +182,7 @@ export function API({ stack, app }: StackContext) {
           },
           permissions: [invokeBedrockPolicy],
           timeout: "15 minutes",
-          memorySize: "1 GB",
+          memorySize: "2 GB",
         },
       },
       "POST /scraper/file/presigned-url": {

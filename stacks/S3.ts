@@ -25,7 +25,7 @@ export function S3({ stack }: StackContext) {
         },
         permissions: ["s3", invokeBedrockPolicy],
         timeout: "2 minutes",
-        memorySize: "1 GB",
+        memorySize: "2 GB",
       },
     },
     notifications: {

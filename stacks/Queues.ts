@@ -38,7 +38,7 @@ export function Queues({ stack }: StackContext) {
         },
         reservedConcurrentExecutions: stack.stage !== "prod" ? 4 : 20,
         timeout: "15 minutes",
-        memorySize: "1 GB",
+        memorySize: "2 GB",
       },
     },
   });

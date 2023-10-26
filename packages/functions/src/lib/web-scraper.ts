@@ -39,11 +39,11 @@ export async function generatePageContentEmbeddings(
 
       console.log("Adding metadata to documents.");
       docs = docs.map((doc) => {
+        let newPageContent = `[TITLE] ${name}\n[CONTENT] ${doc.pageContent}`;
         if (doc.metadata.title) {
-          doc.pageContent = `${doc.metadata.title}\n${doc.pageContent}`;
-        } else {
-          doc.pageContent = `${name}\n${doc.pageContent}`;
+          newPageContent = `[TITLE] ${doc.metadata.title}\n[CONTENT] ${doc.pageContent}`;
         }
+        doc.pageContent = newPageContent.trim().replace(/\s+/g, " ");
         doc.metadata = {
           ...doc.metadata,
           indexDate: new Date().toISOString(),
