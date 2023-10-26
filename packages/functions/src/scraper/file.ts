@@ -106,9 +106,9 @@ export const handler: S3Handler = async (event) => {
     console.log("Finished load and split");
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
-      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n\n${doc.pageContent}`;
+      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
       if (doc.metadata.title) {
-        newPageContent = `TITLE: ${doc.metadata.title}\n---\n\n${doc.pageContent}`;
+        newPageContent = `TITLE: ${doc.metadata.title}\n---\n${doc.pageContent}`;
       }
       doc.pageContent = newPageContent;
       doc.metadata = {
