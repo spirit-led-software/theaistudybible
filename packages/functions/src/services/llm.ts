@@ -170,10 +170,10 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
         stopSequences: ["</output>"],
       }),
       baseRetriever: documentVectorStore.asRetriever({
-        k: 10,
+        k: 5,
         verbose: envConfig.isLocal,
       }),
-      numSearchTerms: 5,
+      numSearchTerms: 7,
       prompt: PromptTemplate.fromTemplate(QUERY_INTERPRETER_PROMPT_TEMPLATE),
       verbose: envConfig.isLocal,
     }),

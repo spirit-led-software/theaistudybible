@@ -107,8 +107,15 @@ class EmbeddedSourceDocument with _$EmbeddedSourceDocument {
   factory EmbeddedSourceDocument({
     String? id,
     String? metadata,
-    String? page_content,
+    String? pageContent,
+    double? distance,
+    @Default(DistanceMetric.cosine) DistanceMetric distanceMetric,
   }) = _EmbeddedSourceDocument;
+
+  @override
+  @enumerated
+  // ignore: recursive_getters
+  DistanceMetric get distanceMetric => distanceMetric;
 
   factory EmbeddedSourceDocument.fromJson(Map<String, dynamic> json) =>
       _$EmbeddedSourceDocumentFromJson(json);
@@ -117,7 +124,9 @@ class EmbeddedSourceDocument with _$EmbeddedSourceDocument {
     return SourceDocument(
       id: id!,
       metadata: jsonDecode(metadata!),
-      page_content: page_content!,
+      pageContent: pageContent!,
+      distance: distance!,
+      distanceMetric: distanceMetric,
     );
   }
 }

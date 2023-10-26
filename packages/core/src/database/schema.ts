@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   date,
+  doublePrecision,
   index,
   integer,
   json,
@@ -344,6 +345,12 @@ export const aiResponsesToSourceDocuments = pgTable(
         onUpdate: "cascade",
       }),
     sourceDocumentId: uuid("source_document_id").notNull(),
+    distance: doublePrecision("distance").notNull().default(0),
+    distanceMetric: text("distance_metric", {
+      enum: ["cosine", "l2", "innerProduct"],
+    })
+      .notNull()
+      .default("cosine"),
   },
   (table) => {
     return {
@@ -364,6 +371,12 @@ export const devotionsToSourceDocuments = pgTable(
         onUpdate: "cascade",
       }),
     sourceDocumentId: uuid("source_document_id").notNull(),
+    distance: doublePrecision("distance").notNull().default(0),
+    distanceMetric: text("distance_metric", {
+      enum: ["cosine", "l2", "innerProduct"],
+    })
+      .notNull()
+      .default("cosine"),
   },
   (table) => {
     return {

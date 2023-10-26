@@ -5,7 +5,7 @@ import type {
 } from "@core/model";
 import { aiResponses, aiResponsesToSourceDocuments } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq } from "drizzle-orm";
+import { SQL, asc, desc, eq } from "drizzle-orm";
 import { getDocumentVectorStore } from "./vector-db";
 
 export async function getAiResponses(
@@ -58,19 +58,27 @@ export async function getAiResponsesByUserMessageId(userMessageId: string) {
 }
 
 export async function getAiResponseSourceDocuments(aiResponse: AiResponse) {
-  const sourceDocumentIds = (
-    await readOnlyDatabase
-      .select()
-      .from(aiResponsesToSourceDocuments)
-      .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
-  ).map((d) => d.sourceDocumentId);
+  const sourceDocumentRelationships = await readOnlyDatabase
+    .select()
+    .from(aiResponsesToSourceDocuments)
+    .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
+    .orderBy(asc(aiResponsesToSourceDocuments.distance));
 
   const vectorStore = await getDocumentVectorStore();
   const foundSourceDocuments = await vectorStore.getDocumentsByIds(
-    sourceDocumentIds
+    sourceDocumentRelationships.map((r) => r.sourceDocumentId)
   );
 
-  return foundSourceDocuments;
+  return foundSourceDocuments.map((d) => {
+    const relationship = sourceDocumentRelationships.find(
+      (r) => r.sourceDocumentId === d.id
+    );
+    return {
+      ...d,
+      distance: relationship?.distance ?? 0,
+      distanceMetric: relationship?.distanceMetric ?? "cosine",
+    };
+  });
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {

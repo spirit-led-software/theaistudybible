@@ -7,19 +7,15 @@ List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
       if (unique.id == prospect.id) {
         return true;
       }
-      if (prospect.metadata["name"] == unique.metadata["name"]) {
-        if (prospect.metadata["type"].toString().toLowerCase() == "webpage" &&
-            prospect.metadata["url"] == unique.metadata["url"]) {
+      if (prospect.name == unique.name) {
+        if (prospect.isWebpage && prospect.url == unique.url) {
           return true;
         }
 
-        if (prospect.metadata["type"].toString().toLowerCase() == "file" &&
-            prospect.metadata["loc"]["pageNumber"] ==
-                unique.metadata["loc"]["pageNumber"] &&
-            prospect.metadata["loc"]["lines"]["to"] ==
-                unique.metadata["loc"]["lines"]["to"] &&
-            prospect.metadata["loc"]["lines"]["from"] ==
-                unique.metadata["loc"]["lines"]["from"]) {
+        if (prospect.isFile &&
+            prospect.pageNumber == unique.pageNumber &&
+            prospect.linesTo == unique.linesTo &&
+            prospect.linesFrom == unique.linesFrom) {
           return true;
         }
 

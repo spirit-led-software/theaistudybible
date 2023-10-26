@@ -184,16 +184,21 @@ class Sources extends HookConsumerWidget {
                   ? sourceDocuments.value.length
                   : 1,
               itemBuilder: (context, index) {
+                final sourcesSorted = sourceDocuments.value
+                  ..sort(
+                    (a, b) => a.distance.compareTo(b.distance),
+                  );
+
                 if (sourceDocuments.value.isEmpty) {
                   return const Text("None");
                 }
 
-                final source = sourceDocuments.value[index];
+                final source = sourcesSorted[index];
                 return Link(
                   uri: Uri.parse(source.metadata["url"]),
                   builder: (context, followLink) {
                     return Container(
-                      width: 200,
+                      width: 250,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       child: ListTile(
                         onTap: () {
@@ -205,14 +210,14 @@ class Sources extends HookConsumerWidget {
                           borderRadius: BorderRadius.circular(25),
                         ),
                         tileColor: context.primaryColor,
-                        leading: Icon(
+                        trailing: Icon(
                           CupertinoIcons.link,
                           color: context.colorScheme.onPrimary,
                           size: 20,
                         ),
                         titleAlignment: ListTileTitleAlignment.center,
                         title: Text(
-                          source.metadata["name"].toString(),
+                          source.name,
                           textAlign: TextAlign.center,
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
@@ -223,13 +228,10 @@ class Sources extends HookConsumerWidget {
                         subtitle: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (source.metadata["type"]
-                                    .toString()
-                                    .toLowerCase() ==
-                                "webpage") ...[
+                            if (source.isWebpage) ...[
                               Text(
                                 Uri.parse(
-                                  source.metadata["url"].toString(),
+                                  source.url,
                                 )
                                     .pathSegments
                                     .lastWhere((element) => element.isNotEmpty),
@@ -238,20 +240,16 @@ class Sources extends HookConsumerWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
-                            if (source.metadata["type"]
-                                    .toString()
-                                    .toLowerCase() ==
-                                "file") ...[
+                            if (source.isFile) ...[
                               ClipRRect(
                                 clipBehavior: Clip.hardEdge,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    if (source.metadata["loc"]["pageNumber"] !=
-                                        null) ...[
+                                    if (source.hasPageNumber) ...[
                                       Text(
-                                        'P:${source.metadata["loc"]["pageNumber"].toString()}',
+                                        'P:${source.pageNumber}',
                                         softWrap: false,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -259,11 +257,10 @@ class Sources extends HookConsumerWidget {
                                         width: 5,
                                       )
                                     ],
-                                    if (source.metadata["loc"]["lines"] !=
-                                        null) ...[
+                                    if (source.hasLines) ...[
                                       Text(
-                                        'L:${source.metadata["loc"]["lines"]["from"].toString()}'
-                                        '-${source.metadata["loc"]["lines"]["to"].toString()}',
+                                        'L:${source.linesFrom}'
+                                        '-${source.linesTo}',
                                         softWrap: false,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -279,6 +276,24 @@ class Sources extends HookConsumerWidget {
                         ),
                         subtitleTextStyle: TextStyle(
                           color: context.colorScheme.onPrimary,
+                        ),
+                        leading: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${((1 - (source.distance / 2)) * 100).toStringAsFixed(1)}%',
+                              style: TextStyle(
+                                color: context.colorScheme.onPrimary,
+                              ),
+                            ),
+                            Text(
+                              "Match",
+                              style: TextStyle(
+                                color: context.colorScheme.onPrimary,
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     );

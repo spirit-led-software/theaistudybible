@@ -1,6 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { axios, replicateConfig, s3Config } from "@core/configs";
+import { axios, envConfig, replicateConfig, s3Config } from "@core/configs";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import type {
   CreateDevotionData,
@@ -15,7 +15,7 @@ import {
   DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE,
   DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
 } from "@lib/prompts";
-import { SQL, desc, eq } from "drizzle-orm";
+import { SQL, asc, desc, eq } from "drizzle-orm";
 import { LLMChain, RetrievalQAChain } from "langchain/chains";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
@@ -73,19 +73,27 @@ export async function getDevotionByDate(date: Date) {
 }
 
 export async function getDevotionSourceDocuments(devotion: Devotion) {
-  const sourceDocumentIds = (
-    await readOnlyDatabase
-      .select()
-      .from(devotionsToSourceDocuments)
-      .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
-  ).map((d) => d.sourceDocumentId);
+  const sourceDocumentRelationships = await readOnlyDatabase
+    .select()
+    .from(devotionsToSourceDocuments)
+    .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
+    .orderBy(asc(devotionsToSourceDocuments.distance));
 
   const vectorStore = await getDocumentVectorStore();
   const foundSourceDocuments = await vectorStore.getDocumentsByIds(
-    sourceDocumentIds
+    sourceDocumentRelationships.map((d) => d.sourceDocumentId)
   );
 
-  return foundSourceDocuments;
+  return foundSourceDocuments.map((d) => {
+    const relationship = sourceDocumentRelationships.find(
+      (d2) => d2.devotionId === d.id
+    );
+    return {
+      ...d,
+      distance: relationship?.distance ?? 0,
+      distanceMetric: relationship?.distanceMetric ?? "cosine",
+    };
+  });
 }
 
 export async function createDevotion(data: CreateDevotionData) {
@@ -186,10 +194,14 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
     await Promise.all(
       result.sourceDocuments.map(async (c: NeonVectorStoreDocument) => {
-        await readWriteDatabase.insert(devotionsToSourceDocuments).values({
-          devotionId: devo!.id,
-          sourceDocumentId: c.id,
-        });
+        if (c.distance && c.distance <= 0.5) {
+          await readWriteDatabase.insert(devotionsToSourceDocuments).values({
+            devotionId: devo!.id,
+            sourceDocumentId: c.id,
+            distance: c.distance,
+            distanceMetric: c.distanceMetric,
+          });
+        }
       })
     );
 
@@ -234,6 +246,7 @@ async function generateDevotionImages(devo: Devotion) {
         },
       }
     ),
+    verbose: envConfig.isLocal,
   });
   const imagePromptText = await imagePromptChain.call({
     bibleReading: devo.bibleReading,
@@ -256,6 +269,7 @@ async function generateDevotionImages(devo: Devotion) {
     prompt: PromptTemplate.fromTemplate(
       DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE
     ),
+    verbose: envConfig.isLocal,
   });
   const imageCaption = await imageCaptionChain.call({
     imagePrompt: imagePrompts.prompt,
@@ -353,7 +367,11 @@ async function getRandomBibleReading() {
     })
   );
 
-  const vectorStore = await getDocumentVectorStore();
+  const vectorStore = await getDocumentVectorStore({
+    filter: {
+      name: "YouVersion - ESV 2016",
+    },
+  });
   const bibleReadingChain = RetrievalQAChain.fromLLM(
     getLargeContextModel({
       modelId: "anthropic.claude-instant-v1",
@@ -383,6 +401,7 @@ async function getRandomBibleReading() {
       ),
       returnSourceDocuments: true,
       inputKey: "topic",
+      verbose: envConfig.isLocal,
     }
   );
 

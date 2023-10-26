@@ -60,6 +60,7 @@ class ChatScreen extends HookConsumerWidget {
     final alert = useState<Alert?>(null);
     final shuffledSuggestions = useRef(<String>[...chatSuggestions]..shuffle());
 
+    final chat = useState<Chat?>(null);
     final chatHook = useChat(
       options: UseChatOptions(
         session: currentUser.requireValue.session,
@@ -72,7 +73,6 @@ class ChatScreen extends HookConsumerWidget {
     );
 
     final chatId = initChatId ?? chatHook.chatId.value;
-    final chat = ref.watch(chatsProvider(chatId));
 
     final fetchChatData = useCallback((String id) async {
       await Future.wait([
@@ -83,6 +83,7 @@ class ChatScreen extends HookConsumerWidget {
         final foundMessages = value[1] as List<ChatMessage>;
 
         if (isMounted()) {
+          chat.value = foundChat;
           chatHook.messages.value = foundMessages;
         }
 
@@ -104,8 +105,9 @@ class ChatScreen extends HookConsumerWidget {
             if (value) {
               if (isMounted()) {
                 final chatData = await chatDataManager.value!.getChat(chatId);
+                chat.value = chatData!.chat.toRegular();
                 chatHook.messages.value =
-                    chatData!.messages.map((e) => e.toRegular()).toList();
+                    chatData.messages.map((e) => e.toRegular()).toList();
               }
               fetchChatData(chatId);
             } else {
@@ -123,20 +125,16 @@ class ChatScreen extends HookConsumerWidget {
         }
       } else {
         if (isMounted()) {
+          chat.value = null;
           chatHook.chatId.value = null;
           chatHook.messages.value = [];
         }
       }
-
-      return () {};
-    }, [chatId]);
-
-    useEffect(() {
       Future(() {
-        ref.read(currentChatIdProvider.notifier).update(chat.value?.id);
+        ref.read(currentChatIdProvider.notifier).update(chatId);
       });
       return () {};
-    }, [chat.value]);
+    }, [chatId]);
 
     useEffect(() {
       if (chatHook.error.value != null) {
@@ -174,6 +172,22 @@ class ChatScreen extends HookConsumerWidget {
       }
       return () {};
     }, [alert.value]);
+
+    useEffect(() {
+      if (chatId != null &&
+          chat.value != null &&
+          chatHook.currentResponseId.value == null) {
+        chatDataManager.value?.addChat(
+          ChatData(
+            id: chatId,
+            chat: chat.value!.toEmbedded(),
+            messages:
+                chatHook.messages.value.map((e) => e.toEmbedded()).toList(),
+          ),
+        );
+      }
+      return () {};
+    }, [chatHook.currentResponseId.value, chatHook.messages.value]);
 
     useEffect(() {
       if (scrollController.hasClients) {
@@ -276,6 +290,7 @@ class ChatScreen extends HookConsumerWidget {
                               final foundMessages =
                                   value[1] as List<ChatMessage>;
                               if (isMounted()) {
+                                chat.value = foundChat;
                                 chatHook.messages.value = foundMessages;
                               }
                               chatDataManager.value?.addChat(
@@ -391,7 +406,13 @@ class ChatScreen extends HookConsumerWidget {
                                   name: chat.value!.name,
                                 );
                               },
-                            );
+                            ).then((_) async {
+                              await ref
+                                  .refresh(chatsProvider(chatId).future)
+                                  .then((value) {
+                                chat.value = value;
+                              });
+                            });
                           }
                         },
                         child: Row(

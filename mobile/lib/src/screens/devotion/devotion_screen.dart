@@ -44,6 +44,7 @@ class DevotionScreen extends HookConsumerWidget {
     final devotion = useState<Devotion?>(null);
     final sourceDocs = useState<List<SourceDocument>>([]);
     final images = useState<List<DevotionImage>>([]);
+    final reactionCounts = useState<Map<DevotionReactionType, int>>({});
 
     final fetchDevoData = useCallback((String? id) async {
       var devoId = id ??
@@ -68,6 +69,7 @@ class DevotionScreen extends HookConsumerWidget {
           devotion.value = foundDevo;
           sourceDocs.value = foundSourceDocs;
           images.value = foundImages;
+          reactionCounts.value = foundReactionCounts;
         }
 
         devotionDataManager.value?.addDevotion(
@@ -101,6 +103,9 @@ class DevotionScreen extends HookConsumerWidget {
               images.value = devoData.images.map((e) => e.toRegular()).toList();
               sourceDocs.value =
                   devoData.sourceDocuments.map((e) => e.toRegular()).toList();
+              reactionCounts.value = {
+                for (final e in devoData.reactionCounts) e.type: e.count!
+              };
             }
           } else {
             loading.value = true;
@@ -204,7 +209,7 @@ class DevotionScreen extends HookConsumerWidget {
                           width: 10,
                         ),
                         Text(
-                          "${ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.LIKE].toString() ?? '0'}"
+                          "${reactionCounts.value[DevotionReactionType.LIKE]}"
                           " Likes",
                           style: TextStyle(
                             color: context.colorScheme.onPrimary,
@@ -219,7 +224,14 @@ class DevotionScreen extends HookConsumerWidget {
                           .createReaction(
                             reaction: DevotionReactionType.LIKE,
                             session: currentUser.requireValue.session,
-                          );
+                          )
+                          .then((value) {
+                        if (isMounted()) {
+                          reactionCounts.value[DevotionReactionType.LIKE] =
+                              reactionCounts.value[DevotionReactionType.LIKE]! +
+                                  1;
+                        }
+                      });
                     },
                   ),
                   PopupMenuItem(
@@ -233,7 +245,7 @@ class DevotionScreen extends HookConsumerWidget {
                           width: 10,
                         ),
                         Text(
-                          "${(ref.watch(devotionReactionCountsProvider(devotion.value!.id)).value?[DevotionReactionType.DISLIKE].toString() ?? '0')}"
+                          "${(reactionCounts.value[DevotionReactionType.DISLIKE])}"
                           " Dislikes",
                           style: TextStyle(
                             color: context.colorScheme.onPrimary,
@@ -248,7 +260,15 @@ class DevotionScreen extends HookConsumerWidget {
                           .createReaction(
                             reaction: DevotionReactionType.DISLIKE,
                             session: currentUser.requireValue.session,
-                          );
+                          )
+                          .then((value) {
+                        if (isMounted()) {
+                          reactionCounts.value[DevotionReactionType.DISLIKE] =
+                              reactionCounts
+                                      .value[DevotionReactionType.DISLIKE]! +
+                                  1;
+                        }
+                      });
                     },
                   ),
                   PopupMenuItem(
@@ -314,6 +334,7 @@ class DevotionScreen extends HookConsumerWidget {
                         devotion.value = foundDevo;
                         sourceDocs.value = foundSourceDocs;
                         images.value = foundImages;
+                        reactionCounts.value = foundReactionCounts;
                       }
                       devotionDataManager.value?.addDevotion(
                         DevotionData(

@@ -10,7 +10,7 @@ import {
 } from "langchain/schema/retriever";
 import { z } from "zod";
 
-export const QUERY_INTERPRETER_DEFAULT_PROMPT_TEMPLATE = `Given the user query below, the you need to generate {numSearchTerms} search terms or phrases to effectively retrieve relevant documents. The objective is to capture the user's intent and provide accurate and diverse results. Please consider the following guidelines:
+export const QUERY_INTERPRETER_DEFAULT_PROMPT_TEMPLATE = `Given the user query below, the you need to generate {numSearchTerms} unique search terms or phrases to effectively retrieve relevant documents. The objective is to capture the user's intent and provide accurate and diverse results. Please consider the following guidelines:
 
 1. **Understand User Intent:**
    - Analyze the user's query to discern the underlying intent or information sought.
@@ -63,6 +63,18 @@ export type QueryInterpreterInput = BaseRetrieverInput & {
    * If not provided, then the default prompt template will be used.
    */
   prompt?: PromptTemplate;
+
+  /**
+   * The desired length of the search terms.
+   * If not provided, then the default prompt template will be used.
+   */
+  desiredLength?: number;
+
+  /**
+   * The padding character to use if the desired length is provided.
+   * If not provided, then the default padding character will be used.
+   */
+  paddingCharacter?: string;
 };
 
 /**
@@ -83,6 +95,10 @@ export class QueryInterpreterRetriever extends BaseRetriever {
   numSearchTerms: number;
 
   outputParser: StructuredOutputParser<z.ZodArray<z.ZodString>>;
+
+  desiredLength?: number;
+
+  paddingCharacter: string;
 
   constructor(fields: QueryInterpreterInput) {
     super(fields);
@@ -106,6 +122,9 @@ export class QueryInterpreterRetriever extends BaseRetriever {
       outputKey: "text",
       verbose: fields.verbose,
     });
+
+    this.desiredLength = fields.desiredLength;
+    this.paddingCharacter = fields.paddingCharacter || "0";
   }
 
   async _getRelevantDocuments(
@@ -125,8 +144,12 @@ export class QueryInterpreterRetriever extends BaseRetriever {
 
     const docs = await Promise.all(
       searchTerms.map(async (searchTerm) => {
+        let paddedSearchTerm = searchTerm;
+        if (this.desiredLength && searchTerm.length < this.desiredLength) {
+          paddedSearchTerm = searchTerm.padEnd(this.desiredLength, "0");
+        }
         return await this.baseRetriever.getRelevantDocuments(
-          searchTerm,
+          paddedSearchTerm,
           runManager?.getChild("base_retriever")
         );
       })

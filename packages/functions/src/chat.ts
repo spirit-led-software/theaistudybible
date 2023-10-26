@@ -237,12 +237,16 @@ const lambdaHandler = async (
             text: result.text,
           }),
           ...sourceDocuments.map(async (sourceDoc) => {
-            await readWriteDatabase
-              .insert(aiResponsesToSourceDocuments)
-              .values({
-                aiResponseId: aiResponse.id,
-                sourceDocumentId: sourceDoc.id,
-              });
+            if (sourceDoc.distance && sourceDoc.distance <= 0.5) {
+              await readWriteDatabase
+                .insert(aiResponsesToSourceDocuments)
+                .values({
+                  aiResponseId: aiResponse.id,
+                  sourceDocumentId: sourceDoc.id,
+                  distance: sourceDoc.distance,
+                  distanceMetric: sourceDoc.distanceMetric,
+                });
+            }
           }),
         ]);
         return result;

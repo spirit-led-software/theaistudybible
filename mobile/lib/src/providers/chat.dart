@@ -32,7 +32,7 @@ class Chats extends _$Chats {
     }
   }
 
-  FutureOr<void> updateChat(UpdateChatRequest request) async {
+  Future<void> updateChat(UpdateChatRequest request) async {
     try {
       final currentId = id;
       if (currentId == null) {

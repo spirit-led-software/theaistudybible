@@ -1,5 +1,5 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { unstructuredConfig } from "@core/configs";
+import { unstructuredConfig, vectorDBConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { getDocumentVectorStore } from "@services/vector-db";
@@ -97,8 +97,8 @@ export const handler: S3Handler = async (event) => {
     console.log("Starting load and split");
     let docs = await loader.loadAndSplit(
       new RecursiveCharacterTextSplitter({
-        chunkSize: 512,
-        chunkOverlap: 128,
+        chunkSize: vectorDBConfig.docEmbeddingContentLength,
+        chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
       })
     );
 

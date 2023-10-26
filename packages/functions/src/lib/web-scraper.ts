@@ -1,3 +1,4 @@
+import { vectorDBConfig } from "@core/configs";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { Document } from "langchain/document";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
@@ -29,8 +30,8 @@ export async function generatePageContentEmbeddings(
         console.log(`Loading and splitting documents from url '${url}'`);
         docs = await loader.loadAndSplit(
           new RecursiveCharacterTextSplitter({
-            chunkSize: 512,
-            chunkOverlap: 128,
+            chunkSize: vectorDBConfig.docEmbeddingContentLength,
+            chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
           })
         );
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);

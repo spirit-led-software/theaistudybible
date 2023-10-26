@@ -11,6 +11,8 @@ import type { Embeddings } from "langchain/embeddings/base";
 import { VectorStore } from "langchain/vectorstores/base";
 import ws from "ws";
 
+export type DistanceMetric = "l2" | "cosine" | "innerProduct";
+
 export interface NeonVectorStoreArgs {
   connectionOptions: {
     readWriteUrl: string;
@@ -20,7 +22,7 @@ export interface NeonVectorStoreArgs {
   dimensions: number;
   filter?: Metadata;
   verbose?: boolean;
-  distance?: "cosine" | "l2" | "innerProduct";
+  distance?: DistanceMetric;
   hnswIdxM?: number;
   hnswIdxEfConstruction?: number;
 }
@@ -28,16 +30,22 @@ export interface NeonVectorStoreArgs {
 export class NeonVectorStoreDocument extends Document {
   id: string;
   embedding: string;
+  distance?: number;
+  distanceMetric?: DistanceMetric;
 
   constructor(fields: {
     id: string;
     metadata?: Metadata;
     pageContent: string;
     embedding: string;
+    distance?: number;
+    distanceMetric?: DistanceMetric;
   }) {
     super(fields);
     this.id = fields.id;
     this.embedding = fields.embedding;
+    this.distance = fields.distance;
+    this.distanceMetric = fields.distanceMetric;
   }
 }
 
@@ -55,7 +63,7 @@ export class NeonVectorStore extends VectorStore {
   filter?: Metadata;
   dimensions: number;
   verbose: boolean;
-  distance: "l2" | "cosine" | "innerProduct";
+  distance: DistanceMetric;
   hnswIdxM: number;
   hnswIdxEfConstruction: number;
 
@@ -215,12 +223,12 @@ export class NeonVectorStore extends VectorStore {
         );
       } else if (this.distance === "cosine") {
         documents = await client.query(
-          `SELECT *, 1 - (embedding ${
+          `SELECT *, embedding ${
             distanceOperators[this.distance]
-          } $1) AS "_distance"
+          } $1 AS "_distance"
         FROM ${this.tableName}
         WHERE metadata @> $2
-        ORDER BY "_distance" DESC
+        ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
           [embeddingString, _filter, k, _offset]
@@ -249,6 +257,8 @@ export class NeonVectorStore extends VectorStore {
             metadata: doc.metadata,
             pageContent: doc.page_content,
             embedding: doc.embedding,
+            distance: doc._distance,
+            distanceMetric: this.distance,
           });
           results.push([document, doc._distance]);
         }
@@ -303,7 +313,14 @@ export class NeonVectorStore extends VectorStore {
           documentsResult.rows
         )}`
       );
-      return documentsResult.rows as NeonVectorStoreDocument[];
+      return documentsResult.rows.map((row) => {
+        return new NeonVectorStoreDocument({
+          id: row.id,
+          metadata: row.metadata,
+          pageContent: row.page_content,
+          embedding: row.embedding,
+        });
+      });
     } catch (e) {
       this._log(`Error getting documents by ids from vector store: ${e}`);
       throw e;

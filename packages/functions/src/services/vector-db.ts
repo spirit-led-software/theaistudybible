@@ -2,8 +2,11 @@ import { envConfig, vectorDBConfig } from "@core/configs";
 import { NeonVectorStore } from "@core/langchain/vectorstores/neon";
 import { getEmbeddingsModel } from "./llm";
 
-export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
-  const { verbose } = options ?? {};
+export async function getDocumentVectorStore(options?: {
+  verbose?: boolean;
+  filter?: Record<string, unknown>;
+}) {
+  const { verbose, filter } = options ?? {};
   const vectorStore = await NeonVectorStore.fromConnectionString(
     getEmbeddingsModel(),
     {
@@ -17,6 +20,7 @@ export async function getDocumentVectorStore(options?: { verbose?: boolean }) {
       hnswIdxM: 16,
       hnswIdxEfConstruction: 64,
       verbose: envConfig.isLocal ? true : verbose,
+      filter,
     }
   );
   return vectorStore;

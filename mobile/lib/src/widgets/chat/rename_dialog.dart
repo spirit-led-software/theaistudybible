@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/providers/chat.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class RenameDialog extends HookConsumerWidget {
   final String id;
@@ -15,7 +17,10 @@ class RenameDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController controller = TextEditingController(text: name);
+    final controller = TextEditingController(text: name);
+
+    final updateFuture = useState<Future?>(null);
+    final updateSnapshot = useFuture(updateFuture.value);
 
     return AlertDialog(
       title: const Text('Rename Chat'),
@@ -33,18 +38,38 @@ class RenameDialog extends HookConsumerWidget {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (controller.value.text.isEmpty) {
               return;
             }
-            ref.read(chatsProvider(id).notifier).updateChat(
+            if (updateSnapshot.connectionState == ConnectionState.waiting) {
+              return;
+            }
+
+            updateFuture.value = ref
+                .read(chatsProvider(id).notifier)
+                .updateChat(
                   UpdateChatRequest(
                     name: controller.value.text,
                   ),
-                );
-            Navigator.of(context).pop();
+                )
+                .then((_) {
+              Navigator.of(context).pop();
+            });
+
+            await updateFuture.value;
           },
-          child: const Text('Update'),
+          child: updateSnapshot.hasError &&
+                  updateSnapshot.connectionState != ConnectionState.waiting
+              ? Icon(
+                  Icons.close,
+                  color: context.colorScheme.error,
+                )
+              : updateSnapshot.connectionState == ConnectionState.waiting
+                  ? CircularProgressIndicator.adaptive(
+                      backgroundColor: context.colorScheme.onPrimary,
+                    )
+                  : const Text("Save"),
         ),
       ],
     );
