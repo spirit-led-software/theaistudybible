@@ -45,7 +45,7 @@ export class PuppeteerCoreWebBaseLoader
   static async _scrape(
     url: string,
     options?: PuppeteerCoreWebBaseLoaderOptions
-  ) {
+  ): Promise<{ title: string; content: string }> {
     console.log(`Launching puppeteer for url '${url}'`);
     const browser = await launch({
       headless: chromium.headless,
@@ -75,7 +75,10 @@ export class PuppeteerCoreWebBaseLoader
     console.log(`Pages closed for '${url}'. Closing browser...`);
     await browser.close();
 
-    return bodyHTML;
+    return {
+      title: await page.title(),
+      content: bodyHTML,
+    };
   }
 
   async scrape() {
@@ -83,9 +86,9 @@ export class PuppeteerCoreWebBaseLoader
   }
 
   async load() {
-    const text = await this.scrape();
+    const { title, content } = await this.scrape();
 
-    const metadata = { source: this.webPath };
-    return [new Document({ pageContent: text, metadata })];
+    const metadata = { source: this.webPath, title };
+    return [new Document({ pageContent: content, metadata })];
   }
 }
