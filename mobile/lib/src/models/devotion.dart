@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revelationsai/src/models/devotion/data.dart';
+import 'package:isar/isar.dart';
+import 'package:revelationsai/src/utils/isar.dart';
 
 export 'devotion/image.dart' show DevotionImage;
 export 'devotion/reaction.dart' show DevotionReaction;
@@ -8,6 +9,7 @@ part 'devotion.freezed.dart';
 part 'devotion.g.dart';
 
 @freezed
+@Collection(ignore: {'copyWith'})
 class Devotion with _$Devotion {
   const Devotion._();
 
@@ -23,20 +25,8 @@ class Devotion with _$Devotion {
     required bool failed,
   }) = _Devotion;
 
-  factory Devotion.fromJson(Map<String, dynamic> json) =>
-      _$DevotionFromJson(json);
+  // ignore: recursive_getters
+  Id get isarId => fastHash(id);
 
-  EmbeddedDevotion toEmbedded() {
-    return EmbeddedDevotion(
-      id: id,
-      createdAt: createdAt.toUtc(),
-      updatedAt: updatedAt.toUtc(),
-      date: date.toUtc(),
-      bibleReading: bibleReading,
-      summary: summary,
-      reflection: reflection,
-      prayer: prayer,
-      failed: failed,
-    );
-  }
+  factory Devotion.fromJson(Map<String, dynamic> json) => _$DevotionFromJson(json);
 }

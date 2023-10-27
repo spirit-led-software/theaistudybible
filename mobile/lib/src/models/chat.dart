@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revelationsai/src/models/chat/data.dart';
+import 'package:isar/isar.dart';
+import 'package:revelationsai/src/utils/isar.dart';
 
 export 'chat/request.dart' show CreateChatRequest, UpdateChatRequest;
 
@@ -7,6 +8,7 @@ part 'chat.freezed.dart';
 part 'chat.g.dart';
 
 @freezed
+@Collection(ignore: {'copyWith'})
 class Chat with _$Chat {
   const Chat._();
 
@@ -18,15 +20,8 @@ class Chat with _$Chat {
     required String userId,
   }) = _Chat;
 
-  factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
+  // ignore: recursive_getters
+  Id get isarId => fastHash(id);
 
-  EmbeddedChat toEmbedded() {
-    return EmbeddedChat(
-      id: id,
-      createdAt: createdAt.toUtc(),
-      updatedAt: updatedAt.toUtc(),
-      name: name,
-      userId: userId,
-    );
-  }
+  factory Chat.fromJson(Map<String, dynamic> json) => _$ChatFromJson(json);
 }

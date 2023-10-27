@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revelationsai/src/models/devotion/data.dart';
+import 'package:isar/isar.dart';
+import 'package:revelationsai/src/utils/isar.dart';
 
 part 'source_document.freezed.dart';
 part 'source_document.g.dart';
@@ -24,19 +25,11 @@ class SourceDocument with _$SourceDocument {
     required String pageContent,
     required double distance,
     required DistanceMetric distanceMetric,
+    String? devotionId,
+    String? aiResponseId,
   }) = _SourceDocument;
 
   factory SourceDocument.fromJson(Map<String, dynamic> json) => _$SourceDocumentFromJson(json);
-
-  EmbeddedSourceDocument toEmbedded() {
-    return EmbeddedSourceDocument(
-      id: id,
-      metadata: jsonEncode(metadata),
-      pageContent: pageContent,
-      distance: distance,
-      distanceMetric: distanceMetric,
-    );
-  }
 
   String get name => metadata['name'] ?? '';
 
@@ -54,4 +47,54 @@ class SourceDocument with _$SourceDocument {
   bool get hasLines => metadata["loc"]["lines"] != null;
   int get linesTo => metadata["loc"]["lines"]["to"] ?? 0;
   int get linesFrom => metadata["loc"]["lines"]["from"] ?? 0;
+
+  StoredSourceDocument toStored() {
+    return StoredSourceDocument(
+      id: id,
+      metadata: jsonEncode(metadata),
+      pageContent: pageContent,
+      distance: distance,
+      distanceMetric: distanceMetric,
+      devotionId: devotionId,
+      aiResponseId: aiResponseId,
+    );
+  }
+}
+
+@freezed
+@Collection(ignore: {'copyWith'})
+class StoredSourceDocument with _$StoredSourceDocument {
+  const StoredSourceDocument._();
+
+  factory StoredSourceDocument({
+    required String id,
+    required String metadata,
+    required String pageContent,
+    required double distance,
+    required DistanceMetric distanceMetric,
+    @Index() String? devotionId,
+    @Index() String? aiResponseId,
+  }) = _StoredSourceDocument;
+
+  // ignore: recursive_getters
+  Id get isarId => fastHash(id);
+
+  @override
+  @enumerated
+  // ignore: recursive_getters
+  DistanceMetric get distanceMetric => distanceMetric;
+
+  factory StoredSourceDocument.fromJson(Map<String, dynamic> json) => _$StoredSourceDocumentFromJson(json);
+
+  SourceDocument toRegular() {
+    return SourceDocument(
+      id: id,
+      metadata: jsonDecode(metadata),
+      pageContent: pageContent,
+      distance: distance,
+      distanceMetric: distanceMetric,
+      devotionId: devotionId,
+      aiResponseId: aiResponseId,
+    );
+  }
 }

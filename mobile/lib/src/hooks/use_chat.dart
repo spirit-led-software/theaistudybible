@@ -15,9 +15,10 @@ class UseChatOptions {
   final String initialInput;
   final List<ChatMessage>? initialMessages;
   final bool hapticFeedback;
-  final Function(StreamedResponse)? onResponse;
-  final Function(ChatMessage)? onFinish;
-  final Function(Exception)? onError;
+  final Function(ChatMessage message)? onSubmit;
+  final Function(StreamedResponse response)? onResponse;
+  final Function(ChatMessage message)? onFinish;
+  final Function(Exception error)? onError;
 
   UseChatOptions({
     required this.session,
@@ -25,6 +26,7 @@ class UseChatOptions {
     this.initialInput = '',
     this.initialMessages,
     this.hapticFeedback = true,
+    this.onSubmit,
     this.onResponse,
     this.onFinish,
     this.onError,
@@ -90,10 +92,11 @@ Future<ChatMessage> getStreamedResponse({
 }) async {
   messages.value = chatRequest.messages;
 
-  final reply = ChatMessage(
+  var reply = ChatMessage(
     id: nanoid(),
     content: '',
     role: Role.assistant,
+    chatId: chatId.value,
   );
   currentResponseId.value = reply.id;
   messages.value = [
@@ -106,8 +109,7 @@ Future<ChatMessage> getStreamedResponse({
   final request = Request("POST", uri);
   request.body = jsonEncode({
     'chatId': chatRequest.chatId,
-    'messages':
-        chatRequest.messages.map((message) => message.toJson()).toList(),
+    'messages': chatRequest.messages.map((message) => message.toJson()).toList(),
   });
   request.headers.addAll(
     <String, String>{
@@ -126,56 +128,54 @@ Future<ChatMessage> getStreamedResponse({
         uuid: null,
         content: "Failed to generate a response.",
         role: Role.assistant,
+        chatId: chatId.value,
       ),
     ];
-    final data =
-        jsonDecode(await response.stream.transform(utf8.decoder).join());
+    final data = jsonDecode(await response.stream.transform(utf8.decoder).join());
     throw Exception(data['error'] ?? 'An unknown error occured');
   }
 
-  response.headers.containsKey("x-chat-id")
-      ? chatId.value = response.headers["x-chat-id"]
-      : chatId.value = null;
+  response.headers.containsKey("x-chat-id") ? chatId.value = response.headers["x-chat-id"] : chatId.value = null;
 
   response.headers.containsKey("x-user-message-id") &&
           Uuid.isValidUUID(fromString: response.headers["x-user-message-id"]!)
-      ? chatRequest.messages.last.uuid = response.headers["x-user-message-id"]
-      : chatRequest.messages.last.uuid = null;
+      ? chatRequest.messages.last = chatRequest.messages.last.copyWith(uuid: response.headers["x-user-message-id"])
+      : chatRequest.messages.last = chatRequest.messages.last.copyWith(uuid: null);
 
   String? aiResponseUuid = response.headers.containsKey("x-ai-response-id") &&
           Uuid.isValidUUID(fromString: response.headers["x-ai-response-id"]!)
       ? response.headers["x-ai-response-id"]
       : null;
-  reply.uuid = aiResponseUuid;
+  reply = reply.copyWith(uuid: aiResponseUuid);
 
-  response.stream.transform(utf8.decoder).listen(
+  final subscription = response.stream.transform(utf8.decoder).listen(
     (value) {
-      reply.content += value;
+      reply = reply.copyWith(content: reply.content + value);
       messages.value = [
         ...chatRequest.messages,
         reply,
       ];
       if (hapticFeedback) HapticFeedback.mediumImpact();
     },
-    onDone: () {
-      if (onFinish != null) onFinish(reply);
-      currentResponseId.value = null;
-    },
-    onError: (error) {
-      messages.value = [
-        ...chatRequest.messages,
-        ChatMessage(
-          id: nanoid(),
-          uuid: aiResponseUuid,
-          content: "Failed to generate a response.",
-          role: Role.assistant,
-        ),
-      ];
-      currentResponseId.value = null;
-      throw error;
-    },
-    cancelOnError: true,
   );
+
+  await subscription.asFuture().then((_) {
+    if (onFinish != null) onFinish(reply);
+    currentResponseId.value = null;
+  }).catchError((error) {
+    messages.value = [
+      ...chatRequest.messages,
+      ChatMessage(
+        id: nanoid(),
+        uuid: aiResponseUuid,
+        content: "Failed to generate a response.",
+        role: Role.assistant,
+        chatId: chatId.value,
+      ),
+    ];
+    currentResponseId.value = null;
+    throw error;
+  });
 
   return reply;
 }
@@ -190,8 +190,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
     [options.chatId],
   );
 
-  ValueNotifier<List<ChatMessage>> messages =
-      useState(options.initialMessages ?? []);
+  ValueNotifier<List<ChatMessage>> messages = useState(options.initialMessages ?? []);
   useEffect(
     () {
       messages.value = options.initialMessages ?? [];
@@ -215,8 +214,7 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
 
   ValueNotifier<String?> currentResponseId = useState(null);
 
-  TextEditingController inputController =
-      useTextEditingController(text: options.initialInput);
+  TextEditingController inputController = useTextEditingController(text: options.initialInput);
   useEffect(
     () {
       inputController.text = options.initialInput;
@@ -318,17 +316,21 @@ UseChatReturnObject useChat({required UseChatOptions options}) {
       }
       if (inputFocusNode.hasFocus) inputFocusNode.unfocus();
 
-      append(
-        ChatMessage(
-          id: nanoid(),
-          content: inputController.text,
-          role: Role.user,
-        ),
+      final userMessage = ChatMessage(
+        id: nanoid(),
+        content: inputController.text,
+        role: Role.user,
+        chatId: chatId.value,
       );
 
+      if (options.onSubmit != null) options.onSubmit!(userMessage);
+
+      append(userMessage);
       inputController.clear();
     },
     [
+      options.hapticFeedback,
+      options.onSubmit,
       inputController,
       inputFocusNode,
       append,

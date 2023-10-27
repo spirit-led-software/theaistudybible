@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/chat.dart';
-import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,6 +12,8 @@ class CreateDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final chatManager = ref.watch(chatManagerProvider).requireValue;
+
     final formKey = useRef(GlobalKey<FormState>());
     final controller = useTextEditingController();
 
@@ -60,16 +62,19 @@ class CreateDialog extends HookConsumerWidget {
               name = "New Chat";
             }
 
-            createFuture.value = ref
-                .watch(chatsPagesProvider.notifier)
-                .createChat(CreateChatRequest(
-                  id: const Uuid().v4(),
-                  name: name,
-                ))
-                .then((chat) {
-              Navigator.of(context).pop();
-              context.go('/chat/${chat.id}');
-            });
+            createFuture.value = chatManager
+                .createChat(
+              CreateChatRequest(
+                id: const Uuid().v4(),
+                name: name,
+              ),
+            )
+                .then(
+              (chat) {
+                Navigator.of(context).pop();
+                context.go('/chat/${chat.id}');
+              },
+            );
             await createFuture.value;
           },
           child: createSnapshot.hasError && createSnapshot.connectionState != ConnectionState.waiting

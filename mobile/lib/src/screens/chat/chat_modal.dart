@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/models/chat.dart';
-import 'package:revelationsai/src/models/chat/data.dart';
-import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
-import 'package:revelationsai/src/providers/chat/data.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -120,24 +116,15 @@ class ChatModal extends HookConsumerWidget {
                     },
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: chatsPages.requireValue
-                              .expand((element) => element)
-                              .toList()
-                              .length +
-                          1,
+                      itemCount: chatsPages.requireValue.expand((element) => element).toList().length + 1,
                       itemBuilder: (listItemContext, index) {
-                        if (index ==
-                            chatsPages.requireValue
-                                .expand((element) => element)
-                                .toList()
-                                .length) {
+                        if (index == chatsPages.requireValue.expand((element) => element).toList().length) {
                           return chatsPagesNotifier.isLoadingNextPage()
                               ? Container(
                                   padding: const EdgeInsets.all(10),
                                   child: Center(
                                     child: SpinKitSpinningLines(
-                                      color: listItemContext
-                                          .colorScheme.onBackground,
+                                      color: listItemContext.colorScheme.onBackground,
                                       size: 20,
                                     ),
                                   ),
@@ -150,8 +137,7 @@ class ChatModal extends HookConsumerWidget {
                                           Expanded(
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                chatsPagesNotifier
-                                                    .fetchNextPage();
+                                                chatsPagesNotifier.fetchNextPage();
                                               },
                                               child: const Text('Show More'),
                                             ),
@@ -162,9 +148,7 @@ class ChatModal extends HookConsumerWidget {
                                   : Container();
                         }
 
-                        final chatsFlat = chatsPages.requireValue
-                            .expand((element) => element)
-                            .toList();
+                        final chatsFlat = chatsPages.requireValue.expand((element) => element).toList();
                         final chat = chatsFlat[index];
                         return ChatListItem(
                           key: ValueKey(chat.id),
@@ -188,41 +172,18 @@ class ChatListItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentChatId = ref.watch(currentChatIdProvider);
-    final chatDataManager = ref.watch(chatDataManagerProvider);
-
-    final fetchChatData = useCallback(() async {
-      await Future.wait([
-        ref.read(chatsProvider(chat.id).future),
-        ref.read(currentChatMessagesProvider(chat.id).future),
-      ]).then((value) {
-        final foundChat = value[0] as Chat;
-        final foundMessages = value[1] as List<ChatMessage>;
-
-        chatDataManager.value?.addChat(
-          ChatData(
-            id: foundChat.id,
-            chat: foundChat.toEmbedded(),
-            messages: foundMessages.map((e) => e.toEmbedded()).toList(),
-          ),
-        );
-      });
-      return;
-    }, [ref, chat.id]);
 
     return VisibilityDetector(
       key: ValueKey(chat.id),
       onVisibilityChanged: (info) async {
-        if (info.visibleFraction == 1 &&
-            !(await ref.read(chatDataManagerProvider).value?.hasChat(chat.id) ??
-                false)) {
-          await fetchChatData();
-        }
+        await Future.wait([
+          ref.read(chatsProvider(chat.id).future),
+          ref.read(chatMessagesProvider(chat.id).future),
+        ]);
       },
       child: Container(
         decoration: BoxDecoration(
-          color: currentChatId == chat.id
-              ? context.secondaryColor.withOpacity(0.2)
-              : Colors.transparent,
+          color: currentChatId == chat.id ? context.secondaryColor.withOpacity(0.2) : Colors.transparent,
         ),
         child: ListTile(
           title: Text(

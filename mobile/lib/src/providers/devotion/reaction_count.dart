@@ -29,7 +29,9 @@ class DevotionReactionCounts extends _$DevotionReactionCounts {
     refresh();
   }
 
-  void refresh() {
-    ref.invalidateSelf();
+  Future<Map<DevotionReactionType, int>> refresh() async {
+    final counts = await DevotionReactionService.getDevotionReactionCounts(id: id);
+    state = AsyncValue.data(counts);
+    return counts;
   }
 }

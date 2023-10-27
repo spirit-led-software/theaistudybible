@@ -1,4 +1,9 @@
-import 'package:revelationsai/src/models/chat/data.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:isar/isar.dart';
+import 'package:revelationsai/src/utils/isar.dart';
+
+part 'message.freezed.dart';
+part 'message.g.dart';
 
 enum Role {
   user,
@@ -7,63 +12,28 @@ enum Role {
   function;
 }
 
-class ChatMessage {
-  final String id;
-  String? uuid;
-  final DateTime? createdAt;
-  String content;
-  final Role role;
-  String? name;
+@freezed
+@Collection(ignore: {'copyWith'})
+class ChatMessage with _$ChatMessage {
+  const ChatMessage._();
 
-  ChatMessage({
-    required this.id,
-    this.uuid,
-    this.createdAt,
-    required this.content,
-    required this.role,
-    this.name,
-  });
+  factory ChatMessage({
+    required String id,
+    @Index() String? uuid,
+    DateTime? createdAt,
+    required String content,
+    required Role role,
+    String? name,
+    @Index() String? chatId,
+  }) = _ChatMessage;
 
-  ChatMessage.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        uuid = json['uuid'],
-        createdAt = DateTime(json['createdAt']),
-        content = json['content'],
-        role = json['role'],
-        name = json['name'];
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'uuid': uuid,
-        'createdAt': createdAt.toString(),
-        'content': content,
-        'role': role.name,
-        'name': name,
-      };
+  // ignore: recursive_getters
+  Id get isarId => fastHash(uuid ?? id);
 
   @override
-  bool operator ==(other) {
-    return other is ChatMessage &&
-        other.runtimeType == runtimeType &&
-        other.id == id &&
-        other.uuid == uuid &&
-        other.createdAt == createdAt &&
-        other.content == content &&
-        other.role == role &&
-        other.name == name;
-  }
+  @enumerated
+  // ignore: recursive_getters
+  Role get role => role;
 
-  @override
-  int get hashCode => uuid.hashCode;
-
-  EmbeddedChatMessage toEmbedded() {
-    return EmbeddedChatMessage(
-      id: id,
-      uuid: uuid,
-      createdAt: createdAt?.toUtc(),
-      content: content,
-      role: role,
-      name: name,
-    );
-  }
+  factory ChatMessage.fromJson(Map<String, dynamic> json) => _$ChatMessageFromJson(json);
 }

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:revelationsai/src/models/devotion/data.dart';
+import 'package:isar/isar.dart';
+import 'package:revelationsai/src/utils/isar.dart';
 
 part 'reaction.freezed.dart';
 part 'reaction.g.dart';
@@ -10,6 +11,7 @@ enum DevotionReactionType {
 }
 
 @freezed
+@Collection(ignore: {'copyWith'})
 class DevotionReaction with _$DevotionReaction {
   const DevotionReaction._();
 
@@ -27,22 +29,18 @@ class DevotionReaction with _$DevotionReaction {
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
-    required String devotionId,
+    @Index() required String devotionId,
     required String userId,
     required DevotionReactionType reaction,
   }) = _DevotionReaction;
 
-  factory DevotionReaction.fromJson(Map<String, dynamic> json) =>
-      _$DevotionReactionFromJson(json);
+  // ignore: recursive_getters
+  Id get isarId => fastHash(id);
 
-  EmbeddedDevotionReaction toEmbedded() {
-    return EmbeddedDevotionReaction(
-      id: id,
-      createdAt: createdAt.toUtc(),
-      updatedAt: updatedAt.toUtc(),
-      devotionId: devotionId,
-      userId: userId,
-      reaction: reaction,
-    );
-  }
+  @override
+  @enumerated
+  // ignore: recursive_getters
+  DevotionReactionType get reaction => reaction;
+
+  factory DevotionReaction.fromJson(Map<String, dynamic> json) => _$DevotionReactionFromJson(json);
 }

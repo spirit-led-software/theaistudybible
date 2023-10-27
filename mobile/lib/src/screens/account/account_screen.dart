@@ -20,12 +20,10 @@ class AccountScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
+    final currentUser = ref.watch(currentUserProvider).requireValue;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: context.isDarkMode
-          ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
+      value: context.isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
         floatingActionButton: Container(
@@ -81,16 +79,15 @@ class AccountScreen extends HookConsumerWidget {
                             );
 
                             if (image != null) {
-                              final croppedImage = await ImageCropper()
-                                  .cropImage(
-                                      sourcePath: image.path,
-                                      maxHeight: 512,
-                                      maxWidth: 512,
-                                      cropStyle: CropStyle.circle,
-                                      aspectRatioPresets: [
+                              final croppedImage = await ImageCropper().cropImage(
+                                  sourcePath: image.path,
+                                  maxHeight: 512,
+                                  maxWidth: 512,
+                                  cropStyle: CropStyle.circle,
+                                  aspectRatioPresets: [
                                     CropAspectRatioPreset.square,
                                   ],
-                                      uiSettings: [
+                                  uiSettings: [
                                     IOSUiSettings(
                                       title: 'Crop Image',
                                     ),
@@ -100,9 +97,7 @@ class AccountScreen extends HookConsumerWidget {
                                   ]);
 
                               if (croppedImage != null) {
-                                ref
-                                    .read(currentUserProvider.notifier)
-                                    .updateUserImage(croppedImage);
+                                ref.read(currentUserProvider.notifier).updateUserImage(croppedImage);
                               }
                             }
                           }
@@ -139,8 +134,7 @@ class AccountScreen extends HookConsumerWidget {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: currentUser.requireValue.name ??
-                                          currentUser.requireValue.email,
+                                      text: currentUser.name ?? currentUser.email,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.normal,
                                       ),
@@ -182,7 +176,7 @@ class AccountScreen extends HookConsumerWidget {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: currentUser.requireValue.email,
+                                      text: currentUser.email,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.normal,
                                       ),
@@ -259,19 +253,15 @@ class AccountScreen extends HookConsumerWidget {
                     height: 30,
                   ),
                   Text(
-                    '${currentUser.requireValue.remainingQueries}/${currentUser.requireValue.maxQueries}',
+                    '${currentUser.remainingQueries}/${currentUser.maxQueries}',
                     style: TextStyle(
-                      color: currentUser.requireValue.remainingQueries <= 3
-                          ? Colors.red
-                          : null,
+                      color: currentUser.remainingQueries <= 3 ? Colors.red : null,
                     ),
                   ),
                   Text(
                     'Queries Remaining',
                     style: TextStyle(
-                      color: currentUser.requireValue.remainingQueries <= 3
-                          ? Colors.red
-                          : null,
+                      color: currentUser.remainingQueries <= 3 ? Colors.red : null,
                     ),
                   ),
                   const SizedBox(

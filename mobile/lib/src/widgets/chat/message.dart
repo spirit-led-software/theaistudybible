@@ -4,9 +4,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
-import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 
 class Message extends HookConsumerWidget {
   final String? chatId;
@@ -42,10 +42,7 @@ class Message extends HookConsumerWidget {
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (message.role == Role.user)
-            const UserAvatar()
-          else
-            const CircularLogo(),
+          if (message.role == Role.user) const UserAvatar() else const CircularLogo(),
           const SizedBox(
             width: 15,
           ),

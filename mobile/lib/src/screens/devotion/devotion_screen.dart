@@ -8,12 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/models/devotion.dart';
-import 'package:revelationsai/src/models/devotion/data.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
-import 'package:revelationsai/src/providers/devotion/data.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
@@ -37,7 +35,6 @@ class DevotionScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
-    final devotionDataManager = ref.watch(devotionDataManagerProvider);
 
     final isMounted = useIsMounted();
     final loading = useState(false);
@@ -50,16 +47,16 @@ class DevotionScreen extends HookConsumerWidget {
       var devoId = id ?? await ref.refresh(devotionsPagesProvider.future).then((value) => value.first.first.id);
 
       await Future.wait([
-        ref.refresh(devotionsProvider(devoId!).future),
-        ref.refresh(devotionSourceDocumentsProvider(devoId).future),
-        ref.refresh(devotionImagesProvider(devoId).future),
-        ref.refresh(devotionReactionsProvider(devoId).future),
-        ref.refresh(devotionReactionCountsProvider(devoId).future),
+        ref.read(devotionsProvider(devoId!).future),
+        ref.read(devotionSourceDocumentsProvider(devoId).future),
+        ref.read(devotionImagesProvider(devoId).future),
+        ref.read(devotionReactionsProvider(devoId).future),
+        ref.read(devotionReactionCountsProvider(devoId).future),
       ]).then((value) {
         final foundDevo = value[0] as Devotion;
         final foundSourceDocs = value[1] as List<SourceDocument>;
         final foundImages = value[2] as List<DevotionImage>;
-        final foundReactions = value[3] as List<DevotionReaction>;
+        // final foundReactions = value[3] as List<DevotionReaction>;
         final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
 
         if (isMounted()) {
@@ -68,50 +65,16 @@ class DevotionScreen extends HookConsumerWidget {
           images.value = foundImages;
           reactionCounts.value = foundReactionCounts;
         }
-
-        devotionDataManager.value?.addDevotion(
-          DevotionData(
-            id: foundDevo.id,
-            devotion: foundDevo.toEmbedded(),
-            images: foundImages.map((e) => e.toEmbedded()).toList(),
-            sourceDocuments: foundSourceDocs.map((e) => e.toEmbedded()).toList(),
-            reactions: foundReactions.map((e) => e.toEmbedded()).toList(),
-            reactionCounts: foundReactionCounts.entries
-                .map((e) => EmbeddedReactionCounts(
-                      type: e.key,
-                      count: e.value,
-                    ))
-                .toList(),
-          ),
-        );
       });
     }, [ref, isMounted]);
 
     useEffect(() {
       final id = devotionId ?? ref.read(devotionsPagesProvider).value?.firstOrNull?.firstOrNull?.id;
-      if (devotionDataManager.hasValue) {
-        devotionDataManager.value!.hasDevotion(id!).then((value) async {
-          if (value) {
-            if (isMounted()) {
-              final devoData = await devotionDataManager.value!.getDevotion(id);
-              devotion.value = devoData!.devotion.toRegular();
-              images.value = devoData.images.map((e) => e.toRegular()).toList();
-              sourceDocs.value = devoData.sourceDocuments.map((e) => e.toRegular()).toList();
-              reactionCounts.value = {for (final e in devoData.reactionCounts) e.type: e.count!};
-            }
-          } else {
-            loading.value = true;
-            fetchDevoData(id).whenComplete(() {
-              if (isMounted()) loading.value = false;
-            });
-          }
-        });
-      } else {
-        loading.value = true;
-        fetchDevoData(id).whenComplete(() {
-          if (isMounted()) loading.value = false;
-        });
-      }
+
+      loading.value = true;
+      fetchDevoData(id).whenComplete(() {
+        if (isMounted()) loading.value = false;
+      });
 
       return () {};
     }, [devotionId]);
@@ -206,8 +169,8 @@ class DevotionScreen extends HookConsumerWidget {
                         ),
                       ],
                     ),
-                    onTap: () {
-                      ref
+                    onTap: () async {
+                      await ref
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
                             reaction: DevotionReactionType.LIKE,
@@ -254,8 +217,8 @@ class DevotionScreen extends HookConsumerWidget {
                         ),
                       ],
                     ),
-                    onTap: () {
-                      ref
+                    onTap: () async {
+                      await ref
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
                             reaction: DevotionReactionType.DISLIKE,
@@ -329,16 +292,16 @@ class DevotionScreen extends HookConsumerWidget {
                   String? id = devotion.value?.id ?? devotionId;
                   if (id != null) {
                     return await Future.wait([
-                      ref.refresh(devotionsProvider(id).future),
-                      ref.refresh(devotionSourceDocumentsProvider(id).future),
-                      ref.refresh(devotionImagesProvider(id).future),
-                      ref.refresh(devotionReactionsProvider(id).future),
-                      ref.refresh(devotionReactionCountsProvider(id).future),
+                      ref.read(devotionsProvider(id).notifier).refresh(),
+                      ref.read(devotionSourceDocumentsProvider(id).notifier).refresh(),
+                      ref.read(devotionImagesProvider(id).notifier).refresh(),
+                      ref.read(devotionReactionsProvider(id).notifier).refresh(),
+                      ref.read(devotionReactionCountsProvider(id).notifier).refresh(),
                     ]).then((value) {
                       final foundDevo = value[0] as Devotion;
                       final foundSourceDocs = value[1] as List<SourceDocument>;
                       final foundImages = value[2] as List<DevotionImage>;
-                      final foundReactions = value[3] as List<DevotionReaction>;
+                      // final foundReactions = value[3] as List<DevotionReaction>;
                       final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
                       if (isMounted()) {
                         devotion.value = foundDevo;
@@ -346,21 +309,6 @@ class DevotionScreen extends HookConsumerWidget {
                         images.value = foundImages;
                         reactionCounts.value = foundReactionCounts;
                       }
-                      devotionDataManager.value?.addDevotion(
-                        DevotionData(
-                          id: foundDevo.id,
-                          devotion: foundDevo.toEmbedded(),
-                          images: foundImages.map((e) => e.toEmbedded()).toList(),
-                          sourceDocuments: foundSourceDocs.map((e) => e.toEmbedded()).toList(),
-                          reactions: foundReactions.map((e) => e.toEmbedded()).toList(),
-                          reactionCounts: foundReactionCounts.entries
-                              .map((e) => EmbeddedReactionCounts(
-                                    type: e.key,
-                                    count: e.value,
-                                  ))
-                              .toList(),
-                        ),
-                      );
                     }).catchError((error) {
                       debugPrint("Failed to refresh devotion: $error");
                     });

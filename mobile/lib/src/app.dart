@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:newrelic_mobile/newrelic_navigation_observer.dart';
 import 'package:revelationsai/src/constants/theme.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
@@ -19,12 +20,7 @@ class RAIApp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routerListenableNotifier =
-        ref.watch(routerListenableProvider.notifier);
-
-    ref.watch(chatsPagesProvider);
-    ref.watch(devotionsPagesProvider);
-    ref.watch(currentDevotionIdProvider);
+    final routerListenableNotifier = ref.watch(routerListenableProvider.notifier);
 
     final key = useRef(GlobalKey<NavigatorState>(
       debugLabel: 'routerKey',
@@ -69,8 +65,7 @@ class RAIApp extends HookConsumerWidget {
       if (launchMessageSnapshot.hasData && launchMessageSnapshot.data != null) {
         switch (launchMessageSnapshot.data?.data['type']) {
           case 'daily-devo':
-            context.go(
-                '/devotions/${launchMessageSnapshot.data?.data['id'] ?? ''}');
+            context.go('/devotions/${launchMessageSnapshot.data?.data['id'] ?? ''}');
             break;
           default:
             break;
@@ -80,14 +75,30 @@ class RAIApp extends HookConsumerWidget {
       return () {};
     }, [launchMessageSnapshot]);
 
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'RevelationsAI',
-      theme: RAITheme.light,
-      darkTheme: RAITheme.dark,
-      themeMode: ref.watch(currentUserPreferencesProvider).value?.themeMode ??
-          ThemeMode.system,
-      routerConfig: router,
+    return _EagerlyInitializedProviders(
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'RevelationsAI',
+        theme: RAITheme.light,
+        darkTheme: RAITheme.dark,
+        themeMode: ref.watch(currentUserPreferencesProvider).value?.themeMode ?? ThemeMode.system,
+        routerConfig: router,
+      ),
     );
+  }
+}
+
+class _EagerlyInitializedProviders extends HookConsumerWidget {
+  final Widget child;
+
+  const _EagerlyInitializedProviders({Key? key, required this.child}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(chatsPagesProvider);
+    ref.watch(currentChatIdProvider);
+    ref.watch(devotionsPagesProvider);
+    ref.watch(currentDevotionIdProvider);
+    return child;
   }
 }

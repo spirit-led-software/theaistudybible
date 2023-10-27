@@ -17,16 +17,15 @@ class RouterListenable extends _$RouterListenable implements Listenable {
   @override
   Future<void> build() async {
     // One could watch more providers and write logic accordingly
-    final currentUserFuture =
-        ref.watch(currentUserProvider.future).then((value) {
+    final currentUserFuture = ref.watch(currentUserProvider.future).then((value) {
       _isAuth = true;
       return;
     }).catchError((_) {
       _isAuth = false;
       return;
     });
-    final currentUserPrefsFuture =
-        ref.watch(currentUserPreferencesProvider.future);
+    final currentUserPrefsFuture = ref.watch(currentUserPreferencesProvider.future);
+
     await Future.wait([currentUserFuture, currentUserPrefsFuture]);
 
     ref.listenSelf((_, __) {

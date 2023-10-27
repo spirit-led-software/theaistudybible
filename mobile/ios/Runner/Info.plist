@@ -74,10 +74,10 @@
 			<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		</array>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>To upload pictures.</string>
+		<string>RevelationsAI uses your photo library to upload profile pictures for your account.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>To take pictures for upload.</string>
+		<string>RevelationsAI uses your camera to take profile pictures for your account.</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>To obtain sound from your videos.</string>
+		<string>RevelationsAI uses your microphone to obtain sound when recording videos.</string>
 	</dict>
 </plist>
