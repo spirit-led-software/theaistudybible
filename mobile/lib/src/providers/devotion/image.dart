@@ -37,20 +37,20 @@ class DevotionImageManager {
     required Isar isar,
   }) : _isar = isar;
 
-  Future<bool> _hasDevotionImagesForDevotionId(String devotionId) async {
+  Future<bool> _hasLocalDevotionImagesForDevotionId(String devotionId) async {
     final messages = await _isar.devotionImages.where().devotionIdEqualTo(devotionId).findAll();
     return messages.isNotEmpty;
   }
 
   Future<List<DevotionImage>> getDevotionImagesByDevotionId(String devotionId) async {
-    if (await _hasDevotionImagesForDevotionId(devotionId)) {
-      return await _getSavedDevotionImagesByDevotionId(devotionId);
+    if (await _hasLocalDevotionImagesForDevotionId(devotionId)) {
+      return await _getLocalDevotionImagesByDevotionId(devotionId);
     }
 
     return await _fetchDevotionImagesByDevotionId(devotionId);
   }
 
-  Future<List<DevotionImage>> _getSavedDevotionImagesByDevotionId(String devotionId) async {
+  Future<List<DevotionImage>> _getLocalDevotionImagesByDevotionId(String devotionId) async {
     return await _isar.devotionImages.where().devotionIdEqualTo(devotionId).sortByCreatedAt().findAll();
   }
 
@@ -67,17 +67,16 @@ class DevotionImageManager {
     return await _fetchDevotionImagesByDevotionId(devotionId);
   }
 
-  Future<List<DevotionImage>> _saveDevotionImages(List<DevotionImage> messages) async {
-    await _isar.writeTxn(() async {
-      await Future.wait(messages.map((e) async {
-        await _isar.devotionImages.put(e);
+  Future<List<int>> _saveDevotionImages(List<DevotionImage> messages) async {
+    return await _isar.writeTxn(() async {
+      return await Future.wait(messages.map((e) async {
+        return await _isar.devotionImages.put(e);
       }));
     });
-    return messages;
   }
 
-  Future<void> deleteSavedDevotionImagesByDevotionId(String devotionId) async {
-    if (await _hasDevotionImagesForDevotionId(devotionId)) {
+  Future<void> deleteLocalDevotionImagesByDevotionId(String devotionId) async {
+    if (await _hasLocalDevotionImagesForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.devotionImages.where().devotionIdEqualTo(devotionId).findAll();
         await Future.wait(messages.map((e) async {

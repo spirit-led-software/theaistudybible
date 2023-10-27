@@ -37,14 +37,14 @@ class DevotionManager {
     required Isar isar,
   }) : _isar = isar;
 
-  Future<bool> _hasSavedDevotion(String id) async {
+  Future<bool> _hasLocalDevotion(String id) async {
     final chat = await _isar.devotions.get(fastHash(id));
     return chat != null;
   }
 
   Future<Devotion> getDevotion(String id) async {
-    if (await _hasSavedDevotion(id)) {
-      return (await _getSavedDevotion(id))!;
+    if (await _hasLocalDevotion(id)) {
+      return (await _getLocalDevotion(id))!;
     }
     return await _fetchDevotion(id);
   }
@@ -53,7 +53,7 @@ class DevotionManager {
     return await _fetchDevotion(id);
   }
 
-  Future<Devotion?> _getSavedDevotion(String id) async {
+  Future<Devotion?> _getLocalDevotion(String id) async {
     return await _isar.devotions.get(fastHash(id));
   }
 
@@ -64,15 +64,15 @@ class DevotionManager {
     });
   }
 
-  Future<void> _saveDevotion(Devotion chat) async {
-    await _isar.writeTxn(() => _isar.devotions.put(chat));
+  Future<int> _saveDevotion(Devotion chat) async {
+    return await _isar.writeTxn(() => _isar.devotions.put(chat));
   }
 
-  Future<void> deleteSavedDevotion(String id) async {
+  Future<void> deleteLocalDevotion(String id) async {
     await _isar.writeTxn(() => _isar.devotions.delete(fastHash(id)));
   }
 
-  Future<List<Devotion>> getAllDevotions() async {
+  Future<List<Devotion>> getAllLocalDevotions() async {
     return await _isar.devotions.where().findAll();
   }
 }

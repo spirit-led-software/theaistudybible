@@ -37,20 +37,20 @@ class DevotionSourceDocumentManager {
     required Isar isar,
   }) : _isar = isar;
 
-  Future<bool> _hasSourceDocumentsForDevotionId(String devotionId) async {
+  Future<bool> _hasLocalSourceDocumentsForDevotionId(String devotionId) async {
     final messages = await _isar.storedSourceDocuments.where().devotionIdEqualTo(devotionId).findAll();
     return messages.isNotEmpty;
   }
 
   Future<List<SourceDocument>> getSourceDocumentsByDevotionId(String devotionId) async {
-    if (await _hasSourceDocumentsForDevotionId(devotionId)) {
-      return await _getSavedSourceDocumentsByDevotionId(devotionId);
+    if (await _hasLocalSourceDocumentsForDevotionId(devotionId)) {
+      return await _getLocalSourceDocumentsByDevotionId(devotionId);
     }
 
     return await _fetchSourceDocumentsByDevotionId(devotionId);
   }
 
-  Future<List<SourceDocument>> _getSavedSourceDocumentsByDevotionId(String devotionId) async {
+  Future<List<SourceDocument>> _getLocalSourceDocumentsByDevotionId(String devotionId) async {
     final storedSourceDocs =
         await _isar.storedSourceDocuments.where().devotionIdEqualTo(devotionId).sortByDistance().findAll();
     return storedSourceDocs.map((e) => e.toRegular()).toList();
@@ -60,7 +60,8 @@ class DevotionSourceDocumentManager {
     return await DevotionService.getDevotionSourceDocuments(
       id: devotionId,
     ).then((value) async {
-      return await _saveSourceDocuments(value.map((e) => e.copyWith(devotionId: devotionId)).toList());
+      await _saveSourceDocuments(value.map((e) => e.copyWith(devotionId: devotionId)).toList());
+      return value;
     });
   }
 
@@ -68,17 +69,16 @@ class DevotionSourceDocumentManager {
     return await _fetchSourceDocumentsByDevotionId(devotionId);
   }
 
-  Future<List<SourceDocument>> _saveSourceDocuments(List<SourceDocument> messages) async {
-    await _isar.writeTxn(() async {
-      await Future.wait(messages.map((e) async {
-        await _isar.storedSourceDocuments.put(e.toStored());
+  Future<List<int>> _saveSourceDocuments(List<SourceDocument> messages) async {
+    return await _isar.writeTxn(() async {
+      return await Future.wait(messages.map((e) async {
+        return await _isar.storedSourceDocuments.put(e.toStored());
       }));
     });
-    return messages;
   }
 
-  Future<void> deleteSavedSourceDocumentsByDevotionId(String devotionId) async {
-    if (await _hasSourceDocumentsForDevotionId(devotionId)) {
+  Future<void> deleteLocalSourceDocumentsByDevotionId(String devotionId) async {
+    if (await _hasLocalSourceDocumentsForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.storedSourceDocuments.where().devotionIdEqualTo(devotionId).findAll();
         await Future.wait(messages.map((e) async {

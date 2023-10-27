@@ -54,20 +54,20 @@ class DevotionReactionManager {
   })  : _isar = isar,
         _user = user;
 
-  Future<bool> _hasDevotionReactionsForDevotionId(String devotionId) async {
+  Future<bool> _hasLocalDevotionReactionsForDevotionId(String devotionId) async {
     final messages = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
     return messages.isNotEmpty;
   }
 
   Future<List<DevotionReaction>> getDevotionReactionsByDevotionId(String devotionId) async {
-    if (await _hasDevotionReactionsForDevotionId(devotionId)) {
-      return await _getSavedDevotionReactionsByDevotionId(devotionId);
+    if (await _hasLocalDevotionReactionsForDevotionId(devotionId)) {
+      return await _getLocalDevotionReactionsByDevotionId(devotionId);
     }
 
     return await _fetchDevotionReactionsByDevotionId(devotionId);
   }
 
-  Future<List<DevotionReaction>> _getSavedDevotionReactionsByDevotionId(String devotionId) async {
+  Future<List<DevotionReaction>> _getLocalDevotionReactionsByDevotionId(String devotionId) async {
     return await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).sortByCreatedAt().findAll();
   }
 
@@ -91,17 +91,16 @@ class DevotionReactionManager {
     });
   }
 
-  Future<List<DevotionReaction>> _saveDevotionReactions(List<DevotionReaction> messages) async {
-    await _isar.writeTxn(() async {
-      await Future.wait(messages.map((e) async {
-        await _isar.devotionReactions.put(e);
+  Future<List<int>> _saveDevotionReactions(List<DevotionReaction> messages) async {
+    return await _isar.writeTxn(() async {
+      return await Future.wait(messages.map((e) async {
+        return await _isar.devotionReactions.put(e);
       }));
     });
-    return messages;
   }
 
-  Future<void> deleteSavedDevotionReactionsByDevotionId(String devotionId) async {
-    if (await _hasDevotionReactionsForDevotionId(devotionId)) {
+  Future<void> deleteLocalDevotionReactionsByDevotionId(String devotionId) async {
+    if (await _hasLocalDevotionReactionsForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
         await Future.wait(messages.map((e) async {

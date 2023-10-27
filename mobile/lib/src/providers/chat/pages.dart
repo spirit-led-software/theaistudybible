@@ -110,12 +110,12 @@ class ChatsPages extends _$ChatsPages {
         final chatManager = ref.read(chatManagerProvider).value;
         final chatMessagesManager = ref.read(chatMessagesManagerProvider).requireValue;
 
-        final savedChats = await chatManager?.getAllChats() ?? [];
+        final savedChats = await chatManager?.getAllLocalChats() ?? [];
         final chatsPagesFlat = next.value!.expand((element) => element);
         for (final savedChat in savedChats) {
           if (!chatsPagesFlat.any((element) => element.id == savedChat.id)) {
-            chatManager?.deleteSavedChat(savedChat.id);
-            chatMessagesManager.deleteSavedChatMessagesByChatId(savedChat.id);
+            chatManager?.deleteLocalChat(savedChat.id);
+            chatMessagesManager.deleteLocalChatMessagesByChatId(savedChat.id);
           }
         }
       }

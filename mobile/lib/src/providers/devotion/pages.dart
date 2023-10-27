@@ -115,15 +115,15 @@ class DevotionsPages extends _$DevotionsPages {
         final devotionsImagesManager = ref.read(devotionImageManagerProvider).value;
         final devotionsSourceDocumentsManager = ref.read(devotionSourceDocumentManagerProvider).value;
 
-        final savedDevos = await devotionsManager?.getAllDevotions() ?? [];
+        final savedDevos = await devotionsManager?.getAllLocalDevotions() ?? [];
         final devotionsPagesFlat = next.value!.expand((element) => element);
         for (final savedDevo in savedDevos) {
           if (!devotionsPagesFlat.any((element) => element.id == savedDevo.id)) {
             await Future.wait([
-              devotionsManager?.deleteSavedDevotion(savedDevo.id) ?? Future.value(),
-              devotionsImagesManager?.deleteSavedDevotionImagesByDevotionId(savedDevo.id) ?? Future.value(),
-              devotionsSourceDocumentsManager?.deleteSavedSourceDocumentsByDevotionId(savedDevo.id) ?? Future.value(),
-              devotionReactionsManager?.deleteSavedDevotionReactionsByDevotionId(savedDevo.id) ?? Future.value(),
+              devotionsManager?.deleteLocalDevotion(savedDevo.id) ?? Future.value(),
+              devotionsImagesManager?.deleteLocalDevotionImagesByDevotionId(savedDevo.id) ?? Future.value(),
+              devotionsSourceDocumentsManager?.deleteLocalSourceDocumentsByDevotionId(savedDevo.id) ?? Future.value(),
+              devotionReactionsManager?.deleteLocalDevotionReactionsByDevotionId(savedDevo.id) ?? Future.value(),
             ]);
           }
         }

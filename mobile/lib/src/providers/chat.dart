@@ -84,14 +84,14 @@ class ChatManager {
   })  : _isar = isar,
         _user = user;
 
-  Future<bool> _hasSavedChat(String id) async {
+  Future<bool> _hasLocalChat(String id) async {
     final chat = await _isar.chats.get(fastHash(id));
     return chat != null;
   }
 
   Future<Chat?> getChat(String id) async {
-    if (await _hasSavedChat(id)) {
-      return await _getSavedChat(id);
+    if (await _hasLocalChat(id)) {
+      return await _getLocalChat(id);
     }
     return await _fetchChat(id);
   }
@@ -100,7 +100,7 @@ class ChatManager {
     return await _fetchChat(id);
   }
 
-  Future<Chat?> _getSavedChat(String id) async {
+  Future<Chat?> _getLocalChat(String id) async {
     return await _isar.chats.get(fastHash(id));
   }
 
@@ -125,24 +125,24 @@ class ChatManager {
     });
   }
 
-  Future<void> _saveChat(Chat chat) async {
-    await _isar.writeTxn(() => _isar.chats.put(chat));
+  Future<int> _saveChat(Chat chat) async {
+    return await _isar.writeTxn(() => _isar.chats.put(chat));
   }
 
   Future<void> deleteChat(String id) async {
     return await ChatService.deleteChat(id: id, session: _user.session).then((value) async {
-      if (await _hasSavedChat(id)) {
-        await deleteSavedChat(id);
+      if (await _hasLocalChat(id)) {
+        await deleteLocalChat(id);
       }
       return value;
     });
   }
 
-  Future<void> deleteSavedChat(String id) async {
+  Future<void> deleteLocalChat(String id) async {
     await _isar.writeTxn(() => _isar.chats.delete(fastHash(id)));
   }
 
-  Future<List<Chat>> getAllChats() async {
+  Future<List<Chat>> getAllLocalChats() async {
     return await _isar.chats.where().findAll();
   }
 }
