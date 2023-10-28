@@ -103,5 +103,5 @@ class ChatMessagesManager {
 }
 
 extension ChatMessagesManagerX on Ref {
-  ChatMessagesManager get chatMessages => read(chatMessagesManagerProvider).requireValue;
+  ChatMessagesManager get chatMessages => watch(chatMessagesManagerProvider).requireValue;
 }

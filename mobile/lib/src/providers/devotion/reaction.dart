@@ -107,5 +107,5 @@ class DevotionReactionManager {
 }
 
 extension DevotionReactionsManagerX on Ref {
-  DevotionReactionManager get devotionReactions => read(devotionReactionManagerProvider).requireValue;
+  DevotionReactionManager get devotionReactions => watch(devotionReactionManagerProvider).requireValue;
 }

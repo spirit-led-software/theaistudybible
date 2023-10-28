@@ -88,7 +88,12 @@ class DevotionManager {
 
   Future<List<Devotion>> getPage(PaginatedEntitiesRequestOptions options) async {
     if (await _isar.devotions.count() >= (options.page * options.limit)) {
-      return await _isar.devotions.where().sortByDateDesc().offset((options.page - 1) * options.limit).limit(options.limit).findAll();
+      return await _isar.devotions
+          .where()
+          .sortByDateDesc()
+          .offset((options.page - 1) * options.limit)
+          .limit(options.limit)
+          .findAll();
     }
     return await _fetchPage(options);
   }
@@ -99,5 +104,5 @@ class DevotionManager {
 }
 
 extension DevotionManagerX on Ref {
-  DevotionManager get devotions => read(devotionManagerProvider).requireValue;
+  DevotionManager get devotions => watch(devotionManagerProvider).requireValue;
 }

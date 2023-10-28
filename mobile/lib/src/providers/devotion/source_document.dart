@@ -88,5 +88,6 @@ class DevotionSourceDocumentManager {
 }
 
 extension DevotionSourceDocumentsManagerX on Ref {
-  DevotionSourceDocumentManager get devotionSourceDocuments => read(devotionSourceDocumentManagerProvider).requireValue;
+  DevotionSourceDocumentManager get devotionSourceDocuments =>
+      watch(devotionSourceDocumentManagerProvider).requireValue;
 }

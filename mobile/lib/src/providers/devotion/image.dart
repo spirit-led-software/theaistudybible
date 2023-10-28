@@ -84,5 +84,5 @@ class DevotionImageManager {
 }
 
 extension DevotionImagesManagerX on Ref {
-  DevotionImageManager get devotionImages => read(devotionImageManagerProvider).requireValue;
+  DevotionImageManager get devotionImages => watch(devotionImageManagerProvider).requireValue;
 }

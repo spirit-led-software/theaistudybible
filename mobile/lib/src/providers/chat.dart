@@ -178,5 +178,5 @@ class ChatManager {
 }
 
 extension ChatManagerRefX on Ref<Object?> {
-  ChatManager get chats => read(chatManagerProvider).requireValue;
+  ChatManager get chats => watch(chatManagerProvider).requireValue;
 }
