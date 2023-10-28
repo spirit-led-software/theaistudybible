@@ -12,17 +12,15 @@ part 'current_id.g.dart';
 class CurrentDevotionId extends _$CurrentDevotionId {
   @override
   FutureOr<String?> build() async {
-    if (state.value == null) {
-      return (await ref.watch(devotionsPagesProvider.future)).firstOrNull?.firstOrNull?.id;
+    if (state.valueOrNull != null) {
+      ref.watch(devotionsProvider(state.valueOrNull!));
+      ref.watch(devotionImagesProvider(state.valueOrNull!));
+      ref.watch(devotionReactionsProvider(state.valueOrNull!));
+      ref.watch(devotionReactionCountsProvider(state.valueOrNull!));
+      ref.watch(devotionSourceDocumentsProvider(state.valueOrNull!));
     }
 
-    ref.watch(devotionsProvider(state.value!));
-    ref.watch(devotionImagesProvider(state.value!));
-    ref.watch(devotionReactionsProvider(state.value!));
-    ref.watch(devotionReactionCountsProvider(state.value!));
-    ref.watch(devotionSourceDocumentsProvider(state.value!));
-
-    return state.value;
+    return state.valueOrNull;
   }
 
   Future<void> updateId(String? id) async {

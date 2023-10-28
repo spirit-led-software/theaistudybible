@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
-import 'package:revelationsai/src/providers/user/current.dart';
-import 'package:revelationsai/src/services/chat.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pages.g.dart';
@@ -22,53 +19,48 @@ class ChatsPages extends _$ChatsPages {
     _loadingLogic();
     _persistenceLogic();
 
-    try {
-      await ref.watch(currentUserProvider.future);
-      final currentUser = ref.watch(currentUserProvider);
-      if (!currentUser.hasValue) {
-        return [];
+    return await ref.chats.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
+      if (state.hasValue) {
+        // replace pages previous content with new content
+        return [
+          ...state.value!.sublist(0, _page - 1),
+          value,
+          if (state.value!.length > _page + 1) ...state.value!.sublist(_page + 1, state.value!.length),
+        ];
+      } else {
+        return [
+          value,
+        ];
       }
-
-      return ChatService.getChats(
-        session: currentUser.value!.session,
-        paginationOptions: PaginatedEntitiesRequestOptions(page: _page, limit: pageSize),
-      ).then((value) {
-        if (state.hasValue) {
-          // replace pages previous content with new content
-          return [
-            ...state.value!.sublist(0, _page - 1),
-            value.entities,
-            if (state.value!.length > _page + 1) ...state.value!.sublist(_page + 1, state.value!.length),
-          ];
-        } else {
-          return [
-            value.entities,
-          ];
-        }
-      });
-    } catch (error) {
-      debugPrint("Failed to fetch chats: $error");
-      rethrow;
-    }
+    });
   }
 
   bool hasNextPage() {
     return (state.value?.last.length ?? 0) >= 7;
   }
 
-  void fetchNextPage() {
+  Future<void> fetchNextPage() async {
     _page++;
-    refresh();
+    ref.invalidateSelf();
+    await future;
   }
 
-  void reset() {
+  Future<void> reset() async {
     _page = 1;
     state = AsyncData([state.value?.first ?? []]);
-    refresh();
+    ref.invalidateSelf();
+    await future;
   }
 
-  void refresh() {
-    ref.invalidateSelf();
+  Future<List<List<Chat>>> refresh() async {
+    final futures = <Future<List<Chat>>>[];
+    for (int i = 1; i <= _page; i++) {
+      futures.add(ref.chats.refreshPage(PaginatedEntitiesRequestOptions(page: i, limit: pageSize)));
+    }
+    return await Future.wait(futures).then((value) async {
+      state = AsyncData(value);
+      return value;
+    });
   }
 
   bool isLoadingInitial() {
@@ -107,15 +99,12 @@ class ChatsPages extends _$ChatsPages {
           }
         }
 
-        final chatManager = ref.read(chatManagerProvider).value;
-        final chatMessagesManager = ref.read(chatMessagesManagerProvider).requireValue;
-
-        final savedChats = await chatManager?.getAllLocalChats() ?? [];
+        final savedChats = await ref.chats.getAllLocal();
         final chatsPagesFlat = next.value!.expand((element) => element);
         for (final savedChat in savedChats) {
           if (!chatsPagesFlat.any((element) => element.id == savedChat.id)) {
-            chatManager?.deleteLocalChat(savedChat.id);
-            chatMessagesManager.deleteLocalChatMessagesByChatId(savedChat.id);
+            ref.chats.deleteLocal(savedChat.id);
+            ref.chatMessages.deleteLocalByChatId(savedChat.id);
           }
         }
       }

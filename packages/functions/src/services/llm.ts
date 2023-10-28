@@ -1,17 +1,18 @@
 import { envConfig } from "@core/configs";
 import { RAIChatMultiRouteChain } from "@core/langchain/chains/router/rai-chat-multi-route";
 import { RAIBedrock } from "@core/langchain/llms/bedrock";
+import { QueryInterpreterRetriever } from "@core/langchain/retrievers/query-interpreter";
 import { RAITimeWeightedVectorStoreRetriever } from "@core/langchain/retrievers/time_weighted";
 import type {
   AnthropicModelId,
   CohereModelId,
 } from "@core/langchain/types/bedrock-types";
-import type { Chat } from "@core/model";
 import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
   CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
+  QUERY_INTERPRETER_PROMPT_TEMPLATE,
 } from "@lib/prompts";
 import type { Message } from "ai";
 import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
@@ -22,7 +23,7 @@ import {
   VectorStoreRetrieverMemory,
 } from "langchain/memory";
 import { PromptTemplate } from "langchain/prompts";
-import { AIMessage, BaseMessage, HumanMessage } from "langchain/schema";
+import { AIMessage, HumanMessage } from "langchain/schema";
 import { getChatMemoryVectorStore, getDocumentVectorStore } from "./vector-db";
 
 export type StandardModelInput = {
@@ -94,14 +95,16 @@ export const getLargeContextModel = ({
     verbose: envConfig.isLocal,
   });
 
-export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
-  const history: BaseMessage[] = messages.slice(0, -1).map((message) => {
-    return message.role === "user"
-      ? new HumanMessage(message.content)
-      : new AIMessage(message.content);
-  });
+export const getRAIChatChain = async (chatId: string, messages: Message[]) => {
+  const history = new ChatMessageHistory(
+    messages.slice(0, -1).map((message) => {
+      return message.role === "user"
+        ? new HumanMessage(message.content)
+        : new AIMessage(message.content);
+    })
+  );
   const retrievalChainMemory = new BufferMemory({
-    chatHistory: new ChatMessageHistory(history),
+    chatHistory: history,
     inputKey: "query",
     outputKey: "text",
     memoryKey: "chat_history",
@@ -119,13 +122,14 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
     verbose: envConfig.isLocal,
   });
 
-  const chatMemoryVectorStore = await getChatMemoryVectorStore(chat.id, {
+  const chatMemoryRetriever = await getChatMemoryVectorStore(chatId, {
     verbose: envConfig.isLocal,
-  });
-  const chatMemoryRetriever = new RAITimeWeightedVectorStoreRetriever({
-    vectorStore: chatMemoryVectorStore,
-    k: 100,
-    verbose: envConfig.isLocal,
+  }).then(async (store) => {
+    return new RAITimeWeightedVectorStoreRetriever({
+      vectorStore: store,
+      k: 100,
+      verbose: envConfig.isLocal,
+    });
   });
   const chatHistoryChain = ConversationalRetrievalQAChain.fromLLM(
     getLargeContextModel({
@@ -161,22 +165,18 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       promptSuffix: "<answer>",
       stopSequences: ["</answer>"],
     }),
-    // new QueryInterpreterRetriever({
-    //   llm: getLargeContextModel({
-    //     stream: false,
-    //     promptSuffix: "<output>",
-    //     stopSequences: ["</output>"],
-    //   }),
-    //   baseRetriever: documentVectorStore.asRetriever({
-    //     k: 5,
-    //     verbose: envConfig.isLocal,
-    //   }),
-    //   numSearchTerms: 7,
-    //   prompt: PromptTemplate.fromTemplate(QUERY_INTERPRETER_PROMPT_TEMPLATE),
-    //   verbose: envConfig.isLocal,
-    // }),
-    documentVectorStore.asRetriever({
-      k: 25,
+    new QueryInterpreterRetriever({
+      llm: getLargeContextModel({
+        stream: false,
+        promptSuffix: "<output>",
+        stopSequences: ["</output>"],
+      }),
+      baseRetriever: documentVectorStore.asRetriever({
+        k: 5,
+        verbose: envConfig.isLocal,
+      }),
+      numSearchTerms: 7,
+      prompt: PromptTemplate.fromTemplate(QUERY_INTERPRETER_PROMPT_TEMPLATE),
       verbose: envConfig.isLocal,
     }),
     {
@@ -209,6 +209,10 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
       stopSequences: ["</output>"],
     }),
     {
+      routerChainOpts: {
+        history,
+        verbose: envConfig.isLocal,
+      },
       multiRouteChainOpts: {
         memory: new VectorStoreRetrieverMemory({
           vectorStoreRetriever: chatMemoryRetriever,
@@ -217,6 +221,7 @@ export const getRAIChatChain = async (chat: Chat, messages: Message[]) => {
           memoryKey: "chat_history",
           returnDocs: true,
         }),
+        verbose: envConfig.isLocal,
       },
       destinationChainsInfo: {
         identity: {

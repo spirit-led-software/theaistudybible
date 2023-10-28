@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/chat.dart';
-import 'package:revelationsai/src/models/user.dart';
+import 'package:revelationsai/src/models/pagination.dart';
+import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
@@ -13,15 +15,12 @@ part 'chat.g.dart';
 
 @Riverpod(keepAlive: true)
 class Chats extends _$Chats {
-  late ChatManager _manager;
-
   @override
   FutureOr<Chat?> build(String? id) async {
     if (id == null) {
       return null;
     }
-    _manager = await ref.watch(chatManagerProvider.future);
-    return await _manager.getChat(id);
+    return await ref.chats.getChat(id);
   }
 
   Future<Chat> updateChat(UpdateChatRequest request) async {
@@ -47,7 +46,7 @@ class Chats extends _$Chats {
             ),
       );
 
-      return await _manager.updateChat(currentId, request).catchError((error) {
+      return await ref.chats.update(currentId, request).catchError((error) {
         debugPrint("Failed to update chat: $error");
         state = previousState;
         throw error;
@@ -61,7 +60,7 @@ class Chats extends _$Chats {
   }
 
   Future<Chat> refresh() async {
-    final chat = await _manager.refreshChat(id!);
+    final chat = await ref.chats.refresh(id!);
     state = AsyncData(chat);
     return chat;
   }
@@ -70,79 +69,114 @@ class Chats extends _$Chats {
 @Riverpod(keepAlive: true)
 Future<ChatManager> chatManager(ChatManagerRef ref) async {
   final isar = await ref.watch(isarInstanceProvider.future);
-  final user = await ref.watch(currentUserProvider.future);
-  return ChatManager(isar: isar, user: user);
+  final session = await ref.watch(currentUserProvider.selectAsync((data) => data.session));
+  return ChatManager(ref, isar, session);
 }
 
 class ChatManager {
+  final ChatManagerRef _ref;
   final Isar _isar;
-  final UserInfo _user;
+  final String _session;
 
-  ChatManager({
-    required Isar isar,
-    required UserInfo user,
-  })  : _isar = isar,
-        _user = user;
+  ChatManager(ChatManagerRef ref, Isar isar, String session)
+      : _ref = ref,
+        _isar = isar,
+        _session = session;
 
-  Future<bool> _hasLocalChat(String id) async {
+  Future<bool> _hasLocal(String id) async {
     final chat = await _isar.chats.get(fastHash(id));
     return chat != null;
   }
 
   Future<Chat?> getChat(String id) async {
-    if (await _hasLocalChat(id)) {
-      return await _getLocalChat(id);
+    if (await _hasLocal(id)) {
+      return await _getLocal(id);
     }
-    return await _fetchChat(id);
+    return await _fetch(id);
   }
 
-  Future<Chat> refreshChat(String id) async {
-    return await _fetchChat(id);
+  Future<Chat> refresh(String id) async {
+    return await _fetch(id);
   }
 
-  Future<Chat?> _getLocalChat(String id) async {
+  Future<Chat?> _getLocal(String id) async {
     return await _isar.chats.get(fastHash(id));
   }
 
-  Future<Chat> _fetchChat(String id) async {
-    return await ChatService.getChat(id: id, session: _user.session).then((value) async {
-      await _saveChat(value);
+  Future<Chat> _fetch(String id) async {
+    return await ChatService.getChat(id: id, session: _session).then((value) async {
+      await _save(value);
       return value;
     });
   }
 
-  Future<Chat> createChat(CreateChatRequest request) async {
-    return await ChatService.createChat(request: request, session: _user.session).then((value) async {
-      await _saveChat(value);
+  Future<Chat> create(CreateChatRequest request) async {
+    return await ChatService.createChat(request: request, session: _session).then((value) async {
+      await _save(value);
+      _ref.invalidate(chatsPagesProvider);
       return value;
     });
   }
 
-  Future<Chat> updateChat(String id, UpdateChatRequest request) async {
-    return await ChatService.updateChat(id: id, request: request, session: _user.session).then((value) async {
-      await _saveChat(value);
+  Future<Chat> update(String id, UpdateChatRequest request) async {
+    return await ChatService.updateChat(id: id, request: request, session: _session).then((value) async {
+      await _save(value);
+      _ref.invalidate(chatsProvider(id));
+      _ref.invalidate(chatsPagesProvider);
       return value;
     });
   }
 
-  Future<int> _saveChat(Chat chat) async {
+  Future<List<int>> _saveMany(List<Chat> chats) async {
+    return await _isar.writeTxn(() => _isar.chats.putAll(chats));
+  }
+
+  Future<int> _save(Chat chat) async {
     return await _isar.writeTxn(() => _isar.chats.put(chat));
   }
 
-  Future<void> deleteChat(String id) async {
-    return await ChatService.deleteChat(id: id, session: _user.session).then((value) async {
-      if (await _hasLocalChat(id)) {
-        await deleteLocalChat(id);
+  Future<void> deleteRemote(String id) async {
+    return await ChatService.deleteChat(id: id, session: _session).then((value) async {
+      if (await _hasLocal(id)) {
+        await deleteLocal(id);
       }
+      _ref.invalidate(chatsPagesProvider);
       return value;
     });
   }
 
-  Future<void> deleteLocalChat(String id) async {
+  Future<void> deleteLocal(String id) async {
     await _isar.writeTxn(() => _isar.chats.delete(fastHash(id)));
   }
 
-  Future<List<Chat>> getAllLocalChats() async {
+  Future<List<Chat>> getAllLocal() async {
     return await _isar.chats.where().findAll();
   }
+
+  Future<List<Chat>> _fetchPage(PaginatedEntitiesRequestOptions options) async {
+    return await ChatService.getChats(session: _session, paginationOptions: options).then((value) async {
+      await _saveMany(value.entities);
+      return value.entities;
+    });
+  }
+
+  Future<List<Chat>> getPage(PaginatedEntitiesRequestOptions options) async {
+    if (await _isar.chats.count() >= (options.page * options.limit)) {
+      return await _isar.chats
+          .where()
+          .sortByCreatedAtDesc()
+          .offset((options.page - 1) * options.limit)
+          .limit(options.limit)
+          .findAll();
+    }
+    return await _fetchPage(options);
+  }
+
+  Future<List<Chat>> refreshPage(PaginatedEntitiesRequestOptions options) async {
+    return await _fetchPage(options);
+  }
+}
+
+extension ChatManagerRefX on Ref<Object?> {
+  ChatManager get chats => read(chatManagerProvider).requireValue;
 }

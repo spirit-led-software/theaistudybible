@@ -1,6 +1,6 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
@@ -11,72 +11,67 @@ part 'messages.g.dart';
 
 @Riverpod(keepAlive: true)
 class ChatMessages extends _$ChatMessages {
-  late ChatMessagesManager _manager;
-
   @override
   FutureOr<List<ChatMessage>> build(String? chatId) async {
     if (chatId == null) {
       return <ChatMessage>[];
     }
-    _manager = await ref.watch(chatMessagesManagerProvider.future);
-    return await _manager.getChatMessagesByChatId(chatId);
+    return await ref.chatMessages.getByChatId(chatId);
   }
 
   Future<List<ChatMessage>> refresh() async {
-    final messages = await _manager.refreshChatMessagesByChatId(chatId!);
+    if (chatId == null) {
+      final messages = <ChatMessage>[];
+      state = AsyncData(messages);
+      return messages;
+    }
+    final messages = await ref.chatMessages.refreshByChatId(chatId!);
     state = AsyncData(messages);
     return messages;
-  }
-
-  Future<void> delete() async {
-    await _manager.deleteLocalChatMessagesByChatId(chatId!);
-    ref.invalidateSelf();
   }
 }
 
 @Riverpod(keepAlive: true)
 Future<ChatMessagesManager> chatMessagesManager(ChatMessagesManagerRef ref) async {
   final isar = await ref.watch(isarInstanceProvider.future);
-  final user = await ref.watch(currentUserProvider.future);
-  return ChatMessagesManager(
-    isar: isar,
-    user: user,
-  );
+  final session = await ref.watch(currentUserProvider.selectAsync((data) => data.session));
+  return ChatMessagesManager(isar, session);
 }
 
 class ChatMessagesManager {
   final Isar _isar;
-  final UserInfo _user;
+  final String _session;
 
-  ChatMessagesManager({
-    required Isar isar,
-    required UserInfo user,
-  })  : _isar = isar,
-        _user = user;
+  ChatMessagesManager(
+    Isar isar,
+    String session,
+  )   : _isar = isar,
+        _session = session;
 
-  Future<bool> _hasLocalChatMessagesForChatId(String chatId) async {
+  Future<bool> _hasLocalForChatId(String chatId) async {
     final messages = await _isar.chatMessages.where().chatIdEqualTo(chatId).findAll();
     return messages.isNotEmpty;
   }
 
-  Future<List<ChatMessage>> getChatMessagesByChatId(String chatId) async {
-    if (await _hasLocalChatMessagesForChatId(chatId)) {
-      return await _getLocalChatMessagesByChatId(chatId);
+  Future<List<ChatMessage>> getByChatId(String chatId) async {
+    if (await _hasLocalForChatId(chatId)) {
+      return await _getLocalByChatId(chatId);
     }
 
-    return await _fetchChatMessagesByChatId(chatId);
+    return await _fetchByChatId(chatId);
   }
 
-  Future<List<ChatMessage>> _getLocalChatMessagesByChatId(String chatId) async {
+  Future<List<ChatMessage>> _getLocalByChatId(String chatId) async {
     return await _isar.chatMessages.where().chatIdEqualTo(chatId).sortByCreatedAt().findAll();
   }
 
-  Future<List<ChatMessage>> _fetchChatMessagesByChatId(String chatId) async {
+  Future<List<ChatMessage>> _fetchByChatId(String chatId) async {
     return await ChatService.getChatMessages(
-      session: _user.session,
+      session: _session,
       chatId: chatId,
     ).then((value) async {
-      await saveChatMessages(value.map((e) {
+      await deleteLocalByChatId(chatId);
+      await save(value.map((e) {
         return e.copyWith(
           chatId: chatId,
         );
@@ -85,20 +80,18 @@ class ChatMessagesManager {
     });
   }
 
-  Future<List<ChatMessage>> refreshChatMessagesByChatId(String chatId) async {
-    return await _fetchChatMessagesByChatId(chatId);
+  Future<List<ChatMessage>> refreshByChatId(String chatId) async {
+    return await _fetchByChatId(chatId);
   }
 
-  Future<List<int>> saveChatMessages(List<ChatMessage> messages) async {
+  Future<List<int>> save(List<ChatMessage> messages) async {
     return await _isar.writeTxn(() async {
-      return await Future.wait(messages.map((e) async {
-        return await _isar.chatMessages.put(e);
-      }));
+      return await _isar.chatMessages.putAll(messages);
     });
   }
 
-  Future<void> deleteLocalChatMessagesByChatId(String chatId) async {
-    if (await _hasLocalChatMessagesForChatId(chatId)) {
+  Future<void> deleteLocalByChatId(String chatId) async {
+    if (await _hasLocalForChatId(chatId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.chatMessages.where().chatIdEqualTo(chatId).findAll();
         await Future.wait(messages.map((e) async {
@@ -107,4 +100,8 @@ class ChatMessagesManager {
       });
     }
   }
+}
+
+extension ChatMessagesManagerX on Ref {
+  ChatMessagesManager get chatMessages => read(chatMessagesManagerProvider).requireValue;
 }

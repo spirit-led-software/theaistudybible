@@ -63,7 +63,7 @@ class CreateDialog extends HookConsumerWidget {
             }
 
             createFuture.value = chatManager
-                .createChat(
+                .create(
               CreateChatRequest(
                 id: const Uuid().v4(),
                 name: name,

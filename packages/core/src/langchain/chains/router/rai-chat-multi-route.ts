@@ -8,14 +8,17 @@ import {
 } from "langchain/chains";
 import { RouterOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
+import type { BaseChatMessageHistory } from "langchain/schema";
 import { z } from "zod";
 
-const ROUTER_TEMPLATE = (
-  formatting: string
-) => `Given a query to a question answering system, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. The formatting must match the the following instructions exactly.
+const ROUTER_TEMPLATE = async (
+  formatting: string,
+  history?: BaseChatMessageHistory
+) => `Given a query to a question answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. The formatting must match the the following instructions exactly.
 
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
 The candidate systems are within <candidates></candidates> XML tags. IMPORTANT: The candidates are in the format of "[name]: [description]" where [name] is the name of the question answering system and [description] is a description of what questions the system is best suited for. Only the name of the system should be returned.
+The conversation history is within <conversation_history></conversation_history> XML tags.
 The input is within <input></input> XML tags. IMPORTANT: Do not modify the input in any way.
 
 <format_instructions>
@@ -25,6 +28,18 @@ ${formatting}
 <candidates>
 {destinations}
 </candidates>
+
+${
+  history
+    ? `
+<conversation_history>
+${(await history.getMessages())
+  .map((m) => `${m.name}: ${m.content}`)
+  .join("\n")}
+</conversation_history>
+`
+    : ""
+}
 
 <input>
 {{input}}
@@ -55,7 +70,9 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
       defaultChain,
     }: {
       multiRouteChainOpts?: Partial<MultiRouteChainInput>;
-      routerChainOpts?: Partial<LLMRouterChainInput>;
+      routerChainOpts?: Partial<LLMRouterChainInput> & {
+        history?: BaseChatMessageHistory;
+      };
       destinationChainsInfo: DestinationChainsInfo;
       defaultChain: DefaultChain;
     }
@@ -86,8 +103,9 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
 
     const destinationsStr = destinations.join("\n");
     const routerTemplate = PromptTemplate.fromTemplate(
-      ROUTER_TEMPLATE(
-        outputParser.getFormatInstructions({ interpolationDepth: 4 })
+      await ROUTER_TEMPLATE(
+        outputParser.getFormatInstructions({ interpolationDepth: 4 }),
+        routerChainOpts?.history
       )
     );
     const routerPrompt = new PromptTemplate({

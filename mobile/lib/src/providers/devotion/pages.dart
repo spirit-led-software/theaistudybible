@@ -6,7 +6,6 @@ import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
-import 'package:revelationsai/src/services/devotion.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pages.g.dart';
@@ -26,19 +25,17 @@ class DevotionsPages extends _$DevotionsPages {
     _persistenceLogic();
 
     try {
-      return await DevotionService.getDevotions(
-        paginationOptions: PaginatedEntitiesRequestOptions(page: _page, limit: pageSize),
-      ).then((value) {
+      return await ref.devotions.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
         if (state.hasValue) {
           // replace pages previous content with new content
           return [
             ...state.value!.sublist(0, _page - 1),
-            value.entities,
+            value,
             if (state.value!.length > _page + 1) ...state.value!.sublist(_page + 1, state.value!.length),
           ];
         } else {
           return [
-            value.entities,
+            value,
           ];
         }
       });
@@ -52,19 +49,28 @@ class DevotionsPages extends _$DevotionsPages {
     return (state.value?.last.length ?? 0) >= 7;
   }
 
-  void fetchNextPage() {
+  Future<void> fetchNextPage() async {
     _page++;
-    _isLoadingNextPage = true;
-    refresh();
-  }
-
-  void reset() {
-    _page = 1;
-    refresh();
-  }
-
-  void refresh() {
     ref.invalidateSelf();
+    await future;
+  }
+
+  Future<void> reset() async {
+    _page = 1;
+    state = AsyncData([state.value?.first ?? []]);
+    ref.invalidateSelf();
+    await future;
+  }
+
+  Future<List<List<Devotion>>> refresh() async {
+    final futures = <Future<List<Devotion>>>[];
+    for (int i = 1; i <= _page; i++) {
+      futures.add(ref.devotions.refreshPage(PaginatedEntitiesRequestOptions(page: i, limit: pageSize)));
+    }
+    return await Future.wait(futures).then((value) async {
+      state = AsyncData(value);
+      return value;
+    });
   }
 
   bool isLoadingInitial() {
@@ -110,20 +116,15 @@ class DevotionsPages extends _$DevotionsPages {
           }
         }
 
-        final devotionsManager = ref.read(devotionManagerProvider).value;
-        final devotionReactionsManager = ref.read(devotionReactionManagerProvider).value;
-        final devotionsImagesManager = ref.read(devotionImageManagerProvider).value;
-        final devotionsSourceDocumentsManager = ref.read(devotionSourceDocumentManagerProvider).value;
-
-        final savedDevos = await devotionsManager?.getAllLocalDevotions() ?? [];
+        final savedDevos = await ref.devotions.getAllLocal();
         final devotionsPagesFlat = next.value!.expand((element) => element);
         for (final savedDevo in savedDevos) {
           if (!devotionsPagesFlat.any((element) => element.id == savedDevo.id)) {
             await Future.wait([
-              devotionsManager?.deleteLocalDevotion(savedDevo.id) ?? Future.value(),
-              devotionsImagesManager?.deleteLocalDevotionImagesByDevotionId(savedDevo.id) ?? Future.value(),
-              devotionsSourceDocumentsManager?.deleteLocalSourceDocumentsByDevotionId(savedDevo.id) ?? Future.value(),
-              devotionReactionsManager?.deleteLocalDevotionReactionsByDevotionId(savedDevo.id) ?? Future.value(),
+              ref.devotions.deleteLocal(savedDevo.id),
+              ref.devotionImages.deleteLocalByDevotionId(savedDevo.id),
+              ref.devotionSourceDocuments.deleteLocalByDevotionId(savedDevo.id),
+              ref.devotionReactions.deleteLocalByDevotionId(savedDevo.id),
             ]);
           }
         }

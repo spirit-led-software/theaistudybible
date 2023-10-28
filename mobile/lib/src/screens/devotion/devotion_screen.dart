@@ -80,13 +80,11 @@ class DevotionScreen extends HookConsumerWidget {
     }, [devotionId]);
 
     useEffect(() {
-      if (devotion.value != null) {
-        Future(() {
-          ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value!.id);
-        });
-      }
+      Future(() {
+        ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value?.id);
+      });
       return () {};
-    }, [devotion.value]);
+    }, [devotion.value?.id]);
 
     return Scaffold(
       appBar: AppBar(
@@ -182,8 +180,8 @@ class DevotionScreen extends HookConsumerWidget {
                             reactionCounts.value[DevotionReactionType.LIKE] = value[DevotionReactionType.LIKE]!;
                           }
                         });
-                      }).catchError((error) {
-                        debugPrint("Failed to create reaction: $error");
+                      }).catchError((error, stackTrace) {
+                        debugPrint("Failed to create reaction: $error $stackTrace");
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -230,8 +228,8 @@ class DevotionScreen extends HookConsumerWidget {
                             reactionCounts.value[DevotionReactionType.DISLIKE] = value[DevotionReactionType.DISLIKE]!;
                           }
                         });
-                      }).catchError((error) {
-                        debugPrint("Failed to create reaction: $error");
+                      }).catchError((error, stackTrace) {
+                        debugPrint("Failed to create reaction: $error $stackTrace");
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -309,8 +307,8 @@ class DevotionScreen extends HookConsumerWidget {
                         images.value = foundImages;
                         reactionCounts.value = foundReactionCounts;
                       }
-                    }).catchError((error) {
-                      debugPrint("Failed to refresh devotion: $error");
+                    }).catchError((error, stackTrace) {
+                      debugPrint("Failed to refresh devotion: $error $stackTrace");
                     });
                   }
                 },

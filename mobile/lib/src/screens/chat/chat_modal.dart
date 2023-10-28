@@ -112,7 +112,7 @@ class ChatModal extends HookConsumerWidget {
               : Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      return await ref.refresh(chatsPagesProvider.future);
+                      await ref.read(chatsPagesProvider.notifier).refresh();
                     },
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -192,7 +192,7 @@ class ChatListItem extends HookConsumerWidget {
             overflow: TextOverflow.fade,
           ),
           subtitle: Text(
-            DateFormat.yMMMd().format(chat.createdAt),
+            DateFormat.yMMMd().format(chat.createdAt.toLocal()),
           ),
           trailing: currentChatId == chat.id
               ? Icon(

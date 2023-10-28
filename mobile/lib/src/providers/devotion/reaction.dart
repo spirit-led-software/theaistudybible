@@ -1,6 +1,6 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
-import 'package:revelationsai/src/models/user.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
@@ -12,26 +12,23 @@ part 'reaction.g.dart';
 
 @riverpod
 class DevotionReactions extends _$DevotionReactions {
-  late DevotionReactionManager _manager;
-
   @override
   FutureOr<List<DevotionReaction>> build(String devotionId) async {
-    _manager = await ref.watch(devotionReactionManagerProvider.future);
-    return _manager.getDevotionReactionsByDevotionId(devotionId);
+    return await ref.devotionReactions.getByDevotionId(devotionId);
   }
 
   Future<void> createReaction({
     required DevotionReactionType reaction,
     required String session,
   }) async {
-    return await _manager.createDevotionReactionForDevotionId(devotionId, reaction).then((value) {
+    return await ref.devotionReactions.createForDevotionId(devotionId, reaction).then((value) {
       refresh();
       ref.read(devotionReactionCountsProvider(devotionId).notifier).increment(reaction);
     });
   }
 
   Future<List<DevotionReaction>> refresh() async {
-    final reactions = await _manager.refreshDevotionReactionsByDevotionId(devotionId);
+    final reactions = await ref.devotionReactions.refreshByDevotionId(devotionId);
     state = AsyncData(reactions);
     return reactions;
   }
@@ -40,67 +37,65 @@ class DevotionReactions extends _$DevotionReactions {
 @Riverpod(keepAlive: true)
 Future<DevotionReactionManager> devotionReactionManager(DevotionReactionManagerRef ref) async {
   final isar = await ref.watch(isarInstanceProvider.future);
-  final user = await ref.watch(currentUserProvider.future);
-  return DevotionReactionManager(isar: isar, user: user);
+  final session = await ref.watch(currentUserProvider.selectAsync((data) => data.session));
+  return DevotionReactionManager(isar, session);
 }
 
 class DevotionReactionManager {
   final Isar _isar;
-  final UserInfo _user;
+  final String _session;
 
-  DevotionReactionManager({
-    required Isar isar,
-    required UserInfo user,
-  })  : _isar = isar,
-        _user = user;
+  DevotionReactionManager(
+    Isar isar,
+    String session,
+  )   : _isar = isar,
+        _session = session;
 
-  Future<bool> _hasLocalDevotionReactionsForDevotionId(String devotionId) async {
-    final messages = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
-    return messages.isNotEmpty;
+  Future<bool> _hasLocalForDevotionId(String devotionId) async {
+    final reactions = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
+    return reactions.isNotEmpty;
   }
 
-  Future<List<DevotionReaction>> getDevotionReactionsByDevotionId(String devotionId) async {
-    if (await _hasLocalDevotionReactionsForDevotionId(devotionId)) {
-      return await _getLocalDevotionReactionsByDevotionId(devotionId);
+  Future<List<DevotionReaction>> getByDevotionId(String devotionId) async {
+    if (await _hasLocalForDevotionId(devotionId)) {
+      return await _getLocalByDevotionId(devotionId);
     }
 
-    return await _fetchDevotionReactionsByDevotionId(devotionId);
+    return await _fetchByDevotionId(devotionId);
   }
 
-  Future<List<DevotionReaction>> _getLocalDevotionReactionsByDevotionId(String devotionId) async {
+  Future<List<DevotionReaction>> _getLocalByDevotionId(String devotionId) async {
     return await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).sortByCreatedAt().findAll();
   }
 
-  Future<List<DevotionReaction>> _fetchDevotionReactionsByDevotionId(String devotionId) async {
+  Future<List<DevotionReaction>> _fetchByDevotionId(String devotionId) async {
     return await DevotionReactionService.getDevotionReactions(
       id: devotionId,
     ).then((value) async {
-      await _saveDevotionReactions(value.entities);
+      await _save(value.entities);
       return value.entities;
     });
   }
 
-  Future<List<DevotionReaction>> refreshDevotionReactionsByDevotionId(String devotionId) async {
-    return await _fetchDevotionReactionsByDevotionId(devotionId);
+  Future<List<DevotionReaction>> refreshByDevotionId(String devotionId) async {
+    return await _fetchByDevotionId(devotionId);
   }
 
-  Future<void> createDevotionReactionForDevotionId(String devotionId, DevotionReactionType type) async {
-    return await DevotionReactionService.createDevotionReaction(id: devotionId, session: _user.session, reaction: type)
+  Future<void> createForDevotionId(String devotionId, DevotionReactionType type) async {
+    return await DevotionReactionService.createDevotionReaction(id: devotionId, session: _session, reaction: type)
         .then((value) async {
-      await _fetchDevotionReactionsByDevotionId(devotionId);
+      await _fetchByDevotionId(devotionId);
     });
   }
 
-  Future<List<int>> _saveDevotionReactions(List<DevotionReaction> messages) async {
+  Future<List<int>> _save(List<DevotionReaction> reactions) async {
     return await _isar.writeTxn(() async {
-      return await Future.wait(messages.map((e) async {
-        return await _isar.devotionReactions.put(e);
-      }));
+      return await _isar.devotionReactions.putAll(reactions);
     });
   }
 
-  Future<void> deleteLocalDevotionReactionsByDevotionId(String devotionId) async {
-    if (await _hasLocalDevotionReactionsForDevotionId(devotionId)) {
+  Future<void> deleteLocalByDevotionId(String devotionId) async {
+    if (await _hasLocalForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
         await Future.wait(messages.map((e) async {
@@ -109,4 +104,8 @@ class DevotionReactionManager {
       });
     }
   }
+}
+
+extension DevotionReactionsManagerX on Ref {
+  DevotionReactionManager get devotionReactions => read(devotionReactionManagerProvider).requireValue;
 }

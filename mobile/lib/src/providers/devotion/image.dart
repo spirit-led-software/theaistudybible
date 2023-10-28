@@ -1,3 +1,4 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/devotion/image.dart';
 import 'package:revelationsai/src/providers/isar.dart';
@@ -9,16 +10,13 @@ part 'image.g.dart';
 
 @riverpod
 class DevotionImages extends _$DevotionImages {
-  late DevotionImageManager _manager;
-
   @override
   FutureOr<List<DevotionImage>> build(String devotionId) async {
-    _manager = await ref.watch(devotionImageManagerProvider.future);
-    return await _manager.getDevotionImagesByDevotionId(devotionId);
+    return await ref.devotionImages.getByDevotionId(devotionId);
   }
 
   Future<List<DevotionImage>> refresh() async {
-    final images = await _manager.refreshDevotionImagesByDevotionId(devotionId);
+    final images = await ref.devotionImages.refreshByDevotionId(devotionId);
     state = AsyncData(images);
     return images;
   }
@@ -37,46 +35,44 @@ class DevotionImageManager {
     required Isar isar,
   }) : _isar = isar;
 
-  Future<bool> _hasLocalDevotionImagesForDevotionId(String devotionId) async {
+  Future<bool> _hasLocalForDevotionId(String devotionId) async {
     final messages = await _isar.devotionImages.where().devotionIdEqualTo(devotionId).findAll();
     return messages.isNotEmpty;
   }
 
-  Future<List<DevotionImage>> getDevotionImagesByDevotionId(String devotionId) async {
-    if (await _hasLocalDevotionImagesForDevotionId(devotionId)) {
-      return await _getLocalDevotionImagesByDevotionId(devotionId);
+  Future<List<DevotionImage>> getByDevotionId(String devotionId) async {
+    if (await _hasLocalForDevotionId(devotionId)) {
+      return await _getLocalByDevotionId(devotionId);
     }
 
-    return await _fetchDevotionImagesByDevotionId(devotionId);
+    return await _fetchByDevotionId(devotionId);
   }
 
-  Future<List<DevotionImage>> _getLocalDevotionImagesByDevotionId(String devotionId) async {
+  Future<List<DevotionImage>> _getLocalByDevotionId(String devotionId) async {
     return await _isar.devotionImages.where().devotionIdEqualTo(devotionId).sortByCreatedAt().findAll();
   }
 
-  Future<List<DevotionImage>> _fetchDevotionImagesByDevotionId(String devotionId) async {
+  Future<List<DevotionImage>> _fetchByDevotionId(String devotionId) async {
     return await DevotionImageService.getDevotionImages(
       id: devotionId,
     ).then((value) async {
-      await _saveDevotionImages(value.entities);
+      await _save(value.entities);
       return value.entities;
     });
   }
 
-  Future<List<DevotionImage>> refreshDevotionImagesByDevotionId(String devotionId) async {
-    return await _fetchDevotionImagesByDevotionId(devotionId);
+  Future<List<DevotionImage>> refreshByDevotionId(String devotionId) async {
+    return await _fetchByDevotionId(devotionId);
   }
 
-  Future<List<int>> _saveDevotionImages(List<DevotionImage> messages) async {
+  Future<List<int>> _save(List<DevotionImage> messages) async {
     return await _isar.writeTxn(() async {
-      return await Future.wait(messages.map((e) async {
-        return await _isar.devotionImages.put(e);
-      }));
+      return await _isar.devotionImages.putAll(messages);
     });
   }
 
-  Future<void> deleteLocalDevotionImagesByDevotionId(String devotionId) async {
-    if (await _hasLocalDevotionImagesForDevotionId(devotionId)) {
+  Future<void> deleteLocalByDevotionId(String devotionId) async {
+    if (await _hasLocalForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.devotionImages.where().devotionIdEqualTo(devotionId).findAll();
         await Future.wait(messages.map((e) async {
@@ -85,4 +81,8 @@ class DevotionImageManager {
       });
     }
   }
+}
+
+extension DevotionImagesManagerX on Ref {
+  DevotionImageManager get devotionImages => read(devotionImageManagerProvider).requireValue;
 }

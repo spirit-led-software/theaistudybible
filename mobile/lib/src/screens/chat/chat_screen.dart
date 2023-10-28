@@ -401,7 +401,7 @@ class ChatScreen extends HookConsumerWidget {
                         onTap: () async {
                           if (chatHook.chatId.value != null) {
                             isRefreshingChat.value = true;
-                            await ref.read(chatManagerProvider).requireValue.deleteChat(chatHook.chatId.value!).then(
+                            await ref.read(chatManagerProvider).requireValue.deleteRemote(chatHook.chatId.value!).then(
                               (value) {
                                 if (isMounted()) {
                                   chat.value = null;

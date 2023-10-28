@@ -1,5 +1,7 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/devotion.dart';
+import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/services/devotion.dart';
 import 'package:revelationsai/src/utils/isar.dart';
@@ -9,16 +11,13 @@ part 'devotion.g.dart';
 
 @riverpod
 class Devotions extends _$Devotions {
-  late DevotionManager _manager;
-
   @override
   FutureOr<Devotion> build(String id) async {
-    _manager = await ref.watch(devotionManagerProvider.future);
-    return await _manager.getDevotion(id);
+    return await ref.devotions.get(id);
   }
 
   Future<Devotion> refresh() async {
-    final devotion = await _manager.refreshDevotion(id);
+    final devotion = await ref.devotions.refresh(id);
     state = AsyncData(devotion);
     return devotion;
   }
@@ -37,42 +36,68 @@ class DevotionManager {
     required Isar isar,
   }) : _isar = isar;
 
-  Future<bool> _hasLocalDevotion(String id) async {
+  Future<bool> _hasLocal(String id) async {
     final chat = await _isar.devotions.get(fastHash(id));
     return chat != null;
   }
 
-  Future<Devotion> getDevotion(String id) async {
-    if (await _hasLocalDevotion(id)) {
-      return (await _getLocalDevotion(id))!;
+  Future<Devotion> get(String id) async {
+    if (await _hasLocal(id)) {
+      return (await _getLocal(id))!;
     }
-    return await _fetchDevotion(id);
+    return await _fetch(id);
   }
 
-  Future<Devotion> refreshDevotion(String id) async {
-    return await _fetchDevotion(id);
+  Future<Devotion> refresh(String id) async {
+    return await _fetch(id);
   }
 
-  Future<Devotion?> _getLocalDevotion(String id) async {
+  Future<Devotion?> _getLocal(String id) async {
     return await _isar.devotions.get(fastHash(id));
   }
 
-  Future<Devotion> _fetchDevotion(String id) async {
+  Future<Devotion> _fetch(String id) async {
     return await DevotionService.getDevotion(id: id).then((value) async {
-      await _saveDevotion(value);
+      await _save(value);
       return value;
     });
   }
 
-  Future<int> _saveDevotion(Devotion chat) async {
+  Future<int> _save(Devotion chat) async {
     return await _isar.writeTxn(() => _isar.devotions.put(chat));
   }
 
-  Future<void> deleteLocalDevotion(String id) async {
+  Future<List<int>> _saveMany(List<Devotion> chats) async {
+    return await _isar.writeTxn(() => _isar.devotions.putAll(chats));
+  }
+
+  Future<void> deleteLocal(String id) async {
     await _isar.writeTxn(() => _isar.devotions.delete(fastHash(id)));
   }
 
-  Future<List<Devotion>> getAllLocalDevotions() async {
+  Future<List<Devotion>> getAllLocal() async {
     return await _isar.devotions.where().findAll();
   }
+
+  Future<List<Devotion>> _fetchPage(PaginatedEntitiesRequestOptions options) async {
+    return await DevotionService.getDevotions(paginationOptions: options).then((value) async {
+      await _saveMany(value.entities);
+      return value.entities;
+    });
+  }
+
+  Future<List<Devotion>> getPage(PaginatedEntitiesRequestOptions options) async {
+    if (await _isar.devotions.count() >= (options.page * options.limit)) {
+      return await _isar.devotions.where().sortByDateDesc().offset((options.page - 1) * options.limit).limit(options.limit).findAll();
+    }
+    return await _fetchPage(options);
+  }
+
+  Future<List<Devotion>> refreshPage(PaginatedEntitiesRequestOptions options) async {
+    return await _fetchPage(options);
+  }
+}
+
+extension DevotionManagerX on Ref {
+  DevotionManager get devotions => read(devotionManagerProvider).requireValue;
 }

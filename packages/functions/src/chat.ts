@@ -1,3 +1,4 @@
+import { envConfig } from "@core/configs";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import type { Chat, UserMessage } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
@@ -5,6 +6,7 @@ import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
 import {
   createAiResponse,
+  getAiResponse,
   getAiResponsesByUserMessageId,
   updateAiResponse,
 } from "@services/ai-response";
@@ -25,6 +27,7 @@ import type {
 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
+import { v4 as uuidV4 } from "uuid";
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<
   APIGatewayProxyStructuredResultV2,
@@ -88,7 +91,7 @@ const lambdaHandler = async (
     };
   }
 
-  const { messages, chatId }: { messages: Message[]; chatId: string } =
+  const { messages = [], chatId }: { messages: Message[]; chatId?: string } =
     JSON.parse(event.body);
 
   try {
@@ -138,84 +141,39 @@ const lambdaHandler = async (
     }
 
     console.time("Validating chat");
-    let chat: Chat | undefined;
-    if (!chatId) {
-      chat = await createChat({
-        userId: userInfo.id,
-      });
-      const memoryVectorStore = await getChatMemoryVectorStore(chat.id);
-      await memoryVectorStore.ensureTableInDatabase();
-    } else {
-      chat = await getChat(chatId);
 
-      if (!chat) {
-        console.log(`Chat ${chatId} not found`);
-        return {
-          statusCode: 404,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: Readable.from([
-            JSON.stringify({ error: `Chat ${chatId} not found` }),
-          ]),
-        };
+    const newChatId = chatId ?? uuidV4();
+    let chat = await getChat(newChatId).then(async (foundChat) => {
+      if (!foundChat) {
+        return await Promise.all([
+          createChat({
+            id: newChatId,
+            userId: userInfo.id,
+          }),
+          getChatMemoryVectorStore(newChatId, {
+            verbose: envConfig.isLocal,
+          }).then(async (store) => {
+            await store.ensureTableInDatabase();
+            return store;
+          }),
+        ]).then(([newChat]) => newChat);
+      } else if (!isObjectOwner(foundChat, userInfo.id)) {
+        return await createChat({
+          userId: userInfo.id,
+        });
       }
-
-      if (!isObjectOwner(chat, userInfo.id)) {
-        console.log("Unauthorized to access chat");
-        return {
-          statusCode: 403,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: Readable.from([
-            JSON.stringify({ error: "Unauthorized to access chat" }),
-          ]),
-        };
-      }
-    }
+      return foundChat;
+    });
     console.timeEnd("Validating chat");
 
     if (!chat.customName) {
-      pendingPromises.push(aiRenameChat(chat!.id, messages));
+      pendingPromises.push(aiRenameChat(chat.id, messages));
     }
 
-    console.time("Validating user message");
-    let userMessage: UserMessage | undefined = (
-      await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
-    )[0];
-
-    if (!userMessage) {
-      userMessage = await createUserMessage({
-        aiId: lastMessage.id,
-        text: lastMessage.content,
-        chatId: chat.id,
-        userId: userInfo.id,
-      });
-    } else {
-      pendingPromises.push(
-        getAiResponsesByUserMessageId(userMessage.id).then(
-          async (aiResponses) => {
-            const oldAiResponse = aiResponses[0];
-            if (oldAiResponse) {
-              await updateAiResponse(oldAiResponse.id, {
-                regenerated: true,
-              });
-            }
-          }
-        )
-      );
-    }
-    console.timeEnd("Validating user message");
-
-    let aiResponse = await createAiResponse({
-      chatId: chat.id,
-      userMessageId: userMessage.id,
-      userId: userInfo.id,
-    });
-
+    const userMessageId = uuidV4();
+    const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
-    const chain = await getRAIChatChain(chat, messages);
+    const chain = await getRAIChatChain(chat.id, messages);
     const langchainResponsePromise = chain
       .call(
         {
@@ -231,31 +189,25 @@ const lambdaHandler = async (
             return arr.findIndex((d2) => d2.id === d1.id) === i;
           }) ?? [];
 
-        await Promise.all([
-          incrementUserQueryCount(userInfo.id),
-          updateAiResponse(aiResponse.id, {
-            text: result.text,
-          }),
-          ...sourceDocuments.map(async (sourceDoc) => {
-            if (sourceDoc.distance && sourceDoc.distance <= 0.7) {
-              await readWriteDatabase
-                .insert(aiResponsesToSourceDocuments)
-                .values({
-                  aiResponseId: aiResponse.id,
-                  sourceDocumentId: sourceDoc.id,
-                  distance: sourceDoc.distance,
-                  distanceMetric: sourceDoc.distanceMetric,
-                });
-            }
-          }),
-        ]);
+        await postResponseValidationLogic({
+          chat,
+          userMessageId,
+          aiResponseId,
+          userInfo,
+          messages,
+          lastMessage,
+          response: result.text,
+          sourceDocuments,
+        });
         return result;
       })
       .catch(async (err) => {
         console.error(`${err.stack}`);
-        await updateAiResponse(aiResponse.id, {
-          failed: true,
-        });
+        if (await getAiResponse(aiResponseId)) {
+          await updateAiResponse(aiResponseId, {
+            failed: true,
+          });
+        }
         throw err;
       });
     pendingPromises.push(langchainResponsePromise);
@@ -266,8 +218,8 @@ const lambdaHandler = async (
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
         "x-chat-id": chat.id,
-        "x-user-message-id": userMessage.id,
-        "x-ai-response-id": aiResponse.id,
+        "x-user-message-id": userMessageId,
+        "x-ai-response-id": aiResponseId,
       },
       body: new Readable({
         read() {
@@ -276,8 +228,8 @@ const lambdaHandler = async (
             .then(async ({ done, value }: { done: boolean; value?: any }) => {
               if (done) {
                 console.log("Finished chat stream response");
-                await Promise.all(pendingPromises); // make sure everything is done before closing the stream
                 this.push(null);
+                await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
                 this.destroy();
                 return;
               }
@@ -289,8 +241,8 @@ const lambdaHandler = async (
             })
             .catch(async (err) => {
               console.error(`Error while streaming response: ${err}`);
-              await Promise.all(pendingPromises); // make sure everything is done before closing the stream
               this.push(null);
+              await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
               this.destroy(err);
               throw err;
             });
@@ -311,6 +263,81 @@ const lambdaHandler = async (
       ]),
     };
   }
+};
+
+const postResponseValidationLogic = async ({
+  chat,
+  userMessageId,
+  aiResponseId,
+  userInfo,
+  messages,
+  lastMessage,
+  response,
+  sourceDocuments,
+}: {
+  chat: Chat;
+  userMessageId: string;
+  aiResponseId: string;
+  userInfo: any;
+  messages: Message[];
+  lastMessage: Message;
+  response: string;
+  sourceDocuments: NeonVectorStoreDocument[];
+}): Promise<void> => {
+  const pendingPromises: Promise<any>[] = [];
+
+  console.time("Validating user message");
+  let userMessage: UserMessage | undefined = (
+    await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
+  )[0];
+
+  if (!userMessage) {
+    userMessage = await createUserMessage({
+      id: userMessageId,
+      aiId: lastMessage.id,
+      text: lastMessage.content,
+      chatId: chat.id,
+      userId: userInfo.id,
+    });
+  } else {
+    pendingPromises.push(
+      getAiResponsesByUserMessageId(userMessage.id).then(
+        async (aiResponses) => {
+          const oldAiResponse = aiResponses[0];
+          if (oldAiResponse) {
+            await updateAiResponse(oldAiResponse.id, {
+              regenerated: true,
+            });
+          }
+        }
+      )
+    );
+  }
+  console.timeEnd("Validating user message");
+
+  let aiResponse = await createAiResponse({
+    id: aiResponseId,
+    chatId: chat.id,
+    userMessageId: userMessage.id,
+    userId: userInfo.id,
+    text: response,
+  });
+
+  pendingPromises.push(
+    incrementUserQueryCount(userInfo.id),
+    ...sourceDocuments.map(async (sourceDoc) => {
+      if (sourceDoc.distance && sourceDoc.distance <= 0.7) {
+        await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
+          aiResponseId: aiResponse.id,
+          sourceDocumentId: sourceDoc.id,
+          distance: sourceDoc.distance,
+          distanceMetric: sourceDoc.distanceMetric,
+        });
+      }
+    })
+  );
+
+  await Promise.all(pendingPromises);
 };
 
 export const handler = middy({ streamifyResponse: true }).handler(

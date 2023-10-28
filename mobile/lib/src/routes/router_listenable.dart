@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
+import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/chat/messages.dart';
+import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
+import 'package:revelationsai/src/providers/devotion/image.dart';
+import 'package:revelationsai/src/providers/devotion/pages.dart';
+import 'package:revelationsai/src/providers/devotion/reaction.dart';
+import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -16,17 +23,30 @@ class RouterListenable extends _$RouterListenable implements Listenable {
 
   @override
   Future<void> build() async {
-    // One could watch more providers and write logic accordingly
-    final currentUserFuture = ref.watch(currentUserProvider.future).then((value) {
-      _isAuth = true;
-      return;
-    }).catchError((_) {
-      _isAuth = false;
-      return;
-    });
-    final currentUserPrefsFuture = ref.watch(currentUserPreferencesProvider.future);
+    await Future.wait([
+      ref.watch(currentUserProvider.future).then((value) {
+        _isAuth = true;
+        return;
+      }).catchError((_) {
+        _isAuth = false;
+        return;
+      }),
+      ref.watch(currentUserPreferencesProvider.future),
+    ]);
 
-    await Future.wait([currentUserFuture, currentUserPrefsFuture]);
+    if (_isAuth) {
+      await Future.wait([
+        ref.watch(chatManagerProvider.future).then((value) => ref.watch(devotionsPagesProvider.future)),
+        ref.watch(chatMessagesManagerProvider.future),
+        ref.watch(devotionReactionManagerProvider.future),
+      ]);
+    }
+
+    await Future.wait([
+      ref.watch(devotionManagerProvider.future),
+      ref.watch(devotionImageManagerProvider.future),
+      ref.watch(devotionSourceDocumentManagerProvider.future),
+    ]);
 
     ref.listenSelf((_, __) {
       // One could write more conditional logic for when to call redirection

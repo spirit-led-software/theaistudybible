@@ -82,7 +82,7 @@ class DevotionModal extends HookConsumerWidget {
               : Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      return await ref.refresh(devotionsPagesProvider.future);
+                      await ref.read(devotionsPagesProvider.notifier).refresh();
                     },
                     child: ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -157,7 +157,7 @@ class DevotionListItem extends HookConsumerWidget {
       child: Container(
         color: currentDevotionId.value == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
         child: ListTile(
-          title: Text(DateFormat.yMMMd().format(devotion.date)),
+          title: Text(DateFormat.yMMMd().format(devotion.date.toUtc())),
           subtitle: Text(
             devotion.bibleReading.split(" - ").first,
           ),
