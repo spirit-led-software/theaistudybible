@@ -188,13 +188,11 @@ const lambdaHandler = async (
           )?.filter((d1, i, arr) => {
             return arr.findIndex((d2) => d2.id === d1.id) === i;
           }) ?? [];
-
         await postResponseValidationLogic({
           chat,
           userMessageId,
           aiResponseId,
           userInfo,
-          messages,
           lastMessage,
           response: result.text,
           sourceDocuments,
@@ -228,8 +226,8 @@ const lambdaHandler = async (
             .then(async ({ done, value }: { done: boolean; value?: any }) => {
               if (done) {
                 console.log("Finished chat stream response");
-                this.push(null);
                 await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
+                this.push(null);
                 this.destroy();
                 return;
               }
@@ -241,8 +239,8 @@ const lambdaHandler = async (
             })
             .catch(async (err) => {
               console.error(`Error while streaming response: ${err}`);
-              this.push(null);
               await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
+              this.push(null);
               this.destroy(err);
               throw err;
             });
@@ -270,7 +268,6 @@ const postResponseValidationLogic = async ({
   userMessageId,
   aiResponseId,
   userInfo,
-  messages,
   lastMessage,
   response,
   sourceDocuments,
@@ -279,7 +276,6 @@ const postResponseValidationLogic = async ({
   userMessageId: string;
   aiResponseId: string;
   userInfo: any;
-  messages: Message[];
   lastMessage: Message;
   response: string;
   sourceDocuments: NeonVectorStoreDocument[];
