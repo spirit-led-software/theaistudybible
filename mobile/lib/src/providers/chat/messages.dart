@@ -16,6 +16,11 @@ class ChatMessages extends _$ChatMessages {
     if (chatId == null) {
       return <ChatMessage>[];
     }
+
+    ref.onAddListener(() {
+      ref.chatMessages.refreshByChatId(chatId);
+    });
+
     return await ref.chatMessages.getByChatId(chatId);
   }
 

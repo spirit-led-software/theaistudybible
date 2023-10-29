@@ -11,13 +11,21 @@ part 'devotion.g.dart';
 
 @riverpod
 class Devotions extends _$Devotions {
+  late String _id;
+
   @override
-  FutureOr<Devotion> build(String id) async {
-    return await ref.devotions.get(id);
+  FutureOr<Devotion> build(String? devotionId) async {
+    _id = devotionId ?? (await ref.devotions.getLatest()).id;
+
+    ref.onAddListener(() {
+      ref.devotions.refresh(_id);
+    });
+
+    return await ref.devotions.get(_id);
   }
 
   Future<Devotion> refresh() async {
-    final devotion = await ref.devotions.refresh(id);
+    final devotion = await ref.devotions.refresh(_id);
     state = AsyncData(devotion);
     return devotion;
   }
@@ -100,6 +108,10 @@ class DevotionManager {
 
   Future<List<Devotion>> refreshPage(PaginatedEntitiesRequestOptions options) async {
     return await _fetchPage(options);
+  }
+
+  Future<Devotion> getLatest() async {
+    return await getPage(const PaginatedEntitiesRequestOptions(page: 1, limit: 1)).then((value) => value.first);
   }
 }
 

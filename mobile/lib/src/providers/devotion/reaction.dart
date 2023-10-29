@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
+import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
@@ -12,23 +13,26 @@ part 'reaction.g.dart';
 
 @riverpod
 class DevotionReactions extends _$DevotionReactions {
+  late String _id;
+
   @override
-  FutureOr<List<DevotionReaction>> build(String devotionId) async {
-    return await ref.devotionReactions.getByDevotionId(devotionId);
+  FutureOr<List<DevotionReaction>> build(String? devotionId) async {
+    _id = devotionId ?? (await ref.devotions.getLatest()).id;
+    return await ref.devotionReactions.getByDevotionId(_id);
   }
 
   Future<void> createReaction({
     required DevotionReactionType reaction,
     required String session,
   }) async {
-    return await ref.devotionReactions.createForDevotionId(devotionId, reaction).then((value) {
+    return await ref.devotionReactions.createForDevotionId(_id, reaction).then((value) {
       refresh();
-      ref.read(devotionReactionCountsProvider(devotionId).notifier).increment(reaction);
+      ref.read(devotionReactionCountsProvider(_id).notifier).increment(reaction);
     });
   }
 
   Future<List<DevotionReaction>> refresh() async {
-    final reactions = await ref.devotionReactions.refreshByDevotionId(devotionId);
+    final reactions = await ref.devotionReactions.refreshByDevotionId(_id);
     state = AsyncData(reactions);
     return reactions;
   }
@@ -103,6 +107,45 @@ class DevotionReactionManager {
         }));
       });
     }
+  }
+
+  Future<Map<DevotionReactionType, int>> getCountsForDevotionId(String devotionId) async {
+    if (await _hasLocalCountsForDevotionId(devotionId)) {
+      return await _getLocalCountsForDevotionId(devotionId);
+    }
+    return await _fetchCountsForDevotionId(devotionId);
+  }
+
+  Future<Map<DevotionReactionType, int>> refreshCountsForDevotionId(String devotionId) async {
+    return await _fetchCountsForDevotionId(devotionId);
+  }
+
+  Future<bool> _hasLocalCountsForDevotionId(String devotionId) async {
+    final counts = await _isar.devotionReactionCounts.where().devotionIdEqualTo(devotionId).findAll();
+    return counts.isNotEmpty;
+  }
+
+  Future<Map<DevotionReactionType, int>> _getLocalCountsForDevotionId(String devotionId) async {
+    final counts = await _isar.devotionReactionCounts.where().devotionIdEqualTo(devotionId).findAll();
+    return counts.fold<Map<DevotionReactionType, int>>({}, (previousValue, element) {
+      previousValue[element.type] = element.count;
+      return previousValue;
+    });
+  }
+
+  Future<Map<DevotionReactionType, int>> _fetchCountsForDevotionId(String devotionId) async {
+    return await DevotionReactionService.getDevotionReactionCounts(id: devotionId).then((value) {
+      _saveCounts(value.entries
+          .map((e) => DevotionReactionCount(type: e.key, count: e.value, devotionId: devotionId))
+          .toList());
+      return value;
+    });
+  }
+
+  Future<List<int>> _saveCounts(List<DevotionReactionCount> counts) async {
+    return await _isar.writeTxn(() async {
+      return await _isar.devotionReactionCounts.putAll(counts);
+    });
   }
 }
 

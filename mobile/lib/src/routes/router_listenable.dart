@@ -3,6 +3,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
+import 'package:revelationsai/src/providers/repo_initialization.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -26,6 +27,8 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       }),
       ref.watch(currentUserPreferencesProvider.future),
     ]);
+
+    await ref.watch(repoInitializationProvider.future);
 
     ref.listenSelf((_, __) {
       // One could write more conditional logic for when to call redirection

@@ -20,6 +20,7 @@ Future<Isar> isarInstance(IsarInstanceRef ref) async {
       DevotionSchema,
       DevotionImageSchema,
       DevotionReactionSchema,
+      DevotionReactionCountSchema,
       StoredSourceDocumentSchema,
     ],
     directory: appDir.path,

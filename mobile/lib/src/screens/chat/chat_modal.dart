@@ -4,13 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/models/chat.dart';
-import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
-import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class ChatModal extends HookConsumerWidget {
   const ChatModal({Key? key}) : super(key: key);
@@ -173,41 +170,33 @@ class ChatListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentChatId = ref.watch(currentChatIdProvider);
 
-    return VisibilityDetector(
+    return Container(
       key: ValueKey(chat.id),
-      onVisibilityChanged: (info) async {
-        await Future.wait([
-          ref.read(chatsProvider(chat.id).future),
-          ref.read(chatMessagesProvider(chat.id).future),
-        ]);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: currentChatId == chat.id ? context.secondaryColor.withOpacity(0.2) : Colors.transparent,
+      decoration: BoxDecoration(
+        color: currentChatId == chat.id ? context.secondaryColor.withOpacity(0.2) : Colors.transparent,
+      ),
+      child: ListTile(
+        title: Text(
+          chat.name,
+          softWrap: false,
+          overflow: TextOverflow.fade,
         ),
-        child: ListTile(
-          title: Text(
-            chat.name,
-            softWrap: false,
-            overflow: TextOverflow.fade,
-          ),
-          subtitle: Text(
-            DateFormat.yMMMd().format(chat.createdAt.toLocal()),
-          ),
-          trailing: currentChatId == chat.id
-              ? Icon(
-                  Icons.check,
-                  color: context.secondaryColor,
-                )
-              : null,
-          dense: true,
-          onTap: () {
-            context.go(
-              '/chat/${chat.id}',
-            );
-            Navigator.of(context).pop();
-          },
+        subtitle: Text(
+          DateFormat.yMMMd().format(chat.createdAt.toLocal()),
         ),
+        trailing: currentChatId == chat.id
+            ? Icon(
+                Icons.check,
+                color: context.secondaryColor,
+              )
+            : null,
+        dense: true,
+        onTap: () {
+          context.go(
+            '/chat/${chat.id}',
+          );
+          Navigator.of(context).pop();
+        },
       ),
     );
   }

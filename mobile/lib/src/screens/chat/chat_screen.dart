@@ -45,6 +45,7 @@ class ChatScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider).requireValue;
     final currentUserPreferences = ref.watch(currentUserPreferencesProvider).requireValue;
 
     final isMounted = useIsMounted();
@@ -59,7 +60,7 @@ class ChatScreen extends HookConsumerWidget {
     final chat = useState<Chat?>(null);
     final chatHook = useChat(
       options: UseChatOptions(
-        session: ref.read(currentUserProvider).requireValue.session,
+        session: currentUser.session,
         hapticFeedback: currentUserPreferences.hapticFeedback,
         onFinish: (_) {
           inAppReviewLogic();

@@ -44,3 +44,24 @@ class DevotionReaction with _$DevotionReaction {
 
   factory DevotionReaction.fromJson(Map<String, dynamic> json) => _$DevotionReactionFromJson(json);
 }
+
+@freezed
+@Collection(ignore: {'copyWith'})
+class DevotionReactionCount with _$DevotionReactionCount {
+  const DevotionReactionCount._();
+
+  factory DevotionReactionCount({
+    required DevotionReactionType type,
+    required int count,
+    @Index() required String devotionId,
+  }) = _DevotionReactionCount;
+
+  Id get isarId => fastHash(devotionId + type.toString());
+
+  @override
+  @enumerated
+  // ignore: recursive_getters
+  DevotionReactionType get type => type;
+
+  factory DevotionReactionCount.fromJson(Map<String, dynamic> json) => _$DevotionReactionCountFromJson(json);
+}

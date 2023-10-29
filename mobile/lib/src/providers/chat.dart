@@ -20,6 +20,11 @@ class Chats extends _$Chats {
     if (id == null) {
       return null;
     }
+
+    ref.onAddListener(() {
+      ref.chats.refresh(id);
+    });
+
     return await ref.chats.getChat(id);
   }
 

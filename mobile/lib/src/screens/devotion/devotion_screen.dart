@@ -43,11 +43,9 @@ class DevotionScreen extends HookConsumerWidget {
     final images = useState<List<DevotionImage>>([]);
     final reactionCounts = useState<Map<DevotionReactionType, int>>({});
 
-    final fetchDevoData = useCallback((String? id) async {
-      var devoId = id ?? await ref.refresh(devotionsPagesProvider.future).then((value) => value.first.first.id);
-
+    final fetchDevoData = useCallback((String? devoId) async {
       await Future.wait([
-        ref.read(devotionsProvider(devoId!).future),
+        ref.read(devotionsProvider(devoId).future),
         ref.read(devotionSourceDocumentsProvider(devoId).future),
         ref.read(devotionImagesProvider(devoId).future),
         ref.read(devotionReactionsProvider(devoId).future),
@@ -69,10 +67,8 @@ class DevotionScreen extends HookConsumerWidget {
     }, [ref, isMounted]);
 
     useEffect(() {
-      final id = devotionId ?? ref.read(devotionsPagesProvider).value?.firstOrNull?.firstOrNull?.id;
-
       loading.value = true;
-      fetchDevoData(id).whenComplete(() {
+      fetchDevoData(devotionId).whenComplete(() {
         if (isMounted()) loading.value = false;
       });
 
@@ -84,7 +80,7 @@ class DevotionScreen extends HookConsumerWidget {
         ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value?.id);
       });
       return () {};
-    }, [devotion.value?.id]);
+    }, [devotion.value]);
 
     return Scaffold(
       appBar: AppBar(
@@ -223,7 +219,7 @@ class DevotionScreen extends HookConsumerWidget {
                             session: currentUser.requireValue.session,
                           )
                           .then((value) {
-                        ref.refresh(devotionReactionCountsProvider(devotion.value!.id).future).then((value) {
+                        ref.read(devotionReactionCountsProvider(devotion.value?.id).notifier).refresh().then((value) {
                           if (isMounted()) {
                             reactionCounts.value[DevotionReactionType.DISLIKE] = value[DevotionReactionType.DISLIKE]!;
                           }

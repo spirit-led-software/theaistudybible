@@ -4,15 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/models/devotion.dart';
-import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
-import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
-import 'package:revelationsai/src/providers/devotion/reaction.dart';
-import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
-import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
 class DevotionModal extends HookConsumerWidget {
   const DevotionModal({Key? key}) : super(key: key);
@@ -143,37 +137,26 @@ class DevotionListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentDevotionId = ref.watch(currentDevotionIdProvider);
 
-    return VisibilityDetector(
+    return Container(
       key: ValueKey(devotion.id),
-      onVisibilityChanged: (info) async {
-        await Future.wait([
-          ref.read(devotionsProvider(devotion.id).future),
-          ref.read(devotionSourceDocumentsProvider(devotion.id).future),
-          ref.read(devotionImagesProvider(devotion.id).future),
-          ref.read(devotionReactionsProvider(devotion.id).future),
-          ref.read(devotionReactionCountsProvider(devotion.id).future),
-        ]);
-      },
-      child: Container(
-        color: currentDevotionId.value == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
-        child: ListTile(
-          title: Text(DateFormat.yMMMd().format(devotion.date.toUtc())),
-          subtitle: Text(
-            devotion.bibleReading.split(" - ").first,
-          ),
-          trailing: currentDevotionId.value == devotion.id
-              ? Icon(
-                  Icons.check,
-                  color: context.secondaryColor,
-                )
-              : null,
-          onTap: () {
-            context.go(
-              '/devotions/${devotion.id}',
-            );
-            Navigator.of(context).pop();
-          },
+      color: currentDevotionId.value == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
+      child: ListTile(
+        title: Text(DateFormat.yMMMd().format(devotion.date.toUtc())),
+        subtitle: Text(
+          devotion.bibleReading.split(" - ").first,
         ),
+        trailing: currentDevotionId.value == devotion.id
+            ? Icon(
+                Icons.check,
+                color: context.secondaryColor,
+              )
+            : null,
+        onTap: () {
+          context.go(
+            '/devotions/${devotion.id}',
+          );
+          Navigator.of(context).pop();
+        },
       ),
     );
   }
