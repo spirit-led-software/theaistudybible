@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:newrelic_mobile/newrelic_navigation_observer.dart';
 import 'package:revelationsai/src/constants/theme.dart';
+import 'package:revelationsai/src/providers/chat/current_id.dart';
+import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/routes/routes.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
@@ -71,13 +73,29 @@ class RAIApp extends HookConsumerWidget {
       return () {};
     }, [launchMessageSnapshot]);
 
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'RevelationsAI',
-      theme: RAITheme.light,
-      darkTheme: RAITheme.dark,
-      themeMode: ref.watch(currentUserPreferencesProvider).value?.themeMode ?? ThemeMode.system,
-      routerConfig: router,
+    return _EagerlyInitializedProviders(
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'RevelationsAI',
+        theme: RAITheme.light,
+        darkTheme: RAITheme.dark,
+        themeMode: ref.watch(currentUserPreferencesProvider).value?.themeMode ?? ThemeMode.system,
+        routerConfig: router,
+      ),
     );
+  }
+}
+
+class _EagerlyInitializedProviders extends ConsumerWidget {
+  final Widget child;
+
+  const _EagerlyInitializedProviders({Key? key, required this.child}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(currentChatIdProvider);
+    ref.watch(currentDevotionIdProvider);
+
+    return child;
   }
 }

@@ -30,9 +30,6 @@ class RouterListenable extends _$RouterListenable implements Listenable {
 
     if (_isAuth) {
       await ref.watch(repositoryInitializationProvider.future);
-
-      ref.watch(currentChatIdProvider);
-      await ref.watch(currentDevotionIdProvider.future);
     }
 
     ref.listenSelf((_, __) {
@@ -82,8 +79,8 @@ class RouterListenable extends _$RouterListenable implements Listenable {
     }
 
     final currentDevotionId = ref.read(currentDevotionIdProvider);
-    if (isDevotionBase && currentDevotionId.value != null) {
-      final devoPath = "/devotions/${currentDevotionId.value}";
+    if (isDevotionBase && currentDevotionId != null) {
+      final devoPath = "/devotions/$currentDevotionId";
       debugPrint("Redirecting to $devoPath");
       return devoPath;
     }

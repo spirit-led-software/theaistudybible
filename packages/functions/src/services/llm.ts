@@ -132,6 +132,7 @@ export const getRAIChatChain = async (chatId: string, messages: Message[]) => {
     {
       prompt: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE),
       inputKey: "query",
+      returnSourceDocuments: false,
       verbose: envConfig.isLocal,
     }
   );

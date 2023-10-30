@@ -139,13 +139,13 @@ class DevotionListItem extends HookConsumerWidget {
 
     return Container(
       key: ValueKey(devotion.id),
-      color: currentDevotionId.value == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
+      color: currentDevotionId == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
       child: ListTile(
         title: Text(DateFormat.yMMMd().format(devotion.date.toUtc())),
         subtitle: Text(
           devotion.bibleReading.split(" - ").first,
         ),
-        trailing: currentDevotionId.value == devotion.id
+        trailing: currentDevotionId == devotion.id
             ? Icon(
                 Icons.check,
                 color: context.secondaryColor,
