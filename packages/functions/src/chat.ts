@@ -284,7 +284,6 @@ const postResponseValidationLogic = async ({
     chat.id,
     lastMessage.content
   ).then(async (userMessages) => {
-    console.time("Validating user message");
     let userMessage = userMessages.at(0);
     if (!userMessage) {
       return await createUserMessage({
@@ -295,7 +294,6 @@ const postResponseValidationLogic = async ({
         userId: userId,
       });
     }
-
     pendingPromises.push(
       getAiResponsesByUserMessageId(userMessage.id).then(
         async (aiResponses) => {
@@ -308,7 +306,6 @@ const postResponseValidationLogic = async ({
         }
       )
     );
-    console.timeEnd("Validating user message");
     return userMessage;
   });
 
