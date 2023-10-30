@@ -10,10 +10,10 @@ import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
+import 'package:revelationsai/src/providers/chat/single.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
@@ -75,7 +75,7 @@ class ChatScreen extends HookConsumerWidget {
 
     useEffect(() {
       if (chatHook.chatId.value != null) {
-        ref.read(chatsProvider(chatHook.chatId.value).future).then((value) {
+        ref.read(singleChatProvider(chatHook.chatId.value).future).then((value) {
           if (isMounted()) chat.value = value;
         }).catchError((error) {
           debugPrint("Failed to get chat: $error");
@@ -259,7 +259,7 @@ class ChatScreen extends HookConsumerWidget {
                           if (chatHook.chatId.value != null) {
                             isRefreshingChat.value = true;
                             return await Future.wait([
-                              ref.read(chatsProvider(chatHook.chatId.value).notifier).refresh(),
+                              ref.read(singleChatProvider(chatHook.chatId.value).notifier).refresh(),
                               ref.read(chatMessagesProvider(chatHook.chatId.value).notifier).refresh(),
                             ]).then((value) {
                               final foundChat = value[0] as Chat;
@@ -372,7 +372,10 @@ class ChatScreen extends HookConsumerWidget {
                                 );
                               },
                             ).then((_) async {
-                              await ref.refresh(chatsProvider(chatHook.chatId.value).future).then((value) {
+                              await ref
+                                  .read(singleChatProvider(chatHook.chatId.value).notifier)
+                                  .refresh()
+                                  .then((value) {
                                 chat.value = value;
                               });
                             });
@@ -402,7 +405,7 @@ class ChatScreen extends HookConsumerWidget {
                         onTap: () async {
                           if (chatHook.chatId.value != null) {
                             isRefreshingChat.value = true;
-                            await ref.read(chatManagerProvider).requireValue.deleteRemote(chatHook.chatId.value!).then(
+                            await ref.read(singleChatProvider(chatHook.chatId.value).notifier).deleteChat().then(
                               (value) {
                                 if (isMounted()) {
                                   chat.value = null;

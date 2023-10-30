@@ -28,7 +28,12 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       ref.watch(currentUserPreferencesProvider.future),
     ]);
 
-    await ref.watch(repoInitializationProvider.future);
+    if (_isAuth) {
+      await ref.watch(repositoryInitializationProvider.future);
+
+      ref.watch(currentChatIdProvider);
+      await ref.watch(currentDevotionIdProvider.future);
+    }
 
     ref.listenSelf((_, __) {
       // One could write more conditional logic for when to call redirection

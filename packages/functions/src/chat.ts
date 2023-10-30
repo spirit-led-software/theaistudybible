@@ -232,7 +232,7 @@ const lambdaHandler = async (
                 return;
               }
               if (value) {
-                console.log(`Pushing value: ${JSON.stringify(value)}`);
+                console.log(`Pushing ${typeof value}: ${value}`);
                 this.push(value, "utf-8");
               }
               this.read();

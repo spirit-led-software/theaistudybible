@@ -1,7 +1,6 @@
 import { apiConfig } from "@core/configs";
 import type { UserInfo, UserWithRoles } from "@core/model";
 import {
-  createUserQueryCount,
   getUser,
   getUserMaxQueries,
   getUserQueryCountByUserIdAndDate,
@@ -54,6 +53,12 @@ export async function validApiHandlerSession(): Promise<
       roles,
     };
     const maxQueries = getUserMaxQueries(userWithRoles);
+
+    console.debug(
+      `Returning userWithRoles: ${JSON.stringify(
+        userWithRoles
+      )}, maxQueries: ${maxQueries}, remainingQueries: ${maxQueries - count}`
+    );
 
     return {
       isValid: true,

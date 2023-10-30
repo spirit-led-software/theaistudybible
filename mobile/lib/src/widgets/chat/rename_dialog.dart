@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/chat.dart';
-import 'package:revelationsai/src/providers/chat.dart';
+import 'package:revelationsai/src/providers/chat/single.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class RenameDialog extends HookConsumerWidget {
@@ -65,7 +65,7 @@ class RenameDialog extends HookConsumerWidget {
             }
 
             updateFuture.value = ref
-                .read(chatsProvider(id).notifier)
+                .read(singleChatProvider(id).notifier)
                 .updateChat(
                   UpdateChatRequest(
                     name: controller.text,

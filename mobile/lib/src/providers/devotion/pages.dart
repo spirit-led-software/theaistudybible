@@ -1,9 +1,10 @@
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
+import 'package:revelationsai/src/providers/devotion/repositories.dart';
+import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -22,10 +23,6 @@ class DevotionsPages extends _$DevotionsPages {
   FutureOr<List<List<Devotion>>> build() async {
     _loadingLogic();
     _persistenceLogic();
-
-    ref.onAddListener(() {
-      refresh();
-    });
 
     return await ref.devotions.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
       if (state.hasValue) {
@@ -105,7 +102,7 @@ class DevotionsPages extends _$DevotionsPages {
         for (final devotionsPage in next.value!) {
           for (final devotion in devotionsPage) {
             await Future.wait([
-              ref.read(devotionsProvider(devotion.id).future),
+              ref.read(singleDevotionProvider(devotion.id).future),
               ref.read(devotionSourceDocumentsProvider(devotion.id).future),
               ref.read(devotionImagesProvider(devotion.id).future),
               ref.read(devotionReactionsProvider(devotion.id).future),

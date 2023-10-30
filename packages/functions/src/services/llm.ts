@@ -11,14 +11,12 @@ import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
   QUERY_INTERPRETER_PROMPT_TEMPLATE,
 } from "@lib/prompts";
 import type { Message } from "ai";
-import { ConversationalRetrievalQAChain, LLMChain } from "langchain/chains";
+import { LLMChain, RetrievalQAChain } from "langchain/chains";
 import { BedrockEmbeddings } from "langchain/embeddings/bedrock";
 import {
-  BufferMemory,
   ChatMessageHistory,
   VectorStoreRetrieverMemory,
 } from "langchain/memory";
@@ -103,13 +101,6 @@ export const getRAIChatChain = async (chatId: string, messages: Message[]) => {
         : new AIMessage(message.content);
     })
   );
-  const retrievalChainMemory = new BufferMemory({
-    chatHistory: history,
-    inputKey: "query",
-    outputKey: "text",
-    memoryKey: "chat_history",
-    returnMessages: true,
-  });
 
   const identityChain = new LLMChain({
     llm: getLargeContextModel({
@@ -131,7 +122,7 @@ export const getRAIChatChain = async (chatId: string, messages: Message[]) => {
       verbose: envConfig.isLocal,
     });
   });
-  const chatHistoryChain = ConversationalRetrievalQAChain.fromLLM(
+  const chatHistoryChain = RetrievalQAChain.fromLLM(
     getLargeContextModel({
       stream: true,
       promptSuffix: "<answer>",
@@ -139,27 +130,14 @@ export const getRAIChatChain = async (chatId: string, messages: Message[]) => {
     }),
     chatMemoryRetriever,
     {
-      qaChainOptions: {
-        type: "stuff",
-        prompt: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE),
-      },
-      questionGeneratorChainOptions: {
-        llm: getLargeContextModel({
-          stream: false,
-          promptSuffix: "<new_question>",
-          stopSequences: ["</new_question>"],
-        }),
-        template: CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-      },
+      prompt: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE),
       inputKey: "query",
-      outputKey: "text",
-      memory: retrievalChainMemory,
       verbose: envConfig.isLocal,
     }
   );
 
   const documentVectorStore = await getDocumentVectorStore({ verbose: true });
-  const faithQaChain = ConversationalRetrievalQAChain.fromLLM(
+  const faithQaChain = RetrievalQAChain.fromLLM(
     getLargeContextModel({
       stream: true,
       promptSuffix: "<answer>",
@@ -172,31 +150,16 @@ export const getRAIChatChain = async (chatId: string, messages: Message[]) => {
         stopSequences: ["</output>"],
       }),
       baseRetriever: documentVectorStore.asRetriever({
-        k: 5,
+        k: 7,
         verbose: envConfig.isLocal,
       }),
-      numSearchTerms: 7,
+      numSearchTerms: 3,
       prompt: PromptTemplate.fromTemplate(QUERY_INTERPRETER_PROMPT_TEMPLATE),
       verbose: envConfig.isLocal,
     }),
     {
-      qaChainOptions: {
-        type: "stuff",
-        prompt: PromptTemplate.fromTemplate(
-          CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE
-        ),
-      },
-      questionGeneratorChainOptions: {
-        llm: getLargeContextModel({
-          stream: false,
-          promptSuffix: "<new_question>",
-          stopSequences: ["</new_question>"],
-        }),
-        template: CHAT_QUESTION_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-      },
+      prompt: PromptTemplate.fromTemplate(CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE),
       inputKey: "query",
-      outputKey: "text",
-      memory: retrievalChainMemory,
       returnSourceDocuments: true,
       verbose: envConfig.isLocal,
     }

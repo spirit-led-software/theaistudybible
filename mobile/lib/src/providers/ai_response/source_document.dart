@@ -15,11 +15,7 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
     String? messageUuid,
     String? chatId,
   ) async {
-    await ref.watch(currentUserProvider.future);
-    final currentUser = ref.watch(currentUserProvider);
-    if (!currentUser.hasValue) {
-      throw Exception("User is not logged in");
-    }
+    final currentUser = ref.watch(currentUserProvider).requireValue;
 
     if (messageUuid == null) {
       return AiResponseService.searchForAiResponses(
@@ -49,17 +45,17 @@ class AiResponseSourceDocuments extends _$AiResponseSourceDocuments {
             )
           ],
         ),
-        session: currentUser.requireValue.session,
+        session: currentUser.session,
       ).then((value) {
         return AiResponseService.getAiResponseSourceDocuments(
           id: value.entities.first.id,
-          session: currentUser.requireValue.session,
+          session: currentUser.session,
         ).then((value) => filterSourceDocuments(value));
       });
     } else {
       return AiResponseService.getAiResponseSourceDocuments(
         id: messageUuid,
-        session: currentUser.requireValue.session,
+        session: currentUser.session,
       ).then((value) => filterSourceDocuments(value));
     }
   }

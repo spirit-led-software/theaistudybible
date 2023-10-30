@@ -258,6 +258,9 @@ export const handler = AuthHandler({
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
           return BadRequestResponse("Incorrect password");
         }
+        await doesUserHaveRole("user", user.id).then(async (hasRole) => {
+          if (!hasRole) await addRoleToUser("user", user!.id);
+        });
         if (!user.stripeCustomerId) {
           user = await createStripeCustomer(user);
         }
@@ -380,6 +383,9 @@ export const handler = AuthHandler({
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
           return BadRequestResponse("Incorrect password");
         }
+        await doesUserHaveRole("user", user.id).then(async (hasRole) => {
+          if (!hasRole) await addRoleToUser("user", user!.id);
+        });
         if (!user.stripeCustomerId) {
           user = await createStripeCustomer(user);
         }

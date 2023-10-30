@@ -1,12 +1,11 @@
 import type {
   CreateUserData,
-  Role,
   UpdateUserData,
   UserWithRoles,
 } from "@core/model";
 import { roles, users, usersToRoles } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq, inArray } from "drizzle-orm";
+import { SQL, desc, eq } from "drizzle-orm";
 
 export async function getUsers(
   options: {
@@ -52,22 +51,10 @@ export async function getUserRoles(id: string) {
   const userRolesRelation = await readOnlyDatabase
     .select()
     .from(usersToRoles)
+    .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
     .where(eq(usersToRoles.userId, user.id));
 
-  let userRoles: Role[] = [];
-  if (userRolesRelation.length > 0) {
-    userRoles = await readOnlyDatabase
-      .select()
-      .from(roles)
-      .where(
-        inArray(
-          roles.id,
-          userRolesRelation.map((userRoleRelation) => userRoleRelation.roleId)
-        )
-      );
-  }
-
-  return userRoles;
+  return userRolesRelation.map((userRoleRelation) => userRoleRelation.roles);
 }
 
 export async function getUserByEmail(email: string) {

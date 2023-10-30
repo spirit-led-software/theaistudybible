@@ -23,6 +23,7 @@ export const handler: Handler = async (event, _) => {
       notification: {
         title: "New Daily Devo",
         body: devo?.bibleReading,
+        badge: "1",
       },
       data: {
         task: "daily-devo",

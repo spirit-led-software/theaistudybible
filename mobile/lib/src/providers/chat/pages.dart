@@ -1,7 +1,8 @@
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/providers/chat.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
+import 'package:revelationsai/src/providers/chat/repositories.dart';
+import 'package:revelationsai/src/providers/chat/single.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pages.g.dart';
@@ -18,10 +19,6 @@ class ChatsPages extends _$ChatsPages {
   FutureOr<List<List<Chat>>> build() async {
     _loadingLogic();
     _persistenceLogic();
-
-    ref.onAddListener(() {
-      refresh();
-    });
 
     return await ref.chats.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
       if (state.hasValue) {
@@ -97,7 +94,7 @@ class ChatsPages extends _$ChatsPages {
         for (final chatsPage in next.value!) {
           for (final chat in chatsPage) {
             Future.wait([
-              ref.read(chatsProvider(chat.id).future),
+              ref.read(singleChatProvider(chat.id).future),
               ref.read(chatMessagesProvider(chat.id).future),
             ]);
           }

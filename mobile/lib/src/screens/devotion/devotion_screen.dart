@@ -10,12 +10,12 @@ import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
-import 'package:revelationsai/src/providers/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
+import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
@@ -45,7 +45,7 @@ class DevotionScreen extends HookConsumerWidget {
 
     final fetchDevoData = useCallback((String? devoId) async {
       await Future.wait([
-        ref.read(devotionsProvider(devoId).future),
+        ref.read(singleDevotionProvider(devoId).future),
         ref.read(devotionSourceDocumentsProvider(devoId).future),
         ref.read(devotionImagesProvider(devoId).future),
         ref.read(devotionReactionsProvider(devoId).future),
@@ -171,7 +171,7 @@ class DevotionScreen extends HookConsumerWidget {
                             session: currentUser.requireValue.session,
                           )
                           .then((value) {
-                        ref.refresh(devotionReactionCountsProvider(devotion.value!.id).future).then((value) {
+                        ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
                           if (isMounted()) {
                             reactionCounts.value[DevotionReactionType.LIKE] = value[DevotionReactionType.LIKE]!;
                           }
@@ -286,7 +286,7 @@ class DevotionScreen extends HookConsumerWidget {
                   String? id = devotion.value?.id ?? devotionId;
                   if (id != null) {
                     return await Future.wait([
-                      ref.read(devotionsProvider(id).notifier).refresh(),
+                      ref.read(singleDevotionProvider(id).notifier).refresh(),
                       ref.read(devotionSourceDocumentsProvider(id).notifier).refresh(),
                       ref.read(devotionImagesProvider(id).notifier).refresh(),
                       ref.read(devotionReactionsProvider(id).notifier).refresh(),

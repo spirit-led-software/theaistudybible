@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:newrelic_mobile/newrelic_navigation_observer.dart';
 import 'package:revelationsai/src/constants/theme.dart';
-import 'package:revelationsai/src/providers/chat/current_id.dart';
-import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/routes/routes.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
@@ -19,9 +17,6 @@ class RAIApp extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final routerListenableNotifier = ref.watch(routerListenableProvider.notifier);
-
-    ref.watch(currentChatIdProvider);
-    ref.watch(currentDevotionIdProvider);
 
     final key = useRef(GlobalKey<NavigatorState>(
       debugLabel: 'routerKey',

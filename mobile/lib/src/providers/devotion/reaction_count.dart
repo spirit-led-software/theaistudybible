@@ -1,7 +1,5 @@
 import 'package:revelationsai/src/models/devotion/reaction.dart';
-import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/providers/devotion.dart';
-import 'package:revelationsai/src/providers/devotion/reaction.dart';
+import 'package:revelationsai/src/providers/devotion/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'reaction_count.g.dart';
@@ -10,11 +8,7 @@ part 'reaction_count.g.dart';
 class DevotionReactionCounts extends _$DevotionReactionCounts {
   @override
   FutureOr<Map<DevotionReactionType, int>> build(String? id) async {
-    id ??= (await ref.devotions.getPage(const PaginatedEntitiesRequestOptions(page: 1, limit: 1))).first.id;
-
-    ref.onAddListener(() {
-      refresh();
-    });
+    id ??= (await ref.devotions.getLatest()).id;
 
     return await ref.devotionReactions.getCountsForDevotionId(id);
   }
