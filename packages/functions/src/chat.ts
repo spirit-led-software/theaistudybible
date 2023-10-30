@@ -169,36 +169,6 @@ const lambdaHandler = async (
     }
 
     const userMessageId = uuidV4();
-    pendingPromises.push(
-      getUserMessagesByChatIdAndText(chat.id, lastMessage.content).then(
-        async (userMessages) => {
-          console.time("Validating user message");
-          const userMessage = userMessages.at(0);
-          if (!userMessage) {
-            await createUserMessage({
-              id: userMessageId,
-              aiId: lastMessage.id,
-              text: lastMessage.content,
-              chatId: chat.id,
-              userId: userInfo.id,
-            });
-          } else {
-            await getAiResponsesByUserMessageId(userMessage.id).then(
-              async (aiResponses) => {
-                const oldAiResponse = aiResponses[0];
-                if (oldAiResponse) {
-                  await updateAiResponse(oldAiResponse.id, {
-                    regenerated: true,
-                  });
-                }
-              }
-            );
-          }
-          console.timeEnd("Validating user message");
-        }
-      )
-    );
-
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain(chat.id, messages);
@@ -317,27 +287,27 @@ const postResponseValidationLogic = async ({
     console.time("Validating user message");
     let userMessage = userMessages.at(0);
     if (!userMessage) {
-      userMessage = await createUserMessage({
+      return await createUserMessage({
         id: userMessageId,
         aiId: lastMessage.id,
         text: lastMessage.content,
         chatId: chat.id,
         userId: userId,
       });
-    } else {
-      pendingPromises.push(
-        getAiResponsesByUserMessageId(userMessage.id).then(
-          async (aiResponses) => {
-            const oldAiResponse = aiResponses[0];
-            if (oldAiResponse) {
-              await updateAiResponse(oldAiResponse.id, {
-                regenerated: true,
-              });
-            }
-          }
-        )
-      );
     }
+
+    pendingPromises.push(
+      getAiResponsesByUserMessageId(userMessage.id).then(
+        async (aiResponses) => {
+          const oldAiResponse = aiResponses[0];
+          if (oldAiResponse) {
+            await updateAiResponse(oldAiResponse.id, {
+              regenerated: true,
+            });
+          }
+        }
+      )
+    );
     console.timeEnd("Validating user message");
     return userMessage;
   });
