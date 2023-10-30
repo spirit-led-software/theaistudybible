@@ -1,6 +1,6 @@
 import { envConfig } from "@core/configs";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
-import type { Chat, UserMessage } from "@core/model";
+import type { Chat } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
 import { readWriteDatabase } from "@lib/database";
 import middy from "@middy/core";
@@ -23,7 +23,6 @@ import { LangChainStream, type Message } from "ai";
 import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,
-  Context,
 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
@@ -68,8 +67,7 @@ const validateRequest = (
 };
 
 const lambdaHandler = async (
-  event: APIGatewayProxyEventV2,
-  context: Context
+  event: APIGatewayProxyEventV2
 ): Promise<StreamedAPIGatewayProxyStructuredResultV2> => {
   console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
 
@@ -171,6 +169,36 @@ const lambdaHandler = async (
     }
 
     const userMessageId = uuidV4();
+    pendingPromises.push(
+      getUserMessagesByChatIdAndText(chat.id, lastMessage.content).then(
+        async (userMessages) => {
+          console.time("Validating user message");
+          const userMessage = userMessages.at(0);
+          if (!userMessage) {
+            await createUserMessage({
+              id: userMessageId,
+              aiId: lastMessage.id,
+              text: lastMessage.content,
+              chatId: chat.id,
+              userId: userInfo.id,
+            });
+          } else {
+            await getAiResponsesByUserMessageId(userMessage.id).then(
+              async (aiResponses) => {
+                const oldAiResponse = aiResponses[0];
+                if (oldAiResponse) {
+                  await updateAiResponse(oldAiResponse.id, {
+                    regenerated: true,
+                  });
+                }
+              }
+            );
+          }
+          console.timeEnd("Validating user message");
+        }
+      )
+    );
+
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain(chat.id, messages);
@@ -192,7 +220,7 @@ const lambdaHandler = async (
           chat,
           userMessageId,
           aiResponseId,
-          userInfo,
+          userId: userInfo.id,
           lastMessage,
           response: result.text,
           sourceDocuments,
@@ -267,7 +295,7 @@ const postResponseValidationLogic = async ({
   chat,
   userMessageId,
   aiResponseId,
-  userInfo,
+  userId,
   lastMessage,
   response,
   sourceDocuments,
@@ -275,52 +303,55 @@ const postResponseValidationLogic = async ({
   chat: Chat;
   userMessageId: string;
   aiResponseId: string;
-  userInfo: any;
+  userId: string;
   lastMessage: Message;
   response: string;
   sourceDocuments: NeonVectorStoreDocument[];
 }): Promise<void> => {
   const pendingPromises: Promise<any>[] = [];
 
-  console.time("Validating user message");
-  let userMessage: UserMessage | undefined = (
-    await getUserMessagesByChatIdAndText(chat.id, lastMessage.content)
-  )[0];
-
-  if (!userMessage) {
-    userMessage = await createUserMessage({
-      id: userMessageId,
-      aiId: lastMessage.id,
-      text: lastMessage.content,
-      chatId: chat.id,
-      userId: userInfo.id,
-    });
-  } else {
-    pendingPromises.push(
-      getAiResponsesByUserMessageId(userMessage.id).then(
-        async (aiResponses) => {
-          const oldAiResponse = aiResponses[0];
-          if (oldAiResponse) {
-            await updateAiResponse(oldAiResponse.id, {
-              regenerated: true,
-            });
+  const userMessage = await getUserMessagesByChatIdAndText(
+    chat.id,
+    lastMessage.content
+  ).then(async (userMessages) => {
+    console.time("Validating user message");
+    let userMessage = userMessages.at(0);
+    if (!userMessage) {
+      userMessage = await createUserMessage({
+        id: userMessageId,
+        aiId: lastMessage.id,
+        text: lastMessage.content,
+        chatId: chat.id,
+        userId: userId,
+      });
+    } else {
+      pendingPromises.push(
+        getAiResponsesByUserMessageId(userMessage.id).then(
+          async (aiResponses) => {
+            const oldAiResponse = aiResponses[0];
+            if (oldAiResponse) {
+              await updateAiResponse(oldAiResponse.id, {
+                regenerated: true,
+              });
+            }
           }
-        }
-      )
-    );
-  }
-  console.timeEnd("Validating user message");
+        )
+      );
+    }
+    console.timeEnd("Validating user message");
+    return userMessage;
+  });
 
-  let aiResponse = await createAiResponse({
+  const aiResponse = await createAiResponse({
     id: aiResponseId,
     chatId: chat.id,
     userMessageId: userMessage.id,
-    userId: userInfo.id,
+    userId,
     text: response,
   });
 
   pendingPromises.push(
-    incrementUserQueryCount(userInfo.id),
+    incrementUserQueryCount(userId),
     ...sourceDocuments.map(async (sourceDoc) => {
       if (sourceDoc.distance && sourceDoc.distance <= 0.7) {
         await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
