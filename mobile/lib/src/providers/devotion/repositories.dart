@@ -151,10 +151,8 @@ class DevotionImageRepository {
   Future<void> deleteLocalByDevotionId(String devotionId) async {
     if (await _hasLocalForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
-        final messages = await _isar.devotionImages.where().devotionIdEqualTo(devotionId).findAll();
-        await Future.wait(messages.map((e) async {
-          await _isar.devotionImages.delete(fastHash(e.id));
-        }));
+        final images = await _isar.devotionImages.where().devotionIdEqualTo(devotionId).findAll();
+        await _isar.devotionImages.deleteAll(images.map((e) => e.isarId).toList());
       });
     }
   }
@@ -223,10 +221,8 @@ class DevotionReactionRepository {
   Future<void> deleteLocalByDevotionId(String devotionId) async {
     if (await _hasLocalForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
-        final messages = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
-        await Future.wait(messages.map((e) async {
-          await _isar.devotionReactions.delete(fastHash(e.id));
-        }));
+        final reactions = await _isar.devotionReactions.where().devotionIdEqualTo(devotionId).findAll();
+        await _isar.devotionReactions.deleteAll(reactions.map((e) => e.isarId).toList());
       });
     }
   }
@@ -328,10 +324,8 @@ class DevotionSourceDocumentRepository {
   Future<void> deleteLocalByDevotionId(String devotionId) async {
     if (await _hasLocalForDevotionId(devotionId)) {
       await _isar.writeTxn(() async {
-        final messages = await _isar.storedSourceDocuments.where().devotionIdEqualTo(devotionId).findAll();
-        await Future.wait(messages.map((e) async {
-          await _isar.storedSourceDocuments.delete(fastHash(e.id));
-        }));
+        final sourceDocuments = await _isar.storedSourceDocuments.where().devotionIdEqualTo(devotionId).findAll();
+        await _isar.storedSourceDocuments.deleteAll(sourceDocuments.map((e) => e.isarId).toList());
       });
     }
   }

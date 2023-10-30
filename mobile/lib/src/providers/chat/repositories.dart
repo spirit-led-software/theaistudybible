@@ -187,9 +187,7 @@ class ChatMessagesRepository {
     if (await _hasLocalForChatId(chatId)) {
       await _isar.writeTxn(() async {
         final messages = await _isar.chatMessages.where().chatIdEqualTo(chatId).findAll();
-        await Future.wait(messages.map((e) async {
-          await _isar.chatMessages.delete(fastHash(e.id));
-        }));
+        await _isar.chatMessages.deleteAll(messages.map((e) => e.isarId).toList());
       });
     }
   }
