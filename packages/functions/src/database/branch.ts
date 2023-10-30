@@ -321,13 +321,13 @@ function formConnectionUrls(
   const connectionUrls: NeonConnectionUrl[] = [];
   for (const database of databases) {
     for (const endpoint of endpoints) {
-      // Below is implementation for pgbouncer.
-      const hostPieces = endpoint.host.split(".");
-      const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
+      // // Below is implementation for pgbouncer.
+      // const hostPieces = endpoint.host.split(".");
+      // const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
 
       connectionUrls.push({
         type: determineDbType(database.name, endpoint.type),
-        url: `postgres://${role.name}:${role.password}@${host}/${database.name}`,
+        url: `postgres://${role.name}:${role.password}@${endpoint.host}/${database.name}`,
       });
     }
   }
