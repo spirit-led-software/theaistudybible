@@ -17,6 +17,7 @@ import { incrementUserQueryCount, isObjectOwner } from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
+  updateUserMessage,
 } from "@services/user/message";
 import { getChatMemoryVectorStore } from "@services/vector-db";
 import { LangChainStream, type Message } from "ai";
@@ -284,30 +285,32 @@ const postResponseValidationLogic = async ({
     chat.id,
     lastMessage.content
   ).then(async (userMessages) => {
-    let userMessage = userMessages.at(0);
-    if (!userMessage) {
-      return await createUserMessage({
+    const userMessage = userMessages.at(0);
+    if (userMessage) {
+      return await updateUserMessage(userMessage.id, {
         id: userMessageId,
-        aiId: lastMessage.id,
-        text: lastMessage.content,
-        chatId: chat.id,
-        userId: userId,
       });
     }
-    pendingPromises.push(
-      getAiResponsesByUserMessageId(userMessage.id).then(
-        async (aiResponses) => {
-          const oldAiResponse = aiResponses[0];
-          if (oldAiResponse) {
-            await updateAiResponse(oldAiResponse.id, {
-              regenerated: true,
-            });
-          }
-        }
-      )
-    );
-    return userMessage;
+    return await createUserMessage({
+      id: userMessageId,
+      aiId: lastMessage.id,
+      text: lastMessage.content,
+      chatId: chat.id,
+      userId: userId,
+    });
   });
+
+  pendingPromises.push(
+    getAiResponsesByUserMessageId(userMessage.id).then(async (aiResponses) => {
+      await Promise.all(
+        aiResponses.map(async (aiResponse) => {
+          await updateAiResponse(aiResponse.id, {
+            regenerated: true,
+          });
+        })
+      );
+    })
+  );
 
   const aiResponse = await createAiResponse({
     id: aiResponseId,
