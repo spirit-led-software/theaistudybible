@@ -9,6 +9,7 @@ import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/devotion.dart';
 import 'package:revelationsai/src/services/devotion/reaction.dart';
+import 'package:revelationsai/src/utils/filter_source_document.dart';
 import 'package:revelationsai/src/utils/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -306,7 +307,7 @@ class DevotionSourceDocumentRepository {
   Future<List<SourceDocument>> _fetchByDevotionId(String devotionId) async {
     return await DevotionService.getDevotionSourceDocuments(
       id: devotionId,
-    ).then((value) async {
+    ).then((value) => filterSourceDocuments(value)).then((value) async {
       await _save(value.map((e) => e.copyWith(devotionId: devotionId)).toList());
       return value;
     });

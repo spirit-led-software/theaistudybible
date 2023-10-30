@@ -439,6 +439,7 @@ class DevotionScreen extends HookConsumerWidget {
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: sourceDocs.value.length,
                             itemBuilder: (context, index) {
+                              final sourceDoc = sourceDocs.value[index];
                               return Link(
                                 key: ValueKey(sourceDocs.value[index].id),
                                 uri: Uri.parse(
@@ -453,7 +454,7 @@ class DevotionScreen extends HookConsumerWidget {
                                     size: 15,
                                   ),
                                   title: Text(
-                                    sourceDocs.value[index].metadata['name'].split(" - ").first.toString(),
+                                    sourceDoc.name,
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
                                     style: const TextStyle(
@@ -461,7 +462,13 @@ class DevotionScreen extends HookConsumerWidget {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    sourceDocs.value[index].metadata['url'].toString(),
+                                    sourceDoc.isWebpage
+                                        ? sourceDoc.hasTitle
+                                            ? sourceDoc.title
+                                            : sourceDoc.url
+                                        : sourceDoc.isFile
+                                            ? 'P:${sourceDoc.pageNumber} L:${sourceDoc.linesFrom}-${sourceDoc.linesTo}'
+                                            : sourceDoc.url,
                                     softWrap: false,
                                     overflow: TextOverflow.fade,
                                     style: const TextStyle(

@@ -17,11 +17,12 @@ class DevotionModal extends HookConsumerWidget {
     final devotionsPagesNotifier = ref.watch(devotionsPagesProvider.notifier);
 
     return Container(
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
+        color: context.colorScheme.background,
       ),
       child: Column(
         children: [
