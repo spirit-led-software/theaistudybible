@@ -18,7 +18,7 @@ class ChatMessages extends _$ChatMessages {
     }
 
     ref.onAddListener(() {
-      ref.chatMessages.refreshByChatId(chatId);
+      refresh();
     });
 
     return await ref.chatMessages.getByChatId(chatId);

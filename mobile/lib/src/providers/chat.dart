@@ -22,7 +22,7 @@ class Chats extends _$Chats {
     }
 
     ref.onAddListener(() {
-      ref.chats.refresh(id);
+      refresh();
     });
 
     return await ref.chats.getChat(id);

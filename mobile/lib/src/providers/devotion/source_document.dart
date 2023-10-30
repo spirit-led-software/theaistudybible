@@ -16,6 +16,11 @@ class DevotionSourceDocuments extends _$DevotionSourceDocuments {
   @override
   FutureOr<List<SourceDocument>> build(String? devotionId) async {
     _id = devotionId ?? (await ref.devotions.getLatest()).id;
+
+    ref.onAddListener(() {
+      refresh();
+    });
+
     return ref.devotionSourceDocuments.getByDevotionId(_id);
   }
 

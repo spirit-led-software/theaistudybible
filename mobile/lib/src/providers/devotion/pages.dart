@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/providers/devotion.dart';
@@ -24,25 +23,24 @@ class DevotionsPages extends _$DevotionsPages {
     _loadingLogic();
     _persistenceLogic();
 
-    try {
-      return await ref.devotions.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
-        if (state.hasValue) {
-          // replace pages previous content with new content
-          return [
-            ...state.value!.sublist(0, _page - 1),
-            value,
-            if (state.value!.length > _page + 1) ...state.value!.sublist(_page + 1, state.value!.length),
-          ];
-        } else {
-          return [
-            value,
-          ];
-        }
-      });
-    } catch (error) {
-      debugPrint("Failed to fetch devotions: $error");
-      rethrow;
-    }
+    ref.onAddListener(() {
+      refresh();
+    });
+
+    return await ref.devotions.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
+      if (state.hasValue) {
+        // replace pages previous content with new content
+        return [
+          ...state.value!.sublist(0, _page - 1),
+          value,
+          if (state.value!.length > _page + 1) ...state.value!.sublist(_page + 1, state.value!.length),
+        ];
+      } else {
+        return [
+          value,
+        ];
+      }
+    });
   }
 
   bool hasNextPage() {

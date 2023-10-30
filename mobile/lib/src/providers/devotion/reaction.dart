@@ -18,6 +18,11 @@ class DevotionReactions extends _$DevotionReactions {
   @override
   FutureOr<List<DevotionReaction>> build(String? devotionId) async {
     _id = devotionId ?? (await ref.devotions.getLatest()).id;
+
+    ref.onAddListener(() {
+      refresh();
+    });
+
     return await ref.devotionReactions.getByDevotionId(_id);
   }
 

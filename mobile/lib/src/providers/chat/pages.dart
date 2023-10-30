@@ -19,6 +19,10 @@ class ChatsPages extends _$ChatsPages {
     _loadingLogic();
     _persistenceLogic();
 
+    ref.onAddListener(() {
+      refresh();
+    });
+
     return await ref.chats.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
       if (state.hasValue) {
         // replace pages previous content with new content

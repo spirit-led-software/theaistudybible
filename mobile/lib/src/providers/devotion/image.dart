@@ -16,6 +16,11 @@ class DevotionImages extends _$DevotionImages {
   @override
   FutureOr<List<DevotionImage>> build(String? devotionId) async {
     _id = devotionId ?? (await ref.devotions.getLatest()).id;
+
+    ref.onAddListener(() {
+      refresh();
+    });
+
     return await ref.devotionImages.getByDevotionId(_id);
   }
 

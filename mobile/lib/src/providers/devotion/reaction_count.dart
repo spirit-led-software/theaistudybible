@@ -11,6 +11,11 @@ class DevotionReactionCounts extends _$DevotionReactionCounts {
   @override
   FutureOr<Map<DevotionReactionType, int>> build(String? id) async {
     id ??= (await ref.devotions.getPage(const PaginatedEntitiesRequestOptions(page: 1, limit: 1))).first.id;
+
+    ref.onAddListener(() {
+      refresh();
+    });
+
     return await ref.devotionReactions.getCountsForDevotionId(id);
   }
 

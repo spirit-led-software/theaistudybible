@@ -18,7 +18,7 @@ class Devotions extends _$Devotions {
     _id = devotionId ?? (await ref.devotions.getLatest()).id;
 
     ref.onAddListener(() {
-      ref.devotions.refresh(_id);
+      refresh();
     });
 
     return await ref.devotions.get(_id);
