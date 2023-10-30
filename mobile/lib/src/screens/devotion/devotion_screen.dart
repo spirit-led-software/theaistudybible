@@ -76,9 +76,11 @@ class DevotionScreen extends HookConsumerWidget {
     }, [devotionId]);
 
     useEffect(() {
-      Future(() {
-        ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value?.id);
-      });
+      if (devotion.value != null) {
+        Future(() {
+          ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value!.id);
+        });
+      }
       return () {};
     }, [devotion.value]);
 
