@@ -199,12 +199,14 @@ const lambdaHandler = async (
         return result;
       })
       .catch(async (err) => {
-        console.error(`${err.stack}`);
-        if (await getAiResponse(aiResponseId)) {
-          await updateAiResponse(aiResponseId, {
-            failed: true,
-          });
-        }
+        console.error(`Error: ${err.stack}`);
+        await getAiResponse(aiResponseId).then(async (aiResponse) => {
+          if (aiResponse) {
+            await updateAiResponse(aiResponse.id, {
+              failed: true,
+            });
+          }
+        });
         throw err;
       });
     pendingPromises.push(langchainResponsePromise);
@@ -279,8 +281,6 @@ const postResponseValidationLogic = async ({
   response: string;
   sourceDocuments: NeonVectorStoreDocument[];
 }): Promise<void> => {
-  const pendingPromises: Promise<any>[] = [];
-
   const userMessage = await getUserMessagesByChatIdAndText(
     chat.id,
     lastMessage.content
@@ -300,8 +300,8 @@ const postResponseValidationLogic = async ({
     });
   });
 
-  pendingPromises.push(
-    getAiResponsesByUserMessageId(userMessage.id).then(async (aiResponses) => {
+  await getAiResponsesByUserMessageId(userMessage.id).then(
+    async (aiResponses) => {
       await Promise.all(
         aiResponses.map(async (aiResponse) => {
           await updateAiResponse(aiResponse.id, {
@@ -309,7 +309,7 @@ const postResponseValidationLogic = async ({
           });
         })
       );
-    })
+    }
   );
 
   const aiResponse = await createAiResponse({
@@ -320,7 +320,7 @@ const postResponseValidationLogic = async ({
     text: response,
   });
 
-  pendingPromises.push(
+  await Promise.all([
     incrementUserQueryCount(userId),
     ...sourceDocuments.map(async (sourceDoc) => {
       if (sourceDoc.distance && sourceDoc.distance <= 0.7) {
@@ -331,10 +331,8 @@ const postResponseValidationLogic = async ({
           distanceMetric: sourceDoc.distanceMetric,
         });
       }
-    })
-  );
-
-  await Promise.all(pendingPromises);
+    }),
+  ]);
 };
 
 export const handler = middy({ streamifyResponse: true }).handler(
