@@ -35,14 +35,7 @@ class Sources extends HookConsumerWidget {
     final isMounted = useIsMounted();
 
     final isLoading = useState(false);
-    final sourceDocuments = useState<List<SourceDocument>>(ref
-            .read(aiResponseSourceDocumentsProvider(
-              message.id,
-              message.uuid,
-              chatId,
-            ))
-            .value ??
-        []);
+    final sourceDocuments = useState<List<SourceDocument>>([]);
     final hasLoaded = useState(false);
 
     final showSources = useState(false);
@@ -52,11 +45,7 @@ class Sources extends HookConsumerWidget {
       () {
         if (sourceDocuments.value.isEmpty && !hasLoaded.value && !isChatLoading) {
           isLoading.value = true;
-          final sourceDocumentsFuture = ref.read(aiResponseSourceDocumentsProvider(
-            message.id,
-            message.uuid,
-            chatId,
-          ).future);
+          final sourceDocumentsFuture = ref.read(aiResponseSourceDocumentsProvider(message.uuid).future);
 
           sourceDocumentsFuture.then((value) {
             if (isMounted()) {
@@ -72,8 +61,6 @@ class Sources extends HookConsumerWidget {
         return () {};
       },
       [
-        chatId,
-        message.id,
         message.uuid,
         isChatLoading,
         showSources.value,
@@ -165,6 +152,9 @@ class Sources extends HookConsumerWidget {
         ),
         tilePadding: const EdgeInsets.only(left: 10),
         onExpansionChanged: (value) {
+          if (value) {
+            ref.read(aiResponseSourceDocumentsProvider(message.uuid).notifier).refresh();
+          }
           showSources.value = value;
         },
         children: [

@@ -66,10 +66,36 @@ class DevotionScreen extends HookConsumerWidget {
       });
     }, [ref, isMounted]);
 
+    final refreshDevoData = useCallback(() async {
+      await Future.wait([
+        ref.read(singleDevotionProvider(devotion.value?.id).notifier).refresh(),
+        ref.read(devotionSourceDocumentsProvider(devotion.value?.id).notifier).refresh(),
+        ref.read(devotionImagesProvider(devotion.value?.id).notifier).refresh(),
+        ref.read(devotionReactionsProvider(devotion.value?.id).notifier).refresh(),
+        ref.read(devotionReactionCountsProvider(devotion.value?.id).notifier).refresh(),
+      ]).then((value) {
+        final foundDevo = value[0] as Devotion;
+        final foundSourceDocs = value[1] as List<SourceDocument>;
+        final foundImages = value[2] as List<DevotionImage>;
+        // final foundReactions = value[3] as List<DevotionReaction>;
+        final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
+
+        if (isMounted()) {
+          devotion.value = foundDevo;
+          sourceDocs.value = foundSourceDocs;
+          images.value = foundImages;
+          reactionCounts.value = foundReactionCounts;
+        }
+      });
+    }, [ref, isMounted]);
+
     useEffect(() {
       loading.value = true;
       fetchDevoData(devotionId).whenComplete(() {
-        if (isMounted()) loading.value = false;
+        if (isMounted()) {
+          loading.value = false;
+          refreshDevoData();
+        }
       });
 
       return () {};

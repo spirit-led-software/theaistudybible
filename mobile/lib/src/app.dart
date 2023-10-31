@@ -18,6 +18,8 @@ class RAIApp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    debugPrint("Building app...");
+
     final routerListenableNotifier = ref.watch(routerListenableProvider.notifier);
 
     final key = useRef(GlobalKey<NavigatorState>(
@@ -40,7 +42,10 @@ class RAIApp extends HookConsumerWidget {
       [routerListenableNotifier],
     );
 
-    final pendingLaunchMessage = FirebaseMessaging.instance.getInitialMessage();
+    final pendingLaunchMessage = useMemoized(
+      () => FirebaseMessaging.instance.getInitialMessage(),
+      [FirebaseMessaging.instance],
+    );
     final launchMessageSnapshot = useFuture(pendingLaunchMessage);
 
     useMemoized(

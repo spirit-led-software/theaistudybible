@@ -162,7 +162,7 @@ Future<ChatMessage> getStreamedResponse({
   await subscription.asFuture().then((_) {
     if (onFinish != null) onFinish(reply);
     currentResponseId.value = null;
-  }).catchError((error) {
+  }).onError((error, stackTrace) {
     messages.value = [
       ...chatRequest.messages,
       ChatMessage(
@@ -174,7 +174,7 @@ Future<ChatMessage> getStreamedResponse({
       ),
     ];
     currentResponseId.value = null;
-    throw error;
+    throw error ?? Exception('An unknown error occured');
   });
 
   return reply;

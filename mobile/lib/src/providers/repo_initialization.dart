@@ -1,3 +1,4 @@
+import 'package:revelationsai/src/providers/ai_response/repositories.dart';
 import 'package:revelationsai/src/providers/chat/repositories.dart';
 import 'package:revelationsai/src/providers/devotion/repositories.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
@@ -11,6 +12,7 @@ Future<void> repositoryInitialization(RepositoryInitializationRef ref) async {
 
   await ref.watch(chatRepositoryProvider.future);
   await ref.watch(chatMessagesRepositoryProvider.future);
+  await ref.watch(aiResponseSourceDocumentRepositoryProvider.future);
 
   await ref.watch(devotionRepositoryProvider.future);
   await ref.watch(devotionImageRepositoryProvider.future);

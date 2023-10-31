@@ -45,6 +45,8 @@ class ChatScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    debugPrint("Rebuilding ChatScreen");
+
     final currentUser = ref.watch(currentUserProvider).requireValue;
     final currentUserPreferences = ref.watch(currentUserPreferencesProvider).requireValue;
 
@@ -68,12 +70,28 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
+    final refreshChatData = useCallback(() async {
+      await Future.wait([
+        ref.read(singleChatProvider(chatHook.chatId.value).notifier).refresh(),
+        ref.read(chatMessagesProvider(chatHook.chatId.value).notifier).refresh(),
+      ]).then((value) {
+        if (isMounted()) {
+          chat.value = value[0] as Chat;
+          if (!chatHook.loading.value) {
+            chatHook.messages.value = value[1] as List<ChatMessage>;
+          }
+        }
+      });
+    }, [ref, chatHook.chatId.value, chatHook.loading.value, isMounted]);
+
     useEffect(() {
+      debugPrint("ChatScreen: initChatId: $initChatId");
       chatHook.chatId.value = initChatId;
       return () {};
     }, [initChatId]);
 
     useEffect(() {
+      debugPrint("ChatScreen: chatHook.chatId.value: ${chatHook.chatId.value}");
       if (chatHook.chatId.value != null) {
         ref.read(singleChatProvider(chatHook.chatId.value).future).then((value) {
           if (isMounted()) chat.value = value;
@@ -112,7 +130,10 @@ class ChatScreen extends HookConsumerWidget {
               ),
             );
           }).whenComplete(() {
-            if (isMounted()) isLoadingChat.value = false;
+            if (isMounted()) {
+              isLoadingChat.value = false;
+              refreshChatData();
+            }
           });
         }
       } else {
@@ -129,14 +150,17 @@ class ChatScreen extends HookConsumerWidget {
     }, [chatHook.chatId.value]);
 
     useEffect(() {
+      debugPrint(
+          "ChatScreen: chatHook.loading.value: ${chatHook.loading.value} chatHook.currentResponseId.value: ${chatHook.currentResponseId.value}");
       if (!chatHook.loading.value && chatHook.currentResponseId.value == null) {
-        debugPrint("Refreshing messages since chat is idle.");
-        ref.read(chatMessagesProvider(chatHook.chatId.value).notifier).refresh();
+        debugPrint("Refreshing chat data since chat is idle.");
+        refreshChatData();
       }
       return () {};
     }, [chatHook.loading.value, chatHook.currentResponseId.value]);
 
     useEffect(() {
+      debugPrint("ChatScreen: chatHook.messages.value: ${chatHook.messages.value}");
       if (chatHook.error.value != null) {
         if (isMounted()) {
           alert.value = Alert(
@@ -149,6 +173,7 @@ class ChatScreen extends HookConsumerWidget {
     }, [chatHook.error.value]);
 
     useEffect(() {
+      debugPrint("ChatScreen: alert.value: ${alert.value}");
       if (alert.value != null) {
         Future(() {
           Flushbar(
@@ -170,6 +195,7 @@ class ChatScreen extends HookConsumerWidget {
     }, [alert.value]);
 
     useEffect(() {
+      debugPrint("ChatScreen: scrollController.hasClients: ${scrollController.hasClients}");
       if (scrollController.hasClients) {
         scrollController.addListener(() {
           if (scrollController.position.outOfRange) {
@@ -186,9 +212,6 @@ class ChatScreen extends HookConsumerWidget {
 
       return () {};
     }, [scrollController.hasClients]);
-
-    debugPrint(
-        "ChatScreen: initChatId: $initChatId, chatHook.chatId.value: ${chatHook.chatId.value}, chatHook.messages.value.length: ${chatHook.messages.value.length}");
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: context.isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
