@@ -2,7 +2,7 @@ export const CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE = `Given a query to a question an
 
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
 The candidate systems are within <candidates></candidates> XML tags. **IMPORTANT:** The candidates are in the format of "[name]: [description]" where [name] is the name of the question answering system and [description] is a description of what questions the system is best suited for. Only the name of the system should be returned.
-The conversation history is within <conversation_history></conversation_history> XML tags. This can be empty.
+The conversation history is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. The conversation history **CAN** be empty.
 The query is within <query></query> XML tags. **IMPORTANT:** You can and should modify this query, if necessary, to form a standalone query that the question answering system can understand without needing the conversation history.
 
 <format_instructions>

@@ -217,10 +217,13 @@ export const getRAIChatChain = async (
       inputVariables: ["query"],
       partialVariables: {
         formatInstructions: routerChainOutputParser.getFormatInstructions(),
-        destinations: `identity: Good for introducing yourself or talking about yourself.\n
-          chat-history: Good for retrieving information about the current chat conversation.\n
-          faith-qa: Good for answering questions or generating content about the Christian faith and theology.`,
-        history: (await history.getMessages()).join("\n"),
+        destinations: `identity: Good for introducing yourself or talking about yourself.\nchat-history: Good for retrieving information about the current chat conversation.\nfaith-qa: Good for answering questions or generating content about the Christian faith and theology.`,
+        history: (await history.getMessages())
+          .map(
+            (m) =>
+              `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
+          )
+          .join("\n"),
       },
     }),
     getLargeContextModel({
