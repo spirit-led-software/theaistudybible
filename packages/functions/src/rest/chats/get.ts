@@ -5,7 +5,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getChats } from "@services/chat";
+import { getChats } from "@services/chat/chat";
 import { validApiHandlerSession } from "@services/session";
 import { eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";

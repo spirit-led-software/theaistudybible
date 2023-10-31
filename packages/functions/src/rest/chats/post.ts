@@ -3,7 +3,7 @@ import {
   InternalServerErrorResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { createChat } from "@services/chat";
+import { createChat } from "@services/chat/chat";
 import { validApiHandlerSession } from "@services/session";
 import { getChatMemoryVectorStore } from "@services/vector-db";
 import { ApiHandler } from "sst/node/api";

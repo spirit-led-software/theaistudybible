@@ -1,7 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { axios, envConfig, replicateConfig, s3Config } from "@core/configs";
-import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
+import { axios, replicateConfig, s3Config } from "@core/configs";
 import type {
   CreateDevotionData,
   Devotion,
@@ -9,21 +8,16 @@ import type {
 } from "@core/model";
 import { devotions, devotionsToSourceDocuments } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import {
-  DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
-  DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-  DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE,
-  DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-} from "@lib/prompts";
 import { SQL, asc, desc, eq } from "drizzle-orm";
-import { LLMChain, RetrievalQAChain } from "langchain/chains";
-import { StructuredOutputParser } from "langchain/output_parsers";
-import { PromptTemplate } from "langchain/prompts";
 import Replicate from "replicate";
-import { z } from "zod";
-import { getLargeContextModel } from "../llm";
 import { getDocumentVectorStore } from "../vector-db";
 import { createDevotionImage } from "./image";
+import {
+  getBibleReadingChain,
+  getDevotionGeneratorChain,
+  getImageCaptionChain,
+  getImagePromptChain,
+} from "./langchain";
 
 export async function getDevotions(
   options: {
@@ -134,66 +128,21 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
       bibleReading = bibleReadingText;
     }
 
-    const outputParser = StructuredOutputParser.fromZodSchema(
-      z.object({
-        summary: z
-          .string()
-          .describe(
-            "A summary of the bible reading. Between 1500 and 3000 characters in length."
-          ),
-        reflection: z
-          .string()
-          .describe(
-            "A reflection on the bible reading and summary. Between 1500 and 3000 characters in length."
-          ),
-        prayer: z
-          .string()
-          .describe(
-            "A prayer to end the devotion. Between 500 and 1500 characters in length."
-          ),
-      })
-    );
-    console.log(
-      `Devotion format instructions: ${outputParser.getFormatInstructions()}`
-    );
-
-    const vectorStore = await getDocumentVectorStore();
-    const chain = RetrievalQAChain.fromLLM(
-      getLargeContextModel({
-        modelId: "anthropic.claude-v2",
-        maxTokens: 4096,
-        stopSequences: ["</output>"],
-        promptSuffix: "<output>",
-      }),
-      vectorStore.asRetriever(25),
-      {
-        prompt: PromptTemplate.fromTemplate(
-          DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-          {
-            partialVariables: {
-              formatInstructions: outputParser.getFormatInstructions(),
-            },
-          }
-        ),
-        returnSourceDocuments: true,
-        inputKey: "bibleReading",
-      }
-    );
-    const result = await chain.call({
+    const chain = await getDevotionGeneratorChain();
+    const { result, sourceDocuments } = await chain.invoke({
       bibleReading,
     });
 
-    const output = await outputParser.parse(result.text);
     devo = await createDevotion({
       topic,
       bibleReading,
-      summary: output.summary,
-      reflection: output.reflection,
-      prayer: output.prayer,
+      summary: result.summary,
+      reflection: result.reflection,
+      prayer: result.prayer,
     });
 
     await Promise.all(
-      result.sourceDocuments.map(async (c: NeonVectorStoreDocument) => {
+      sourceDocuments.map(async (c) => {
         if (c.distance && c.distance <= 0.7) {
           await readWriteDatabase.insert(devotionsToSourceDocuments).values({
             devotionId: devo!.id,
@@ -217,68 +166,24 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 }
 
 async function generateDevotionImages(devo: Devotion) {
-  const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
-    z.object({
-      prompt: z
-        .string()
-        .describe(
-          "The image generation prompt. Between 800 and 1000 characters in length."
-        ),
-      negativePrompt: z
-        .string()
-        .describe(
-          "The negative image generation prompt. Between 800 and 1000 characters in length."
-        ),
-    })
-  );
-  const imagePromptChain = new LLMChain({
-    llm: getLargeContextModel({
-      maxTokens: 1024,
-      stream: false,
-      promptSuffix: "<output>",
-      stopSequences: ["</output>"],
-    }),
-    prompt: PromptTemplate.fromTemplate(
-      DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-      {
-        partialVariables: {
-          formatInstructions: imagePromptOutputParser.getFormatInstructions(),
-        },
-      }
-    ),
-    verbose: envConfig.isLocal,
-  });
-  const imagePromptText = await imagePromptChain.call({
+  const imagePromptChain = getImagePromptChain();
+  const imagePrompts = await imagePromptChain.invoke({
     bibleReading: devo.bibleReading,
     summary: devo.summary,
     reflection: devo.reflection,
     prayer: devo.prayer,
   });
-  console.log("Image prompts:", imagePromptText.text);
-  const imagePrompts = await imagePromptOutputParser.parse(
-    imagePromptText.text
-  );
+  console.log("Image prompts:", imagePrompts.prompt);
 
-  const imageCaptionChain = new LLMChain({
-    llm: getLargeContextModel({
-      maxTokens: 100,
-      stream: false,
-      promptSuffix: "<output>",
-      stopSequences: ["</output>"],
-    }),
-    prompt: PromptTemplate.fromTemplate(
-      DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE
-    ),
-    verbose: envConfig.isLocal,
-  });
-  const imageCaption = await imageCaptionChain.call({
+  const imageCaptionChain = getImageCaptionChain();
+  const imageCaption = await imageCaptionChain.invoke({
     imagePrompt: imagePrompts.prompt,
     bibleReading: devo.bibleReading,
     summary: devo.summary,
-    reflection: devo.reflection,
-    prayer: devo.prayer,
+    reflection: devo.reflection!,
+    prayer: devo.prayer!,
   });
-  console.log("Image caption:", imageCaption.text);
+  console.log("Image caption:", imageCaption);
 
   const replicate = new Replicate({
     auth: replicateConfig.apiKey,
@@ -340,7 +245,7 @@ async function generateDevotionImages(devo: Devotion) {
       await createDevotionImage({
         devotionId: devo.id,
         url: imageUrl,
-        caption: imageCaption.text,
+        caption: imageCaption,
         prompt: imagePrompts.prompt,
         negativePrompt: imagePrompts.negativePrompt,
       });
@@ -351,74 +256,14 @@ async function generateDevotionImages(devo: Devotion) {
 }
 
 async function getRandomBibleReading() {
-  const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
-    z.object({
-      book: z
-        .string()
-        .describe("The book name from within the bible. For example: Genesis"),
-      chapter: z
-        .string()
-        .describe(
-          "The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**"
-        ),
-      verseRange: z
-        .string()
-        .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
-        .describe(
-          "The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**"
-        ),
-      text: z.string().describe("The exact text of the bible reading."),
-    })
-  );
-
-  const vectorStore = await getDocumentVectorStore({
-    filter: {
-      name: "YouVersion - ESV 2016",
-    },
-  });
-  const bibleReadingChain = RetrievalQAChain.fromLLM(
-    getLargeContextModel({
-      modelId: "anthropic.claude-instant-v1",
-      stream: false,
-      maxTokens: 2048,
-      promptSuffix: "<output>",
-      stopSequences: ["</output>"],
-    }),
-    vectorStore.asRetriever(50),
-    {
-      prompt: PromptTemplate.fromTemplate(
-        DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
-        {
-          partialVariables: {
-            previousBibleReadings: (
-              await getDevotions({
-                limit: 5,
-                orderBy: desc(devotions.createdAt),
-              })
-            )
-              .map((d) => d.bibleReading)
-              .join("\n"),
-            formatInstructions:
-              bibleReadingOutputParser.getFormatInstructions(),
-          },
-        }
-      ),
-      returnSourceDocuments: true,
-      inputKey: "topic",
-      verbose: envConfig.isLocal,
-    }
-  );
-
   const topic = getRandomTopic();
   console.log(`Devotion topic: ${topic}`);
-  const bibleReading = await bibleReadingChain.call({
+  const chain = await getBibleReadingChain();
+  const result = await chain.invoke({
     topic,
   });
 
-  const bibleReadingOutput = await bibleReadingOutputParser.parse(
-    bibleReading.text
-  );
-  const bibleReadingText = `${bibleReadingOutput.book} ${bibleReadingOutput.chapter}:${bibleReadingOutput.verseRange} - ${bibleReadingOutput.text}`;
+  const bibleReadingText = `${result.book} ${result.chapter}:${result.verseRange} - ${result.text}`;
   console.log(`Bible reading: ${bibleReadingText}`);
 
   return { topic, bibleReadingText };

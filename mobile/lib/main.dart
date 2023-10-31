@@ -42,7 +42,7 @@ Future<void> main() async {
   debugPrint("Removing all previous notification badges");
   FlutterAppBadger.isAppBadgeSupported().then((value) {
     if (value) {
-      FlutterAppBadger.removeBadge();
+      FlutterAppBadger.updateBadgeCount(0);
     }
   });
 

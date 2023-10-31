@@ -11,7 +11,7 @@ import {
   updateAiResponse,
 } from "@services/ai-response";
 import { aiRenameChat, createChat, getChat } from "@services/chat";
-import { getRAIChatChain } from "@services/llm";
+import { getRAIChatChain } from "@services/chat/langchain";
 import { validSessionFromEvent } from "@services/session";
 import { incrementUserQueryCount, isObjectOwner } from "@services/user";
 import {
@@ -27,7 +27,7 @@ import type {
 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
-import { v4 as uuidV4 } from "uuid";
+import uuid from "uuid";
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<
   APIGatewayProxyStructuredResultV2,
@@ -141,7 +141,7 @@ const lambdaHandler = async (
 
     console.time("Validating chat");
 
-    const newChatId = chatId ?? uuidV4();
+    const newChatId = chatId ?? uuid.v4();
     let chat = await getChat(newChatId).then(async (foundChat) => {
       if (!foundChat) {
         return await Promise.all([
@@ -169,33 +169,38 @@ const lambdaHandler = async (
       pendingPromises.push(aiRenameChat(chat.id, messages));
     }
 
-    const userMessageId = uuidV4();
-    const aiResponseId = uuidV4();
+    const userMessageId = uuid.v4();
+    const aiResponseId = uuid.v4();
     const { stream, handlers } = LangChainStream();
-    const chain = await getRAIChatChain(chat.id, messages);
-    const langchainResponsePromise = chain
-      .call(
-        {
-          input: lastMessage.content,
-        },
-        CallbackManager.fromHandlers(handlers)
-      )
+    const { chain, memory } = await getRAIChatChain(chat.id, messages);
+    const inputs = {
+      query: lastMessage.content,
+    };
+    const langChainResponsePromise = chain
+      .withConfig({
+        callbacks: CallbackManager.fromHandlers(handlers),
+      })
+      .invoke(inputs)
       .then(async (result) => {
-        const sourceDocuments: NeonVectorStoreDocument[] =
-          (
-            result.sourceDocuments as NeonVectorStoreDocument[] | undefined
-          )?.filter((d1, i, arr) => {
+        console.log(`LangChain result: ${JSON.stringify(result)}`);
+        const sourceDocuments =
+          result.sourceDocuments?.filter((d1, i, arr) => {
             return arr.findIndex((d2) => d2.id === d1.id) === i;
           }) ?? [];
-        await postResponseValidationLogic({
-          chat,
-          userMessageId,
-          aiResponseId,
-          userId: userInfo.id,
-          lastMessage,
-          response: result.text,
-          sourceDocuments,
-        });
+        await Promise.all([
+          memory.saveContext(inputs, {
+            output: result.text,
+          }),
+          postResponseValidationLogic({
+            chat,
+            userMessageId,
+            aiResponseId,
+            userId: userInfo.id,
+            lastMessage,
+            response: result.text,
+            sourceDocuments,
+          }),
+        ]);
         return result;
       })
       .catch(async (err) => {
@@ -209,7 +214,7 @@ const lambdaHandler = async (
         });
         throw err;
       });
-    pendingPromises.push(langchainResponsePromise);
+    pendingPromises.push(langChainResponsePromise);
 
     const reader = stream.getReader();
     return {

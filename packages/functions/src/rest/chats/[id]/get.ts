@@ -4,7 +4,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getChat } from "@services/chat";
+import { getChat } from "@services/chat/chat";
 import { validApiHandlerSession } from "@services/session";
 import { isObjectOwner } from "@services/user";
 import { ApiHandler } from "sst/node/api";

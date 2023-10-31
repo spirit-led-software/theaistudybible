@@ -40,10 +40,7 @@ class RAIApp extends HookConsumerWidget {
       [routerListenableNotifier],
     );
 
-    final pendingLaunchMessage = useMemoized(
-      () => FirebaseMessaging.instance.getInitialMessage(),
-      [FirebaseMessaging.instance],
-    );
+    final pendingLaunchMessage = FirebaseMessaging.instance.getInitialMessage();
     final launchMessageSnapshot = useFuture(pendingLaunchMessage);
 
     useMemoized(

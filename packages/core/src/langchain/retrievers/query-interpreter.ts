@@ -41,7 +41,7 @@ The formatting instructions are within <format_instructions></format_instruction
 </query>
 
 <format_instructions>
-{formattingInstructions}
+{formatInstructions}
 </format_instructions>`;
 
 export type QueryInterpreterInput = BaseRetrieverInput & {
@@ -135,9 +135,9 @@ export class QueryInterpreterRetriever extends BaseRetriever {
       {
         query,
         numSearchTerms: this.numSearchTerms,
-        formattingInstructions: this.outputParser.getFormatInstructions(),
+        formatInstructions: this.outputParser.getFormatInstructions(),
       },
-      runManager?.getChild("llm_chain")
+      runManager?.getChild()
     );
 
     const searchTerms = await this.outputParser.parse(searchTermsResult.text);
@@ -151,7 +151,7 @@ export class QueryInterpreterRetriever extends BaseRetriever {
         }
         return await this.baseRetriever.getRelevantDocuments(
           paddedSearchTerm,
-          runManager?.getChild("base_retriever")
+          runManager?.getChild()
         );
       })
     );

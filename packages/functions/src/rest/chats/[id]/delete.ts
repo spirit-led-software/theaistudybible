@@ -4,7 +4,7 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { deleteChat, getChat } from "@services/chat";
+import { deleteChat, getChat } from "@services/chat/chat";
 import { validApiHandlerSession } from "@services/session";
 import { isObjectOwner } from "@services/user";
 import { deleteChatMemoryVectorStore } from "@services/vector-db";

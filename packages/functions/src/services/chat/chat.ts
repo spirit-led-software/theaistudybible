@@ -5,7 +5,7 @@ import type { Message } from "ai";
 import { SQL, desc, eq } from "drizzle-orm";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
-import { getLargeContextModel } from "./llm";
+import { getLargeContextModel } from "../llm";
 
 export async function getChats(
   options: {
