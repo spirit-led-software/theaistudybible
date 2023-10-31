@@ -27,7 +27,7 @@ import type {
 } from "aws-lambda";
 import { CallbackManager } from "langchain/callbacks";
 import { Readable } from "stream";
-import uuid from "uuid";
+import { v4 as uuidV4 } from "uuid";
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<
   APIGatewayProxyStructuredResultV2,
@@ -141,7 +141,7 @@ const lambdaHandler = async (
 
     console.time("Validating chat");
 
-    const newChatId = chatId ?? uuid.v4();
+    const newChatId = chatId ?? uuidV4();
     let chat = await getChat(newChatId).then(async (foundChat) => {
       if (!foundChat) {
         return await Promise.all([
@@ -169,8 +169,8 @@ const lambdaHandler = async (
       pendingPromises.push(aiRenameChat(chat.id, messages));
     }
 
-    const userMessageId = uuid.v4();
-    const aiResponseId = uuid.v4();
+    const userMessageId = uuidV4();
+    const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const { chain, memory } = await getRAIChatChain(chat.id, messages);
     const inputs = {
