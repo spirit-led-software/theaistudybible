@@ -70,7 +70,7 @@ export function API({ stack, app }: StackContext) {
     timeout: "2 minutes",
     runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: "512 MB",
+    memorySize: "1 GB",
     permissions: [invokeBedrockPolicy],
   });
   (chatApiFunction.node.defaultChild as CfnFunction).tags.setTag(
