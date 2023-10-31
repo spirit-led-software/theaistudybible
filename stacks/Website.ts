@@ -25,6 +25,7 @@ export function Website({ stack }: StackContext) {
     dev: {
       url: websiteUrl,
     },
+    memorySize: "1 GB",
   });
 
   api.bind([website]);

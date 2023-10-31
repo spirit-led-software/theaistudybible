@@ -196,7 +196,12 @@ export function API({ stack, app }: StackContext) {
           },
         },
       },
-      "GET /session": "packages/functions/src/session.handler",
+      "GET /session": {
+        function: {
+          handler: "packages/functions/src/session.handler",
+          memorySize: "512 MB",
+        },
+      },
 
       "POST /notifications/stripe":
         "packages/functions/src/webhooks/stripe.handler",
@@ -242,7 +247,7 @@ export function API({ stack, app }: StackContext) {
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
           },
           timeout: "5 minutes",
-          memorySize: "512 MB",
+          memorySize: "1 GB",
         },
       },
       "GET /devotions/{id}":
@@ -336,7 +341,7 @@ export function API({ stack, app }: StackContext) {
         environment: lambdaEnv,
         runtime: "nodejs18.x",
         timeout: "60 seconds",
-        memorySize: "256 MB",
+        memorySize: "1 GB",
       },
     },
     customDomain: {
