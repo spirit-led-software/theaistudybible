@@ -22,6 +22,7 @@
     "@middy/http-cors": "^4.6.5",
     "@middy/http-error-handler": "^4.6.5",
     "@revelationsai/core": "^1.0.0",
+    "@upstash/redis": "^1.24.3",
     "ai": "^2.2.20",
     "bcryptjs": "^2.4.3",
     "busboy": "^1.6.0",

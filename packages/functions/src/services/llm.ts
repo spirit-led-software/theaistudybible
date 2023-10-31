@@ -1,9 +1,10 @@
-import { envConfig } from "@core/configs";
+import { envConfig, upstashRedisConfig } from "@core/configs";
 import { RAIBedrock } from "@core/langchain/llms/bedrock";
 import type {
   AnthropicModelId,
   CohereModelId,
 } from "@core/langchain/types/bedrock-types";
+import { UpstashRedisCache } from "langchain/cache/upstash_redis";
 import { BedrockEmbeddings } from "langchain/embeddings/bedrock";
 
 export type StandardModelInput = {
@@ -16,6 +17,16 @@ export type StandardModelInput = {
   promptPrefix?: string;
   promptSuffix?: string;
 };
+
+const cache =
+  upstashRedisConfig.url && upstashRedisConfig.token
+    ? new UpstashRedisCache({
+        config: {
+          url: upstashRedisConfig.url,
+          token: upstashRedisConfig.token,
+        },
+      })
+    : undefined;
 
 export const getEmbeddingsModel = () =>
   new BedrockEmbeddings({
@@ -46,6 +57,7 @@ export const getSmallContextModel = ({
     },
     promptPrefix,
     promptSuffix,
+    cache,
     verbose: envConfig.isLocal,
   });
 
@@ -72,5 +84,6 @@ export const getLargeContextModel = ({
     },
     promptPrefix,
     promptSuffix,
+    cache,
     verbose: envConfig.isLocal,
   });

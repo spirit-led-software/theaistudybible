@@ -11,7 +11,8 @@
     "Hnsw",
     "REVENUECAT",
     "Riverpod",
-    "unfocus"
+    "unfocus",
+    "upstash"
   ],
   "java.configuration.updateBuildConfiguration": "automatic"
 }
