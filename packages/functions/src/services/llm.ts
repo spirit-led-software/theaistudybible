@@ -6,6 +6,7 @@ import type {
 } from "@core/langchain/types/bedrock-types";
 import { UpstashRedisCache } from "langchain/cache/upstash_redis";
 import { BedrockEmbeddings } from "langchain/embeddings/bedrock";
+import type { BaseCache } from "langchain/schema";
 
 export type StandardModelInput = {
   stream?: boolean;
@@ -16,9 +17,10 @@ export type StandardModelInput = {
   stopSequences?: string[];
   promptPrefix?: string;
   promptSuffix?: string;
+  cache?: BaseCache;
 };
 
-const cache =
+export const llmCache =
   upstashRedisConfig.url && upstashRedisConfig.token
     ? new UpstashRedisCache({
         config: {
@@ -43,6 +45,7 @@ export const getSmallContextModel = ({
   topP = 0.25,
   promptPrefix,
   promptSuffix,
+  cache,
 }: StandardModelInput & { modelId?: CohereModelId } = {}) =>
   new RAIBedrock({
     modelId: modelId,
@@ -71,6 +74,7 @@ export const getLargeContextModel = ({
   topP = 0.75,
   promptPrefix,
   promptSuffix,
+  cache,
 }: StandardModelInput & { modelId?: AnthropicModelId } = {}) =>
   new RAIBedrock({
     modelId: modelId,

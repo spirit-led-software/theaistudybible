@@ -27,7 +27,7 @@ import {
   RunnableSequence,
 } from "langchain/schema/runnable";
 import { z } from "zod";
-import { getLargeContextModel } from "../llm";
+import { getLargeContextModel, llmCache } from "../llm";
 import { getChatMemoryVectorStore, getDocumentVectorStore } from "../vector-db";
 
 export const getRAIChatChain = async (
@@ -140,6 +140,7 @@ export const getRAIChatChain = async (
             stream: false,
             promptSuffix: "<output>",
             stopSequences: ["</output>"],
+            cache: llmCache,
           })
         )
         .pipe(queryInterpreterOutputParser),
@@ -226,6 +227,7 @@ export const getRAIChatChain = async (
       maxTokens: 4096,
       promptSuffix: "<output>",
       stopSequences: ["</output>"],
+      cache: llmCache,
     }),
     routerChainOutputParser,
   ]);
