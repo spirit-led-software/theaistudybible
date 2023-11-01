@@ -71,7 +71,7 @@ export const getDevotionGeneratorChain = async (): Promise<
         previousStepResult.sourceDocuments,
       result: new PromptTemplate({
         template: DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-        inputVariables: ["bibleReading"],
+        inputVariables: ["bibleReading", "context"],
         partialVariables: {
           formatInstructions: devotionOutputParser.getFormatInstructions(),
         },
