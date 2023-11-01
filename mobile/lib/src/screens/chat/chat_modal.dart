@@ -191,8 +191,12 @@ class ChatListItem extends HookConsumerWidget {
       dismissThresholds: const {
         DismissDirection.endToStart: 0.5,
       },
-      onDismissed: (direction) async {
-        await ref.read(chatsPagesProvider.notifier).deleteChat(chat.id);
+      onDismissed: (direction) {
+        ref.read(chatsPagesProvider.notifier).deleteChat(chat.id);
+        if (currentChatId == chat.id) {
+          ref.read(currentChatIdProvider.notifier).update(null);
+          context.go('/chat');
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -201,8 +205,9 @@ class ChatListItem extends HookConsumerWidget {
         child: ListTile(
           title: Text(
             chat.name,
-            softWrap: false,
-            overflow: TextOverflow.fade,
+            softWrap: true,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
             DateFormat.yMMMd().format(chat.createdAt.toLocal()),

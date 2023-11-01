@@ -46,7 +46,7 @@ class TabsScaffold extends HookConsumerWidget {
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.book_fill),
-              label: "Devotions",
+              label: "Devos",
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.person_fill),

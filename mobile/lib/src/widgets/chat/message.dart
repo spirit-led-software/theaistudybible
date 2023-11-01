@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -30,6 +31,21 @@ class Message extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hapticFeedback = ref.watch(currentUserPreferencesProvider).requireValue.hapticFeedback;
+
+    final showMessageDialog = useCallback((context) {
+      if (!isLoading) {
+        if (hapticFeedback) HapticFeedback.mediumImpact();
+        showDialog(
+          context: context,
+          builder: (context) {
+            return MessageActionsDialog(
+              message: message,
+              previousMessage: previousMessage,
+            );
+          },
+        );
+      }
+    }, [hapticFeedback, isLoading, message, previousMessage]);
 
     return Dismissible(
       key: ValueKey(message.uuid),
@@ -73,93 +89,88 @@ class Message extends HookConsumerWidget {
           children: [
             if (message.role == Role.assistant) ...[
               const CircularLogo(
-                radius: 18,
+                radius: 15,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
             ],
             Flexible(
               child: GestureDetector(
-                onLongPress: () {
-                  if (!isLoading) {
-                    if (hapticFeedback) HapticFeedback.mediumImpact();
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return MessageActionsDialog(
-                          message: message,
-                          previousMessage: previousMessage,
-                        );
-                      },
-                    );
-                  }
+                onDoubleTap: () {
+                  showMessageDialog(context);
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: message.role == Role.user
-                        ? context.brightness == Brightness.light
-                            ? context.colorScheme.primary
-                            : context.colorScheme.secondary
-                        : context.brightness == Brightness.light
-                            ? Colors.grey.shade300
-                            : context.colorScheme.primary,
+                onLongPress: () {
+                  showMessageDialog(context);
+                },
+                child: Card(
+                  color: message.role == Role.user
+                      ? context.brightness == Brightness.light
+                          ? context.colorScheme.primary
+                          : context.colorScheme.secondary
+                      : context.brightness == Brightness.light
+                          ? Colors.grey.shade100
+                          : context.colorScheme.primary,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(20),
-                      topRight: const Radius.circular(20),
-                      bottomLeft: message.role == Role.user ? const Radius.circular(20) : const Radius.circular(0),
-                      bottomRight: message.role == Role.user ? const Radius.circular(0) : const Radius.circular(20),
+                      topLeft: const Radius.circular(30),
+                      topRight: const Radius.circular(30),
+                      bottomLeft: message.role == Role.user ? const Radius.circular(30) : const Radius.circular(0),
+                      bottomRight: message.role == Role.user ? const Radius.circular(0) : const Radius.circular(30),
                     ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 15,
-                  ),
+                  elevation: 2,
                   margin: EdgeInsets.only(
-                    bottom: 15,
-                    left: message.role == Role.user ? 40 : 0,
-                    right: message.role == Role.user ? 0 : 40,
+                    bottom: 8,
+                    left: message.role == Role.user ? 35 : 0,
+                    right: message.role == Role.user ? 0 : 35,
                   ),
-                  child: Column(
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          children: <InlineSpan>[
-                            TextSpan(
-                              text: message.content.trim(),
-                              style: context.textTheme.bodyMedium?.copyWith(
-                                color: message.role == Role.user
-                                    ? context.colorScheme.onPrimary
-                                    : context.colorScheme.onBackground,
-                              ),
-                            ),
-                            if (isCurrentResponse) ...[
-                              WidgetSpan(
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  margin: const EdgeInsets.only(
-                                    left: 5,
-                                  ),
-                                  child: SpinKitSpinningLines(
-                                    color: context.colorScheme.onBackground,
-                                    size: 20,
-                                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: <InlineSpan>[
+                              TextSpan(
+                                text: message.content.trim(),
+                                style: context.textTheme.bodyMedium?.copyWith(
+                                  color: message.role == Role.user
+                                      ? context.colorScheme.onPrimary
+                                      : context.colorScheme.onBackground,
                                 ),
                               ),
-                            ]
-                          ],
+                              if (isCurrentResponse) ...[
+                                WidgetSpan(
+                                  child: Container(
+                                    width: 20,
+                                    height: 20,
+                                    margin: const EdgeInsets.only(
+                                      left: 5,
+                                    ),
+                                    child: SpinKitSpinningLines(
+                                      color: context.colorScheme.onBackground,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              ]
+                            ],
+                          ),
+                          textAlign: TextAlign.start,
+                          style: context.textTheme.bodyMedium,
                         ),
-                        textAlign: TextAlign.start,
-                        style: context.textTheme.bodyMedium,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
             if (message.role == Role.user) ...[
-              const SizedBox(width: 10),
+              const SizedBox(width: 5),
               const UserAvatar(
-                radius: 18,
+                radius: 15,
               ),
             ],
           ],

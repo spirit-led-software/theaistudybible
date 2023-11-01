@@ -39,7 +39,7 @@ class RAITheme {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      fillColor: Colors.grey.shade300,
+      fillColor: Colors.grey.shade200,
       filled: true,
       border: OutlineInputBorder(
         borderSide: BorderSide.none,

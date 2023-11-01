@@ -171,7 +171,7 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: PopupMenuButton(
                 offset: const Offset(0, 60),
-                color: context.primaryColor,
+                color: context.colorScheme.background,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(15),
@@ -184,7 +184,10 @@ class DevotionScreen extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const Icon(Icons.thumb_up),
+                        Icon(
+                          Icons.thumb_up,
+                          color: context.colorScheme.onBackground,
+                        ),
                         const SizedBox(
                           width: 10,
                         ),
@@ -192,7 +195,7 @@ class DevotionScreen extends HookConsumerWidget {
                           "${reactionCounts.value[DevotionReactionType.LIKE]}"
                           " Likes",
                           style: TextStyle(
-                            color: context.colorScheme.onPrimary,
+                            color: context.colorScheme.onBackground,
                           ),
                         ),
                       ],
@@ -232,7 +235,10 @@ class DevotionScreen extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const Icon(Icons.thumb_down),
+                        Icon(
+                          Icons.thumb_down,
+                          color: context.colorScheme.onBackground,
+                        ),
                         const SizedBox(
                           width: 10,
                         ),
@@ -240,7 +246,7 @@ class DevotionScreen extends HookConsumerWidget {
                           "${(reactionCounts.value[DevotionReactionType.DISLIKE])}"
                           " Dislikes",
                           style: TextStyle(
-                            color: context.colorScheme.onPrimary,
+                            color: context.colorScheme.onBackground,
                           ),
                         ),
                       ],
@@ -280,14 +286,17 @@ class DevotionScreen extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const FaIcon(FontAwesomeIcons.shareFromSquare),
+                        FaIcon(
+                          FontAwesomeIcons.shareFromSquare,
+                          color: context.colorScheme.onBackground,
+                        ),
                         const SizedBox(
                           width: 10,
                         ),
                         Text(
                           "Share",
                           style: TextStyle(
-                            color: context.colorScheme.onPrimary,
+                            color: context.colorScheme.onBackground,
                           ),
                         ),
                       ],

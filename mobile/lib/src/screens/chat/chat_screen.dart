@@ -94,6 +94,8 @@ class ChatScreen extends HookConsumerWidget {
               style: TextStyle(
                 color: context.colorScheme.onError,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
             backgroundColor: context.colorScheme.error,
           ),
@@ -115,6 +117,8 @@ class ChatScreen extends HookConsumerWidget {
                 style: TextStyle(
                   color: context.colorScheme.onError,
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
               backgroundColor: context.colorScheme.error,
             ),
@@ -220,24 +224,30 @@ class ChatScreen extends HookConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 PopupMenuButton(
-                  offset: const Offset(0, 55),
-                  color: context.primaryColor,
+                  offset: const Offset(0, 50),
+                  color: context.colorScheme.background,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   onOpened: () {
                     if (currentUserPreferences.hapticFeedback) HapticFeedback.mediumImpact();
                   },
-                  itemBuilder: (popupMenuContext) {
+                  itemBuilder: (context) {
                     return [
                       PopupMenuItem(
                         enabled: false,
-                        child: Text(
-                          chat.value?.name ?? "New Chat",
-                          softWrap: false,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: popupMenuContext.colorScheme.onPrimary,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: context.width * 0.4,
+                          ),
+                          child: Text(
+                            chat.value?.name ?? "New Chat",
+                            softWrap: true,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: context.colorScheme.onBackground,
+                            ),
                           ),
                         ),
                       ),
@@ -245,28 +255,31 @@ class ChatScreen extends HookConsumerWidget {
                         enabled: false,
                         height: double.minPositive,
                         child: Divider(
-                          color: popupMenuContext.colorScheme.onPrimary,
+                          color: context.colorScheme.onBackground,
                         ),
                       ),
                       PopupMenuItem(
                         onTap: () async {
                           if (chatHook.chatId.value != null) {
                             isRefreshingChat.value = true;
-                            return await Future.wait([
-                              ref.read(singleChatProvider(chatHook.chatId.value).notifier).refresh(),
-                              ref.read(chatMessagesProvider(chatHook.chatId.value).notifier).refresh(),
-                            ]).then((value) {
-                              final foundChat = value[0] as Chat;
-                              final foundMessages = value[1] as List<ChatMessage>;
-                              if (isMounted()) {
-                                chat.value = foundChat;
-                                chatHook.messages.value = foundMessages;
-                              }
-                            }).catchError(
-                              (error) {
-                                debugPrint("Failed to refresh chat: $error $error");
-                              },
-                            ).whenComplete(() {
+                            return await refreshChatData().catchError((error) {
+                              debugPrint("Failed to refresh chat: $error");
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Failed to refresh chat: $error",
+                                    style: TextStyle(
+                                      color: context.colorScheme.onError,
+                                    ),
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  backgroundColor: context.colorScheme.error,
+                                ),
+                              );
+                              ref.read(currentChatIdProvider.notifier).update(null);
+                              context.go("/chat");
+                            }).whenComplete(() {
                               if (isMounted()) isRefreshingChat.value = false;
                             });
                           }
@@ -277,7 +290,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.arrowsRotate,
-                              color: popupMenuContext.colorScheme.onPrimary,
+                              color: context.colorScheme.onBackground,
                             ),
                             const SizedBox(
                               width: 10,
@@ -285,7 +298,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "Refresh",
                               style: TextStyle(
-                                color: popupMenuContext.colorScheme.onPrimary,
+                                color: context.colorScheme.onBackground,
                               ),
                             ),
                           ],
@@ -297,7 +310,7 @@ class ChatScreen extends HookConsumerWidget {
                           showModalBottomSheet(
                             elevation: 20,
                             isScrollControlled: true,
-                            context: popupMenuContext,
+                            context: context,
                             builder: (_) => const FractionallySizedBox(
                               widthFactor: 1.0,
                               heightFactor: 0.90,
@@ -311,7 +324,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.clock,
-                              color: popupMenuContext.colorScheme.onPrimary,
+                              color: context.colorScheme.onBackground,
                             ),
                             const SizedBox(
                               width: 10,
@@ -319,7 +332,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "History",
                               style: TextStyle(
-                                color: popupMenuContext.colorScheme.onPrimary,
+                                color: context.colorScheme.onBackground,
                               ),
                             ),
                           ],
@@ -328,7 +341,7 @@ class ChatScreen extends HookConsumerWidget {
                       PopupMenuItem(
                         onTap: () async {
                           showDialog(
-                            context: popupMenuContext,
+                            context: context,
                             builder: (context) {
                               return const CreateDialog();
                             },
@@ -340,7 +353,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.plus,
-                              color: popupMenuContext.colorScheme.onPrimary,
+                              color: context.colorScheme.onBackground,
                             ),
                             const SizedBox(
                               width: 10,
@@ -348,7 +361,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "New Chat",
                               style: TextStyle(
-                                color: popupMenuContext.colorScheme.onPrimary,
+                                color: context.colorScheme.onBackground,
                               ),
                             ),
                           ],
@@ -358,7 +371,7 @@ class ChatScreen extends HookConsumerWidget {
                         onTap: () {
                           if (chatHook.chatId.value != null) {
                             showDialog(
-                              context: popupMenuContext,
+                              context: context,
                               builder: (context) {
                                 return RenameDialog(
                                   id: chatHook.chatId.value!,
@@ -381,7 +394,7 @@ class ChatScreen extends HookConsumerWidget {
                           children: [
                             FaIcon(
                               FontAwesomeIcons.penToSquare,
-                              color: popupMenuContext.colorScheme.onPrimary,
+                              color: context.colorScheme.onBackground,
                             ),
                             const SizedBox(
                               width: 10,
@@ -389,7 +402,7 @@ class ChatScreen extends HookConsumerWidget {
                             Text(
                               "Rename Chat",
                               style: TextStyle(
-                                color: popupMenuContext.colorScheme.onPrimary,
+                                color: context.colorScheme.onBackground,
                               ),
                             ),
                           ],
@@ -404,7 +417,7 @@ class ChatScreen extends HookConsumerWidget {
                               },
                             );
                             ref.read(currentChatIdProvider.notifier).update(null);
-                            popupMenuContext.go("/chat");
+                            context.go("/chat");
                           }
                         },
                         child: const Row(
@@ -453,6 +466,7 @@ class ChatScreen extends HookConsumerWidget {
                       Expanded(
                         flex: 1,
                         child: ListView.builder(
+                          clipBehavior: Clip.none,
                           controller: scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
                           reverse: true,
@@ -560,15 +574,19 @@ class ChatScreen extends HookConsumerWidget {
                                         horizontal: 25,
                                       ),
                                       focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
+                                        borderSide: BorderSide(
+                                          color: context.colorScheme.onBackground.withOpacity(0.2),
+                                        ),
                                         borderRadius: BorderRadius.circular(40),
                                       ),
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide.none,
+                                        borderSide: BorderSide(
+                                          color: context.colorScheme.onBackground.withOpacity(0.2),
+                                        ),
                                         borderRadius: BorderRadius.circular(40),
                                       ),
                                       filled: true,
-                                      fillColor: context.isDarkMode ? context.primaryColor : null,
+                                      fillColor: context.colorScheme.background,
                                       hintText: "Type a message",
                                       suffixIcon: chatHook.loading.value
                                           ? Row(
