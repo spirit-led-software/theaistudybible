@@ -290,11 +290,23 @@ const postResponseValidationLogic = async ({
     chat.id,
     lastMessage.content
   ).then(async (userMessages) => {
-    const userMessage = userMessages.at(0);
+    let userMessage = userMessages.at(0);
     if (userMessage) {
-      return await updateUserMessage(userMessage.id, {
+      userMessage = await updateUserMessage(userMessage.id, {
         id: userMessageId,
       });
+      await getAiResponsesByUserMessageId(userMessage.id).then(
+        async (aiResponses) => {
+          await Promise.all(
+            aiResponses.map(async (aiResponse) => {
+              await updateAiResponse(aiResponse.id, {
+                regenerated: true,
+              });
+            })
+          );
+        }
+      );
+      return userMessage;
     }
     return await createUserMessage({
       id: userMessageId,
@@ -304,18 +316,6 @@ const postResponseValidationLogic = async ({
       userId: userId,
     });
   });
-
-  await getAiResponsesByUserMessageId(userMessage.id).then(
-    async (aiResponses) => {
-      await Promise.all(
-        aiResponses.map(async (aiResponse) => {
-          await updateAiResponse(aiResponse.id, {
-            regenerated: true,
-          });
-        })
-      );
-    }
-  );
 
   const aiResponse = await createAiResponse({
     id: aiResponseId,
