@@ -203,10 +203,10 @@ class ChatScreen extends HookConsumerWidget {
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
         floatingActionButton: Container(
-          padding: const EdgeInsets.all(5),
+          padding: const EdgeInsets.all(0),
           decoration: BoxDecoration(
             color: context.secondaryColor,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
                 color: context.theme.shadowColor.withOpacity(0.2),

@@ -73,7 +73,7 @@ class Message extends HookConsumerWidget {
           children: [
             if (message.role == Role.assistant) ...[
               const CircularLogo(
-                radius: 20,
+                radius: 18,
               ),
               const SizedBox(width: 10),
             ],
@@ -108,13 +108,6 @@ class Message extends HookConsumerWidget {
                       bottomLeft: message.role == Role.user ? const Radius.circular(20) : const Radius.circular(0),
                       bottomRight: message.role == Role.user ? const Radius.circular(0) : const Radius.circular(20),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: context.colorScheme.shadow.withOpacity(0.3),
-                        blurRadius: 6,
-                        offset: const Offset(2, 3),
-                      ),
-                    ],
                   ),
                   padding: const EdgeInsets.symmetric(
                     vertical: 10,
@@ -122,8 +115,8 @@ class Message extends HookConsumerWidget {
                   ),
                   margin: EdgeInsets.only(
                     bottom: 15,
-                    left: message.role == Role.user ? 20 : 0,
-                    right: message.role == Role.user ? 0 : 20,
+                    left: message.role == Role.user ? 40 : 0,
+                    right: message.role == Role.user ? 0 : 40,
                   ),
                   child: Column(
                     children: [
@@ -166,7 +159,7 @@ class Message extends HookConsumerWidget {
             if (message.role == Role.user) ...[
               const SizedBox(width: 10),
               const UserAvatar(
-                radius: 20,
+                radius: 18,
               ),
             ],
           ],

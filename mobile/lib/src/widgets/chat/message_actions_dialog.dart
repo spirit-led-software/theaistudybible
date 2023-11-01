@@ -4,7 +4,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -45,7 +44,7 @@ class MessageActionsDialog extends HookConsumerWidget {
               child: SingleChildScrollView(
                 child: Container(
                   padding: const EdgeInsets.only(
-                    bottom: 5,
+                    bottom: 10,
                     left: 10,
                     right: 15,
                   ),
@@ -92,8 +91,7 @@ class MessageActionsDialog extends HookConsumerWidget {
       ),
       actions: [
         IconButton(
-          visualDensity: RAIVisualDensity.tightest,
-          iconSize: 25,
+          iconSize: 20,
           icon: FaIcon(
             copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
           ),
@@ -110,8 +108,7 @@ class MessageActionsDialog extends HookConsumerWidget {
           },
         ),
         IconButton(
-          visualDensity: RAIVisualDensity.tightest,
-          iconSize: 25,
+          iconSize: 20,
           icon: const FaIcon(
             FontAwesomeIcons.shareFromSquare,
           ),
@@ -130,8 +127,8 @@ class MessageActionsDialog extends HookConsumerWidget {
           },
         )
       ],
-      actionsPadding: const EdgeInsets.symmetric(vertical: 20),
-      actionsAlignment: MainAxisAlignment.spaceAround,
+      actionsPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      actionsAlignment: MainAxisAlignment.end,
     );
   }
 }
