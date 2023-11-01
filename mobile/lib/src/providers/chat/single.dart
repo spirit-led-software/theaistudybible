@@ -70,7 +70,11 @@ class SingleChat extends _$SingleChat {
     }
   }
 
-  Future<Chat> refresh() async {
+  Future<Chat?> refresh() async {
+    if (id == null) {
+      state = const AsyncValue.data(null);
+      return null;
+    }
     final chat = await ref.chats.refresh(id!);
     state = AsyncData(chat);
     return chat;

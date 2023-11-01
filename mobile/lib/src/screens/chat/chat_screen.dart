@@ -76,7 +76,7 @@ class ChatScreen extends HookConsumerWidget {
         ref.read(chatMessagesProvider(chatHook.chatId.value).notifier).refresh(),
       ]).then((value) {
         if (isMounted()) {
-          chat.value = value[0] as Chat;
+          chat.value = value[0] as Chat?;
           if (!chatHook.loading.value) {
             chatHook.messages.value = value[1] as List<ChatMessage>;
           }

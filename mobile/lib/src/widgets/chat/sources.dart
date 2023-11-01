@@ -75,15 +75,13 @@ class Sources extends HookConsumerWidget {
       child: ExpansionTile(
         leading: Icon(
           showSources.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-          size: 15,
+          size: 20,
           color: context.colorScheme.onBackground,
         ),
         title: Text.rich(
           TextSpan(
             text: "Sources",
-            style: const TextStyle(
-              fontSize: 12,
-            ),
+            style: context.textTheme.labelMedium,
             children: [
               if (isLoading.value) ...[
                 WidgetSpan(
@@ -111,7 +109,7 @@ class Sources extends HookConsumerWidget {
           children: [
             IconButton(
               visualDensity: RAIVisualDensity.tightest,
-              iconSize: 14,
+              iconSize: 18,
               icon: FaIcon(
                 copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
               ),
@@ -130,7 +128,7 @@ class Sources extends HookConsumerWidget {
             ),
             IconButton(
               visualDensity: RAIVisualDensity.tightest,
-              iconSize: 14,
+              iconSize: 18,
               icon: const FaIcon(
                 FontAwesomeIcons.shareFromSquare,
               ),

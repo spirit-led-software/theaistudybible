@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
@@ -26,54 +27,74 @@ class Message extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider).requireValue;
     return ListTile(
       dense: true,
       contentPadding: const EdgeInsets.only(
         top: 10,
         bottom: 10,
-        left: 10,
-        right: 5,
+        left: 25,
+        right: 20,
       ),
       shape: Border(
         bottom: BorderSide(
           color: context.colorScheme.onBackground.withOpacity(0.3),
         ),
       ),
-      title: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Column(
         children: [
-          if (message.role == Role.user) const UserAvatar() else const CircularLogo(),
-          const SizedBox(
-            width: 15,
-          ),
-          Flexible(
-            child: SelectableText.rich(
-              TextSpan(
-                children: <InlineSpan>[
-                  TextSpan(
-                    text: message.content.trim(),
-                  ),
-                  if (isCurrentResponse) ...[
-                    WidgetSpan(
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        margin: const EdgeInsets.only(
-                          left: 5,
-                        ),
-                        child: SpinKitSpinningLines(
-                          color: context.colorScheme.onBackground,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ]
-                ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (message.role == Role.user) const UserAvatar() else const CircularLogo(),
+              const SizedBox(
+                width: 20,
               ),
-              textAlign: TextAlign.start,
-              style: context.textTheme.bodyMedium,
-            ),
+              Flexible(
+                child: Text(
+                  message.role == Role.user ? currentUser.name ?? currentUser.email : 'RevelationsAI',
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colorScheme.onBackground.withOpacity(0.75),
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(
+            height: 25,
+          ),
+          Row(
+            children: [
+              Flexible(
+                child: SelectableText.rich(
+                  TextSpan(
+                    children: <InlineSpan>[
+                      TextSpan(
+                        text: message.content.trim(),
+                      ),
+                      if (isCurrentResponse) ...[
+                        WidgetSpan(
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            margin: const EdgeInsets.only(
+                              left: 5,
+                            ),
+                            child: SpinKitSpinningLines(
+                              color: context.colorScheme.onBackground,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ]
+                    ],
+                  ),
+                  textAlign: TextAlign.start,
+                  style: context.textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          )
         ],
       ),
       subtitle: Container(
@@ -88,7 +109,9 @@ class Message extends HookConsumerWidget {
                   .add_yMMMMd()
                   .addPattern(DateFormat.HOUR_MINUTE)
                   .format((message.createdAt ?? DateTime.now()).toLocal()),
-              style: const TextStyle(fontSize: 10),
+              style: context.textTheme.bodySmall?.copyWith(
+                color: context.colorScheme.onBackground.withOpacity(0.6),
+              ),
             ),
             if (message.role == Role.assistant && !isCurrentResponse) ...[
               const SizedBox(height: 10),
