@@ -19,6 +19,7 @@ import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
+import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:share_plus/share_plus.dart';
@@ -109,6 +110,11 @@ class DevotionScreen extends HookConsumerWidget {
       }
       return () {};
     }, [devotion.value]);
+
+    useEffect(() {
+      advertisementLogic(ref);
+      return () {};
+    }, []);
 
     return Scaffold(
       appBar: AppBar(

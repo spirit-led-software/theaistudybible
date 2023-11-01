@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:newrelic_mobile/config.dart';
 import 'package:newrelic_mobile/newrelic_mobile.dart';
@@ -39,8 +40,10 @@ Future<void> main() async {
     FirebaseMessaging.instance.subscribeToTopic('daily-devo');
   });
 
+  await MobileAds.instance.initialize();
+
   debugPrint("Removing all previous notification badges");
-  FlutterAppBadger.isAppBadgeSupported().then((value) {
+  await FlutterAppBadger.isAppBadgeSupported().then((value) {
     if (value) {
       FlutterAppBadger.updateBadgeCount(0);
     }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
@@ -51,6 +52,21 @@ class ChatsPages extends _$ChatsPages {
     state = AsyncData([state.value?.first ?? []]);
     ref.invalidateSelf();
     await future;
+  }
+
+  Future<void> deleteChat(String chatId) async {
+    final previousState = state;
+    state = AsyncValue.data(state.value
+            ?.map(
+              (page) => page.where((chat) => chat.id != chatId).toList(),
+            )
+            .toList() ??
+        []);
+    return await ref.chats.deleteRemote(chatId).catchError((error) {
+      debugPrint("Failed to delete chat: $error");
+      state = previousState;
+      throw error;
+    });
   }
 
   Future<List<List<Chat>>> refresh() async {

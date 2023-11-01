@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class RAINetworkImage extends StatelessWidget {
@@ -6,7 +7,6 @@ class RAINetworkImage extends StatelessWidget {
   final double? fallbackTextSize;
   final double? width;
   final double? height;
-  final double scale;
   final FilterQuality filterQuality;
 
   const RAINetworkImage({
@@ -16,30 +16,24 @@ class RAINetworkImage extends StatelessWidget {
     this.fallbackTextSize = 20,
     this.width,
     this.height,
-    this.scale = 1.0,
     this.filterQuality = FilterQuality.high,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      imageUrl ?? "",
-      scale: scale,
+    return CachedNetworkImage(
+      imageUrl: imageUrl ?? "",
       width: width,
       height: height,
       filterQuality: filterQuality,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
+      progressIndicatorBuilder: (context, _, downloadProgress) {
         return Center(
           child: CircularProgressIndicator(
-            value: loadingProgress.expectedTotalBytes != null
-                ? loadingProgress.cumulativeBytesLoaded /
-                    loadingProgress.expectedTotalBytes!
-                : null,
+            value: downloadProgress.progress,
           ),
         );
       },
-      errorBuilder: (context, error, stackTrace) {
+      errorWidget: (context, url, error) {
         return Center(
           child: Text(
             fallbackText ?? "",

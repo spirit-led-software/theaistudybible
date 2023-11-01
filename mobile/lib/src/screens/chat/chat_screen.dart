@@ -17,25 +17,16 @@ import 'package:revelationsai/src/providers/chat/single.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
+import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/utils/in_app_review.dart';
+import 'package:revelationsai/src/widgets/chat/chat_suggestions.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
 import 'package:revelationsai/src/widgets/chat/rename_dialog.dart';
+import 'package:uuid/uuid.dart';
 
 class ChatScreen extends HookConsumerWidget {
-  static const chatSuggestions = <String>{
-    "Who is Jesus?",
-    "Explain the gospel to me.",
-    "What is the gospel?",
-    "What is the Trinity?",
-    "Is Jesus real?",
-    "What is the Bible about?",
-    "Why did Jesus have to die?",
-    "Is God real?",
-    "What does it mean to be saved?",
-  };
-
   final String? initChatId;
 
   const ChatScreen({
@@ -55,17 +46,18 @@ class ChatScreen extends HookConsumerWidget {
     final scrollableEndIsInView = useState(true);
     final isLoadingChat = useState(false);
     final isRefreshingChat = useState(false);
-    final showSuggestions = useState(false);
     final alert = useState<Alert?>(null);
-    final shuffledSuggestions = useRef(<String>[...chatSuggestions]..shuffle());
 
     final chat = useState<Chat?>(null);
     final chatHook = useChat(
       options: UseChatOptions(
         session: currentUser.session,
         hapticFeedback: currentUserPreferences.hapticFeedback,
-        onFinish: (_) {
-          inAppReviewLogic();
+        onFinish: (_) async {
+          final showedAd = await advertisementLogic(ref);
+          if (!showedAd) {
+            await inAppReviewLogic();
+          }
         },
       ),
     );
@@ -91,16 +83,35 @@ class ChatScreen extends HookConsumerWidget {
     }, [initChatId]);
 
     useEffect(() {
-      debugPrint("ChatScreen: chatHook.chatId.value: ${chatHook.chatId.value}");
-      if (chatHook.chatId.value != null) {
-        ref.read(singleChatProvider(chatHook.chatId.value).future).then((value) {
-          if (isMounted()) chat.value = value;
+      ref.read(singleChatProvider(chatHook.chatId.value).future).then((value) {
+        if (isMounted()) chat.value = value;
+      }).catchError((error) {
+        debugPrint("Failed to get chat: $error");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Failed to get chat: $error",
+              style: TextStyle(
+                color: context.colorScheme.onError,
+              ),
+            ),
+            backgroundColor: context.colorScheme.error,
+          ),
+        );
+        ref.read(currentChatIdProvider.notifier).update(null);
+        context.go("/chat");
+      });
+
+      if (!chatHook.loading.value) {
+        isLoadingChat.value = true;
+        ref.read(chatMessagesProvider(chatHook.chatId.value).future).then((value) {
+          if (isMounted()) chatHook.messages.value = value;
         }).catchError((error) {
-          debugPrint("Failed to get chat: $error");
+          debugPrint("Failed to get chat messages: $error");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                "Failed to get chat: $error",
+                "Failed to get chat messages: $error",
                 style: TextStyle(
                   color: context.colorScheme.onError,
                 ),
@@ -108,40 +119,12 @@ class ChatScreen extends HookConsumerWidget {
               backgroundColor: context.colorScheme.error,
             ),
           );
-          ref.read(currentChatIdProvider.notifier).update(null);
-          context.go("/chat");
+        }).whenComplete(() {
+          if (isMounted()) {
+            isLoadingChat.value = false;
+            refreshChatData();
+          }
         });
-
-        if (!chatHook.loading.value) {
-          isLoadingChat.value = true;
-          ref.read(chatMessagesProvider(chatHook.chatId.value).future).then((value) {
-            if (isMounted()) chatHook.messages.value = value;
-          }).catchError((error) {
-            debugPrint("Failed to get chat messages: $error");
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  "Failed to get chat messages: $error",
-                  style: TextStyle(
-                    color: context.colorScheme.onError,
-                  ),
-                ),
-                backgroundColor: context.colorScheme.error,
-              ),
-            );
-          }).whenComplete(() {
-            if (isMounted()) {
-              isLoadingChat.value = false;
-              refreshChatData();
-            }
-          });
-        }
-      } else {
-        if (isMounted()) {
-          chat.value = null;
-          chatHook.chatId.value = null;
-          chatHook.messages.value = [];
-        }
       }
       Future(() {
         ref.read(currentChatIdProvider.notifier).update(chatHook.chatId.value);
@@ -160,7 +143,7 @@ class ChatScreen extends HookConsumerWidget {
     }, [chatHook.loading.value, chatHook.currentResponseId.value]);
 
     useEffect(() {
-      debugPrint("ChatScreen: chatHook.messages.value: ${chatHook.messages.value}");
+      debugPrint("ChatScreen: chatHook.error.value: ${chatHook.error.value}");
       if (chatHook.error.value != null) {
         if (isMounted()) {
           alert.value = Alert(
@@ -208,6 +191,8 @@ class ChatScreen extends HookConsumerWidget {
             if (isMounted()) scrollableEndIsInView.value = false;
           }
         });
+      } else {
+        if (isMounted()) scrollableEndIsInView.value = true;
       }
 
       return () {};
@@ -216,7 +201,7 @@ class ChatScreen extends HookConsumerWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: context.isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndTop,
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
         floatingActionButton: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
@@ -234,29 +219,15 @@ class ChatScreen extends HookConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (currentUserPreferences.chatSuggestions) ...[
-                  IconButton(
-                    color: context.colorScheme.onSecondary,
-                    onPressed: () {
-                      showSuggestions.value = !showSuggestions.value;
-                    },
-                    icon: FaIcon(
-                      showSuggestions.value ? FontAwesomeIcons.xmark : FontAwesomeIcons.lightbulb,
-                      size: 32,
-                    ),
-                  ),
-                  VerticalDivider(
-                    color: context.colorScheme.onSecondary,
-                    thickness: 1,
-                    width: 10,
-                  )
-                ],
                 PopupMenuButton(
                   offset: const Offset(0, 55),
                   color: context.primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                  onOpened: () {
+                    if (currentUserPreferences.hapticFeedback) HapticFeedback.mediumImpact();
+                  },
                   itemBuilder: (popupMenuContext) {
                     return [
                       PopupMenuItem(
@@ -427,20 +398,13 @@ class ChatScreen extends HookConsumerWidget {
                       PopupMenuItem(
                         onTap: () async {
                           if (chatHook.chatId.value != null) {
-                            isRefreshingChat.value = true;
-                            await ref.read(singleChatProvider(chatHook.chatId.value).notifier).deleteChat().then(
-                              (value) {
-                                if (isMounted()) {
-                                  chat.value = null;
-                                  chatHook.chatId.value = null;
-                                  chatHook.messages.value = [];
-                                }
-                                ref.read(currentChatIdProvider.notifier).update(null);
-                                popupMenuContext.go("/chat");
+                            ref.read(singleChatProvider(chatHook.chatId.value).notifier).deleteChat().catchError(
+                              (error) {
+                                debugPrint("Failed to delete chat: $error");
                               },
-                            ).whenComplete(() {
-                              if (isMounted()) isRefreshingChat.value = false;
-                            });
+                            );
+                            ref.read(currentChatIdProvider.notifier).update(null);
+                            popupMenuContext.go("/chat");
                           }
                         },
                         child: const Row(
@@ -481,43 +445,8 @@ class ChatScreen extends HookConsumerWidget {
               )
             : Stack(
                 children: [
-                  if (chatHook.messages.value.isEmpty && currentUserPreferences.chatSuggestions) ...[
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text(
-                            "Not sure what to say?",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                "Tap the ",
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              FaIcon(
-                                FontAwesomeIcons.lightbulb,
-                                color: context.secondaryColor,
-                                size: 32,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                   Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -532,7 +461,7 @@ class ChatScreen extends HookConsumerWidget {
                           itemBuilder: (context, index) {
                             if (index == 0) {
                               return const SizedBox(
-                                height: 90,
+                                height: 65,
                               );
                             }
 
@@ -553,6 +482,23 @@ class ChatScreen extends HookConsumerWidget {
                       ),
                     ],
                   ),
+                  if (chatHook.messages.value.isEmpty && currentUserPreferences.chatSuggestions) ...[
+                    Center(
+                      child: ChatSuggestions(
+                        onTap: (suggestionString) {
+                          if (currentUserPreferences.hapticFeedback) HapticFeedback.mediumImpact();
+
+                          chatHook.append(
+                            ChatMessage(
+                              id: const Uuid().v4(),
+                              content: suggestionString,
+                              role: Role.user,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -586,79 +532,18 @@ class ChatScreen extends HookConsumerWidget {
                           ),
                         ],
                         Container(
-                          decoration: BoxDecoration(
-                            color: showSuggestions.value
-                                ? context.colorScheme.background.withOpacity(0.8)
-                                : Colors.transparent,
-                          ),
-                          padding: EdgeInsets.only(
-                            top: showSuggestions.value ? 10 : 0,
+                          padding: const EdgeInsets.only(
                             bottom: 10,
                           ),
                           child: Column(
                             children: [
-                              if (showSuggestions.value) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 0,
-                                  ),
-                                  height: 75,
-                                  child: CustomScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    slivers: [
-                                      SliverPadding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        sliver: SliverList(
-                                          delegate: SliverChildBuilderDelegate(
-                                            (context, index) {
-                                              return Padding(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 5,
-                                                ),
-                                                child: ElevatedButton(
-                                                  onPressed: () {
-                                                    chatHook.append(
-                                                      ChatMessage(
-                                                        id: nanoid(),
-                                                        content: shuffledSuggestions.value[index],
-                                                        role: Role.user,
-                                                      ),
-                                                    );
-                                                    showSuggestions.value = false;
-                                                  },
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor: context.colorScheme.primary,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(10),
-                                                    ),
-                                                  ),
-                                                  child: Text(
-                                                    shuffledSuggestions.value[index],
-                                                    style: TextStyle(
-                                                      color: context.colorScheme.onPrimary,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            childCount: shuffledSuggestions.value.length,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10),
                                 child: Opacity(
-                                  opacity: 0.9,
+                                  opacity: 0.95,
                                   child: TextField(
                                     minLines: 1,
-                                    maxLines: 5,
+                                    maxLines: 4,
                                     controller: chatHook.inputController,
                                     focusNode: chatHook.inputFocusNode,
                                     onSubmitted: (value) {
@@ -670,6 +555,18 @@ class ChatScreen extends HookConsumerWidget {
                                     autocorrect: true,
                                     textCapitalization: TextCapitalization.sentences,
                                     decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                        horizontal: 25,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius: BorderRadius.circular(40),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius: BorderRadius.circular(40),
+                                      ),
                                       filled: true,
                                       fillColor: context.isDarkMode ? context.primaryColor : null,
                                       hintText: "Type a message",
@@ -680,7 +577,7 @@ class ChatScreen extends HookConsumerWidget {
                                               children: [
                                                 SpinKitWave(
                                                   color: context.colorScheme.onBackground,
-                                                  size: 20,
+                                                  size: 15,
                                                 ),
                                               ],
                                             )
@@ -690,29 +587,23 @@ class ChatScreen extends HookConsumerWidget {
                                               crossAxisAlignment: CrossAxisAlignment.center,
                                               children: [
                                                 IconButton(
-                                                  visualDensity: const VisualDensity(
-                                                    vertical: VisualDensity.minimumDensity,
-                                                    horizontal: VisualDensity.minimumDensity,
-                                                  ),
+                                                  visualDensity: VisualDensity.compact,
                                                   onPressed: () {
                                                     chatHook.reload();
                                                   },
                                                   icon: const FaIcon(
                                                     FontAwesomeIcons.arrowRotateRight,
-                                                    size: 20,
+                                                    size: 18,
                                                   ),
                                                 ),
                                                 IconButton(
-                                                  visualDensity: const VisualDensity(
-                                                    vertical: VisualDensity.minimumDensity,
-                                                    horizontal: VisualDensity.minimumDensity,
-                                                  ),
+                                                  visualDensity: VisualDensity.compact,
                                                   onPressed: () {
                                                     chatHook.handleSubmit();
                                                   },
                                                   icon: const Icon(
                                                     Icons.send,
-                                                    size: 20,
+                                                    size: 18,
                                                   ),
                                                 ),
                                               ],

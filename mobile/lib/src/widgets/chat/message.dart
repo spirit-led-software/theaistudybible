@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
-import 'package:revelationsai/src/widgets/chat/sources.dart';
+import 'package:revelationsai/src/widgets/chat/message_actions_dialog.dart';
 
 class Message extends HookConsumerWidget {
   final String? chatId;
@@ -27,109 +29,144 @@ class Message extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider).requireValue;
-    return ListTile(
-      dense: true,
-      contentPadding: const EdgeInsets.only(
-        top: 10,
-        bottom: 10,
-        left: 25,
-        right: 20,
-      ),
-      shape: Border(
-        bottom: BorderSide(
-          color: context.colorScheme.onBackground.withOpacity(0.3),
-        ),
-      ),
-      title: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+    final hapticFeedback = ref.watch(currentUserPreferencesProvider).requireValue.hapticFeedback;
+
+    return Dismissible(
+      key: ValueKey(message.uuid),
+      confirmDismiss: (direction) async {
+        return false;
+      },
+      direction: DismissDirection.endToStart,
+      dismissThresholds: const {
+        DismissDirection.endToStart: 0.95,
+      },
+      movementDuration: const Duration(milliseconds: 5),
+      resizeDuration: const Duration(milliseconds: 5),
+      background: Align(
+        alignment: Alignment.centerRight,
+        child: Container(
+          margin: const EdgeInsets.only(
+            right: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.role == Role.user) const UserAvatar() else const CircularLogo(),
-              const SizedBox(
-                width: 20,
+              Text(
+                DateFormat().add_yMd().format((message.createdAt ?? DateTime.now()).toLocal()),
               ),
-              Flexible(
-                child: Text(
-                  message.role == Role.user ? currentUser.name ?? currentUser.email : 'RevelationsAI',
-                  style: context.textTheme.bodyLarge?.copyWith(
-                    color: context.colorScheme.onBackground.withOpacity(0.75),
-                  ),
-                ),
-              ),
+              Text(DateFormat()
+                  .addPattern(DateFormat.HOUR_MINUTE)
+                  .format((message.createdAt ?? DateTime.now()).toLocal()))
             ],
           ),
-          const SizedBox(
-            height: 25,
-          ),
-          Row(
-            children: [
-              Flexible(
-                child: SelectableText.rich(
-                  TextSpan(
-                    children: <InlineSpan>[
-                      TextSpan(
-                        text: message.content.trim(),
-                      ),
-                      if (isCurrentResponse) ...[
-                        WidgetSpan(
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            margin: const EdgeInsets.only(
-                              left: 5,
-                            ),
-                            child: SpinKitSpinningLines(
-                              color: context.colorScheme.onBackground,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      ]
-                    ],
-                  ),
-                  textAlign: TextAlign.start,
-                  style: context.textTheme.bodyMedium,
-                ),
-              ),
-            ],
-          )
-        ],
-      ),
-      subtitle: Container(
-        padding: const EdgeInsets.only(
-          top: 15,
         ),
-        child: Column(
+      ),
+      child: ListTile(
+        visualDensity: RAIVisualDensity.tightest,
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 10,
+        ),
+        title: Row(
+          mainAxisAlignment: message.role == Role.user ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              DateFormat()
-                  .add_yMMMMd()
-                  .addPattern(DateFormat.HOUR_MINUTE)
-                  .format((message.createdAt ?? DateTime.now()).toLocal()),
-              style: context.textTheme.bodySmall?.copyWith(
-                color: context.colorScheme.onBackground.withOpacity(0.6),
+            if (message.role == Role.assistant) ...[
+              const CircularLogo(
+                radius: 20,
+              ),
+              const SizedBox(width: 10),
+            ],
+            Flexible(
+              child: GestureDetector(
+                onLongPress: () {
+                  if (!isLoading) {
+                    if (hapticFeedback) HapticFeedback.mediumImpact();
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return MessageActionsDialog(
+                          message: message,
+                          previousMessage: previousMessage,
+                        );
+                      },
+                    );
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: message.role == Role.user
+                        ? context.brightness == Brightness.light
+                            ? context.colorScheme.primary
+                            : context.colorScheme.secondary
+                        : context.brightness == Brightness.light
+                            ? Colors.grey.shade300
+                            : context.colorScheme.primary,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: message.role == Role.user ? const Radius.circular(20) : const Radius.circular(0),
+                      bottomRight: message.role == Role.user ? const Radius.circular(0) : const Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: context.colorScheme.shadow.withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(2, 3),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 15,
+                  ),
+                  margin: EdgeInsets.only(
+                    bottom: 15,
+                    left: message.role == Role.user ? 20 : 0,
+                    right: message.role == Role.user ? 0 : 20,
+                  ),
+                  child: Column(
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: <InlineSpan>[
+                            TextSpan(
+                              text: message.content.trim(),
+                              style: context.textTheme.bodyMedium?.copyWith(
+                                color: message.role == Role.user
+                                    ? context.colorScheme.onPrimary
+                                    : context.colorScheme.onBackground,
+                              ),
+                            ),
+                            if (isCurrentResponse) ...[
+                              WidgetSpan(
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  margin: const EdgeInsets.only(
+                                    left: 5,
+                                  ),
+                                  child: SpinKitSpinningLines(
+                                    color: context.colorScheme.onBackground,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ]
+                          ],
+                        ),
+                        textAlign: TextAlign.start,
+                        style: context.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            if (message.role == Role.assistant && !isCurrentResponse) ...[
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Sources(
-                      chatId: chatId,
-                      message: message,
-                      previousMessage: previousMessage,
-                      isChatLoading: isLoading,
-                      isCurrentResponse: isCurrentResponse,
-                    ),
-                  ),
-                ],
+            if (message.role == Role.user) ...[
+              const SizedBox(width: 10),
+              const UserAvatar(
+                radius: 20,
               ),
             ],
           ],

@@ -170,33 +170,57 @@ class ChatListItem extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentChatId = ref.watch(currentChatIdProvider);
 
-    return Container(
+    return Dismissible(
       key: ValueKey(chat.id),
-      decoration: BoxDecoration(
-        color: currentChatId == chat.id ? context.secondaryColor.withOpacity(0.2) : Colors.transparent,
+      background: Container(
+        color: context.colorScheme.error,
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
+            SizedBox(
+              width: 20,
+            ),
+          ],
+        ),
       ),
-      child: ListTile(
-        title: Text(
-          chat.name,
-          softWrap: false,
-          overflow: TextOverflow.fade,
+      direction: DismissDirection.endToStart,
+      dismissThresholds: const {
+        DismissDirection.endToStart: 0.5,
+      },
+      onDismissed: (direction) async {
+        await ref.read(chatsPagesProvider.notifier).deleteChat(chat.id);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: currentChatId == chat.id ? context.secondaryColor.withOpacity(0.2) : Colors.transparent,
         ),
-        subtitle: Text(
-          DateFormat.yMMMd().format(chat.createdAt.toLocal()),
+        child: ListTile(
+          title: Text(
+            chat.name,
+            softWrap: false,
+            overflow: TextOverflow.fade,
+          ),
+          subtitle: Text(
+            DateFormat.yMMMd().format(chat.createdAt.toLocal()),
+          ),
+          trailing: currentChatId == chat.id
+              ? Icon(
+                  Icons.check,
+                  color: context.secondaryColor,
+                )
+              : null,
+          dense: true,
+          onTap: () {
+            context.go(
+              '/chat/${chat.id}',
+            );
+            Navigator.of(context).pop();
+          },
         ),
-        trailing: currentChatId == chat.id
-            ? Icon(
-                Icons.check,
-                color: context.secondaryColor,
-              )
-            : null,
-        dense: true,
-        onTap: () {
-          context.go(
-            '/chat/${chat.id}',
-          );
-          Navigator.of(context).pop();
-        },
       ),
     );
   }
