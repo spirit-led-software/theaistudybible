@@ -49,6 +49,7 @@ class ChatScreen extends HookConsumerWidget {
     final isLoadingChat = useState(false);
     final isRefreshingChat = useState(false);
     final alert = useState<Alert?>(null);
+    final input = useState("");
 
     final chat = useState<Chat?>(null);
     final chatHook = useChat(
@@ -59,7 +60,7 @@ class ChatScreen extends HookConsumerWidget {
           await Future.delayed(const Duration(seconds: 2), () async {
             final showedReview = await inAppReviewLogic();
             if (!showedReview) {
-              await showAdvertisementLogic(ref, ad, 5, 100);
+              await showAdvertisementLogic(ref, ad, 4, 100);
             }
           });
         },
@@ -207,9 +208,11 @@ class ChatScreen extends HookConsumerWidget {
     }, [scrollController.hasClients]);
 
     useEffect(() {
-      Future.delayed(const Duration(seconds: 2), () => showAdvertisementLogic(ref, ad, 5, 100));
+      chatHook.inputController.addListener(() {
+        if (isMounted()) input.value = chatHook.inputController.text;
+      });
       return () {};
-    }, []);
+    }, [chatHook.inputController]);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: context.isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -533,6 +536,8 @@ class ChatScreen extends HookConsumerWidget {
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             child: IconButton(
                               onPressed: () {
+                                if (currentUserPreferences.hapticFeedback) HapticFeedback.mediumImpact();
+
                                 scrollController.animateTo(
                                   0,
                                   duration: const Duration(milliseconds: 300),
@@ -597,23 +602,44 @@ class ChatScreen extends HookConsumerWidget {
                                       filled: true,
                                       fillColor: context.colorScheme.background,
                                       hintText: "Type a message",
+                                      prefixIconConstraints: const BoxConstraints(
+                                        minWidth: 0,
+                                        minHeight: 0,
+                                      ),
+                                      prefixIcon: IconButton(
+                                        visualDensity: VisualDensity.compact,
+                                        style: IconButton.styleFrom(
+                                          shape: CircleBorder(
+                                            side: BorderSide(
+                                              color: context.colorScheme.onBackground.withOpacity(0.2),
+                                            ),
+                                          ),
+                                          backgroundColor: currentUser.remainingQueries < 10
+                                              ? context.colorScheme.error.withOpacity(0.2)
+                                              : null,
+                                          foregroundColor:
+                                              currentUser.remainingQueries < 10 ? context.colorScheme.error : null,
+                                        ),
+                                        onPressed: () {
+                                          context.go("/upgrade");
+                                        },
+                                        icon: Text(
+                                          currentUser.remainingQueries > 10
+                                              ? ">10"
+                                              : currentUser.remainingQueries.toString(),
+                                        ),
+                                      ),
                                       suffixIcon: chatHook.loading.value
-                                          ? Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                SpinKitWave(
-                                                  color: context.colorScheme.onBackground,
-                                                  size: 15,
-                                                ),
-                                              ],
+                                          ? SizedBox(
+                                              width: 30,
+                                              height: 30,
+                                              child: SpinKitWave(
+                                                color: context.colorScheme.onBackground,
+                                                size: 15,
+                                              ),
                                             )
-                                          : Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                IconButton(
+                                          : input.value.isEmpty
+                                              ? IconButton(
                                                   visualDensity: VisualDensity.compact,
                                                   onPressed: () {
                                                     chatHook.reload();
@@ -622,19 +648,17 @@ class ChatScreen extends HookConsumerWidget {
                                                     FontAwesomeIcons.arrowRotateRight,
                                                     size: 18,
                                                   ),
-                                                ),
-                                                IconButton(
+                                                )
+                                              : IconButton(
                                                   visualDensity: VisualDensity.compact,
                                                   onPressed: () {
                                                     chatHook.handleSubmit();
                                                   },
                                                   icon: const Icon(
-                                                    Icons.send,
+                                                    FontAwesomeIcons.arrowUp,
                                                     size: 18,
                                                   ),
                                                 ),
-                                              ],
-                                            ),
                                     ),
                                   ),
                                 ),

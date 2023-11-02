@@ -80,11 +80,6 @@ jobs:
             --dart-define REVENUECAT_PLAY_STORE_API_KEY=$REVENUECAT_PLAY_STORE_API_KEY \
             --dart-define NEW_RELIC_ANDROID_APP_TOKEN=$NEW_RELIC_ANDROID_APP_TOKEN
         working-directory: mobile
-      - name: Archive App Bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-release.aab
-          path: mobile/build/app/outputs/bundle/release/app-release.aab
       - name: Archive Obfuscation Mapping
         uses: actions/upload-artifact@v2
         with:
