@@ -143,14 +143,12 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
     await Promise.all(
       sourceDocuments.map(async (c) => {
-        if (c.distance && c.distance <= 0.7) {
-          await readWriteDatabase.insert(devotionsToSourceDocuments).values({
-            devotionId: devo!.id,
-            sourceDocumentId: c.id,
-            distance: c.distance,
-            distanceMetric: c.distanceMetric,
-          });
-        }
+        await readWriteDatabase.insert(devotionsToSourceDocuments).values({
+          devotionId: devo!.id,
+          sourceDocumentId: c.id,
+          distance: c.distance,
+          distanceMetric: c.distanceMetric,
+        });
       })
     );
 

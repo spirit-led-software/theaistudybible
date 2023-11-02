@@ -328,14 +328,12 @@ const postResponseValidationLogic = async ({
   await Promise.all([
     incrementUserQueryCount(userId),
     ...sourceDocuments.map(async (sourceDoc) => {
-      if (sourceDoc.distance && sourceDoc.distance <= 0.7) {
-        await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
-          aiResponseId: aiResponse.id,
-          sourceDocumentId: sourceDoc.id,
-          distance: sourceDoc.distance,
-          distanceMetric: sourceDoc.distanceMetric,
-        });
-      }
+      await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
+        aiResponseId: aiResponse.id,
+        sourceDocumentId: sourceDoc.id,
+        distance: sourceDoc.distance,
+        distanceMetric: sourceDoc.distanceMetric,
+      });
     }),
   ]);
 };
