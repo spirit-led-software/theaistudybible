@@ -51,6 +51,7 @@
 				</a>
 			</div>
 		</div>
+		<a href="/privacy-policy" class="text-sm text-gray-400 hover:underline">Privacy Policy</a>
 		<div
 			class="flex flex-col items-center justify-between w-1/3 pt-5 space-x-0 space-y-2 md:space-y-0 md:flex-row md:space-x-2"
 		>

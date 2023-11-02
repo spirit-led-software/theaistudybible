@@ -143,8 +143,9 @@
 				>
 					Register with Email
 				</button>
-				<div class="flex justify-between text-sm text-gray-500">
+				<div class="flex flex-col space-y-1 text-sm text-center text-gray-500">
 					<a href="/auth/login" class="hover:underline">Already have an account? Login here.</a>
+					<a href="/privacy-policy" class="hover:underline">Privacy Policy</a>
 				</div>
 			</form>
 		</div>
