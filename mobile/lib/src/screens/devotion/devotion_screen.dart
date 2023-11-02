@@ -17,6 +17,7 @@ import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
+import 'package:revelationsai/src/providers/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
@@ -36,6 +37,7 @@ class DevotionScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
+    final ad = ref.watch(interstitialAdsProvider).valueOrNull;
 
     final isMounted = useIsMounted();
     final loading = useState(false);
@@ -95,7 +97,7 @@ class DevotionScreen extends HookConsumerWidget {
       fetchDevoData(devotionId).whenComplete(() {
         if (isMounted()) {
           loading.value = false;
-          refreshDevoData();
+          Future(() => refreshDevoData());
         }
       });
 
@@ -112,7 +114,7 @@ class DevotionScreen extends HookConsumerWidget {
     }, [devotion.value]);
 
     useEffect(() {
-      advertisementLogic(ref);
+      Future.delayed(const Duration(seconds: 2), () => showAdvertisementLogic(ref, ad, 3, 100));
       return () {};
     }, []);
 

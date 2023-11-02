@@ -39,18 +39,24 @@ class RAITheme {
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
-      fillColor: Colors.grey.shade200,
+      fillColor: Colors.white,
       filled: true,
       border: OutlineInputBorder(
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(
+          color: RAIColors.primary.withOpacity(0.4),
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(
+          color: RAIColors.primary.withOpacity(0.4),
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(
+          color: RAIColors.primary.withOpacity(0.4),
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
     ),

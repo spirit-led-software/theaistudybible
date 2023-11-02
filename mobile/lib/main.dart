@@ -14,7 +14,6 @@ import 'package:newrelic_mobile/newrelic_mobile.dart';
 import 'package:revelationsai/firebase_options.dart';
 import 'package:revelationsai/src/app.dart';
 import 'package:revelationsai/src/constants/new_relic.dart';
-import 'package:revelationsai/src/utils/state_logger.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -41,6 +40,13 @@ Future<void> main() async {
   });
 
   await MobileAds.instance.initialize();
+
+  const testDeviceId = String.fromEnvironment('TEST_DEVICE_ID', defaultValue: "");
+  if (testDeviceId.isNotEmpty) {
+    await MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(testDeviceIds: [testDeviceId]),
+    );
+  }
 
   debugPrint("Removing all previous notification badges");
   await FlutterAppBadger.isAppBadgeSupported().then((value) {
@@ -73,7 +79,6 @@ Future<void> main() async {
       debugPrint('Running flutter app with New Relic');
       runApp(
         const ProviderScope(
-          observers: [StateLogger()],
           child: RAIApp(),
         ),
       );
@@ -82,7 +87,7 @@ Future<void> main() async {
     debugPrint('Running flutter app in debug mode');
     runApp(
       const ProviderScope(
-        observers: [StateLogger()],
+        // observers: [StateLogger()], // Uncomment to enable state logging
         child: RAIApp(),
       ),
     );
