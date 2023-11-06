@@ -8,14 +8,6 @@ import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
-const productIds = {
-  "rai_church_plant",
-  "rai_lead_pastor",
-  "rai_worship_leader",
-  "rai_youth_pastor",
-  "rai_serve_staff"
-};
-
 class UpgradeScreen extends HookConsumerWidget {
   const UpgradeScreen({Key? key}) : super(key: key);
 
@@ -51,8 +43,7 @@ class UpgradeScreen extends HookConsumerWidget {
     }, []);
 
     useEffect(() {
-      if (purchasesRestoreSnapshot.hasError &&
-          purchasesRestoreSnapshot.connectionState != ConnectionState.waiting) {
+      if (purchasesRestoreSnapshot.hasError && purchasesRestoreSnapshot.connectionState != ConnectionState.waiting) {
         alert.value = Alert(
           type: AlertType.error,
           message: purchasesRestoreSnapshot.error.toString(),
@@ -71,9 +62,8 @@ class UpgradeScreen extends HookConsumerWidget {
                 alert.value!.message,
                 style: TextStyle(color: context.colorScheme.onError),
               ),
-              backgroundColor: alert.value!.type == AlertType.error
-                  ? context.colorScheme.error
-                  : context.colorScheme.secondary,
+              backgroundColor:
+                  alert.value!.type == AlertType.error ? context.colorScheme.error : context.colorScheme.secondary,
               duration: const Duration(seconds: 8),
             ),
           );
@@ -112,20 +102,17 @@ class UpgradeScreen extends HookConsumerWidget {
                 ),
                 ListTile(
                   title: const Text('Restore Purchases'),
-                  subtitle: const Text(
-                      'If you have previously purchased a subscription, you can restore it here.'),
+                  subtitle: const Text('If you have previously purchased a subscription, you can restore it here.'),
                   trailing: TextButton(
                     style: TextButton.styleFrom(
                       foregroundColor: purchasesRestoreSnapshot.hasError &&
-                              purchasesRestoreSnapshot.connectionState !=
-                                  ConnectionState.waiting
+                              purchasesRestoreSnapshot.connectionState != ConnectionState.waiting
                           ? Colors.red
                           : purchasesRestored.value
                               ? Colors.green
                               : null,
                     ),
-                    child: purchasesRestoreSnapshot.connectionState ==
-                            ConnectionState.waiting
+                    child: purchasesRestoreSnapshot.connectionState == ConnectionState.waiting
                         ? const CircularProgressIndicator.adaptive()
                         : purchasesRestoreSnapshot.hasError
                             ? const FaIcon(FontAwesomeIcons.x)
@@ -133,16 +120,14 @@ class UpgradeScreen extends HookConsumerWidget {
                                 ? const FaIcon(FontAwesomeIcons.check)
                                 : const Text('Restore'),
                     onPressed: () {
-                      purchasesRestoreFuture.value =
-                          Purchases.restorePurchases().then((purchaserInfo) {
+                      purchasesRestoreFuture.value = Purchases.restorePurchases().then((purchaserInfo) {
                         debugPrint('Purchaser Info: $purchaserInfo');
                         ref.read(currentUserProvider.notifier).refresh();
                         if (isMounted()) purchasesRestored.value = true;
                       }).catchError((e) {
                         debugPrint('Encountered error on purchase: $e');
                         final errorCode = PurchasesErrorHelper.getErrorCode(e);
-                        if (errorCode !=
-                            PurchasesErrorCode.purchaseCancelledError) {
+                        if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
                           throw e;
                         }
                       });
@@ -174,8 +159,7 @@ class ProductTile extends HookConsumerWidget {
     final scaffoldMessenger = useRef(ScaffoldMessenger.of(context));
 
     useEffect(() {
-      if (purchasingSnapshot.hasError &&
-          purchasingSnapshot.connectionState != ConnectionState.waiting) {
+      if (purchasingSnapshot.hasError && purchasingSnapshot.connectionState != ConnectionState.waiting) {
         alert.value = Alert(
           type: AlertType.error,
           message: purchasingSnapshot.error.toString(),
@@ -196,9 +180,7 @@ class ProductTile extends HookConsumerWidget {
                   style: TextStyle(color: context.colorScheme.onError),
                 ),
               ),
-              backgroundColor: alert.value!.type == AlertType.error
-                  ? Colors.red
-                  : context.colorScheme.secondary,
+              backgroundColor: alert.value!.type == AlertType.error ? Colors.red : context.colorScheme.secondary,
               duration: const Duration(seconds: 8),
             ),
           );
@@ -214,8 +196,7 @@ class ProductTile extends HookConsumerWidget {
         TextSpan(text: product.title, children: [
           const WidgetSpan(child: SizedBox(width: 10)),
           TextSpan(
-            text:
-                '${product.priceString}/${(product.subscriptionPeriod ?? 'P1M').replaceFirst("P", "")}',
+            text: '${product.priceString}/${(product.subscriptionPeriod ?? 'P1M').replaceFirst("P", "")}',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -227,8 +208,7 @@ class ProductTile extends HookConsumerWidget {
       ),
       trailing: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: purchasingSnapshot.hasError &&
-                  purchasingSnapshot.connectionState != ConnectionState.waiting
+          foregroundColor: purchasingSnapshot.hasError && purchasingSnapshot.connectionState != ConnectionState.waiting
               ? Colors.red
               : purchased.value
                   ? Colors.green
@@ -242,8 +222,7 @@ class ProductTile extends HookConsumerWidget {
                     ? const FaIcon(FontAwesomeIcons.check)
                     : const Text('Purchase'),
         onPressed: () {
-          purchasingFuture.value =
-              Purchases.purchasePackage(package).then((purchaserInfo) {
+          purchasingFuture.value = Purchases.purchasePackage(package).then((purchaserInfo) {
             debugPrint('Purchaser Info: $purchaserInfo');
             if (isMounted()) purchased.value = true;
             ref.read(currentUserProvider.notifier).refresh();
