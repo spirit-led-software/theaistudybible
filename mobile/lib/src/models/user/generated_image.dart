@@ -15,10 +15,10 @@ class UserGeneratedImage with _$UserGeneratedImage {
     required DateTime createdAt,
     required DateTime updatedAt,
     required String userId,
-    required String url,
+    String? url,
     required String userPrompt,
-    required String prompt,
-    required String negativePrompt,
+    String? prompt,
+    String? negativePrompt,
     required bool failed,
   }) = _UserGeneratedImage;
 

@@ -267,6 +267,21 @@ class AccountScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 5,
                   ),
+                  Text(
+                    '${currentUser.remainingGeneratedImages}/${currentUser.maxGeneratedImages}',
+                    style: TextStyle(
+                      color: currentUser.remainingGeneratedImages <= 3 ? Colors.red : null,
+                    ),
+                  ),
+                  Text(
+                    'Images Remaining',
+                    style: TextStyle(
+                      color: currentUser.remainingGeneratedImages <= 3 ? Colors.red : null,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: RAIColors.secondary,

@@ -39,6 +39,7 @@ class TabsScaffold extends HookConsumerWidget {
           highlightColor: Colors.transparent,
         ),
         child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
           enableFeedback: hapticFeedbackEnabled,
           elevation: 10,
           items: const [

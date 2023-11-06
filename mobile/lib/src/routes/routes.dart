@@ -11,8 +11,8 @@ import 'package:revelationsai/src/screens/auth/login_screen.dart';
 import 'package:revelationsai/src/screens/auth/register_screen.dart';
 import 'package:revelationsai/src/screens/chat/chat_screen.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_screen.dart';
+import 'package:revelationsai/src/screens/images/all_images_screen.dart';
 import 'package:revelationsai/src/screens/images/image_screen.dart';
-import 'package:revelationsai/src/screens/images/images_screen.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
 import 'package:revelationsai/src/widgets/tabs_scaffold.dart';
 
@@ -172,13 +172,13 @@ List<RouteBase> routes = [
       GoRoute(
         path: "/images",
         builder: (context, state) {
-          return const ImagesScreen();
+          return const AllImagesScreen();
         },
         pageBuilder: (context, state) {
           return buildPageWithDefaultTransition(
             context: context,
             state: state,
-            child: const ImagesScreen(),
+            child: const AllImagesScreen(),
           );
         },
         routes: [

@@ -53,15 +53,21 @@ class UserGeneratedImageRepository {
   }
 
   Future<int> _save(UserGeneratedImage userGeneratedImage) async {
-    return await _isar.userGeneratedImages.put(userGeneratedImage);
+    return await _isar.writeTxn(() async {
+      return await _isar.userGeneratedImages.put(userGeneratedImage);
+    });
   }
 
   Future<List<int>> _saveMany(List<UserGeneratedImage> userGeneratedImages) async {
-    return await _isar.userGeneratedImages.putAll(userGeneratedImages);
+    return await _isar.writeTxn(() async {
+      return await _isar.userGeneratedImages.putAll(userGeneratedImages);
+    });
   }
 
-  Future<void> deleteLocal(String id) async {
-    await _isar.userGeneratedImages.delete(fastHash(id));
+  Future<bool> deleteLocal(String id) async {
+    return await _isar.writeTxn(() async {
+      return await _isar.userGeneratedImages.delete(fastHash(id));
+    });
   }
 
   Future<void> deleteRemote(String id) async {

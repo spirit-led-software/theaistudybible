@@ -9,7 +9,7 @@ part 'pages.g.dart';
 
 @Riverpod(keepAlive: true)
 class UserGeneratedImagesPages extends _$UserGeneratedImagesPages {
-  static const int pageSize = 7;
+  static const int pageSize = 11;
 
   int _page = 1;
   bool _isLoadingInitial = true;

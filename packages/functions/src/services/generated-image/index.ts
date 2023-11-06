@@ -35,8 +35,11 @@ export async function generatedImage(
         width: 512,
         height: 512,
         num_outputs: 1,
-        num_inference_steps: 100,
+        num_inference_steps: 20,
+        guidance_scale: 7,
+        scheduler: "K_EULER",
         refine: "expert_ensemble_refiner",
+        prompt_strength: 1,
       },
     });
     console.log("Output from replicate:", output);
@@ -56,7 +59,7 @@ export async function generatedImage(
       new PutObjectCommand({
         ACL: "public-read",
         ContentType: "image/png",
-        Bucket: s3Config.devotionImageBucket,
+        Bucket: s3Config.userGeneratedImageBucket,
         Key: `${userGeneratedImage.id}.png`,
       })
     );
@@ -81,6 +84,8 @@ export async function generatedImage(
     const imageUrl = s3Url.split("?")[0];
     return await updateUserGeneratedImage(userGeneratedImage.id, {
       url: imageUrl,
+      prompt,
+      negativePrompt,
     });
   } catch (error) {
     console.error(error);

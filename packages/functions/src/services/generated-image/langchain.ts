@@ -28,7 +28,7 @@ export const getImagePromptChain = async () => {
   );
 
   const retriever = await getDocumentVectorStore().then((store) =>
-    store.asRetriever(50)
+    store.asRetriever(25)
   );
   const chain = RunnableSequence.from([
     {
@@ -38,7 +38,6 @@ export const getImagePromptChain = async () => {
       )
         .pipe(
           getLargeContextModel({
-            maxTokens: 128,
             stopSequences: ["</output>"],
             promptSuffix: "<output>",
           })
@@ -47,7 +46,7 @@ export const getImagePromptChain = async () => {
     },
     {
       inappropriate: (previousStepResult) => {
-        if (previousStepResult.inappropriate === "true") {
+        if (previousStepResult.inappropriate.trim() === "true") {
           throw new Error("The prompt that was provided is inappropriate.");
         }
       },
@@ -55,7 +54,7 @@ export const getImagePromptChain = async () => {
     },
     {
       sourceDocuments: RunnableSequence.from([
-        (input) => input.topic,
+        (input) => input.userPrompt,
         retriever,
       ]),
       userPrompt: (input) => input.userPrompt,
