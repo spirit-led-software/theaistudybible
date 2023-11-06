@@ -133,7 +133,7 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
   } else if (lookupKey === "worship-leader") {
     return { queries: 75, images: 8 };
   } else if (lookupKey === "lead-pastor") {
-    return { queries: 100, images: 16 };
+    return { queries: 100, images: 20 };
   } else if (lookupKey === "church-plant") {
     return {
       queries: Number.MAX_SAFE_INTEGER,
