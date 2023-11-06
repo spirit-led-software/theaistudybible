@@ -54,8 +54,8 @@ class ImageScreen extends HookConsumerWidget {
                 return Column(
                   children: [
                     GestureDetector(
-                      onLongPress: () {
-                        Share.shareUri(
+                      onLongPress: () async {
+                        await Share.shareUri(
                           Uri.parse(image.url!),
                         );
                       },
