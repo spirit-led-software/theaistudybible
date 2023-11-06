@@ -74,10 +74,10 @@ async function createInitialRoles() {
   }
 
   console.log("Creating moderator role");
-  let moderatorRole = await getRoleByName("user");
+  let moderatorRole = await getRoleByName("moderator");
   if (!moderatorRole) {
     moderatorRole = await createRole({
-      name: "user",
+      name: "moderator",
     });
     console.log("Moderator role created");
   } else {
@@ -96,7 +96,7 @@ async function createInitialRoles() {
     console.log("Default user role created");
   } else {
     userRole = await updateRole(userRole.id, {
-      permissions: ["query:10"],
+      permissions: ["query:5"],
     });
     console.log("Default user role already exists");
   }
