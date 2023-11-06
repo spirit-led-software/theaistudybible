@@ -102,7 +102,12 @@ class AllImagesScreen extends HookConsumerWidget {
         },
         error: (error, stackTrace) {
           return Center(
-            child: Text(error.toString()),
+            child: Text(
+              error.toString(),
+              style: TextStyle(
+                color: context.colorScheme.error,
+              ),
+            ),
           );
         },
         loading: () {

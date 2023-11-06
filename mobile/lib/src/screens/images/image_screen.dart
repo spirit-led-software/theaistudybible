@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/providers/user/generated_image/single.dart';
@@ -33,12 +34,21 @@ class ImageScreen extends HookConsumerWidget {
         onRefresh: () async {
           await imageNotifier.refresh();
         },
-        child: SingleChildScrollView(
+        child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Center(
-            child: image.when(
-              loading: () => const CircularProgressIndicator(),
-              error: (err, stack) => Text(err.toString()),
+          children: [
+            image.when(
+              loading: () => SpinKitSpinningLines(
+                color: context.secondaryColor,
+              ),
+              error: (err, stack) => Center(
+                child: Text(
+                  err.toString(),
+                  style: TextStyle(
+                    color: context.colorScheme.error,
+                  ),
+                ),
+              ),
               data: (image) {
                 return Column(
                   children: [
@@ -51,18 +61,10 @@ class ImageScreen extends HookConsumerWidget {
                       child: Column(
                         children: [
                           Text(
-                            "User Prompt",
-                            style: context.textTheme.headlineMedium,
+                            image.userPrompt,
+                            style: context.textTheme.headlineSmall,
+                            textAlign: TextAlign.center,
                           ),
-                          Text(image.userPrompt),
-                          if (image.prompt != null) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              "Generated Prompt",
-                              style: context.textTheme.headlineSmall,
-                            ),
-                            Text(image.prompt!),
-                          ],
                         ],
                       ),
                     ),
@@ -70,7 +72,7 @@ class ImageScreen extends HookConsumerWidget {
                 );
               },
             ),
-          ),
+          ],
         ),
       ),
     );

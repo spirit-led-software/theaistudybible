@@ -31,8 +31,11 @@ class CreateImageDialog extends HookConsumerWidget {
           maxLines: 5,
           decoration: const InputDecoration(
             labelText: "Prompt",
-            hintText: "Ex. Jesus from revelation",
+            hintText: "Ex. Jesus from the book of Revelation",
           ),
+          autocorrect: true,
+          textCapitalization: TextCapitalization.sentences,
+          keyboardType: TextInputType.multiline,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return "Please enter a prompt";
@@ -77,7 +80,12 @@ class CreateImageDialog extends HookConsumerWidget {
                   content: Text(
                     error.toString(),
                     maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: context.colorScheme.onError,
+                    ),
                   ),
+                  backgroundColor: context.colorScheme.error,
                 ),
               );
             }).whenComplete(() {
