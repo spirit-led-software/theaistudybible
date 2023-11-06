@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:revelationsai/src/providers/user/generated_image/single.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ImageScreen extends HookConsumerWidget {
   final String id;
@@ -52,7 +53,14 @@ class ImageScreen extends HookConsumerWidget {
               data: (image) {
                 return Column(
                   children: [
-                    RAINetworkImage(imageUrl: image!.url, fallbackText: image.id),
+                    GestureDetector(
+                      onLongPress: () {
+                        Share.shareUri(
+                          Uri.parse(image.url!),
+                        );
+                      },
+                      child: RAINetworkImage(imageUrl: image!.url, fallbackText: image.id),
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: context.width * 0.05,
