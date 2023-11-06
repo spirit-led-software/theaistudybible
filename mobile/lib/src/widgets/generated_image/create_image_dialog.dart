@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/user/generated_image.dart';
 import 'package:revelationsai/src/providers/interstitial_ad.dart';
@@ -74,6 +75,9 @@ class CreateImageDialog extends HookConsumerWidget {
                 )
                 .then((value) async {
               await ref.read(userGeneratedImagesPagesProvider.notifier).refresh();
+              return value;
+            }).then((value) {
+              context.go("/images/${value.id}");
             }).catchError((error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -91,7 +95,7 @@ class CreateImageDialog extends HookConsumerWidget {
             }).whenComplete(() {
               Navigator.of(context).pop();
             });
-            showAdvertisementLogic(ref, ad, 1, 100);
+            await showAdvertisementLogic(ref, ad, 1, 100);
             await generateFuture.value;
           },
           child: generateSnapshot.hasError && generateSnapshot.connectionState != ConnectionState.waiting

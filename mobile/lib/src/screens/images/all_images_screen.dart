@@ -23,7 +23,7 @@ class AllImagesScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Generated Images"),
+        title: const Text("AI-Generated Images"),
         actions: [
           IconButton(
             onPressed: () async {
@@ -41,7 +41,6 @@ class AllImagesScreen extends HookConsumerWidget {
       body: images.when(
         data: (data) {
           final imagesFlat = data.expand((element) => element).toList();
-
           if (imagesFlat.isEmpty) {
             return const Center(
               child: Text("No images found"),
@@ -52,51 +51,50 @@ class AllImagesScreen extends HookConsumerWidget {
             onRefresh: () async {
               await imagesNotifier.refresh();
             },
-            child: GridView.builder(
-              shrinkWrap: true,
+            child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-              ),
-              itemCount: imagesFlat.length + 1,
-              itemBuilder: (context, index) {
-                if (index == imagesFlat.length) {
-                  if (imagesNotifier.isLoadingNextPage()) {
-                    return Center(
-                      child: SpinKitSpinningLines(
-                        color: context.secondaryColor,
-                        size: 30,
-                      ),
-                    );
-                  }
-
-                  if (imagesNotifier.hasNextPage()) {
-                    return Center(
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await imagesNotifier.fetchNextPage();
-                        },
-                        child: const Text("Load more"),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox();
-                  }
-                }
-
-                final image = imagesFlat[index];
-                return GestureDetector(
-                  onTap: () {
-                    context.go("/images/${image.id}");
-                  },
-                  child: RAINetworkImage(
-                    imageUrl: image.url,
-                    fallbackText: "Failed",
+              children: [
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
                   ),
-                );
-              },
+                  itemCount: imagesFlat.length,
+                  itemBuilder: (context, index) {
+                    final image = imagesFlat[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.go("/images/${image.id}");
+                      },
+                      child: RAINetworkImage(
+                        imageUrl: image.url,
+                        fallbackText: "Failed",
+                      ),
+                    );
+                  },
+                ),
+                if (imagesNotifier.isLoadingNextPage()) ...[
+                  Center(
+                    child: SpinKitSpinningLines(
+                      color: context.secondaryColor,
+                      size: 30,
+                    ),
+                  ),
+                ],
+                if (imagesNotifier.hasNextPage()) ...[
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await imagesNotifier.fetchNextPage();
+                      },
+                      child: const Text("Load more"),
+                    ),
+                  ),
+                ],
+              ],
             ),
           );
         },

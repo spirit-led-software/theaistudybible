@@ -65,6 +65,12 @@ class ImageScreen extends HookConsumerWidget {
                             style: context.textTheme.headlineSmall,
                             textAlign: TextAlign.center,
                           ),
+                          const SizedBox(height: 15),
+                          Text(
+                            "Image generation is a new feature and will not always be totally accurate. We are diligently working to improve the accuracy of the generated images by experimenting with different models.",
+                            style: context.textTheme.bodySmall,
+                            textAlign: TextAlign.center,
+                          )
                         ],
                       ),
                     ),
