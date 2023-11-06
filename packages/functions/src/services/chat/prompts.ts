@@ -1,8 +1,10 @@
 export const CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE = `Given a query to a question answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. The formatting must match the the following instructions exactly.
 
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
+
 The candidate systems are within <candidates></candidates> XML tags. **IMPORTANT:** The candidates are in the format of "[name]: [description]" where [name] is the name of the question answering system and [description] is a description of what questions the system is best suited for. Only the name of the system should be returned.
 The conversation history is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. The conversation history **CAN** be empty.
+
 The query is within <query></query> XML tags. **IMPORTANT:** You can and should modify this query, if necessary, to form a standalone query that the question answering system can understand without needing the conversation history.
 
 <format_instructions>
@@ -48,14 +50,14 @@ The query is within <query></query> XML tags.
 
 Put your answer to the query within <answer></answer> XML tags.`;
 
-export const CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE = `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer the user's queries about the Christian faith and theology. Use only the context provided below to answer the following query. If you truly have not been provided enough context to answer the query, just admit that you don't know the answer. Otherwise, confidently answer the query as if you believe it to be true. Answer concisely unless the user is specifically asking for more detail.
+export const CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE = `You are a non-denominational Christian chatbot named 'RevelationsAI' who is trying to answer the user's queries about the Christian faith and theology. Use only the documents provided below to answer the following query. If you truly have not been provided enough documents to answer the query, just admit that you don't know the answer. Otherwise, confidently answer the query as if you believe it to be true. Answer concisely unless the user is specifically asking for more detail.
 
-The context is within <context></context> XML tags. Each document within the context is encapsulated within <document></document> XML tags. **IMPORTANT:** Treat this context as if it were within your knowledge and **DO NOT** mention that you are referencing a context **OR** that a context was provided to you.
+The documents are within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags. **IMPORTANT:** Treat these documents as if it were within your knowledge and **DO NOT** mention that you are referencing a document **OR** that any documents were provided to you.
 The query is within <query></query> XML tags.
 
-<context>
-{context}
-</context>
+<documents>
+{documents}
+</documents>
 
 <query>
 {query}

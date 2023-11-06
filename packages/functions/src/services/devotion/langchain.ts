@@ -60,7 +60,7 @@ export const getDevotionGeneratorChain = async (): Promise<
     {
       sourceDocuments: (previousStepResult) =>
         previousStepResult.sourceDocuments,
-      context: (previousStepResult) =>
+      documents: (previousStepResult) =>
         previousStepResult.sourceDocuments
           .map((d: Document) => `<document>\n${d.pageContent}\n</document>`)
           .join("\n"),
@@ -125,7 +125,7 @@ export const getBibleReadingChain = async () => {
       topic: (input) => input.topic,
     },
     {
-      context: (previousStepResult) =>
+      documents: (previousStepResult) =>
         previousStepResult.sourceDocuments
           .map((d: Document) => `<document>\n${d.pageContent}\n</document>`)
           .join("\n"),
@@ -141,7 +141,7 @@ export const getBibleReadingChain = async () => {
             orderBy: desc(devotions.createdAt),
           })
         )
-          .map((d) => `<previous_bible_reading>\n${d.bibleReading}\n</previous_bible_reading>`)
+          .map((d) => `<bible_reading>\n${d.bibleReading}\n</bible_reading>`)
           .join("\n"),
         formatInstructions: outputParser.getFormatInstructions(),
       },

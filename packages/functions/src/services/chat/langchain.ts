@@ -161,7 +161,7 @@ export const getRAIChatChain = async (
       sourceDocuments: (previousStepResult) =>
         previousStepResult.sourceDocuments,
       query: (previousStepResult) => previousStepResult.query,
-      context: (previousStepResult) =>
+      documents: (previousStepResult) =>
         previousStepResult.sourceDocuments
           ?.map(
             (sourceDoc: Document) =>
