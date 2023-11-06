@@ -42,8 +42,12 @@ export function API({ stack, app }: StackContext) {
     invokeBedrockPolicy,
   } = use(Constants);
   const { auth } = use(Auth);
-  const { indexFileBucket, devotionImageBucket, userProfilePictureBucket } =
-    use(S3);
+  const {
+    indexFileBucket,
+    devotionImageBucket,
+    userProfilePictureBucket,
+    userGeneratedImageBucket,
+  } = use(S3);
   const {
     dbReadOnlyUrl,
     dbReadWriteUrl,
@@ -327,6 +331,27 @@ export function API({ stack, app }: StackContext) {
           },
         },
       },
+
+      // User generated images
+      "GET /generated-images":
+        "packages/functions/src/rest/generated-images/get.handler",
+      "POST /generated-images": {
+        function: {
+          handler: "packages/functions/src/rest/generated-images/post.handler",
+          bind: [userGeneratedImageBucket],
+          permissions: [userGeneratedImageBucket, invokeBedrockPolicy],
+          memorySize: "1 GB",
+          timeout: "5 minutes",
+          environment: {
+            ...lambdaEnv,
+            USER_GENERATED_IMAGE_BUCKET: userGeneratedImageBucket.bucketName,
+          },
+        },
+      },
+      "GET /generated-images/{id}":
+        "packages/functions/src/rest/generated-images/[id]/get.handler",
+      "DELETE /generated-images/{id}":
+        "packages/functions/src/rest/generated-images/[id]/delete.handler",
 
       // Vector similarity search
       "POST /vector-search": {

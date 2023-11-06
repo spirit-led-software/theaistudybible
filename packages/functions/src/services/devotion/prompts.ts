@@ -48,7 +48,7 @@ The formatting instructions are within <format_instructions></format_instruction
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
 
-export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Start with what should or shouldn't be in the image and then follow it with adjectives to describe the image. Base it on the devotion below. Some examples of prompts are also given below. Your output should match the formatting instructions exactly.
+export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Start with what should or shouldn't be in the image and then follow it with adjectives to describe the image's style and attributes. Base it on the devotion below. Some examples of prompts are also given below. Your output should match the formatting instructions exactly.
       
 The examples are given within <examples></examples> XML tags.
 

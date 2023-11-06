@@ -11,6 +11,8 @@ import 'package:revelationsai/src/screens/auth/login_screen.dart';
 import 'package:revelationsai/src/screens/auth/register_screen.dart';
 import 'package:revelationsai/src/screens/chat/chat_screen.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_screen.dart';
+import 'package:revelationsai/src/screens/images/image_screen.dart';
+import 'package:revelationsai/src/screens/images/images_screen.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
 import 'package:revelationsai/src/widgets/tabs_scaffold.dart';
 
@@ -70,9 +72,7 @@ List<RouteBase> routes = [
     builder: (context, state) {
       if (state.uri.queryParameters.containsKey('token')) {
         final token = state.uri.queryParameters['token'];
-        ProviderScope.containerOf(context)
-            .read(currentUserProvider.notifier)
-            .loginWithToken(token!);
+        ProviderScope.containerOf(context).read(currentUserProvider.notifier).loginWithToken(token!);
       }
       return const SplashScreen();
     },
@@ -163,6 +163,38 @@ List<RouteBase> routes = [
                 state: state,
                 child: ChatScreen(
                   initChatId: state.pathParameters['id'],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      GoRoute(
+        path: "/images",
+        builder: (context, state) {
+          return const ImagesScreen();
+        },
+        pageBuilder: (context, state) {
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: const ImagesScreen(),
+          );
+        },
+        routes: [
+          GoRoute(
+            path: ":id",
+            builder: (context, state) {
+              return ImageScreen(
+                id: state.pathParameters['id']!,
+              );
+            },
+            pageBuilder: (context, state) {
+              return buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: ImageScreen(
+                  id: state.pathParameters['id']!,
                 ),
               );
             },

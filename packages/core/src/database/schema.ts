@@ -404,3 +404,69 @@ export const usersToRoles = pgTable(
     };
   }
 );
+
+export const userGeneratedImages = pgTable(
+  "user_generated_images",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    url: text("url"),
+    userPrompt: text("user_prompt").notNull(),
+    prompt: text("prompt"),
+    negativePrompt: text("negative_prompt"),
+    failed: boolean("failed").notNull().default(false),
+  },
+  (table) => {
+    return {
+      userIdIdx: index("user_generated_images_user_id").on(table.userId),
+    };
+  }
+);
+
+export const userGeneratedImagesRelations = relations(
+  userGeneratedImages,
+  ({ one }) => {
+    return {
+      user: one(users, {
+        fields: [userGeneratedImages.userId],
+        references: [users.id],
+      }),
+    };
+  }
+);
+
+export const userGeneratedImageCounts = pgTable(
+  "user_generated_image_counts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    date: date("date", { mode: "date" }).notNull().defaultNow(),
+    count: integer("count").notNull().default(0),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  },
+  (table) => {
+    return {
+      dateIdx: index("user_generated_images_counts_date").on(table.date),
+      userIdIdx: index("user_generated_images_counts_user_id").on(table.userId),
+    };
+  }
+);
+
+export const userGeneratedImageCountsRelations = relations(
+  userGeneratedImageCounts,
+  ({ one }) => {
+    return {
+      user: one(users, {
+        fields: [userGeneratedImageCounts.userId],
+        references: [users.id],
+      }),
+    };
+  }
+);

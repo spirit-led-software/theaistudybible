@@ -2,6 +2,7 @@ import 'package:revelationsai/src/providers/ai_response/repositories.dart';
 import 'package:revelationsai/src/providers/chat/repositories.dart';
 import 'package:revelationsai/src/providers/devotion/repositories.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/providers/user/generated_image/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'repo_initialization.g.dart';
@@ -18,4 +19,6 @@ Future<void> repositoryInitialization(RepositoryInitializationRef ref) async {
   await ref.watch(devotionImageRepositoryProvider.future);
   await ref.watch(devotionReactionRepositoryProvider.future);
   await ref.watch(devotionSourceDocumentRepositoryProvider.future);
+
+  await ref.watch(userGeneratedImageRepositoryProvider.future);
 }

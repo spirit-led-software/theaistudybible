@@ -15,10 +15,12 @@ class TabsScaffold extends HookConsumerWidget {
 
     if (path.startsWith("/chat")) {
       return 0;
-    } else if (path.startsWith("/devotions")) {
+    } else if (path.startsWith("/images")) {
       return 1;
-    } else if (path.startsWith("/account") || path.startsWith("/upgrade")) {
+    } else if (path.startsWith("/devotions")) {
       return 2;
+    } else if (path.startsWith("/account") || path.startsWith("/upgrade")) {
+      return 3;
     } else {
       return 0;
     }
@@ -45,6 +47,10 @@ class TabsScaffold extends HookConsumerWidget {
               label: "Chat",
             ),
             BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.camera_fill),
+              label: "Images",
+            ),
+            BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.book_fill),
               label: "Devos",
             ),
@@ -63,9 +69,12 @@ class TabsScaffold extends HookConsumerWidget {
                 context.go("/chat");
                 break;
               case 1:
-                context.go("/devotions");
+                context.go("/images");
                 break;
               case 2:
+                context.go("/devotions");
+                break;
+              case 3:
                 context.go("/account");
                 break;
               default:

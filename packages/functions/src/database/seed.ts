@@ -68,7 +68,10 @@ async function createInitialRoles() {
     console.log("Admin role created");
   } else {
     adminRole = await updateRole(adminRole.id, {
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`],
+      permissions: [
+        `query:${Number.MAX_SAFE_INTEGER}`,
+        `image:${Number.MAX_SAFE_INTEGER}`,
+      ],
     });
     console.log("Admin role already exists");
   }
@@ -82,7 +85,7 @@ async function createInitialRoles() {
     console.log("Moderator role created");
   } else {
     moderatorRole = await updateRole(moderatorRole.id, {
-      permissions: ["query:500"],
+      permissions: ["query:500", "image:500"],
     });
     console.log("Moderator role already exists");
   }
@@ -96,7 +99,7 @@ async function createInitialRoles() {
     console.log("Default user role created");
   } else {
     userRole = await updateRole(userRole.id, {
-      permissions: ["query:5"],
+      permissions: ["query:5", "image:1"],
     });
     console.log("Default user role already exists");
   }
