@@ -10,7 +10,7 @@
     "_applicationInternalID" : "6463644660",
     "_developerTeamID" : "YZKN4XY7PB",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 717337818.315552,
+    "_lastSynchronizedDate" : 720960137.71354795,
     "_locale" : "en_US",
     "_storefront" : "USA",
     "_storeKitErrors" : [
@@ -79,14 +79,39 @@
           "codeOffers" : [
 
           ],
+          "displayPrice" : "0.99",
+          "familyShareable" : true,
+          "groupNumber" : 6,
+          "internalID" : "6471383310",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Send 10 messages per day.",
+              "displayName" : "Church Member Plan",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "rai_church_member",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Church Member Plan",
+          "subscriptionGroupID" : "21392160",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
           "displayPrice" : "19.99",
-          "familyShareable" : false,
-          "groupNumber" : 5,
+          "familyShareable" : true,
+          "groupNumber" : 1,
           "internalID" : "6467642245",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Unlimited Daily Queries and Ad Free",
+              "description" : "Send unlimited messages per day without ads.",
               "displayName" : "Church Plant Plan",
               "locale" : "en_US"
             }
@@ -105,14 +130,14 @@
 
           ],
           "displayPrice" : "9.99",
-          "familyShareable" : false,
-          "groupNumber" : 4,
+          "familyShareable" : true,
+          "groupNumber" : 2,
           "internalID" : "6467642101",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "100 Daily Queries and Ad Free",
-              "displayName" : "Lead Pastor Plan",
+              "description" : "Send 100 messages per day without ads.",
+              "displayName" : "Lead Pastor Plan ",
               "locale" : "en_US"
             }
           ],
@@ -131,12 +156,17 @@
           ],
           "displayPrice" : "1.99",
           "familyShareable" : true,
-          "groupNumber" : 1,
+          "groupNumber" : 5,
           "internalID" : "6467641983",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "20 Daily Queries and Ad Free",
+              "description" : "Send 20 messages per day without ads.",
+              "displayName" : "Serve Staff Plan",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Send 25 messages per day without ads.",
               "displayName" : "Serve Staff Plan",
               "locale" : "en_US"
             }
@@ -155,14 +185,14 @@
 
           ],
           "displayPrice" : "6.99",
-          "familyShareable" : false,
+          "familyShareable" : true,
           "groupNumber" : 3,
           "internalID" : "6467642096",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "75 Daily Queries and Ad Free",
-              "displayName" : "Worship Leader Plan",
+              "description" : "Send 75 messages per day without ads.",
+              "displayName" : "Worship Leader Plan ",
               "locale" : "en_US"
             }
           ],
@@ -180,13 +210,13 @@
 
           ],
           "displayPrice" : "4.99",
-          "familyShareable" : false,
-          "groupNumber" : 2,
+          "familyShareable" : true,
+          "groupNumber" : 4,
           "internalID" : "6467642174",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "50 Daily Queries and Ad Free",
+              "description" : "Send 50 messages a day with no ads. ",
               "displayName" : "Youth Pastor Plan",
               "locale" : "en_US"
             }

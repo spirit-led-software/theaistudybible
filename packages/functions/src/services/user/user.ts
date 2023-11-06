@@ -138,7 +138,7 @@ export function getUserMaxQueries(userWithRoles: UserWithRoles) {
     if (queryPermission) queryPermissions.push(queryPermission);
   });
   const maxQueries = Math.max(
-    10,
+    5,
     ...queryPermissions.map((p) => parseInt(p.split(":")[1]))
   );
   return maxQueries;

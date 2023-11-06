@@ -121,8 +121,10 @@ type RCEntitlement = {
 };
 
 function getQueryCountFromEntitlementLookupKey(lookupKey: string): number {
-  if (lookupKey === "serve-staff") {
-    return 20;
+  if (lookupKey === "church-member") {
+    return 10;
+  } else if (lookupKey === "serve-staff") {
+    return 25;
   } else if (lookupKey === "youth-pastor") {
     return 50;
   } else if (lookupKey === "worship-leader") {
@@ -132,7 +134,7 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): number {
   } else if (lookupKey === "church-plant") {
     return Number.MAX_SAFE_INTEGER;
   } else {
-    return 10;
+    return 5;
   }
 }
 
