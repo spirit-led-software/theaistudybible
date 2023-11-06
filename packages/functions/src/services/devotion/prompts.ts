@@ -1,7 +1,7 @@
 export const DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE = `You need to find a Bible reading within the following context and based on the following topic. Your output should match the formatting instructions exactly.
 
 The most recent previous bible readings are within <previous_bible_readings></previous_bible_readings> XML tags. Each previous bible reading is encapsulated within <previous_bible_reading></previous_bible_reading> XML tags. **IMPORTANT:** The Bible reading you retrieve **SHOULD NOT** match any of the previous Bible readings.
-The context is within <context></context> XML tags. Each document within the context is encapsulated within <document></document> XML tags.
+The context is within <context></context> XML tags. Each document within the context is encapsulated within <document></document> XML tags. **IMPORTANT:** These documents are where you are to pull your Bible reading from!!
 The topic is within <topic></topic> XML tags.
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
 
