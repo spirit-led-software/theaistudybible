@@ -28,7 +28,7 @@ export async function generatedImage(
     const prompt = `${chainResult.join(
       ", "
     )}, photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D`;
-    const negativePrompt = `ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes`;
+    const negativePrompt = `ugly, blurry, low quality, cartoon, drawing, painting, frame, black and white, words, letters, extra limbs, extra fingers, extra toes`;
 
     const replicate = new Replicate({
       auth: replicateConfig.apiKey,
