@@ -33,7 +33,10 @@ class UserGeneratedImageService {
     });
   }
 
-  static Future<UserGeneratedImage> getUserGeneratedImage({required String id, required String session}) async {
+  static Future<UserGeneratedImage> getUserGeneratedImage({
+    required String id,
+    required String session,
+  }) async {
     final response = await http.get(
       Uri.parse('${API.url}/generated-images/$id'),
       headers: {
@@ -41,14 +44,18 @@ class UserGeneratedImageService {
       },
     );
     if (response.statusCode == 200) {
-      return UserGeneratedImage.fromJson(jsonDecode(response.body));
+      return UserGeneratedImage.fromJson(
+        jsonDecode(utf8.decode(response.bodyBytes)),
+      );
     } else {
       throw Exception('Failed to load user generated image');
     }
   }
 
-  static Future<UserGeneratedImage> createUserGeneratedImage(
-      {required String session, required CreateUserGeneratedImageRequest request}) async {
+  static Future<UserGeneratedImage> createUserGeneratedImage({
+    required String session,
+    required CreateUserGeneratedImageRequest request,
+  }) async {
     final response = await http.post(
       Uri.parse('${API.url}/generated-images'),
       headers: {
@@ -65,7 +72,10 @@ class UserGeneratedImageService {
     return UserGeneratedImage.fromJson(data);
   }
 
-  static Future<void> deleteUserGeneratedImage({required String id, required String session}) async {
+  static Future<void> deleteUserGeneratedImage({
+    required String id,
+    required String session,
+  }) async {
     final response = await http.delete(
       Uri.parse('${API.url}/generated-images/$id'),
       headers: {
