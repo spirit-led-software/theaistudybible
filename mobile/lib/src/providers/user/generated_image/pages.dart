@@ -9,7 +9,7 @@ part 'pages.g.dart';
 
 @Riverpod(keepAlive: true)
 class UserGeneratedImagesPages extends _$UserGeneratedImagesPages {
-  static const int pageSize = 11;
+  static const int pageSize = 12;
 
   int _page = 1;
   bool _isLoadingInitial = true;
@@ -39,7 +39,7 @@ class UserGeneratedImagesPages extends _$UserGeneratedImagesPages {
   }
 
   bool hasNextPage() {
-    return (state.value?.last.length ?? 0) >= 7;
+    return (state.value?.last.length ?? 0) >= pageSize;
   }
 
   Future<void> fetchNextPage() async {

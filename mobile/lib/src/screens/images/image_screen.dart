@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/providers/user/generated_image/single.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -17,6 +19,9 @@ class ImageScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final imageNotifier = ref.watch(singleUserGeneratedImageProvider(id).notifier);
     final image = ref.watch(singleUserGeneratedImageProvider(id));
+
+    final showImageActions = useState(false);
+    final downloaded = useState(false);
 
     useEffect(() {
       imageNotifier.refresh();
@@ -54,12 +59,63 @@ class ImageScreen extends HookConsumerWidget {
                 return Column(
                   children: [
                     GestureDetector(
-                      onLongPress: () async {
-                        await Share.shareUri(
-                          Uri.parse(image.url!),
-                        );
+                      onTap: () {
+                        showImageActions.value = !showImageActions.value;
                       },
-                      child: RAINetworkImage(imageUrl: image!.url, fallbackText: image.id),
+                      child: Stack(
+                        children: [
+                          RAINetworkImage(
+                            imageUrl: image!.url,
+                            fallbackText: image.id,
+                          ),
+                          if (showImageActions.value) ...[
+                            Positioned.fill(
+                              child: Container(
+                                color: context.colorScheme.background.withOpacity(0.5),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      final res = await http.get(Uri.parse(image.url!));
+                                      await ImageGallerySaver.saveImage(
+                                        res.bodyBytes,
+                                        name: image.id,
+                                      );
+                                      downloaded.value = true;
+                                      Future.delayed(
+                                        const Duration(seconds: 5),
+                                        () {
+                                          downloaded.value = false;
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(
+                                      downloaded.value ? Icons.check : Icons.download,
+                                      color: downloaded.value ? Colors.green : context.colorScheme.onBackground,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      await Share.shareUri(
+                                        Uri.parse(image.url!),
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.share,
+                                      color: context.colorScheme.onBackground,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ]
+                        ],
+                      ),
                     ),
                     Container(
                       padding: EdgeInsets.symmetric(
@@ -75,7 +131,7 @@ class ImageScreen extends HookConsumerWidget {
                           ),
                           const SizedBox(height: 15),
                           Text(
-                            "Image generation is a new feature and will not always be totally accurate. We are diligently working to improve the accuracy of the generated images by experimenting with different models.",
+                            "Image generation is a new feature and will not always be totally accurate. We are diligently working to improve the accuracy of the generated images by experimenting with different models and prompts.",
                             style: context.textTheme.bodySmall,
                             textAlign: TextAlign.center,
                           )

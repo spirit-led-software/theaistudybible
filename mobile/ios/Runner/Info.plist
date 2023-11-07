@@ -74,7 +74,8 @@
 			<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		</array>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>RevelationsAI uses your photo library to upload profile pictures for your account.</string>
+		<string>RevelationsAI uses your photo library to upload profile pictures for your account and
+			download AI generated images.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>RevelationsAI uses your camera to take profile pictures for your account.</string>
 		<key>NSMicrophoneUsageDescription</key>

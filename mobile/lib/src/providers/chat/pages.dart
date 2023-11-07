@@ -38,7 +38,7 @@ class ChatsPages extends _$ChatsPages {
   }
 
   bool hasNextPage() {
-    return (state.value?.last.length ?? 0) >= 7;
+    return (state.value?.last.length ?? 0) >= pageSize;
   }
 
   Future<void> fetchNextPage() async {
