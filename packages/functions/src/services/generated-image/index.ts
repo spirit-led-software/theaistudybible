@@ -25,7 +25,7 @@ export async function generatedImage(
       userPrompt,
     });
     const prompt = `${userPrompt}. ${chainResult.join(
-      ","
+      ", "
     )}. Photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`;
     const negativePrompt = `Ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`;
 
