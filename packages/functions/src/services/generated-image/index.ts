@@ -25,7 +25,7 @@ export async function generatedImage(
       userPrompt,
     });
 
-    const prompt = `${chainResult.join(
+    const prompt = `${userPrompt}, ${chainResult.join(
       ", "
     )}, photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D`;
     const negativePrompt = `ugly, blurry, low quality, cartoon, drawing, painting, frame, black and white, words, letters, extra limbs, extra fingers, extra toes`;
@@ -40,11 +40,11 @@ export async function generatedImage(
         width: 512,
         height: 512,
         num_outputs: 1,
-        num_inference_steps: 40,
-        guidance_scale: 7,
+        num_inference_steps: 150,
+        guidance_scale: 7.5,
         scheduler: "K_EULER",
         refine: "expert_ensemble_refiner",
-        prompt_strength: 0.8,
+        prompt_strength: 1,
       },
     });
     console.log("Output from replicate:", output);

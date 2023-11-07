@@ -15,7 +15,7 @@ export const getImagePromptChain = async () => {
   const outputParser = StructuredOutputParser.fromZodSchema(
     z
       .array(z.string())
-      .length(4)
+      .length(3)
       .describe(
         "A short, concise, yet descriptive phrase that will help generate a biblically accurate image."
       )
