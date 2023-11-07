@@ -24,6 +24,7 @@ export async function generatedImage(
     const chainResult = await chain.invoke({
       userPrompt,
     });
+
     const prompt = `${chainResult.join(
       ", "
     )}, photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D`;
