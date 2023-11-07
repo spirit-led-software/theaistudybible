@@ -50,6 +50,21 @@ class AllImagesScreen extends HookConsumerWidget {
           ),
           IconButton(
             onPressed: () async {
+              if (currentUser.remainingGeneratedImages < 1) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "You have no remaining generated images. Please upgrade your account.",
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onError,
+                      ),
+                    ),
+                    backgroundColor: context.colorScheme.error,
+                  ),
+                );
+                context.go("/upgrade");
+                return;
+              }
               await showDialog(
                 context: context,
                 builder: (context) {

@@ -67,6 +67,44 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
+    final submit = useCallback(() {
+      if (currentUser.remainingQueries < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "You have no remaining queries. Please upgrade your account.",
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colorScheme.onError,
+              ),
+            ),
+            backgroundColor: context.colorScheme.error,
+          ),
+        );
+        context.go("/upgrade");
+        return;
+      }
+      chatHook.handleSubmit();
+    }, [context, currentUser, chatHook.handleSubmit]);
+
+    final reload = useCallback(() {
+      if (currentUser.remainingQueries < 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "You have no remaining queries. Please upgrade your account.",
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colorScheme.onError,
+              ),
+            ),
+            backgroundColor: context.colorScheme.error,
+          ),
+        );
+        context.go("/upgrade");
+        return;
+      }
+      chatHook.reload();
+    }, [context, currentUser, chatHook.reload]);
+
     final refreshChatData = useCallback(() async {
       await Future.wait([
         ref.read(singleChatProvider(chatHook.chatId.value).notifier).refresh(),
@@ -575,7 +613,7 @@ class ChatScreen extends HookConsumerWidget {
                                     controller: chatHook.inputController,
                                     focusNode: chatHook.inputFocusNode,
                                     onSubmitted: (value) {
-                                      chatHook.handleSubmit();
+                                      submit();
                                     },
                                     onTapOutside: (event) {
                                       chatHook.inputFocusNode.unfocus();
@@ -640,7 +678,7 @@ class ChatScreen extends HookConsumerWidget {
                                               ? IconButton(
                                                   visualDensity: VisualDensity.compact,
                                                   onPressed: () {
-                                                    chatHook.reload();
+                                                    reload();
                                                   },
                                                   icon: const FaIcon(
                                                     FontAwesomeIcons.arrowRotateRight,
@@ -650,7 +688,7 @@ class ChatScreen extends HookConsumerWidget {
                                               : IconButton(
                                                   visualDensity: VisualDensity.compact,
                                                   onPressed: () {
-                                                    chatHook.handleSubmit();
+                                                    submit();
                                                   },
                                                   icon: const Icon(
                                                     FontAwesomeIcons.arrowUp,
