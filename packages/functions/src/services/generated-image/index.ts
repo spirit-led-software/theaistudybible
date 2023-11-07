@@ -44,7 +44,7 @@ export async function generatedImage(
         refine: "expert_ensemble_refiner",
         num_inference_steps: 50,
         guidance_scale: 7.5,
-        prompt_strength: 1,
+        prompt_strength: 1.0,
         high_noise_frac: 0.8,
       },
     });
