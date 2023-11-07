@@ -42,7 +42,7 @@ export async function generatedImage(
         num_outputs: 1,
         scheduler: "KarrasDPM",
         refine: "expert_ensemble_refiner",
-        num_inference_steps: 25,
+        num_inference_steps: 50,
         guidance_scale: 7.5,
         prompt_strength: 1,
         high_noise_frac: 0.8,
