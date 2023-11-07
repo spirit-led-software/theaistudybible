@@ -37,14 +37,14 @@ export async function generatedImage(
       input: {
         prompt,
         negative_prompt: negativePrompt,
-        width: 512,
-        height: 512,
+        width: 1024,
+        height: 1024,
         num_outputs: 1,
         scheduler: "KarrasDPM",
         refine: "expert_ensemble_refiner",
         num_inference_steps: 50,
         guidance_scale: 7.5,
-        prompt_strength: 1,
+        prompt_strength: 0.9,
         high_noise_frac: 0.8,
       },
     });
