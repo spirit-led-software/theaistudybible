@@ -88,14 +88,12 @@ class ImageScreen extends HookConsumerWidget {
                                       await ImageGallerySaver.saveImage(
                                         res.bodyBytes,
                                         name: image.id,
+                                        quality: 100,
                                       );
                                       if (isMounted()) downloaded.value = true;
-                                      Future.delayed(
-                                        const Duration(seconds: 5),
-                                        () {
-                                          if (isMounted()) downloaded.value = false;
-                                        },
-                                      );
+                                      Future.delayed(const Duration(seconds: 5), () {
+                                        if (isMounted()) downloaded.value = false;
+                                      });
                                     },
                                     iconSize: 40,
                                     icon: Icon(
