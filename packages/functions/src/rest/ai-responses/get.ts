@@ -7,7 +7,7 @@ import {
 } from "@lib/api-responses";
 import { getAiResponses } from "@services/ai-response";
 import { validApiHandlerSession } from "@services/session";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -16,6 +16,7 @@ export const handler = ApiHandler(async (event) => {
   const page = parseInt(searchParams.page ?? "1");
   const orderBy = searchParams.orderBy ?? "createdAt";
   const order = searchParams.order ?? "desc";
+  const includeFailed = searchParams.includeFailed === "true";
 
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
@@ -24,7 +25,10 @@ export const handler = ApiHandler(async (event) => {
     }
 
     const aiResponses = await getAiResponses({
-      where: eq(aiResponsesTable.userId, userWithRoles.id),
+      where: and(
+        eq(aiResponsesTable.userId, userWithRoles.id),
+        includeFailed ? undefined : eq(aiResponsesTable.failed, false)
+      ),
       orderBy: buildOrderBy(aiResponsesTable, orderBy, order),
       offset: (page - 1) * limit,
       limit,

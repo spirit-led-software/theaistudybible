@@ -17,6 +17,7 @@ export const handler = ApiHandler(async (event) => {
   const orderBy = searchParams.orderBy ?? "createdAt";
   const order = searchParams.order ?? "desc";
   const query = JSON.parse(event.body ?? "{}");
+  const includeFailed = searchParams.includeFailed === "true";
 
   console.log("Received AI response search request: ", {
     query: JSON.stringify(query),
@@ -35,7 +36,8 @@ export const handler = ApiHandler(async (event) => {
     const responses = await getAiResponses({
       where: and(
         buildQuery(aiResponses, query),
-        eq(aiResponses.userId, userWithRoles.id)
+        eq(aiResponses.userId, userWithRoles.id),
+        includeFailed ? undefined : eq(aiResponses.failed, false)
       ),
       limit,
       offset: (page - 1) * limit,
