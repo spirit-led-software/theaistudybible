@@ -21,10 +21,10 @@ export async function generatedImage(
     });
 
     const chain = await getImagePromptChain();
-    const result = await chain.invoke({
+    const chainResult = await chain.invoke({
       userPrompt,
     });
-    const prompt = `${userPrompt}. ${result.join(
+    const prompt = `${userPrompt}. ${chainResult.join(
       ","
     )}. Photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`;
     const negativePrompt = `Ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`;
