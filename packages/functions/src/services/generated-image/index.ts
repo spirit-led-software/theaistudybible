@@ -24,10 +24,10 @@ export async function generatedImage(
     const chainResult = await chain.invoke({
       userPrompt,
     });
-    const prompt = `${userPrompt}. ${chainResult.join(
+    const prompt = `${chainResult.join(
       ", "
-    )}. Photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`;
-    const negativePrompt = `Ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`;
+    )}, photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D`;
+    const negativePrompt = `ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes`;
 
     const replicate = new Replicate({
       auth: replicateConfig.apiKey,
