@@ -12,21 +12,14 @@ import {
 } from "./prompts";
 
 export const getImagePromptChain = async () => {
-  const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
-    z.object({
-      prompt: z
-        .string()
-        .describe(
-          "The image generation prompt. Between 800 and 1000 characters in length."
-        ),
-      negativePrompt: z
-        .string()
-        .describe(
-          "The negative image generation prompt. Between 800 and 1000 characters in length."
-        ),
-    })
+  const outputParser = StructuredOutputParser.fromZodSchema(
+    z
+      .array(z.string())
+      .length(5)
+      .describe(
+        "A short, concise, yet descriptive phrase that will help generate a biblically accurate image."
+      )
   );
-
   const retriever = await getDocumentVectorStore().then((store) =>
     store.asRetriever(25)
   );
@@ -70,7 +63,7 @@ export const getImagePromptChain = async () => {
       template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
       inputVariables: ["userPrompt", "documents"],
       partialVariables: {
-        formatInstructions: imagePromptOutputParser.getFormatInstructions(),
+        formatInstructions: outputParser.getFormatInstructions(),
       },
     })
       .pipe(
@@ -80,7 +73,7 @@ export const getImagePromptChain = async () => {
           promptSuffix: "<output>",
         })
       )
-      .pipe(imagePromptOutputParser),
+      .pipe(outputParser),
   ]);
 
   return chain;

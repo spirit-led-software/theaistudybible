@@ -21,25 +21,29 @@ export async function generatedImage(
     });
 
     const chain = await getImagePromptChain();
-    const { prompt, negativePrompt } = await chain.invoke({
+    const result = await chain.invoke({
       userPrompt,
     });
+    const prompt = `${userPrompt}. ${result.join(
+      ","
+    )}. Photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`;
+    const negativePrompt = `Ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`;
 
     const replicate = new Replicate({
       auth: replicateConfig.apiKey,
     });
     const output = await replicate.run(replicateConfig.imageModel, {
       input: {
-        prompt: `${userPrompt}\n${prompt}\nPhoto realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`,
-        negative_prompt: `${negativePrompt}\nUgly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`,
+        prompt,
+        negative_prompt: negativePrompt,
         width: 512,
         height: 512,
         num_outputs: 1,
-        num_inference_steps: 30,
-        guidance_scale: 8,
+        num_inference_steps: 40,
+        guidance_scale: 7,
         scheduler: "K_EULER",
         refine: "expert_ensemble_refiner",
-        prompt_strength: 1,
+        prompt_strength: 0.8,
       },
     });
     console.log("Output from replicate:", output);
