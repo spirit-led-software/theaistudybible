@@ -27,8 +27,8 @@ export async function generatedImage(
 
     const prompt = `${userPrompt}, ${chainResult.join(
       ", "
-    )}, photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D`;
-    const negativePrompt = `ugly, blurry, low quality, cartoon, drawing, painting, frame, black and white, words, letters, extra limbs, extra fingers, extra toes`;
+    )}, photo realistic, beautiful, stunning, 8k uhd, high quality, high definition, color, three dimensional, 3d`;
+    const negativePrompt = `deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime, text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, black and white`;
 
     const replicate = new Replicate({
       auth: replicateConfig.apiKey,
@@ -42,9 +42,9 @@ export async function generatedImage(
         num_outputs: 1,
         scheduler: "KarrasDPM",
         refine: "expert_ensemble_refiner",
-        num_inference_steps: 50,
+        num_inference_steps: 25,
         guidance_scale: 7.5,
-        prompt_strength: 0.9,
+        prompt_strength: 1,
         high_noise_frac: 0.8,
       },
     });
