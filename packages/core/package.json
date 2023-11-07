@@ -8,13 +8,13 @@
   },
   "devDependencies": {
     "@opensearch-project/opensearch": "^2.4.0",
-    "@types/email-templates": "^10.0.3",
-    "@types/node": "^20.8.9",
-    "sst": "2.32.2",
+    "@types/email-templates": "^10.0.4",
+    "@types/node": "^20.8.10",
+    "sst": "2.35.1",
     "vitest": "^0.33.0"
   },
   "dependencies": {
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "axios-retry": "^3.8.1",
     "nodemailer": "^6.9.7"
   }

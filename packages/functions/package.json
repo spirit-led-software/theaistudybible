@@ -8,12 +8,12 @@
   },
   "devDependencies": {
     "@sparticuz/chromium": "^114.0.0",
-    "@types/aws-lambda": "^8.10.125",
-    "@types/bcryptjs": "^2.4.5",
+    "@types/aws-lambda": "^8.10.126",
+    "@types/bcryptjs": "^2.4.6",
     "@types/busboy": "^1.5.2",
-    "@types/node": "^20.8.9",
+    "@types/node": "^20.8.10",
     "@types/nodemailer": "^6.4.13",
-    "sst": "2.32.2",
+    "sst": "2.35.1",
     "vitest": "^0.33.0"
   },
   "dependencies": {
@@ -31,7 +31,7 @@
     "firebase-admin": "^11.11.0",
     "lambda-stream": "^0.5.0",
     "mammoth": "^1.6.0",
-    "openai": "^4.14.2",
+    "openai": "^4.16.1",
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
     "puppeteer-core": "^20.9.0",
