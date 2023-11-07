@@ -33,11 +33,6 @@ export async function generatePageContentEmbeddings(
 
       console.log("Adding metadata to documents.");
       docs = docs.map((doc) => {
-        let newPageContent = `TITLE: ${name}\n---\n${doc.pageContent}`;
-        if (doc.metadata.title) {
-          newPageContent = `TITLE: ${doc.metadata.title}\n---\n${doc.pageContent}`;
-        }
-        doc.pageContent = newPageContent;
         doc.metadata = {
           ...doc.metadata,
           indexDate: new Date().toISOString(),
@@ -45,6 +40,11 @@ export async function generatePageContentEmbeddings(
           url,
           type: "webpage",
         };
+        let newPageContent = `TITLE: ${name}\n---\n${doc.pageContent}`;
+        if (doc.metadata.title) {
+          newPageContent = `TITLE: ${doc.metadata.title}\n---\n${doc.pageContent}`;
+        }
+        doc.pageContent = newPageContent;
         return doc;
       });
       console.log("Docs ready. Adding them to the vector store.");

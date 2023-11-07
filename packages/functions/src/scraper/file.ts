@@ -100,17 +100,17 @@ export const handler: S3Handler = async (event) => {
     console.log("Finished load and split");
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
-      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
-      if (doc.metadata.title) {
-        newPageContent = `TITLE: ${doc.metadata.title}\n---\n${doc.pageContent}`;
-      }
-      doc.pageContent = newPageContent;
       doc.metadata = {
         ...doc.metadata,
         ...indexOpMetadata,
         type: "file",
         indexDate: new Date().toISOString(),
       };
+      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
+      if (doc.metadata.title) {
+        newPageContent = `TITLE: ${doc.metadata.title}\n---\n${doc.pageContent}`;
+      }
+      doc.pageContent = newPageContent;
       return doc;
     });
     console.log("Adding documents to vector store");
