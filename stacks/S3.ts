@@ -71,15 +71,33 @@ export function S3({ stack }: StackContext) {
     }
   );
 
+  const userGeneratedImageBucket = new Bucket(
+    stack,
+    "userGeneratedImageBucket",
+    {
+      cdk: {
+        bucket: {
+          autoDeleteObjects: stack.stage !== "prod",
+          removalPolicy:
+            stack.stage === "prod"
+              ? RemovalPolicy.RETAIN
+              : RemovalPolicy.DESTROY,
+        },
+      },
+    }
+  );
+
   stack.addOutputs({
     IndexFileBucket: indexFileBucket.bucketName,
     DevotionImageBucket: devotionImageBucket.bucketName,
     UserProfilePictureBucket: userProfilePictureBucket.bucketName,
+    UserGeneratedImageBucket: userGeneratedImageBucket.bucketName,
   });
 
   return {
     indexFileBucket,
     devotionImageBucket,
     userProfilePictureBucket,
+    userGeneratedImageBucket,
   };
 }

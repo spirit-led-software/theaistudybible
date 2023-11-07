@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -75,7 +76,7 @@ class MessageActionsDialog extends HookConsumerWidget {
                     children: [
                       IconButton(
                         visualDensity: RAIVisualDensity.tightest,
-                        iconSize: 15,
+                        iconSize: 18,
                         icon: FaIcon(
                           copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
                         ),
@@ -93,9 +94,9 @@ class MessageActionsDialog extends HookConsumerWidget {
                       ),
                       IconButton(
                         visualDensity: RAIVisualDensity.tightest,
-                        iconSize: 15,
-                        icon: const FaIcon(
-                          FontAwesomeIcons.shareFromSquare,
+                        iconSize: 20,
+                        icon: const Icon(
+                          CupertinoIcons.share_up,
                         ),
                         color: context.colorScheme.onBackground,
                         onPressed: () {

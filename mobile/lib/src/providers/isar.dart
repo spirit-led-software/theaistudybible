@@ -6,6 +6,7 @@ import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/image.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
+import 'package:revelationsai/src/models/user/generated_image.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'isar.g.dart';
@@ -22,6 +23,7 @@ Future<Isar> isarInstance(IsarInstanceRef ref) async {
       DevotionReactionSchema,
       DevotionReactionCountSchema,
       StoredSourceDocumentSchema,
+      UserGeneratedImageSchema,
     ],
     directory: appDir.path,
   );

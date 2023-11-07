@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'interstitial_ad.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class InterstitialAds extends _$InterstitialAds {
   @override
   FutureOr<InterstitialAd?> build() async {

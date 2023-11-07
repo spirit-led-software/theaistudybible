@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/providers/chat/messages.dart';
-import 'package:revelationsai/src/providers/chat/repositories.dart';
-import 'package:revelationsai/src/providers/chat/single.dart';
+import 'package:revelationsai/src/models/user/generated_image.dart';
+import 'package:revelationsai/src/providers/user/generated_image/repositories.dart';
+import 'package:revelationsai/src/providers/user/generated_image/single.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'pages.g.dart';
 
 @Riverpod(keepAlive: true)
-class ChatsPages extends _$ChatsPages {
-  static const int pageSize = 7;
+class UserGeneratedImagesPages extends _$UserGeneratedImagesPages {
+  static const int pageSize = 12;
 
   int _page = 1;
   bool _isLoadingInitial = true;
   bool _isLoadingNextPage = false;
 
   @override
-  FutureOr<List<List<Chat>>> build() async {
+  FutureOr<List<List<UserGeneratedImage>>> build() async {
     _loadingLogic();
     _persistenceLogic();
 
-    return await ref.chats.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
+    return await ref.userGeneratedImages
+        .getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize))
+        .then((value) {
       if (state.hasValue) {
         // replace pages previous content with new content
         return [
@@ -54,25 +55,25 @@ class ChatsPages extends _$ChatsPages {
     await future;
   }
 
-  Future<void> deleteChat(String chatId) async {
+  Future<void> deleteUserGeneratedImage(String userGeneratedImageId) async {
     final previousState = state;
     state = AsyncValue.data(state.value
             ?.map(
-              (page) => page.where((chat) => chat.id != chatId).toList(),
+              (page) => page.where((userGeneratedImage) => userGeneratedImage.id != userGeneratedImageId).toList(),
             )
             .toList() ??
         []);
-    return await ref.chats.deleteRemote(chatId).catchError((error) {
-      debugPrint("Failed to delete chat: $error");
+    return await ref.userGeneratedImages.deleteRemote(userGeneratedImageId).catchError((error) {
+      debugPrint("Failed to delete userGeneratedImage: $error");
       state = previousState;
       throw error;
     });
   }
 
-  Future<List<List<Chat>>> refresh() async {
-    final futures = <Future<List<Chat>>>[];
+  Future<List<List<UserGeneratedImage>>> refresh() async {
+    final futures = <Future<List<UserGeneratedImage>>>[];
     for (int i = 1; i <= _page; i++) {
-      futures.add(ref.chats.refreshPage(PaginatedEntitiesRequestOptions(page: i, limit: pageSize)));
+      futures.add(ref.userGeneratedImages.refreshPage(PaginatedEntitiesRequestOptions(page: i, limit: pageSize)));
     }
     return await Future.wait(futures).then((value) async {
       state = AsyncData(value);
@@ -107,21 +108,19 @@ class ChatsPages extends _$ChatsPages {
   void _persistenceLogic() {
     ref.listenSelf((previous, next) async {
       if (next.hasValue && previous?.value != next.value) {
-        for (final chatsPage in next.value!) {
-          for (final chat in chatsPage) {
+        for (final userGeneratedImagesPage in next.value!) {
+          for (final userGeneratedImage in userGeneratedImagesPage) {
             Future.wait([
-              ref.read(singleChatProvider(chat.id).future),
-              ref.read(chatMessagesProvider(chat.id).future),
+              ref.read(singleUserGeneratedImageProvider(userGeneratedImage.id).future),
             ]);
           }
         }
 
-        final savedChats = await ref.chats.getAllLocal();
-        final chatsPagesFlat = next.value!.expand((element) => element);
-        for (final savedChat in savedChats) {
-          if (!chatsPagesFlat.any((element) => element.id == savedChat.id)) {
-            ref.chats.deleteLocal(savedChat.id);
-            ref.chatMessages.deleteLocalByChatId(savedChat.id);
+        final savedUserGeneratedImages = await ref.userGeneratedImages.getAllLocal();
+        final userGeneratedImagesPagesFlat = next.value!.expand((element) => element);
+        for (final savedUserGeneratedImage in savedUserGeneratedImages) {
+          if (!userGeneratedImagesPagesFlat.any((element) => element.id == savedUserGeneratedImage.id)) {
+            ref.userGeneratedImages.deleteLocal(savedUserGeneratedImage.id);
           }
         }
       }

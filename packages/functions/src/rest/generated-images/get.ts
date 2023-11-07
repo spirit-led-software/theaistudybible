@@ -1,11 +1,11 @@
 import { buildOrderBy } from "@core/database/helpers";
-import { aiResponses as aiResponsesTable } from "@core/schema";
+import { userGeneratedImages } from "@core/schema";
 import {
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getAiResponses } from "@services/ai-response";
+import { getUserGeneratedImages } from "@services/generated-image/generated-image";
 import { validApiHandlerSession } from "@services/session";
 import { and, eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
@@ -21,26 +21,25 @@ export const handler = ApiHandler(async (event) => {
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
-      return UnauthorizedResponse("You must be logged in");
+      return UnauthorizedResponse("You are not logged in.");
     }
 
-    const aiResponses = await getAiResponses({
+    const images = await getUserGeneratedImages({
       where: and(
-        eq(aiResponsesTable.userId, userWithRoles.id),
-        includeFailed ? undefined : eq(aiResponsesTable.failed, false)
+        eq(userGeneratedImages.userId, userWithRoles.id),
+        includeFailed ? undefined : eq(userGeneratedImages.failed, false)
       ),
-      orderBy: buildOrderBy(aiResponsesTable, orderBy, order),
+      orderBy: buildOrderBy(userGeneratedImages, orderBy, order),
       offset: (page - 1) * limit,
       limit,
     });
 
     return OkResponse({
-      entities: aiResponses,
+      entities: images,
       page,
       perPage: limit,
     });
   } catch (error: any) {
-    console.error(error);
     return InternalServerErrorResponse(error.stack);
   }
 });

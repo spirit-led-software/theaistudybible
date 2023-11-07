@@ -143,3 +143,18 @@ export function getUserMaxQueries(userWithRoles: UserWithRoles) {
   );
   return maxQueries;
 }
+
+export function getUserMaxGeneratedImages(userWithRoles: UserWithRoles) {
+  const imagePermissions: string[] = [];
+  userWithRoles.roles.forEach((role) => {
+    const queryPermission = role.permissions.find((permission) => {
+      return permission.startsWith("image:");
+    });
+    if (queryPermission) imagePermissions.push(queryPermission);
+  });
+  const maxQueries = Math.max(
+    1,
+    ...imagePermissions.map((p) => parseInt(p.split(":")[1]))
+  );
+  return maxQueries;
+}

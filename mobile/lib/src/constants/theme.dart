@@ -22,6 +22,9 @@ class RAITheme {
       color: RAIColors.primary,
       foregroundColor: Colors.white,
     ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: RAIColors.primary,
+    ),
     buttonTheme: ButtonThemeData(
       buttonColor: RAIColors.primary,
       textTheme: ButtonTextTheme.primary,
@@ -85,6 +88,9 @@ class RAITheme {
     appBarTheme: AppBarTheme(
       color: RAIColors.primary,
       foregroundColor: Colors.white,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: RAIColors.primary,
     ),
     buttonTheme: ButtonThemeData(
       buttonColor: RAIColors.secondary,

@@ -2,12 +2,14 @@ import { apiConfig } from "@core/configs";
 import type { UserInfo, UserWithRoles } from "@core/model";
 import {
   getUser,
+  getUserMaxGeneratedImages,
   getUserMaxQueries,
   getUserQueryCountByUserIdAndDate,
   getUserRoles,
 } from "@services/user";
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { useSession, type SessionValue } from "sst/node/auth";
+import { getUserGeneratedImageCountByUserIdAndDate } from "./user/image-count";
 
 export async function validApiHandlerSession(): Promise<
   | {
@@ -16,6 +18,8 @@ export async function validApiHandlerSession(): Promise<
       userWithRoles?: UserWithRoles;
       maxQueries?: number;
       remainingQueries?: number;
+      maxGeneratedImages?: number;
+      remainingGeneratedImages?: number;
     }
   | {
       isValid: true;
@@ -23,6 +27,8 @@ export async function validApiHandlerSession(): Promise<
       userWithRoles: UserWithRoles;
       maxQueries: number;
       remainingQueries: number;
+      maxGeneratedImages: number;
+      remainingGeneratedImages: number;
     }
 > {
   try {
@@ -31,33 +37,49 @@ export async function validApiHandlerSession(): Promise<
       return { isValid: false, sessionToken };
     }
 
-    const [user, roles, todaysQueryCount] = await Promise.all([
-      getUser(sessionToken.properties.id),
-      getUserRoles(sessionToken.properties.id),
-      getUserQueryCountByUserIdAndDate(sessionToken.properties.id, new Date()),
-    ]).catch((err) => {
-      console.error("Error validating token:", err);
-      return [null, null, null];
-    });
+    const [user, roles, todaysQueryCount, todaysGeneratedImageCount] =
+      await Promise.all([
+        getUser(sessionToken.properties.id),
+        getUserRoles(sessionToken.properties.id),
+        getUserQueryCountByUserIdAndDate(
+          sessionToken.properties.id,
+          new Date()
+        ),
+        getUserGeneratedImageCountByUserIdAndDate(
+          sessionToken.properties.id,
+          new Date()
+        ),
+      ]).catch((err) => {
+        console.error("Error validating token:", err);
+        return [null, null, null, null];
+      });
     if (!user || !roles) {
       return { isValid: false, sessionToken };
-    }
-
-    let count = 0;
-    if (todaysQueryCount) {
-      count = todaysQueryCount.count;
     }
 
     const userWithRoles = {
       ...user,
       roles,
     };
+
+    let count = 0;
+    if (todaysQueryCount) {
+      count = todaysQueryCount.count;
+    }
     const maxQueries = getUserMaxQueries(userWithRoles);
+
+    let imageCount = 0;
+    if (todaysGeneratedImageCount) {
+      imageCount = todaysGeneratedImageCount.count;
+    }
+    const maxImages = getUserMaxGeneratedImages(userWithRoles);
 
     console.debug(
       `Returning userWithRoles: ${JSON.stringify(
         userWithRoles
-      )}, maxQueries: ${maxQueries}, remainingQueries: ${maxQueries - count}`
+      )}, maxQueries: ${maxQueries}, remainingQueries: ${
+        maxQueries - count
+      }, maxImages: ${maxImages}, remainingImages: ${maxImages - imageCount}`
     );
 
     return {
@@ -66,6 +88,8 @@ export async function validApiHandlerSession(): Promise<
       userWithRoles: userWithRoles,
       maxQueries,
       remainingQueries: maxQueries - count,
+      maxGeneratedImages: maxImages,
+      remainingGeneratedImages: maxImages - imageCount,
     };
   } catch (err: any) {
     console.error("Error validating token:", err);

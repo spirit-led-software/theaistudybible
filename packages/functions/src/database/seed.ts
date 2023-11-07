@@ -68,7 +68,7 @@ async function createInitialRoles() {
     console.log("Admin role created");
   } else {
     adminRole = await updateRole(adminRole.id, {
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`],
+      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:100`],
     });
     console.log("Admin role already exists");
   }
@@ -82,7 +82,7 @@ async function createInitialRoles() {
     console.log("Moderator role created");
   } else {
     moderatorRole = await updateRole(moderatorRole.id, {
-      permissions: ["query:500"],
+      permissions: ["query:100", "image:25"],
     });
     console.log("Moderator role already exists");
   }
@@ -96,7 +96,7 @@ async function createInitialRoles() {
     console.log("Default user role created");
   } else {
     userRole = await updateRole(userRole.id, {
-      permissions: ["query:5"],
+      permissions: ["query:5", "image:1"],
     });
     console.log("Default user role already exists");
   }
@@ -120,21 +120,27 @@ type RCEntitlement = {
   project_id: string;
 };
 
-function getQueryCountFromEntitlementLookupKey(lookupKey: string): number {
+function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
+  queries: number;
+  images: number;
+} {
   if (lookupKey === "church-member") {
-    return 10;
+    return { queries: 10, images: 1 };
   } else if (lookupKey === "serve-staff") {
-    return 25;
+    return { queries: 25, images: 2 };
   } else if (lookupKey === "youth-pastor") {
-    return 50;
+    return { queries: 50, images: 4 };
   } else if (lookupKey === "worship-leader") {
-    return 75;
+    return { queries: 75, images: 8 };
   } else if (lookupKey === "lead-pastor") {
-    return 100;
+    return { queries: 100, images: 20 };
   } else if (lookupKey === "church-plant") {
-    return Number.MAX_SAFE_INTEGER;
+    return {
+      queries: Number.MAX_SAFE_INTEGER,
+      images: 50,
+    };
   } else {
-    return 5;
+    return { queries: 5, images: 1 };
   }
 }
 
@@ -158,24 +164,19 @@ async function createRcEntitlementRoles() {
   const entitlements: RCEntitlementsRootObject = await response.json();
   for (const entitlement of entitlements.items) {
     let role = await getRoleByName(`rc:${entitlement.lookup_key}`);
+    const { queries, images } = getQueryCountFromEntitlementLookupKey(
+      entitlement.lookup_key
+    );
     if (!role) {
       role = await createRole({
         name: `rc:${entitlement.lookup_key}`,
-        permissions: [
-          `query:${getQueryCountFromEntitlementLookupKey(
-            entitlement.lookup_key
-          )}`,
-        ],
+        permissions: [`query:${queries}`, `image:${images}`],
       });
       console.log(`Role 'rc:${entitlement.lookup_key}' created`);
     } else {
       console.log(`Role 'rc:${entitlement.lookup_key}' already exists`);
       role = await updateRole(role.id, {
-        permissions: [
-          `query:${getQueryCountFromEntitlementLookupKey(
-            entitlement.lookup_key
-          )}`,
-        ],
+        permissions: [`query:${queries}`, `image:${images}`],
       });
     }
   }

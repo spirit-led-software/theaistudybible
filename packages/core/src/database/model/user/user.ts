@@ -14,4 +14,6 @@ export type UserWithRoles = User & {
 export type UserInfo = UserWithRoles & {
   remainingQueries: number;
   maxQueries: number;
+  maxGeneratedImages: number;
+  remainingGeneratedImages: number;
 };
