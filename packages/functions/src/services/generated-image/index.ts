@@ -30,8 +30,8 @@ export async function generatedImage(
     });
     const output = await replicate.run(replicateConfig.imageModel, {
       input: {
-        prompt: `${userPrompt}. ${prompt}. Photo realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`,
-        negative_prompt: `${negativePrompt}. Ugly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`,
+        prompt: `${userPrompt}\n${prompt}\nPhoto realistic, beautiful, stunning, 8K, high quality, high definition, HD, color, three dimensional, 3D.`,
+        negative_prompt: `${negativePrompt}\nUgly, blurry, low quality, cartoon, drawing, black and white, words, letters, extra limbs, extra fingers, extra toes.`,
         width: 512,
         height: 512,
         num_outputs: 1,
