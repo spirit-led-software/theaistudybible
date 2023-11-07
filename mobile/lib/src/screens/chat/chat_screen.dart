@@ -614,11 +614,9 @@ class ChatScreen extends HookConsumerWidget {
                                               color: context.colorScheme.onBackground.withOpacity(0.2),
                                             ),
                                           ),
-                                          backgroundColor: currentUser.remainingQueries < 10
+                                          backgroundColor: currentUser.remainingQueries <= 5
                                               ? context.colorScheme.error.withOpacity(0.2)
                                               : null,
-                                          foregroundColor:
-                                              currentUser.remainingQueries < 10 ? context.colorScheme.error : null,
                                         ),
                                         onPressed: () {
                                           context.go("/upgrade");

@@ -48,7 +48,7 @@ class TabsScaffold extends HookConsumerWidget {
               label: "Chat",
             ),
             BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.camera_fill),
+              icon: Icon(Icons.image),
               label: "Images",
             ),
             BottomNavigationBarItem(

@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/generated_image/pages.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/generated_image/create_image_dialog.dart';
@@ -15,6 +16,7 @@ class AllImagesScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final imagesNotifier = ref.watch(userGeneratedImagesPagesProvider.notifier);
     final images = ref.watch(userGeneratedImagesPagesProvider);
+    final currentUser = ref.watch(currentUserProvider).requireValue;
 
     useEffect(() {
       imagesNotifier.refresh();
@@ -25,6 +27,27 @@ class AllImagesScreen extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text("AI-Generated Images"),
         actions: [
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              context.go("/upgrade");
+            },
+            style: IconButton.styleFrom(
+              shape: CircleBorder(
+                side: BorderSide(
+                  color: context.colorScheme.onPrimary.withOpacity(0.4),
+                ),
+              ),
+              backgroundColor:
+                  currentUser.remainingGeneratedImages < 1 ? context.colorScheme.error.withOpacity(0.2) : null,
+            ),
+            icon: Text(
+              "${currentUser.remainingGeneratedImages > 10 ? ">10" : currentUser.remainingGeneratedImages}",
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colorScheme.onPrimary,
+              ),
+            ),
+          ),
           IconButton(
             onPressed: () async {
               await showDialog(
@@ -77,6 +100,7 @@ class AllImagesScreen extends HookConsumerWidget {
                   },
                 ),
                 if (imagesNotifier.isLoadingNextPage()) ...[
+                  const SizedBox(height: 10),
                   Center(
                     child: SpinKitSpinningLines(
                       color: context.secondaryColor,
@@ -84,7 +108,8 @@ class AllImagesScreen extends HookConsumerWidget {
                     ),
                   ),
                 ],
-                if (imagesNotifier.hasNextPage()) ...[
+                if (!imagesNotifier.isLoadingNextPage() && imagesNotifier.hasNextPage()) ...[
+                  const SizedBox(height: 10),
                   Center(
                     child: ElevatedButton(
                       onPressed: () async {

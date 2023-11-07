@@ -288,8 +288,8 @@ class DevotionScreen extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        FaIcon(
-                          FontAwesomeIcons.shareFromSquare,
+                        Icon(
+                          CupertinoIcons.share_up,
                           color: context.colorScheme.onBackground,
                         ),
                         const SizedBox(

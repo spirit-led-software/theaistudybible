@@ -51,8 +51,7 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> login(String email, String password) async {
-    debugPrint(
-        "Logging in using $email at ${API.url}/auth/credentials-mobile/login");
+    debugPrint("Logging in using $email at ${API.url}/auth/credentials-mobile/login");
 
     Response res = await post(
       Uri.parse('${API.url}/auth/credentials-mobile/login'),
@@ -86,8 +85,7 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> loginWithApple(String authorizationCode) async {
-    debugPrint(
-        "Logging in using Apple at ${API.url}/auth/credentials-mobile/login/apple");
+    debugPrint("Logging in using Apple at ${API.url}/auth/credentials-mobile/login/apple");
 
     Response res = await post(
       Uri.parse('${API.url}/auth/apple-mobile/callback'),
@@ -160,8 +158,7 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> register(String email, String password) async {
-    debugPrint(
-        "Registering using $email at ${API.url}/auth/credentials-mobile/register");
+    debugPrint("Registering using $email at ${API.url}/auth/credentials-mobile/register");
 
     Response res = await post(
       Uri.parse('${API.url}/auth/credentials-mobile/register'),
@@ -182,20 +179,17 @@ class CurrentUser extends _$CurrentUser {
 
   Future<void> forgotPassword(String email) async {
     Response res = await get(
-      Uri.parse(
-          '${API.url}/auth/credentials-mobile/forgot-password?email=$email'),
+      Uri.parse('${API.url}/auth/credentials-mobile/forgot-password?email=$email'),
     );
 
     if (res.statusCode != 200) {
-      debugPrint(
-          "Failed to send forgot password email: ${res.statusCode} ${res.body}");
+      debugPrint("Failed to send forgot password email: ${res.statusCode} ${res.body}");
       throw Exception('Failed to send forgot password email');
     }
   }
 
   Future<void> resetPassword(String token, String password) async {
-    debugPrint(
-        "Resetting password using token $token at ${API.url}/auth/credentials-mobile/reset-password");
+    debugPrint("Resetting password using token $token at ${API.url}/auth/credentials-mobile/reset-password");
 
     Response res = await post(
       Uri.parse('${API.url}/auth/credentials-mobile/reset-password'),
@@ -218,8 +212,7 @@ class CurrentUser extends _$CurrentUser {
     ref.listenSelf((_, next) {
       if (next.isLoading) return;
       if (next.hasError || !next.hasValue) {
-        if (next.error is RAIHttpException &&
-            (next.error as RAIHttpException).isUnauthorized) {
+        if (next.error is RAIHttpException && (next.error as RAIHttpException).isUnauthorized) {
           _sharedPreferences.remove(_sharedPrefsKey);
           ref.read(currentChatIdProvider.notifier).update(null);
           ref.read(currentDevotionIdProvider.notifier).updateId(null);
@@ -264,6 +257,13 @@ class CurrentUser extends _$CurrentUser {
   Future<void> decrementRemainingQueries() async {
     state = AsyncData(state.requireValue.copyWith(
       remainingQueries: state.requireValue.remainingQueries - 1,
+    ));
+    ref.invalidateSelf();
+  }
+
+  Future<void> decrementRemainingImages() async {
+    state = AsyncData(state.requireValue.copyWith(
+      remainingGeneratedImages: state.requireValue.remainingGeneratedImages - 1,
     ));
     ref.invalidateSelf();
   }
