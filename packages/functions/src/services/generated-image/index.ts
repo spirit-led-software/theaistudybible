@@ -40,11 +40,12 @@ export async function generatedImage(
         width: 512,
         height: 512,
         num_outputs: 1,
-        num_inference_steps: 150,
-        guidance_scale: 7.5,
-        scheduler: "K_EULER",
+        scheduler: "KarrasDPM",
         refine: "expert_ensemble_refiner",
+        num_inference_steps: 50,
+        guidance_scale: 7.5,
         prompt_strength: 1,
+        high_noise_frac: 0.8,
       },
     });
     console.log("Output from replicate:", output);
