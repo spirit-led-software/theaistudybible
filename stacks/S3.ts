@@ -33,6 +33,7 @@ export function S3({ stack }: StackContext) {
         events: ["object_created"],
         function: {
           handler: "packages/functions/src/scraper/file.handler",
+          retryAttempts: 0,
         },
       },
     },
