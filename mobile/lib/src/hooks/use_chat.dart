@@ -156,7 +156,7 @@ Future<ChatMessage> getStreamedResponse({
           if (appendFutures.isNotEmpty) await appendFutures.last;
           for (int i = 0; i < value.length; i++) {
             await Future.delayed(
-              const Duration(milliseconds: 3),
+              const Duration(milliseconds: 2),
               () {
                 reply = reply.copyWith(content: reply.content + value[i]);
                 messages.value = [
