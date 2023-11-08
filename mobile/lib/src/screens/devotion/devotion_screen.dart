@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -19,6 +20,7 @@ import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
 import 'package:revelationsai/src/providers/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -36,7 +38,8 @@ class DevotionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
+    final currentUser = ref.watch(currentUserProvider).requireValue;
+    final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
     final ad = ref.watch(interstitialAdsProvider).valueOrNull;
 
     final isMounted = useIsMounted();
@@ -100,7 +103,6 @@ class DevotionScreen extends HookConsumerWidget {
           Future(() => refreshDevoData());
         }
       });
-
       return () {};
     }, [devotionId]);
 
@@ -143,6 +145,9 @@ class DevotionScreen extends HookConsumerWidget {
           IconButton(
             onPressed: () {
               ref.read(devotionsPagesProvider.notifier).refresh();
+              if (currentUserPrefs.hapticFeedback) {
+                HapticFeedback.mediumImpact();
+              }
               showModalBottomSheet(
                 elevation: 20,
                 isScrollControlled: true,
@@ -179,6 +184,11 @@ class DevotionScreen extends HookConsumerWidget {
                     Radius.circular(15),
                   ),
                 ),
+                onOpened: () {
+                  if (currentUserPrefs.hapticFeedback) {
+                    HapticFeedback.mediumImpact();
+                  }
+                },
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -207,7 +217,7 @@ class DevotionScreen extends HookConsumerWidget {
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
                             reaction: DevotionReactionType.LIKE,
-                            session: currentUser.requireValue.session,
+                            session: currentUser.session,
                           )
                           .then((value) {
                         ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
@@ -258,7 +268,7 @@ class DevotionScreen extends HookConsumerWidget {
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
                             reaction: DevotionReactionType.DISLIKE,
-                            session: currentUser.requireValue.session,
+                            session: currentUser.session,
                           )
                           .then((value) {
                         ref.read(devotionReactionCountsProvider(devotion.value?.id).notifier).refresh().then((value) {

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/account/settings_modal.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/account/change_password_dialog.dart';
@@ -21,6 +22,9 @@ class AccountScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider).requireValue;
+    final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
+
+    final hapticFeedbackEnabled = currentUserPrefs.hapticFeedback;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: context.isDarkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -41,6 +45,7 @@ class AccountScreen extends HookConsumerWidget {
           ),
           child: IconButton(
             onPressed: () {
+              if (hapticFeedbackEnabled) HapticFeedback.mediumImpact();
               showModalBottomSheet(
                 elevation: 20,
                 isScrollControlled: true,

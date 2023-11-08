@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/generated_image/pages.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/generated_image/create_image_dialog.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
@@ -14,9 +16,10 @@ class AllImagesScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(currentUserProvider).requireValue;
+    final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
     final imagesNotifier = ref.watch(userGeneratedImagesPagesProvider.notifier);
     final images = ref.watch(userGeneratedImagesPagesProvider);
-    final currentUser = ref.watch(currentUserProvider).requireValue;
 
     useEffect(() {
       imagesNotifier.refresh();
@@ -50,6 +53,9 @@ class AllImagesScreen extends HookConsumerWidget {
           ),
           IconButton(
             onPressed: () async {
+              if (currentUserPrefs.hapticFeedback) {
+                HapticFeedback.mediumImpact();
+              }
               if (currentUser.remainingGeneratedImages < 1) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
