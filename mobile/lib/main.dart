@@ -55,6 +55,19 @@ Future<void> main() async {
     }
   });
 
+  String? initLocation;
+  final initMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initMessage != null) {
+    debugPrint('Handling a background message ${initMessage.messageId}');
+    switch (initMessage.data['type']) {
+      case 'daily-devo':
+        initLocation = '/devotions/${initMessage.data['id'] ?? ''}';
+        break;
+      default:
+        break;
+    }
+  }
+
   if (!kDebugMode) {
     String appToken = '';
     if (Platform.isIOS) {
@@ -78,17 +91,21 @@ Future<void> main() async {
     NewrelicMobile.instance.start(config, () {
       debugPrint('Running flutter app with New Relic');
       runApp(
-        const ProviderScope(
-          child: RAIApp(),
+        ProviderScope(
+          child: RAIApp(
+            initialLocation: initLocation,
+          ),
         ),
       );
     });
   } else {
     debugPrint('Running flutter app in debug mode');
     runApp(
-      const ProviderScope(
+      ProviderScope(
         // observers: [StateLogger()], // Uncomment to enable state logging
-        child: RAIApp(),
+        child: RAIApp(
+          initialLocation: initLocation,
+        ),
       ),
     );
   }

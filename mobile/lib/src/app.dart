@@ -14,7 +14,12 @@ import 'package:revelationsai/src/screens/splash_screen.dart';
 import 'routes/router_listenable.dart';
 
 class RAIApp extends HookConsumerWidget {
-  const RAIApp({super.key});
+  final String initLocation;
+
+  const RAIApp({
+    super.key,
+    String? initialLocation,
+  }) : initLocation = initialLocation ?? '/';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +37,7 @@ class RAIApp extends HookConsumerWidget {
         navigatorKey: key.value,
         refreshListenable: routerListenableNotifier,
         debugLogDiagnostics: true,
-        initialLocation: "/",
+        initialLocation: initLocation,
         routes: routes,
         redirect: routerListenableNotifier.redirect,
         errorBuilder: (context, state) {
@@ -42,14 +47,8 @@ class RAIApp extends HookConsumerWidget {
       [routerListenableNotifier],
     );
 
-    final pendingLaunchMessage = useMemoized(
-      () => FirebaseMessaging.instance.getInitialMessage(),
-      [FirebaseMessaging.instance],
-    );
-    final launchMessageSnapshot = useFuture(pendingLaunchMessage);
-
-    useMemoized(
-      () => FirebaseMessaging.onMessage.listen((message) {
+    useEffect(() {
+      FirebaseMessaging.onMessage.listen((message) {
         switch (message.data['type']) {
           case 'daily-devo':
             context.go('/devotions/${message.data['id'] ?? ''}');
@@ -57,23 +56,9 @@ class RAIApp extends HookConsumerWidget {
           default:
             break;
         }
-      }),
-      [FirebaseMessaging.onMessage],
-    );
-
-    useEffect(() {
-      if (launchMessageSnapshot.hasData && launchMessageSnapshot.data != null) {
-        switch (launchMessageSnapshot.data?.data['type']) {
-          case 'daily-devo':
-            context.go('/devotions/${launchMessageSnapshot.data?.data['id'] ?? ''}');
-            break;
-          default:
-            break;
-        }
-      }
-
+      });
       return () {};
-    }, [launchMessageSnapshot]);
+    }, [FirebaseMessaging.onMessage]);
 
     return _EagerlyInitializedProviders(
       child: MaterialApp.router(
