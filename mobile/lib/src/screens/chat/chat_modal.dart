@@ -75,6 +75,7 @@ class ChatModal extends HookConsumerWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         showDialog(
+                          barrierDismissible: false,
                           context: context,
                           builder: (context) {
                             return const CreateDialog();

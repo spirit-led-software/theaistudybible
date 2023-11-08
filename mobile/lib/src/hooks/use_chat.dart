@@ -148,18 +148,34 @@ Future<ChatMessage> getStreamedResponse({
       : null;
   reply = reply.copyWith(uuid: aiResponseUuid);
 
+  final appendFutures = <Future>[];
   final subscription = response.stream.transform(utf8.decoder).listen(
-    (value) {
-      reply = reply.copyWith(content: reply.content + value);
-      messages.value = [
-        ...chatRequest.messages,
-        reply,
-      ];
-      if (hapticFeedback) HapticFeedback.mediumImpact();
+    (value) async {
+      appendFutures.add(
+        Future.sync(() async {
+          if (appendFutures.isNotEmpty) await appendFutures.last;
+          for (int i = 0; i < value.length; i++) {
+            await Future.delayed(
+              const Duration(milliseconds: 2),
+              () {
+                reply = reply.copyWith(content: reply.content + value[i]);
+                messages.value = [
+                  ...chatRequest.messages,
+                  reply,
+                ];
+                if (hapticFeedback) HapticFeedback.mediumImpact();
+              },
+            );
+          }
+        }),
+      );
     },
   );
 
-  await subscription.asFuture().then((_) {
+  await subscription.asFuture().then((_) async {
+    await Future.wait(appendFutures);
+    appendFutures.clear();
+  }).then((_) {
     if (onFinish != null) onFinish(reply);
     currentResponseId.value = null;
   }).onError((error, stackTrace) {

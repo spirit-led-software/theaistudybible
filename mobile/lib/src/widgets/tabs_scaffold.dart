@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
@@ -28,8 +29,9 @@ class TabsScaffold extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUserPrefs = ref.watch(currentUserPreferencesProvider);
-    bool hapticFeedbackEnabled = currentUserPrefs.requireValue.hapticFeedback;
+    final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
+
+    final hapticFeedbackEnabled = currentUserPrefs.hapticFeedback;
 
     return Scaffold(
       body: child,
@@ -67,18 +69,23 @@ class TabsScaffold extends HookConsumerWidget {
           onTap: (value) {
             switch (value) {
               case 0:
+                if (hapticFeedbackEnabled) HapticFeedback.lightImpact();
                 context.go("/chat");
                 break;
               case 1:
+                if (hapticFeedbackEnabled) HapticFeedback.lightImpact();
                 context.go("/images");
                 break;
               case 2:
+                if (hapticFeedbackEnabled) HapticFeedback.lightImpact();
                 context.go("/devotions");
                 break;
               case 3:
+                if (hapticFeedbackEnabled) HapticFeedback.lightImpact();
                 context.go("/account");
                 break;
               default:
+                if (hapticFeedbackEnabled) HapticFeedback.lightImpact();
                 context.go("/chat");
                 break;
             }

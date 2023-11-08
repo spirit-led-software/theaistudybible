@@ -20,6 +20,8 @@ class RenameDialog extends HookConsumerWidget {
     final formKey = useRef(GlobalKey<FormState>());
 
     final controller = useTextEditingController(text: name);
+    final focusNode = useFocusNode();
+
     final updateFuture = useState<Future?>(null);
     final updateSnapshot = useFuture(updateFuture.value);
 
@@ -32,6 +34,7 @@ class RenameDialog extends HookConsumerWidget {
           children: [
             TextFormField(
               controller: controller,
+              focusNode: focusNode,
               decoration: const InputDecoration(
                 labelText: 'Name',
               ),
@@ -40,6 +43,11 @@ class RenameDialog extends HookConsumerWidget {
                   return 'Please enter a name';
                 }
                 return null;
+              },
+              onFieldSubmitted: (value) {
+                if (formKey.value.currentState!.validate()) {
+                  focusNode.unfocus();
+                }
               },
             ),
           ],
@@ -63,6 +71,7 @@ class RenameDialog extends HookConsumerWidget {
             if (updateSnapshot.connectionState == ConnectionState.waiting) {
               return;
             }
+            focusNode.unfocus();
 
             updateFuture.value = ref
                 .read(singleChatProvider(id).notifier)

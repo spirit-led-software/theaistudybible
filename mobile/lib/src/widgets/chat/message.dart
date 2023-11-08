@@ -143,16 +143,19 @@ class Message extends HookConsumerWidget {
                               ),
                               if (isCurrentResponse) ...[
                                 WidgetSpan(
-                                  child: Container(
+                                  child: SizedBox(
                                     width: 20,
                                     height: 20,
-                                    margin: const EdgeInsets.only(
-                                      left: 5,
-                                    ),
-                                    child: SpinKitSpinningLines(
-                                      color: context.colorScheme.onBackground,
-                                      size: 20,
-                                    ),
+                                    child: message.content.trim().isEmpty
+                                        ? SpinKitSpinningLines(
+                                            color: context.colorScheme.onBackground,
+                                            size: 20,
+                                          )
+                                        : Icon(
+                                            Icons.circle,
+                                            color: context.colorScheme.onBackground,
+                                            size: 15,
+                                          ),
                                   ),
                                 ),
                               ]

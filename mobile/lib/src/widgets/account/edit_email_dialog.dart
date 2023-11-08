@@ -12,9 +12,11 @@ class EditEmailDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
-    final textEditingController = useTextEditingController(
+
+    final controller = useTextEditingController(
       text: currentUser.requireValue.email,
     );
+    final focusNode = useFocusNode();
 
     final formKey = useRef(GlobalKey<FormState>());
 
@@ -40,7 +42,8 @@ class EditEmailDialog extends HookConsumerWidget {
               const SizedBox(height: 10),
             ],
             TextFormField(
-              controller: textEditingController,
+              controller: controller,
+              focusNode: focusNode,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Email cannot be empty.';
@@ -49,6 +52,11 @@ class EditEmailDialog extends HookConsumerWidget {
                   return 'Please enter a valid email.';
                 }
                 return null;
+              },
+              onFieldSubmitted: (value) {
+                if (formKey.value.currentState!.validate()) {
+                  focusNode.unfocus();
+                }
               },
             ),
           ],
@@ -68,12 +76,13 @@ class EditEmailDialog extends HookConsumerWidget {
           onPressed: () async {
             if (!formKey.value.currentState!.validate()) return;
             if (updateSnapshot.connectionState == ConnectionState.waiting) return;
+            focusNode.unfocus();
 
             updateFuture.value = ref
                 .read(currentUserProvider.notifier)
                 .updateUser(
                   UpdateUserRequest(
-                    email: textEditingController.text,
+                    email: controller.text,
                   ),
                 )
                 .then((value) {

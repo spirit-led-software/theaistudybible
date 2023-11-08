@@ -152,6 +152,7 @@ class AccountScreen extends HookConsumerWidget {
                             IconButton(
                               onPressed: () {
                                 showDialog(
+                                  barrierDismissible: false,
                                   context: context,
                                   builder: (context) {
                                     return const RenameDialog();
@@ -194,6 +195,7 @@ class AccountScreen extends HookConsumerWidget {
                             IconButton(
                               onPressed: () {
                                 showDialog(
+                                  barrierDismissible: false,
                                   context: context,
                                   builder: (context) {
                                     return const EditEmailDialog();
@@ -236,6 +238,7 @@ class AccountScreen extends HookConsumerWidget {
                             IconButton(
                               onPressed: () {
                                 showDialog(
+                                  barrierDismissible: false,
                                   context: context,
                                   builder: (context) {
                                     return const ChangePasswordDialog();

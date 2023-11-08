@@ -172,6 +172,9 @@ class ChangePasswordDialog extends HookConsumerWidget {
             if (updateSnapshot.connectionState == ConnectionState.waiting) {
               return;
             }
+            currentPasswordFocusNode.unfocus();
+            newPasswordFocusNode.unfocus();
+            newPasswordConfirmationFocusNode.unfocus();
 
             updateFuture.value = ref
                 .read(currentUserProvider.notifier)

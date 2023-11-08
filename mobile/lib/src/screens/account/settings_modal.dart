@@ -9,8 +9,8 @@ import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
-import 'package:revelationsai/src/services/user.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/widgets/account/delete_account_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -123,14 +123,9 @@ class SettingsModal extends HookConsumerWidget {
                       : const Icon(Icons.dark_mode_outlined),
                   title: const Text('Theme Mode'),
                   trailing: DropdownButton(
-                    value: ref
-                        .watch(currentUserPreferencesProvider)
-                        .requireValue
-                        .themeMode,
+                    value: ref.watch(currentUserPreferencesProvider).requireValue.themeMode,
                     onChanged: (value) {
-                      ref
-                          .read(currentUserPreferencesProvider.notifier)
-                          .updatePrefs(
+                      ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
                             ref
                                 .read(currentUserPreferencesProvider)
                                 .requireValue
@@ -160,16 +155,10 @@ class SettingsModal extends HookConsumerWidget {
                     Text('Haptic Feedback'),
                   ],
                 ),
-                value: ref
-                    .watch(currentUserPreferencesProvider)
-                    .requireValue
-                    .hapticFeedback,
+                value: ref.watch(currentUserPreferencesProvider).requireValue.hapticFeedback,
                 onChanged: (value) {
                   ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
-                        ref
-                            .read(currentUserPreferencesProvider)
-                            .requireValue
-                            .copyWith(hapticFeedback: value),
+                        ref.read(currentUserPreferencesProvider).requireValue.copyWith(hapticFeedback: value),
                       );
                 },
               ),
@@ -181,16 +170,10 @@ class SettingsModal extends HookConsumerWidget {
                     Text('Chat Suggestions'),
                   ],
                 ),
-                value: ref
-                    .watch(currentUserPreferencesProvider)
-                    .requireValue
-                    .chatSuggestions,
+                value: ref.watch(currentUserPreferencesProvider).requireValue.chatSuggestions,
                 onChanged: (value) {
                   ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
-                        ref
-                            .read(currentUserPreferencesProvider)
-                            .requireValue
-                            .copyWith(chatSuggestions: value),
+                        ref.read(currentUserPreferencesProvider).requireValue.copyWith(chatSuggestions: value),
                       );
                 },
               ),
@@ -198,10 +181,7 @@ class SettingsModal extends HookConsumerWidget {
                 leading: const Icon(Icons.logout),
                 title: const Text('Logout'),
                 onTap: () async {
-                  await ref
-                      .read(currentUserProvider.notifier)
-                      .logout()
-                      .then((value) => context.go("/auth/login"));
+                  await ref.read(currentUserProvider.notifier).logout().then((value) => context.go("/auth/login"));
                 },
               ),
               ListTile(
@@ -214,42 +194,12 @@ class SettingsModal extends HookConsumerWidget {
                 onTap: () async {
                   // display confirmation dialog
                   await showDialog(
+                    barrierDismissible: false,
                     context: context,
                     builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Delete Account'),
-                        content: const Text(
-                          'Are you sure you want to delete your account and all of its data? This action cannot be undone.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('Cancel'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(true);
-                            },
-                            child: const Text('Delete'),
-                          ),
-                        ],
-                      );
+                      return const DeleteAccountDialog();
                     },
-                  ).then((value) async {
-                    if (value == true) {
-                      await UserService.deleteUser(
-                        id: ref.read(currentUserProvider).requireValue.id,
-                        session:
-                            ref.read(currentUserProvider).requireValue.session,
-                      );
-                      await ref
-                          .read(currentUserProvider.notifier)
-                          .logout()
-                          .then((value) => context.go("/auth/login"));
-                    }
-                  });
+                  );
                 },
               ),
             ],

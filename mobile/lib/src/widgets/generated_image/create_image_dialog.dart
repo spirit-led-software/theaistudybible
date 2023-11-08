@@ -17,6 +17,7 @@ class CreateImageDialog extends HookConsumerWidget {
     final ad = ref.watch(interstitialAdsProvider).requireValue;
 
     final formKey = useRef(GlobalKey<FormState>());
+    final focusNode = useFocusNode();
     final controller = useTextEditingController();
 
     final generateFuture = useState<Future?>(null);
@@ -28,6 +29,7 @@ class CreateImageDialog extends HookConsumerWidget {
         key: formKey.value,
         child: TextFormField(
           controller: controller,
+          focusNode: focusNode,
           minLines: 2,
           maxLines: 5,
           decoration: const InputDecoration(
@@ -42,6 +44,11 @@ class CreateImageDialog extends HookConsumerWidget {
               return "Please enter a prompt";
             }
             return null;
+          },
+          onFieldSubmitted: (value) {
+            if (formKey.value.currentState!.validate()) {
+              focusNode.unfocus();
+            }
           },
         ),
       ),
@@ -61,11 +68,7 @@ class CreateImageDialog extends HookConsumerWidget {
             if (generateSnapshot.connectionState == ConnectionState.waiting) {
               return;
             }
-
-            final prompt = controller.value.text;
-            if (prompt.isEmpty) {
-              return;
-            }
+            focusNode.unfocus();
 
             generateFuture.value = ref
                 .read(userGeneratedImageRepositoryProvider)
@@ -73,10 +76,7 @@ class CreateImageDialog extends HookConsumerWidget {
                 .create(
                   CreateUserGeneratedImageRequest(prompt: controller.text),
                 )
-                .then((value) async {
-              await ref.read(userGeneratedImagesPagesProvider.notifier).refresh();
-              return value;
-            }).then((value) {
+                .then((value) {
               context.go("/images/${value.id}");
             }).catchError((error) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -93,6 +93,7 @@ class CreateImageDialog extends HookConsumerWidget {
                 ),
               );
             }).whenComplete(() {
+              ref.read(userGeneratedImagesPagesProvider.notifier).refresh();
               Navigator.of(context).pop();
             });
             await showAdvertisementLogic(ref, ad, 1, 100);

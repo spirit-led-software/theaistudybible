@@ -13,7 +13,9 @@ class CreateDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useRef(GlobalKey<FormState>());
+
     final controller = useTextEditingController();
+    final focusNode = useFocusNode();
 
     final createFuture = useState<Future?>(null);
     final createSnapshot = useFuture(createFuture.value);
@@ -27,12 +29,18 @@ class CreateDialog extends HookConsumerWidget {
           children: [
             TextFormField(
               controller: controller,
+              focusNode: focusNode,
               decoration: const InputDecoration(
                 labelText: 'Name (Optional)',
                 hintText: "New Chat",
               ),
               validator: (value) {
                 return null;
+              },
+              onFieldSubmitted: (value) {
+                if (formKey.value.currentState!.validate()) {
+                  focusNode.unfocus();
+                }
               },
             ),
           ],
@@ -54,6 +62,7 @@ class CreateDialog extends HookConsumerWidget {
             if (createSnapshot.connectionState == ConnectionState.waiting) {
               return;
             }
+            focusNode.unfocus();
 
             String name = controller.value.text;
             if (name.isEmpty) {

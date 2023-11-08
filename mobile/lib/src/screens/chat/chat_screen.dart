@@ -391,6 +391,7 @@ class ChatScreen extends HookConsumerWidget {
                       PopupMenuItem(
                         onTap: () async {
                           showDialog(
+                            barrierDismissible: false,
                             context: context,
                             builder: (context) {
                               return const CreateDialog();
@@ -421,6 +422,7 @@ class ChatScreen extends HookConsumerWidget {
                         onTap: () {
                           if (chatHook.chatId.value != null) {
                             showDialog(
+                              barrierDismissible: false,
                               context: context,
                               builder: (context) {
                                 return RenameDialog(

@@ -66,6 +66,7 @@ class AllImagesScreen extends HookConsumerWidget {
                 return;
               }
               await showDialog(
+                barrierDismissible: false,
                 context: context,
                 builder: (context) {
                   return const CreateImageDialog();
