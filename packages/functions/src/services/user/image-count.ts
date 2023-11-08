@@ -120,6 +120,27 @@ export async function incrementUserGeneratedImageCount(userId: string) {
   }
 }
 
+export async function decrementUserGeneratedImageCount(userId: string) {
+  console.log("Decrementing user generated image count for user:", userId);
+
+  const todaysImages = await getUserGeneratedImageCountByUserIdAndDate(
+    userId,
+    new Date()
+  );
+
+  if (todaysImages) {
+    return await updateUserGeneratedImageCount(todaysImages.id, {
+      count: todaysImages.count > 0 ? todaysImages.count - 1 : 0,
+    });
+  } else {
+    return await createUserGeneratedImageCount({
+      userId,
+      count: 0,
+      date: new Date(),
+    });
+  }
+}
+
 export async function deleteUserGeneratedImageCount(id: string) {
   return (
     await readWriteDatabase

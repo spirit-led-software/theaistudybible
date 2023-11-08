@@ -7,7 +7,10 @@ import {
 } from "@lib/api-responses";
 import { generatedImage } from "@services/generated-image";
 import { validApiHandlerSession } from "@services/session";
-import { incrementUserGeneratedImageCount } from "@services/user/image-count";
+import {
+  decrementUserGeneratedImageCount,
+  incrementUserGeneratedImageCount,
+} from "@services/user/image-count";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -32,8 +35,16 @@ export const handler = ApiHandler(async (event) => {
       );
     }
 
-    const image = await generatedImage(userWithRoles, prompt);
-    await incrementUserGeneratedImageCount(userWithRoles.id);
+    const incrementUserGeneratedImageCountPromise =
+      incrementUserGeneratedImageCount(userWithRoles.id);
+    const image = await generatedImage(userWithRoles, prompt).catch(
+      async (error) => {
+        await incrementUserGeneratedImageCountPromise.then(() => {
+          decrementUserGeneratedImageCount(userWithRoles.id);
+        });
+        throw error;
+      }
+    );
     return CreatedResponse(image);
   } catch (error: any) {
     console.error(error);

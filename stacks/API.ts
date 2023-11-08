@@ -341,7 +341,7 @@ export function API({ stack, app }: StackContext) {
           bind: [userGeneratedImageBucket],
           permissions: [userGeneratedImageBucket, invokeBedrockPolicy],
           memorySize: "1 GB",
-          timeout: "5 minutes",
+          timeout: "10 minutes",
           environment: {
             ...lambdaEnv,
             USER_GENERATED_IMAGE_BUCKET: userGeneratedImageBucket.bucketName,

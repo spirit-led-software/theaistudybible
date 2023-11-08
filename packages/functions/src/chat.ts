@@ -13,7 +13,11 @@ import {
 import { aiRenameChat, createChat, getChat } from "@services/chat";
 import { getRAIChatChain } from "@services/chat/langchain";
 import { validSessionFromEvent } from "@services/session";
-import { incrementUserQueryCount, isObjectOwner } from "@services/user";
+import {
+  decrementUserQueryCount,
+  incrementUserQueryCount,
+  isObjectOwner,
+} from "@services/user";
 import {
   createUserMessage,
   getUserMessagesByChatIdAndText,
@@ -138,6 +142,8 @@ const lambdaHandler = async (
         ]),
       };
     }
+    const incrementQueryCountPromise = incrementUserQueryCount(userInfo.id);
+    pendingPromises.push(incrementQueryCountPromise);
 
     console.time("Validating chat");
 
@@ -205,13 +211,18 @@ const lambdaHandler = async (
       })
       .catch(async (err) => {
         console.error(`Error: ${err.stack}`);
-        await getAiResponse(aiResponseId).then(async (aiResponse) => {
-          if (aiResponse) {
-            await updateAiResponse(aiResponse.id, {
-              failed: true,
-            });
-          }
-        });
+        await Promise.all([
+          incrementQueryCountPromise.then(() => {
+            decrementUserQueryCount(userInfo.id);
+          }),
+          getAiResponse(aiResponseId).then(async (aiResponse) => {
+            if (aiResponse) {
+              await updateAiResponse(aiResponse.id, {
+                failed: true,
+              });
+            }
+          }),
+        ]);
         throw err;
       });
     pendingPromises.push(langChainResponsePromise);
@@ -326,7 +337,6 @@ const postResponseValidationLogic = async ({
   });
 
   await Promise.all([
-    incrementUserQueryCount(userId),
     ...sourceDocuments.map(async (sourceDoc) => {
       await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
         aiResponseId: aiResponse.id,

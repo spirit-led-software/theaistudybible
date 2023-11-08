@@ -112,6 +112,27 @@ export async function incrementUserQueryCount(userId: string) {
   }
 }
 
+export async function decrementUserQueryCount(userId: string) {
+  console.log("Decrementing user query count for user:", userId);
+
+  const todaysQueries = await getUserQueryCountByUserIdAndDate(
+    userId,
+    new Date()
+  );
+
+  if (todaysQueries) {
+    return await updateUserQueryCount(todaysQueries.id, {
+      count: todaysQueries.count > 0 ? todaysQueries.count - 1 : 0,
+    });
+  } else {
+    return await createUserQueryCount({
+      userId,
+      count: 0,
+      date: new Date(),
+    });
+  }
+}
+
 export async function deleteUserQueryCount(id: string) {
   return (
     await readWriteDatabase
