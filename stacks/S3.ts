@@ -24,7 +24,7 @@ export function S3({ stack }: StackContext) {
           ...STATIC_ENV_VARS,
         },
         permissions: ["s3", invokeBedrockPolicy],
-        timeout: "2 minutes",
+        timeout: "15 minutes",
         memorySize: "2 GB",
       },
     },
