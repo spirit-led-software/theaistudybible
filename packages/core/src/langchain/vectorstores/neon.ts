@@ -193,7 +193,7 @@ export class NeonVectorStore extends VectorStore {
     offset?: number
   ): Promise<[NeonVectorStoreDocument, number][]> {
     const embeddingString = `[${query.join(",")}]`;
-    const _filter = filter ?? "{}";
+    const _filter = filter ?? this.filter ?? "{}";
     const _offset = offset ?? 0;
     this._log(
       `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
@@ -285,7 +285,7 @@ export class NeonVectorStore extends VectorStore {
     ids: string[],
     filter?: this["FilterType"]
   ): Promise<NeonVectorStoreDocument[]> {
-    const _filter = filter ?? "{}";
+    const _filter = filter ?? this.filter ?? "{}";
     this._log(
       `Getting documents by ids from vector store with filter ${JSON.stringify(
         _filter
