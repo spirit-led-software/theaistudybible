@@ -2,7 +2,7 @@ import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import { devotions } from "@core/schema";
 import { getLargeContextModel } from "@services/llm";
 import { getDocumentVectorStore } from "@services/vector-db";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import type { Document } from "langchain/document";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
@@ -111,7 +111,7 @@ const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
   })
 );
 
-export const getBibleReadingChain = async () => {
+export const getBibleReadingChain = async (topic: string) => {
   const retriever = await getDocumentVectorStore({
     filter: {
       name: "YouVersion - ESV 2016",
@@ -138,8 +138,9 @@ export const getBibleReadingChain = async () => {
       partialVariables: {
         previousBibleReadings: (
           await getDevotions({
-            limit: 15,
+            limit: 10,
             orderBy: desc(devotions.createdAt),
+            where: eq(devotions.topic, topic),
           })
         )
           .map((d) => `<bible_reading>\n${d.bibleReading}\n</bible_reading>`)

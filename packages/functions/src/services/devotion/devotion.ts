@@ -255,7 +255,7 @@ async function generateDevotionImages(devo: Devotion) {
 async function getBibleReading() {
   const topic = getTopic();
   console.log(`Devotion topic: ${topic}`);
-  const chain = await getBibleReadingChain();
+  const chain = await getBibleReadingChain(topic);
   const result = await chain.invoke({
     topic,
   });

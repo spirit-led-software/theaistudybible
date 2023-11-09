@@ -18,6 +18,7 @@ class Devotion with _$Devotion {
     required DateTime createdAt,
     required DateTime updatedAt,
     required DateTime date,
+    required String topic,
     required String bibleReading,
     required String summary,
     String? reflection,

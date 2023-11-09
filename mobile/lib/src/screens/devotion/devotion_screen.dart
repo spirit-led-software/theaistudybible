@@ -24,6 +24,7 @@ import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/utils/capitalization.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
@@ -139,7 +140,7 @@ class DevotionScreen extends HookConsumerWidget {
                 ],
               )
             : Text(
-                DateFormat.yMMMd().format(devotion.value!.date.toUtc()),
+                "${DateFormat.yMd().format(devotion.value!.date.toUtc())} - ${devotion.value!.topic.toCapitalized()}",
               ),
         actions: [
           IconButton(

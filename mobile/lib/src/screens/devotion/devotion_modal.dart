@@ -7,6 +7,7 @@ import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/utils/capitalization.dart';
 
 class DevotionModal extends HookConsumerWidget {
   const DevotionModal({Key? key}) : super(key: key);
@@ -142,9 +143,23 @@ class DevotionListItem extends HookConsumerWidget {
       key: ValueKey(devotion.id),
       color: currentDevotionId == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
       child: ListTile(
-        title: Text(DateFormat.yMMMd().format(devotion.date.toUtc())),
-        subtitle: Text(
-          devotion.bibleReading.split(" - ").first,
+        visualDensity: VisualDensity.compact,
+        title: Text(
+          DateFormat.yMMMMEEEEd().format(devotion.date.toUtc()),
+        ),
+        subtitle: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              devotion.topic.toCapitalized(),
+              style: context.textTheme.labelLarge,
+            ),
+            Text(
+              devotion.bibleReading.split(" - ").first,
+              style: context.textTheme.labelMedium,
+            ),
+          ],
         ),
         trailing: currentDevotionId == devotion.id
             ? Icon(
