@@ -137,7 +137,7 @@ export const getBibleReadingChain = async () => {
       partialVariables: {
         previousBibleReadings: (
           await getDevotions({
-            limit: 5,
+            limit: 15,
             orderBy: desc(devotions.createdAt),
           })
         )
