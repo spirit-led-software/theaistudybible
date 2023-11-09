@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -7,7 +8,9 @@ import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/widgets/source_info_dialog.dart';
 import 'package:url_launcher/link.dart';
 
 class Sources extends HookConsumerWidget {
@@ -29,8 +32,9 @@ class Sources extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isMounted = useIsMounted();
+    final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
 
+    final isMounted = useIsMounted();
     final isLoading = useState(false);
     final sourceDocuments = useState<List<SourceDocument>>([]);
     final hasLoaded = useState(false);
@@ -93,11 +97,23 @@ class Sources extends HookConsumerWidget {
               final source = sourcesSorted[index];
               return Link(
                 uri: Uri.parse(source.metadata["url"]),
+                target: LinkTarget.self,
                 builder: (context, followLink) {
                   return Container(
                     width: 250,
                     margin: const EdgeInsets.symmetric(horizontal: 5),
                     child: ListTile(
+                      onLongPress: () {
+                        if (currentUserPrefs.hapticFeedback) {
+                          HapticFeedback.mediumImpact();
+                        }
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return SourceInfoDialog(sourceDocument: source);
+                          },
+                        );
+                      },
                       onTap: () {
                         followLink!();
                       },

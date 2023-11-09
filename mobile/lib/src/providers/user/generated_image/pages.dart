@@ -55,7 +55,7 @@ class UserGeneratedImagesPages extends _$UserGeneratedImagesPages {
     await future;
   }
 
-  Future<void> deleteUserGeneratedImage(String userGeneratedImageId) async {
+  Future<void> deleteImage(String userGeneratedImageId) async {
     final previousState = state;
     state = AsyncValue.data(state.value
             ?.map(

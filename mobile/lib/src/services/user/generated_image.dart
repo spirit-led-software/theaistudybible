@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:revelationsai/src/constants/api.dart';
 import 'package:revelationsai/src/models/pagination.dart';
@@ -25,9 +24,6 @@ class UserGeneratedImageService {
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-
-    debugPrint(data.toString());
-
     return PaginatedEntitiesResponseData.fromJson(data, (json) {
       return UserGeneratedImage.fromJson(json as Map<String, dynamic>);
     });

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
+import 'package:revelationsai/src/providers/user/generated_image/pages.dart';
 import 'package:revelationsai/src/providers/user/generated_image/single.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
@@ -38,6 +40,49 @@ class ImageScreen extends HookConsumerWidget {
               ? DateFormat().add_yMd().addPattern(DateFormat.HOUR_MINUTE).format(image.value!.createdAt.toLocal())
               : "Image",
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text(
+                      "Delete image",
+                    ),
+                    content: const Text(
+                      "Are you sure you want to delete this image?",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          "Cancel",
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context.pop();
+                          ref.read(userGeneratedImagesPagesProvider.notifier).deleteImage(id);
+                          context.go("/images");
+                        },
+                        child: const Text(
+                          "Delete",
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: Icon(
+              Icons.delete,
+              color: context.colorScheme.error,
+            ),
+          )
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {

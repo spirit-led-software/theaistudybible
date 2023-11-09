@@ -97,7 +97,7 @@ class DevotionModal extends HookConsumerWidget {
                                 )
                               : devotionsPagesNotifier.hasNextPage()
                                   ? Container(
-                                      padding: const EdgeInsets.all(10),
+                                      padding: const EdgeInsets.all(5),
                                       child: Row(
                                         children: [
                                           Expanded(
@@ -144,20 +144,30 @@ class DevotionListItem extends HookConsumerWidget {
       color: currentDevotionId == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
       child: ListTile(
         visualDensity: VisualDensity.compact,
-        title: Text(
-          DateFormat.yMMMMEEEEd().format(devotion.date.toUtc()),
+        title: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: devotion.topic.toCapitalized(),
+              ),
+              const WidgetSpan(child: SizedBox(width: 5)),
+              const WidgetSpan(
+                child: Icon(Icons.circle, size: 5),
+                alignment: PlaceholderAlignment.middle,
+              ),
+              const WidgetSpan(child: SizedBox(width: 5)),
+              TextSpan(
+                text: devotion.bibleReading.split(" - ").first,
+              )
+            ],
+          ),
         ),
         subtitle: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              devotion.topic.toCapitalized(),
-              style: context.textTheme.labelLarge,
-            ),
-            Text(
-              devotion.bibleReading.split(" - ").first,
-              style: context.textTheme.labelMedium,
+              DateFormat.yMMMMd().format(devotion.date.toUtc()),
             ),
           ],
         ),

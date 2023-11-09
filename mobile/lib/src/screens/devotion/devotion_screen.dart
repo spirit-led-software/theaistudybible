@@ -139,8 +139,23 @@ class DevotionScreen extends HookConsumerWidget {
                   )
                 ],
               )
-            : Text(
-                "${DateFormat.yMd().format(devotion.value!.date.toUtc())} - ${devotion.value!.topic.toCapitalized()}",
+            : Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: DateFormat.yMd().format(devotion.value!.date),
+                    ),
+                    const WidgetSpan(child: SizedBox(width: 5)),
+                    const WidgetSpan(
+                      child: Icon(Icons.circle, size: 5),
+                      alignment: PlaceholderAlignment.middle,
+                    ),
+                    const WidgetSpan(child: SizedBox(width: 5)),
+                    TextSpan(
+                      text: devotion.value!.topic.toTitleCase(),
+                    ),
+                  ],
+                ),
               ),
         actions: [
           IconButton(
@@ -499,7 +514,7 @@ class DevotionScreen extends HookConsumerWidget {
                                 uri: Uri.parse(
                                   sourceDocs.value[index].metadata['url'],
                                 ),
-                                target: LinkTarget.blank,
+                                target: LinkTarget.self,
                                 builder: (context, followLink) => ListTile(
                                   dense: true,
                                   visualDensity: RAIVisualDensity.tightest,
@@ -509,8 +524,9 @@ class DevotionScreen extends HookConsumerWidget {
                                   ),
                                   title: Text(
                                     sourceDoc.name,
-                                    softWrap: false,
-                                    overflow: TextOverflow.fade,
+                                    softWrap: true,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 12,
                                     ),

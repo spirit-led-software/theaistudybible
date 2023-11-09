@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:revelationsai/src/models/user/generated_image.dart';
+import 'package:revelationsai/src/providers/user/generated_image/pages.dart';
 import 'package:revelationsai/src/providers/user/generated_image/repositories.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -29,6 +30,8 @@ class SingleUserGeneratedImage extends _$SingleUserGeneratedImage {
       debugPrint("Failed to delete image: $error");
       refresh();
       rethrow;
+    } finally {
+      ref.read(userGeneratedImagesPagesProvider.notifier).refresh();
     }
   }
 
