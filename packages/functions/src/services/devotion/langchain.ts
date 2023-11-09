@@ -91,26 +91,27 @@ export const getDevotionGeneratorChain = async (): Promise<
   return chain;
 };
 
+const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
+  z.object({
+    book: z
+      .string()
+      .describe("The book name from within the bible. For example: Genesis"),
+    chapter: z
+      .string()
+      .describe(
+        "The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**"
+      ),
+    verseRange: z
+      .string()
+      .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
+      .describe(
+        "The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**"
+      ),
+    text: z.string().describe("The exact text of the bible reading."),
+  })
+);
+
 export const getBibleReadingChain = async () => {
-  const outputParser = StructuredOutputParser.fromZodSchema(
-    z.object({
-      book: z
-        .string()
-        .describe("The book name from within the bible. For example: Genesis"),
-      chapter: z
-        .string()
-        .describe(
-          "The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**"
-        ),
-      verseRange: z
-        .string()
-        .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
-        .describe(
-          "The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**"
-        ),
-      text: z.string().describe("The exact text of the bible reading."),
-    })
-  );
   const retriever = await getDocumentVectorStore({
     filter: {
       name: "YouVersion - ESV 2016",
@@ -143,38 +144,38 @@ export const getBibleReadingChain = async () => {
         )
           .map((d) => `<bible_reading>\n${d.bibleReading}\n</bible_reading>`)
           .join("\n"),
-        formatInstructions: outputParser.getFormatInstructions(),
+        formatInstructions: bibleReadingOutputParser.getFormatInstructions(),
       },
     })
       .pipe(
         getLargeContextModel({
-          modelId: "anthropic.claude-v2",
           maxTokens: 2048,
           stopSequences: ["</output>"],
           promptSuffix: "<output>",
         })
       )
-      .pipe(outputParser),
+      .pipe(bibleReadingOutputParser),
   ]);
 
   return chain;
 };
 
+const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
+  z.object({
+    prompt: z
+      .string()
+      .describe(
+        "The image generation prompt. Between 800 and 1000 characters in length."
+      ),
+    negativePrompt: z
+      .string()
+      .describe(
+        "The negative image generation prompt. Between 800 and 1000 characters in length."
+      ),
+  })
+);
+
 export const getImagePromptChain = () => {
-  const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
-    z.object({
-      prompt: z
-        .string()
-        .describe(
-          "The image generation prompt. Between 800 and 1000 characters in length."
-        ),
-      negativePrompt: z
-        .string()
-        .describe(
-          "The negative image generation prompt. Between 800 and 1000 characters in length."
-        ),
-    })
-  );
   return new PromptTemplate({
     template: DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
     inputVariables: ["bibleReading", "summary", "reflection", "prayer"],
@@ -184,7 +185,6 @@ export const getImagePromptChain = () => {
   })
     .pipe(
       getLargeContextModel({
-        modelId: "anthropic.claude-v2",
         maxTokens: 1024,
         stream: false,
         promptSuffix: "<output>",

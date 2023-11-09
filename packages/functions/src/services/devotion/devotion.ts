@@ -122,8 +122,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
   let devo: Devotion | undefined;
   try {
     if (!topic || !bibleReading) {
-      const { bibleReadingText, topic: newTopic } =
-        await getRandomBibleReading();
+      const { bibleReadingText, topic: newTopic } = await getBibleReading();
       topic = newTopic;
       bibleReading = bibleReadingText;
     }
@@ -253,8 +252,8 @@ async function generateDevotionImages(devo: Devotion) {
   }
 }
 
-async function getRandomBibleReading() {
-  const topic = getRandomTopic();
+async function getBibleReading() {
+  const topic = getTopic();
   console.log(`Devotion topic: ${topic}`);
   const chain = await getBibleReadingChain();
   const result = await chain.invoke({
@@ -267,34 +266,42 @@ async function getRandomBibleReading() {
   return { topic, bibleReadingText };
 }
 
-function getRandomTopic() {
-  const topics = [
-    "love",
-    "faith",
-    "hope",
-    "joy",
-    "peace",
-    "patience",
-    "kindness",
-    "goodness",
-    "gentleness",
-    "self-control",
-    "forgiveness",
-    "prayer",
-    "history",
-    "prophecy",
-    "salvation",
-    "sin",
-    "heaven",
-    "hell",
-    "baptism",
-    "communion",
-    "money",
-    "work",
-    "marriage",
-    "children",
-    "family",
-  ];
+// 31 topics, one for each day of the month
+const devotionTopics = [
+  "new life",
+  "love",
+  "faith",
+  "hope",
+  "joy",
+  "peace",
+  "patience",
+  "kindness",
+  "goodness",
+  "gentleness",
+  "self-control",
+  "forgiveness",
+  "prayer",
+  "history",
+  "prophecy",
+  "salvation",
+  "sin",
+  "heaven",
+  "hell",
+  "baptism",
+  "communion",
+  "money",
+  "work",
+  "marriage",
+  "children",
+  "family",
+  "friendship",
+  "generosity",
+  "justice",
+  "wisdom",
+  "humility",
+];
 
-  return topics[Math.floor(Math.random() * topics.length)];
+function getTopic() {
+  // get the topic that corresponds to the current day of the month
+  return devotionTopics[new Date().getDate() - 1];
 }
