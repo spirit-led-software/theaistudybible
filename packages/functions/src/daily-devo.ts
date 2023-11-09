@@ -21,7 +21,7 @@ export const handler: Handler = async (event, _) => {
     }
     await firebase.messaging().sendToTopic("daily-devo", {
       notification: {
-        title: "New Daily Devo",
+        title: `Today's Daily Devo: ${devo?.topic}`,
         body: devo?.bibleReading,
         badge: "1",
       },
