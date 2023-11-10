@@ -39,7 +39,10 @@ const devotionOutputParser = StructuredOutputParser.fromZodSchema(
 
 export const getDevotionGeneratorChain = async (): Promise<
   Runnable<
-    any,
+    {
+      topic: string;
+      bibleReading: string;
+    },
     {
       result: typeof devotionOutputParser.schema._type;
       sourceDocuments: NeonVectorStoreDocument[];
@@ -52,10 +55,11 @@ export const getDevotionGeneratorChain = async (): Promise<
   const chain = RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
-        (input) => input.bibleReading,
+        (input) => input.topic,
         retriever,
       ]),
       bibleReading: (input) => input.bibleReading,
+      topic: (input) => input.topic,
     },
     {
       sourceDocuments: (previousStepResult) =>
@@ -65,13 +69,14 @@ export const getDevotionGeneratorChain = async (): Promise<
           .map((d: Document) => `<document>\n${d.pageContent}\n</document>`)
           .join("\n"),
       bibleReading: (previousStepResult) => previousStepResult.bibleReading,
+      topic: (previousStepResult) => previousStepResult.topic,
     },
     {
       sourceDocuments: (previousStepResult) =>
         previousStepResult.sourceDocuments,
       result: new PromptTemplate({
         template: DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-        inputVariables: ["bibleReading", "documents"],
+        inputVariables: ["topic", "bibleReading", "documents"],
         partialVariables: {
           formatInstructions: devotionOutputParser.getFormatInstructions(),
         },

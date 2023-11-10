@@ -26,17 +26,19 @@ The formatting instructions are within <format_instructions></format_instruction
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
 
-export const DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE = `You need to write a non-denominational Christian devotion based on the following documents and Bible reading. Your output should match the formatting instructions exactly.
+export const DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE = `You need to write a non-denominational Christian devotion based on the following topic and Bible reading. The devotion should mainly be about the topic with references to the Bible reading where necessary. Use the documents provided to you to add more detail to your output. Your output should match the formatting instructions exactly.
 
-The documents are within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags.
+The topic is within <topic></topic> XML tags.
 
 The Bible reading is within <bible_reading></bible_reading> XML tags.
 
+The documents are within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags.
+
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
 
-<documents>
-{documents}
-</documents>
+<topic>
+{topic}
+</topic>
 
 <bible_reading>
 {bibleReading}
@@ -45,6 +47,10 @@ The formatting instructions are within <format_instructions></format_instruction
 <format_instructions>
 {formatInstructions}
 </format_instructions>
+
+<documents>
+{documents}
+</documents>
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
 

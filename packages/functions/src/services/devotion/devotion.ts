@@ -129,6 +129,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
     const chain = await getDevotionGeneratorChain();
     const { result, sourceDocuments } = await chain.invoke({
+      topic,
       bibleReading,
     });
 
