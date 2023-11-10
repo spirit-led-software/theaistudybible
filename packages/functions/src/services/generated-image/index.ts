@@ -43,7 +43,7 @@ export async function generatedImage(
         scheduler: "KarrasDPM",
         refine: "expert_ensemble_refiner",
         num_inference_steps: 50,
-        guidance_scale: 7.5,
+        guidance_scale: 9,
         prompt_strength: 1.0,
         high_noise_frac: 0.8,
       },
