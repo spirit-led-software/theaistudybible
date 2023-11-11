@@ -139,8 +139,18 @@ class DevotionScreen extends HookConsumerWidget {
                   )
                 ],
               )
-            : Text(
-                DateFormat.yMd().format(devotion.value!.date.toUtc()),
+            : Column(
+                children: [
+                  Text(
+                    devotion.value!.topic.toTitleCase(),
+                  ),
+                  Text(
+                    DateFormat.yMd().format(devotion.value!.date.toUtc()),
+                    style: context.textTheme.labelLarge?.copyWith(
+                      color: context.colorScheme.onPrimary,
+                    ),
+                  ),
+                ],
               ),
         actions: [
           IconButton(
@@ -350,14 +360,6 @@ class DevotionScreen extends HookConsumerWidget {
                       margin: const EdgeInsets.only(top: 20),
                       alignment: Alignment.center,
                       child: SelectableText(
-                        devotion.value!.topic.toTitleCase(),
-                        style: context.textTheme.headlineMedium,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 10),
-                      alignment: Alignment.center,
-                      child: SelectableText(
                         devotion.value!.bibleReading.split(" - ").first,
                         style: const TextStyle(
                           fontSize: 20,
@@ -441,21 +443,19 @@ class DevotionScreen extends HookConsumerWidget {
                           ),
                         ),
                       ),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: images.value.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            key: ValueKey(images.value[index].id),
-                            padding: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: RAINetworkImage(
-                              imageUrl: images.value[index].url,
-                              fallbackText: "Image",
-                            ),
-                          );
-                        },
-                      ),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: images.value
+                            .map(
+                              (e) => RAINetworkImage(
+                                imageUrl: e.url,
+                                fallbackText: "Image",
+                              ),
+                            )
+                            .toList(),
+                      )
                     ],
                     Container(
                       margin: const EdgeInsets.only(bottom: 20),

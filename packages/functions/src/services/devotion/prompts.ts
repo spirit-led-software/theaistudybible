@@ -54,18 +54,17 @@ The formatting instructions are within <format_instructions></format_instruction
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
 
-export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `Create an image generation prompt and a negative image generation prompt. Do not be verbose. Start with what should or shouldn't be in the image and then follow it with adjectives to describe the image's style. Base it on the devotion below. Some examples of prompts are also given below. Your output should match the formatting instructions exactly.
+export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You goal is to generate short, concise, yet descriptive phrases that can help when generating **ONE** stable diffusion model image. This image will be used to aid in visualizing the devotion that is also provided to you. Use **ONLY** the devotion provided to make these phrases as descriptive as possible. The more descriptive the phrases are, the better the image will be. Everything from your phrases should be able to be captured within **ONE** image and should not conflict with one another. **DO NOT** include dialogue or sounds in your output. These phrases should not be proper sentences. Your output must match the formatting instructions exactly.
       
-The examples are given within <examples></examples> XML tags.
+An example is provided within <example></example> XML tags.
 
 The devotion is within <devotion></devotion> XML tags.
 
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
 
-<examples>
-Prompt: A beautiful sunset over the ocean with seagulls flying overhead. 8k, beautiful, high-quality, realistic.
-Negative prompt: A dark night. Ugly, unrealistic, blurry, fake, cartoon, text, words, extra fingers, extra toes, extra limbs.
-</examples>
+<example>
+\`\`\`json ["a man with long hair, a beard, and a crown of thorns on his head is nailed to a cross","women weeping and mourning at the foot of the cross","soldiers standing guard at the foot of the cross","a sign on the cross in a foreign language"]\`\`\`
+</example>
 
 <devotion>
 Bible Reading:\n{bibleReading}\n\n

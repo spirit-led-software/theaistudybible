@@ -102,8 +102,8 @@ class AllImagesScreen extends HookConsumerWidget {
                 GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: context.isTablet ? 4 : 3,
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5,
                   ),

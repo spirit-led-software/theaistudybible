@@ -22,17 +22,17 @@ const devotionOutputParser = StructuredOutputParser.fromZodSchema(
     summary: z
       .string()
       .describe(
-        "A summary of the bible reading. Between 1500 and 3000 characters in length."
+        "A summary of the bible reading. Between 2000 and 5000 characters in length."
       ),
     reflection: z
       .string()
       .describe(
-        "A reflection on the bible reading and summary. Between 1500 and 3000 characters in length."
+        "A reflection on the bible reading and summary. Between 3000 and 5000 characters in length."
       ),
     prayer: z
       .string()
       .describe(
-        "A prayer to end the devotion. Between 500 and 1500 characters in length."
+        "A prayer to end the devotion. Between 500 and 2000 characters in length."
       ),
   })
 );
@@ -55,7 +55,7 @@ export const getDevotionGeneratorChain = async (): Promise<
   const chain = RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
-        (input) => input.topic,
+        (input) => `${input.topic}\n${input.bibleReading}`,
         retriever,
       ]),
       bibleReading: (input) => input.bibleReading,
@@ -167,18 +167,15 @@ export const getBibleReadingChain = async (topic: string) => {
 };
 
 const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
-  z.object({
-    prompt: z
-      .string()
-      .describe(
-        "The image generation prompt. Between 800 and 1000 characters in length."
-      ),
-    negativePrompt: z
-      .string()
-      .describe(
-        "The negative image generation prompt. Between 800 and 1000 characters in length."
-      ),
-  })
+  z
+    .array(
+      z
+        .string()
+        .describe(
+          "A short, concise, yet descriptive phrase that will help generate a biblically accurate image."
+        )
+    )
+    .length(4)
 );
 
 export const getImagePromptChain = () => {

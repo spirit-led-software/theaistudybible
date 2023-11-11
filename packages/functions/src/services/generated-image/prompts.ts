@@ -10,7 +10,7 @@ The user's prompt is within <user_prompt></user_prompt> XML tags.
 
 Place your output within <output></output> XML tags.`;
 
-export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating **ONE** stable diffusion model image. Use **ONLY** the documents provided to make these phrases as descriptive as possible. The more descriptive the phrases are, the better the image will be. Everything from your phrases should be able to be captured within **ONE** image and should not conflict with one another. **DO NOT** include dialogue or sounds in your output. These phrases should not be proper sentences. Your output must match the formatting instructions exactly.
+export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `Your goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating **ONE** stable diffusion model image. Use **ONLY** the documents provided to make these phrases as descriptive as possible. The more descriptive the phrases are, the better the image will be. Everything from your phrases should be able to be captured within **ONE** image and should not conflict with one another. **DO NOT** include dialogue or sounds in your output. These phrases should not be proper sentences. Your output must match the formatting instructions exactly.
 
 An example is provided within <example></example> XML tags. Within the example is an example user prompt within <example_user_prompt></example_user_prompt> XML tags. Also in the example is an example output within <example_output></example_output> XML tags.
 
