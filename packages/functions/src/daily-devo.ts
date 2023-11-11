@@ -1,3 +1,4 @@
+import { toTitleCase } from "@core/util/string";
 import { generateDevotion, getDevotionByDate } from "@services/devotion";
 import type { Handler } from "aws-lambda";
 import firebase from "firebase-admin";
@@ -21,7 +22,7 @@ export const handler: Handler = async (event, _) => {
     }
     await firebase.messaging().sendToTopic("daily-devo", {
       notification: {
-        title: `Today's Daily Devo: ${devo?.topic}`,
+        title: `Today's Daily Devo: ${toTitleCase(devo!.topic)}`,
         body: devo?.bibleReading,
         badge: "1",
       },

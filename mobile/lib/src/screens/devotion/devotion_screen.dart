@@ -139,23 +139,8 @@ class DevotionScreen extends HookConsumerWidget {
                   )
                 ],
               )
-            : Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: DateFormat.yMd().format(devotion.value!.date),
-                    ),
-                    const WidgetSpan(child: SizedBox(width: 5)),
-                    const WidgetSpan(
-                      child: Icon(Icons.circle, size: 5),
-                      alignment: PlaceholderAlignment.middle,
-                    ),
-                    const WidgetSpan(child: SizedBox(width: 5)),
-                    TextSpan(
-                      text: devotion.value!.topic.toTitleCase(),
-                    ),
-                  ],
-                ),
+            : Text(
+                DateFormat.yMd().format(devotion.value!.date.toUtc()),
               ),
         actions: [
           IconButton(
@@ -354,30 +339,7 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: RefreshIndicator(
                 onRefresh: () async {
-                  String? id = devotion.value?.id ?? devotionId;
-                  if (id != null) {
-                    return await Future.wait([
-                      ref.read(singleDevotionProvider(id).notifier).refresh(),
-                      ref.read(devotionSourceDocumentsProvider(id).notifier).refresh(),
-                      ref.read(devotionImagesProvider(id).notifier).refresh(),
-                      ref.read(devotionReactionsProvider(id).notifier).refresh(),
-                      ref.read(devotionReactionCountsProvider(id).notifier).refresh(),
-                    ]).then((value) {
-                      final foundDevo = value[0] as Devotion;
-                      final foundSourceDocs = value[1] as List<SourceDocument>;
-                      final foundImages = value[2] as List<DevotionImage>;
-                      // final foundReactions = value[3] as List<DevotionReaction>;
-                      final foundReactionCounts = value[4] as Map<DevotionReactionType, int>;
-                      if (isMounted()) {
-                        devotion.value = foundDevo;
-                        sourceDocs.value = foundSourceDocs;
-                        images.value = foundImages;
-                        reactionCounts.value = foundReactionCounts;
-                      }
-                    }).catchError((error, stackTrace) {
-                      debugPrint("Failed to refresh devotion: $error $stackTrace");
-                    });
-                  }
+                  await refreshDevoData();
                 },
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -386,6 +348,14 @@ class DevotionScreen extends HookConsumerWidget {
                   children: [
                     Container(
                       margin: const EdgeInsets.only(top: 20),
+                      alignment: Alignment.center,
+                      child: SelectableText(
+                        devotion.value!.topic.toTitleCase(),
+                        style: context.textTheme.headlineMedium,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(top: 10),
                       alignment: Alignment.center,
                       child: SelectableText(
                         devotion.value!.bibleReading.split(" - ").first,
@@ -402,9 +372,7 @@ class DevotionScreen extends HookConsumerWidget {
                       devotion.value!.bibleReading.split(" - ").last,
                     ),
                     Container(
-                      margin: const EdgeInsets.only(
-                        top: 40,
-                      ),
+                      margin: const EdgeInsets.only(top: 20),
                       alignment: Alignment.center,
                       child: const SelectableText(
                         "Summary",
@@ -418,9 +386,7 @@ class DevotionScreen extends HookConsumerWidget {
                       devotion.value!.summary,
                     ),
                     Container(
-                      margin: const EdgeInsets.only(
-                        top: 20,
-                      ),
+                      margin: const EdgeInsets.only(top: 20),
                       alignment: Alignment.center,
                       child: const SelectableText(
                         "Reflection",
@@ -524,7 +490,6 @@ class DevotionScreen extends HookConsumerWidget {
                                   ),
                                   title: Text(
                                     sourceDoc.name,
-                                    softWrap: true,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
@@ -539,8 +504,8 @@ class DevotionScreen extends HookConsumerWidget {
                                         : sourceDoc.isFile
                                             ? 'P:${sourceDoc.pageNumber} L:${sourceDoc.linesFrom}-${sourceDoc.linesTo}'
                                             : sourceDoc.url,
-                                    softWrap: false,
-                                    overflow: TextOverflow.fade,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
                                     style: const TextStyle(
                                       fontSize: 12,
                                     ),

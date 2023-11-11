@@ -144,28 +144,16 @@ class DevotionListItem extends HookConsumerWidget {
       color: currentDevotionId == devotion.id ? context.secondaryColor.withOpacity(0.2) : null,
       child: ListTile(
         visualDensity: VisualDensity.compact,
-        title: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: devotion.topic.toCapitalized(),
-              ),
-              const WidgetSpan(child: SizedBox(width: 5)),
-              const WidgetSpan(
-                child: Icon(Icons.circle, size: 5),
-                alignment: PlaceholderAlignment.middle,
-              ),
-              const WidgetSpan(child: SizedBox(width: 5)),
-              TextSpan(
-                text: devotion.bibleReading.split(" - ").first,
-              )
-            ],
-          ),
+        title: Text(
+          devotion.topic.toCapitalized(),
         ),
         subtitle: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              devotion.bibleReading.split(" - ").first,
+            ),
             Text(
               DateFormat.yMMMMd().format(devotion.date.toUtc()),
             ),
