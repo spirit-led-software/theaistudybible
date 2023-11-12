@@ -22,12 +22,12 @@ const devotionOutputParser = StructuredOutputParser.fromZodSchema(
     summary: z
       .string()
       .describe(
-        "A summary of the bible reading. Between 2000 and 5000 characters in length."
+        "A summary of the bible reading. Between 2000 and 3000 characters in length."
       ),
     reflection: z
       .string()
       .describe(
-        "A reflection on the bible reading and summary. Between 3000 and 5000 characters in length."
+        "A reflection on the bible reading and summary. Between 3000 and 4000 characters in length."
       ),
     prayer: z
       .string()
