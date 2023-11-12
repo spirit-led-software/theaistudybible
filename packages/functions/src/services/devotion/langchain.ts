@@ -155,6 +155,7 @@ export const getBibleReadingChain = async (topic: string) => {
     })
       .pipe(
         getLargeContextModel({
+          modelId: "anthropic.claude-v2",
           maxTokens: 2048,
           stopSequences: ["</output>"],
           promptSuffix: "<output>",
@@ -188,6 +189,7 @@ export const getImagePromptChain = () => {
   })
     .pipe(
       getLargeContextModel({
+        modelId: "anthropic.claude-v2",
         maxTokens: 1024,
         stream: false,
         promptSuffix: "<output>",
