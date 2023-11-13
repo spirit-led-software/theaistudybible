@@ -1,25 +1,36 @@
-export const USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE = `Given the following prompt provided from a user, check whether the prompt is inappropriate. Inappropriate prompts include anything that involves sex, excessive violence or anything going against Christian doctrine.
+// Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
-If the prompt is inappropriate, return true. Otherwise, return false. Do not add any additional information to the output.
+export const USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE = `Given the following prompt provided from a user, check whether the prompt is inappropriate. Inappropriate prompts include anything that involves sex, excessive violence or anything going against or irrelevant to Christian doctrine.
 
-The user's prompt is within <user_prompt></user_prompt> XML tags.
+Here are some important rules for you to follow:
+- You can only respond with "true" or "false" (without the quotes).
 
+Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 <user_prompt>
 {userPrompt}
 </user_prompt>
 
+Is the prompt inappropriate?
+
+Think about your output first before you respond.
+
 Place your output within <output></output> XML tags.`;
 
-export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `Your goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating **ONE** stable diffusion model image. Use **ONLY** the documents provided to make these phrases as descriptive as possible. The more descriptive the phrases are, the better the image will be. Everything from your phrases should be able to be captured within **ONE** image and should not conflict with one another. **DO NOT** include dialogue or sounds in your output. These phrases should not be proper sentences. Your output must match the formatting instructions exactly.
+export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating a stable diffusion model image.
 
-An example is provided within <example></example> XML tags. Within the example is an example user prompt within <example_user_prompt></example_user_prompt> XML tags. Also in the example is an example output within <example_output></example_output> XML tags.
+Here are some documents you can use to help you generate your phrases, within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags. **IMPORTANT:** The stable diffusion model knows nothing at all and does not have access to the documents provided to you or the Bible, so you must include as much detail as possible from the documents in your output to ensure a biblically accurate image is generated.
+<documents>
+{documents}
+</documents>
 
-The documents are within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags. **IMPORTANT:** The stable diffusion model knows nothing at all and does not have access to the documents provided to you or the Bible, so you must include as much detail as possible from the documents in your output to ensure a biblically accurate image is generated.
+Here are some important rules for you to follow:
+- Your output must match the formatting instructions exactly.
+- Your phrases must support the user's prompt.
+- Your phrases must not conflict with one another.
+- Each of your phrases must be able to be contained within a single image.
+- Your phrases must be short and concise, but also descriptive.
 
-The user's prompt is within <user_prompt></user_prompt> XML tags. **IMPORTANT:** Make sure your output supports this prompt.
-
-The formatting instructions are within <format_instructions></format_instructions> XML tags.
-
+Here is an example of an output that you could generate, within <example></example> XML tags. Within the example is an example user prompt within <example_user_prompt></example_user_prompt> XML tags. Also in the example is an example output within <example_output></example_output> XML tags.
 <example>
 <example_user_prompt>
 Jesus on the cross
@@ -29,14 +40,14 @@ Jesus on the cross
 </example_output>
 </example>
 
-<documents>
-{documents}
-</documents>
-
+Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 <user_prompt>
 {userPrompt}
 </user_prompt>
 
+What are some phrases that could help to aid the user's prompt when generating a stable diffusion model image?
+
+Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
 </format_instructions>

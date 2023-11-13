@@ -1,3 +1,5 @@
+// Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
+
 export const DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE = `You are a gifted Bible scholar who is an expert at fetching Bible passages based on a given topic. Your goal is to fetch a Bible reading based on the topic provided to you.
 
 Here are the documents that you are to search through to find the Bible reading, within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags. You are not allowed to fetch a Bible reading from any other source.
