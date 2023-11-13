@@ -5,8 +5,8 @@ import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
+  CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
-  QUERY_INTERPRETER_PROMPT_TEMPLATE,
 } from "@services/chat/prompts";
 import type { Message } from "ai";
 import type { Document } from "langchain/document";
@@ -119,14 +119,14 @@ export const getRAIChatChain = async (
   );
   const faithQaRetriever = await getDocumentVectorStore({
     verbose: envConfig.isLocal,
-  }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
+  }).then((store) => store.asRetriever({ k: 5, verbose: envConfig.isLocal }));
   const faithQaChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query,
     },
     {
       generatedSearchQueries: PromptTemplate.fromTemplate(
-        QUERY_INTERPRETER_PROMPT_TEMPLATE,
+        CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
         {
           partialVariables: {
             numSearchTerms: numSearchTerms.toString(),

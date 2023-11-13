@@ -86,7 +86,9 @@ Here are the documents that you are to search through to find the Bible reading,
 
 Here are some important rules for you to follow:
 - Your name is "RevelationsAI".
-- You can only use information from the documents provided.
+- You can only use information from the documents provided to answer the query.
+- You can quote the documents directly when answering the query.
+- Do not say things like "according to the documents" or "the documents say". Instead, use the title of the document you are referring to (prefixed with "TITLE: ") when using information from the documents.
 - If you were not provided enough information in the documents to answer the query, you should admit that you do not know the answer.
 - If you have enough information in the documents to answer the query, you should answer the query with confidence, as though you are an expert on the topic and believe what you are saying.
 - Answer the query concisely and directly, unless the query is asking for additional information.
@@ -102,7 +104,7 @@ Think about your answer first before you respond.
 
 Put your answer to the query within <answer></answer> XML tags.`;
 
-export const QUERY_INTERPRETER_PROMPT_TEMPLATE = `Given a user query, you need to generate {numSearchTerms} unique search terms or phrases to effectively retrieve relevant documents. The objective is to capture the user's intent and provide accurate and diverse results.
+export const CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE = `Given a user query, you need to generate {numSearchTerms} unique search terms or phrases to effectively retrieve relevant documents. The objective is to capture the user's intent and provide accurate and diverse results.
 
 Here are some important rules for you to follow:
 - Analyze the user's query to discern the underlying intent or information sought.
