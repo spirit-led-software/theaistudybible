@@ -52,6 +52,7 @@ class AiResponseSourceDocumentRepository {
       id: aiResponseId,
       session: _session,
     ).then((value) => filterSourceDocuments(value)).then((value) async {
+      await deleteLocalByAiResponseId(aiResponseId);
       await save(value.map((e) {
         return e.copyWith(
           aiResponseId: aiResponseId,

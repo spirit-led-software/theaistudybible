@@ -304,6 +304,7 @@ class DevotionSourceDocumentRepository {
     return await DevotionService.getDevotionSourceDocuments(
       id: devotionId,
     ).then((value) => filterSourceDocuments(value)).then((value) async {
+      await deleteLocalByDevotionId(devotionId);
       await _save(value.map((e) => e.copyWith(devotionId: devotionId)).toList());
       return value;
     });

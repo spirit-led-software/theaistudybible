@@ -499,10 +499,10 @@ class DevotionScreen extends HookConsumerWidget {
                                   subtitle: Text(
                                     sourceDoc.isWebpage
                                         ? sourceDoc.hasTitle
-                                            ? sourceDoc.title
+                                            ? sourceDoc.title!
                                             : sourceDoc.url
                                         : sourceDoc.isFile
-                                            ? 'P:${sourceDoc.pageNumber} L:${sourceDoc.linesFrom}-${sourceDoc.linesTo}'
+                                            ? 'Page(s): ${sourceDoc.pageNumbers?.keys.join(", ")}'
                                             : sourceDoc.url,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,

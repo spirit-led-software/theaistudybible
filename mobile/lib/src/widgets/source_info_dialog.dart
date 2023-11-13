@@ -32,16 +32,18 @@ class SourceInfoDialog extends HookConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     sourceDocument.name,
+                    textAlign: TextAlign.center,
                     style: context.textTheme.titleLarge,
                   ),
                   const SizedBox(height: 10),
                   if (sourceDocument.isWebpage) ...[
                     Text(
                       sourceDocument.hasTitle
-                          ? sourceDocument.title
+                          ? sourceDocument.title!
                           : Uri.parse(
                               sourceDocument.url,
                             ).pathSegments.lastWhere((element) => element.isNotEmpty),
@@ -49,19 +51,9 @@ class SourceInfoDialog extends HookConsumerWidget {
                     ),
                   ],
                   if (sourceDocument.isFile) ...[
-                    if (sourceDocument.hasPageNumber) ...[
+                    if (sourceDocument.hasPageNumbers) ...[
                       Text(
-                        'Page: ${sourceDocument.pageNumber}',
-                        style: context.textTheme.titleSmall,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      )
-                    ],
-                    if (sourceDocument.hasLines) ...[
-                      Text(
-                        'Lines: ${sourceDocument.linesFrom}'
-                        '-${sourceDocument.linesTo}',
+                        'Page(s): ${sourceDocument.pageNumbers!.keys.join(', ')}',
                         style: context.textTheme.titleSmall,
                       ),
                       const SizedBox(

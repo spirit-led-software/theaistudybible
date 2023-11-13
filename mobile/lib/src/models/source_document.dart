@@ -39,14 +39,19 @@ class SourceDocument with _$SourceDocument {
   bool get isWebpage => metadata['type'].toString().toLowerCase() == 'webpage';
 
   bool get hasTitle => metadata['title'] != null;
-  String get title => metadata['title'] ?? '';
+  String? get title => metadata['title'];
 
   bool get hasPageNumber => metadata["loc"]["pageNumber"] != null;
-  int get pageNumber => metadata["loc"]["pageNumber"] ?? 0;
+  int? get pageNumber => metadata["loc"]["pageNumber"];
+
+  bool get hasPageNumbers => metadata["loc"]["pageNumbers"] != null;
+  Map<String, dynamic>? get pageNumbers => metadata["loc"]["pageNumbers"];
+
+  List<Map<String, int>>? getLinesForPage(int pageNumber) => metadata["loc"]["pageNumbers"][pageNumber.toString()];
 
   bool get hasLines => metadata["loc"]["lines"] != null;
-  int get linesTo => metadata["loc"]["lines"]["to"] ?? 0;
-  int get linesFrom => metadata["loc"]["lines"]["from"] ?? 0;
+  int? get linesTo => metadata["loc"]["lines"]["to"];
+  int? get linesFrom => metadata["loc"]["lines"]["from"];
 
   StoredSourceDocument toStored() {
     return StoredSourceDocument(

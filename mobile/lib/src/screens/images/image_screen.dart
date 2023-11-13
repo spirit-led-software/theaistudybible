@@ -148,8 +148,15 @@ class ImageScreen extends HookConsumerWidget {
                                   ),
                                   IconButton(
                                     onPressed: () async {
-                                      await Share.shareUri(
-                                        Uri.parse(image.url!),
+                                      final response = await http.get(Uri.parse(image.url!));
+                                      final tempFile = XFile.fromData(
+                                        response.bodyBytes,
+                                        name: image.id,
+                                        mimeType: 'image/png',
+                                      );
+                                      await Share.shareXFiles(
+                                        [tempFile],
+                                        subject: "RevelationsAI Image: ${image.userPrompt}",
                                       );
                                     },
                                     iconSize: 40,

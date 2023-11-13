@@ -39,6 +39,14 @@ class Sources extends HookConsumerWidget {
     final sourceDocuments = useState<List<SourceDocument>>([]);
     final hasLoaded = useState(false);
 
+    final refreshSources = useCallback(() async {
+      await ref.read(aiResponseSourceDocumentsProvider(message.uuid).notifier).refresh().then((value) {
+        if (isMounted()) {
+          sourceDocuments.value = value;
+        }
+      });
+    }, [ref, message.uuid, isMounted]);
+
     useEffect(
       () {
         if (sourceDocuments.value.isEmpty && !hasLoaded.value && !isChatLoading) {
@@ -48,10 +56,13 @@ class Sources extends HookConsumerWidget {
               sourceDocuments.value = value;
               hasLoaded.value = true;
             }
-          }).catchError((e) {
-            debugPrint("Failed to load sources: ${e.toString()}");
+          }).catchError((e, stack) {
+            debugPrint("Failed to load sources: $e $stack");
           }).whenComplete(() {
-            if (isMounted()) isLoading.value = false;
+            if (isMounted()) {
+              isLoading.value = false;
+              Future(() => refreshSources());
+            }
           });
         }
         return () {};
@@ -100,7 +111,7 @@ class Sources extends HookConsumerWidget {
                 target: LinkTarget.self,
                 builder: (context, followLink) {
                   return Container(
-                    width: 250,
+                    width: 300,
                     margin: const EdgeInsets.symmetric(horizontal: 5),
                     child: ListTile(
                       onLongPress: () {
@@ -130,63 +141,34 @@ class Sources extends HookConsumerWidget {
                       ),
                       titleAlignment: ListTileTitleAlignment.center,
                       title: Text(
-                        source.name,
+                        source.hasTitle ? source.title! : source.name,
                         textAlign: TextAlign.center,
-                        softWrap: false,
+                        softWrap: true,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       titleTextStyle: TextStyle(
                         color: context.colorScheme.onPrimary,
                       ),
-                      subtitle: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (source.isWebpage) ...[
-                            Text(
-                              source.hasTitle
-                                  ? source.title
-                                  : Uri.parse(
+                      subtitle: !source.hasTitle
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (source.isWebpage) ...[
+                                  Text(
+                                    Uri.parse(
                                       source.url,
                                     ).pathSegments.lastWhere((element) => element.isNotEmpty),
-                              textAlign: TextAlign.center,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                          if (source.isFile) ...[
-                            ClipRRect(
-                              clipBehavior: Clip.hardEdge,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (source.hasPageNumber) ...[
-                                    Text(
-                                      'P:${source.pageNumber}',
-                                      softWrap: false,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    )
-                                  ],
-                                  if (source.hasLines) ...[
-                                    Text(
-                                      'L:${source.linesFrom}'
-                                      '-${source.linesTo}',
-                                      softWrap: false,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    )
-                                  ],
+                                    textAlign: TextAlign.center,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ],
-                              ),
+                              ],
                             )
-                          ],
-                        ],
-                      ),
+                          : null,
                       subtitleTextStyle: TextStyle(
                         color: context.colorScheme.onPrimary,
                       ),

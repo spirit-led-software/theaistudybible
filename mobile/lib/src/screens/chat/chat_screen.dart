@@ -181,13 +181,13 @@ class ChatScreen extends HookConsumerWidget {
 
     useEffect(() {
       debugPrint(
-          "ChatScreen: chatHook.loading.value: ${chatHook.loading.value} chatHook.currentResponseId.value: ${chatHook.currentResponseId.value}");
-      if (!chatHook.loading.value && chatHook.currentResponseId.value == null) {
+          "ChatScreen: chatHook.loading.value: ${chatHook.loading.value} chatHook.currentResponseId.value: ${chatHook.currentResponseId.value} chatHook.error.value: ${chatHook.error.value}");
+      if (!chatHook.loading.value && chatHook.currentResponseId.value == null && chatHook.error.value == null) {
         debugPrint("Refreshing chat data since chat is idle.");
         refreshChatData();
       }
       return () {};
-    }, [chatHook.loading.value, chatHook.currentResponseId.value]);
+    }, [chatHook.loading.value, chatHook.currentResponseId.value, chatHook.error.value]);
 
     useEffect(() {
       debugPrint("ChatScreen: chatHook.error.value: ${chatHook.error.value}");
@@ -542,6 +542,7 @@ class ChatScreen extends HookConsumerWidget {
                               previousMessage: previousMessage,
                               isCurrentResponse: chatHook.currentResponseId.value == message.id,
                               isLoading: chatHook.loading.value,
+                              isLastMessage: index == 1,
                             );
                           },
                         ),

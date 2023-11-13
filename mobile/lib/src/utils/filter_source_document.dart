@@ -1,32 +1,78 @@
+import 'dart:math';
+
 import 'package:revelationsai/src/models/source_document.dart';
 
 List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
   final filteredSources = <SourceDocument>[];
   for (final prospect in value) {
-    final foundMatch = filteredSources.any((unique) {
-      if (unique.id == prospect.id) {
-        return true;
-      }
-      if (prospect.name == unique.name) {
-        if (prospect.isWebpage && prospect.url == unique.url) {
-          return true;
+    final matches = filteredSources.where((element) => element.id == prospect.id || element.url == prospect.url);
+    if (matches.isEmpty) {
+      if (prospect.isFile) {
+        if (prospect.hasPageNumber && prospect.hasLines) {
+          final newMetadata = Map.of(prospect.metadata)
+            ..addAll({
+              'loc': {
+                ...prospect.metadata['loc'],
+                'pageNumbers': {
+                  prospect.pageNumber.toString(): [
+                    {
+                      'from': prospect.linesFrom!,
+                      'to': prospect.linesTo!,
+                    },
+                  ],
+                }
+              }
+            });
+          filteredSources.add(prospect.copyWith(
+            metadata: newMetadata,
+          ));
+          continue;
         }
-
-        if (prospect.isFile &&
-            prospect.pageNumber == unique.pageNumber &&
-            prospect.linesTo == unique.linesTo &&
-            prospect.linesFrom == unique.linesFrom) {
-          return true;
-        }
-
-        return false;
       }
-      return false;
-    });
-    if (foundMatch) {
+      filteredSources.add(prospect);
       continue;
     }
-    filteredSources.add(prospect);
+
+    for (final match in matches.toList()) {
+      if (prospect.isWebpage && prospect.url == match.url) {
+        continue;
+      }
+
+      if (prospect.isFile) {
+        if (prospect.hasPageNumber && prospect.hasLines) {
+          final newMetadata = Map.of(prospect.metadata)
+            ..addAll({
+              'loc': {
+                ...match.metadata['loc'],
+                ...prospect.metadata['loc'],
+                'pageNumbers': {
+                  if (match.hasPageNumbers) ...match.pageNumbers!,
+                  prospect.pageNumber.toString(): [
+                    if (match.hasPageNumbers && match.getLinesForPage(prospect.pageNumber!) != null)
+                      ...match.getLinesForPage(prospect.pageNumber!)!,
+                    {
+                      'from': prospect.linesFrom!,
+                      'to': prospect.linesTo!,
+                    },
+                  ],
+                }
+              }
+            });
+          filteredSources.removeWhere((element) => element.id == match.id);
+          filteredSources.add(prospect.copyWith(
+            metadata: newMetadata,
+            distance: min(
+              prospect.distance,
+              match.distance,
+            ),
+          ));
+          continue;
+        }
+      }
+      filteredSources.add(prospect.copyWith(
+        distance: min(prospect.distance, match.distance),
+      ));
+    }
   }
   return filteredSources;
 }

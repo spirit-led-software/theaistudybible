@@ -18,6 +18,7 @@ class Message extends HookConsumerWidget {
   final ChatMessage? previousMessage;
   final bool isLoading;
   final bool isCurrentResponse;
+  final bool isLastMessage;
 
   const Message({
     Key? key,
@@ -26,6 +27,7 @@ class Message extends HookConsumerWidget {
     this.previousMessage,
     this.isLoading = false,
     this.isCurrentResponse = false,
+    this.isLastMessage = false,
   }) : super(key: key);
 
   @override
@@ -164,6 +166,15 @@ class Message extends HookConsumerWidget {
                           textAlign: TextAlign.start,
                           style: context.textTheme.bodyMedium,
                         ),
+                        if (isLastMessage && !isCurrentResponse && !isLoading) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            "Double tap or hold to see options",
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: context.colorScheme.onBackground.withOpacity(0.5),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
