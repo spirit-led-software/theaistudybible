@@ -158,7 +158,7 @@ export async function createBranch(
     {
       type: "read_write",
       provisioner: "k8s-neonvm",
-      autoscaling_limit_min_cu: isProd ? 1 : 0.25,
+      autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
       autoscaling_limit_max_cu: isProd ? 7 : 1,
       suspend_timeout_seconds: 0,
     },
@@ -168,7 +168,7 @@ export async function createBranch(
     endpoints.push({
       type: "read_only",
       provisioner: "k8s-neonvm",
-      autoscaling_limit_min_cu: 1,
+      autoscaling_limit_min_cu: 0.5,
       autoscaling_limit_max_cu: 7,
       suspend_timeout_seconds: 0,
     });
@@ -203,7 +203,7 @@ export async function updateBranch(
       await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
         endpoint: {
           provisioner: "k8s-neonvm",
-          autoscaling_limit_min_cu: isProd ? 1 : 0.25,
+          autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
           autoscaling_limit_max_cu: isProd ? 7 : 1,
           suspend_timeout_seconds: 0,
         },
@@ -216,7 +216,7 @@ export async function updateBranch(
           {
             endpoint: {
               provisioner: "k8s-neonvm",
-              autoscaling_limit_min_cu: 1,
+              autoscaling_limit_min_cu: 0.5,
               autoscaling_limit_max_cu: 7,
               suspend_timeout_seconds: 0,
             },
