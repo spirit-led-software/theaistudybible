@@ -117,12 +117,12 @@ export class NeonVectorStore extends VectorStore {
   }
 
   _generateFiltersString(): string {
-    if (this.filters.length === 0) {
-      return "";
+    if (this.filters.length > 0) {
+      return `AND (${this.filters
+        .map((value) => `(metadata @> '${JSON.stringify(value)}')`)
+        .join(" OR ")})`;
     }
-    return `AND (${this.filters
-      .map((value) => `(metadata @> ${value})`)
-      .join(" OR ")})`;
+    return "";
   }
 
   async addDocuments(documents: Document[]): Promise<void> {
