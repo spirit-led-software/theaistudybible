@@ -118,9 +118,11 @@ export class NeonVectorStore extends VectorStore {
 
   _generateFiltersString(): string {
     if (this.filters.length > 0) {
-      return `AND (${this.filters
-        .map((value) => `(metadata @> '${JSON.stringify(value)}'::jsonb)`)
-        .join(" OR ")})`;
+      return `AND (
+        ${this.filters
+          .map((value) => `(metadata @> '${JSON.stringify(value)}')`)
+          .join(" OR ")}
+        )`;
     }
     return "";
   }
@@ -226,13 +228,13 @@ export class NeonVectorStore extends VectorStore {
           } $1 AS "_distance"
         FROM ${this.tableName}
         WHERE (
-          (metadata @> $2::jsonb)
+          (metadata @> $2)
           ${this._generateFiltersString()}
         )
         ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
-          [embeddingString, JSON.stringify(_filter), k, _offset]
+          [embeddingString, _filter, k, _offset]
         );
       } else if (this.distance === "cosine") {
         documents = await client.query(
@@ -241,13 +243,13 @@ export class NeonVectorStore extends VectorStore {
           } $1 AS "_distance"
         FROM ${this.tableName}
         WHERE (
-          (metadata @> $2::jsonb)
+          (metadata @> $2)
           ${this._generateFiltersString()}
         )
         ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
-          [embeddingString, JSON.stringify(_filter), k, _offset]
+          [embeddingString, _filter, k, _offset]
         );
       } else if (this.distance === "innerProduct") {
         documents = await client.query(
@@ -256,13 +258,13 @@ export class NeonVectorStore extends VectorStore {
           } $1) * -1 AS "_distance"
         FROM ${this.tableName}
         WHERE (
-          (metadata @> $2::jsonb)
+          (metadata @> $2)
           ${this._generateFiltersString()}
         )
         ORDER BY "_distance" DESC
         LIMIT $3
         OFFSET $4;`,
-          [embeddingString, JSON.stringify(_filter), k, _offset]
+          [embeddingString, _filter, k, _offset]
         );
       } else {
         throw new Error(`Unknown distance metric ${this.distance}`);
@@ -323,11 +325,11 @@ export class NeonVectorStore extends VectorStore {
         WHERE (
           id = ANY($1)
           AND (
-            (metadata @> $2::jsonb)
+            (metadata @> $2)
             ${this._generateFiltersString()}
           )
         );`,
-        [ids, JSON.stringify(_filter)]
+        [ids, _filter]
       );
 
       this._log(
