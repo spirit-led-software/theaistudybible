@@ -96,7 +96,7 @@ class CreateImageDialog extends HookConsumerWidget {
               ref.read(userGeneratedImagesPagesProvider.notifier).refresh();
               Navigator.of(context).pop();
             });
-            await showAdvertisementLogic(ref, ad, 1, 100);
+            await showAdvertisementLogic(ref, ad, chanceNumerator: 1);
             await generateFuture.value;
           },
           child: generateSnapshot.hasError && generateSnapshot.connectionState != ConnectionState.waiting

@@ -4,15 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
 
 /// Determines whether to show an in-app review dialog and requests a review if appropriate.
-///
-/// This method generates a random integer between 1 and 144, and if the integer is divisible by 12,
-/// it will attempt to show an in-app review dialog. If the in-app review API is available, it will
-/// request a review from the user.
 Future<bool> inAppReviewLogic() async {
   try {
-    final randomInt = (Random().nextDouble() * 144).ceil();
+    final randomInt = (Random().nextDouble() * 100).ceil();
     debugPrint("Random int for in app review logic: $randomInt");
-    final showInAppReview = randomInt % 12;
+    final showInAppReview = randomInt % 5;
     debugPrint("Will show an in-app-review if this equals 0: $showInAppReview");
     if (showInAppReview == 0) {
       final inAppReview = InAppReview.instance;
@@ -22,8 +18,8 @@ Future<bool> inAppReviewLogic() async {
           return true;
         }
         return false;
-      }).catchError((e) {
-        debugPrint("Error showing in-app-review: ${e.toString()}");
+      }).catchError((e, stack) {
+        debugPrint("Error showing in-app-review: $e\n$stack");
         return false;
       });
     }

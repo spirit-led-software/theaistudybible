@@ -5,23 +5,43 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 
-Future<bool> showAdvertisementLogic(
-    WidgetRef ref, InterstitialAd? ad, int chanceNumerator, int chanceDenominator) async {
+Future<bool> showAdvertisementLogic(WidgetRef ref, InterstitialAd? ad, {int? chanceNumerator}) async {
   try {
     final currentUser = await ref.read(currentUserProvider.future);
-    if (currentUser.maxQueries <= 25) {
-      final randomInt = (Random().nextDouble() * chanceDenominator).ceil();
-      debugPrint("Random int for in ad logic: $randomInt");
-      final showAd = randomInt % chanceNumerator;
-      debugPrint("Will show an ad if this equals 0: $showAd");
-      if (showAd == 0) {
-        if (ad == null) {
-          debugPrint("Ad is null, not showing ad");
+
+    if (chanceNumerator == null) {
+      switch (currentUser.maxQueries) {
+        case <= 5:
+          chanceNumerator = 1;
+          break;
+        case <= 10:
+          chanceNumerator = 2;
+          break;
+        case <= 25:
+          chanceNumerator = 3;
+          break;
+        default:
           return false;
-        }
-        await ad.show();
-        return true;
       }
+    }
+    if (currentUser.maxQueries > 25) {
+      debugPrint("Subscription high enough to not show ads");
+      return false;
+    }
+
+    final randomInt = (Random().nextDouble() * 100).ceil();
+    debugPrint("Random int for in ad logic: $randomInt");
+    final showAd = randomInt % chanceNumerator;
+    debugPrint("Will show an ad if this equals 0: $showAd");
+    if (showAd == 0) {
+      if (ad == null) {
+        debugPrint("Ad is null, not showing ad");
+        return false;
+      }
+      return await ad.show().then((value) => true).catchError((e, stack) {
+        debugPrint("Error showing ad: $e\n$stack");
+        return false;
+      });
     }
   } catch (e) {
     debugPrint("Error in advertisement logic: $e");

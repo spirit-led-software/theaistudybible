@@ -117,7 +117,7 @@ class DevotionScreen extends HookConsumerWidget {
     }, [devotion.value]);
 
     useEffect(() {
-      Future.delayed(const Duration(seconds: 2), () => showAdvertisementLogic(ref, ad, 3, 100));
+      Future.delayed(const Duration(seconds: 2), () => showAdvertisementLogic(ref, ad));
       return () {};
     }, []);
 
