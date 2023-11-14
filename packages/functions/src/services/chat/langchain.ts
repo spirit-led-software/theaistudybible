@@ -109,15 +109,21 @@ export const getRAIChatChain = async (
     },
   ]);
 
-  const bibleQaChain = await getDocumentQaChain(
-    CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
-    {
-      name: "YouVersion - ESV 2016",
-    }
-  );
-  const theologyQaChain = await getDocumentQaChain(
-    CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE
-  );
+  const bibleQaChain = await getDocumentQaChain({
+    prompt: CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
+    filters: [
+      {
+        name: "YouVersion - ESV 2016",
+      },
+      {
+        name: "Enduring Word",
+      },
+    ],
+  });
+
+  const theologyQaChain = await getDocumentQaChain({
+    prompt: CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
+  });
 
   const branch = RunnableBranch.from([
     [(x) => x.routingInstructions.destination === "identity", identityChain],
@@ -197,7 +203,11 @@ export const getRAIChatChain = async (
   };
 };
 
-export async function getDocumentQaChain(prompt: string, filter?: any) {
+export async function getDocumentQaChain(options: {
+  prompt: string;
+  filters?: any[];
+}) {
+  const { prompt, filters } = options;
   const numSearchTerms = 3;
   const queryInterpreterOutputParser = StructuredOutputParser.fromZodSchema(
     z
@@ -208,7 +218,7 @@ export async function getDocumentQaChain(prompt: string, filter?: any) {
       )
   );
   const qaRetriever = await getDocumentVectorStore({
-    filter,
+    filters,
     verbose: envConfig.isLocal,
   }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
   const qaChain = RunnableSequence.from([

@@ -118,9 +118,11 @@ const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
 
 export const getBibleReadingChain = async (topic: string) => {
   const retriever = await getDocumentVectorStore({
-    filter: {
-      name: "YouVersion - ESV 2016",
-    },
+    filters: [
+      {
+        name: "YouVersion - ESV 2016",
+      },
+    ],
   }).then((store) => store.asRetriever(50));
   const chain = RunnableSequence.from([
     {
