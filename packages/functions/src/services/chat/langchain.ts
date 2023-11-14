@@ -119,7 +119,7 @@ export const getRAIChatChain = async (
   );
   const faithQaRetriever = await getDocumentVectorStore({
     verbose: envConfig.isLocal,
-  }).then((store) => store.asRetriever({ k: 5, verbose: envConfig.isLocal }));
+  }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
   const faithQaChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query,
