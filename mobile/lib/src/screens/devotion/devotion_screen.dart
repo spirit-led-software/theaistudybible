@@ -124,6 +124,7 @@ class DevotionScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         title: loading.value || devotion.value == null
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
