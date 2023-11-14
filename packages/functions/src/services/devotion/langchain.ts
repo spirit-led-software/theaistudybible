@@ -155,7 +155,6 @@ export const getBibleReadingChain = async (topic: string) => {
     })
       .pipe(
         getLargeContextModel({
-          modelId: "anthropic.claude-v2",
           maxTokens: 2048,
           stopSequences: ["</output>"],
           promptSuffix: "<output>",
@@ -189,7 +188,6 @@ export const getImagePromptChain = () => {
   })
     .pipe(
       getLargeContextModel({
-        modelId: "anthropic.claude-v2",
         maxTokens: 1024,
         stream: false,
         promptSuffix: "<output>",
@@ -203,7 +201,6 @@ export const getImageCaptionChain = () => {
   return PromptTemplate.fromTemplate(DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE)
     .pipe(
       getLargeContextModel({
-        modelId: "anthropic.claude-v2",
         maxTokens: 100,
         stream: false,
         promptSuffix: "<output>",
