@@ -1,14 +1,19 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/providers/advertisements/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 
-Future<bool> showAdvertisementLogic(WidgetRef ref, InterstitialAd? ad, {int? chanceNumerator}) async {
+Future<bool> showAdvertisementLogic(WidgetRef ref, {int? chanceNumerator}) async {
   try {
-    final currentUser = await ref.read(currentUserProvider.future);
+    final ad = await ref.read(interstitialAdsProvider.future);
+    if (ad == null) {
+      debugPrint("Ad is null, not showing ad");
+      return false;
+    }
 
+    final currentUser = await ref.read(currentUserProvider.future);
     if (chanceNumerator == null) {
       switch (currentUser.maxQueries) {
         case <= 5:
@@ -34,17 +39,12 @@ Future<bool> showAdvertisementLogic(WidgetRef ref, InterstitialAd? ad, {int? cha
     final showAd = randomInt % chanceNumerator;
     debugPrint("Will show an ad if this equals 0: $showAd");
     if (showAd == 0) {
-      if (ad == null) {
-        debugPrint("Ad is null, not showing ad");
-        return false;
-      }
-      return await ad.show().then((value) => true).catchError((e, stack) {
-        debugPrint("Error showing ad: $e\n$stack");
-        return false;
-      });
+      await ad.show();
+      return true;
     }
+    return false;
   } catch (e) {
     debugPrint("Error in advertisement logic: $e");
+    return false;
   }
-  return false;
 }

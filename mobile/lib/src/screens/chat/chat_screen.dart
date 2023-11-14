@@ -14,7 +14,6 @@ import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/messages.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/chat/single.dart';
-import 'package:revelationsai/src/providers/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/chat/chat_modal.dart';
@@ -41,7 +40,6 @@ class ChatScreen extends HookConsumerWidget {
 
     final currentUser = ref.watch(currentUserProvider).requireValue;
     final currentUserPreferences = ref.watch(currentUserPreferencesProvider).requireValue;
-    final ad = ref.watch(interstitialAdsProvider).valueOrNull;
 
     final isMounted = useIsMounted();
     final scrollController = useScrollController();
@@ -60,7 +58,7 @@ class ChatScreen extends HookConsumerWidget {
           await Future.delayed(const Duration(seconds: 2), () async {
             final showedReview = await inAppReviewLogic();
             if (!showedReview) {
-              await showAdvertisementLogic(ref, ad);
+              await showAdvertisementLogic(ref);
             }
           });
         },
@@ -166,10 +164,10 @@ class ChatScreen extends HookConsumerWidget {
               backgroundColor: context.colorScheme.error,
             ),
           );
-        }).whenComplete(() {
+        }).whenComplete(() async {
           if (isMounted()) {
             isLoadingChat.value = false;
-            Future(() => refreshChatData());
+            await Future(() => refreshChatData());
           }
         });
       }

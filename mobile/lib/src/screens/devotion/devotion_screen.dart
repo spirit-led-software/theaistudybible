@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,9 +17,9 @@ import 'package:revelationsai/src/providers/devotion/image.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
+import 'package:revelationsai/src/providers/devotion/repositories.dart';
 import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
-import 'package:revelationsai/src/providers/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
@@ -41,7 +42,6 @@ class DevotionScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider).requireValue;
     final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
-    final ad = ref.watch(interstitialAdsProvider).valueOrNull;
 
     final isMounted = useIsMounted();
     final loading = useState(false);
@@ -97,29 +97,36 @@ class DevotionScreen extends HookConsumerWidget {
     }, [ref, isMounted]);
 
     useEffect(() {
+      debugPrint("DevotionScreen: useEffect: devotionId: $devotionId");
       loading.value = true;
-      fetchDevoData(devotionId).whenComplete(() {
+      fetchDevoData(devotionId).whenComplete(() async {
         if (isMounted()) {
           loading.value = false;
-          Future(() => refreshDevoData());
+          await Future(() => refreshDevoData());
         }
-      });
+      }).whenComplete(() async => await showAdvertisementLogic(ref));
       return () {};
     }, [devotionId]);
 
     useEffect(() {
-      if (devotion.value != null) {
+      final devo = devotion.value;
+      if (devo != null) {
         Future(() {
-          ref.read(currentDevotionIdProvider.notifier).updateId(devotion.value!.id);
+          ref.read(currentDevotionIdProvider.notifier).updateId(devo.id);
+        });
+        ref.devotions.getLatest().then((value) {
+          if (value.id == devo.id) {
+            debugPrint("DevotionScreen: useEffect: User is viewing latest devo, resetting badge count");
+            FlutterAppBadger.isAppBadgeSupported().then((value) {
+              if (value) {
+                FlutterAppBadger.updateBadgeCount(0);
+              }
+            });
+          }
         });
       }
       return () {};
     }, [devotion.value]);
-
-    useEffect(() {
-      Future.delayed(const Duration(seconds: 2), () => showAdvertisementLogic(ref, ad));
-      return () {};
-    }, []);
 
     return Scaffold(
       appBar: AppBar(

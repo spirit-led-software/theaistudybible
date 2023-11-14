@@ -27,8 +27,8 @@ export async function generatedImage(
 
     const prompt = `${chainResult.join(
       ", "
-    )}, photo realistic, beautiful, stunning, 8k uhd, high quality, high definition, color, 3d, beautiful hands, detailed fingers, beautiful eyes`;
-    const negativePrompt = `deformed iris, deformed pupils, semi-realistic, cgi, render, sketch, cartoon, drawing, anime, text, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, black and white`;
+    )}, christian, photo realistic, beautiful, stunning, 8k uhd, high quality, high definition, color, 3d, detailed hands, detailed fingers, detailed eyes, detailed feet`;
+    const negativePrompt = `deformed iris, deformed pupils, semi-realistic, cgi, render, sketch, cartoon, drawing, anime, text, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, random floating objects, black and white`;
 
     const replicate = new Replicate({
       auth: replicateConfig.apiKey,

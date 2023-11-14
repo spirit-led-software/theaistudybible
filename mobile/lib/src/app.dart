@@ -49,7 +49,7 @@ class RAIApp extends HookConsumerWidget {
 
     useEffect(() {
       FirebaseMessaging.onMessage.listen((message) {
-        switch (message.data['type']) {
+        switch (message.data['task']) {
           case 'daily-devo':
             context.go('/devotions/${message.data['id'] ?? ''}');
             break;
@@ -59,6 +59,19 @@ class RAIApp extends HookConsumerWidget {
       });
       return () {};
     }, [FirebaseMessaging.onMessage]);
+
+    useEffect(() {
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        switch (message.data['task']) {
+          case 'daily-devo':
+            context.go('/devotions/${message.data['id'] ?? ''}');
+            break;
+          default:
+            break;
+        }
+      });
+      return () {};
+    }, [FirebaseMessaging.onMessageOpenedApp]);
 
     return _EagerlyInitializedProviders(
       child: MaterialApp.router(

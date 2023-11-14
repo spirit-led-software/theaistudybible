@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/user/generated_image.dart';
-import 'package:revelationsai/src/providers/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/user/generated_image/pages.dart';
 import 'package:revelationsai/src/providers/user/generated_image/repositories.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
@@ -14,8 +13,6 @@ class CreateImageDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ad = ref.watch(interstitialAdsProvider).requireValue;
-
     final formKey = useRef(GlobalKey<FormState>());
     final focusNode = useFocusNode();
     final controller = useTextEditingController();
@@ -96,7 +93,7 @@ class CreateImageDialog extends HookConsumerWidget {
               ref.read(userGeneratedImagesPagesProvider.notifier).refresh();
               Navigator.of(context).pop();
             });
-            await showAdvertisementLogic(ref, ad, chanceNumerator: 1);
+            await showAdvertisementLogic(ref, chanceNumerator: 1);
             await generateFuture.value;
           },
           child: generateSnapshot.hasError && generateSnapshot.connectionState != ConnectionState.waiting

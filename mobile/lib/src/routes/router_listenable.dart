@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
+import 'package:revelationsai/src/providers/advertisements/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/current_id.dart';
-import 'package:revelationsai/src/providers/interstitial_ad.dart';
 import 'package:revelationsai/src/providers/repo_initialization.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
