@@ -226,12 +226,13 @@ export class NeonVectorStore extends VectorStore {
           } $1 AS "_distance"
         FROM ${this.tableName}
         WHERE (
-          (metadata @> $2) ${this._generateFiltersString()}
+          (metadata @> $2::jsonb)
+          ${this._generateFiltersString()}
         )
         ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
-          [embeddingString, _filter, k, _offset]
+          [embeddingString, JSON.stringify(_filter), k, _offset]
         );
       } else if (this.distance === "cosine") {
         documents = await client.query(
@@ -240,12 +241,13 @@ export class NeonVectorStore extends VectorStore {
           } $1 AS "_distance"
         FROM ${this.tableName}
         WHERE (
-          (metadata @> $2) ${this._generateFiltersString()}
+          (metadata @> $2::jsonb)
+          ${this._generateFiltersString()}
         )
         ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
-          [embeddingString, _filter, k, _offset]
+          [embeddingString, JSON.stringify(_filter), k, _offset]
         );
       } else if (this.distance === "innerProduct") {
         documents = await client.query(
@@ -254,12 +256,13 @@ export class NeonVectorStore extends VectorStore {
           } $1) * -1 AS "_distance"
         FROM ${this.tableName}
         WHERE (
-          (metadata @> $2) ${this._generateFiltersString()}
+          (metadata @> $2::jsonb)
+          ${this._generateFiltersString()}
         )
         ORDER BY "_distance" DESC
         LIMIT $3
         OFFSET $4;`,
-          [embeddingString, _filter, k, _offset]
+          [embeddingString, JSON.stringify(_filter), k, _offset]
         );
       } else {
         throw new Error(`Unknown distance metric ${this.distance}`);
@@ -320,10 +323,11 @@ export class NeonVectorStore extends VectorStore {
         WHERE (
           id = ANY($1)
           AND (
-            (metadata @> $2) ${this._generateFiltersString()}
+            (metadata @> $2::jsonb)
+            ${this._generateFiltersString()}
           )
         );`,
-        [ids, _filter]
+        [ids, JSON.stringify(_filter)]
       );
 
       this._log(
