@@ -2,11 +2,12 @@ import { envConfig } from "@core/configs";
 import { RAITimeWeightedVectorStoreRetriever } from "@core/langchain/retrievers/time_weighted";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import {
-  CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
+  CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
   CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
+  CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
 } from "@services/chat/prompts";
 import type { Message } from "ai";
 import type { Document } from "langchain/document";
@@ -108,81 +109,15 @@ export const getRAIChatChain = async (
     },
   ]);
 
-  const numSearchTerms = 3;
-  const queryInterpreterOutputParser = StructuredOutputParser.fromZodSchema(
-    z
-      .array(z.string())
-      .length(numSearchTerms)
-      .describe(
-        "Search terms or phrases that you would use to find relevant documents."
-      )
+  const bibleQaChain = await getDocumentQaChain(
+    CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
+    {
+      name: "YouVersion - ESV 2016",
+    }
   );
-  const faithQaRetriever = await getDocumentVectorStore({
-    verbose: envConfig.isLocal,
-  }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
-  const faithQaChain = RunnableSequence.from([
-    {
-      query: (input) => input.routingInstructions.next_inputs.query,
-    },
-    {
-      generatedSearchQueries: PromptTemplate.fromTemplate(
-        CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
-        {
-          partialVariables: {
-            numSearchTerms: numSearchTerms.toString(),
-            formatInstructions:
-              queryInterpreterOutputParser.getFormatInstructions(),
-          },
-        }
-      )
-        .pipe(
-          getLargeContextModel({
-            stream: false,
-            promptSuffix: "<output>",
-            stopSequences: ["</output>"],
-            cache: llmCache,
-          })
-        )
-        .pipe(queryInterpreterOutputParser),
-      query: (previousStepResult) => previousStepResult.query,
-    },
-    {
-      sourceDocuments: async (previousStepResult): Promise<Document[]> => {
-        const sourceDocs = await Promise.all(
-          previousStepResult.generatedSearchQueries.map(async (q: string) => {
-            return await faithQaRetriever.getRelevantDocuments(q);
-          })
-        );
-        return sourceDocs.flat();
-      },
-      query: (previousStepResult) => previousStepResult.query,
-    },
-    {
-      sourceDocuments: (previousStepResult) =>
-        previousStepResult.sourceDocuments,
-      query: (previousStepResult) => previousStepResult.query,
-      documents: (previousStepResult) =>
-        previousStepResult.sourceDocuments
-          ?.map(
-            (sourceDoc: Document) =>
-              `<document>\n${sourceDoc.pageContent}\n</document>`
-          )
-          .join("\n"),
-    },
-    {
-      text: PromptTemplate.fromTemplate(CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE)
-        .pipe(
-          getLargeContextModel({
-            stream: true,
-            promptSuffix: "<answer>",
-            stopSequences: ["</answer>"],
-          })
-        )
-        .pipe(new StringOutputParser()),
-      sourceDocuments: (previousStepResult) =>
-        previousStepResult.sourceDocuments,
-    },
-  ]);
+  const theologyQaChain = await getDocumentQaChain(
+    CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE
+  );
 
   const branch = RunnableBranch.from([
     [(x) => x.routingInstructions.destination === "identity", identityChain],
@@ -190,8 +125,12 @@ export const getRAIChatChain = async (
       (x) => x.routingInstructions.destination === "chat-history",
       chatHistoryChain,
     ],
-    [(x) => x.routingInstructions.destination === "faith-qa", faithQaChain],
-    faithQaChain,
+    [(x) => x.routingInstructions.destination === "bible-qa", bibleQaChain],
+    [
+      (x) => x.routingInstructions.destination === "theology-qa",
+      theologyQaChain,
+    ],
+    theologyQaChain,
   ]);
 
   const routerChainOutputParser = new RouterOutputParser(
@@ -217,7 +156,12 @@ export const getRAIChatChain = async (
       inputVariables: ["query"],
       partialVariables: {
         formatInstructions: routerChainOutputParser.getFormatInstructions(),
-        destinations: `identity: Good for introducing yourself or talking about yourself.\nchat-history: Good for retrieving information about the current chat conversation.\nfaith-qa: Good for answering questions or generating content about the Christian faith and theology.`,
+        destinations: [
+          "identity: Good for greetings, introducing yourself, or talking about yourself.",
+          "chat-history: Good for retrieving information about the current chat conversation.",
+          "bible-qa: Good for answering questions about the Bible, it's characters, and it's stories.",
+          "theology-qa: Good for answering questions about all of Christian faith and theology.",
+        ].join("\n"),
         history: (await history.getMessages())
           .map(
             (m) =>
@@ -252,3 +196,84 @@ export const getRAIChatChain = async (
     }),
   };
 };
+
+export async function getDocumentQaChain(prompt: string, filter?: any) {
+  const numSearchTerms = 3;
+  const queryInterpreterOutputParser = StructuredOutputParser.fromZodSchema(
+    z
+      .array(z.string())
+      .length(numSearchTerms)
+      .describe(
+        "Search terms or phrases that you would use to find relevant documents."
+      )
+  );
+  const qaRetriever = await getDocumentVectorStore({
+    filter,
+    verbose: envConfig.isLocal,
+  }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
+  const qaChain = RunnableSequence.from([
+    {
+      query: (input) => input.routingInstructions.next_inputs.query,
+    },
+    {
+      generatedSearchQueries: PromptTemplate.fromTemplate(
+        CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
+        {
+          partialVariables: {
+            numSearchTerms: numSearchTerms.toString(),
+            formatInstructions:
+              queryInterpreterOutputParser.getFormatInstructions(),
+          },
+        }
+      )
+        .pipe(
+          getLargeContextModel({
+            stream: false,
+            promptSuffix: "<output>",
+            stopSequences: ["</output>"],
+            cache: llmCache,
+          })
+        )
+        .pipe(queryInterpreterOutputParser),
+      query: (previousStepResult) => previousStepResult.query,
+    },
+    {
+      sourceDocuments: async (previousStepResult): Promise<Document[]> => {
+        const sourceDocs = await Promise.all(
+          previousStepResult.generatedSearchQueries.map(async (q: string) => {
+            return await qaRetriever.getRelevantDocuments(q);
+          })
+        );
+        return sourceDocs.flat();
+      },
+      query: (previousStepResult) => previousStepResult.query,
+    },
+    {
+      sourceDocuments: (previousStepResult) =>
+        previousStepResult.sourceDocuments,
+      query: (previousStepResult) => previousStepResult.query,
+      documents: (previousStepResult) =>
+        previousStepResult.sourceDocuments
+          ?.map(
+            (sourceDoc: Document) =>
+              `<document>\n${sourceDoc.pageContent}\n</document>`
+          )
+          .join("\n"),
+    },
+    {
+      text: PromptTemplate.fromTemplate(prompt)
+        .pipe(
+          getLargeContextModel({
+            stream: true,
+            promptSuffix: "<answer>",
+            stopSequences: ["</answer>"],
+          })
+        )
+        .pipe(new StringOutputParser()),
+      sourceDocuments: (previousStepResult) =>
+        previousStepResult.sourceDocuments,
+    },
+  ]);
+
+  return qaChain;
+}
