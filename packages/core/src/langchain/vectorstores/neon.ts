@@ -225,7 +225,9 @@ export class NeonVectorStore extends VectorStore {
             distanceOperators[this.distance]
           } $1 AS "_distance"
         FROM ${this.tableName}
-        WHERE ((metadata @> $2) ${this._generateFiltersString()})
+        WHERE (
+          (metadata @> $2) ${this._generateFiltersString()}
+        )
         ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
@@ -237,7 +239,9 @@ export class NeonVectorStore extends VectorStore {
             distanceOperators[this.distance]
           } $1 AS "_distance"
         FROM ${this.tableName}
-        WHERE ((metadata @> $2) ${this._generateFiltersString()})
+        WHERE (
+          (metadata @> $2) ${this._generateFiltersString()}
+        )
         ORDER BY "_distance" ASC
         LIMIT $3
         OFFSET $4;`,
@@ -249,7 +253,9 @@ export class NeonVectorStore extends VectorStore {
             distanceOperators[this.distance]
           } $1) * -1 AS "_distance"
         FROM ${this.tableName}
-        WHERE ((metadata @> $2) ${this._generateFiltersString()})
+        WHERE (
+          (metadata @> $2) ${this._generateFiltersString()}
+        )
         ORDER BY "_distance" DESC
         LIMIT $3
         OFFSET $4;`,
@@ -313,7 +319,9 @@ export class NeonVectorStore extends VectorStore {
         `SELECT * FROM ${this.tableName}
         WHERE (
           id = ANY($1)
-          AND ((metadata @> $2) ${this._generateFiltersString()})
+          AND (
+            (metadata @> $2) ${this._generateFiltersString()}
+          )
         );`,
         [ids, _filter]
       );
