@@ -39,7 +39,7 @@
 	class="flex flex-col w-full space-y-1"
 	on:submit|preventDefault={() => handleAskQuestion(input)}
 >
-	<label for="question-bar" class="text-sm text-gray-400">Ask a question</label>
+	<label for="question-bar" class="text-sm text-gray-200">Ask a question</label>
 	<div class="flex w-full space-x-0">
 		<input
 			id="question-bar"
@@ -50,7 +50,7 @@
 		/>
 		<button
 			type="submit"
-			class="px-2 py-1 font-medium border rounded-lg rounded-l-none border-slate-300 hover:bg-slate-100"
+			class="px-2 py-1 font-medium bg-white border rounded-lg rounded-l-none border-slate-300 hover:bg-gray-200"
 		>
 			<Icon icon="formkit:arrowright" height={20} width={20} />
 		</button>

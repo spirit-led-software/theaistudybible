@@ -49,18 +49,18 @@ export const squareDimensions = {
 };
 
 export const squareDimensionClasses = {
-	'3xs': `w-${squareDimensions['3xs']} h-${squareDimensions['3xs']}`,
-	'2xs': `w-${squareDimensions['2xs']} h-${squareDimensions['2xs']}`,
-	xs: `w-${squareDimensions.xs} h-${squareDimensions.xs}`,
-	sm: `w-${squareDimensions.sm} h-${squareDimensions.sm}`,
-	md: `w-${squareDimensions.md} h-${squareDimensions.md}`,
-	lg: `w-${squareDimensions.lg} h-${squareDimensions.lg}`,
-	xl: `w-${squareDimensions.xl} h-${squareDimensions.xl}`,
-	'2xl': `w-${squareDimensions['2xl']} h-${squareDimensions['2xl']}`,
-	'3xl': `w-${squareDimensions['3xl']} h-${squareDimensions['3xl']}`,
-	'4xl': `w-${squareDimensions['4xl']} h-${squareDimensions['4xl']}`,
-	'5xl': `w-${squareDimensions['5xl']} h-${squareDimensions['5xl']}`,
-	'6xl': `w-${squareDimensions['6xl']} h-${squareDimensions['6xl']}`,
-	'7xl': `w-${squareDimensions['7xl']} h-${squareDimensions['7xl']}`,
-	'8xl': `w-${squareDimensions['8xl']} h-${squareDimensions['8xl']}`
+	'3xs': 'w-2 h-2',
+	'2xs': 'w-3 h-3',
+	xs: 'w-4 h-4',
+	sm: 'w-6 h-6',
+	md: 'w-8 h-8',
+	lg: 'w-12 h-12',
+	xl: 'w-16 h-16',
+	'2xl': 'w-24 h-24',
+	'3xl': 'w-32 h-32',
+	'4xl': 'w-40 h-40',
+	'5xl': 'w-48 h-48',
+	'6xl': 'w-56 h-56',
+	'7xl': 'w-64 h-64',
+	'8xl': 'w-72 h-72'
 };

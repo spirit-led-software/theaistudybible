@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { user } from '$lib/stores/user';
 	import { cn } from '$lib/utils/class-names';
-	import { squareDimensionClasses, type ComponentSize } from '$lib/utils/sizing';
+	import { squareDimensionClasses, textSizeClasses, type ComponentSize } from '$lib/utils/sizing';
 
 	export let size: ComponentSize = 'md';
+
+	let sizeClasses = squareDimensionClasses[size];
 
 	let className: string = '';
 	export { className as class };
@@ -13,7 +15,8 @@
 
 <div
 	class={cn(
-		`flex flex-col flex-grow-0 flex-shrink-0 justify-center place-items-center overflow-hidden rounded-full bg-gray-300 ${squareDimensionClasses[size]}`,
+		`flex justify-center place-items-center overflow-hidden rounded-full bg-gray-300`,
+		sizeClasses,
 		className
 	)}
 >
@@ -29,7 +32,7 @@
 			}}
 		/>
 	{:else}
-		<div class="text-xl font-medium text-white uppercase rounded-full">
+		<div class={cn('text-white uppercase rounded-full', textSizeClasses[size])}>
 			{name ? name[0] : email ? email[0] : '?'}
 		</div>
 	{/if}

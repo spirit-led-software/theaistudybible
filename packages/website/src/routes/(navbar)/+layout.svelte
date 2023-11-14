@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Footer from '$lib/components/Footer.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import type { LayoutData } from './$types';
 
@@ -9,3 +10,4 @@
 	<NavBar user={data.user} />
 	<slot />
 </div>
+<Footer />
