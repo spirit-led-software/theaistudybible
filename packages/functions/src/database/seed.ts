@@ -125,15 +125,11 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
   images: number;
 } {
   if (lookupKey === "church-member") {
-    return { queries: 10, images: 1 };
-  } else if (lookupKey === "serve-staff") {
-    return { queries: 25, images: 2 };
+    return { queries: 10, images: 2 };
   } else if (lookupKey === "youth-pastor") {
-    return { queries: 50, images: 4 };
-  } else if (lookupKey === "worship-leader") {
-    return { queries: 75, images: 8 };
+    return { queries: 25, images: 5 };
   } else if (lookupKey === "lead-pastor") {
-    return { queries: 100, images: 20 };
+    return { queries: 50, images: 10 };
   } else if (lookupKey === "church-plant") {
     return {
       queries: Number.MAX_SAFE_INTEGER,

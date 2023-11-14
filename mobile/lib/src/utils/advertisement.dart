@@ -9,7 +9,7 @@ Future<bool> showAdvertisementLogic(
     WidgetRef ref, InterstitialAd? ad, int chanceNumerator, int chanceDenominator) async {
   try {
     final currentUser = await ref.read(currentUserProvider.future);
-    if (currentUser.maxQueries <= 10) {
+    if (currentUser.maxQueries <= 25) {
       final randomInt = (Random().nextDouble() * chanceDenominator).ceil();
       debugPrint("Random int for in ad logic: $randomInt");
       final showAd = randomInt % chanceNumerator;

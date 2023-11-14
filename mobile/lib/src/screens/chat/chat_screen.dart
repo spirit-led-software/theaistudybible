@@ -60,7 +60,7 @@ class ChatScreen extends HookConsumerWidget {
           await Future.delayed(const Duration(seconds: 2), () async {
             final showedReview = await inAppReviewLogic();
             if (!showedReview) {
-              await showAdvertisementLogic(ref, ad, 4, 100);
+              await showAdvertisementLogic(ref, ad, 2, 100);
             }
           });
         },
