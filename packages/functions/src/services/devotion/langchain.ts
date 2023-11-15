@@ -83,7 +83,6 @@ export const getDevotionGeneratorChain = async (): Promise<
       })
         .pipe(
           getLargeContextModel({
-            modelId: "anthropic.claude-v2",
             maxTokens: 4096,
             stopSequences: ["</output>"],
             promptSuffix: "<output>",
