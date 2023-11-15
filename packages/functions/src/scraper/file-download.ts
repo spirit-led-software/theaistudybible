@@ -5,7 +5,6 @@ import {
   InternalServerErrorResponse,
   OkResponse,
 } from "@lib/api-responses";
-import path from "path";
 import { ApiHandler } from "sst/node/api";
 
 const s3Client = new S3Client({});
@@ -31,7 +30,8 @@ export const handler = ApiHandler(async (event) => {
       responseType: "arraybuffer",
     });
 
-    const { filename, contentType } = getFileNameAndContentTypeFromUrl(url);
+    const filename = getFileNameFromUrl(url);
+    const contentType = downloadResponse.headers["content-type"];
     const putCommandResponse = await s3Client.send(
       new PutObjectCommand({
         Bucket: s3Config.indexFileBucket,
@@ -50,7 +50,9 @@ export const handler = ApiHandler(async (event) => {
       !putCommandResponse.$metadata?.httpStatusCode ||
       putCommandResponse.$metadata?.httpStatusCode !== 200
     ) {
-      return InternalServerErrorResponse("Error uploading file to S3");
+      return InternalServerErrorResponse(
+        `Failed to upload file to S3 ${putCommandResponse.$metadata?.httpStatusCode}`
+      );
     }
 
     return OkResponse({
@@ -62,12 +64,8 @@ export const handler = ApiHandler(async (event) => {
   }
 });
 
-function getFileNameAndContentTypeFromUrl(url: string): {
-  filename: string;
-  contentType?: string;
-} {
+function getFileNameFromUrl(url: string) {
   const parts = url.split("/");
   const filename = parts[parts.length - 1];
-  const contentType = path.extname(filename).replace(".", "") || undefined;
-  return { filename, contentType };
+  return filename;
 }

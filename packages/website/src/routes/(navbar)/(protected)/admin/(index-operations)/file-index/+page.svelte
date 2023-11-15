@@ -15,16 +15,17 @@
 		const file = formData.get('file') as File;
 		const name = formData.get('name') as string;
 		const url = formData.get('url') as string;
-		const metadata = formData.get('metadata') as string;
+		const metadataString = formData.get('metadata') as string;
 
 		if (!name || !url) {
 			alert = { type: 'error', message: 'Please fill out all fields' };
 			return;
 		}
 
-		if (metadata) {
+		let metadata: any = {};
+		if (metadataString) {
 			try {
-				JSON.parse(metadata);
+				metadata = JSON.parse(metadataString);
 			} catch (e) {
 				alert = { type: 'error', message: 'Metadata must be valid JSON' };
 				return;
@@ -40,7 +41,13 @@
 						'Content-Type': 'application/json',
 						Authorization: `Bearer ${$session}`
 					},
-					body: JSON.stringify({ name, url, fileType: file.type, fileName: file.name, metadata })
+					body: JSON.stringify({
+						name,
+						url,
+						fileType: file.type,
+						fileName: file.name,
+						metadata
+					})
 				});
 
 				if (!getUrlResponse.ok) {
@@ -73,7 +80,7 @@
 						'Content-Type': 'application/json',
 						Authorization: `Bearer ${$session}`
 					},
-					body: JSON.stringify({ name, url, metadata })
+					body: JSON.stringify({ name, url, metadata: metadataString })
 				});
 
 				if (!response.ok) {
