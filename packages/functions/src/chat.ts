@@ -1,4 +1,3 @@
-import { envConfig } from "@core/configs";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores/neon";
 import type { Chat } from "@core/model";
 import { aiResponsesToSourceDocuments } from "@core/schema";
@@ -23,7 +22,6 @@ import {
   getUserMessagesByChatIdAndText,
   updateUserMessage,
 } from "@services/user/message";
-import { getChatMemoryVectorStore } from "@services/vector-db";
 import { LangChainStream, type Message } from "ai";
 import type {
   APIGatewayProxyEventV2,
@@ -150,18 +148,10 @@ const lambdaHandler = async (
     const newChatId = chatId ?? uuidV4();
     let chat = await getChat(newChatId).then(async (foundChat) => {
       if (!foundChat) {
-        return await Promise.all([
-          createChat({
-            id: newChatId,
-            userId: userInfo.id,
-          }),
-          getChatMemoryVectorStore(newChatId, {
-            verbose: envConfig.isLocal,
-          }).then(async (store) => {
-            await store.ensureTableInDatabase();
-            return store;
-          }),
-        ]).then(([newChat]) => newChat);
+        return await createChat({
+          id: newChatId,
+          userId: userInfo.id,
+        });
       } else if (!isObjectOwner(foundChat, userInfo.id)) {
         return await createChat({
           userId: userInfo.id,
@@ -178,7 +168,7 @@ const lambdaHandler = async (
     const userMessageId = uuidV4();
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
-    const { chain, memory } = await getRAIChatChain(chat.id, messages);
+    const chain = await getRAIChatChain(messages);
     const inputs = {
       query: lastMessage.content,
     };
@@ -193,20 +183,15 @@ const lambdaHandler = async (
           result.sourceDocuments?.filter((d1, i, arr) => {
             return arr.findIndex((d2) => d2.id === d1.id) === i;
           }) ?? [];
-        await Promise.all([
-          memory.saveContext(inputs, {
-            output: result.text,
-          }),
-          postResponseValidationLogic({
-            chat,
-            userMessageId,
-            aiResponseId,
-            userId: userInfo.id,
-            lastMessage,
-            response: result.text,
-            sourceDocuments,
-          }),
-        ]);
+        await postResponseValidationLogic({
+          chat,
+          userMessageId,
+          aiResponseId,
+          userId: userInfo.id,
+          lastMessage,
+          response: result.text,
+          sourceDocuments,
+        });
         return result;
       })
       .catch(async (err) => {

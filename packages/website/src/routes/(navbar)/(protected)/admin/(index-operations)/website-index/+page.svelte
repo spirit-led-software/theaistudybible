@@ -15,11 +15,22 @@
 		const name = formData.get('name') as string;
 		const url = formData.get('url') as string;
 		const pathRegex = formData.get('pathRegex') as string;
+		const metadata = formData.get('metadata') as string;
 
 		if (!name || !url) {
 			alert = { type: 'error', message: 'Please fill out all fields' };
 			return;
 		}
+
+		if (metadata) {
+			try {
+				JSON.parse(metadata);
+			} catch (e) {
+				alert = { type: 'error', message: 'Metadata must be valid JSON' };
+				return;
+			}
+		}
+
 		try {
 			isLoading = true;
 			const response = await fetch(`${PUBLIC_API_URL}/scraper/website`, {
@@ -28,7 +39,7 @@
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${$session}`
 				},
-				body: JSON.stringify({ name, url, pathRegex })
+				body: JSON.stringify({ name, url, pathRegex, metadata })
 			});
 
 			if (!response.ok) {
@@ -108,6 +119,15 @@
 				</label>
 			</div>
 		</div>
+	</div>
+	<div class="flex flex-col space-y-1">
+		<textarea
+			id="metadata"
+			name="metadata"
+			placeholder="Metadata (JSON)"
+			rows="4"
+			class="w-full p-2 border border-gray-300 rounded-md"
+		/>
 	</div>
 	<div class="w-full">
 		<button type="submit" class="w-full p-2 mt-4 text-white bg-blue-300 rounded-md">

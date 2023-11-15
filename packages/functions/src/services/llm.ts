@@ -1,11 +1,11 @@
 import { envConfig, upstashRedisConfig } from "@core/configs";
+import { RAIBedrockEmbeddings } from "@core/langchain/embeddings/bedrock";
 import { RAIBedrock } from "@core/langchain/llms/bedrock";
 import type {
   AnthropicModelId,
   CohereModelId,
 } from "@core/langchain/types/bedrock-types";
 import { UpstashRedisCache } from "langchain/cache/upstash_redis";
-import { BedrockEmbeddings } from "langchain/embeddings/bedrock";
 import type { BaseCache } from "langchain/schema";
 
 export type StandardModelInput = {
@@ -31,8 +31,8 @@ export const llmCache =
     : undefined;
 
 export const getEmbeddingsModel = () =>
-  new BedrockEmbeddings({
-    model: "amazon.titan-embed-text-v1",
+  new RAIBedrockEmbeddings({
+    model: "cohere.embed-english-v3",
   });
 
 export const getSmallContextModel = ({

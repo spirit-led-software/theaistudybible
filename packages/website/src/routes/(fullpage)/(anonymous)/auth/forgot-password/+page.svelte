@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
-	import Logo from '$lib/components/branding/Logo.svelte';
+	import CompactLogo from '$lib/components/branding/CompactLogo.svelte';
 	import { SolidLineSpinner } from '$lib/components/loading';
 	import type { ActionData, SubmitFunction } from './$types';
 
@@ -79,10 +79,8 @@
 		</div>
 	{/if}
 	<div class="flex flex-col">
-		<div
-			class="items-center px-3 py-2 mx-auto my-8 text-center border rounded-lg border-slate-400 lg:mb-10 lg:py-4 lg:px-6"
-		>
-			<Logo size="2xl" colorscheme={'dark'} />
+		<div class="items-center p-1 mx-auto my-8 text-center rounded-full shadow-lg bg-slate-700">
+			<CompactLogo size="2xl" colorscheme={'light'} />
 		</div>
 		<div class="divide-y divide-gray-600">
 			{#if token}

@@ -1,7 +1,9 @@
+import { vectorDBConfig } from "@core/configs";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { Document } from "langchain/document";
+import { HtmlToTextTransformer } from "langchain/document_transformers/html_to_text";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
-import { textSplitter } from "./text-splitter";
 
 export async function generatePageContentEmbeddings(
   name: string,
@@ -20,14 +22,23 @@ export async function generatePageContentEmbeddings(
             await page.waitForSelector("body");
             return await page.evaluate(() => {
               return (
-                document.querySelector("main")?.innerText ??
-                document.body.innerText
+                document.querySelector("main")?.innerHTML ??
+                document.body.innerHTML
               );
             });
           },
         });
-        console.log(`Loading and splitting documents from url '${url}'`);
-        docs = await loader.loadAndSplit(textSplitter);
+        console.log(`Loading documents from url '${url}'`);
+        docs = await loader.load();
+
+        const splitter = RecursiveCharacterTextSplitter.fromLanguage("html", {
+          chunkSize: vectorDBConfig.docEmbeddingContentLength,
+          chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+        });
+        const transformer = new HtmlToTextTransformer();
+        const sequence = splitter.pipe(transformer);
+        console.log("Splitting and transforming documents.");
+        docs = await sequence.invoke(docs);
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);
       }
 

@@ -14,10 +14,20 @@
 		const formData = new FormData(event.currentTarget);
 		const name = formData.get('name') as string;
 		const url = formData.get('url') as string;
+		const metadata = formData.get('metadata') as string;
 
 		if (!name || !url) {
 			alert = { type: 'error', message: 'Please fill out all fields' };
 			return;
+		}
+
+		if (metadata) {
+			try {
+				JSON.parse(metadata);
+			} catch (e) {
+				alert = { type: 'error', message: 'Metadata must be valid JSON' };
+				return;
+			}
 		}
 
 		try {
@@ -28,7 +38,7 @@
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${$session}`
 				},
-				body: JSON.stringify({ name, url })
+				body: JSON.stringify({ name, url, metadata })
 			});
 
 			if (!response.ok) {
@@ -87,6 +97,15 @@
 				name="url"
 				type="text"
 				placeholder="URL"
+				class="w-full p-2 border border-gray-300 rounded-md"
+			/>
+		</div>
+		<div class="flex flex-col space-y-1">
+			<textarea
+				id="metadata"
+				name="metadata"
+				placeholder="Metadata (JSON)"
+				rows="4"
 				class="w-full p-2 border border-gray-300 rounded-md"
 			/>
 		</div>

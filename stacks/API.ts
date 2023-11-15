@@ -23,6 +23,7 @@ import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
   CfnFunction,
   FunctionUrlAuthType,
+  HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
 import { ARecord, AaaaRecord, RecordTarget } from "aws-cdk-lib/aws-route53";
@@ -84,6 +85,13 @@ export function API({ stack, app }: StackContext) {
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
     authType: FunctionUrlAuthType.NONE,
+    cors: {
+      allowCredentials: true,
+      allowedOrigins: [websiteUrl],
+      allowedHeaders: ["Authorization", "Content-Type"],
+      allowedMethods: [HttpMethod.ALL],
+      exposedHeaders: ["*"],
+    },
   });
 
   let chatApiUrl = chatApiFunctionUrl.url;
@@ -192,6 +200,17 @@ export function API({ stack, app }: StackContext) {
       "POST /scraper/file/presigned-url": {
         function: {
           handler: "packages/functions/src/scraper/file-presigned-url.handler",
+          bind: [indexFileBucket],
+          permissions: [indexFileBucket],
+          environment: {
+            ...lambdaEnv,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
+        },
+      },
+      "POST /scraper/file/download": {
+        function: {
+          handler: "packages/functions/src/scraper/file-download.handler",
           bind: [indexFileBucket],
           permissions: [indexFileBucket],
           environment: {

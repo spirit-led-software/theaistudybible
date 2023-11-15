@@ -1,4 +1,10 @@
 import type { IndexOperation } from "@core/model";
+import {
+  BadRequestResponse,
+  ForbiddenResponse,
+  OkResponse,
+  UnauthorizedResponse,
+} from "@lib/api-responses";
 import { createIndexOperation, updateIndexOperation } from "@services/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
@@ -8,40 +14,16 @@ import { generatePageContentEmbeddings } from "../lib/web-scraper";
 export const handler = ApiHandler(async (event) => {
   const { isValid, userWithRoles } = await validApiHandlerSession();
   if (!isValid) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({
-        error: "Unauthorized",
-      }),
-    };
+    return UnauthorizedResponse();
   }
 
   if (!(await isAdmin(userWithRoles.id))) {
-    return {
-      statusCode: 403,
-      body: JSON.stringify({
-        error: "Forbidden",
-      }),
-    };
+    return ForbiddenResponse();
   }
 
-  if (!event.body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: "Missing body",
-      }),
-    };
-  }
-
-  const { name, url } = JSON.parse(event.body);
+  const { name, url, metadata = {} } = JSON.parse(event.body || "{}");
   if (!url || !name) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        error: "Missing required fields",
-      }),
-    };
+    return BadRequestResponse("Missing required fields");
   }
 
   let indexOp: IndexOperation | undefined;
@@ -50,6 +32,7 @@ export const handler = ApiHandler(async (event) => {
       status: "RUNNING",
       type: "WEBPAGE",
       metadata: {
+        ...metadata,
         name,
         url,
       },
@@ -63,13 +46,10 @@ export const handler = ApiHandler(async (event) => {
       status: "SUCCEEDED",
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "Index successful!",
-        indexOp,
-      }),
-    };
+    return OkResponse({
+      message: "Success",
+      indexOp,
+    });
   } catch (err: any) {
     console.error(err.stack);
 
@@ -81,20 +61,12 @@ export const handler = ApiHandler(async (event) => {
           error: err.stack,
         },
       });
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: err.stack,
-          indexOp,
-        }),
-      };
+      return OkResponse({
+        error: err.stack,
+        indexOp,
+      });
     }
 
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: err.stack,
-      }),
-    };
+    return BadRequestResponse(err.stack);
   }
 });

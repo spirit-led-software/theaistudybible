@@ -24,6 +24,7 @@ type RequestBody = {
   url: string;
   pathRegex: string;
   name: string;
+  metadata?: any;
 };
 
 const sqsClient = new SQSClient({});
@@ -38,15 +39,13 @@ export const handler = ApiHandler(async (event) => {
     return ForbiddenResponse("You must be an admin to perform this action");
   }
 
-  if (!event.body) {
-    return BadRequestResponse("Missing request body");
-  }
-
   const {
     url,
     pathRegex: pathRegexString,
     name,
-  }: RequestBody = JSON.parse(event.body);
+    metadata = {},
+  }: RequestBody = JSON.parse(event.body || "{}");
+
   if (!name || !url) {
     return BadRequestResponse("Name and url are required");
   }
@@ -92,6 +91,7 @@ export const handler = ApiHandler(async (event) => {
       type: "WEBSITE",
       status: "RUNNING",
       metadata: {
+        ...metadata,
         name,
         baseUrl,
         urlRegex: urlRegex.source,

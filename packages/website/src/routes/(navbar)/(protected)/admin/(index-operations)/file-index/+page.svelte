@@ -15,46 +15,74 @@
 		const file = formData.get('file') as File;
 		const name = formData.get('name') as string;
 		const url = formData.get('url') as string;
+		const metadata = formData.get('metadata') as string;
 
-		if (!file || !name || !url) {
+		if (!name || !url) {
 			alert = { type: 'error', message: 'Please fill out all fields' };
 			return;
 		}
 
+		if (metadata) {
+			try {
+				JSON.parse(metadata);
+			} catch (e) {
+				alert = { type: 'error', message: 'Metadata must be valid JSON' };
+				return;
+			}
+		}
+
 		try {
 			isLoading = true;
-			const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${$session}`
-				},
-				body: JSON.stringify({ name, url, fileType: file.type, fileName: file.name })
-			});
+			if (file.size > 0) {
+				const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${$session}`
+					},
+					body: JSON.stringify({ name, url, fileType: file.type, fileName: file.name, metadata })
+				});
 
-			if (!getUrlResponse.ok) {
-				const data = await getUrlResponse.json();
-				throw new Error(data.error ?? 'Something went wrong');
+				if (!getUrlResponse.ok) {
+					const data = await getUrlResponse.json();
+					throw new Error(data.error ?? 'Something went wrong');
+				}
+
+				const { url: presignedUrl } = await getUrlResponse.json();
+
+				const uploadResponse = await fetch(presignedUrl, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': file.type
+					},
+					body: file
+				});
+
+				if (!uploadResponse.ok) {
+					console.error(
+						`Error uploading to s3: ${uploadResponse.status} ${uploadResponse.statusText}`
+					);
+					throw new Error('Something went wrong while uploading the file to S3');
+				}
+
+				alert = { type: 'success', message: 'Successfully uploaded file to S3' };
+			} else {
+				const response = await fetch(`${PUBLIC_API_URL}/scraper/file/download`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${$session}`
+					},
+					body: JSON.stringify({ name, url, metadata })
+				});
+
+				if (!response.ok) {
+					const data = await response.json();
+					throw new Error(data.error ?? 'Something went wrong');
+				}
+
+				alert = { type: 'success', message: 'Successfully downloaded file and placed in S3.' };
 			}
-
-			const { url: presignedUrl } = await getUrlResponse.json();
-
-			const uploadResponse = await fetch(presignedUrl, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': file.type
-				},
-				body: file
-			});
-
-			if (!uploadResponse.ok) {
-				console.error(
-					`Error uploading to s3: ${uploadResponse.status} ${uploadResponse.statusText}`
-				);
-				throw new Error('Something went wrong while uploading the file');
-			}
-
-			alert = { type: 'success', message: 'Successfully uploaded file' };
 		} catch (e: any) {
 			console.error(e);
 			alert = { type: 'error', message: e.message };
@@ -116,6 +144,15 @@
 				name="url"
 				type="text"
 				placeholder="URL"
+				class="w-full p-2 border border-gray-300 rounded-md"
+			/>
+		</div>
+		<div class="flex flex-col space-y-1">
+			<textarea
+				id="metadata"
+				name="metadata"
+				placeholder="Metadata (JSON)"
+				rows="4"
 				class="w-full p-2 border border-gray-300 rounded-md"
 			/>
 		</div>
