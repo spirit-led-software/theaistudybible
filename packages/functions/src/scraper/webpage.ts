@@ -21,7 +21,7 @@ export const handler = ApiHandler(async (event) => {
     return ForbiddenResponse();
   }
 
-  const { name, url, metadata = {} } = JSON.parse(event.body || "{}");
+  const { name, url, metadata = "{}" } = JSON.parse(event.body || "{}");
   if (!url || !name) {
     return BadRequestResponse("Missing required fields");
   }
@@ -32,7 +32,7 @@ export const handler = ApiHandler(async (event) => {
       status: "RUNNING",
       type: "WEBPAGE",
       metadata: {
-        ...metadata,
+        ...JSON.parse(metadata),
         name,
         url,
       },

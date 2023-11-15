@@ -39,7 +39,11 @@
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${$session}`
 				},
-				body: JSON.stringify({ name, url, metadata })
+				body: JSON.stringify({
+					name,
+					url,
+					metadata: JSON.stringify(metadata)
+				})
 			});
 
 			if (!response.ok) {

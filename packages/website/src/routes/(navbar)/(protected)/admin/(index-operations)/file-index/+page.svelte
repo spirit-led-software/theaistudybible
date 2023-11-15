@@ -46,7 +46,7 @@
 						url,
 						fileType: file.type,
 						fileName: file.name,
-						metadata
+						metadata: JSON.stringify(metadata)
 					})
 				});
 

@@ -24,7 +24,7 @@ type RequestBody = {
   url: string;
   pathRegex: string;
   name: string;
-  metadata?: any;
+  metadata?: string;
 };
 
 const sqsClient = new SQSClient({});
@@ -43,7 +43,7 @@ export const handler = ApiHandler(async (event) => {
     url,
     pathRegex: pathRegexString,
     name,
-    metadata = {},
+    metadata = "{}",
   }: RequestBody = JSON.parse(event.body || "{}");
 
   if (!name || !url) {
@@ -91,7 +91,7 @@ export const handler = ApiHandler(async (event) => {
       type: "WEBSITE",
       status: "RUNNING",
       metadata: {
-        ...metadata,
+        ...JSON.parse(metadata),
         name,
         baseUrl,
         urlRegex: urlRegex.source,

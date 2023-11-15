@@ -21,7 +21,7 @@ export const handler = ApiHandler(async (event) => {
     url,
     fileName,
     fileType,
-    metadata = {},
+    metadata = "{}",
   } = JSON.parse(event.body || "{}");
 
   if (!name || !url || !fileName || !fileType) {
@@ -42,7 +42,7 @@ export const handler = ApiHandler(async (event) => {
         Bucket: s3Config.indexFileBucket,
         Key: fileName,
         Metadata: {
-          ...metadata,
+          ...JSON.parse(metadata),
           name,
           url,
         },

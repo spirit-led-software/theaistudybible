@@ -15,8 +15,8 @@ export const handler = ApiHandler(async (event) => {
   const {
     name,
     url,
-    metadata = {},
-  }: { name: string; url: string; metadata?: any } = JSON.parse(
+    metadata = "{}",
+  }: { name: string; url: string; metadata?: string } = JSON.parse(
     event.body || "{}"
   );
 
@@ -39,7 +39,7 @@ export const handler = ApiHandler(async (event) => {
         ContentType: contentType,
         Body: downloadResponse.data,
         Metadata: {
-          ...metadata,
+          ...JSON.parse(metadata),
           name,
           url,
         },
