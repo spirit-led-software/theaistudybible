@@ -31,11 +31,11 @@ export const handler = ApiHandler(async (event) => {
       responseType: "arraybuffer",
     });
 
-    const { fileName, contentType } = getFileNameAndContentTypeFromUrl(url);
+    const { filename, contentType } = getFileNameAndContentTypeFromUrl(url);
     const putCommandResponse = await s3Client.send(
       new PutObjectCommand({
         Bucket: s3Config.indexFileBucket,
-        Key: fileName,
+        Key: filename,
         ContentType: contentType,
         Body: downloadResponse.data,
         Metadata: {
@@ -62,9 +62,12 @@ export const handler = ApiHandler(async (event) => {
   }
 });
 
-function getFileNameAndContentTypeFromUrl(url: string) {
+function getFileNameAndContentTypeFromUrl(url: string): {
+  filename: string;
+  contentType?: string;
+} {
   const parts = url.split("/");
-  const fileName = parts[parts.length - 1];
-  const contentType = path.extname(fileName) || undefined;
-  return { fileName, contentType };
+  const filename = parts[parts.length - 1];
+  const contentType = path.extname(filename).replace(".", "") || undefined;
+  return { filename, contentType };
 }

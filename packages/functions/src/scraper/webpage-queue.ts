@@ -25,7 +25,7 @@ export const consumer: SQSHandler = async (event) => {
       throw new Error("Index op not found");
     }
 
-    await generatePageContentEmbeddings(name, url);
+    await generatePageContentEmbeddings(name, url, indexOp.metadata);
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
     indexOp = await getIndexOperation(indexOp.id);

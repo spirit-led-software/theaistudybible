@@ -7,7 +7,8 @@ import { PuppeteerCoreWebBaseLoader } from "./puppeteer";
 
 export async function generatePageContentEmbeddings(
   name: string,
-  url: string
+  url: string,
+  metadata: any
 ): Promise<void> {
   console.log(`Generating page content embeddings for url '${url}'`);
   let success = false;
@@ -46,10 +47,11 @@ export async function generatePageContentEmbeddings(
       docs = docs.map((doc) => {
         doc.metadata = {
           ...doc.metadata,
+          ...metadata,
           indexDate: new Date().toISOString(),
+          type: "webpage",
           name,
           url,
-          type: "webpage",
         };
         let newPageContent = `TITLE: ${name}\n---\n${doc.pageContent}`;
         if (doc.metadata.title) {

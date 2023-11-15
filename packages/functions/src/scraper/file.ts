@@ -48,6 +48,7 @@ export const handler: S3Handler = async (event) => {
     const file = {
       name: getRequest.Metadata?.name,
       url: getRequest.Metadata?.url,
+      metadata: getRequest.Metadata,
       fileName: sanitizedKey,
       type: getRequest.ContentType,
       size,
@@ -55,6 +56,7 @@ export const handler: S3Handler = async (event) => {
     };
 
     let indexOpMetadata: any = {
+      ...file.metadata,
       name: file.name,
       url: file.url,
       filename: file.fileName,
@@ -110,8 +112,8 @@ export const handler: S3Handler = async (event) => {
       doc.metadata = {
         ...doc.metadata,
         ...indexOpMetadata,
-        type: "file",
         indexDate: new Date().toISOString(),
+        type: "file",
       };
       let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
       if (doc.metadata.title) {

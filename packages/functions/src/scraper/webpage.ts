@@ -39,7 +39,7 @@ export const handler = ApiHandler(async (event) => {
     });
 
     console.log(`Started indexing url '${url}'.`);
-    await generatePageContentEmbeddings(name, url);
+    await generatePageContentEmbeddings(name, url, metadata);
 
     console.log(`Successfully indexed url '${url}'. Updating index op status.`);
     indexOp = await updateIndexOperation(indexOp?.id!, {
