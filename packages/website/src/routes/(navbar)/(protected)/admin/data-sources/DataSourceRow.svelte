@@ -89,6 +89,7 @@
 	<td>{dataSource.type}</td>
 	<td>{dataSource.syncSchedule}</td>
 	<td>{getLastSyncDate(dataSource)}</td>
+	<td>{dataSource.numberOfDocuments}</td>
 	<td class="w-10 py-3 space-y-2">
 		<button
 			class="btn btn-xs btn-circle"

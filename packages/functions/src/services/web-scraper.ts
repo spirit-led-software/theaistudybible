@@ -58,6 +58,7 @@ export async function generatePageContentEmbeddings(
         doc.metadata = {
           ...doc.metadata,
           ...metadata,
+          dataSourceId,
           indexDate: new Date().toISOString(),
           type: "webpage",
           name,

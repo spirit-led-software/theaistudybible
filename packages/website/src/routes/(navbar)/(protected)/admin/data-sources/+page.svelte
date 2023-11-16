@@ -57,6 +57,7 @@
 					<th>Type</th>
 					<th>Sync Schedule</th>
 					<th>Last Sync</th>
+					<th># of Documents</th>
 					<th />
 					<th />
 				</tr>
