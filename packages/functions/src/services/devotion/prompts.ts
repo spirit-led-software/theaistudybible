@@ -131,7 +131,8 @@ Here is the error that you are to fix, within <error></error> XML tags.
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output must fix the error.
-- You should not change the meaning of the completion.
+- You are only allowed to change the formatting of the completion.
+- You are not allowed to change any of the content of the completion.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
 <completion>
