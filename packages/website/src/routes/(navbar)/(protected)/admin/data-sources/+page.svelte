@@ -39,6 +39,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Data Sources</title>
+</svelte:head>
+
 <div class="flex flex-col w-full h-full p-5 space-y-5">
 	<div class="flex space-x-2 place-items-center">
 		<h1 class="text-2xl font-medium">Data Sources</h1>

@@ -7,6 +7,10 @@
 	$: ({ indexOperations } = data);
 </script>
 
+<svelte:head>
+	<title>Index Operations</title>
+</svelte:head>
+
 <div class="flex w-full h-full p-5">
 	<div class="flex flex-col-reverse w-full overflow-hidden">
 		<div class="flex flex-1 w-full overflow-y-scroll">

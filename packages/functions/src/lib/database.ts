@@ -29,10 +29,10 @@ export async function neonFetchFn(
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       if (tryCount < retries) {
         console.log(
-          `[Neon Fetch] Retrying neon fetch after ${tryCount} attempt(s) with error: ${error}`
+          `[Neon Fetch] Retrying neon fetch after ${tryCount} attempt(s) with error: ${error.message}\n${error.stack}`
         );
         console.log(
           `[Neon Fetch] Waiting ${tryCount * 1000} seconds before retrying`
@@ -42,7 +42,7 @@ export async function neonFetchFn(
         continue;
       }
       console.log(
-        `[Neon Fetch] Failed after ${tryCount} attempts with error: ${error}`
+        `[Neon Fetch] Failed after ${tryCount} attempts with error: ${error.message}\n${error.stack}`
       );
       throw error;
     }
