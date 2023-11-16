@@ -7,7 +7,6 @@ import {
 import { deleteChat, getChat } from "@services/chat/chat";
 import { validApiHandlerSession } from "@services/session";
 import { isObjectOwner } from "@services/user";
-import { deleteChatMemoryVectorStore } from "@services/vector-db";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -24,8 +23,6 @@ export const handler = ApiHandler(async (event) => {
     }
 
     await deleteChat(chat.id);
-    await deleteChatMemoryVectorStore(chat.id);
-
     return DeletedResponse(chat.id);
   } catch (error: any) {
     console.error(error);

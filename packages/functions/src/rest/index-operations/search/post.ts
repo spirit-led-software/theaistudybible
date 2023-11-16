@@ -5,7 +5,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getIndexOperations } from "@services/index-op";
+import { getIndexOperations } from "@services/data-source/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import { and } from "drizzle-orm";

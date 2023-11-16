@@ -23,6 +23,7 @@ import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
   CfnFunction,
   FunctionUrlAuthType,
+  HttpMethod,
   InvokeMode,
 } from "aws-cdk-lib/aws-lambda";
 import { ARecord, AaaaRecord, RecordTarget } from "aws-cdk-lib/aws-route53";
@@ -84,11 +85,18 @@ export function API({ stack, app }: StackContext) {
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
     authType: FunctionUrlAuthType.NONE,
+    cors: {
+      allowCredentials: true,
+      allowedOrigins: [websiteUrl],
+      allowedHeaders: ["Authorization", "Content-Type"],
+      allowedMethods: [HttpMethod.ALL],
+      exposedHeaders: ["*"],
+    },
   });
 
   let chatApiUrl = chatApiFunctionUrl.url;
   // Create cloudfront distribution for non-dev environments
-  if (app.mode !== "dev") {
+  if (app.stage === "prod") {
     const chatApiUrlDistribution = new Distribution(
       stack,
       "chatApiUrlDistribution",
@@ -166,9 +174,9 @@ export function API({ stack, app }: StackContext) {
 
   const api = new Api(stack, "api", {
     routes: {
-      "POST /scraper/website": {
+      "POST /scraper/web-crawl": {
         function: {
-          handler: "packages/functions/src/scraper/website.handler",
+          handler: "packages/functions/src/scraper/web-crawl.handler",
           bind: [webpageIndexQueue],
           permissions: [webpageIndexQueue],
           timeout: "15 minutes",
@@ -177,7 +185,7 @@ export function API({ stack, app }: StackContext) {
       },
       "POST /scraper/webpage": {
         function: {
-          handler: "packages/functions/src/scraper/webpage.handler",
+          handler: "packages/functions/src/scraper/webpage/webpage.handler",
           nodejs: {
             install: ["@sparticuz/chromium"],
             esbuild: {
@@ -191,7 +199,19 @@ export function API({ stack, app }: StackContext) {
       },
       "POST /scraper/file/presigned-url": {
         function: {
-          handler: "packages/functions/src/scraper/file-presigned-url.handler",
+          handler: "packages/functions/src/scraper/file/upload-url.handler",
+          bind: [indexFileBucket],
+          permissions: [indexFileBucket],
+          environment: {
+            ...lambdaEnv,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
+        },
+      },
+      "POST /scraper/file/remote-download": {
+        function: {
+          handler:
+            "packages/functions/src/scraper/file/remote-download.handler",
           bind: [indexFileBucket],
           permissions: [indexFileBucket],
           environment: {
@@ -238,6 +258,38 @@ export function API({ stack, app }: StackContext) {
       "PUT /chats/{id}": "packages/functions/src/rest/chats/[id]/put.handler",
       "DELETE /chats/{id}":
         "packages/functions/src/rest/chats/[id]/delete.handler",
+
+      // Data Sources
+      "GET /data-sources":
+        "packages/functions/src/rest/data-sources/get.handler",
+      "POST /data-sources":
+        "packages/functions/src/rest/data-sources/post.handler",
+      "POST /data-sources/search":
+        "packages/functions/src/rest/data-sources/search/post.handler",
+      "GET /data-sources/{id}":
+        "packages/functions/src/rest/data-sources/[id]/get.handler",
+      "PUT /data-sources/{id}":
+        "packages/functions/src/rest/data-sources/[id]/put.handler",
+      "DELETE /data-sources/{id}":
+        "packages/functions/src/rest/data-sources/[id]/delete.handler",
+      "POST /data-sources/{id}/sync": {
+        function: {
+          handler:
+            "packages/functions/src/rest/data-sources/[id]/sync/post.handler",
+          permissions: [
+            invokeBedrockPolicy,
+            indexFileBucket,
+            webpageIndexQueue,
+          ],
+          bind: [indexFileBucket, webpageIndexQueue],
+          environment: {
+            ...lambdaEnv,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
+          memorySize: "2 GB",
+          timeout: "15 minutes",
+        },
+      },
 
       // Devotions
       "GET /devotions": "packages/functions/src/rest/devotions/get.handler",

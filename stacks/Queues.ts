@@ -21,7 +21,7 @@ export function Queues({ stack }: StackContext) {
     },
     consumer: {
       function: {
-        handler: "packages/functions/src/scraper/webpage-queue.consumer",
+        handler: "packages/functions/src/scraper/webpage/queue.consumer",
         environment: {
           DATABASE_READWRITE_URL: dbReadWriteUrl,
           DATABASE_READONLY_URL: dbReadOnlyUrl,

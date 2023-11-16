@@ -12,19 +12,14 @@
 		href: string;
 	}[] = [
 		{
-			name: 'Index File',
-			icon: 'mdi:file-find',
-			href: '/admin/file-index'
+			name: 'Data Sources',
+			icon: 'mdi:database-search',
+			href: '/admin/data-sources'
 		},
 		{
-			name: 'Index Website',
-			icon: 'mdi:web',
-			href: '/admin/website-index'
-		},
-		{
-			name: 'Index Webpage',
-			icon: 'mdi:web',
-			href: '/admin/webpage-index'
+			name: 'Index Operations',
+			icon: 'mdi:database',
+			href: '/admin/index-operations'
 		}
 	];
 
@@ -36,7 +31,7 @@
 </script>
 
 <nav
-	class={`absolute flex flex-grow-0 flex-shrink-0 h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/3 lg:static ${
+	class={`absolute flex flex-grow-0 flex-shrink-0 h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/4 lg:static ${
 		isOpen ? 'w-full' : 'w-0'
 	}`}
 >

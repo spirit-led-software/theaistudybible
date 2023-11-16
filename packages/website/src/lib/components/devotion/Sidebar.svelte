@@ -49,7 +49,7 @@
 </script>
 
 <nav
-	class={`absolute flex flex-grow-0 flex-shrink-0 h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/3 lg:static ${
+	class={`absolute flex flex-grow-0 flex-shrink-0 h-full bg-slate-700 border-t-2 duration-300 z-30 lg:w-1/4 lg:static ${
 		isOpen ? 'w-full' : 'w-0'
 	}`}
 >

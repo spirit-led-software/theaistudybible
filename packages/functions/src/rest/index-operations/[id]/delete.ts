@@ -4,7 +4,10 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { deleteIndexOperation, getIndexOperation } from "@services/index-op";
+import {
+  deleteIndexOperation,
+  getIndexOperation,
+} from "@services/data-source/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { ApiHandler } from "sst/node/api";
 

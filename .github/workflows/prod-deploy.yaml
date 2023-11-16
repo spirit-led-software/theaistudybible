@@ -73,15 +73,12 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
-      - id: setup_node
-        name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18.x"
-          cache: "npm"
-      - id: install_node_deps
-        name: Install Node.js dependencies
-        run: npm ci
+      - id: setup_bun
+        name: Setup Bun.js
+        uses: oven-sh/setup-bun@v1
+      - id: install_deps
+        name: Install dependencies
+        run: bun install
       - id: setup_firebase_creds
         name: Setup Firebase Credentials
         run: |
@@ -92,4 +89,4 @@ jobs:
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - id: sst_deploy
         name: Deploy to AWS
-        run: npx sst deploy --stage prod
+        run: bunx sst deploy --stage prod

@@ -1,5 +1,4 @@
 import { envConfig } from "@core/configs";
-import { RAITimeWeightedVectorStoreRetriever } from "@core/langchain/retrievers/time_weighted";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import {
   CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
@@ -11,10 +10,7 @@ import {
 } from "@services/chat/prompts";
 import type { Message } from "ai";
 import type { Document } from "langchain/document";
-import {
-  ChatMessageHistory,
-  VectorStoreRetrieverMemory,
-} from "langchain/memory";
+import { ChatMessageHistory } from "langchain/memory";
 import {
   RouterOutputParser,
   StructuredOutputParser,
@@ -29,21 +25,19 @@ import {
 } from "langchain/schema/runnable";
 import { z } from "zod";
 import { getLargeContextModel, llmCache } from "../llm";
-import { getChatMemoryVectorStore, getDocumentVectorStore } from "../vector-db";
+import { getDocumentVectorStore } from "../vector-db";
 
 export const getRAIChatChain = async (
-  chatId: string,
   messages: Message[]
-): Promise<{
-  chain: Runnable<
+): Promise<
+  Runnable<
     { query: string },
     {
       text: string;
       sourceDocuments?: NeonVectorStoreDocument[];
     }
-  >;
-  memory: VectorStoreRetrieverMemory;
-}> => {
+  >
+> => {
   const history = new ChatMessageHistory(
     messages.slice(0, -1).map((message) => {
       return message.role === "user"
@@ -69,30 +63,14 @@ export const getRAIChatChain = async (
     },
   ]);
 
-  const chatMemoryRetriever = await getChatMemoryVectorStore(chatId, {
-    verbose: envConfig.isLocal,
-  }).then(async (store) => {
-    return new RAITimeWeightedVectorStoreRetriever({
-      vectorStore: store,
-      k: 100,
-      verbose: envConfig.isLocal,
-    });
-  });
   const chatHistoryChain = RunnableSequence.from([
     {
-      sourceDocuments: RunnableSequence.from([
-        (input) => input.routingInstructions.next_inputs.query,
-        chatMemoryRetriever,
-      ]),
       query: (input) => input.routingInstructions.next_inputs.query,
-    },
-    {
-      query: (previousStepResult) => previousStepResult.query,
-      history: (previousStepResult) =>
-        previousStepResult.sourceDocuments
+      history: () =>
+        messages
           ?.map(
-            (sourceDoc: Document) =>
-              `<message>\n${sourceDoc.pageContent}\n</message>`
+            (message) =>
+              `<message>\n<sender>${message.role}</sender><text>${message.content}</text>\n</message>`
           )
           .join("\n"),
     },
@@ -193,14 +171,7 @@ export const getRAIChatChain = async (
     branch,
   ]);
 
-  return {
-    chain: multiRouteChain,
-    memory: new VectorStoreRetrieverMemory({
-      vectorStoreRetriever: chatMemoryRetriever,
-      inputKey: "input",
-      outputKey: "output",
-    }),
-  };
+  return multiRouteChain;
 };
 
 export async function getDocumentQaChain(options: {
