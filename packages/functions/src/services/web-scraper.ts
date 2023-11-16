@@ -10,7 +10,6 @@ import {
 import { getDocumentVectorStore } from "@services/vector-db";
 import { XMLParser } from "fast-xml-parser";
 import type { Document } from "langchain/document";
-import { HtmlToTextTransformer } from "langchain/document_transformers/html_to_text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Queue } from "sst/node/queue";
 
@@ -33,24 +32,23 @@ export async function generatePageContentEmbeddings(
             await page.waitForSelector("body");
             return await page.evaluate(() => {
               return (
-                document.querySelector("main")?.innerHTML ??
-                document.body.innerHTML
+                document.querySelector("main")?.innerText ??
+                document.body.innerText
               );
             });
           },
         });
         console.log(`Loading documents from url '${url}'`);
         docs = await loader.load();
+        console.log(`Loaded ${docs.length} documents from url '${url}'.`);
 
-        const splitter = RecursiveCharacterTextSplitter.fromLanguage("html", {
+        const splitter = new RecursiveCharacterTextSplitter({
           chunkSize: vectorDBConfig.docEmbeddingContentLength,
           chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
         });
-        const transformer = new HtmlToTextTransformer();
-        const sequence = splitter.pipe(transformer);
-        console.log("Splitting and transforming documents.");
-        docs = await sequence.invoke(docs);
-        console.log(`Loaded ${docs.length} documents from url '${url}'.`);
+        console.log("Splitting documents.");
+        docs = await splitter.invoke(docs);
+        console.log(`Split into ${docs.length} documents from url '${url}'.`);
       }
 
       console.log("Adding metadata to documents.");
