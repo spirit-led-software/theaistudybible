@@ -1,9 +1,11 @@
+import { GetQueueAttributesCommand, SQSClient } from "@aws-sdk/client-sqs";
 import type { IndexOperation } from "@core/model";
 import {
   getIndexOperation,
   updateIndexOperation,
 } from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
+import { Queue } from "sst/node/queue";
 import { generatePageContentEmbeddings } from "../../services/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {
@@ -37,12 +39,6 @@ export const consumer: SQSHandler = async (event) => {
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
     indexOp = await getIndexOperation(indexOp.id);
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      metadata: {
-        ...indexOp?.metadata,
-        succeeded: [...(indexOp?.metadata.succeeded ?? []), url],
-      },
-    });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
@@ -51,16 +47,10 @@ export const consumer: SQSHandler = async (event) => {
       indexOp = await getIndexOperation(indexOp.id);
       indexOp = await updateIndexOperation(indexOp!.id, {
         status: "FAILED",
-        metadata: {
-          ...indexOp?.metadata,
-          failed: [
-            ...(indexOp?.metadata?.failed ?? []),
-            {
-              url,
-              error: err.stack,
-            },
-          ],
-        },
+        errorMessages: [
+          ...(indexOp?.errorMessages ?? []),
+          err.stack ?? err.message,
+        ],
       });
 
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
@@ -72,16 +62,29 @@ const checkIfIndexOpIsCompletedAndUpdate = async (
   indexOp: IndexOperation | undefined
 ) => {
   if (indexOp) {
-    indexOp = await getIndexOperation(indexOp.id);
-    if (
-      indexOp?.metadata.succeeded &&
-      indexOp.metadata.failed &&
-      indexOp.metadata.urlCount &&
-      indexOp.metadata.succeeded.length + indexOp.metadata.failed.length ===
-        indexOp.metadata.urlCount
-    ) {
-      await updateIndexOperation(indexOp!.id, {
-        status: "COMPLETED",
+    const client = new SQSClient({});
+    const response = await client.send(
+      new GetQueueAttributesCommand({
+        QueueUrl: Queue.webpageIndexQueue.queueUrl,
+        AttributeNames: ["ApproximateNumberOfMessages"],
+      })
+    );
+
+    if (response.$metadata.httpStatusCode !== 200) {
+      throw new Error(
+        `Failed to get queue attributes: ${response.$metadata.httpStatusCode}`
+      );
+    }
+
+    const messageCount = parseInt(
+      response.Attributes?.ApproximateNumberOfMessages ?? "0"
+    );
+    console.log(`Message count: ${messageCount}`);
+
+    if (messageCount === 0) {
+      indexOp = await getIndexOperation(indexOp.id);
+      indexOp = await updateIndexOperation(indexOp!.id, {
+        status: indexOp!.errorMessages?.length ? "FAILED" : "SUCCEEDED",
       });
     }
   }

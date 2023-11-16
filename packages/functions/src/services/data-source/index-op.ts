@@ -126,10 +126,10 @@ export async function indexWebPage({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        metadata: {
-          ...indexOp.metadata,
-          error: err.stack,
-        },
+        errorMessages: [
+          ...(indexOp?.errorMessages ?? []),
+          err.stack ?? err.message,
+        ],
       });
     }
     throw err;
@@ -212,10 +212,10 @@ export async function indexWebCrawl({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        metadata: {
-          ...indexOp.metadata,
-          error: err.stack,
-        },
+        errorMessages: [
+          ...(indexOp?.errorMessages ?? []),
+          err.stack ?? err.message,
+        ],
       });
     }
     throw err;

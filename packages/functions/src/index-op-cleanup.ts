@@ -26,10 +26,10 @@ export const handler: Handler = async (event, _) => {
     indexOps.map(async (indexOp) => {
       await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        metadata: {
-          ...indexOp.metadata,
-          error: "Operation timed out.",
-        },
+        errorMessages: [
+          ...(indexOp?.errorMessages ?? []),
+          "Index operation timed out",
+        ],
       });
     })
   );

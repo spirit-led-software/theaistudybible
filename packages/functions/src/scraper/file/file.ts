@@ -153,15 +153,10 @@ export const handler: S3Handler = async (event) => {
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        metadata: {
-          ...indexOp.metadata,
-          errors: [
-            ...(indexOp.metadata.errors ?? []),
-            {
-              error: error.stack,
-            },
-          ],
-        },
+        errorMessages: [
+          ...(indexOp?.errorMessages ?? []),
+          error.stack ?? error.message,
+        ],
       });
     }
 
