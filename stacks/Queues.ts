@@ -29,7 +29,7 @@ export function Queues({ stack }: StackContext) {
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
           ...STATIC_ENV_VARS,
         },
-        permissions: ["sqs", invokeBedrockPolicy],
+        permissions: [invokeBedrockPolicy],
         nodejs: {
           install: ["@sparticuz/chromium"],
           esbuild: {
@@ -42,6 +42,8 @@ export function Queues({ stack }: StackContext) {
       },
     },
   });
+  webpageIndexQueue.bind([webpageIndexQueue]);
+  webpageIndexQueue.attachPermissions([webpageIndexQueue]);
 
   return {
     webpageIndexQueue,
