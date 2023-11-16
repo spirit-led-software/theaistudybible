@@ -37,12 +37,12 @@ export const getEmbeddingsModel = () =>
 
 export const getSmallContextModel = ({
   modelId = "cohere.command-text-v14",
-  temperature = 2,
+  temperature = 0.5,
   maxTokens = 2048,
   stopSequences = [],
   stream = false,
-  topK = 100,
-  topP = 0.25,
+  topK = 20,
+  topP = 0.5,
   promptPrefix,
   promptSuffix,
   cache,
@@ -66,12 +66,12 @@ export const getSmallContextModel = ({
 
 export const getLargeContextModel = ({
   modelId = "anthropic.claude-instant-v1",
-  temperature = 0.7,
+  temperature = 0.5,
   maxTokens = 2048,
   stopSequences = [],
   stream = false,
-  topK = 250,
-  topP = 0.75,
+  topK = 20,
+  topP = 0.5,
   promptPrefix,
   promptSuffix,
   cache,

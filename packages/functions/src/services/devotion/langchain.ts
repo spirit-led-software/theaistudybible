@@ -159,6 +159,9 @@ export const getBibleReadingChain = async (topic: string) => {
           maxTokens: 2048,
           stopSequences: ["</output>"],
           promptSuffix: "<output>",
+          temperature: 0.1,
+          topK: 5,
+          topP: 0.1,
         })
       )
       .pipe(bibleReadingOutputParser),
