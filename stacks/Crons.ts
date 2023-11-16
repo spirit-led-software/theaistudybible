@@ -93,13 +93,5 @@ export function Crons({ stack, app }: StackContext) {
         },
       },
     });
-
-    return {
-      dailyDevotionCron,
-      indexOpCleanupCron,
-      dataSourceSyncCron,
-    };
-  } else {
-    return {};
   }
 }

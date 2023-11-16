@@ -96,7 +96,7 @@ export function API({ stack, app }: StackContext) {
 
   let chatApiUrl = chatApiFunctionUrl.url;
   // Create cloudfront distribution for non-dev environments
-  if (app.mode !== "dev") {
+  if (app.stage === "prod") {
     const chatApiUrlDistribution = new Distribution(
       stack,
       "chatApiUrlDistribution",
