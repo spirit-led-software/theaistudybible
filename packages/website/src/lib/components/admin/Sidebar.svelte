@@ -12,19 +12,14 @@
 		href: string;
 	}[] = [
 		{
-			name: 'Index File',
-			icon: 'mdi:file-find',
-			href: '/admin/file-index'
+			name: 'Data Sources',
+			icon: 'mdi:database-search',
+			href: '/admin/data-sources'
 		},
 		{
-			name: 'Index Website',
-			icon: 'mdi:web',
-			href: '/admin/website-index'
-		},
-		{
-			name: 'Index Webpage',
-			icon: 'mdi:web',
-			href: '/admin/webpage-index'
+			name: 'Index Operations',
+			icon: 'mdi:database',
+			href: '/admin/index-operations'
 		}
 	];
 

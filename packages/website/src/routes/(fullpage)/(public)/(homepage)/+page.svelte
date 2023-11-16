@@ -12,7 +12,7 @@
 </svelte:head>
 
 <div
-	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-slate-800 to-blue-200"
+	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-slate-900 to-blue-100"
 >
 	<div class="flex flex-col w-full space-y-2 place-items-center">
 		<div class="flex justify-center w-3/4 -mb-5 place-items-center lg:w-1/2">

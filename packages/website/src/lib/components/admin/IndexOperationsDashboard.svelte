@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getIndexOperations, updateIndexOperation } from '$lib/services/index-op';
+	import { getIndexOperations, updateIndexOperation } from '$lib/services/data-source/index-op';
 	import { session } from '$lib/stores/user';
 	import type { IndexOperation } from '@core/model';
 	import { indexOperations as indexOperationsTable } from '@core/schema';
@@ -26,20 +26,21 @@
 		} catch (e: any) {
 			alert = { type: 'error', message: e.message };
 		} finally {
-			await $query?.refetch();
+			await $query.refetch();
 			isLoading = false;
 		}
 	};
 
-	$: query = createQuery({
+	const query = createQuery({
 		queryKey: ['index-operations'],
 		queryFn: () => getIndexOperations({ limit, session: $session! }).then((r) => r.indexOperations),
 		initialData: initIndexOps,
 		refetchInterval: 8000
 	});
-
-	$: query?.subscribe(({ data }) => {
-		indexOps = data ?? [];
+	query.subscribe(({ data, isSuccess }) => {
+		if (isSuccess) {
+			indexOps = data;
+		}
 	});
 
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
@@ -64,22 +65,23 @@
 	{/if}
 	<h1 class="text-xl font-medium">Index Operation Status</h1>
 	{#if indexOps.length > 0}
-		<div class="w-full h-full overflow-scroll border">
-			<table class="w-full text-left whitespace-normal divide-y table-fixed divide-slate-800">
+		<div class="w-full h-full overflow-x-scroll">
+			<table class="table table-xs">
 				<thead>
-					<tr class="divide-x divide-slate-800 bg-slate-200">
-						<th class="px-2 py-1">ID</th>
-						<th class="px-2 py-1">Status</th>
-						<th class="px-2 py-1">Created</th>
-						<th class="px-2 py-1">Metadata</th>
+					<tr>
+						<th>ID</th>
+						<th>Data Source ID</th>
+						<th>Status</th>
+						<th>Created</th>
 					</tr>
 				</thead>
-				<tbody class="divide-y-2">
+				<tbody>
 					{#each indexOps as indexOp}
-						<tr class="divide-x-2">
-							<td class="px-2 py-1">{indexOp.id}</td>
+						<tr>
+							<td>{indexOp.id}</td>
+							<td>{indexOp.dataSourceId}</td>
 							<td
-								class={`px-2 py-1 ${
+								class={`${
 									indexOp.status === 'FAILED'
 										? 'text-red-500'
 										: indexOp.status === 'SUCCEEDED'
@@ -95,26 +97,8 @@
 									{/each}
 								</select>
 							</td>
-							<td class="px-2 py-1">
+							<td>
 								{Moment(indexOp.createdAt).format('M/d/Y h:mma')}
-							</td>
-							<td class="px-2 py-1 overflow-x-scroll whitespace-nowrap">
-								{#if indexOp.metadata}
-									<table class="table-fixed">
-										<tbody>
-											{#each Object.entries(indexOp.metadata) as [key, value]}
-												<tr class="divide-x-2">
-													<td class="pr-2">{key}</td>
-													<td class="pr-2">
-														{JSON.stringify(value)}
-													</td>
-												</tr>
-											{/each}
-										</tbody>
-									</table>
-								{:else}
-									"None"
-								{/if}
 							</td>
 						</tr>
 					{/each}

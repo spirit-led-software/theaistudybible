@@ -4,7 +4,7 @@ import {
   updateIndexOperation,
 } from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
-import { generatePageContentEmbeddings } from "../../lib/web-scraper";
+import { generatePageContentEmbeddings } from "../../services/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {
   console.log("Received event: ", JSON.stringify(event));
@@ -28,7 +28,12 @@ export const consumer: SQSHandler = async (event) => {
       throw new Error("Index op not found");
     }
 
-    await generatePageContentEmbeddings(name, url, indexOp.metadata);
+    await generatePageContentEmbeddings(
+      name,
+      url,
+      indexOp.dataSourceId,
+      indexOp.metadata
+    );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
     indexOp = await getIndexOperation(indexOp.id);

@@ -4,14 +4,13 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getDataSource } from "@services/data-source";
+import { getDataSource, syncDataSource } from "@services/data-source";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data = JSON.parse(event.body ?? "{}");
 
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
@@ -24,7 +23,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    // TODO: Implement sync logic here
+    await syncDataSource(dataSource.id, true);
 
     return OkResponse(dataSource);
   } catch (error: any) {

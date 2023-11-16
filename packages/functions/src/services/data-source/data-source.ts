@@ -1,7 +1,14 @@
 import type { CreateDataSourceData, UpdateDataSourceData } from "@core/model";
-import { dataSources } from "@core/schema";
+import { dataSources, indexOperations } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq } from "drizzle-orm";
+import { getDocumentVectorStore } from "@services/vector-db";
+import { SQL, and, desc, eq } from "drizzle-orm";
+import {
+  getIndexOperations,
+  indexRemoteFile,
+  indexWebCrawl,
+  indexWebPage,
+} from "./index-op";
 
 export async function getDataSources(
   options: {
@@ -64,10 +71,90 @@ export async function updateDataSource(id: string, data: UpdateDataSourceData) {
 }
 
 export async function deleteDataSource(id: string) {
-  return (
-    await readWriteDatabase
+  return await Promise.all([
+    deleteRelatedDocuments(id),
+    readWriteDatabase
       .delete(dataSources)
       .where(eq(dataSources.id, id))
-      .returning()
-  )[0];
+      .returning(),
+  ]).then(([, deleted]) => deleted[0]);
+}
+
+async function deleteRelatedDocuments(dataSourceId: string) {
+  const vectorDb = await getDocumentVectorStore();
+  await vectorDb.readWriteQueryFn(
+    `DELETE FROM ${vectorDb.tableName} 
+    WHERE (
+      metadata->>'dataSourceId' = $1
+    );`,
+    [dataSourceId]
+  );
+}
+
+export async function syncDataSource(id: string, manual: boolean = false) {
+  let dataSource = await getDataSourceOrThrow(id);
+
+  const runningIndexOps = await getIndexOperations({
+    where: and(
+      eq(indexOperations.dataSourceId, dataSource.id),
+      eq(indexOperations.status, "RUNNING")
+    ),
+    limit: 1,
+  });
+  if (runningIndexOps.length > 0) {
+    throw new Error(
+      `Cannot sync data source ${dataSource.id} because it is already being indexed`
+    );
+  }
+
+  switch (dataSource.type) {
+    case "FILE":
+      throw new Error("You must upload a file to the data source to index it");
+    case "REMOTE_FILE":
+      await indexRemoteFile({
+        dataSourceId: dataSource.id,
+        name: dataSource.name,
+        url: dataSource.url,
+        metadata: dataSource.metadata,
+      });
+      break;
+    case "WEBPAGE":
+      await indexWebPage({
+        dataSourceId: dataSource.id,
+        name: dataSource.name,
+        url: dataSource.url,
+        metadata: dataSource.metadata,
+      });
+      break;
+    case "WEB_CRAWL":
+      await indexWebCrawl({
+        dataSourceId: dataSource.id,
+        name: dataSource.name,
+        url: dataSource.url,
+        pathRegex: dataSource.metadata.pathRegex,
+        metadata: dataSource.metadata,
+      });
+      break;
+    case "YOUTUBE":
+      throw new Error("Not implemented");
+    default:
+      throw new Error(`Unsupported data source type ${dataSource.type}`);
+  }
+
+  await updateDataSource(dataSource.id, {
+    lastManualSync: manual ? new Date() : undefined,
+    lastAutomaticSync: !manual ? new Date() : undefined,
+  });
+
+  // Delete old vectors
+  const vectorDb = await getDocumentVectorStore();
+  await vectorDb.readWriteQueryFn(
+    `DELETE FROM ${vectorDb.tableName} 
+    WHERE (
+      metadata->>'dataSourceId' = $1
+      AND
+      metadata->>'indexDate' < $2
+    );`,
+    [dataSource.id, dataSource.updatedAt.toISOString()]
+  );
 }

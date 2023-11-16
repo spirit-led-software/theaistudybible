@@ -272,8 +272,24 @@ export function API({ stack, app }: StackContext) {
         "packages/functions/src/rest/data-sources/[id]/put.handler",
       "DELETE /data-sources/{id}":
         "packages/functions/src/rest/data-sources/[id]/delete.handler",
-      "GET /data-sources/{id}/sync":
-        "packages/functions/src/rest/data-sources/[id]/sync/post.handler",
+      "POST /data-sources/{id}/sync": {
+        function: {
+          handler:
+            "packages/functions/src/rest/data-sources/[id]/sync/post.handler",
+          permissions: [
+            invokeBedrockPolicy,
+            indexFileBucket,
+            webpageIndexQueue,
+          ],
+          bind: [indexFileBucket, webpageIndexQueue],
+          environment: {
+            ...lambdaEnv,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
+          memorySize: "2 GB",
+          timeout: "15 minutes",
+        },
+      },
 
       // Devotions
       "GET /devotions": "packages/functions/src/rest/devotions/get.handler",

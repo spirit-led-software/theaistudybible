@@ -5,7 +5,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getIndexOperations } from "@services/data-source/index-op";
+import { getDataSources } from "@services/data-source";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
@@ -23,7 +23,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse();
     }
 
-    const dataSources = await getIndexOperations({
+    const dataSources = await getDataSources({
       offset: (page - 1) * limit,
       limit,
       orderBy: buildOrderBy(dataSourcesTable, orderBy, order),

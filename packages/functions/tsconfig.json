@@ -23,6 +23,9 @@
       "@services/*": ["./src/services/*"]
     }
   },
-  "include": ["**/*.ts"],
+  "include": [
+    "**/*.ts",
+    "../core/src/langchain/document_loaders/puppeteer-core.ts"
+  ],
   "exclude": ["node_modules"]
 }

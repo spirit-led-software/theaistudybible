@@ -1,11 +1,11 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { IndexOperation, UpdateIndexOperationData } from '@core/model';
-import { GetEntitiesSearchParams } from './helpers/search-params';
+import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
 	PaginatedEntitiesResponse,
 	ProtectedApiOptions
-} from './types';
+} from '../types';
 
 export async function getIndexOperations(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);

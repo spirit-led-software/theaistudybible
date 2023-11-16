@@ -1,11 +1,18 @@
-import { Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from "@stacks";
+import {
+  Constants,
+  DatabaseScripts,
+  Queues,
+  S3,
+  STATIC_ENV_VARS,
+} from "@stacks";
 import { Cron, StackContext, dependsOn, use } from "sst/constructs";
 
 export function Crons({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
-  const { devotionImageBucket } = use(S3);
+  const { devotionImageBucket, indexFileBucket } = use(S3);
+  const { webpageIndexQueue } = use(Queues);
   const {
     dbReadWriteUrl,
     dbReadOnlyUrl,
@@ -42,8 +49,55 @@ export function Crons({ stack, app }: StackContext) {
       },
     });
 
+    const indexOpCleanupCron = new Cron(stack, "indexOpCleanupCron", {
+      schedule: "cron(0 23 * * ? *)",
+      job: {
+        function: {
+          handler: "packages/functions/src/index-op-cleanup.handler",
+          environment: {
+            DATABASE_READWRITE_URL: dbReadWriteUrl,
+            DATABASE_READONLY_URL: dbReadOnlyUrl,
+            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
+            ...STATIC_ENV_VARS,
+          },
+          timeout: "15 minutes",
+          memorySize: "1 GB",
+          retryAttempts: 1,
+        },
+      },
+    });
+
+    const dataSourceSyncCron = new Cron(stack, "dataSourceSyncCron", {
+      schedule: "cron(0 2 * * ? *)",
+      job: {
+        function: {
+          handler: "packages/functions/src/data-source-sync.handler",
+          permissions: [
+            invokeBedrockPolicy,
+            indexFileBucket,
+            webpageIndexQueue,
+          ],
+          bind: [indexFileBucket, webpageIndexQueue],
+          environment: {
+            ...STATIC_ENV_VARS,
+            DATABASE_READWRITE_URL: dbReadWriteUrl,
+            DATABASE_READONLY_URL: dbReadOnlyUrl,
+            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
+            INDEX_FILE_BUCKET: indexFileBucket.bucketName,
+          },
+          timeout: "15 minutes",
+          memorySize: "2 GB",
+          retryAttempts: 1,
+        },
+      },
+    });
+
     return {
       dailyDevotionCron,
+      indexOpCleanupCron,
+      dataSourceSyncCron,
     };
   } else {
     return {};

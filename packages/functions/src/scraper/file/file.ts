@@ -1,6 +1,7 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig, vectorDBConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
+import { updateDataSource } from "@services/data-source";
 import {
   createIndexOperation,
   updateIndexOperation,
@@ -49,7 +50,7 @@ export const handler: S3Handler = async (event) => {
     }
 
     const file = {
-      dataSourceId: getRequest.Metadata?.dataSourceId,
+      dataSourceId: getRequest.Metadata?.datasourceid,
       name: getRequest.Metadata?.name,
       url: getRequest.Metadata?.url,
       metadata: getRequest.Metadata,
@@ -65,6 +66,7 @@ export const handler: S3Handler = async (event) => {
 
     let indexOpMetadata: any = {
       ...file.metadata,
+      dataSourceId: file.dataSourceId,
       name: file.name,
       url: file.url,
       filename: file.fileName,
@@ -141,6 +143,10 @@ export const handler: S3Handler = async (event) => {
       },
     });
     console.log("Finished adding documents to vector store");
+
+    await updateDataSource(file.dataSourceId, {
+      numberOfDocuments: docs.length,
+    });
   } catch (error: any) {
     console.error(error);
 

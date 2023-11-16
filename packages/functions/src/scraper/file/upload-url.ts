@@ -22,9 +22,10 @@ export const handler = ApiHandler(async (event) => {
     fileName,
     fileType,
     metadata = "{}",
+    dataSourceId,
   } = JSON.parse(event.body || "{}");
 
-  if (!name || !url || !fileName || !fileType) {
+  if (!name || !url || !fileName || !fileType || !dataSourceId) {
     return BadRequestResponse("Missing required fields");
   }
 
@@ -43,6 +44,7 @@ export const handler = ApiHandler(async (event) => {
         Key: fileName,
         Metadata: {
           ...JSON.parse(metadata),
+          dataSourceId,
           name,
           url,
         },

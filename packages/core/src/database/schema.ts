@@ -492,21 +492,24 @@ export const dataSources = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
     name: text("name").notNull(),
+    url: text("url").notNull(),
     type: text("type", {
-      enum: ["WEB_CRAWL", "FILE", "WEBPAGE"],
+      enum: ["WEB_CRAWL", "FILE", "WEBPAGE", "REMOTE_FILE", "YOUTUBE"],
     }).notNull(),
     metadata: json("metadata").$type<any>().default({}).notNull(),
     numberOfDocuments: integer("number_of_documents").notNull().default(0),
-    lastSyncedAt: timestamp("last_synced_at"),
-    syncSchedule: text("sync_schedule"),
+    syncSchedule: text("sync_schedule", {
+      enum: ["DAILY", "WEEKLY", "MONTHLY", "NEVER"],
+    })
+      .notNull()
+      .default("NEVER"),
+    lastManualSync: timestamp("last_manual_sync"),
+    lastAutomaticSync: timestamp("last_automatic_sync"),
   },
   (table) => {
     return {
       nameKey: uniqueIndex("data_sources_name_key").on(table.name),
       typeIdx: index("data_sources_type").on(table.type),
-      lastSyncedAtIdx: index("data_sources_last_synced_at").on(
-        table.lastSyncedAt
-      ),
     };
   }
 );

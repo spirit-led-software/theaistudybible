@@ -462,6 +462,31 @@ export class NeonVectorStore extends VectorStore {
     }
   }
 
+  async deleteDocumentsByIds(ids: string[]): Promise<void> {
+    this._log(`Deleting documents by ids from vector store: ${ids}`);
+    await this.readWriteQueryFn(
+      `DELETE FROM ${this.tableName}
+      WHERE id = ANY($1);`,
+      [ids]
+    );
+  }
+
+  async deleteDocumentsByFilter(filter: this["FilterType"]): Promise<void> {
+    this._log(
+      `Deleting documents by filter from vector store: ${JSON.stringify(
+        filter
+      )}`
+    );
+    await this.readWriteQueryFn(
+      `DELETE FROM ${this.tableName}
+      WHERE (
+        metadata @> $1
+        ${this._generateFiltersString()}
+      );`,
+      [filter]
+    );
+  }
+
   static async fromTexts(
     texts: string[],
     metadata: object[] | object,
