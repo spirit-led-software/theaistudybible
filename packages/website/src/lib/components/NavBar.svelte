@@ -50,7 +50,7 @@
 </script>
 
 <div
-	class={`flex flex-col w-screen lg:static lg:h-fit lg:z-0 ${
+	class={`flex flex-col w-full lg:static lg:h-fit lg:z-0 ${
 		isOpen ? 'absolute z-40 h-screen' : 'relative'
 	}`}
 >
@@ -105,7 +105,7 @@
 			{/each}
 			<li>
 				<a
-					class="block px-6 py-2 text-sm font-bold text-white bg-blue-300 rounded-lg hover:bg-blue-400 active:bg-blue-400"
+					class="block px-6 py-2 text-sm font-medium bg-blue-300 rounded-lg hover:text-white hover:bg-blue-400 active:bg-blue-400"
 					href={'/upgrade'}
 				>
 					Upgrade
@@ -163,7 +163,7 @@
 					{/each}
 					<li>
 						<button
-							class="flex w-full px-4 py-3 mb-3 font-bold leading-none text-white bg-blue-300 rounded-xl text-md hover:bg-blue-400 active:bg-blue-400"
+							class="flex w-full px-4 py-3 mb-3 font-medium leading-none bg-blue-300 hover:text-white rounded-xl text-md hover:bg-blue-400 active:bg-blue-400"
 							on:click={async () => {
 								if (isActive('/upgrade')) isOpen = false;
 								else await goto('/upgrade');
