@@ -63,49 +63,45 @@
 			</div>
 		</div>
 	{/if}
-	<h1 class="text-xl font-medium">Index Operation Status</h1>
-	{#if indexOps.length > 0}
-		<div class="w-full h-full overflow-x-scroll">
-			<table class="table table-xs">
-				<thead>
+	<h1 class="text-2xl font-medium">Index Operation Status</h1>
+	<div class="w-full h-full overflow-x-scroll">
+		<table class="table table-xs">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Data Source ID</th>
+					<th>Status</th>
+					<th>Created</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each indexOps as indexOp}
 					<tr>
-						<th>ID</th>
-						<th>Data Source ID</th>
-						<th>Status</th>
-						<th>Created</th>
+						<td>{indexOp.id}</td>
+						<td>{indexOp.dataSourceId}</td>
+						<td
+							class={`${
+								indexOp.status === 'FAILED'
+									? 'text-red-500'
+									: indexOp.status === 'SUCCEEDED'
+									? 'text-green-500'
+									: 'text-yellow-500'
+							}`}
+						>
+							<select on:change={(event) => handleUpdateStatus(event, indexOp.id)}>
+								{#each indexOperationsTable.status.enumValues as status}
+									<option value={status} selected={status === indexOp.status}>
+										{status}
+									</option>
+								{/each}
+							</select>
+						</td>
+						<td>
+							{Moment(indexOp.createdAt).format('M/d/Y h:mma')}
+						</td>
 					</tr>
-				</thead>
-				<tbody>
-					{#each indexOps as indexOp}
-						<tr>
-							<td>{indexOp.id}</td>
-							<td>{indexOp.dataSourceId}</td>
-							<td
-								class={`${
-									indexOp.status === 'FAILED'
-										? 'text-red-500'
-										: indexOp.status === 'SUCCEEDED'
-										? 'text-green-500'
-										: 'text-yellow-500'
-								}`}
-							>
-								<select on:change={(event) => handleUpdateStatus(event, indexOp.id)}>
-									{#each indexOperationsTable.status.enumValues as status}
-										<option value={status} selected={status === indexOp.status}>
-											{status}
-										</option>
-									{/each}
-								</select>
-							</td>
-							<td>
-								{Moment(indexOp.createdAt).format('M/d/Y h:mma')}
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	{:else}
-		<div>None yet</div>
-	{/if}
+				{/each}
+			</tbody>
+		</table>
+	</div>
 </div>
