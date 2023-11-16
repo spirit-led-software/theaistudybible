@@ -1,4 +1,4 @@
-import type { indexOperations } from "../schema";
+import type { indexOperations } from "../../schema";
 
 export type IndexOperation = typeof indexOperations.$inferSelect;
 

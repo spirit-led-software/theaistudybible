@@ -1,7 +1,10 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig, vectorDBConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
-import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import {
+  createIndexOperation,
+  updateIndexOperation,
+} from "@services/data-source/index-op";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { S3Handler } from "aws-lambda";
 import { mkdtempSync, writeFileSync } from "fs";
@@ -46,6 +49,7 @@ export const handler: S3Handler = async (event) => {
     }
 
     const file = {
+      dataSourceId: getRequest.Metadata?.dataSourceId,
       name: getRequest.Metadata?.name,
       url: getRequest.Metadata?.url,
       metadata: getRequest.Metadata,
@@ -54,6 +58,10 @@ export const handler: S3Handler = async (event) => {
       size,
       blob: new Blob([byteArray]),
     };
+
+    if (!file.dataSourceId || !file.name || !file.url) {
+      throw new Error("Missing required metadata");
+    }
 
     let indexOpMetadata: any = {
       ...file.metadata,
@@ -92,8 +100,8 @@ export const handler: S3Handler = async (event) => {
 
     indexOp = await createIndexOperation({
       status: "RUNNING",
-      type: "FILE",
       metadata: indexOpMetadata,
+      dataSourceId: file.dataSourceId,
     });
 
     console.log("Starting load documents");

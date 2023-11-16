@@ -174,9 +174,9 @@ export function API({ stack, app }: StackContext) {
 
   const api = new Api(stack, "api", {
     routes: {
-      "POST /scraper/website": {
+      "POST /scraper/web-crawl": {
         function: {
-          handler: "packages/functions/src/scraper/website.handler",
+          handler: "packages/functions/src/scraper/web-crawl.handler",
           bind: [webpageIndexQueue],
           permissions: [webpageIndexQueue],
           timeout: "15 minutes",
@@ -185,7 +185,7 @@ export function API({ stack, app }: StackContext) {
       },
       "POST /scraper/webpage": {
         function: {
-          handler: "packages/functions/src/scraper/webpage.handler",
+          handler: "packages/functions/src/scraper/webpage/webpage.handler",
           nodejs: {
             install: ["@sparticuz/chromium"],
             esbuild: {
@@ -199,7 +199,7 @@ export function API({ stack, app }: StackContext) {
       },
       "POST /scraper/file/presigned-url": {
         function: {
-          handler: "packages/functions/src/scraper/file-presigned-url.handler",
+          handler: "packages/functions/src/scraper/file/upload-url.handler",
           bind: [indexFileBucket],
           permissions: [indexFileBucket],
           environment: {
@@ -208,9 +208,10 @@ export function API({ stack, app }: StackContext) {
           },
         },
       },
-      "POST /scraper/file/download": {
+      "POST /scraper/file/remote-download": {
         function: {
-          handler: "packages/functions/src/scraper/file-download.handler",
+          handler:
+            "packages/functions/src/scraper/file/remote-download.handler",
           bind: [indexFileBucket],
           permissions: [indexFileBucket],
           environment: {

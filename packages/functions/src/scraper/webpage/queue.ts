@@ -1,7 +1,10 @@
 import type { IndexOperation } from "@core/model";
-import { getIndexOperation, updateIndexOperation } from "@services/index-op";
+import {
+  getIndexOperation,
+  updateIndexOperation,
+} from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
-import { generatePageContentEmbeddings } from "../lib/web-scraper";
+import { generatePageContentEmbeddings } from "../../lib/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {
   console.log("Received event: ", JSON.stringify(event));

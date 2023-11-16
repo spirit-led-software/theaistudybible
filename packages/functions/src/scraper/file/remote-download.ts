@@ -10,7 +10,7 @@ import { ApiHandler } from "sst/node/api";
 const s3Client = new S3Client({});
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Received file download event:", event);
+  console.log("Received remote file download event:", event);
 
   const {
     name,

@@ -6,7 +6,7 @@ import {
 import {
   getIndexOperationOrThrow,
   updateIndexOperation,
-} from "@services/index-op";
+} from "@services/data-source/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";

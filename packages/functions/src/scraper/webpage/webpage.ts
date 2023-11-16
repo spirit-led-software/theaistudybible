@@ -5,11 +5,14 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { createIndexOperation, updateIndexOperation } from "@services/index-op";
+import {
+  createIndexOperation,
+  updateIndexOperation,
+} from "@services/data-source/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
-import { generatePageContentEmbeddings } from "../lib/web-scraper";
+import { generatePageContentEmbeddings } from "../../lib/web-scraper";
 
 export const handler = ApiHandler(async (event) => {
   const { isValid, userWithRoles } = await validApiHandlerSession();
@@ -21,8 +24,13 @@ export const handler = ApiHandler(async (event) => {
     return ForbiddenResponse();
   }
 
-  const { name, url, metadata = "{}" } = JSON.parse(event.body || "{}");
-  if (!url || !name) {
+  const {
+    dataSourceId,
+    name,
+    url,
+    metadata = "{}",
+  } = JSON.parse(event.body || "{}");
+  if (!dataSourceId || !url || !name) {
     return BadRequestResponse("Missing required fields");
   }
 
@@ -30,12 +38,12 @@ export const handler = ApiHandler(async (event) => {
   try {
     indexOp = await createIndexOperation({
       status: "RUNNING",
-      type: "WEBPAGE",
       metadata: {
         ...JSON.parse(metadata),
         name,
         url,
       },
+      dataSourceId,
     });
 
     console.log(`Started indexing url '${url}'.`);

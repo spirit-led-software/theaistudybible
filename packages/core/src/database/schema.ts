@@ -289,18 +289,32 @@ export const indexOperations = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    type: text("type", {
-      enum: ["WEBSITE", "FILE", "WEBPAGE"],
-    }).notNull(),
     status: text("status", {
       enum: ["FAILED", "SUCCEEDED", "RUNNING", "COMPLETED"],
     }).notNull(),
     metadata: json("metadata").$type<any>().default({}).notNull(),
+    dataSourceId: uuid("data_source_id")
+      .notNull()
+      .references(() => dataSources.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
   },
   (table) => {
     return {
-      typeIdx: index("index_operation_type").on(table.type),
       statusIdx: index("index_operation_status").on(table.status),
+    };
+  }
+);
+
+export const indexOperationsRelations = relations(
+  indexOperations,
+  ({ one }) => {
+    return {
+      dataSource: one(dataSources, {
+        fields: [indexOperations.dataSourceId],
+        references: [dataSources.id],
+      }),
     };
   }
 );
@@ -467,6 +481,32 @@ export const userGeneratedImageCountsRelations = relations(
         fields: [userGeneratedImageCounts.userId],
         references: [users.id],
       }),
+    };
+  }
+);
+
+export const dataSources = pgTable(
+  "data_sources",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    name: text("name").notNull(),
+    type: text("type", {
+      enum: ["WEB_CRAWL", "FILE", "WEBPAGE"],
+    }).notNull(),
+    metadata: json("metadata").$type<any>().default({}).notNull(),
+    numberOfDocuments: integer("number_of_documents").notNull().default(0),
+    lastSyncedAt: timestamp("last_synced_at"),
+    syncSchedule: text("sync_schedule"),
+  },
+  (table) => {
+    return {
+      nameKey: uniqueIndex("data_sources_name_key").on(table.name),
+      typeIdx: index("data_sources_type").on(table.type),
+      lastSyncedAtIdx: index("data_sources_last_synced_at").on(
+        table.lastSyncedAt
+      ),
     };
   }
 );

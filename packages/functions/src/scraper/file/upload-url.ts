@@ -14,7 +14,7 @@ import { ApiHandler } from "sst/node/api";
 const s3Client = new S3Client({});
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Received index file url generation event:", event);
+  console.log("Received file upload url generation event:", event);
 
   const {
     name,

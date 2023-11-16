@@ -12,7 +12,7 @@ import {
   createIndexOperation,
   getIndexOperation,
   updateIndexOperation,
-} from "@services/index-op";
+} from "@services/data-source/index-op";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import escapeStringRegexp from "escape-string-regexp";
@@ -21,6 +21,7 @@ import { ApiHandler } from "sst/node/api";
 import { Queue } from "sst/node/queue";
 
 type RequestBody = {
+  dataSourceId: string;
   url: string;
   pathRegex: string;
   name: string;
@@ -30,6 +31,8 @@ type RequestBody = {
 const sqsClient = new SQSClient({});
 
 export const handler = ApiHandler(async (event) => {
+  console.log("Received web crawl event:", event);
+
   const { isValid, userWithRoles } = await validApiHandlerSession();
   if (!isValid) {
     return UnauthorizedResponse("You must be logged in to perform this action");
@@ -40,6 +43,7 @@ export const handler = ApiHandler(async (event) => {
   }
 
   const {
+    dataSourceId,
     url,
     pathRegex: pathRegexString,
     name,
@@ -88,7 +92,6 @@ export const handler = ApiHandler(async (event) => {
     urlRegex = new RegExp(regexString);
 
     indexOp = await createIndexOperation({
-      type: "WEBSITE",
       status: "RUNNING",
       metadata: {
         ...JSON.parse(metadata),
@@ -96,6 +99,7 @@ export const handler = ApiHandler(async (event) => {
         baseUrl,
         urlRegex: urlRegex.source,
       },
+      dataSourceId,
     });
 
     if (!sitemapUrls) {
