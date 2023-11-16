@@ -259,6 +259,22 @@ export function API({ stack, app }: StackContext) {
       "DELETE /chats/{id}":
         "packages/functions/src/rest/chats/[id]/delete.handler",
 
+      // Data Sources
+      "GET /data-sources":
+        "packages/functions/src/rest/data-sources/get.handler",
+      "POST /data-sources":
+        "packages/functions/src/rest/data-sources/post.handler",
+      "POST /data-sources/search":
+        "packages/functions/src/rest/data-sources/search/post.handler",
+      "GET /data-sources/{id}":
+        "packages/functions/src/rest/data-sources/[id]/get.handler",
+      "PUT /data-sources/{id}":
+        "packages/functions/src/rest/data-sources/[id]/put.handler",
+      "DELETE /data-sources/{id}":
+        "packages/functions/src/rest/data-sources/[id]/delete.handler",
+      "GET /data-sources/{id}/sync":
+        "packages/functions/src/rest/data-sources/[id]/sync/post.handler",
+
       // Devotions
       "GET /devotions": "packages/functions/src/rest/devotions/get.handler",
       "POST /devotions": {
