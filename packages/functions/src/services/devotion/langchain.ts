@@ -4,7 +4,10 @@ import { getLargeContextModel } from "@services/llm";
 import { getDocumentVectorStore } from "@services/vector-db";
 import { desc, eq } from "drizzle-orm";
 import type { Document } from "langchain/document";
-import { StructuredOutputParser } from "langchain/output_parsers";
+import {
+  OutputFixingParser,
+  StructuredOutputParser,
+} from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
 import { StringOutputParser } from "langchain/schema/output_parser";
 import { Runnable, RunnableSequence } from "langchain/schema/runnable";
@@ -15,26 +18,39 @@ import {
   DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
   DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE,
   DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
+  DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE,
 } from "./prompts";
 
-const devotionOutputParser = StructuredOutputParser.fromZodSchema(
-  z.object({
-    summary: z
-      .string()
-      .describe(
-        "A summary of the bible reading. Between 2000 and 3000 characters in length."
-      ),
-    reflection: z
-      .string()
-      .describe(
-        "A reflection on the bible reading and summary. Between 3000 and 4000 characters in length."
-      ),
-    prayer: z
-      .string()
-      .describe(
-        "A prayer to end the devotion. Between 500 and 2000 characters in length."
-      ),
-  })
+const devotionOutputParser = OutputFixingParser.fromLLM(
+  getLargeContextModel({
+    promptPrefix: "<output>",
+    stopSequences: ["</output>"],
+    temperature: 0,
+    topK: 1,
+    topP: 0.1,
+  }),
+  StructuredOutputParser.fromZodSchema(
+    z.object({
+      summary: z
+        .string()
+        .describe(
+          "A summary of the bible reading. Between 2000 and 3000 characters in length."
+        ),
+      reflection: z
+        .string()
+        .describe(
+          "A reflection on the bible reading and summary. Between 3000 and 4000 characters in length."
+        ),
+      prayer: z
+        .string()
+        .describe(
+          "A prayer to end the devotion. Between 500 and 2000 characters in length."
+        ),
+    })
+  ),
+  {
+    prompt: PromptTemplate.fromTemplate(DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE),
+  }
 );
 
 export const getDevotionGeneratorChain = async (): Promise<
@@ -44,7 +60,11 @@ export const getDevotionGeneratorChain = async (): Promise<
       bibleReading: string;
     },
     {
-      result: typeof devotionOutputParser.schema._type;
+      result: {
+        summary: string;
+        reflection: string;
+        prayer: string;
+      };
       sourceDocuments: NeonVectorStoreDocument[];
     }
   >
@@ -95,24 +115,36 @@ export const getDevotionGeneratorChain = async (): Promise<
   return chain;
 };
 
-const bibleReadingOutputParser = StructuredOutputParser.fromZodSchema(
-  z.object({
-    book: z
-      .string()
-      .describe("The book name from within the bible. For example: Genesis"),
-    chapter: z
-      .string()
-      .describe(
-        "The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**"
-      ),
-    verseRange: z
-      .string()
-      .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
-      .describe(
-        "The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**"
-      ),
-    text: z.string().describe("The exact text of the bible reading."),
-  })
+const bibleReadingOutputParser = OutputFixingParser.fromLLM(
+  getLargeContextModel({
+    promptPrefix: "<output>",
+    stopSequences: ["</output>"],
+    temperature: 0,
+    topK: 1,
+    topP: 0.1,
+  }),
+  StructuredOutputParser.fromZodSchema(
+    z.object({
+      book: z
+        .string()
+        .describe("The book name from within the bible. For example: Genesis"),
+      chapter: z
+        .string()
+        .describe(
+          "The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**"
+        ),
+      verseRange: z
+        .string()
+        .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
+        .describe(
+          "The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**"
+        ),
+      text: z.string().describe("The exact text of the bible reading."),
+    })
+  ),
+  {
+    prompt: PromptTemplate.fromTemplate(DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE),
+  }
 );
 
 export const getBibleReadingChain = async (topic: string) => {
@@ -159,9 +191,6 @@ export const getBibleReadingChain = async (topic: string) => {
           maxTokens: 2048,
           stopSequences: ["</output>"],
           promptSuffix: "<output>",
-          temperature: 0.1,
-          topK: 5,
-          topP: 0.1,
         })
       )
       .pipe(bibleReadingOutputParser),

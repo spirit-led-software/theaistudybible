@@ -7,15 +7,15 @@ Here are the documents that you are to search through to find the Bible reading,
 {documents}
 </documents>
 
-Here are some off limits Bible readings that you cannot use, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <bible_reading></bible_reading> XML tags.
-<off_limits_bible_readings>
-{previousBibleReadings}
-</off_limits_bible_readings>
-
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output cannot match any of the off limits Bible readings.
 - Your output must be a valid Bible reading in the ESV translation.
+
+Here are some off limits Bible readings that you cannot use, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <bible_reading></bible_reading> XML tags.
+<off_limits_bible_readings>
+{previousBibleReadings}
+</off_limits_bible_readings>
 
 Here is the topic that you are to generate a Bible reading for, within <topic></topic> XML tags.
 <topic>
@@ -24,7 +24,7 @@ Here is the topic that you are to generate a Bible reading for, within <topic></
 
 What Bible passage should be read based on the topic?
 
-Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
+Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {formatInstructions}
 </format_instructions>
@@ -58,7 +58,7 @@ Here is the Bible reading that you are to use, within <bible_reading></bible_rea
 
 Go ahead and write a devotion based on the topic and Bible reading provided.
 
-Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
+Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {formatInstructions}
 </format_instructions>
@@ -88,7 +88,7 @@ Here is an example of an output that you could generate, within <example></examp
 
 What are some phrases that could generate a beautiful and accurate image based on the devotion?
 
-Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
+Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
 </format_instructions>
@@ -117,6 +117,34 @@ Here is the image prompt that was used to generate the image, within <image_prom
 
 What is the caption for the image?
 
-Think about your output first before you respond.
+Think carefully about your output first before you respond.
 
 Put the caption you come up with within <output></output> XML tags.`;
+
+export const DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE = `You are an expert at fixing text completions from LLMs that are not formatted correctly. Your goal is to fix the completion provided to you so that it follows the formatting instructions exactly. You will also be provided with the error that you are to fix.
+
+Here is the error that you are to fix, within <error></error> XML tags.
+<error>
+{error}
+</error>
+
+Here are some important rules for you to follow:
+- Your output must match the formatting instructions exactly.
+- Your output must fix the error.
+- You should not change the meaning of the completion.
+
+Here is the completion that you are to fix, within <completion></completion> XML tags.
+<completion>
+{completion}
+</completion>
+
+Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
+<format_instructions>
+{formatInstructions}
+</format_instructions>
+
+Fix the completion so that it follows the formatting instructions exactly.
+
+Think carefully about your output first before you respond.
+
+Put your output that follows the formatting instructions within <output></output> XML tags.`;
