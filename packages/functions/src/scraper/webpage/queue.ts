@@ -38,7 +38,16 @@ export const consumer: SQSHandler = async (event) => {
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
     indexOp = await updateIndexOperation(indexOp.id, {
-      metadata: sql`jsonb_insert(${indexOperations.metadata}, '{succeededUrls}', ${url}, true)`,
+      metadata: sql`CASE WHEN ${
+        indexOperations.metadata
+      }->>'succeededUrls' IS NULL
+        THEN jsonb_set(${
+          indexOperations.metadata
+        }, '{succeededUrls}', ${JSON.stringify([url])}, true)
+        ELSE jsonb_insert(${
+          indexOperations.metadata
+        }, '{succeededUrls}', ${url}, true)
+      END`,
     });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
@@ -61,7 +70,9 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
     return await updateIndexOperation(indexOp.id, {
       status: sql`CASE
         WHEN
-          ${indexOperations.metadata}->>'totalUrls' <= (jsonb_array_length(${indexOperations.metadata}->>'succeeded') + jsonb_array_length(${indexOperations.errorMessages}))
+          ${indexOperations.metadata}->>'totalUrls' IS NOT NULL AND 
+          ${indexOperations.metadata}->>'succeededUrls' IS NOT NULL AND
+          ${indexOperations.metadata}->>'totalUrls' <= (jsonb_array_length(${indexOperations.metadata}->>'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
         THEN
           CASE
             WHEN
