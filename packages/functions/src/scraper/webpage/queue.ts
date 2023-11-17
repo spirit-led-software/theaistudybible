@@ -38,15 +38,14 @@ export const consumer: SQSHandler = async (event) => {
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
     indexOp = await updateIndexOperation(indexOp.id, {
-      metadata: sql`CASE WHEN ${
-        indexOperations.metadata
-      }->'succeededUrls' IS NULL
+      metadata: sql`CASE 
+        WHEN ${indexOperations.metadata}->'succeededUrls' IS NULL
         THEN jsonb_set(${
           indexOperations.metadata
-        }, '{succeededUrls}', '["${sql.raw(url)}"]', true)
+        }, '{succeededUrls}', '${sql.raw(JSON.stringify([url]))}', true)
         ELSE jsonb_insert(${
           indexOperations.metadata
-        }, '{succeededUrls, -1}', '"${sql.raw(url)}"', true)
+        }, '{succeededUrls, -1}', '${sql.raw(JSON.stringify(url))}', true)
       END`,
     });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
