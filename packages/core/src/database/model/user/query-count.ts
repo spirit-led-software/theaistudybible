@@ -1,7 +1,10 @@
+import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import type { userQueryCounts } from "../../schema";
 
 export type UserQueryCount = typeof userQueryCounts.$inferSelect;
 
-export type CreateUserQueryCountData = typeof userQueryCounts.$inferInsert;
+export type CreateUserQueryCountData = PgInsertValue<typeof userQueryCounts>;
 
-export type UpdateUserQueryCountData = Partial<CreateUserQueryCountData>;
+export type UpdateUserQueryCountData = PgUpdateSetSource<
+  typeof userQueryCounts
+>;

@@ -1,6 +1,7 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig, vectorDBConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
+import { dataSources, indexOperations } from "@core/schema";
 import { getDataSourceOrThrow, updateDataSource } from "@services/data-source";
 import {
   createIndexOperation,
@@ -8,6 +9,7 @@ import {
 } from "@services/data-source/index-op";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { S3Handler } from "aws-lambda";
+import { sql } from "drizzle-orm";
 import { mkdtempSync, writeFileSync } from "fs";
 import type { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
@@ -136,7 +138,7 @@ export const handler: S3Handler = async (event) => {
         status: "SUCCEEDED",
       }),
       updateDataSource(dataSourceId, {
-        numberOfDocuments: dataSource.numberOfDocuments + docs.length,
+        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`,
       }),
     ]);
     console.log("Finished adding documents to vector store");
@@ -146,7 +148,9 @@ export const handler: S3Handler = async (event) => {
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: [...indexOp.errorMessages, error.stack ?? error.message],
+        errorMessages: sql`${indexOperations.errorMessages} || ${
+          error.stack ?? error.message
+        }`,
       });
     }
 

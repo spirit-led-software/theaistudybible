@@ -1,10 +1,12 @@
 import type { IndexOperation } from "@core/model";
 import { indexOperations } from "@core/schema";
-import { readWriteDbTxn } from "@lib/database";
 import { getDataSourceOrThrow } from "@services/data-source";
-import { getIndexOperationOrThrow } from "@services/data-source/index-op";
+import {
+  getIndexOperationOrThrow,
+  updateIndexOperation,
+} from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { generatePageContentEmbeddings } from "../../services/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {
@@ -35,49 +37,18 @@ export const consumer: SQSHandler = async (event) => {
     );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
-    indexOp = await readWriteDbTxn(async (db) => {
-      const found = await db
-        .select()
-        .from(indexOperations)
-        .where(eq(indexOperations.id, indexOp!.id))
-        .for("update");
-      return (
-        await db
-          .update(indexOperations)
-          .set({
-            metadata: {
-              ...found[0].metadata,
-              succeededUrls: [...(found[0].metadata.succeededUrls ?? []), url],
-            },
-          })
-          .where(eq(indexOperations.id, indexOp!.id))
-          .returning()
-      )[0];
+    indexOp = await updateIndexOperation(indexOp.id, {
+      metadata: sql`jsonb_insert(${indexOperations.metadata}, '{succeededUrls}', ${url}, true)`,
     });
-
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
 
     if (indexOp) {
-      indexOp = await readWriteDbTxn(async (db) => {
-        const found = await db
-          .select()
-          .from(indexOperations)
-          .where(eq(indexOperations.id, indexOp!.id))
-          .for("update");
-        return (
-          await db
-            .update(indexOperations)
-            .set({
-              errorMessages: [
-                ...found[0].errorMessages,
-                err.stack ?? err.message,
-              ],
-            })
-            .where(eq(indexOperations.id, indexOp!.id))
-            .returning()
-        )[0];
+      indexOp = await updateIndexOperation(indexOp.id, {
+        errorMessages: sql`${indexOperations.errorMessages} || ${
+          err.stack ?? err.message
+        }`,
       });
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
     }
@@ -86,33 +57,22 @@ export const consumer: SQSHandler = async (event) => {
 
 const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
   try {
-    return await readWriteDbTxn(async (db) => {
-      const found = await db
-        .select()
-        .from(indexOperations)
-        .where(eq(indexOperations.id, indexOp!.id))
-        .for("update");
-
-      const totalUrls = found[0].metadata.totalUrls ?? 0;
-      const succeededUrls = found[0].metadata.succeededUrls ?? [];
-      console.log(
-        `Checking if index op is completed. Total urls: ${totalUrls}, succeeded urls: ${succeededUrls.length}`
-      );
-
-      return (
-        await db
-          .update(indexOperations)
-          .set({
-            status:
-              totalUrls <= succeededUrls.length
-                ? indexOp.errorMessages.length > 0
-                  ? "FAILED"
-                  : "SUCCEEDED"
-                : "RUNNING",
-          })
-          .where(eq(indexOperations.id, indexOp!.id))
-          .returning()
-      )[0];
+    return await updateIndexOperation(indexOp.id, {
+      status: sql`CASE
+        WHEN
+          ${indexOperations.metadata}->>'totalUrls' >= (json_array_length(${indexOperations.metadata}->>'succeeded') + json_array_length(${indexOperations.errorMessages})) 
+        THEN
+          CASE
+            WHEN
+              json_array_length(${indexOperations.errorMessages}) > 0
+            THEN
+              'FAILED'
+            ELSE
+              'SUCCEEDED'
+          END
+        ELSE
+          'RUNNING'
+      END`,
     });
   } catch (err: any) {
     console.error(err.stack);

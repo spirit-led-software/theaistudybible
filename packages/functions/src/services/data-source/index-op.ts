@@ -6,18 +6,14 @@ import type {
   UpdateIndexOperationData,
 } from "@core/model";
 import { indexOperations } from "@core/schema";
-import {
-  readOnlyDatabase,
-  readWriteDatabase,
-  readWriteDbTxn,
-} from "@lib/database";
+import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import {
   generatePageContentEmbeddings,
   getFileNameFromUrl,
   getSitemaps,
   navigateSitemap,
 } from "@services/web-scraper";
-import { SQL, desc, eq } from "drizzle-orm";
+import { SQL, desc, eq, sql } from "drizzle-orm";
 import escapeStringRegexp from "escape-string-regexp";
 
 export async function getIndexOperations(
@@ -129,7 +125,9 @@ export async function indexWebPage({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: [...indexOp.errorMessages, err.stack ?? err.message],
+        errorMessages: sql`${indexOperations.errorMessages} || ${
+          err.stack ?? err.message
+        }`,
       });
     }
     throw err;
@@ -200,45 +198,19 @@ export async function indexWebCrawl({
       );
     }
 
-    indexOp = await readWriteDbTxn(async (db) => {
-      const found = await db
-        .select()
-        .from(indexOperations)
-        .where(eq(indexOperations.id, indexOp!.id))
-        .for("update");
-      return (
-        await db
-          .update(indexOperations)
-          .set({
-            metadata: {
-              ...found[0].metadata,
-              totalUrls: urlCount,
-            },
-          })
-          .where(eq(indexOperations.id, indexOp!.id))
-          .returning()
-      )[0];
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      metadata: sql`${indexOperations.metadata} || json_build_object('totalUrls', ${urlCount})`,
     });
+
     return indexOp;
   } catch (err: any) {
     console.error(`${err.stack}`);
     if (indexOp) {
-      indexOp = await readWriteDbTxn(async (db) => {
-        const found = await db
-          .select()
-          .from(indexOperations)
-          .where(eq(indexOperations.id, indexOp!.id))
-          .for("update");
-        return (
-          await db
-            .update(indexOperations)
-            .set({
-              status: "FAILED",
-              errorMessages: [found[0].errorMessages, err.stack ?? err.message],
-            })
-            .where(eq(indexOperations.id, indexOp!.id))
-            .returning()
-        )[0];
+      indexOp = await updateIndexOperation(indexOp.id, {
+        status: "FAILED",
+        errorMessages: sql`${indexOperations.errorMessages} || ${
+          err.stack ?? err.message
+        }`,
       });
     }
     throw err;

@@ -2,14 +2,14 @@ import { SQSClient, SendMessageBatchCommand } from "@aws-sdk/client-sqs";
 import { axios, vectorDBConfig } from "@core/configs";
 import { PuppeteerCoreWebBaseLoader } from "@core/langchain/document_loaders/puppeteer-core";
 import { dataSources } from "@core/schema";
-import { readWriteDbTxn } from "@lib/database";
 import { getDocumentVectorStore } from "@services/vector-db";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import type { Document } from "langchain/document";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Queue } from "sst/node/queue";
 import { v4 as uuidV4 } from "uuid";
+import { updateDataSource } from "./data-source";
 
 export async function generatePageContentEmbeddings(
   name: string,
@@ -71,21 +71,8 @@ export async function generatePageContentEmbeddings(
       const vectorStore = await getDocumentVectorStore();
       await vectorStore.addDocuments(docs);
 
-      await readWriteDbTxn(async (db) => {
-        const found = await db
-          .select()
-          .from(dataSources)
-          .where(eq(dataSources.id, dataSourceId))
-          .for("update");
-        return (
-          await db
-            .update(dataSources)
-            .set({
-              numberOfDocuments: found[0].numberOfDocuments + docs!.length,
-            })
-            .where(eq(dataSources.id, dataSourceId))
-            .returning()
-        )[0];
+      await updateDataSource(dataSourceId, {
+        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`,
       });
 
       success = true;

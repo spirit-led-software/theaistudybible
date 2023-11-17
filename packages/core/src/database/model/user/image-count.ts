@@ -1,10 +1,13 @@
+import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import type { userGeneratedImageCounts } from "../../schema";
 
 export type UserGeneratedImageCount =
   typeof userGeneratedImageCounts.$inferSelect;
 
-export type CreateUserGeneratedImageCountData =
-  typeof userGeneratedImageCounts.$inferInsert;
+export type CreateUserGeneratedImageCountData = PgInsertValue<
+  typeof userGeneratedImageCounts
+>;
 
-export type UpdateUserGeneratedImageCountData =
-  Partial<CreateUserGeneratedImageCountData>;
+export type UpdateUserGeneratedImageCountData = PgUpdateSetSource<
+  typeof userGeneratedImageCounts
+>;

@@ -1,9 +1,12 @@
+import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
 import type { userGeneratedImages } from "../../schema";
 
 export type UserGeneratedImage = typeof userGeneratedImages.$inferSelect;
 
-export type CreateUserGeneratedImageData =
-  typeof userGeneratedImages.$inferInsert;
+export type CreateUserGeneratedImageData = PgInsertValue<
+  typeof userGeneratedImages
+>;
 
-export type UpdateUserGeneratedImageData =
-  Partial<CreateUserGeneratedImageData>;
+export type UpdateUserGeneratedImageData = PgUpdateSetSource<
+  typeof userGeneratedImages
+>;
