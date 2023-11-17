@@ -43,10 +43,10 @@ export const consumer: SQSHandler = async (event) => {
       }->>'succeededUrls' IS NULL
         THEN jsonb_set(${
           indexOperations.metadata
-        }, '{succeededUrls}', ${JSON.stringify([url])}, true)
+        }, '{succeededUrls}', '["${sql.raw(url)}"]', true)
         ELSE jsonb_insert(${
           indexOperations.metadata
-        }, '{succeededUrls}', ${url}, true)
+        }, '{succeededUrls}', '${sql.raw(url)}', true)
       END`,
     });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
