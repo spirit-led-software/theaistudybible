@@ -64,16 +64,17 @@
 
 	const handleSubmitEdit: EventHandler<SubmitEvent, HTMLFormElement> = async (event) => {
 		const formData = new FormData(event.currentTarget);
-		const url = formData.get('url') as string | undefined;
-		const file = formData.get('file') as File | undefined;
-		const pathRegex = formData.get('pathRegex') as string | undefined;
-		const title = formData.get('title') as string | undefined;
-		const author = formData.get('author') as string | undefined;
-		const metadataString = formData.get('metadata') as string | undefined;
-		let syncSchedule = formData.get('syncSchedule') as string | undefined;
+		const url = (formData.get('url') || undefined) as string | undefined;
+		const file = (formData.get('file') || undefined) as File | undefined;
+		const pathRegex = (formData.get('pathRegex') || undefined) as string | undefined;
+		const title = (formData.get('title') || undefined) as string | undefined;
+		const author = (formData.get('author') || undefined) as string | undefined;
+		const category = (formData.get('category') || undefined) as string | undefined;
+		const metadataString = (formData.get('metadata') || undefined) as string | undefined;
+		let syncSchedule = (formData.get('syncSchedule') || undefined) as string | undefined;
 
 		if (!url) {
-			alert('Missing required fields "name", "url", or "type"');
+			alert('Missing required field "URL"');
 			return;
 		}
 
@@ -103,6 +104,17 @@
 
 		let isLoading = true;
 		try {
+			$editDataSourceMutation.mutate({
+				url,
+				syncSchedule,
+				metadata: {
+					...metadata,
+					category,
+					title,
+					author
+				}
+			});
+
 			if (file && file.size > 0) {
 				const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
 					method: 'POST',
@@ -143,16 +155,6 @@
 				}
 			}
 
-			$editDataSourceMutation.mutate({
-				url,
-				syncSchedule,
-				metadata: {
-					...metadata,
-					title,
-					author
-				}
-			});
-
 			editDialog?.close();
 		} catch (e: any) {
 			alert(e.message);
@@ -174,6 +176,15 @@
 			required
 			value={dataSource.url}
 		/>
+		{#if dataSource.type === 'FILE'}
+			<input
+				type="file"
+				name="file"
+				placeholder="File*"
+				class="w-full file-input file-input-bordered"
+				required
+			/>
+		{/if}
 		{#if dataSource.type === 'FILE' || dataSource.type === 'REMOTE_FILE'}
 			<input
 				type="text"
@@ -190,15 +201,6 @@
 				class="w-full input input-bordered"
 			/>
 		{/if}
-		{#if dataSource.type === 'FILE'}
-			<input
-				type="file"
-				name="file"
-				placeholder="File*"
-				class="w-full file-input file-input-bordered"
-				required
-			/>
-		{/if}
 		{#if dataSource.type === 'WEB_CRAWL'}
 			<input
 				type="text"
@@ -209,6 +211,13 @@
 				required
 			/>
 		{/if}
+		<input
+			type="text"
+			name="category"
+			placeholder="Category"
+			value={dataSource.metadata.category}
+			class="w-full input input-bordered"
+		/>
 		<textarea
 			name="metadata"
 			placeholder="Additional Metadata"

@@ -13,10 +13,10 @@ export function Website({ stack }: StackContext) {
     bind: [api, indexFileBucket],
     permissions: [api, indexFileBucket],
     environment: {
+      ...STATIC_ENV_VARS,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
       PUBLIC_CHAT_API_URL: chatApiUrl,
-      ...STATIC_ENV_VARS,
     },
     customDomain: {
       domainName: domainName,
@@ -27,7 +27,6 @@ export function Website({ stack }: StackContext) {
     },
     memorySize: "1 GB",
   });
-
   api.bind([website]);
 
   stack.addOutputs({

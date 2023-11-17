@@ -23,11 +23,11 @@ export function Queues({ stack }: StackContext) {
       function: {
         handler: "packages/functions/src/scraper/webpage/queue.consumer",
         environment: {
+          ...STATIC_ENV_VARS,
           DATABASE_READWRITE_URL: dbReadWriteUrl,
           DATABASE_READONLY_URL: dbReadOnlyUrl,
           VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
-          ...STATIC_ENV_VARS,
         },
         permissions: [invokeBedrockPolicy],
         nodejs: {

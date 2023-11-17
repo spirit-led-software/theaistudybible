@@ -141,7 +141,7 @@ Here is the completion that you are to fix, within <completion></completion> XML
 
 Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
-{formatInstructions}
+{instructions}
 </format_instructions>
 
 Fix the completion so that it follows the formatting instructions exactly.

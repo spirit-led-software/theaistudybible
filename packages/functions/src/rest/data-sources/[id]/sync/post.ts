@@ -27,7 +27,7 @@ export const handler = ApiHandler(async (event) => {
 
     return OkResponse(dataSource);
   } catch (error: any) {
-    console.error(error);
+    console.error("Error syncing data source:", error.stack);
     return InternalServerErrorResponse(error.stack);
   }
 });

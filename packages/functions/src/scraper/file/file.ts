@@ -1,7 +1,7 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig, vectorDBConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
-import { updateDataSource } from "@services/data-source";
+import { getDataSourceOrThrow, updateDataSource } from "@services/data-source";
 import {
   createIndexOperation,
   updateIndexOperation,
@@ -49,48 +49,41 @@ export const handler: S3Handler = async (event) => {
       throw new Error("Failed to get file from S3");
     }
 
-    const file = {
-      dataSourceId: getRequest.Metadata?.datasourceid,
-      name: getRequest.Metadata?.name,
-      url: getRequest.Metadata?.url,
-      metadata: getRequest.Metadata,
-      fileName: sanitizedKey,
-      type: getRequest.ContentType,
-      size,
-      blob: new Blob([byteArray]),
-    };
+    const fileName = sanitizedKey;
+    const fileType = getRequest.ContentType;
+    const blob = new Blob([byteArray]);
+    const metadata = getRequest.Metadata ?? {};
+    const { datasourceid: dataSourceId, name, url } = metadata;
 
-    if (!file.dataSourceId || !file.name || !file.url) {
+    if (!dataSourceId || !name || !url) {
       throw new Error("Missing required metadata");
     }
 
     let indexOpMetadata: any = {
-      ...file.metadata,
-      dataSourceId: file.dataSourceId,
-      name: file.name,
-      url: file.url,
-      filename: file.fileName,
-      size: file.size,
-      type: file.type,
+      ...metadata,
+      name: name,
+      url: url,
+      fileName,
+      size,
+      type: fileType,
     };
 
     let loader: BaseDocumentLoader;
-    if (file.type === "application/pdf") {
-      loader = new PDFLoader(file.blob);
-    } else if (file.type === "text/plain") {
-      loader = new TextLoader(file.blob);
-    } else if (file.type === "application/json" || file.type === "text/json") {
-      loader = new JSONLoader(file.blob);
+    if (fileType === "application/pdf") {
+      loader = new PDFLoader(blob);
+    } else if (fileType === "text/plain") {
+      loader = new TextLoader(blob);
+    } else if (fileType === "application/json" || fileType === "text/json") {
+      loader = new JSONLoader(blob);
     } else if (
-      file.type ===
+      fileType ===
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
-      loader = new DocxLoader(file.blob);
+      loader = new DocxLoader(blob);
     } else {
       const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
-      const filePath = join(tmpDir, file.fileName);
-      writeFileSync(filePath, Buffer.from(await file.blob.arrayBuffer()));
-
+      const filePath = join(tmpDir, fileName);
+      writeFileSync(filePath, Buffer.from(await blob.arrayBuffer()));
       loader = new UnstructuredLoader(filePath, {
         apiKey: unstructuredConfig.apiKey,
       });
@@ -100,11 +93,14 @@ export const handler: S3Handler = async (event) => {
       };
     }
 
-    indexOp = await createIndexOperation({
-      status: "RUNNING",
-      metadata: indexOpMetadata,
-      dataSourceId: file.dataSourceId,
-    });
+    let [indexOp, dataSource] = await Promise.all([
+      createIndexOperation({
+        status: "RUNNING",
+        metadata: indexOpMetadata,
+        dataSourceId,
+      }),
+      getDataSourceOrThrow(dataSourceId),
+    ]);
 
     console.log("Starting load documents");
     let docs = await loader.load();
@@ -120,7 +116,7 @@ export const handler: S3Handler = async (event) => {
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
       doc.metadata = {
-        ...indexOpMetadata,
+        ...dataSource.metadata,
         ...doc.metadata,
         indexDate: new Date().toISOString(),
         type: "file",
@@ -135,28 +131,22 @@ export const handler: S3Handler = async (event) => {
     console.log("Adding documents to vector store");
     const vectorStore = await getDocumentVectorStore();
     await vectorStore.addDocuments(docs);
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      status: "SUCCEEDED",
-      metadata: {
-        ...indexOp!.metadata,
-        numDocuments: docs.length,
-      },
-    });
+    [indexOp, dataSource] = await Promise.all([
+      updateIndexOperation(indexOp!.id, {
+        status: "SUCCEEDED",
+      }),
+      updateDataSource(dataSourceId, {
+        numberOfDocuments: dataSource.numberOfDocuments + docs.length,
+      }),
+    ]);
     console.log("Finished adding documents to vector store");
-
-    await updateDataSource(file.dataSourceId, {
-      numberOfDocuments: docs.length,
-    });
   } catch (error: any) {
     console.error(error);
 
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: [
-          ...(indexOp?.errorMessages ?? []),
-          error.stack ?? error.message,
-        ],
+        errorMessages: [...indexOp.errorMessages, error.stack ?? error.message],
       });
     }
 

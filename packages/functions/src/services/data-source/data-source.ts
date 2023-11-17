@@ -1,4 +1,8 @@
-import type { CreateDataSourceData, UpdateDataSourceData } from "@core/model";
+import type {
+  CreateDataSourceData,
+  DataSource,
+  UpdateDataSourceData,
+} from "@core/model";
 import { dataSources, indexOperations } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { getDocumentVectorStore } from "@services/vector-db";
@@ -91,7 +95,10 @@ async function deleteRelatedDocuments(dataSourceId: string) {
   );
 }
 
-export async function syncDataSource(id: string, manual: boolean = false) {
+export async function syncDataSource(
+  id: string,
+  manual: boolean = false
+): Promise<DataSource> {
   let dataSource = await getDataSourceOrThrow(id);
 
   const runningIndexOps = await getIndexOperations({
@@ -141,7 +148,7 @@ export async function syncDataSource(id: string, manual: boolean = false) {
       throw new Error(`Unsupported data source type ${dataSource.type}`);
   }
 
-  await updateDataSource(dataSource.id, {
+  dataSource = await updateDataSource(dataSource.id, {
     lastManualSync: manual ? new Date() : undefined,
     lastAutomaticSync: !manual ? new Date() : undefined,
   });
@@ -155,6 +162,8 @@ export async function syncDataSource(id: string, manual: boolean = false) {
       AND
       metadata->>'indexDate' < $2
     );`,
-    [dataSource.id, dataSource.updatedAt.toISOString()]
+    [dataSource.id, dataSource.updatedAt]
   );
+
+  return dataSource;
 }

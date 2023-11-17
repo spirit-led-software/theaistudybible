@@ -60,13 +60,13 @@ export function API({ stack, app }: StackContext) {
   const apiUrl = `https://${apiDomainName}`;
 
   const lambdaEnv: Record<string, string> = {
+    ...STATIC_ENV_VARS,
     WEBSITE_URL: websiteUrl,
     API_URL: apiUrl,
     DATABASE_READWRITE_URL: dbReadWriteUrl,
     DATABASE_READONLY_URL: dbReadOnlyUrl,
     VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
     VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
-    ...STATIC_ENV_VARS,
   };
 
   const chatApiFunction = new Function(stack, "chatApiFunction", {

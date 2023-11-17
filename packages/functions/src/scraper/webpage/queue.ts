@@ -1,7 +1,8 @@
 import { GetQueueAttributesCommand, SQSClient } from "@aws-sdk/client-sqs";
 import type { IndexOperation } from "@core/model";
+import { getDataSourceOrThrow } from "@services/data-source";
 import {
-  getIndexOperation,
+  getIndexOperationOrThrow,
   updateIndexOperation,
 } from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
@@ -25,34 +26,28 @@ export const consumer: SQSHandler = async (event) => {
       throw new Error("Missing index op id");
     }
 
-    indexOp = await getIndexOperation(indexOpId);
-    if (!indexOp) {
-      throw new Error("Index op not found");
-    }
+    indexOp = await getIndexOperationOrThrow(indexOpId);
+    const dataSource = await getDataSourceOrThrow(indexOp.dataSourceId);
 
     await generatePageContentEmbeddings(
       name,
       url,
       indexOp.dataSourceId,
-      indexOp.metadata
+      dataSource.metadata
     );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
-    indexOp = await getIndexOperation(indexOp.id);
+    indexOp = await getIndexOperationOrThrow(indexOp.id);
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
 
     if (indexOp) {
-      indexOp = await getIndexOperation(indexOp.id);
-      indexOp = await updateIndexOperation(indexOp!.id, {
+      indexOp = await getIndexOperationOrThrow(indexOp.id);
+      indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: [
-          ...(indexOp?.errorMessages ?? []),
-          err.stack ?? err.message,
-        ],
+        errorMessages: [...indexOp.errorMessages, err.stack ?? err.message],
       });
-
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
     }
   }
@@ -82,9 +77,9 @@ const checkIfIndexOpIsCompletedAndUpdate = async (
     console.log(`Message count: ${messageCount}`);
 
     if (messageCount === 0) {
-      indexOp = await getIndexOperation(indexOp.id);
-      indexOp = await updateIndexOperation(indexOp!.id, {
-        status: indexOp!.errorMessages?.length ? "FAILED" : "SUCCEEDED",
+      indexOp = await getIndexOperationOrThrow(indexOp.id);
+      indexOp = await updateIndexOperation(indexOp.id, {
+        status: indexOp.errorMessages.length ? "FAILED" : "SUCCEEDED",
       });
     }
   }

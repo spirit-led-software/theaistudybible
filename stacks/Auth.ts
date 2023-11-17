@@ -26,10 +26,10 @@ export function Auth({ stack }: StackContext) {
         },
       ],
       environment: {
+        ...STATIC_ENV_VARS,
         WEBSITE_URL: websiteUrl,
         DATABASE_READWRITE_URL: dbReadWriteUrl,
         DATABASE_READONLY_URL: dbReadOnlyUrl,
-        ...STATIC_ENV_VARS,
       },
       timeout: "30 seconds",
       memorySize: "512 MB",

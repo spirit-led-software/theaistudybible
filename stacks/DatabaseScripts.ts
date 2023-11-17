@@ -12,11 +12,11 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   });
 
   const dbScriptEnv = {
+    ...STATIC_ENV_VARS,
     DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
     DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
     VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
     VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl,
-    ...STATIC_ENV_VARS,
   };
 
   const dbMigrationsFunction = new Function(stack, "dbMigrationsFunction", {

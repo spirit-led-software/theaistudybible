@@ -90,15 +90,16 @@
 
 	const handleSubmitCreate: EventHandler<SubmitEvent, HTMLFormElement> = async (event) => {
 		const formData = new FormData(event.currentTarget);
-		const name = formData.get('name') as string | undefined;
-		const url = formData.get('url') as string | undefined;
-		const type = formData.get('type') as string | undefined;
-		const file = formData.get('file') as File | undefined;
-		const pathRegex = formData.get('pathRegex') as string | undefined;
-		const title = formData.get('title') as string | undefined;
-		const author = formData.get('author') as string | undefined;
-		const metadataString = formData.get('metadata') as string | undefined;
-		let syncSchedule = formData.get('syncSchedule') as string | undefined;
+		const name = (formData.get('name') || undefined) as string | undefined;
+		const url = (formData.get('url') || undefined) as string | undefined;
+		const type = (formData.get('type') || undefined) as string | undefined;
+		const file = (formData.get('file') || undefined) as File | undefined;
+		const pathRegex = (formData.get('pathRegex') || undefined) as string | undefined;
+		const title = (formData.get('title') || undefined) as string | undefined;
+		const author = (formData.get('author') || undefined) as string | undefined;
+		const category = (formData.get('category') || undefined) as string | undefined;
+		const metadataString = (formData.get('metadata') || undefined) as string | undefined;
+		let syncSchedule = (formData.get('syncSchedule') || undefined) as string | undefined;
 
 		if (!name || !url || !type) {
 			alert('Missing required fields "name", "url", or "type"');
@@ -123,8 +124,8 @@
 		if (metadataString) {
 			try {
 				metadata = JSON.parse(metadataString);
-			} catch (e) {
-				alert('Invalid JSON');
+			} catch (e: any) {
+				alert(`Invalid JSON in "metadata" field\n${e.stack}`);
 				return;
 			}
 		}
@@ -132,6 +133,21 @@
 		const dataSourceId = uuidV4();
 		isLoading = true;
 		try {
+			$createDataSourceMutation.mutate({
+				id: dataSourceId,
+				name,
+				url,
+				type,
+				syncSchedule,
+				metadata: {
+					...metadata,
+					category,
+					title,
+					author,
+					pathRegex
+				}
+			});
+
 			if (file && file.size > 0) {
 				const getUrlResponse = await fetch(`${PUBLIC_API_URL}/scraper/file/presigned-url`, {
 					method: 'POST',
@@ -171,20 +187,6 @@
 					throw new Error('Something went wrong while uploading the file to S3');
 				}
 			}
-
-			$createDataSourceMutation.mutate({
-				id: dataSourceId,
-				name,
-				url,
-				type,
-				syncSchedule,
-				metadata: {
-					...metadata,
-					title,
-					author,
-					pathRegex
-				}
-			});
 
 			createDialog?.close();
 		} catch (e: any) {
@@ -246,6 +248,12 @@
 					required
 				/>
 			{/if}
+			<input
+				type="text"
+				name="category"
+				placeholder="Category"
+				class="w-full input input-bordered"
+			/>
 			<textarea
 				name="metadata"
 				placeholder="Additional Metadata"

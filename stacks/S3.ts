@@ -17,11 +17,11 @@ export function S3({ stack }: StackContext) {
     defaults: {
       function: {
         environment: {
+          ...STATIC_ENV_VARS,
           DATABASE_READWRITE_URL: dbReadWriteUrl,
           DATABASE_READONLY_URL: dbReadOnlyUrl,
           VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
-          ...STATIC_ENV_VARS,
         },
         permissions: ["s3", invokeBedrockPolicy],
         timeout: "15 minutes",

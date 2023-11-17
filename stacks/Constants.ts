@@ -29,8 +29,8 @@ export function Constants({ stack, app }: StackContext) {
 
   app.setDefaultFunctionProps({
     environment: {
-      WEBSITE_URL: websiteUrl,
       ...STATIC_ENV_VARS,
+      WEBSITE_URL: websiteUrl,
     },
     timeout: "60 seconds",
     runtime: "nodejs18.x",
