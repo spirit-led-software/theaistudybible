@@ -70,9 +70,9 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
     return await updateIndexOperation(indexOp.id, {
       status: sql`CASE
         WHEN
-          ${indexOperations.metadata}->>'totalUrls' IS NOT NULL AND 
-          ${indexOperations.metadata}->>'succeededUrls' IS NOT NULL AND
-          (${indexOperations.metadata}->>'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->>'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
+          ${indexOperations.metadata}->'totalUrls' IS NOT NULL AND 
+          ${indexOperations.metadata}->'succeededUrls' IS NOT NULL AND
+          (${indexOperations.metadata}->>'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
         THEN
           CASE
             WHEN jsonb_array_length(${indexOperations.errorMessages}) > 0
