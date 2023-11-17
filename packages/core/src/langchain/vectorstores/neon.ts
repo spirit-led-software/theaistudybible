@@ -153,7 +153,7 @@ export class NeonVectorStore extends VectorStore {
     });
 
     const errors: any[] = [];
-    const chunkSize = 50;
+    const chunkSize = 100;
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       this._log(
