@@ -183,7 +183,7 @@ export class RAIBedrockEmbeddings extends Embeddings {
         })
       );
     } else if (this.provider === "cohere") {
-      const chunkSize = 25;
+      const chunkSize = 100;
       const chunks: Promise<number[][]>[] = [];
       for (let i = 0; i < documents.length; i += chunkSize) {
         const chunk = documents.slice(i, i + chunkSize);
