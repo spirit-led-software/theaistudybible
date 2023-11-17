@@ -53,15 +53,13 @@ export const consumer: SQSHandler = async (event) => {
   }
 };
 
-const checkIfIndexOpIsCompletedAndUpdate = async (
-  indexOp: IndexOperation | undefined
-) => {
-  if (indexOp) {
+const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
+  try {
     const client = new SQSClient({});
     const response = await client.send(
       new GetQueueAttributesCommand({
         QueueUrl: Queue.webpageIndexQueue.queueUrl,
-        AttributeNames: ["ApproximateNumberOfMessages"],
+        AttributeNames: ["ApproximateNumberOfMessagesNotVisible"], // ApproximateNumberOfMessagesNotVisible is the number of messages that are in flight. This is a good approximation of the number of messages that are being processed.
       })
     );
 
@@ -72,17 +70,22 @@ const checkIfIndexOpIsCompletedAndUpdate = async (
     }
 
     const messageCount = parseInt(
-      response.Attributes?.ApproximateNumberOfMessages ?? "0"
+      response.Attributes?.ApproximateNumberOfMessagesNotVisible ?? "0"
     );
-    console.log(`Message count: ${messageCount}`);
+    console.log(`In-flight message count: ${messageCount}`);
 
+    indexOp = await getIndexOperationOrThrow(indexOp.id);
     if (messageCount === 0) {
-      indexOp = await getIndexOperationOrThrow(indexOp.id);
       indexOp = await updateIndexOperation(indexOp.id, {
         status: indexOp.errorMessages.length > 0 ? "FAILED" : "SUCCEEDED",
       });
+    } else {
+      indexOp = await updateIndexOperation(indexOp.id, {
+        status: "RUNNING",
+      });
     }
+  } catch (err: any) {
+    console.error(err.stack);
   }
-
   return indexOp;
 };

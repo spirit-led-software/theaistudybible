@@ -6,7 +6,7 @@ import type {
 import { dataSources, indexOperations } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { getDocumentVectorStore } from "@services/vector-db";
-import { SQL, and, desc, eq } from "drizzle-orm";
+import { SQL, and, desc, eq, inArray } from "drizzle-orm";
 import {
   getIndexOperations,
   indexRemoteFile,
@@ -101,7 +101,7 @@ export async function syncDataSource(
 ): Promise<DataSource> {
   let dataSource = await getDataSourceOrThrow(id);
 
-  const runningIndexOps = await getIndexOperations({
+  let runningIndexOps = await getIndexOperations({
     where: and(
       eq(indexOperations.dataSourceId, dataSource.id),
       eq(indexOperations.status, "RUNNING")
@@ -112,6 +112,27 @@ export async function syncDataSource(
     throw new Error(
       `Cannot sync data source ${dataSource.id} because it is already being indexed`
     );
+  }
+
+  if (dataSource.type === "WEB_CRAWL") {
+    const webCrawlDataSources = await getDataSources({
+      where: and(eq(dataSources.type, "WEB_CRAWL")),
+    });
+    runningIndexOps = await getIndexOperations({
+      where: and(
+        inArray(
+          indexOperations.dataSourceId,
+          webCrawlDataSources.map((ds) => ds.id)
+        ),
+        eq(indexOperations.status, "RUNNING")
+      ),
+      limit: 1,
+    });
+    if (runningIndexOps.length > 0) {
+      throw new Error(
+        `Cannot sync data source ${dataSource.id} because another web crawl is already running`
+      );
+    }
   }
 
   switch (dataSource.type) {
