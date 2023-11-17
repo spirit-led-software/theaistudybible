@@ -1,11 +1,11 @@
 import { GetQueueAttributesCommand, SQSClient } from "@aws-sdk/client-sqs";
 import type { IndexOperation } from "@core/model";
+import { indexOperations } from "@core/schema";
+import { readWriteDbTxn } from "@lib/database";
 import { getDataSourceOrThrow } from "@services/data-source";
-import {
-  getIndexOperationOrThrow,
-  updateIndexOperation,
-} from "@services/data-source/index-op";
+import { getIndexOperationOrThrow } from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
+import { eq } from "drizzle-orm";
 import { Queue } from "sst/node/queue";
 import { generatePageContentEmbeddings } from "../../services/web-scraper";
 
@@ -37,16 +37,29 @@ export const consumer: SQSHandler = async (event) => {
     );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
-    indexOp = await getIndexOperationOrThrow(indexOp.id);
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
 
     if (indexOp) {
-      indexOp = await getIndexOperationOrThrow(indexOp.id);
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: "FAILED",
-        errorMessages: [...indexOp.errorMessages, err.stack ?? err.message],
+      indexOp = await readWriteDbTxn(async (db) => {
+        const found = await db
+          .select()
+          .from(indexOperations)
+          .where(eq(indexOperations.id, indexOp!.id))
+          .for("update");
+        return (
+          await db
+            .update(indexOperations)
+            .set({
+              errorMessages: [
+                ...found[0].errorMessages,
+                err.stack ?? err.message,
+              ],
+            })
+            .where(eq(indexOperations.id, indexOp!.id))
+            .returning()
+        )[0];
       });
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
     }
@@ -74,16 +87,27 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
     );
     console.log(`In-flight message count: ${messageCount}`);
 
-    indexOp = await getIndexOperationOrThrow(indexOp.id);
-    if (messageCount === 0) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: indexOp.errorMessages.length > 0 ? "FAILED" : "SUCCEEDED",
-      });
-    } else {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: "RUNNING",
-      });
-    }
+    return await readWriteDbTxn(async (db) => {
+      await db
+        .select()
+        .from(indexOperations)
+        .where(eq(indexOperations.id, indexOp!.id))
+        .for("update");
+      return (
+        await db
+          .update(indexOperations)
+          .set({
+            status:
+              messageCount === 0
+                ? indexOp.errorMessages.length > 0
+                  ? "FAILED"
+                  : "SUCCEEDED"
+                : "RUNNING",
+          })
+          .where(eq(indexOperations.id, indexOp!.id))
+          .returning()
+      )[0];
+    });
   } catch (err: any) {
     console.error(err.stack);
   }

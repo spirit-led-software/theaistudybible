@@ -1,11 +1,20 @@
 import { databaseConfig, envConfig } from "@core/configs";
 import * as schema from "@core/database/schema";
 import {
+  Client,
   neon,
   neonConfig,
   type NeonQueryFunction,
 } from "@neondatabase/serverless";
-import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
+import {
+  drizzle as drizzleHttp,
+  type NeonHttpDatabase,
+} from "drizzle-orm/neon-http";
+import {
+  drizzle as drizzleWs,
+  type NeonDatabase,
+} from "drizzle-orm/neon-serverless";
+import ws from "ws";
 
 export type RAIDatabaseConfigInput = {
   connectionString: string;
@@ -54,15 +63,24 @@ export class RAIDatabaseConfig {
   queryFn: NeonQueryFunction<false, false>;
   database: NeonHttpDatabase<typeof schema>;
 
+  private readonly connectionString: string;
+
   constructor({ connectionString, readOnly }: RAIDatabaseConfigInput) {
+    this.connectionString = connectionString;
+
     neonConfig.fetchFunction = neonFetchFn;
     this.queryFn = neon(connectionString, {
       readOnly,
     });
-    this.database = drizzle(this.queryFn, {
+    this.database = drizzleHttp(this.queryFn, {
       schema,
       logger: envConfig.isLocal,
     });
+  }
+
+  getWsClient() {
+    neonConfig.webSocketConstructor = ws;
+    return new Client(this.connectionString);
   }
 }
 
@@ -82,3 +100,45 @@ export default {
   readOnlyDatabase,
   readWriteDatabase,
 };
+
+export async function readWriteDbTxn<T>(
+  fn: (db: NeonDatabase<typeof schema>) => Promise<T>
+): Promise<T> {
+  const client = readWriteDatabaseConfig.getWsClient();
+  try {
+    await client.connect();
+    await client.query("BEGIN");
+
+    const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
+    const result = await fn(drizzle);
+
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    await client.end();
+  }
+}
+
+export async function readOnlyDbTxn<T>(
+  fn: (db: NeonDatabase<typeof schema>) => Promise<T>
+): Promise<T> {
+  const client = readOnlyDatabaseConfig.getWsClient();
+  try {
+    await client.connect();
+    await client.query("BEGIN");
+
+    const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
+    const result = await fn(drizzle);
+
+    await client.query("COMMIT");
+    return result;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    await client.end();
+  }
+}

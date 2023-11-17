@@ -6,8 +6,11 @@ import type {
   UpdateIndexOperationData,
 } from "@core/model";
 import { indexOperations } from "@core/schema";
-import { InternalServerErrorResponse } from "@lib/api-responses";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
+import {
+  readOnlyDatabase,
+  readWriteDatabase,
+  readWriteDbTxn,
+} from "@lib/database";
 import {
   generatePageContentEmbeddings,
   getFileNameFromUrl,
@@ -126,10 +129,7 @@ export async function indexWebPage({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: [
-          ...(indexOp?.errorMessages ?? []),
-          err.stack ?? err.message,
-        ],
+        errorMessages: [...indexOp.errorMessages, err.stack ?? err.message],
       });
     }
     throw err;
@@ -199,20 +199,46 @@ export async function indexWebCrawl({
         indexOp!.id
       );
     }
-    indexOp = await getIndexOperation(indexOp!.id);
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      metadata: {
-        ...indexOp!.metadata,
-        urlCount,
-      },
+
+    indexOp = await readWriteDbTxn(async (db) => {
+      const found = await db
+        .select()
+        .from(indexOperations)
+        .where(eq(indexOperations.id, indexOp!.id))
+        .for("update");
+      return (
+        await db
+          .update(indexOperations)
+          .set({
+            metadata: {
+              ...found[0].metadata,
+              urlCount,
+            },
+          })
+          .where(eq(indexOperations.id, indexOp!.id))
+          .returning()
+      )[0];
     });
     return indexOp;
   } catch (err: any) {
     console.error(`${err.stack}`);
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: "FAILED",
-        errorMessages: [indexOp!.errorMessages, err.stack ?? err.message],
+      indexOp = await readWriteDbTxn(async (db) => {
+        const found = await db
+          .select()
+          .from(indexOperations)
+          .where(eq(indexOperations.id, indexOp!.id))
+          .for("update");
+        return (
+          await db
+            .update(indexOperations)
+            .set({
+              status: "FAILED",
+              errorMessages: [found[0].errorMessages, err.stack ?? err.message],
+            })
+            .where(eq(indexOperations.id, indexOp!.id))
+            .returning()
+        )[0];
       });
     }
     throw err;
@@ -258,7 +284,7 @@ export async function indexRemoteFile({
     !putCommandResponse.$metadata?.httpStatusCode ||
     putCommandResponse.$metadata?.httpStatusCode !== 200
   ) {
-    return InternalServerErrorResponse(
+    throw new Error(
       `Failed to upload file to S3 ${putCommandResponse.$metadata?.httpStatusCode}`
     );
   }
