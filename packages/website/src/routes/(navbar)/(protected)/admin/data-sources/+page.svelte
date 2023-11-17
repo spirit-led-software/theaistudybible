@@ -52,11 +52,12 @@
 		>
 		<CreateDialog bind:this={createDialog} />
 	</div>
-	<div class="h-full w-full overflow-auto">
+	<div class="w-full h-full overflow-auto">
 		<table class="table whitespace-normal table-xs">
 			<thead>
 				<tr>
 					<th />
+					<th>ID</th>
 					<th>Name</th>
 					<th>Type</th>
 					<th>Sync Schedule</th>

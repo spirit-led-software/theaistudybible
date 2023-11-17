@@ -85,6 +85,7 @@
 			{/if}
 		</button>
 	</td>
+	<td>{dataSource.id}</td>
 	<td>{dataSource.name}</td>
 	<td>{dataSource.type}</td>
 	<td>{dataSource.syncSchedule}</td>
