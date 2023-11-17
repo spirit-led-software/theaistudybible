@@ -54,8 +54,8 @@ export async function generatePageContentEmbeddings(
       console.log("Adding metadata to documents.");
       docs = docs.map((doc) => {
         doc.metadata = {
-          ...doc.metadata,
           ...metadata,
+          ...doc.metadata,
           dataSourceId,
           indexDate: new Date().toISOString(),
           type: "webpage",
