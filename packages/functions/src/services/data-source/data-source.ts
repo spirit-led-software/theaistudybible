@@ -135,6 +135,10 @@ export async function syncDataSource(
     }
   }
 
+  dataSource = await updateDataSource(dataSource.id, {
+    numberOfDocuments: undefined,
+  });
+
   switch (dataSource.type) {
     case "FILE":
       throw new Error("You must upload a file to the data source to index it");

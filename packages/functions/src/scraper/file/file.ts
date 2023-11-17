@@ -1,7 +1,7 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { unstructuredConfig, vectorDBConfig } from "@core/configs";
 import type { IndexOperation } from "@core/model";
-import { dataSources, indexOperations } from "@core/schema";
+import { indexOperations } from "@core/schema";
 import { getDataSourceOrThrow, updateDataSource } from "@services/data-source";
 import {
   createIndexOperation,
@@ -138,7 +138,7 @@ export const handler: S3Handler = async (event) => {
         status: "SUCCEEDED",
       }),
       updateDataSource(dataSourceId, {
-        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`,
+        numberOfDocuments: docs.length,
       }),
     ]);
     console.log("Finished adding documents to vector store");
