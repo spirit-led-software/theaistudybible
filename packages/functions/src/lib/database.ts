@@ -116,9 +116,7 @@ export async function readWriteDbTxn<T>(
   try {
     await client.connect();
     const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
-    return await drizzle.transaction(async (txn) => {
-      return await fn(txn);
-    });
+    return await drizzle.transaction(fn);
   } finally {
     await client.end();
   }
@@ -137,9 +135,7 @@ export async function readOnlyDbTxn<T>(
   try {
     await client.connect();
     const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
-    return await drizzle.transaction(async (txn) => {
-      return await fn(txn);
-    });
+    return await drizzle.transaction(fn);
   } finally {
     await client.end();
   }
