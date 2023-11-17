@@ -82,29 +82,34 @@ export class RAIBedrockEmbeddings extends Embeddings {
       });
   }
 
-  protected _createBody(text: string): string {
+  protected _createBody(texts: string[]): string {
     // replace newlines, which can negatively affect performance.
-    const cleanedText = text.replace(/\n/g, " ");
+    const cleanedTexts = texts.map((text) => text.replace(/\n/g, " "));
     if (this.provider === "cohere") {
       return JSON.stringify({
-        texts: [cleanedText],
+        texts: cleanedTexts,
         input_type: this.inputType ?? "search_query",
         truncate: this.truncate ?? "NONE",
       });
     } else if (this.provider === "amazon") {
+      if (cleanedTexts.length > 1) {
+        throw new Error("Amazon embeddings only supports one text at a time");
+      }
       return JSON.stringify({
-        inputText: cleanedText,
+        inputText: cleanedTexts[0],
       });
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);
     }
   }
 
-  protected _getEmbeddingsFromResponseBody(response: string): any {
+  protected _getEmbeddingsFromResponseBody(response: string): number[][] {
     if (this.provider === "cohere") {
-      return JSON.parse(response).embeddings[0];
+      const embeddings = JSON.parse(response).embeddings as number[][];
+      return embeddings;
     } else if (this.provider === "amazon") {
-      return JSON.parse(response).embedding;
+      const embedding = JSON.parse(response).embedding as number[];
+      return [embedding];
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);
     }
@@ -117,7 +122,7 @@ export class RAIBedrockEmbeddings extends Embeddings {
    * @param request Request to send to the Bedrock API.
    * @returns Promise that resolves to the response from the API.
    */
-  protected async _embedText(text: string): Promise<number[]> {
+  protected async _embedTexts(text: string[]): Promise<number[][]> {
     return this.caller.call(async () => {
       try {
         const res = await this.client.send(
@@ -155,12 +160,13 @@ export class RAIBedrockEmbeddings extends Embeddings {
    * @param document Document for which to generate an embedding.
    * @returns Promise that resolves to an embedding for the input document.
    */
-  embedQuery(document: string): Promise<number[]> {
-    return this.caller.callWithOptions(
+  async embedQuery(document: string): Promise<number[]> {
+    const embeddings = await this.caller.callWithOptions(
       {},
-      this._embedText.bind(this),
-      document
+      this._embedTexts.bind(this),
+      [document]
     );
+    return embeddings[0];
   }
 
   /**
@@ -170,6 +176,24 @@ export class RAIBedrockEmbeddings extends Embeddings {
    * @returns Promise that resolves to a 2D array of embeddings for each input document.
    */
   async embedDocuments(documents: string[]): Promise<number[][]> {
-    return Promise.all(documents.map((document) => this._embedText(document)));
+    if (this.provider === "amazon") {
+      return Promise.all(
+        documents.map(async (document) => {
+          return await this.embedQuery(document);
+        })
+      );
+    } else if (this.provider === "cohere") {
+      const sliceSize = 25;
+      const slices: Promise<number[][]>[] = [];
+      for (let i = 0; i < documents.length; i += sliceSize) {
+        const slice = documents.slice(i, i + sliceSize);
+        slices.push(
+          this.caller.callWithOptions({}, this._embedTexts.bind(this), slice)
+        );
+      }
+      return (await Promise.all(slices)).flat();
+    } else {
+      throw new Error(`Unknown provider: ${this.provider}`);
+    }
   }
 }

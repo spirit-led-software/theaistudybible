@@ -130,33 +130,15 @@ export class NeonVectorStore extends VectorStore {
   async addDocuments(documents: Document[]): Promise<void> {
     if (documents.length === 0) {
       this._log(`No documents to add to vector store`);
-    } else if (documents.length === 1) {
-      this._log(`Adding single document to vector store`);
-      await this.addVectors(
-        await this.embeddings.embedDocuments(
-          documents.map(({ pageContent }) => pageContent)
-        ),
-        documents
-      );
-    } else {
-      const sliceSize = 25;
-      for (let i = 0; i < documents.length; i += sliceSize) {
-        let sliceEnd = i + sliceSize;
-        if (sliceEnd >= documents.length) {
-          sliceEnd = documents.length - 1;
-        }
-        const docsSlice = documents.slice(i, sliceEnd);
-        this._log(
-          `Adding slice of documents to vector store: ${i} to ${sliceEnd}`
-        );
-        await this.addVectors(
-          await this.embeddings.embedDocuments(
-            docsSlice.map(({ pageContent }) => pageContent)
-          ),
-          docsSlice
-        );
-      }
+      return;
     }
+
+    await this.addVectors(
+      await this.embeddings.embedDocuments(
+        documents.map(({ pageContent }) => pageContent)
+      ),
+      documents
+    );
   }
 
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
@@ -175,9 +157,9 @@ export class NeonVectorStore extends VectorStore {
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       this._log(
-        `Inserting ${chunk.length} rows into vector store: ${JSON.stringify(
-          chunk
-        )}`
+        `Inserting ${chunk.length} rows into vector store ${i} to ${
+          i + chunk.length
+        }`
       );
 
       try {
