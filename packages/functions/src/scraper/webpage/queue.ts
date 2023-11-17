@@ -40,7 +40,7 @@ export const consumer: SQSHandler = async (event) => {
     indexOp = await updateIndexOperation(indexOp.id, {
       metadata: sql`CASE WHEN ${
         indexOperations.metadata
-      }->>'succeededUrls' IS NULL
+      }->'succeededUrls' IS NULL
         THEN jsonb_set(${
           indexOperations.metadata
         }, '{succeededUrls}', '["${sql.raw(url)}"]', true)
@@ -72,7 +72,7 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
         WHEN
           ${indexOperations.metadata}->'totalUrls' IS NOT NULL AND 
           ${indexOperations.metadata}->'succeededUrls' IS NOT NULL AND
-          (${indexOperations.metadata}->>'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
+          (${indexOperations.metadata}->'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
         THEN
           CASE
             WHEN jsonb_array_length(${indexOperations.errorMessages}) > 0
