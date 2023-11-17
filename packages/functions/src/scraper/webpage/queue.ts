@@ -72,18 +72,14 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
         WHEN
           ${indexOperations.metadata}->>'totalUrls' IS NOT NULL AND 
           ${indexOperations.metadata}->>'succeededUrls' IS NOT NULL AND
-          ${indexOperations.metadata}->>'totalUrls' <= (jsonb_array_length(${indexOperations.metadata}->>'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
+          (${indexOperations.metadata}->>'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->>'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
         THEN
           CASE
-            WHEN
-              jsonb_array_length(${indexOperations.errorMessages}) > 0
-            THEN
-              'FAILED'
-            ELSE
-              'SUCCEEDED'
+            WHEN jsonb_array_length(${indexOperations.errorMessages}) > 0
+            THEN 'FAILED'
+            ELSE 'SUCCEEDED'
           END
-        ELSE
-          'RUNNING'
+        ELSE 'RUNNING'
       END`,
     });
   } catch (err: any) {

@@ -91,16 +91,22 @@ export const getRAIChatChain = async (
     prompt: CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
       {
-        name: "YouVersion - ESV 2016",
+        category: "bible",
+        translation: "ESV", // TODO: Make this configurable.
       },
       {
-        name: "Enduring Word",
+        category: "commentary",
       },
     ],
   });
 
   const theologyQaChain = await getDocumentQaChain({
     prompt: CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
+    filters: [
+      {
+        category: "theology",
+      },
+    ],
   });
 
   const branch = RunnableBranch.from([
