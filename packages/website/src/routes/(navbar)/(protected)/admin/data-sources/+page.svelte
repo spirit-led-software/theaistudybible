@@ -52,7 +52,7 @@
 		>
 		<CreateDialog bind:this={createDialog} />
 	</div>
-	<div class="overflow-x-hidden">
+	<div class="h-full w-full overflow-auto">
 		<table class="table whitespace-normal table-xs">
 			<thead>
 				<tr>
