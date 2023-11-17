@@ -79,7 +79,7 @@ const checkIfIndexOpIsCompletedAndUpdate = async (
     if (messageCount === 0) {
       indexOp = await getIndexOperationOrThrow(indexOp.id);
       indexOp = await updateIndexOperation(indexOp.id, {
-        status: indexOp.errorMessages.length ? "FAILED" : "SUCCEEDED",
+        status: indexOp.errorMessages.length > 0 ? "FAILED" : "SUCCEEDED",
       });
     }
   }

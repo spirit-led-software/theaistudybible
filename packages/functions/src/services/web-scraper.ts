@@ -1,12 +1,7 @@
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { SQSClient, SendMessageBatchCommand } from "@aws-sdk/client-sqs";
 import { axios, vectorDBConfig } from "@core/configs";
 import { PuppeteerCoreWebBaseLoader } from "@core/langchain/document_loaders/puppeteer-core";
-import {
-  getDataSourceOrThrow,
-  getIndexOperation,
-  updateDataSource,
-  updateIndexOperation,
-} from "@services/data-source";
+import { getDataSourceOrThrow, updateDataSource } from "@services/data-source";
 import { getDocumentVectorStore } from "@services/vector-db";
 import { XMLParser } from "fast-xml-parser";
 import type { Document } from "langchain/document";
@@ -125,7 +120,7 @@ export async function navigateSitemap(
     const parser = new XMLParser({});
     const sitemapXmlObj = parser.parse(sitemapXml) as any;
 
-    let sitemapUrls = [];
+    let sitemapUrls: any[] = [];
     if (sitemapXmlObj.urlset) {
       sitemapUrls = sitemapXmlObj.urlset.url;
     } else if (sitemapXmlObj.sitemapindex) {
@@ -141,21 +136,56 @@ export async function navigateSitemap(
       siteMapUrlsArray = [sitemapUrls];
     }
 
-    for (let i = 0; i < siteMapUrlsArray.length; i++) {
-      const foundUrl: string = sitemapUrls[i].loc;
-      if (foundUrl) {
-        if (foundUrl.endsWith(".xml")) {
+    const sliceSize = 10;
+    const failed: string[] = [];
+    for (let i = 0; i < siteMapUrlsArray.length; i += sliceSize) {
+      const foundUrls: string[] = sitemapUrls
+        .slice(i, i + sliceSize)
+        .map((sitemapObj) => sitemapObj.loc);
+
+      try {
+        const indexableUrls = foundUrls.filter((url) => urlRegex.test(url));
+        console.log(
+          `Found ${
+            indexableUrls.length
+          } indexable urls from sitemap: ${JSON.stringify(indexableUrls)}`
+        );
+        urlCount += indexableUrls.length;
+        await sendUrlsToQueue(name, indexableUrls, indexOpId);
+      } catch (err: any) {
+        console.error(`Error sending index url message to queue: ${err.stack}`);
+        failed.push(sitemapUrls[i]);
+      }
+
+      try {
+        const additionalSitemaps = foundUrls.filter((url) =>
+          url.endsWith(".xml")
+        );
+        for (const additionalSitemap of additionalSitemaps) {
+          console.log(`Found additional sitemap: ${additionalSitemap}`);
           urlCount += await navigateSitemap(
-            foundUrl,
+            additionalSitemap,
             urlRegex,
             name,
             indexOpId
           );
-        } else if (urlRegex.test(foundUrl)) {
-          await sendUrlToQueue(name, foundUrl, indexOpId);
-          urlCount++;
         }
+      } catch (err: any) {
+        console.error(`Error navigating additional sitemap: ${err.stack}`);
+        failed.push(sitemapUrls[i]);
       }
+    }
+    if (failed.length > 0) {
+      console.error(
+        `Failed to navigate ${
+          failed.length
+        } urls from sitemap: ${JSON.stringify(failed)}`
+      );
+      throw new Error(
+        `Failed to navigate ${
+          failed.length
+        } urls from sitemap: ${JSON.stringify(failed)}`
+      );
     }
   } catch (err: any) {
     console.error(`Error navigating sitemap: ${err.stack}`);
@@ -164,30 +194,32 @@ export async function navigateSitemap(
   return urlCount;
 }
 
-async function sendUrlToQueue(name: string, url: string, indexOpId: string) {
-  const sendMessageCommand = new SendMessageCommand({
-    QueueUrl: Queue.webpageIndexQueue.queueUrl,
-    MessageBody: JSON.stringify({
-      name,
-      url,
-      indexOpId,
-    }),
-  });
+async function sendUrlsToQueue(
+  name: string,
+  urls: string[],
+  indexOpId: string
+) {
   const sqsClient = new SQSClient({});
+  const sendMessageCommand = new SendMessageBatchCommand({
+    QueueUrl: Queue.webpageIndexQueue.queueUrl,
+    Entries: urls.map((url) => ({
+      Id: url,
+      MessageBody: JSON.stringify({
+        name,
+        url,
+        indexOpId,
+      }),
+    })),
+  });
   const sendMessageResponse = await sqsClient.send(sendMessageCommand);
   if (sendMessageResponse.$metadata.httpStatusCode !== 200) {
     console.error(
       "Failed to send message to SQS:",
       JSON.stringify(sendMessageResponse)
     );
-    let indexOp = await getIndexOperation(indexOpId);
-    await updateIndexOperation(indexOp!.id, {
-      status: "FAILED",
-      errorMessages: [
-        ...(indexOp!.errorMessages ?? []),
-        `Error sending url to SQS: ${JSON.stringify(sendMessageResponse)}`
-      ]
-    });
+    throw new Error(
+      `Failed to send message to SQS: ${JSON.stringify(sendMessageResponse)}`
+    );
   }
 }
 

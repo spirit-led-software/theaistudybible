@@ -212,10 +212,7 @@ export async function indexWebCrawl({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: [
-          ...(indexOp?.errorMessages ?? []),
-          err.stack ?? err.message,
-        ],
+        errorMessages: [indexOp!.errorMessages, err.stack ?? err.message],
       });
     }
     throw err;
