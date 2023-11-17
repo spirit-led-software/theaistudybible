@@ -212,7 +212,7 @@ export async function indexWebCrawl({
           .set({
             metadata: {
               ...found[0].metadata,
-              urlCount,
+              totalUrls: urlCount,
             },
           })
           .where(eq(indexOperations.id, indexOp!.id))

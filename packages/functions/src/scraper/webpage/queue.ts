@@ -1,4 +1,3 @@
-import { GetQueueAttributesCommand, SQSClient } from "@aws-sdk/client-sqs";
 import type { IndexOperation } from "@core/model";
 import { indexOperations } from "@core/schema";
 import { readWriteDbTxn } from "@lib/database";
@@ -6,7 +5,6 @@ import { getDataSourceOrThrow } from "@services/data-source";
 import { getIndexOperationOrThrow } from "@services/data-source/index-op";
 import type { SQSHandler } from "aws-lambda";
 import { eq } from "drizzle-orm";
-import { Queue } from "sst/node/queue";
 import { generatePageContentEmbeddings } from "../../services/web-scraper";
 
 export const consumer: SQSHandler = async (event) => {
@@ -37,6 +35,26 @@ export const consumer: SQSHandler = async (event) => {
     );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
+    indexOp = await readWriteDbTxn(async (db) => {
+      const found = await db
+        .select()
+        .from(indexOperations)
+        .where(eq(indexOperations.id, indexOp!.id))
+        .for("update");
+      return (
+        await db
+          .update(indexOperations)
+          .set({
+            metadata: {
+              ...found[0].metadata,
+              succeededUrls: [...(found[0].metadata.succeededUrls ?? []), url],
+            },
+          })
+          .where(eq(indexOperations.id, indexOp!.id))
+          .returning()
+      )[0];
+    });
+
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
@@ -68,27 +86,8 @@ export const consumer: SQSHandler = async (event) => {
 
 const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
   try {
-    const client = new SQSClient({});
-    const response = await client.send(
-      new GetQueueAttributesCommand({
-        QueueUrl: Queue.webpageIndexQueue.queueUrl,
-        AttributeNames: ["ApproximateNumberOfMessagesNotVisible"], // ApproximateNumberOfMessagesNotVisible is the number of messages that are in flight. This is a good approximation of the number of messages that are being processed.
-      })
-    );
-
-    if (response.$metadata.httpStatusCode !== 200) {
-      throw new Error(
-        `Failed to get queue attributes: ${response.$metadata.httpStatusCode}`
-      );
-    }
-
-    const messageCount = parseInt(
-      response.Attributes?.ApproximateNumberOfMessagesNotVisible ?? "0"
-    );
-    console.log(`In-flight message count: ${messageCount}`);
-
     return await readWriteDbTxn(async (db) => {
-      await db
+      const found = await db
         .select()
         .from(indexOperations)
         .where(eq(indexOperations.id, indexOp!.id))
@@ -98,7 +97,8 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
           .update(indexOperations)
           .set({
             status:
-              messageCount === 0
+              (found[0].metadata.succeededUrls?.length ?? 0) >=
+              (found[0].metadata.totalUrls ?? 0)
                 ? indexOp.errorMessages.length > 0
                   ? "FAILED"
                   : "SUCCEEDED"
