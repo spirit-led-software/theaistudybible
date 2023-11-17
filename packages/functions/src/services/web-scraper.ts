@@ -137,30 +137,34 @@ export async function navigateSitemap(
     }
 
     const sliceSize = 10;
-    const failed: string[] = [];
+    const failed: string[][] = [];
     for (let i = 0; i < siteMapUrlsArray.length; i += sliceSize) {
-      const foundUrls: string[] = sitemapUrls
+      const foundUrls: string[] = siteMapUrlsArray
         .slice(i, i + sliceSize)
         .map((sitemapObj) => sitemapObj.loc);
 
-      try {
-        const indexableUrls = foundUrls.filter((url) => urlRegex.test(url));
+      const indexableUrls = foundUrls.filter((url) => urlRegex.test(url));
+      if (indexableUrls.length > 0) {
         console.log(
           `Found ${
             indexableUrls.length
           } indexable urls from sitemap: ${JSON.stringify(indexableUrls)}`
         );
-        urlCount += indexableUrls.length;
-        await sendUrlsToQueue(name, indexableUrls, indexOpId);
-      } catch (err: any) {
-        console.error(`Error sending index url message to queue: ${err.stack}`);
-        failed.push(sitemapUrls[i]);
+        try {
+          await sendUrlsToQueue(name, indexableUrls, indexOpId);
+          urlCount += indexableUrls.length;
+        } catch (err: any) {
+          console.error(
+            `Error sending index url message to queue: ${err.stack}`
+          );
+          failed.push(indexableUrls);
+        }
       }
 
+      const additionalSitemaps = foundUrls.filter((url) =>
+        url.endsWith(".xml")
+      );
       try {
-        const additionalSitemaps = foundUrls.filter((url) =>
-          url.endsWith(".xml")
-        );
         for (const additionalSitemap of additionalSitemaps) {
           console.log(`Found additional sitemap: ${additionalSitemap}`);
           urlCount += await navigateSitemap(
@@ -171,20 +175,20 @@ export async function navigateSitemap(
           );
         }
       } catch (err: any) {
-        console.error(`Error navigating additional sitemap: ${err.stack}`);
-        failed.push(sitemapUrls[i]);
+        console.error(`Error navigating additional sitemaps: ${err.stack}`);
+        failed.push(additionalSitemaps);
       }
     }
     if (failed.length > 0) {
       console.error(
         `Failed to navigate ${
           failed.length
-        } urls from sitemap: ${JSON.stringify(failed)}`
+        } urls from sitemap\n${JSON.stringify(failed)}`
       );
       throw new Error(
         `Failed to navigate ${
           failed.length
-        } urls from sitemap: ${JSON.stringify(failed)}`
+        } urls from sitemap\n${JSON.stringify(failed)}`
       );
     }
   } catch (err: any) {
