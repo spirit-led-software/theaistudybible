@@ -120,8 +120,8 @@ export const handler: S3Handler = async (event) => {
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
       doc.metadata = {
-        ...doc.metadata,
         ...indexOpMetadata,
+        ...doc.metadata,
         indexDate: new Date().toISOString(),
         type: "file",
       };
