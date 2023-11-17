@@ -198,8 +198,13 @@ export async function indexWebCrawl({
       );
     }
 
+    console.log(
+      `Successfully crawled ${urlCount} urls. Updating index op status.`
+    );
     indexOp = await updateIndexOperation(indexOp!.id, {
-      metadata: sql`${indexOperations.metadata} || json_build_object('totalUrls', ${urlCount})`,
+      metadata: `${indexOperations.metadata} || ${JSON.stringify({
+        totalUrls: urlCount,
+      })}`,
     });
 
     return indexOp;

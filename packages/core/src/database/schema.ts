@@ -5,7 +5,6 @@ import {
   doublePrecision,
   index,
   integer,
-  json,
   jsonb,
   pgTable,
   text,
@@ -296,7 +295,7 @@ export const indexOperations = pgTable(
       .notNull()
       .default([])
       .$type<string[]>(),
-    metadata: json("metadata").$type<any>().default({}).notNull(),
+    metadata: jsonb("metadata").$type<any>().default({}).notNull(),
     dataSourceId: uuid("data_source_id")
       .notNull()
       .references(() => dataSources.id, {
@@ -500,7 +499,7 @@ export const dataSources = pgTable(
     type: text("type", {
       enum: ["WEB_CRAWL", "FILE", "WEBPAGE", "REMOTE_FILE", "YOUTUBE"],
     }).notNull(),
-    metadata: json("metadata").$type<any>().default({}).notNull(),
+    metadata: jsonb("metadata").$type<any>().default({}).notNull(),
     numberOfDocuments: integer("number_of_documents").notNull().default(0),
     syncSchedule: text("sync_schedule", {
       enum: ["DAILY", "WEEKLY", "MONTHLY", "NEVER"],

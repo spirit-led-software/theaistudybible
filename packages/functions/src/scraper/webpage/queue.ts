@@ -57,14 +57,15 @@ export const consumer: SQSHandler = async (event) => {
 
 const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
   try {
+    console.log(`Checking if index op is completed: ${indexOp.id}`);
     return await updateIndexOperation(indexOp.id, {
       status: sql`CASE
         WHEN
-          ${indexOperations.metadata}->>'totalUrls' >= (json_array_length(${indexOperations.metadata}->>'succeeded') + json_array_length(${indexOperations.errorMessages})) 
+          ${indexOperations.metadata}->>'totalUrls' <= (jsonb_array_length(${indexOperations.metadata}->>'succeeded') + jsonb_array_length(${indexOperations.errorMessages}))
         THEN
           CASE
             WHEN
-              json_array_length(${indexOperations.errorMessages}) > 0
+              jsonb_array_length(${indexOperations.errorMessages}) > 0
             THEN
               'FAILED'
             ELSE
@@ -75,7 +76,7 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
       END`,
     });
   } catch (err: any) {
-    console.error(err.stack);
+    console.error("Failed to check if index op is complete:", err.stack);
   }
   return indexOp;
 };
