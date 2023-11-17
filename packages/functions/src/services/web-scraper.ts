@@ -154,8 +154,6 @@ export async function navigateSitemap(
         } else if (urlRegex.test(foundUrl)) {
           await sendUrlToQueue(name, foundUrl, indexOpId);
           urlCount++;
-        } else {
-          console.log(`Skipping url: ${foundUrl}`);
         }
       }
     }
@@ -185,16 +183,10 @@ async function sendUrlToQueue(name: string, url: string, indexOpId: string) {
     let indexOp = await getIndexOperation(indexOpId);
     await updateIndexOperation(indexOp!.id, {
       status: "FAILED",
-      metadata: {
-        ...indexOp!.metadata,
-        errors: [
-          ...(indexOp!.metadata.errors ?? []),
-          {
-            url,
-            error: `Failed to send message to SQS: ${sendMessageResponse.$metadata.httpStatusCode}`,
-          },
-        ],
-      },
+      errorMessages: [
+        ...(indexOp!.errorMessages ?? []),
+        `Error sending url to SQS: ${JSON.stringify(sendMessageResponse)}`
+      ]
     });
   }
 }
