@@ -183,15 +183,15 @@ export class RAIBedrockEmbeddings extends Embeddings {
         })
       );
     } else if (this.provider === "cohere") {
-      const sliceSize = 25;
-      const slices: Promise<number[][]>[] = [];
-      for (let i = 0; i < documents.length; i += sliceSize) {
-        const slice = documents.slice(i, i + sliceSize);
-        slices.push(
-          this.caller.callWithOptions({}, this._embedTexts.bind(this), slice)
+      const chunkSize = 25;
+      const chunks: Promise<number[][]>[] = [];
+      for (let i = 0; i < documents.length; i += chunkSize) {
+        const chunk = documents.slice(i, i + chunkSize);
+        chunks.push(
+          this.caller.callWithOptions({}, this._embedTexts.bind(this), chunk)
         );
       }
-      return (await Promise.all(slices)).flat();
+      return (await Promise.all(chunks)).flat();
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);
     }
