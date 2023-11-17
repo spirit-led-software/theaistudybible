@@ -190,14 +190,14 @@
 				type="text"
 				name="title"
 				placeholder="Title"
-				value={dataSource.metadata.title}
+				value={dataSource.metadata.title ?? ''}
 				class="w-full input input-bordered"
 			/>
 			<input
 				type="text"
 				name="author"
 				placeholder="Author"
-				value={dataSource.metadata.author}
+				value={dataSource.metadata.author ?? ''}
 				class="w-full input input-bordered"
 			/>
 		{/if}
@@ -206,7 +206,7 @@
 				type="text"
 				name="pathRegex"
 				placeholder="Path Regex*"
-				value={dataSource.metadata.pathRegex}
+				value={dataSource.metadata.pathRegex ?? ''}
 				class="w-full input input-bordered"
 				required
 			/>
@@ -215,7 +215,7 @@
 			type="text"
 			name="category"
 			placeholder="Category"
-			value={dataSource.metadata.category}
+			value={dataSource.metadata.category ?? ''}
 			class="w-full input input-bordered"
 		/>
 		<textarea
