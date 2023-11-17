@@ -36,9 +36,9 @@ export function Queues({ stack }: StackContext) {
             external: ["@sparticuz/chromium"],
           },
         },
-        reservedConcurrentExecutions: stack.stage !== "prod" ? 2 : 20,
+        reservedConcurrentExecutions: stack.stage !== "prod" ? 2 : 50,
         timeout: "15 minutes",
-        memorySize: "2 GB",
+        memorySize: "1 GB",
       },
     },
   });

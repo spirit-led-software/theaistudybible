@@ -92,13 +92,19 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
         .from(indexOperations)
         .where(eq(indexOperations.id, indexOp!.id))
         .for("update");
+
+      const totalUrls = found[0].metadata.totalUrls ?? 0;
+      const succeededUrls = found[0].metadata.succeededUrls ?? [];
+      console.log(
+        `Checking if index op is completed. Total urls: ${totalUrls}, succeeded urls: ${succeededUrls.length}`
+      );
+
       return (
         await db
           .update(indexOperations)
           .set({
             status:
-              (found[0].metadata.succeededUrls?.length ?? 0) >=
-              (found[0].metadata.totalUrls ?? 0)
+              totalUrls <= succeededUrls.length
                 ? indexOp.errorMessages.length > 0
                   ? "FAILED"
                   : "SUCCEEDED"
