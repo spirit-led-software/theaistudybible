@@ -6,14 +6,16 @@ import {
   neonConfig,
   type NeonQueryFunction,
 } from "@neondatabase/serverless";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
 import {
   drizzle as drizzleHttp,
   type NeonHttpDatabase,
 } from "drizzle-orm/neon-http";
 import {
   drizzle as drizzleWs,
-  type NeonDatabase,
+  type NeonQueryResultHKT,
 } from "drizzle-orm/neon-serverless";
+import type { PgTransaction } from "drizzle-orm/pg-core";
 import ws from "ws";
 
 export type RAIDatabaseConfigInput = {
@@ -102,42 +104,42 @@ export default {
 };
 
 export async function readWriteDbTxn<T>(
-  fn: (db: NeonDatabase<typeof schema>) => Promise<T>
+  fn: (
+    db: PgTransaction<
+      NeonQueryResultHKT,
+      typeof schema,
+      ExtractTablesWithRelations<typeof schema>
+    >
+  ) => Promise<T>
 ): Promise<T> {
   const client = readWriteDatabaseConfig.getWsClient();
   try {
     await client.connect();
-    await client.query("BEGIN");
-
     const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
-    const result = await fn(drizzle);
-
-    await client.query("COMMIT");
-    return result;
-  } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
+    return await drizzle.transaction(async (txn) => {
+      return await fn(txn);
+    });
   } finally {
     await client.end();
   }
 }
 
 export async function readOnlyDbTxn<T>(
-  fn: (db: NeonDatabase<typeof schema>) => Promise<T>
+  fn: (
+    db: PgTransaction<
+      NeonQueryResultHKT,
+      typeof schema,
+      ExtractTablesWithRelations<typeof schema>
+    >
+  ) => Promise<T>
 ): Promise<T> {
   const client = readOnlyDatabaseConfig.getWsClient();
   try {
     await client.connect();
-    await client.query("BEGIN");
-
     const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
-    const result = await fn(drizzle);
-
-    await client.query("COMMIT");
-    return result;
-  } catch (err) {
-    await client.query("ROLLBACK");
-    throw err;
+    return await drizzle.transaction(async (txn) => {
+      return await fn(txn);
+    });
   } finally {
     await client.end();
   }
