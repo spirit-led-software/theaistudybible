@@ -5,23 +5,23 @@ import {
 import { Embeddings, type EmbeddingsParams } from "langchain/embeddings/base";
 import type { CredentialType } from "../util/bedrock";
 
+export type BedrockEmbeddingProvider = "amazon" | "cohere";
+
 export type AmazonEmbeddingModel = "amazon.titan-embed-text-v1";
 
 export type CohereEmbeddingModel =
   | "cohere.embed-english-v3"
   | "cohere.embed-multilingual-v3";
 
-export type RAIBedrockEmbeddingModel =
-  | AmazonEmbeddingModel
-  | CohereEmbeddingModel;
+export type BedrockEmbeddingModel = AmazonEmbeddingModel | CohereEmbeddingModel;
 
-type RAIBedrockEmbeddingInputType =
+type CohereEmbeddingInputType =
   | "search_document"
   | "search_query"
   | "classification"
   | "clustering";
 
-type RAIBedrockEmbeddingTruncateSetting = "NONE" | "LEFT" | "RIGHT";
+type CohereEmbeddingTruncateSetting = "NONE" | "LEFT" | "RIGHT";
 
 /**
  * Interface that extends EmbeddingsParams and defines additional
@@ -41,9 +41,9 @@ export type RAIBedrockEmbeddingsParams = EmbeddingsParams & {
     | {
         model?: CohereEmbeddingModel;
 
-        inputType?: RAIBedrockEmbeddingInputType;
+        inputType?: CohereEmbeddingInputType;
 
-        truncate?: RAIBedrockEmbeddingTruncateSetting;
+        truncate?: CohereEmbeddingTruncateSetting;
       }
     | {
         model?: AmazonEmbeddingModel;
@@ -55,11 +55,11 @@ export type RAIBedrockEmbeddingsParams = EmbeddingsParams & {
  * generating embeddings using the Bedrock API.
  */
 export class RAIBedrockEmbeddings extends Embeddings {
-  model: RAIBedrockEmbeddingModel;
-  provider: string;
+  model: BedrockEmbeddingModel;
+  provider: BedrockEmbeddingProvider;
 
-  inputType?: RAIBedrockEmbeddingInputType;
-  truncate?: RAIBedrockEmbeddingTruncateSetting;
+  inputType?: CohereEmbeddingInputType;
+  truncate?: CohereEmbeddingTruncateSetting;
 
   client: BedrockRuntimeClient;
 
@@ -67,7 +67,7 @@ export class RAIBedrockEmbeddings extends Embeddings {
     super(fields ?? {});
 
     this.model = fields?.model ?? "amazon.titan-embed-text-v1";
-    this.provider = this.model.split(".")[0];
+    this.provider = this.model.split(".")[0] as BedrockEmbeddingProvider;
 
     // @ts-expect-error
     this.inputType = fields?.inputType;
