@@ -81,7 +81,7 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
           ${indexOperations.metadata}->>'totalUrls' IS NOT NULL AND 
           ${indexOperations.metadata}->>'succeededUrls' IS NOT NULL AND
           ${indexOperations.metadata}->>'failedUrls' IS NOT NULL AND
-          (${indexOperations.metadata}->'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.metadata}->'failedUrls}))
+          (${indexOperations.metadata}->>'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.metadata}->'failedUrls}))
         THEN
           CASE
             WHEN jsonb_array_length(${indexOperations.metadata}->'failedUrls') > 0
