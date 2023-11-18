@@ -42,10 +42,10 @@ export const consumer: SQSHandler = async (event) => {
         WHEN ${indexOperations.metadata}->>'succeededUrls' IS NULL
         THEN jsonb_set(${
           indexOperations.metadata
-        }, '{succeededUrls}', '${sql.raw(JSON.stringify([url]))}', true)
+        }, '{succeededUrls}', jsonb_build_array('${sql.raw(url)}'), true)
         ELSE jsonb_insert(${
           indexOperations.metadata
-        }, '{succeededUrls, -1}', '${sql.raw(JSON.stringify(url))}', true)
+        }, '{succeededUrls, -1}', '"${sql.raw(url)}"', true)
       END`,
     });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
@@ -54,6 +54,15 @@ export const consumer: SQSHandler = async (event) => {
 
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
+        metadata: sql`CASE 
+          WHEN ${indexOperations.metadata}->>'failedUrls' IS NULL
+          THEN jsonb_set(${
+            indexOperations.metadata
+          }, '{failedUrls}', jsonb_build_array('${sql.raw(url)}'), true)
+          ELSE jsonb_insert(${
+            indexOperations.metadata
+          }, '{failedUrls, -1}', '"${sql.raw(url)}"', true)
+        END`,
         errorMessages: sql`${indexOperations.errorMessages} || ${
           err.stack ?? err.message
         }`,
@@ -71,10 +80,11 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
         WHEN
           ${indexOperations.metadata}->>'totalUrls' IS NOT NULL AND 
           ${indexOperations.metadata}->>'succeededUrls' IS NOT NULL AND
-          (${indexOperations.metadata}->'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.errorMessages}))
+          ${indexOperations.metadata}->>'failedUrls' IS NOT NULL AND
+          (${indexOperations.metadata}->'totalUrls')::int <= (jsonb_array_length(${indexOperations.metadata}->'succeededUrls') + jsonb_array_length(${indexOperations.metadata}->'failedUrls}))
         THEN
           CASE
-            WHEN jsonb_array_length(${indexOperations.errorMessages}) > 0
+            WHEN jsonb_array_length(${indexOperations.metadata}->'failedUrls') > 0
             THEN 'FAILED'
             ELSE 'SUCCEEDED'
           END

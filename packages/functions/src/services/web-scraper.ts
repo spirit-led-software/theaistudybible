@@ -18,7 +18,7 @@ export async function generatePageContentEmbeddings(
   metadata: object
 ): Promise<void> {
   console.log(`Generating page content embeddings for url '${url}'`);
-  let success = false;
+  let error: any | undefined = undefined;
   let docs: Document<Record<string, any>>[] | undefined = undefined;
   for (let retries = 0; retries < 5; retries++) {
     console.log(`Attempt ${retries + 1} of 5`);
@@ -75,15 +75,16 @@ export async function generatePageContentEmbeddings(
         numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`,
       });
 
-      success = true;
+      error = undefined;
       break;
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed attempt:", err);
+      error = err;
     }
   }
-  if (!success) {
+  if (error) {
     throw new Error(
-      `Failed to generate page content embeddings for url '${url}'`
+      `Failed to generate page content embeddings for url '${url}'\n${error.stack}`
     );
   }
 }

@@ -176,6 +176,9 @@ export async function indexWebCrawl({
       status: "RUNNING",
       metadata: {
         ...metadata,
+        succeededUrls: [],
+        failedUrls: [],
+        totalUrls: 0,
         name,
         baseUrl,
         urlRegex: urlRegex.source,
@@ -202,7 +205,7 @@ export async function indexWebCrawl({
       `Successfully crawled ${urlCount} urls. Updating index op status.`
     );
     indexOp = await updateIndexOperation(indexOp!.id, {
-      metadata: `${indexOperations.metadata} || ${JSON.stringify({
+      metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
         totalUrls: urlCount,
       })}`,
     });
