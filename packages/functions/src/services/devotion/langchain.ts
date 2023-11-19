@@ -23,7 +23,7 @@ import {
 
 const devotionOutputParser = OutputFixingParser.fromLLM(
   getLargeContextModel({
-    promptPrefix: "<output>",
+    promptSuffix: "<output>",
     stopSequences: ["</output>"],
     temperature: 0,
     topK: 1,
@@ -117,7 +117,7 @@ export const getDevotionGeneratorChain = async (): Promise<
 
 const bibleReadingOutputParser = OutputFixingParser.fromLLM(
   getLargeContextModel({
-    promptPrefix: "<output>",
+    promptSuffix: "<output>",
     stopSequences: ["</output>"],
     temperature: 0,
     topK: 1,
