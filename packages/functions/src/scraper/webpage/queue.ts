@@ -76,7 +76,7 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
     console.log(`Checking if index op is completed: ${indexOp.id}`);
     return await updateIndexOperation(indexOp.id, {
       status: sql`CASE
-        WHEN COALESCE(${indexOperations.metadata}->>'totalUrls', '0')::int >=
+        WHEN COALESCE(${indexOperations.metadata}->>'totalUrls', '0')::int <=
           (
             COALESCE(jsonb_array_length(${indexOperations.metadata}->'succeededUrls'), 0) +
             COALESCE(jsonb_array_length(${indexOperations.metadata}->'failedUrls'), 0)
