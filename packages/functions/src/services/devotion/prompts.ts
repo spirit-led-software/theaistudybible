@@ -123,21 +123,22 @@ Put the caption you come up with within <output></output> XML tags.`;
 
 export const DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE = `You are an expert at fixing text completions from LLMs that are not formatted correctly. Your goal is to fix the completion provided to you so that it fixes the error and follows the formatting instructions exactly.
 
-Here is the error that you are to fix, within <error></error> XML tags. Read the error carefully, as it will tell you what is wrong with the completion.
-<error>
-{error}
-</error>
-
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output must fix the error.
 - You are only allowed to change the formatting of the completion.
 - You are not allowed to change the words in the completion.
+- Pay attention to the placement of quotation marks, brackets, and parentheses.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
 <completion>
 {completion}
 </completion>
+
+Here is the error that you are to fix, within <error></error> XML tags. Read the error carefully, as it will tell you what is wrong with the completion.
+<error>
+{error}
+</error>
 
 Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
