@@ -38,8 +38,18 @@ export const consumer: SQSHandler = async (event) => {
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
     indexOp = await updateIndexOperation(indexOp.id, {
+      // Remove the url from the failedUrls array if it exists
+      // Add the url to the succeededUrls array
       metadata: sql`jsonb_set(
-        ${indexOperations.metadata},
+        jsonb_set(
+          ${indexOperations.metadata},
+          '{failedUrls}',
+          COALESCE(
+            ${indexOperations.metadata}->'failedUrls',
+            '[]'::jsonb
+          ) - '${sql.raw(url)}',
+          true
+        ),
         '{succeededUrls}',
         COALESCE(
           ${indexOperations.metadata}->'succeededUrls',
