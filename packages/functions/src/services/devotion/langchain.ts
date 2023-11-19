@@ -23,6 +23,7 @@ import {
 
 const devotionOutputParser = OutputFixingParser.fromLLM(
   getLargeContextModel({
+    modelId: "anthropic.claude-v2",
     promptSuffix: "<output>",
     stopSequences: ["</output>"],
     temperature: 0.1,
@@ -117,6 +118,7 @@ export const getDevotionGeneratorChain = async (): Promise<
 
 const bibleReadingOutputParser = OutputFixingParser.fromLLM(
   getLargeContextModel({
+    modelId: "anthropic.claude-v2",
     promptSuffix: "<output>",
     stopSequences: ["</output>"],
     temperature: 0.1,

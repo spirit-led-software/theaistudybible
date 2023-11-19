@@ -127,8 +127,7 @@ Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output must fix the error.
 - You are only allowed to change the formatting of the completion.
-- You are not allowed to change the words in the completion.
-- Pay attention to the placement of quotation marks, brackets, and parentheses.
+- Pay attention to the placement of escaped and unescaped quotation marks, brackets, and parentheses.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
 <completion>
