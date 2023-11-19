@@ -121,9 +121,9 @@ Think carefully about your output first before you respond.
 
 Put the caption you come up with within <output></output> XML tags.`;
 
-export const DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE = `You are an expert at fixing text completions from LLMs that are not formatted correctly. Your goal is to fix the completion provided to you so that it follows the formatting instructions exactly. You will also be provided with the error that you are to fix.
+export const DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE = `You are an expert at fixing text completions from LLMs that are not formatted correctly. Your goal is to fix the completion provided to you so that it fixes the error and follows the formatting instructions exactly.
 
-Here is the error that you are to fix, within <error></error> XML tags.
+Here is the error that you are to fix, within <error></error> XML tags. Read the error carefully, as it will tell you what is wrong with the completion.
 <error>
 {error}
 </error>
@@ -132,7 +132,7 @@ Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output must fix the error.
 - You are only allowed to change the formatting of the completion.
-- You are not allowed to change any of the content of the completion.
+- You are not allowed to change the words in the completion.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
 <completion>
@@ -144,7 +144,7 @@ Here are the formatting instructions that you must follow exactly, within <forma
 {instructions}
 </format_instructions>
 
-Fix the completion so that it follows the formatting instructions exactly.
+Adjust the completion so that it fixes the error and follows the formatting instructions exactly.
 
 Think carefully about your output first before you respond.
 
