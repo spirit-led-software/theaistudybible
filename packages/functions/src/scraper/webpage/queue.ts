@@ -44,7 +44,7 @@ export const consumer: SQSHandler = async (event) => {
         COALESCE(
           ${indexOperations.metadata}->'succeededUrls',
           '[]'::jsonb
-        ) || jsonb_build_array(${url}),
+        ) || jsonb_build_array('${sql.raw(url)}'),
         true
       )`,
     });
@@ -54,13 +54,12 @@ export const consumer: SQSHandler = async (event) => {
 
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
-        metadata: sql`jsonb_set(
-          ${indexOperations.metadata}, 
+        metadata: sql`jsonb_set(${indexOperations.metadata}, 
           '{failedUrls}',
           COALESCE(
             ${indexOperations.metadata}->'failedUrls', 
             '[]'::jsonb
-          ) || jsonb_build_array(${url}),
+          ) || jsonb_build_array('${sql.raw(url)}'),
           true
         )`,
         errorMessages: sql`${indexOperations.errorMessages} || ${

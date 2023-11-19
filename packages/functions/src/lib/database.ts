@@ -35,9 +35,11 @@ export async function neonFetchFn(
       const response = await fetch(input, init);
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch ${input} ${JSON.stringify(init)}\nStatus: ${
-            response.status
-          } ${response.statusText}`
+          `Failed to fetch url=${input}\nrequest=${JSON.stringify(
+            init
+          )}\nresponseStatus=${response.status}\nresponseStatusText=${
+            response.statusText
+          }`
         );
       }
 
