@@ -20,6 +20,11 @@ export function Queues({ stack }: StackContext) {
       },
     },
     consumer: {
+      cdk: {
+        eventSource: {
+          batchSize: 1,
+        },
+      },
       function: {
         handler: "packages/functions/src/scraper/webpage/queue.consumer",
         environment: {
