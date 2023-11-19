@@ -25,8 +25,8 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
   getLargeContextModel({
     promptSuffix: "<output>",
     stopSequences: ["</output>"],
-    temperature: 0,
-    topK: 1,
+    temperature: 0.1,
+    topK: 5,
     topP: 0.1,
   }),
   StructuredOutputParser.fromZodSchema(
@@ -119,8 +119,8 @@ const bibleReadingOutputParser = OutputFixingParser.fromLLM(
   getLargeContextModel({
     promptSuffix: "<output>",
     stopSequences: ["</output>"],
-    temperature: 0,
-    topK: 1,
+    temperature: 0.1,
+    topK: 5,
     topP: 0.1,
   }),
   StructuredOutputParser.fromZodSchema(
