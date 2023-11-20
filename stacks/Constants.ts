@@ -35,6 +35,7 @@ export function Constants({ stack, app }: StackContext) {
     timeout: "60 seconds",
     runtime: "nodejs18.x",
     architecture: "x86_64",
+    logRetention: stack.stage === "prod" ? "one_week" : "one_day",
   });
 
   const invokeBedrockPolicy = new PolicyStatement({

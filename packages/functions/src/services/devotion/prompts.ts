@@ -13,7 +13,7 @@ Here are some important rules for you to follow:
 - Your output must be a valid Bible reading in the ESV translation.
 - If you cannot find a Bible reading, you must respond with "No Bible reading found."
 
-Here are some off limits Bible readings that you cannot use, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <bible_reading></bible_reading> XML tags.
+Here are some off limits Bible readings that you cannot use, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <off_limits_bible_reading></off_limits_bible_reading> XML tags.
 <off_limits_bible_readings>
 {previousBibleReadings}
 </off_limits_bible_readings>

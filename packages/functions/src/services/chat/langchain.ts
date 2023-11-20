@@ -1,4 +1,3 @@
-import { envConfig } from "@core/configs";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import {
   CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
@@ -196,7 +195,12 @@ export async function getDocumentQaChain(options: {
   );
   const qaRetriever = await getDocumentVectorStore({
     filters,
-  }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
+  }).then((store) =>
+    store.asRetriever({
+      k: 7,
+      verbose: true,
+    })
+  );
   const qaChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query,
