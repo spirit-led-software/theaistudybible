@@ -4,7 +4,11 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { deleteDataSource, getDataSource } from "@services/data-source";
+import {
+  deleteDataSource,
+  deleteDataSourceRelatedDocuments,
+  getDataSource,
+} from "@services/data-source";
 import { validApiHandlerSession } from "@services/session";
 import { ApiHandler } from "sst/node/api";
 
@@ -22,7 +26,10 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    await deleteDataSource(dataSource!.id);
+    await Promise.all([
+      deleteDataSource(dataSource!.id),
+      deleteDataSourceRelatedDocuments(dataSource!.id),
+    ]);
 
     return DeletedResponse();
   } catch (error: any) {

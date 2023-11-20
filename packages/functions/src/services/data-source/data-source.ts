@@ -63,7 +63,7 @@ export async function createDataSource(data: CreateDataSourceData) {
 }
 
 export async function updateDataSource(id: string, data: UpdateDataSourceData) {
-  const dataSource = (
+  return (
     await readWriteDatabase
       .update(dataSources)
       .set({
@@ -73,15 +73,9 @@ export async function updateDataSource(id: string, data: UpdateDataSourceData) {
       .where(eq(dataSources.id, id))
       .returning()
   )[0];
-
-  if (data.id || data.metadata) {
-    await updateRelatedDocuments(id, dataSource);
-  }
-
-  return dataSource;
 }
 
-async function updateRelatedDocuments(
+export async function updateDataSourceRelatedDocuments(
   dataSourceId: string,
   dataSource: DataSource
 ) {
@@ -105,16 +99,15 @@ async function updateRelatedDocuments(
 }
 
 export async function deleteDataSource(id: string) {
-  return await Promise.all([
-    deleteRelatedDocuments(id),
-    readWriteDatabase
+  return (
+    await readWriteDatabase
       .delete(dataSources)
       .where(eq(dataSources.id, id))
-      .returning(),
-  ]).then(([, deleted]) => deleted[0]);
+      .returning()
+  )[0];
 }
 
-async function deleteRelatedDocuments(dataSourceId: string) {
+export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {
   const vectorDb = await getDocumentVectorStore();
   await vectorDb.transaction(async (client) => {
     return await client.query(

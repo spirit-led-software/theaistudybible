@@ -4,7 +4,11 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getDataSource, updateDataSource } from "@services/data-source";
+import {
+  getDataSource,
+  updateDataSource,
+  updateDataSourceRelatedDocuments,
+} from "@services/data-source";
 import { validApiHandlerSession } from "@services/session";
 import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
@@ -24,7 +28,10 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    dataSource = await updateDataSource(dataSource!.id, data);
+    [dataSource] = await Promise.all([
+      updateDataSource(dataSource!.id, data),
+      updateDataSourceRelatedDocuments(dataSource!.id, dataSource!),
+    ]);
 
     return OkResponse(dataSource);
   } catch (error: any) {
