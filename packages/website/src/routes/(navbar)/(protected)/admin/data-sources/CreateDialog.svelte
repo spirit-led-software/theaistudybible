@@ -193,6 +193,7 @@
 			}
 
 			createDialog?.close();
+			event.currentTarget.reset();
 		} catch (e: any) {
 			alert(e.message);
 		} finally {
