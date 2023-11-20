@@ -330,7 +330,10 @@ export class NeonVectorStore extends VectorStore {
           await client.query(
             `CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
               USING hnsw (embedding vector_l2_ops)
-              WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});`
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              );`
           );
         } else if (this.distance === "cosine") {
           this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
@@ -338,7 +341,10 @@ export class NeonVectorStore extends VectorStore {
           await client.query(
             `CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
               USING hnsw (embedding vector_cosine_ops)
-              WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});`
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              );`
           );
         } else if (this.distance === "innerProduct") {
           this._log(`Creating inner product HNSW index on ${this.tableName}.`);
@@ -346,11 +352,21 @@ export class NeonVectorStore extends VectorStore {
           await client.query(
             `CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
               USING hnsw (embedding vector_ip_ops)
-              WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});`
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              );`
           );
         } else {
           throw new Error(`Unknown distance metric ${this.distance}`);
         }
+
+        this._log(`Creating GIN index of metadata on ${this.tableName}.`);
+        await client.query(
+          `CREATE INDEX IF NOT EXISTS ${this.tableName}_gin_metadata_idx
+            ON ${this.tableName}
+            USING GIN (metadata);`
+        );
       });
     } catch (e) {
       this._log("Error ensuring table in database:", e);
