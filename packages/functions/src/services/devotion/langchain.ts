@@ -151,7 +151,8 @@ export const getBibleReadingChain = async (topic: string) => {
   const retriever = await getDocumentVectorStore({
     filters: [
       {
-        name: "YouVersion - ESV 2016",
+        category: "bible",
+        translation: "ESV",
       },
     ],
   }).then((store) => store.asRetriever(50));
