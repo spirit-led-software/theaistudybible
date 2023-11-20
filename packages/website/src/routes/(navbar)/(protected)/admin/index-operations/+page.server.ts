@@ -2,11 +2,13 @@ import { getIndexOperations } from '$lib/services/data-source/index-op';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
+	const limit = 50;
 	const { indexOperations } = await getIndexOperations({
-		limit: 100,
+		limit,
 		session: locals.session!
 	});
 	return {
-		indexOperations
+		indexOperations,
+		limit
 	};
 };

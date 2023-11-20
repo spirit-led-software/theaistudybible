@@ -13,15 +13,13 @@
 	let createDialog: SvelteComponent | undefined = undefined;
 	let dataSources: DataSource[] = [];
 
-	const fetchDataSources = async ({ pageParam = 1 }) => {
-		return await getDataSources({ limit: 20, page: pageParam, session: $session! }).then(
-			(r) => r.dataSources
-		);
-	};
-
 	const query = createInfiniteQuery({
 		queryKey: ['infinite-data-sources'],
-		queryFn: fetchDataSources,
+		queryFn: async ({ pageParam = 1 }) => {
+			return await getDataSources({ limit: data.limit, page: pageParam, session: $session! }).then(
+				(r) => r.dataSources
+			);
+		},
 		getNextPageParam: (lastPage, pages) => {
 			if (lastPage.length < 7) return undefined;
 			return pages.length + 1;

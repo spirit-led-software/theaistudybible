@@ -8,11 +8,23 @@
 	import { SolidLineSpinner } from '../loading';
 
 	export let initIndexOps: IndexOperation[] = [];
+	export let limit = 50;
 
-	let limit = 100;
 	let indexOps: IndexOperation[] = [];
 	let isLoading = false;
 	let alert: { type: 'error' | 'success'; message: string } | undefined = undefined;
+
+	const query = createQuery({
+		queryKey: ['index-operations'],
+		queryFn: () => getIndexOperations({ limit, session: $session! }).then((r) => r.indexOperations),
+		initialData: initIndexOps,
+		refetchInterval: 8000
+	});
+	query.subscribe(({ data, isSuccess }) => {
+		if (isSuccess) {
+			indexOps = data;
+		}
+	});
 
 	const handleUpdateStatus = async (
 		event: Event & { currentTarget: EventTarget & HTMLSelectElement },
@@ -30,18 +42,6 @@
 			isLoading = false;
 		}
 	};
-
-	const query = createQuery({
-		queryKey: ['index-operations'],
-		queryFn: () => getIndexOperations({ limit, session: $session! }).then((r) => r.indexOperations),
-		initialData: initIndexOps,
-		refetchInterval: 8000
-	});
-	query.subscribe(({ data, isSuccess }) => {
-		if (isSuccess) {
-			indexOps = data;
-		}
-	});
 
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 </script>
