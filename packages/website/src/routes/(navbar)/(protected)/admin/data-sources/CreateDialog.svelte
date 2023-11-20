@@ -18,6 +18,10 @@
 	let typeSelect: HTMLSelectElement | undefined = undefined;
 	let typeSelection: string | undefined = undefined;
 
+	let nameInput: HTMLInputElement | undefined = undefined;
+	let titleInput: HTMLInputElement | undefined = undefined;
+	let authorInput: HTMLInputElement | undefined = undefined;
+
 	const client = useQueryClient();
 
 	const handleCreate = async ({
@@ -218,6 +222,20 @@
 				placeholder="Name*"
 				class="w-full input input-bordered"
 				required
+				bind:this={nameInput}
+				on:focusout={() => {
+					const parts = nameInput?.value.split('by') ?? [];
+					if (parts.length < 2) {
+						return;
+					}
+
+					if (titleInput) {
+						titleInput.value = titleInput.value || parts[0].replaceAll(/"/g, '').trim();
+					}
+					if (authorInput) {
+						authorInput.value = authorInput.value || parts[1].trim();
+					}
+				}}
 			/>
 			<input
 				type="url"
@@ -227,8 +245,20 @@
 				required
 			/>
 			{#if typeSelection === 'FILE' || typeSelection === 'REMOTE_FILE'}
-				<input type="text" name="title" placeholder="Title" class="w-full input input-bordered" />
-				<input type="text" name="author" placeholder="Author" class="w-full input input-bordered" />
+				<input
+					type="text"
+					name="title"
+					placeholder="Title"
+					class="w-full input input-bordered"
+					bind:this={titleInput}
+				/>
+				<input
+					type="text"
+					name="author"
+					placeholder="Author"
+					class="w-full input input-bordered"
+					bind:this={authorInput}
+				/>
 			{/if}
 			{#if typeSelection === 'FILE'}
 				<input
