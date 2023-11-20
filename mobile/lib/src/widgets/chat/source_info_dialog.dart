@@ -35,22 +35,26 @@ class SourceInfoDialog extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    sourceDocument.name,
+                    sourceDocument.hasTitle ? sourceDocument.title! : sourceDocument.name,
                     textAlign: TextAlign.center,
                     style: context.textTheme.titleLarge,
                   ),
                   const SizedBox(height: 10),
-                  if (sourceDocument.isWebpage) ...[
+                  if (sourceDocument.isWebpage && !sourceDocument.hasTitle) ...[
                     Text(
-                      sourceDocument.hasTitle
-                          ? sourceDocument.title!
-                          : Uri.parse(
-                              sourceDocument.url,
-                            ).pathSegments.lastWhere((element) => element.isNotEmpty),
+                      Uri.parse(
+                        sourceDocument.url,
+                      ).pathSegments.lastWhere((element) => element.isNotEmpty),
                       textAlign: TextAlign.center,
                     ),
                   ],
                   if (sourceDocument.isFile) ...[
+                    if (sourceDocument.hasAuthor) ...[
+                      Text(
+                        sourceDocument.author!,
+                        style: context.textTheme.titleSmall,
+                      ),
+                    ],
                     if (sourceDocument.hasPageNumbers) ...[
                       Text(
                         'Page(s): ${sourceDocument.pageNumbers!.keys.join(', ')}',

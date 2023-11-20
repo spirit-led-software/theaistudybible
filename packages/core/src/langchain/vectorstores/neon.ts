@@ -1,4 +1,3 @@
-import type { QueryResult } from "@neondatabase/serverless";
 import {
   Client,
   neon,
@@ -59,19 +58,19 @@ const distanceOperators = {
 
 export class NeonVectorStore extends VectorStore {
   declare FilterType: Metadata;
-  tableName: string;
-  filters: Metadata[];
-  dimensions: number;
-  verbose: boolean;
-  distance: DistanceMetric;
-  hnswIdxM: number;
-  hnswIdxEfConstruction: number;
+  readonly tableName: string;
+  readonly filters: Metadata[];
+  readonly dimensions: number;
+  readonly verbose: boolean;
+  readonly distance: DistanceMetric;
+  readonly hnswIdxM: number;
+  readonly hnswIdxEfConstruction: number;
 
-  readOnlyUrl: string;
-  readOnlyQueryFn: NeonQueryFunction<false, false>;
+  private readonly readOnlyUrl: string;
+  private readonly readOnlyQueryFn: NeonQueryFunction<false, false>;
 
-  readWriteUrl: string;
-  readWriteQueryFn: NeonQueryFunction<false, false>;
+  private readonly readWriteUrl: string;
+  private readonly readWriteQueryFn: NeonQueryFunction<false, false>;
 
   _vectorstoreType(): string {
     return "neon";
@@ -198,56 +197,51 @@ export class NeonVectorStore extends VectorStore {
       `Searching for documents\nembedding=${embeddingString}\nk=${k}\nfilter='${_filter}'\noffset=${_offset}`
     );
 
-    let client: Client | undefined;
     try {
-      client = new Client(this.readOnlyUrl);
-
-      this._log("Connecting to database");
-      await client.connect();
-
-      let documents: QueryResult<any>;
-      if (this.distance === "l2") {
-        documents = await client.query(
-          `SELECT *, embedding ${
-            distanceOperators[this.distance]
-          } $1 AS "_distance"
+      const docRows = await this.readOperation(async (client) => {
+        if (this.distance === "l2") {
+          return await client.query(
+            `SELECT *, embedding ${
+              distanceOperators[this.distance]
+            } $1 AS "_distance"
             FROM ${this.tableName}
             ${_filter ? `WHERE (${_filter})` : ""}
             ORDER BY "_distance" ASC
             LIMIT $2
             OFFSET $3;`,
-          [embeddingString, k, _offset]
-        );
-      } else if (this.distance === "cosine") {
-        documents = await client.query(
-          `SELECT *, embedding ${
-            distanceOperators[this.distance]
-          } $1 AS "_distance"
+            [embeddingString, k, _offset]
+          );
+        } else if (this.distance === "cosine") {
+          return await client.query(
+            `SELECT *, embedding ${
+              distanceOperators[this.distance]
+            } $1 AS "_distance"
             FROM ${this.tableName}
             ${_filter ? `WHERE (${_filter})` : ""}
             ORDER BY "_distance" ASC
             LIMIT $2
             OFFSET $3;`,
-          [embeddingString, k, _offset]
-        );
-      } else if (this.distance === "innerProduct") {
-        documents = await client.query(
-          `SELECT *, (embedding ${
-            distanceOperators[this.distance]
-          } $1) * -1 AS "_distance"
+            [embeddingString, k, _offset]
+          );
+        } else if (this.distance === "innerProduct") {
+          return await client.query(
+            `SELECT *, (embedding ${
+              distanceOperators[this.distance]
+            } $1) * -1 AS "_distance"
             FROM ${this.tableName}
             ${_filter ? `WHERE (${_filter})` : ""}
             ORDER BY "_distance" DESC
             LIMIT $2
             OFFSET $3;`,
-          [embeddingString, k, _offset]
-        );
-      } else {
-        throw new Error(`Unknown distance metric ${this.distance}`);
-      }
+            [embeddingString, k, _offset]
+          );
+        } else {
+          throw new Error(`Unknown distance metric ${this.distance}`);
+        }
+      });
 
       const results: [NeonVectorStoreDocument, number][] = [];
-      for (const doc of documents.rows) {
+      for (const doc of docRows.rows) {
         if (doc._distance != null && doc.page_content != null) {
           const document = new NeonVectorStoreDocument({
             id: doc.id,
@@ -263,18 +257,13 @@ export class NeonVectorStore extends VectorStore {
 
       this._log(
         `Found ${
-          documents.rows.length
+          docRows.rows.length
         } similar results from vector store: ${JSON.stringify(results)}`
       );
       return results;
     } catch (e) {
       this._log(`Error searching vector store: ${e}`);
       throw e;
-    } finally {
-      if (client) {
-        this._log("Closing database connection");
-        await client.end();
-      }
     }
   }
 
@@ -284,31 +273,24 @@ export class NeonVectorStore extends VectorStore {
   ): Promise<NeonVectorStoreDocument[]> {
     const _filter = this._generateFiltersString(filter);
     this._log(`Getting documents\nids=${ids}\nfilter='${_filter}'`);
-
-    let client: Client | undefined;
     try {
-      client = new Client(this.readOnlyUrl);
-
-      this._log("Connecting to database");
-      await client.connect();
-
-      const documentsResult = await client.query(
-        `SELECT * FROM ${this.tableName}
-        WHERE (
-          id = ANY($1)
-          ${_filter ? `AND (${_filter})` : ""}
-        );`,
-        [ids]
-      );
+      const docRows = await this.readOperation(async (client) => {
+        return await client.query(
+          `SELECT * FROM ${this.tableName}
+          WHERE (
+            id = ANY($1)
+            ${_filter ? `AND (${_filter})` : ""}
+          );`,
+          [ids]
+        );
+      });
 
       this._log(
         `Found ${
-          documentsResult.rows.length
-        } documents by ids from vector store: ${JSON.stringify(
-          documentsResult.rows
-        )}`
+          docRows.rows.length
+        } documents by ids from vector store: ${JSON.stringify(docRows.rows)}`
       );
-      return documentsResult.rows.map((row) => {
+      return docRows.rows.map((row) => {
         return new NeonVectorStoreDocument({
           id: row.id,
           metadata: row.metadata,
@@ -319,11 +301,6 @@ export class NeonVectorStore extends VectorStore {
     } catch (e) {
       this._log(`Error getting documents by ids from vector store: ${e}`);
       throw e;
-    } finally {
-      if (client) {
-        this._log("Closing database connection");
-        await client.end();
-      }
     }
   }
 
@@ -332,61 +309,52 @@ export class NeonVectorStore extends VectorStore {
    * Only needs to be called once. Will not overwrite existing table or index.
    */
   async ensureTableInDatabase(): Promise<void> {
-    let client: Client | undefined;
     try {
-      client = new Client(this.readWriteUrl);
+      await this.transaction(async (client) => {
+        this._log("Creating vector extension");
+        await client.query("CREATE EXTENSION IF NOT EXISTS vector;");
 
-      this._log("Connecting to database");
-      await client.connect();
-
-      this._log("Creating vector extension");
-      await client.query("CREATE EXTENSION IF NOT EXISTS vector;");
-
-      this._log(`Creating table ${this.tableName}`);
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS ${this.tableName} (
-          "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-          page_content text,
-          metadata jsonb,
-          embedding vector(${this.dimensions})
-        );
-      `);
-
-      if (this.distance === "l2") {
-        this._log(`Creating L2 HNSW index on ${this.tableName}.`);
-        const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
+        this._log(`Creating table ${this.tableName}`);
         await client.query(`
-        CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
-          USING hnsw (embedding vector_l2_ops)
-          WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
-      `);
-      } else if (this.distance === "cosine") {
-        this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
-        const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
-        await client.query(`
-        CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
-          USING hnsw (embedding vector_cosine_ops)
-          WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
-      `);
-      } else if (this.distance === "innerProduct") {
-        this._log(`Creating inner product HNSW index on ${this.tableName}.`);
-        const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
-        await client.query(`
-        CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
-          USING hnsw (embedding vector_ip_ops)
-          WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});
-      `);
-      } else {
-        throw new Error(`Unknown distance metric ${this.distance}`);
-      }
+          CREATE TABLE IF NOT EXISTS ${this.tableName} (
+            "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+            page_content text,
+            metadata jsonb,
+            embedding vector(${this.dimensions})
+          );
+        `);
+
+        if (this.distance === "l2") {
+          this._log(`Creating L2 HNSW index on ${this.tableName}.`);
+          const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
+          await client.query(
+            `CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
+              USING hnsw (embedding vector_l2_ops)
+              WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});`
+          );
+        } else if (this.distance === "cosine") {
+          this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
+          const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
+          await client.query(
+            `CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
+              USING hnsw (embedding vector_cosine_ops)
+              WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});`
+          );
+        } else if (this.distance === "innerProduct") {
+          this._log(`Creating inner product HNSW index on ${this.tableName}.`);
+          const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
+          await client.query(
+            `CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
+              USING hnsw (embedding vector_ip_ops)
+              WITH (m = ${this.hnswIdxM}, ef_construction = ${this.hnswIdxEfConstruction});`
+          );
+        } else {
+          throw new Error(`Unknown distance metric ${this.distance}`);
+        }
+      });
     } catch (e) {
       this._log("Error ensuring table in database:", e);
       throw e;
-    } finally {
-      if (client) {
-        this._log("Closing database connection");
-        await client.end();
-      }
     }
   }
 
@@ -398,36 +366,27 @@ export class NeonVectorStore extends VectorStore {
   }
 
   async dropHnswIndex(): Promise<void> {
-    let client: Client | undefined;
     try {
-      client = new Client(this.readWriteUrl);
-
-      this._log("Connecting to database");
-      await client.connect();
-
-      if (this.distance === "l2") {
-        this._log(`Dropping L2 HNSW index on ${this.tableName}.`);
-        const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
-        await client.query(`DROP INDEX IF EXISTS ${l2IndexName};`);
-      } else if (this.distance === "cosine") {
-        this._log(`Dropping Cosine HNSW index on ${this.tableName}.`);
-        const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
-        await client.query(`DROP INDEX IF EXISTS ${cosineIndexName};`);
-      } else if (this.distance === "innerProduct") {
-        this._log(`Dropping inner product HNSW index on ${this.tableName}.`);
-        const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
-        await client.query(`DROP INDEX IF EXISTS ${ipIndexName};`);
-      } else {
-        throw new Error(`Unknown distance metric ${this.distance}`);
-      }
+      await this.transaction(async (client) => {
+        if (this.distance === "l2") {
+          this._log(`Dropping L2 HNSW index on ${this.tableName}.`);
+          const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
+          await client.query(`DROP INDEX IF EXISTS ${l2IndexName};`);
+        } else if (this.distance === "cosine") {
+          this._log(`Dropping Cosine HNSW index on ${this.tableName}.`);
+          const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
+          await client.query(`DROP INDEX IF EXISTS ${cosineIndexName};`);
+        } else if (this.distance === "innerProduct") {
+          this._log(`Dropping inner product HNSW index on ${this.tableName}.`);
+          const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
+          await client.query(`DROP INDEX IF EXISTS ${ipIndexName};`);
+        } else {
+          throw new Error(`Unknown distance metric ${this.distance}`);
+        }
+      });
     } catch (e) {
       this._log("Error dropping HNSW index:", e);
       throw e;
-    } finally {
-      if (client) {
-        this._log("Closing database connection");
-        await client.end();
-      }
     }
   }
 
@@ -457,6 +416,57 @@ export class NeonVectorStore extends VectorStore {
         ${_filter}
       );`
     );
+  }
+
+  async transaction<T>(fn: (client: Client) => Promise<T>): Promise<T> {
+    let client: Client | undefined;
+    try {
+      client = new Client(this.readWriteUrl);
+      this._log("Connecting to database");
+      await client.connect();
+
+      this._log("Beginning transaction");
+      await client.query("BEGIN;");
+
+      const response = await fn(client);
+
+      this._log("Committing transaction");
+      await client.query("COMMIT;");
+
+      return response;
+    } catch (e) {
+      this._log("Error in transaction:", e);
+      if (client) {
+        this._log("Rolling back transaction");
+        await client.query("ROLLBACK;");
+      }
+      throw e;
+    } finally {
+      if (client) {
+        this._log("Closing database connection");
+        await client.end();
+      }
+    }
+  }
+
+  async readOperation<T>(fn: (client: Client) => Promise<T>): Promise<T> {
+    let client: Client | undefined;
+    try {
+      client = new Client(this.readOnlyUrl);
+
+      this._log("Connecting to database");
+      await client.connect();
+
+      return await fn(client);
+    } catch (e) {
+      this._log("Error in read operation:", e);
+      throw e;
+    } finally {
+      if (client) {
+        this._log("Closing database connection");
+        await client.end();
+      }
+    }
   }
 
   static async fromTexts(

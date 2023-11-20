@@ -107,7 +107,7 @@ export default {
   readWriteDatabase,
 };
 
-export async function readWriteDbTxn<T>(
+export async function transaction<T>(
   fn: (
     db: PgTransaction<
       NeonQueryResultHKT,
@@ -117,25 +117,6 @@ export async function readWriteDbTxn<T>(
   ) => Promise<T>
 ): Promise<T> {
   const client = readWriteDatabaseConfig.getWsClient();
-  try {
-    await client.connect();
-    const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
-    return await drizzle.transaction(fn);
-  } finally {
-    await client.end();
-  }
-}
-
-export async function readOnlyDbTxn<T>(
-  fn: (
-    db: PgTransaction<
-      NeonQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >
-  ) => Promise<T>
-): Promise<T> {
-  const client = readOnlyDatabaseConfig.getWsClient();
   try {
     await client.connect();
     const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });

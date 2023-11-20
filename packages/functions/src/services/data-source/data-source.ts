@@ -81,20 +81,22 @@ async function updateRelatedDocuments(
   dataSource: DataSource
 ) {
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.readWriteQueryFn(
-    `UPDATE ${vectorDb.tableName} 
-    SET metadata = metadata || $1::jsonb
-    WHERE (
-      metadata->>'dataSourceId' = $2
-    );`,
-    [
-      JSON.stringify({
-        ...dataSource.metadata,
-        dataSourceId: dataSource.id,
-      }),
-      dataSourceId,
-    ]
-  );
+  await vectorDb.transaction(async (client) => {
+    return await client.query(
+      `UPDATE ${vectorDb.tableName} 
+      SET metadata = metadata || $1::jsonb
+      WHERE (
+        metadata->>'dataSourceId' = $2
+      );`,
+      [
+        JSON.stringify({
+          ...dataSource.metadata,
+          dataSourceId: dataSource.id,
+        }),
+        dataSourceId,
+      ]
+    );
+  });
 }
 
 export async function deleteDataSource(id: string) {
@@ -109,13 +111,15 @@ export async function deleteDataSource(id: string) {
 
 async function deleteRelatedDocuments(dataSourceId: string) {
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.readWriteQueryFn(
-    `DELETE FROM ${vectorDb.tableName} 
-    WHERE (
-      metadata->>'dataSourceId' = $1
-    );`,
-    [dataSourceId]
-  );
+  await vectorDb.transaction(async (client) => {
+    return await client.query(
+      `DELETE FROM ${vectorDb.tableName} 
+      WHERE (
+        metadata->>'dataSourceId' = $1
+      );`,
+      [dataSourceId]
+    );
+  });
 }
 
 export async function syncDataSource(
@@ -205,15 +209,17 @@ export async function syncDataSource(
 
   // Delete old vectors
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.readWriteQueryFn(
-    `DELETE FROM ${vectorDb.tableName} 
-    WHERE (
-      metadata->>'dataSourceId' = $1
-      AND
-      metadata->>'indexDate' < $2
-    );`,
-    [dataSource.id, syncDate]
-  );
+  await vectorDb.transaction(async (client) => {
+    return await client.query(
+      `DELETE FROM ${vectorDb.tableName} 
+      WHERE (
+        metadata->>'dataSourceId' = $1
+        AND
+        metadata->>'indexDate' < $2
+      );`,
+      [dataSource.id, syncDate]
+    );
+  });
 
   return dataSource;
 }

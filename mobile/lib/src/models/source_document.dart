@@ -41,6 +41,9 @@ class SourceDocument with _$SourceDocument {
   bool get hasTitle => metadata['title'] != null;
   String? get title => metadata['title'];
 
+  bool get hasAuthor => metadata['author'] != null;
+  String? get author => metadata['author'];
+
   bool get hasPageNumber => metadata["loc"]["pageNumber"] != null;
   int? get pageNumber => metadata["loc"]["pageNumber"];
 

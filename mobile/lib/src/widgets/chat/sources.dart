@@ -10,7 +10,7 @@ import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
-import 'package:revelationsai/src/widgets/source_info_dialog.dart';
+import 'package:revelationsai/src/widgets/chat/source_info_dialog.dart';
 import 'package:url_launcher/link.dart';
 
 class Sources extends HookConsumerWidget {
@@ -150,25 +150,30 @@ class Sources extends HookConsumerWidget {
                       titleTextStyle: TextStyle(
                         color: context.colorScheme.onPrimary,
                       ),
-                      subtitle: !source.hasTitle
-                          ? Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (source.isWebpage) ...[
-                                  Text(
-                                    Uri.parse(
-                                      source.url,
-                                    ).pathSegments.lastWhere((element) => element.isNotEmpty),
-                                    textAlign: TextAlign.center,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ],
-                            )
-                          : null,
+                      subtitle: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (source.isWebpage && !source.hasTitle) ...[
+                            Text(
+                              Uri.parse(
+                                source.url,
+                              ).pathSegments.lastWhere((element) => element.isNotEmpty),
+                              textAlign: TextAlign.center,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                          if (source.isFile) ...[
+                            if (source.hasAuthor) ...[
+                              Text(
+                                source.author!,
+                              ),
+                            ],
+                          ],
+                        ],
+                      ),
                       subtitleTextStyle: TextStyle(
                         color: context.colorScheme.onPrimary,
                       ),
