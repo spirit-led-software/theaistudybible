@@ -268,10 +268,19 @@ export function API({ stack, app }: StackContext) {
         "packages/functions/src/rest/data-sources/search/post.handler",
       "GET /data-sources/{id}":
         "packages/functions/src/rest/data-sources/[id]/get.handler",
-      "PUT /data-sources/{id}":
-        "packages/functions/src/rest/data-sources/[id]/put.handler",
-      "DELETE /data-sources/{id}":
-        "packages/functions/src/rest/data-sources/[id]/delete.handler",
+      "PUT /data-sources/{id}": {
+        function: {
+          handler: "packages/functions/src/rest/data-sources/[id]/put.handler",
+          timeout: "15 minutes",
+        },
+      },
+      "DELETE /data-sources/{id}": {
+        function: {
+          handler:
+            "packages/functions/src/rest/data-sources/[id]/delete.handler",
+          timeout: "15 minutes",
+        },
+      },
       "POST /data-sources/{id}/sync": {
         function: {
           handler:
