@@ -144,7 +144,7 @@ class Sources extends HookConsumerWidget {
                         source.hasTitle ? source.title! : source.name,
                         textAlign: TextAlign.center,
                         softWrap: true,
-                        maxLines: 2,
+                        maxLines: source.hasTitle && source.hasAuthor ? 1 : 2, // leave room for author
                         overflow: TextOverflow.ellipsis,
                       ),
                       titleTextStyle: TextStyle(
@@ -155,7 +155,7 @@ class Sources extends HookConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (source.isWebpage && !source.hasTitle) ...[
+                          if (!source.hasTitle && source.isWebpage) ...[
                             Text(
                               Uri.parse(
                                 source.url,
@@ -165,12 +165,10 @@ class Sources extends HookConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
-                          if (source.isFile) ...[
-                            if (source.hasAuthor) ...[
-                              Text(
-                                source.author!,
-                              ),
-                            ],
+                          if (source.hasTitle && source.hasAuthor) ...[
+                            Text(
+                              source.author!,
+                            ),
                           ],
                         ],
                       ),
