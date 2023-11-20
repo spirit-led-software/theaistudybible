@@ -62,7 +62,7 @@ export async function createDataSource(data: CreateDataSourceData) {
 }
 
 export async function updateDataSource(id: string, data: UpdateDataSourceData) {
-  return (
+  const dataSource = (
     await readWriteDatabase
       .update(dataSources)
       .set({
@@ -72,6 +72,26 @@ export async function updateDataSource(id: string, data: UpdateDataSourceData) {
       .where(eq(dataSources.id, id))
       .returning()
   )[0];
+  await updateRelatedDocuments(dataSource);
+  return dataSource;
+}
+
+async function updateRelatedDocuments(dataSource: DataSource) {
+  const vectorDb = await getDocumentVectorStore();
+  await vectorDb.readWriteQueryFn(
+    `UPDATE ${vectorDb.tableName} 
+    SET metadata = metadata || $1::jsonb
+    WHERE (
+      metadata->>'dataSourceId' = $2
+    );`,
+    [
+      JSON.stringify({
+        ...dataSource.metadata,
+        dataSourceId: dataSource.id,
+      }),
+      dataSource.id,
+    ]
+  );
 }
 
 export async function deleteDataSource(id: string) {
@@ -139,6 +159,8 @@ export async function syncDataSource(
     numberOfDocuments: undefined,
   });
 
+  const syncDate = new Date();
+
   switch (dataSource.type) {
     case "FILE":
       throw new Error("You must upload a file to the data source to index it");
@@ -174,8 +196,8 @@ export async function syncDataSource(
   }
 
   dataSource = await updateDataSource(dataSource.id, {
-    lastManualSync: manual ? new Date() : undefined,
-    lastAutomaticSync: !manual ? new Date() : undefined,
+    lastManualSync: manual ? syncDate : undefined,
+    lastAutomaticSync: !manual ? syncDate : undefined,
   });
 
   // Delete old vectors
@@ -187,7 +209,7 @@ export async function syncDataSource(
       AND
       metadata->>'indexDate' < $2
     );`,
-    [dataSource.id, dataSource.updatedAt]
+    [dataSource.id, syncDate]
   );
 
   return dataSource;
