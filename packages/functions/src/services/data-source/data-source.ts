@@ -72,11 +72,14 @@ export async function updateDataSource(id: string, data: UpdateDataSourceData) {
       .where(eq(dataSources.id, id))
       .returning()
   )[0];
-  await updateRelatedDocuments(dataSource);
+  await updateRelatedDocuments(id, dataSource);
   return dataSource;
 }
 
-async function updateRelatedDocuments(dataSource: DataSource) {
+async function updateRelatedDocuments(
+  dataSourceId: string,
+  dataSource: DataSource
+) {
   const vectorDb = await getDocumentVectorStore();
   await vectorDb.readWriteQueryFn(
     `UPDATE ${vectorDb.tableName} 
@@ -89,7 +92,7 @@ async function updateRelatedDocuments(dataSource: DataSource) {
         ...dataSource.metadata,
         dataSourceId: dataSource.id,
       }),
-      dataSource.id,
+      dataSourceId,
     ]
   );
 }
