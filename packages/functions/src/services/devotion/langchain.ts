@@ -1,3 +1,4 @@
+import { envConfig } from "@core/configs";
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import { devotions } from "@core/schema";
 import { getLargeContextModel } from "@services/llm";
@@ -155,21 +156,28 @@ export const getBibleReadingChain = async (topic: string) => {
         translation: "ESV",
       },
     ],
-  }).then((store) => store.asRetriever(50));
+    verbose: envConfig.isLocal,
+  }).then((store) =>
+    store.asRetriever({
+      k: 30,
+      verbose: envConfig.isLocal,
+    })
+  );
   const chain = RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
-        (input) => input.topic,
+        (input: { topic: string }) => input.topic,
         retriever,
       ]),
-      topic: (input) => input.topic,
+      topic: (input: { topic: string }) => input.topic,
     },
     {
-      documents: (previousStepResult) =>
+      documents: (previousStepResult: { sourceDocuments: Document[] }) =>
         previousStepResult.sourceDocuments
           .map((d: Document) => `<document>\n${d.pageContent}\n</document>`)
           .join("\n"),
-      topic: (previousStepResult) => previousStepResult.topic,
+      topic: (previousStepResult: { topic: string }) =>
+        previousStepResult.topic,
     },
     new PromptTemplate({
       template: DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,

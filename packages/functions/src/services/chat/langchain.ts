@@ -196,7 +196,6 @@ export async function getDocumentQaChain(options: {
   );
   const qaRetriever = await getDocumentVectorStore({
     filters,
-    verbose: envConfig.isLocal,
   }).then((store) => store.asRetriever({ k: 7, verbose: envConfig.isLocal }));
   const qaChain = RunnableSequence.from([
     {

@@ -116,15 +116,20 @@ export class NeonVectorStore extends VectorStore {
     return neonVectorStore;
   }
 
-  _generateFiltersString(): string {
-    if (this.filters.length > 0) {
-      return `AND (
-        ${this.filters
-          .map((value) => `(metadata @> '${JSON.stringify(value)}')`)
-          .join(" OR ")}
-        )`;
+  _generateFiltersString(filter?: this["FilterType"]): string {
+    let filterString = "";
+    if (filter) {
+      filterString = `(metadata @> '${JSON.stringify(filter)}')`;
     }
-    return "";
+    if (this.filters.length > 0) {
+      if (filterString.length > 0) {
+        filterString += " AND ";
+      }
+      filterString += `(${this.filters
+        .map((value) => `(metadata @> '${JSON.stringify(value)}')`)
+        .join(" OR ")})`;
+    }
+    return filterString;
   }
 
   async addDocuments(documents: Document[]): Promise<void> {
@@ -187,12 +192,10 @@ export class NeonVectorStore extends VectorStore {
     offset?: number
   ): Promise<[NeonVectorStoreDocument, number][]> {
     const embeddingString = `[${query.join(",")}]`;
-    const _filter = filter ?? "{}";
+    const _filter = this._generateFiltersString(filter);
     const _offset = offset ?? 0;
     this._log(
-      `Searching for ${k} similar results from vector store with filter ${JSON.stringify(
-        _filter
-      )}`
+      `Searching for documents\nembedding=${embeddingString}\nk=${k}\nfilter='${_filter}'\noffset=${_offset}`
     );
 
     let client: Client | undefined;
@@ -208,45 +211,36 @@ export class NeonVectorStore extends VectorStore {
           `SELECT *, embedding ${
             distanceOperators[this.distance]
           } $1 AS "_distance"
-        FROM ${this.tableName}
-        WHERE (
-          (metadata @> $2)
-          ${this._generateFiltersString()}
-        )
-        ORDER BY "_distance" ASC
-        LIMIT $3
-        OFFSET $4;`,
-          [embeddingString, _filter, k, _offset]
+            FROM ${this.tableName}
+            ${_filter ? `WHERE (${_filter})` : ""}
+            ORDER BY "_distance" ASC
+            LIMIT $2
+            OFFSET $3;`,
+          [embeddingString, k, _offset]
         );
       } else if (this.distance === "cosine") {
         documents = await client.query(
           `SELECT *, embedding ${
             distanceOperators[this.distance]
           } $1 AS "_distance"
-        FROM ${this.tableName}
-        WHERE (
-          (metadata @> $2)
-          ${this._generateFiltersString()}
-        )
-        ORDER BY "_distance" ASC
-        LIMIT $3
-        OFFSET $4;`,
-          [embeddingString, _filter, k, _offset]
+            FROM ${this.tableName}
+            ${_filter ? `WHERE (${_filter})` : ""}
+            ORDER BY "_distance" ASC
+            LIMIT $2
+            OFFSET $3;`,
+          [embeddingString, k, _offset]
         );
       } else if (this.distance === "innerProduct") {
         documents = await client.query(
           `SELECT *, (embedding ${
             distanceOperators[this.distance]
           } $1) * -1 AS "_distance"
-        FROM ${this.tableName}
-        WHERE (
-          (metadata @> $2)
-          ${this._generateFiltersString()}
-        )
-        ORDER BY "_distance" DESC
-        LIMIT $3
-        OFFSET $4;`,
-          [embeddingString, _filter, k, _offset]
+            FROM ${this.tableName}
+            ${_filter ? `WHERE (${_filter})` : ""}
+            ORDER BY "_distance" DESC
+            LIMIT $2
+            OFFSET $3;`,
+          [embeddingString, k, _offset]
         );
       } else {
         throw new Error(`Unknown distance metric ${this.distance}`);
@@ -288,12 +282,8 @@ export class NeonVectorStore extends VectorStore {
     ids: string[],
     filter?: this["FilterType"]
   ): Promise<NeonVectorStoreDocument[]> {
-    const _filter = filter ?? "{}";
-    this._log(
-      `Getting documents by ids from vector store with filter ${JSON.stringify(
-        _filter
-      )}`
-    );
+    const _filter = this._generateFiltersString(filter);
+    this._log(`Getting documents\nids=${ids}\nfilter='${_filter}'`);
 
     let client: Client | undefined;
     try {
@@ -306,12 +296,9 @@ export class NeonVectorStore extends VectorStore {
         `SELECT * FROM ${this.tableName}
         WHERE (
           id = ANY($1)
-          AND (
-            (metadata @> $2)
-            ${this._generateFiltersString()}
-          )
+          ${_filter ? `AND (${_filter})` : ""}
         );`,
-        [ids, _filter]
+        [ids]
       );
 
       this._log(
@@ -444,28 +431,31 @@ export class NeonVectorStore extends VectorStore {
     }
   }
 
-  async deleteDocumentsByIds(ids: string[]): Promise<void> {
-    this._log(`Deleting documents by ids from vector store: ${ids}`);
+  async deleteDocumentsByIds(
+    ids: string[],
+    filter?: this["FilterType"]
+  ): Promise<void> {
+    const _filter = this._generateFiltersString(filter);
+    this._log(`Deleting documents\nids=${ids}\nfilter='${_filter}'`);
     await this.readWriteQueryFn(
       `DELETE FROM ${this.tableName}
-      WHERE id = ANY($1);`,
+      WHERE (
+        id = ANY($1)
+        ${_filter ? `AND (${_filter})` : ""}
+      );`,
       [ids]
     );
   }
 
   async deleteDocumentsByFilter(filter: this["FilterType"]): Promise<void> {
-    this._log(
-      `Deleting documents by filter from vector store: ${JSON.stringify(
-        filter
-      )}`
-    );
+    const _filter = this._generateFiltersString(filter);
+    this._log(`Deleting documents\nfilter='${_filter}'`);
+
     await this.readWriteQueryFn(
       `DELETE FROM ${this.tableName}
       WHERE (
-        metadata @> $1
-        ${this._generateFiltersString()}
-      );`,
-      [filter]
+        ${_filter}
+      );`
     );
   }
 
