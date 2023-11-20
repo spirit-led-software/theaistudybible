@@ -1,6 +1,7 @@
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import {
   CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
+  CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
   CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
@@ -108,6 +109,10 @@ export const getRAIChatChain = async (
     ],
   });
 
+  const faithQaChain = await getDocumentQaChain({
+    prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
+  });
+
   const branch = RunnableBranch.from([
     [(x) => x.routingInstructions.destination === "identity", identityChain],
     [
@@ -119,7 +124,8 @@ export const getRAIChatChain = async (
       (x) => x.routingInstructions.destination === "theology-qa",
       theologyQaChain,
     ],
-    theologyQaChain,
+    [(x) => x.routingInstructions.destination === "faith-qa", faithQaChain],
+    faithQaChain,
   ]);
 
   const routerChainOutputParser = new RouterOutputParser(
@@ -149,7 +155,8 @@ export const getRAIChatChain = async (
           "identity: Good for greetings, introducing yourself, or talking about yourself.",
           "chat-history: Good for retrieving information about the current chat conversation.",
           "bible-qa: Good for answering questions about the Bible, it's characters, and it's stories.",
-          "theology-qa: Good for answering questions about all of Christian faith and theology.",
+          "theology-qa: Good for answering questions about Christian theology.",
+          "faith-qa: Good for answering general questions about Christian faith.",
         ].join("\n"),
         history: (await history.getMessages())
           .map(
