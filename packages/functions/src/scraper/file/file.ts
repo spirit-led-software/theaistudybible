@@ -63,11 +63,11 @@ export const handler: S3Handler = async (event) => {
 
     let indexOpMetadata: any = {
       ...metadata,
-      name: name,
-      url: url,
+      name,
+      url,
       fileName,
       size,
-      type: fileType,
+      fileType,
     };
 
     let loader: BaseDocumentLoader;
@@ -119,9 +119,11 @@ export const handler: S3Handler = async (event) => {
     docs = docs.map((doc) => {
       doc.metadata = {
         ...dataSource.metadata,
+        ...indexOpMetadata,
         ...doc.metadata,
         indexDate: new Date().toISOString(),
         type: "file",
+        dataSourceId,
       };
       let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
       if (doc.metadata.title) {
