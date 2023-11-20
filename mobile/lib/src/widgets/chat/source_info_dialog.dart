@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/utils/filter_source_document.dart';
 import 'package:url_launcher/link.dart';
 
 class SourceInfoDialog extends HookConsumerWidget {
@@ -17,7 +18,7 @@ class SourceInfoDialog extends HookConsumerWidget {
     return Dialog(
       child: Link(
         uri: Uri.parse(sourceDocument.url),
-        target: LinkTarget.self,
+        target: LinkTarget.blank,
         builder: (context, followLink) {
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -37,10 +38,10 @@ class SourceInfoDialog extends HookConsumerWidget {
                   Text(
                     sourceDocument.hasTitle ? sourceDocument.title! : sourceDocument.name,
                     textAlign: TextAlign.center,
-                    style: context.textTheme.titleLarge,
+                    style: context.textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 10),
-                  if (sourceDocument.isWebpage && !sourceDocument.hasTitle) ...[
+                  if (!sourceDocument.hasTitle && sourceDocument.isWebpage) ...[
+                    const SizedBox(height: 10),
                     Text(
                       Uri.parse(
                         sourceDocument.url,
@@ -48,26 +49,84 @@ class SourceInfoDialog extends HookConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                   ],
-                  if (sourceDocument.isFile) ...[
-                    if (sourceDocument.hasAuthor) ...[
-                      Text(
-                        sourceDocument.author!,
-                        style: context.textTheme.titleSmall,
-                      ),
-                    ],
-                    if (sourceDocument.hasPageNumbers) ...[
-                      Text(
-                        'Page(s): ${sourceDocument.pageNumbers!.keys.join(', ')}',
-                        style: context.textTheme.titleSmall,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      )
-                    ],
+                  if (sourceDocument.hasTitle && sourceDocument.hasAuthor) ...[
+                    Text(
+                      sourceDocument.author!,
+                      style: context.textTheme.titleSmall,
+                    ),
                   ],
+                  if (sourceDocument.hasPageNumbers) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      'Page(s): ${sourceDocument.pageNumbers!.keys.join(', ')}',
+                      style: context.textTheme.titleSmall,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    )
+                  ],
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Preview:",
+                            textAlign: TextAlign.left,
+                            style: context.textTheme.labelLarge,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: context.height * 0.5,
+                    ),
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      child: Scrollable(
+                        viewportBuilder: (context, position) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: context.colorScheme.background,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: context.colorScheme.onBackground.withOpacity(0.4),
+                              ),
+                            ),
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 10,
+                                horizontal: 20,
+                              ),
+                              child: Column(
+                                children: [
+                                  for (final pageContent in sourceDocument.pageContent.split(contentSeparator)) ...[
+                                    Text(
+                                      pageContent.split("---").last.trim(),
+                                      style: context.textTheme.bodySmall,
+                                    ),
+                                    if (pageContent != sourceDocument.pageContent.split(contentSeparator).last) ...[
+                                      const SizedBox(height: 10),
+                                      const Divider(),
+                                      const SizedBox(height: 10),
+                                    ],
+                                  ],
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 30),
                   Text(
-                    "Tap to view source",
+                    "Tap to view entire source",
                     style: context.textTheme.bodySmall,
                   ),
                 ],

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -108,7 +107,7 @@ class Sources extends HookConsumerWidget {
               final source = sourcesSorted[index];
               return Link(
                 uri: Uri.parse(source.metadata["url"]),
-                target: LinkTarget.self,
+                target: LinkTarget.blank,
                 builder: (context, followLink) {
                   return Container(
                     width: 300,
@@ -134,11 +133,6 @@ class Sources extends HookConsumerWidget {
                         borderRadius: BorderRadius.circular(25),
                       ),
                       tileColor: context.primaryColor,
-                      trailing: Icon(
-                        CupertinoIcons.link,
-                        color: context.colorScheme.onPrimary,
-                        size: 20,
-                      ),
                       titleAlignment: ListTileTitleAlignment.center,
                       title: Text(
                         source.hasTitle ? source.title! : source.name,

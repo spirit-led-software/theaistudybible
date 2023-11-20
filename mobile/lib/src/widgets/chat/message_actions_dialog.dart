@@ -39,7 +39,7 @@ class MessageActionsDialog extends HookConsumerWidget {
           children: [
             ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: context.height * 0.3,
+                maxHeight: context.height * 0.4,
               ),
               child: Scrollbar(
                 thumbVisibility: true,

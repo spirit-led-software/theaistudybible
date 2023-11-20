@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:revelationsai/src/models/source_document.dart';
 
+const contentSeparator = '---------';
+
 List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
   final filteredSources = <SourceDocument>[];
   for (final prospect in value) {
@@ -35,6 +37,14 @@ List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
 
     for (final match in matches.toList()) {
       if (prospect.isWebpage && prospect.url == match.url) {
+        filteredSources.removeWhere((element) => element.id == match.id);
+        filteredSources.add(prospect.copyWith(
+          pageContent: "${match.pageContent}\n$contentSeparator\n${prospect.pageContent}",
+          distance: min(
+            prospect.distance,
+            match.distance,
+          ),
+        ));
         continue;
       }
 
@@ -61,6 +71,7 @@ List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
           filteredSources.removeWhere((element) => element.id == match.id);
           filteredSources.add(prospect.copyWith(
             metadata: newMetadata,
+            pageContent: "${match.pageContent}\n$contentSeparator\n${prospect.pageContent}",
             distance: min(
               prospect.distance,
               match.distance,
@@ -70,6 +81,7 @@ List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
         }
       }
       filteredSources.add(prospect.copyWith(
+        pageContent: "${match.pageContent}\n$contentSeparator\n${prospect.pageContent}",
         distance: min(prospect.distance, match.distance),
       ));
     }

@@ -488,7 +488,7 @@ class DevotionScreen extends HookConsumerWidget {
                                 uri: Uri.parse(
                                   sourceDocs.value[index].metadata['url'],
                                 ),
-                                target: LinkTarget.self,
+                                target: LinkTarget.blank,
                                 builder: (context, followLink) => ListTile(
                                   dense: true,
                                   visualDensity: RAIVisualDensity.tightest,
