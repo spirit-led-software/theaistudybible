@@ -34,6 +34,12 @@ export function Constants({ stack, app }: StackContext) {
     },
     timeout: "60 seconds",
     runtime: "nodejs18.x",
+    nodejs: {
+      esbuild: {
+        minify: stack.stage === "prod",
+        treeShaking: stack.stage === "prod",
+      },
+    },
     architecture: "x86_64",
     logRetention: stack.stage === "prod" ? "one_week" : "one_day",
   });
