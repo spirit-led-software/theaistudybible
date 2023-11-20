@@ -12,6 +12,7 @@ import {
   indexRemoteFile,
   indexWebCrawl,
   indexWebPage,
+  indexYoutubeVideo,
 } from "./index-op";
 
 export async function getDataSources(
@@ -197,7 +198,13 @@ export async function syncDataSource(
       });
       break;
     case "YOUTUBE":
-      throw new Error("Not implemented");
+      await indexYoutubeVideo({
+        dataSourceId: dataSource.id,
+        name: dataSource.name,
+        url: dataSource.url,
+        metadata: dataSource.metadata,
+      });
+      break;
     default:
       throw new Error(`Unsupported data source type ${dataSource.type}`);
   }

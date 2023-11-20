@@ -245,7 +245,7 @@
 				class="w-full input input-bordered"
 				required
 			/>
-			{#if typeSelection === 'FILE' || typeSelection === 'REMOTE_FILE'}
+			{#if typeSelection === 'FILE' || typeSelection === 'REMOTE_FILE' || typeSelection === 'YOUTUBE'}
 				<input
 					type="text"
 					name="title"

@@ -1,12 +1,14 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { axios, s3Config } from "@core/configs";
+import { axios, s3Config, vectorDBConfig } from "@core/configs";
 import type {
   CreateIndexOperationData,
+  DataSource,
   IndexOperation,
   UpdateIndexOperationData,
 } from "@core/model";
 import { indexOperations } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
+import { getDocumentVectorStore } from "@services/vector-db";
 import {
   generatePageContentEmbeddings,
   getFileNameFromUrl,
@@ -15,6 +17,9 @@ import {
 } from "@services/web-scraper";
 import { SQL, desc, eq, sql } from "drizzle-orm";
 import escapeStringRegexp from "escape-string-regexp";
+import { YoutubeLoader } from "langchain/document_loaders/web/youtube";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { getDataSourceOrThrow, updateDataSource } from "./data-source";
 
 export async function getIndexOperations(
   options: {
@@ -97,7 +102,7 @@ export async function indexWebPage({
   dataSourceId: string;
   name: string;
   url: string;
-  metadata?: object;
+  metadata?: any;
 }): Promise<IndexOperation> {
   let indexOp: IndexOperation | undefined;
   try {
@@ -145,7 +150,7 @@ export async function indexWebCrawl({
   url: string;
   pathRegex?: string;
   name: string;
-  metadata?: object;
+  metadata?: any;
 }): Promise<IndexOperation> {
   let indexOp: IndexOperation | undefined;
   let urlCount = 0;
@@ -241,7 +246,7 @@ export async function indexRemoteFile({
   dataSourceId: string;
   name: string;
   url: string;
-  metadata?: object;
+  metadata?: any;
 }) {
   const downloadResponse = await axios.get(url, {
     decompress: false,
@@ -274,5 +279,92 @@ export async function indexRemoteFile({
     throw new Error(
       `Failed to upload file to S3 ${putCommandResponse.$metadata?.httpStatusCode}`
     );
+  }
+}
+
+export async function indexYoutubeVideo({
+  dataSourceId,
+  name,
+  url,
+  metadata = {},
+}: {
+  dataSourceId: string;
+  name: string;
+  url: string;
+  metadata?: any;
+}) {
+  let indexOp: IndexOperation | undefined;
+  try {
+    let dataSource: DataSource | undefined;
+
+    [indexOp, dataSource] = await Promise.all([
+      createIndexOperation({
+        status: "RUNNING",
+        metadata: {
+          ...metadata,
+          name,
+          url,
+        },
+        dataSourceId,
+      }),
+      getDataSourceOrThrow(dataSourceId),
+    ]);
+
+    const loader = YoutubeLoader.createFromUrl(url, {
+      language: metadata.language ?? "en",
+      addVideoInfo: true,
+    });
+    let docs = await loader.load();
+
+    const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: vectorDBConfig.docEmbeddingContentLength,
+      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+    });
+    docs = await splitter.invoke(docs);
+
+    console.log(`Successfully loaded ${docs.length} docs from youtube video.`);
+    docs = docs.map((doc) => {
+      doc.metadata = {
+        ...metadata,
+        ...doc.metadata,
+        dataSourceId,
+        name,
+        url,
+      };
+
+      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
+      if (doc.metadata.title && doc.metadata.author) {
+        newPageContent = `TITLE: "${doc.metadata.title}" by ${doc.metadata.author}\n---\n${doc.pageContent}`;
+      }
+      doc.pageContent = newPageContent;
+
+      return doc;
+    });
+
+    console.log("Adding documents to vector store");
+    const vectorStore = await getDocumentVectorStore();
+    await vectorStore.addDocuments(docs);
+
+    console.log(`Successfully indexed youtube video '${url}'.`);
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      status: "SUCCEEDED",
+    });
+
+    dataSource = await updateDataSource(dataSource.id, {
+      numberOfDocuments: docs.length,
+    });
+
+    return indexOp;
+  } catch (err: any) {
+    console.error(err.stack);
+    if (indexOp) {
+      indexOp = await updateIndexOperation(indexOp.id, {
+        status: "FAILED",
+        errorMessages: sql`${
+          indexOperations.errorMessages
+        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
+      });
+    }
+    throw err;
   }
 }

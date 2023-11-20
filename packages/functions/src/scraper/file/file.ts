@@ -72,7 +72,9 @@ export const handler: S3Handler = async (event) => {
 
     let loader: BaseDocumentLoader;
     if (fileType === "application/pdf") {
-      loader = new PDFLoader(blob);
+      loader = new PDFLoader(blob, {
+        splitPages: false,
+      });
     } else if (fileType === "text/plain") {
       loader = new TextLoader(blob);
     } else if (fileType === "application/json" || fileType === "text/json") {
