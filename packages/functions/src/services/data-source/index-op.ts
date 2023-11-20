@@ -327,6 +327,8 @@ export async function indexYoutubeVideo({
       doc.metadata = {
         ...metadata,
         ...doc.metadata,
+        indexDate: new Date().toISOString(),
+        type: "youtube",
         dataSourceId,
         name,
         url,
