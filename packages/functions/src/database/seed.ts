@@ -199,7 +199,6 @@ export const handler: Handler = async () => {
 
     console.log("Creating vector store and (re)creating HNSW index");
     const vectorDb = await getDocumentVectorStore();
-    await vectorDb.dropHnswIndex();
     await vectorDb.ensureTableInDatabase();
 
     // This code below should only be a one-off thing. Leaving it here just in case.
