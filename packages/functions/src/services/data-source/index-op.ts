@@ -148,6 +148,7 @@ export async function indexWebCrawl({
   metadata?: object;
 }): Promise<IndexOperation> {
   let indexOp: IndexOperation | undefined;
+  let urlCount = 0;
   try {
     let baseUrl = url;
     let urlRegex: RegExp | undefined = undefined;
@@ -191,7 +192,6 @@ export async function indexWebCrawl({
     }
     console.debug(`sitemapUrls: ${sitemapUrls}`);
 
-    let urlCount = 0;
     for (const sitemapUrl of sitemapUrls) {
       urlCount += await navigateSitemap(
         sitemapUrl,
@@ -220,6 +220,13 @@ export async function indexWebCrawl({
           indexOperations.errorMessages
         } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
       });
+      if (urlCount > 0) {
+        indexOp = await updateIndexOperation(indexOp.id, {
+          metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
+            totalUrls: urlCount,
+          })}`,
+        });
+      }
     }
     throw err;
   }
