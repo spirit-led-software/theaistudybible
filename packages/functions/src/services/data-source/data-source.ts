@@ -73,7 +73,11 @@ export async function updateDataSource(id: string, data: UpdateDataSourceData) {
       .where(eq(dataSources.id, id))
       .returning()
   )[0];
-  await updateRelatedDocuments(id, dataSource);
+
+  if (data.id || data.metadata) {
+    await updateRelatedDocuments(id, dataSource);
+  }
+
   return dataSource;
 }
 
