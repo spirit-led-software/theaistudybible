@@ -148,9 +148,9 @@ export const handler: S3Handler = async (event) => {
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: sql`${indexOperations.errorMessages} || ${
-          error.stack ?? error.message
-        }`,
+        errorMessages: sql`${
+          indexOperations.errorMessages
+        } || jsonb_build_array('${sql.raw(error.stack ?? error.message)}')`,
       });
     }
 

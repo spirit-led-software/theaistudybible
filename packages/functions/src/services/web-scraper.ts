@@ -139,49 +139,50 @@ export async function navigateSitemap(
       siteMapUrlsArray = [sitemapUrls];
     }
 
-    const sliceSize = 10;
     const failed: string[][] = [];
-    for (let i = 0; i < siteMapUrlsArray.length; i += sliceSize) {
-      const foundUrls: string[] = siteMapUrlsArray
-        .slice(i, i + sliceSize)
-        .map((sitemapObj) => sitemapObj.loc);
+    const foundUrls: string[] = siteMapUrlsArray.map(
+      (sitemapObj) => sitemapObj.loc
+    );
 
-      const indexableUrls = foundUrls.filter((url) => urlRegex.test(url));
-      if (indexableUrls.length > 0) {
-        console.log(
-          `Found ${
-            indexableUrls.length
-          } indexable urls from sitemap: ${JSON.stringify(indexableUrls)}`
-        );
+    const indexableUrls = foundUrls.filter((url) => urlRegex.test(url));
+    if (indexableUrls.length > 0) {
+      console.log(
+        `Found ${
+          indexableUrls.length
+        } indexable urls from sitemap: ${JSON.stringify(indexableUrls)}`
+      );
+
+      const sliceSize = 10;
+      for (let i = 0; i < indexableUrls.length; i += sliceSize) {
+        const indexableUrlsSlice = indexableUrls.slice(i, i + sliceSize);
         try {
-          await sendUrlsToQueue(name, indexableUrls, indexOpId);
-          urlCount += indexableUrls.length;
+          await sendUrlsToQueue(name, indexableUrlsSlice, indexOpId);
+          urlCount += indexableUrlsSlice.length;
         } catch (err: any) {
           console.error(
             `Error sending index url message to queue: ${err.stack}`
           );
-          failed.push(indexableUrls);
+          failed.push(indexableUrlsSlice);
         }
-      }
-
-      const additionalSitemaps = foundUrls.filter((url) =>
-        url.endsWith(".xml")
-      );
-      try {
-        for (const additionalSitemap of additionalSitemaps) {
-          console.log(`Found additional sitemap: ${additionalSitemap}`);
-          urlCount += await navigateSitemap(
-            additionalSitemap,
-            urlRegex,
-            name,
-            indexOpId
-          );
-        }
-      } catch (err: any) {
-        console.error(`Error navigating additional sitemaps: ${err.stack}`);
-        failed.push(additionalSitemaps);
       }
     }
+
+    const additionalSitemaps = foundUrls.filter((url) => url.endsWith(".xml"));
+    try {
+      for (const additionalSitemap of additionalSitemaps) {
+        console.log(`Found additional sitemap: ${additionalSitemap}`);
+        urlCount += await navigateSitemap(
+          additionalSitemap,
+          urlRegex,
+          name,
+          indexOpId
+        );
+      }
+    } catch (err: any) {
+      console.error(`Error navigating additional sitemaps: ${err.stack}`);
+      failed.push(additionalSitemaps);
+    }
+
     if (failed.length > 0) {
       console.error(
         `Failed to navigate ${

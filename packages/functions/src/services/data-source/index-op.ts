@@ -125,9 +125,9 @@ export async function indexWebPage({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: sql`${indexOperations.errorMessages} || ${
-          err.stack ?? err.message
-        }`,
+        errorMessages: sql`${
+          indexOperations.errorMessages
+        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
       });
     }
     throw err;
@@ -216,9 +216,9 @@ export async function indexWebCrawl({
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         status: "FAILED",
-        errorMessages: sql`${indexOperations.errorMessages} || ${
-          err.stack ?? err.message
-        }`,
+        errorMessages: sql`${
+          indexOperations.errorMessages
+        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
       });
     }
     throw err;

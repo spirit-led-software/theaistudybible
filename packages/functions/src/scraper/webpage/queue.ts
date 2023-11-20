@@ -61,7 +61,6 @@ export const consumer: SQSHandler = async (event) => {
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err: any) {
     console.error(err.stack);
-
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         metadata: sql`jsonb_set(${indexOperations.metadata}, 
@@ -72,12 +71,13 @@ export const consumer: SQSHandler = async (event) => {
           ) || jsonb_build_array('${sql.raw(url)}'),
           true
         )`,
-        errorMessages: sql`${indexOperations.errorMessages} || ${
-          err.stack ?? err.message
-        }`,
+        errorMessages: sql`${
+          indexOperations.errorMessages
+        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
       });
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
     }
+    throw err;
   }
 };
 
