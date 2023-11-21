@@ -10,6 +10,12 @@ on:
       - mobile/pubspec.yaml
       - mobile/pubspec.lock
   workflow_dispatch:
+    inputs:
+      sendForReview:
+        description: "Send for review"
+        required: false
+        type: boolean
+        default: true
 
 env:
   FLUTTER_VERSION_CODE: ${{ github.run_number }}
@@ -94,3 +100,4 @@ jobs:
           packageName: com.passgoco.revelationsai
           releaseFiles: mobile/build/app/outputs/bundle/release/app-release.aab
           track: production
+          changesNotSentForReview: ${{ !(github.event.inputs.sendForReview ?? true) }}
