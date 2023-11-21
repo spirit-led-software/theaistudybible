@@ -109,7 +109,7 @@ class UpgradeScreen extends HookConsumerWidget {
                     ),
                     child: Text(
                       'Starter',
-                      style: context.textTheme.titleLarge,
+                      style: context.textTheme.titleMedium,
                     ),
                   ),
                   ListTile(
@@ -140,7 +140,7 @@ class UpgradeScreen extends HookConsumerWidget {
                     ),
                     child: Text(
                       'Upgrade',
-                      style: context.textTheme.titleLarge,
+                      style: context.textTheme.titleMedium,
                     ),
                   ),
                   ListView.builder(
@@ -163,7 +163,7 @@ class UpgradeScreen extends HookConsumerWidget {
                     ),
                     child: Text(
                       'Manage',
-                      style: context.textTheme.titleLarge,
+                      style: context.textTheme.titleMedium,
                     ),
                   ),
                   ListTile(

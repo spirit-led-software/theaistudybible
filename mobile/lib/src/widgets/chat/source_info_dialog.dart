@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -99,14 +101,15 @@ class SourceInfoPreview extends HookConsumerWidget {
                       if (sourceDocument.hasTitle && sourceDocument.hasAuthor) ...[
                         Text(
                           sourceDocument.author!,
-                          style: context.textTheme.titleSmall,
+                          style: context.textTheme.labelSmall,
+                          textAlign: TextAlign.center,
                         ),
                       ],
                       if (sourceDocument.hasPageNumbers) ...[
                         const SizedBox(height: 10),
                         Text(
                           'Page(s): ${sourceDocument.pageNumbers!.keys.join(', ')}',
-                          style: context.textTheme.titleSmall,
+                          style: context.textTheme.labelMedium,
                         ),
                         const SizedBox(
                           width: 5,
@@ -115,7 +118,8 @@ class SourceInfoPreview extends HookConsumerWidget {
                       const SizedBox(height: 10),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
+                          horizontal: 8,
+                          vertical: 8,
                         ),
                         child: Row(
                           children: [
@@ -131,8 +135,13 @@ class SourceInfoPreview extends HookConsumerWidget {
                       ),
                       Stack(
                         children: [
-                          SizedBox(
-                            height: context.height * 0.5,
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: context.colorScheme.onBackground,
+                              ),
+                            ),
+                            height: context.height * 0.55,
                             child: InAppWebView(
                               onLoadStart: (controller, url) {
                                 if (isMounted()) loading.value = true;
@@ -148,21 +157,24 @@ class SourceInfoPreview extends HookConsumerWidget {
                               },
                               initialUrlRequest: URLRequest(
                                 url: Uri.parse(
-                                  sourceDocument.isFile
+                                  sourceDocument.isFile && Platform.isAndroid
                                       ? 'https://docs.google.com/viewer?url=${sourceDocument.url}'
                                       : sourceDocument.url,
                                 ),
                               ),
                               initialOptions: InAppWebViewGroupOptions(
                                 crossPlatform: InAppWebViewOptions(
-                                  verticalScrollBarEnabled: true,
-                                  allowFileAccessFromFileURLs: false,
-                                  allowUniversalAccessFromFileURLs: false,
-                                  preferredContentMode: UserPreferredContentMode.RECOMMENDED,
+                                  javaScriptEnabled: false,
+                                  disableVerticalScroll: true,
+                                  disableHorizontalScroll: true,
+                                  javaScriptCanOpenWindowsAutomatically: false,
+                                  supportZoom: false,
+                                  disableContextMenu: true,
+                                  horizontalScrollBarEnabled: false,
+                                  verticalScrollBarEnabled: false,
                                 ),
                                 android: AndroidInAppWebViewOptions(
-                                  allowFileAccess: false,
-                                  allowContentAccess: false,
+                                  useHybridComposition: true,
                                 ),
                               ),
                             ),
