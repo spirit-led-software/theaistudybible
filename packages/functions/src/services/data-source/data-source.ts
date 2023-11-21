@@ -161,7 +161,7 @@ export async function syncDataSource(
   }
 
   dataSource = await updateDataSource(dataSource.id, {
-    numberOfDocuments: undefined,
+    numberOfDocuments: null,
   });
 
   const syncDate = new Date();
