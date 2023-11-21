@@ -1,14 +1,5 @@
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
 import type { UserInfo } from "@core/model";
-import {
-  CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
-  CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
-  CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
-  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
-  CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
-} from "@services/chat/prompts";
 import type { Message } from "ai";
 import type { Document } from "langchain/document";
 import { ChatMessageHistory } from "langchain/memory";
@@ -27,6 +18,17 @@ import {
 import { z } from "zod";
 import { getLargeContextModel, llmCache } from "../llm";
 import { getDocumentVectorStore } from "../vector-db";
+import {
+  CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
+  CHAT_BIBLE_QUOTE_CHAIN_PROMPT_TEMPLATE,
+  CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
+  CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
+  CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
+  CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
+  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
+  CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
+  CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
+} from "./prompts";
 
 export const getRAIChatChain = async (
   user: UserInfo,
@@ -89,6 +91,16 @@ export const getRAIChatChain = async (
     },
   ]);
 
+  const bibleQuoteChain = await getDocumentQaChain({
+    prompt: CHAT_BIBLE_QUOTE_CHAIN_PROMPT_TEMPLATE,
+    filters: [
+      {
+        category: "bible",
+        translation: user.translation,
+      },
+    ],
+  });
+
   const bibleQaChain = await getDocumentQaChain({
     prompt: CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
@@ -98,6 +110,15 @@ export const getRAIChatChain = async (
       },
       {
         category: "commentary",
+      },
+    ],
+  });
+
+  const sermonQaChain = await getDocumentQaChain({
+    prompt: CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
+    filters: [
+      {
+        category: "sermons",
       },
     ],
   });
@@ -121,7 +142,12 @@ export const getRAIChatChain = async (
       (x) => x.routingInstructions.destination === "chat-history",
       chatHistoryChain,
     ],
+    [
+      (x) => x.routingInstructions.destination === "bible-quote",
+      bibleQuoteChain,
+    ],
     [(x) => x.routingInstructions.destination === "bible-qa", bibleQaChain],
+    [(x) => x.routingInstructions.destination === "sermon-qa", sermonQaChain],
     [
       (x) => x.routingInstructions.destination === "theology-qa",
       theologyQaChain,
@@ -156,7 +182,9 @@ export const getRAIChatChain = async (
         destinations: [
           "identity: Good for greetings, introducing yourself, or talking about yourself.",
           "chat-history: Good for retrieving information about the current chat conversation.",
-          "bible-qa: Good for answering questions about the Bible, it's characters, and it's stories.",
+          "bible-quote: Good for retrieving verses and passages from the Bible.",
+          "bible-qa: Good for answering questions about the Bible, its interpretation, and its history.",
+          "sermon-qa: Good for recommending and answering questions about sermons.",
           "theology-qa: Good for answering questions about Christian theology.",
           "faith-qa: Good for answering general questions about Christian faith.",
         ].join("\n"),

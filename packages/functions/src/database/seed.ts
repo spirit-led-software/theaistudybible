@@ -221,14 +221,24 @@ const getPartialHnswIndexInfos = () => {
     );
   }
 
-  infos.push({
-    name: "theology_qa",
-    filters: [
-      {
-        category: "theology",
-      },
-    ],
-  });
+  infos.push(
+    {
+      name: "theology_qa",
+      filters: [
+        {
+          category: "theology",
+        },
+      ],
+    },
+    {
+      name: "sermon_qa",
+      filters: [
+        {
+          category: "sermons",
+        },
+      ],
+    }
+  );
 
   return infos;
 };

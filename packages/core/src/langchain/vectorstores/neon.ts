@@ -203,6 +203,7 @@ export class NeonVectorStore extends VectorStore {
 
     try {
       const docRows = await this.readOperation(async (client) => {
+        client.query(`SET LOCAL hnsw.ef_search = '${this.hnswIdxEfSearch}';`);
         if (this.distance === "l2") {
           return await client.query(
             `SELECT *, embedding ${
@@ -364,9 +365,6 @@ export class NeonVectorStore extends VectorStore {
         } else {
           throw new Error(`Unknown distance metric ${this.distance}`);
         }
-
-        this._log(`Setting HNSW search parameter.`);
-        await client.query(`SET hnsw.ef_search = ${this.hnswIdxEfSearch};`);
 
         this._log(`Creating GIN index of metadata on ${this.tableName}.`);
         await client.query(
