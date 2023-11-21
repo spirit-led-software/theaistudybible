@@ -23,10 +23,10 @@ class SplashScreen extends HookWidget {
 
     return Scaffold(
       backgroundColor: context.colorScheme.background,
-      body: const Center(
+      body: Center(
         child: Logo(
           fontSize: 32,
-          colorScheme: RAIColorScheme.light,
+          colorScheme: context.brightness == Brightness.light ? RAIColorScheme.dark : RAIColorScheme.light,
         ),
       ),
     );

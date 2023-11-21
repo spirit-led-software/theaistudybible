@@ -24,6 +24,7 @@ export interface NeonVectorStoreArgs {
   distance?: DistanceMetric;
   hnswIdxM?: number;
   hnswIdxEfConstruction?: number;
+  hnswIdxEfSearch?: number;
 }
 
 export class NeonVectorStoreDocument extends Document {
@@ -63,8 +64,10 @@ export class NeonVectorStore extends VectorStore {
   readonly dimensions: number;
   readonly verbose: boolean;
   readonly distance: DistanceMetric;
+
   readonly hnswIdxM: number;
   readonly hnswIdxEfConstruction: number;
+  readonly hnswIdxEfSearch: number;
 
   private readonly readOnlyUrl: string;
   private readonly readOnlyQueryFn: NeonQueryFunction<false, false>;
@@ -85,6 +88,7 @@ export class NeonVectorStore extends VectorStore {
     this.distance = fields.distance ?? "l2";
     this.hnswIdxM = fields.hnswIdxM ?? 16;
     this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
+    this.hnswIdxEfSearch = fields.hnswIdxEfSearch ?? 40;
 
     neonConfig.webSocketConstructor = ws;
 
@@ -360,6 +364,9 @@ export class NeonVectorStore extends VectorStore {
         } else {
           throw new Error(`Unknown distance metric ${this.distance}`);
         }
+
+        this._log(`Setting HNSW search parameter.`);
+        await client.query(`SET hnsw.ef_search = ${this.hnswIdxEfSearch};`);
 
         this._log(`Creating GIN index of metadata on ${this.tableName}.`);
         await client.query(
