@@ -86,6 +86,11 @@ export const users = pgTable(
     stripeCustomerId: text("stripe_customer_id"),
     image: text("image"),
     customImage: boolean("custom_image").notNull().default(false),
+    translation: text("translation", {
+      enum: ["NIV", "ESV", "NKJV", "NLT"],
+    })
+      .notNull()
+      .default("ESV"),
   },
   (table) => {
     return {
@@ -516,3 +521,9 @@ export const dataSources = pgTable(
     };
   }
 );
+
+export const dataSourcesRelations = relations(dataSources, ({ many }) => {
+  return {
+    indexOperations: many(indexOperations),
+  };
+});

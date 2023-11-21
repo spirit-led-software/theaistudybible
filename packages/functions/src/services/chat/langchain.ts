@@ -1,4 +1,5 @@
 import type { NeonVectorStoreDocument } from "@core/langchain/vectorstores";
+import type { UserInfo } from "@core/model";
 import {
   CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
@@ -28,6 +29,7 @@ import { getLargeContextModel, llmCache } from "../llm";
 import { getDocumentVectorStore } from "../vector-db";
 
 export const getRAIChatChain = async (
+  user: UserInfo,
   messages: Message[]
 ): Promise<
   Runnable<
@@ -92,7 +94,7 @@ export const getRAIChatChain = async (
     filters: [
       {
         category: "bible",
-        translation: "ESV", // TODO: Make this configurable.
+        translation: user.translation,
       },
       {
         category: "commentary",

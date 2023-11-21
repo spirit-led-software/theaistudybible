@@ -168,7 +168,7 @@ const lambdaHandler = async (
     const userMessageId = uuidV4();
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
-    const chain = await getRAIChatChain(messages);
+    const chain = await getRAIChatChain(userInfo, messages);
     const inputs = {
       query: lastMessage.content,
     };
