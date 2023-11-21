@@ -118,7 +118,7 @@ export class NeonVectorStore extends VectorStore {
   _generateFiltersString(filter?: this["FilterType"]): string {
     let filterString = "";
     if (filter) {
-      filterString = `(metadata @> '${JSON.stringify(filter)}')`;
+      filterString = `(metadata @> '${JSON.stringify(filter)}'::jsonb)`;
     }
     if (this.filters.length > 0) {
       if (filterString.length > 0) {
@@ -370,6 +370,63 @@ export class NeonVectorStore extends VectorStore {
       });
     } catch (e) {
       this._log("Error ensuring table in database:", e);
+      throw e;
+    }
+  }
+
+  async createPartialHnswIndex(
+    indexName: string,
+    filter?: this["FilterType"]
+  ): Promise<void> {
+    const _filter = this._generateFiltersString(filter);
+    if (_filter.length === 0) {
+      throw new Error(`Cannot create a partial HNSW index without filter`);
+    }
+
+    try {
+      await this.transaction(async (client) => {
+        if (this.distance === "l2") {
+          this._log(`Creating L2 HNSW index on ${this.tableName}.`);
+          await client.query(
+            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_l2_idx
+              ON ${this.tableName}
+              USING hnsw (embedding vector_l2_ops)
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              )
+              WHERE (${_filter});`
+          );
+        } else if (this.distance === "cosine") {
+          this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
+          await client.query(
+            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_cosine_idx 
+              ON ${this.tableName}
+              USING hnsw (embedding vector_cosine_ops)
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              )
+              WHERE (${_filter});`
+          );
+        } else if (this.distance === "innerProduct") {
+          this._log(`Creating inner product HNSW index on ${this.tableName}.`);
+          await client.query(
+            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_ip_idx 
+              ON ${this.tableName}
+              USING hnsw (embedding vector_ip_ops)
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              )
+              WHERE (${_filter});`
+          );
+        } else {
+          throw new Error(`Unknown distance metric ${this.distance}`);
+        }
+      });
+    } catch (e) {
+      this._log("Error creating partial HNSW index:", e);
       throw e;
     }
   }

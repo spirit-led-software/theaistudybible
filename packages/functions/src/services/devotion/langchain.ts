@@ -74,6 +74,7 @@ export const getDevotionGeneratorChain = async (): Promise<
   }).then((store) =>
     store.asRetriever({
       k: 25,
+      verbose: true,
     })
   );
   const chain = RunnableSequence.from([
@@ -163,6 +164,7 @@ export const getBibleReadingChain = async (topic: string) => {
   }).then((store) =>
     store.asRetriever({
       k: 30,
+      verbose: true,
     })
   );
   const chain = RunnableSequence.from([

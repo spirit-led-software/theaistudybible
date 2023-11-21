@@ -204,6 +204,7 @@ export async function getDocumentQaChain(options: {
   );
   const qaRetriever = await getDocumentVectorStore({
     filters,
+    verbose: true,
   }).then((store) =>
     store.asRetriever({
       k: 7,

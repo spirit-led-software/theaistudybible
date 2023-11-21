@@ -1,5 +1,6 @@
 import { authConfig } from "@core/configs";
 import type { User } from "@core/model";
+import { users } from "@core/schema";
 import {
   addRoleToUser,
   createRole,
@@ -188,6 +189,50 @@ async function createRcEntitlementRoles() {
   }
 }
 
+const getPartialHnswIndexInfos = () => {
+  const infos: {
+    name: string;
+    filters: any[];
+  }[] = [];
+
+  for (const translation of users.translation.enumValues) {
+    infos.push(
+      {
+        name: `${translation.toLowerCase()}_bible`,
+        filters: [
+          {
+            category: "bible",
+            translation,
+          },
+        ],
+      },
+      {
+        name: `${translation.toLowerCase()}_bible_qa`,
+        filters: [
+          {
+            category: "bible",
+            translation,
+          },
+          {
+            category: "commentary",
+          },
+        ],
+      }
+    );
+  }
+
+  infos.push({
+    name: "theology_qa",
+    filters: [
+      {
+        category: "theology",
+      },
+    ],
+  });
+
+  return infos;
+};
+
 export const handler: Handler = async () => {
   try {
     console.log("Creating initial roles and users");
@@ -200,6 +245,17 @@ export const handler: Handler = async () => {
     console.log("Creating vector store and (re)creating HNSW index");
     const vectorDb = await getDocumentVectorStore();
     await vectorDb.ensureTableInDatabase();
+
+    console.log("Creating partial HNSW indexes");
+    await Promise.all(
+      getPartialHnswIndexInfos().map(async ({ name, filters }) => {
+        console.log(`Creating partial HNSW index on documents: ${name}`);
+        const filteredVectorDb = await getDocumentVectorStore({
+          filters,
+        });
+        await filteredVectorDb.createPartialHnswIndex(name);
+      })
+    );
 
     // This code below should only be a one-off thing. Leaving it here just in case.
     // console.log("Creating chat memory vector stores and HNSW indexes");
