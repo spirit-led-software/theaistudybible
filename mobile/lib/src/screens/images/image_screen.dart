@@ -17,7 +17,7 @@ import 'package:share_plus/share_plus.dart';
 class ImageScreen extends HookConsumerWidget {
   final String id;
 
-  const ImageScreen({Key? key, required this.id}) : super(key: key);
+  const ImageScreen({super.key, required this.id});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -10,7 +10,7 @@ import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
 
 class ChatModal extends HookConsumerWidget {
-  const ChatModal({Key? key}) : super(key: key);
+  const ChatModal({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -165,7 +165,7 @@ class ChatModal extends HookConsumerWidget {
 class ChatListItem extends HookConsumerWidget {
   final Chat chat;
 
-  const ChatListItem({Key? key, required this.chat}) : super(key: key);
+  const ChatListItem({super.key, required this.chat});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

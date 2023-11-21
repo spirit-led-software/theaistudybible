@@ -16,7 +16,7 @@ class MessageActionsDialog extends HookConsumerWidget {
   final ChatMessage? previousMessage;
   final ChatMessage message;
 
-  const MessageActionsDialog({Key? key, required this.message, this.previousMessage}) : super(key: key);
+  const MessageActionsDialog({super.key, required this.message, this.previousMessage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

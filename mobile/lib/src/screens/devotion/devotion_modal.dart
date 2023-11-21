@@ -10,7 +10,7 @@ import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/utils/capitalization.dart';
 
 class DevotionModal extends HookConsumerWidget {
-  const DevotionModal({Key? key}) : super(key: key);
+  const DevotionModal({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -133,7 +133,7 @@ class DevotionModal extends HookConsumerWidget {
 class DevotionListItem extends HookConsumerWidget {
   final Devotion devotion;
 
-  const DevotionListItem({Key? key, required this.devotion}) : super(key: key);
+  const DevotionListItem({super.key, required this.devotion});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

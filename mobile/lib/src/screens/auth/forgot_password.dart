@@ -12,7 +12,7 @@ import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 class ForgotPasswordScreen extends HookConsumerWidget {
   final String? token;
 
-  const ForgotPasswordScreen({Key? key, this.token}) : super(key: key);
+  const ForgotPasswordScreen({super.key, this.token});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

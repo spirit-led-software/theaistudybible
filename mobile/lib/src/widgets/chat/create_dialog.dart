@@ -8,7 +8,7 @@ import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateDialog extends HookConsumerWidget {
-  const CreateDialog({Key? key}) : super(key: key);
+  const CreateDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

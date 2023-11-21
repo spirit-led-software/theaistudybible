@@ -7,7 +7,7 @@ import 'package:revelationsai/src/services/user.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class DeleteAccountDialog extends HookConsumerWidget {
-  const DeleteAccountDialog({Key? key}) : super(key: key);
+  const DeleteAccountDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

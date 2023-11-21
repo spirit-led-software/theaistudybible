@@ -10,10 +10,10 @@ class RenameDialog extends HookConsumerWidget {
   final String name;
 
   const RenameDialog({
-    Key? key,
+    super.key,
     required this.id,
     required this.name,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

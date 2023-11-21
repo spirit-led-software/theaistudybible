@@ -10,14 +10,14 @@ class RAINetworkImage extends StatelessWidget {
   final FilterQuality filterQuality;
 
   const RAINetworkImage({
-    Key? key,
+    super.key,
     required this.imageUrl,
     required this.fallbackText,
     this.fallbackTextSize = 20,
     this.width,
     this.height,
     this.filterQuality = FilterQuality.high,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

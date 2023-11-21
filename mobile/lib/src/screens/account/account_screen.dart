@@ -17,7 +17,7 @@ import 'package:revelationsai/src/widgets/account/rename_dialog.dart';
 import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 
 class AccountScreen extends HookConsumerWidget {
-  const AccountScreen({Key? key}) : super(key: key);
+  const AccountScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

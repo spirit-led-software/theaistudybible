@@ -12,7 +12,7 @@ import 'package:revelationsai/src/widgets/generated_image/create_image_dialog.da
 import 'package:revelationsai/src/widgets/network_image.dart';
 
 class AllImagesScreen extends HookConsumerWidget {
-  const AllImagesScreen({Key? key}) : super(key: key);
+  const AllImagesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

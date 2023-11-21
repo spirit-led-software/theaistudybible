@@ -10,7 +10,7 @@ import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class UpgradeScreen extends HookConsumerWidget {
-  const UpgradeScreen({Key? key}) : super(key: key);
+  const UpgradeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -229,7 +229,7 @@ class ProductTile extends HookConsumerWidget {
   final Package package;
   final CustomerInfo? customerInfo;
 
-  const ProductTile({Key? key, required this.package, this.customerInfo}) : super(key: key);
+  const ProductTile({super.key, required this.package, this.customerInfo});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

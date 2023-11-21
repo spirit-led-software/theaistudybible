@@ -6,7 +6,7 @@ import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class RenameDialog extends HookConsumerWidget {
-  const RenameDialog({Key? key}) : super(key: key);
+  const RenameDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

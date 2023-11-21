@@ -9,7 +9,7 @@ import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class CreateImageDialog extends HookConsumerWidget {
-  const CreateImageDialog({Key? key}) : super(key: key);
+  const CreateImageDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

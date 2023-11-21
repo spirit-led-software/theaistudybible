@@ -8,7 +8,7 @@ import 'package:revelationsai/src/widgets/branding/logo.dart';
 class SplashScreen extends HookWidget {
   final String? redirectPath;
 
-  const SplashScreen({Key? key, this.redirectPath}) : super(key: key);
+  const SplashScreen({super.key, this.redirectPath});
 
   @override
   Widget build(BuildContext context) {

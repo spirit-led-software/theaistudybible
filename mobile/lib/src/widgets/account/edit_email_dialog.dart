@@ -7,7 +7,7 @@ import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class EditEmailDialog extends HookConsumerWidget {
-  const EditEmailDialog({Key? key}) : super(key: key);
+  const EditEmailDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

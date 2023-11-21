@@ -8,7 +8,7 @@ import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class ChangePasswordDialog extends HookConsumerWidget {
-  const ChangePasswordDialog({Key? key}) : super(key: key);
+  const ChangePasswordDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

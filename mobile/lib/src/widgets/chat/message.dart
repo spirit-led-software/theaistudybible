@@ -21,14 +21,14 @@ class Message extends HookConsumerWidget {
   final bool isLastMessage;
 
   const Message({
-    Key? key,
+    super.key,
     this.chatId,
     required this.message,
     this.previousMessage,
     this.isLoading = false,
     this.isCurrentResponse = false,
     this.isLastMessage = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -9,7 +9,7 @@ import 'package:revelationsai/src/providers/user/preferences.dart';
 class TabsScaffold extends HookConsumerWidget {
   final Widget child;
 
-  const TabsScaffold({Key? key, required this.child}) : super(key: key);
+  const TabsScaffold({super.key, required this.child});
 
   int _calculateCurrentIndex(context) {
     String path = GoRouter.of(context).routeInformationProvider.value.uri.path;

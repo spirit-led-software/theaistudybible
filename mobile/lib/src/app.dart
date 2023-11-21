@@ -89,7 +89,7 @@ class RAIApp extends HookConsumerWidget {
 class _EagerlyInitializedProviders extends ConsumerWidget {
   final Widget child;
 
-  const _EagerlyInitializedProviders({Key? key, required this.child}) : super(key: key);
+  const _EagerlyInitializedProviders({required this.child});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

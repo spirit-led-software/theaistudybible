@@ -8,10 +8,10 @@ class ShareDialog extends HookWidget {
   final ChatMessage? previousMessage;
 
   const ShareDialog({
-    Key? key,
+    super.key,
     required this.message,
     this.previousMessage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

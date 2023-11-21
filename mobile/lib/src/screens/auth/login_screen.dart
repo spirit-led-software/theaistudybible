@@ -16,7 +16,7 @@ import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 class LoginScreen extends HookConsumerWidget {
   final bool? resetPassword;
 
-  const LoginScreen({Key? key, this.resetPassword = false}) : super(key: key);
+  const LoginScreen({super.key, this.resetPassword = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

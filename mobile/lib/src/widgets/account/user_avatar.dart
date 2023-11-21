@@ -10,11 +10,11 @@ class UserAvatar extends HookConsumerWidget {
   final Widget Function(BuildContext context)? badgeBuilder;
 
   const UserAvatar({
-    Key? key,
+    super.key,
     this.radius = 25,
     this.backgroundColor = Colors.grey,
     this.badgeBuilder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -8,7 +8,7 @@ import 'package:revelationsai/src/widgets/branding/logo.dart';
 import 'package:url_launcher/link.dart';
 
 class AboutScreen extends HookWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +42,7 @@ class AboutScreen extends HookWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Logo(
-              colorScheme: context.brightness == Brightness.dark
-                  ? RAIColorScheme.light
-                  : RAIColorScheme.dark,
+              colorScheme: context.brightness == Brightness.dark ? RAIColorScheme.light : RAIColorScheme.dark,
               fontSize: 32,
             ),
             Link(

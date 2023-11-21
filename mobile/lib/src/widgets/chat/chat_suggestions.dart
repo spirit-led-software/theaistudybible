@@ -6,7 +6,7 @@ import 'package:revelationsai/src/utils/build_context_extensions.dart';
 class ChatSuggestions extends HookWidget {
   final void Function(String suggestionString) onTap;
 
-  const ChatSuggestions({Key? key, required this.onTap}) : super(key: key);
+  const ChatSuggestions({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +117,11 @@ class ChatSuggestionTopic extends HookWidget {
   final void Function(String suggestionString) onTap;
 
   const ChatSuggestionTopic({
-    Key? key,
+    super.key,
     required this.topic,
     required this.suggestions,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +143,7 @@ class ChatSuggestion extends HookWidget {
   final String suggestionString;
   final void Function(String suggestionString) onTap;
 
-  const ChatSuggestion({Key? key, required this.suggestionString, required this.onTap}) : super(key: key);
+  const ChatSuggestion({super.key, required this.suggestionString, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

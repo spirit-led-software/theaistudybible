@@ -17,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsModal extends HookConsumerWidget {
-  const SettingsModal({Key? key}) : super(key: key);
+  const SettingsModal({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,13 +22,13 @@ class Sources extends HookConsumerWidget {
   final bool isCurrentResponse;
 
   const Sources({
-    Key? key,
+    super.key,
     this.chatId,
     required this.message,
     this.previousMessage,
     this.isChatLoading = false,
     this.isCurrentResponse = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,10 +118,14 @@ class Sources extends HookConsumerWidget {
                         if (currentUserPrefs.hapticFeedback) {
                           HapticFeedback.mediumImpact();
                         }
-                        showDialog(
+                        showCupertinoModalPopup(
                           context: context,
                           builder: (context) {
-                            return SourceInfoDialog(sourceDocument: source);
+                            return FractionallySizedBox(
+                              heightFactor: 0.90,
+                              widthFactor: 1.00,
+                              child: SourceInfoPreview(sourceDocument: source),
+                            );
                           },
                         );
                       },
