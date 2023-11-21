@@ -19,7 +19,8 @@ class RouterListenable extends _$RouterListenable implements Listenable {
   @override
   Future<void> build() async {
     await Future.wait([
-      ref.watch(currentUserProvider.future).then((value) {
+      ref.watch(currentUserProvider.future).then((value) async {
+        await ref.watch(repositoryInitializationProvider.future);
         _isAuth = true;
         return;
       }).catchError((_) {
@@ -28,10 +29,6 @@ class RouterListenable extends _$RouterListenable implements Listenable {
       }),
       ref.watch(currentUserPreferencesProvider.future),
     ]);
-
-    if (_isAuth) {
-      await ref.watch(repositoryInitializationProvider.future);
-    }
 
     await ref.read(interstitialAdsProvider.future);
 

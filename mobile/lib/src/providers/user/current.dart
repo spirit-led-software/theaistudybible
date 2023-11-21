@@ -31,7 +31,7 @@ class CurrentUser extends _$CurrentUser {
     _persistenceRefreshLogic();
     _purchasesConfigurationLogic();
 
-    return _loginRecoveryAttempt();
+    return await _loginRecoveryAttempt();
   }
 
   FutureOr<UserInfo> _loginRecoveryAttempt() async {

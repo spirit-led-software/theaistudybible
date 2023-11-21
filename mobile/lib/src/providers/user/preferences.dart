@@ -29,7 +29,7 @@ class CurrentUserPreferences extends _$CurrentUserPreferences {
       sound: true,
     );
 
-    return _preferenceRecoveryAttempt();
+    return await _preferenceRecoveryAttempt();
   }
 
   FutureOr<UserPreferences> _preferenceRecoveryAttempt() async {

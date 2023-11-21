@@ -14,7 +14,7 @@ part 'isar.g.dart';
 @Riverpod(keepAlive: true)
 Future<Isar> isarInstance(IsarInstanceRef ref) async {
   final appDir = await getApplicationDocumentsDirectory();
-  return Isar.open(
+  return await Isar.open(
     [
       ChatSchema,
       ChatMessageSchema,
