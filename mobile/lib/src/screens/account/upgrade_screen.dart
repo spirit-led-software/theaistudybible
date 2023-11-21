@@ -175,7 +175,7 @@ class UpgradeScreen extends HookConsumerWidget {
                             width: 15,
                             child: CircularProgressIndicator.adaptive(
                               strokeWidth: 2,
-                              backgroundColor: context.colorScheme.onPrimary,
+                              backgroundColor: context.colorScheme.primary,
                             ),
                           )
                         : purchasesRestoreSnapshot.hasError
@@ -212,7 +212,10 @@ class UpgradeScreen extends HookConsumerWidget {
                     ListTile(
                       title: const Text('Manage Subscriptions'),
                       subtitle: const Text('Manage your subscription on the App Store or Google Play Store.'),
-                      trailing: const FaIcon(FontAwesomeIcons.externalLinkAlt),
+                      trailing: const FaIcon(
+                        FontAwesomeIcons.upRightFromSquare,
+                        size: 15,
+                      ),
                       onTap: () {
                         launchUrlString(customerInfo.value!.managementURL!);
                       },
@@ -328,7 +331,7 @@ class ProductTile extends HookConsumerWidget {
                   width: 15,
                   child: CircularProgressIndicator.adaptive(
                     strokeWidth: 2,
-                    backgroundColor: context.colorScheme.onPrimary,
+                    backgroundColor: context.colorScheme.primary,
                   ),
                 )
               : purchasingSnapshot.hasError
