@@ -12,9 +12,6 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
 
-  // Langchain
-  LANGCHAIN_TRACING: "true",
-
   // Neon Database
   NEON_API_KEY: process.env.NEON_API_KEY!,
 

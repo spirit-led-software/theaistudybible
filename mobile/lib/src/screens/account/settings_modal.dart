@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/constants/website.dart';
+import 'package:revelationsai/src/models/user.dart';
+import 'package:revelationsai/src/models/user/request.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -118,35 +120,50 @@ class SettingsModal extends HookConsumerWidget {
                 },
               ),
               ListTile(
-                  leading: context.isLightMode
-                      ? const Icon(Icons.light_mode_outlined)
-                      : const Icon(Icons.dark_mode_outlined),
-                  title: const Text('Theme Mode'),
-                  trailing: DropdownButton(
-                    value: ref.watch(currentUserPreferencesProvider).requireValue.themeMode,
-                    onChanged: (value) {
-                      ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
-                            ref
-                                .read(currentUserPreferencesProvider)
-                                .requireValue
-                                .copyWith(themeMode: value as ThemeMode),
-                          );
-                    },
-                    items: const <DropdownMenuItem>[
-                      DropdownMenuItem(
-                        value: ThemeMode.system,
-                        child: Text('System'),
-                      ),
-                      DropdownMenuItem(
-                        value: ThemeMode.light,
-                        child: Text('Light'),
-                      ),
-                      DropdownMenuItem(
-                        value: ThemeMode.dark,
-                        child: Text('Dark'),
-                      ),
-                    ],
-                  )),
+                leading:
+                    context.isLightMode ? const Icon(Icons.light_mode_outlined) : const Icon(Icons.dark_mode_outlined),
+                title: const Text('Theme Mode'),
+                trailing: DropdownButton(
+                  value: ref.watch(currentUserPreferencesProvider).requireValue.themeMode,
+                  onChanged: (value) {
+                    ref.read(currentUserPreferencesProvider.notifier).updatePrefs(
+                          ref.read(currentUserPreferencesProvider).requireValue.copyWith(themeMode: value as ThemeMode),
+                        );
+                  },
+                  items: const <DropdownMenuItem>[
+                    DropdownMenuItem(
+                      value: ThemeMode.system,
+                      child: Text('System'),
+                    ),
+                    DropdownMenuItem(
+                      value: ThemeMode.light,
+                      child: Text('Light'),
+                    ),
+                    DropdownMenuItem(
+                      value: ThemeMode.dark,
+                      child: Text('Dark'),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: const FaIcon(FontAwesomeIcons.language),
+                title: const Text('Preferred Translation'),
+                trailing: DropdownButton(
+                  value: ref.watch(currentUserProvider).requireValue.translation,
+                  onChanged: (value) async {
+                    await ref.read(currentUserProvider.notifier).updateUser(
+                          UpdateUserRequest(translation: value as Translation),
+                        );
+                  },
+                  items: Translation.values.map((translation) {
+                    return DropdownMenuItem(
+                      value: translation,
+                      child: Text(translation.toString().split('.').last),
+                    );
+                  }).toList(),
+                ),
+              ),
               SwitchListTile.adaptive(
                 title: const Row(
                   children: [

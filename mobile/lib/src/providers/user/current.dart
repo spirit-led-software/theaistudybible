@@ -121,6 +121,7 @@ class CurrentUser extends _$CurrentUser {
         name: request.name ?? currentUser.name,
         email: request.email ?? currentUser.email,
         image: request.image ?? currentUser.image,
+        translation: request.translation ?? currentUser.translation,
       ));
 
       final user = await UserService.updateUser(
@@ -132,6 +133,7 @@ class CurrentUser extends _$CurrentUser {
           name: user.name,
           email: user.email,
           image: user.image,
+          translation: user.translation,
         ));
         return user;
       });

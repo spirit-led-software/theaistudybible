@@ -7,13 +7,23 @@ export 'user/query_count.dart' show UserQueryCount;
 part 'user.freezed.dart';
 part 'user.g.dart';
 
+enum Translation {
+  ESV,
+  NIV,
+  NKJV,
+  NLT,
+}
+
 @freezed
 class User with _$User {
+  const User._();
+
   factory User({
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
     required String email,
+    required Translation translation,
     String? name,
     String? image,
     String? stripeCustomerId,
@@ -24,12 +34,15 @@ class User with _$User {
 
 @freezed
 class UserInfo with _$UserInfo {
+  const UserInfo._();
+
   factory UserInfo({
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
     required String session,
     required String email,
+    required Translation translation,
     String? name,
     String? image,
     String? stripeCustomerId,
