@@ -24,7 +24,7 @@ class SourceInfoPreview extends HookConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: context.theme.cardColor,
+        color: context.theme.colorScheme.background,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -164,8 +164,7 @@ class SourceInfoPreview extends HookConsumerWidget {
                               ),
                               initialOptions: InAppWebViewGroupOptions(
                                 crossPlatform: InAppWebViewOptions(
-                                  javaScriptEnabled: false,
-                                  disableVerticalScroll: true,
+                            disableVerticalScroll: true,
                                   disableHorizontalScroll: true,
                                   javaScriptCanOpenWindowsAutomatically: false,
                                   supportZoom: false,
