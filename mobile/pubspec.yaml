@@ -88,7 +88,7 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   change_app_package_name: ^1.1.0
   isar_generator: ^3.1.0
-  analyzer: any
+  analyzer: ^5.13.0
 
 flutter_launcher_icons:
   ios: true
