@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -88,6 +90,20 @@ class UpgradeScreen extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Plans & Pricing'),
+        actions: [
+          if (purchasesRestoreSnapshot.connectionState == ConnectionState.waiting)
+            Padding(
+              padding: const EdgeInsets.only(right: 15),
+              child: SizedBox(
+                height: 20,
+                width: 20,
+                child: SpinKitSpinningLines(
+                  lineWidth: 1,
+                  color: context.colorScheme.onPrimary,
+                ),
+              ),
+            ),
+        ],
       ),
       body: loading.value
           ? Center(
@@ -99,48 +115,90 @@ class UpgradeScreen extends HookConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      top: 20,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 20,
                     ),
-                    child: Text(
-                      'Starter',
-                      style: context.textTheme.titleMedium,
+                    child: ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 15,
+                        vertical: 5,
+                      ),
+                      tileColor: context.colorScheme.secondary.withOpacity(0.2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        side: BorderSide(
+                          color: context.colorScheme.secondary,
+                          width: 2,
+                        ),
+                      ),
+                      leading: Container(
+                        padding: const EdgeInsets.only(
+                          right: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            right: BorderSide(
+                              color: context.colorScheme.primary,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Free',
+                              style: context.textTheme.titleMedium,
+                            ),
+                            const SizedBox(
+                              width: 50,
+                              height: 5,
+                              child: Divider(),
+                            ),
+                            Text(
+                              'Lifetime',
+                              style: context.textTheme.labelMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      title: Text(
+                        "Late to Sunday Service",
+                        style: context.textTheme.titleMedium,
+                      ),
+                      subtitle: const Text(
+                        'Without a subscription you can send 5 messages & generate 1 image per day, with standard ads.',
+                      ),
+                      trailing: customerInfo.value?.activeSubscriptions.isEmpty ?? true
+                          ? Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: context.colorScheme.primary,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "Active",
+                                style: context.textTheme.labelLarge?.copyWith(
+                                  color: context.colorScheme.onPrimary,
+                                ),
+                              ),
+                            )
+                          : null,
                     ),
                   ),
-                  ListTile(
-                    title: Text.rich(
-                      TextSpan(text: "Late to Sunday Service", children: [
-                        const WidgetSpan(child: SizedBox(width: 5)),
-                        const WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: FaIcon(FontAwesomeIcons.solidCircle, size: 5),
-                        ),
-                        const WidgetSpan(child: SizedBox(width: 5)),
-                        TextSpan(
-                          text: 'Free Forever',
-                          style: context.textTheme.labelLarge,
-                        ),
-                      ]),
-                    ),
-                    subtitle: const Text(
-                      'By default you are able to send 5 message & generate 1 image per day, with standard ads.',
-                    ),
-                  ),
-                  const Divider(),
                   Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      top: 10,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
                     child: Text(
-                      'Upgrade',
-                      style: context.textTheme.titleMedium,
+                      'Upgrades',
+                      style: context.textTheme.headlineSmall,
                     ),
                   ),
                   ListView.builder(
@@ -148,79 +206,80 @@ class UpgradeScreen extends HookConsumerWidget {
                     shrinkWrap: true,
                     itemCount: packages.value.length,
                     itemBuilder: (context, index) {
-                      return ProductTile(
-                        key: ValueKey(packages.value[index].identifier),
-                        package: packages.value[index],
-                        customerInfo: customerInfo.value,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: ProductTile(
+                          key: ValueKey(packages.value[index].identifier),
+                          package: packages.value[index],
+                          customerInfo: customerInfo.value,
+                        ),
                       );
                     },
                   ),
-                  const Divider(),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
+                      horizontal: 15,
                       vertical: 8,
                     ),
                     child: Text(
-                      'Manage',
-                      style: context.textTheme.titleMedium,
+                      "All subscriptions will be automatically renewed until cancelled. You can cancel at any time in the ${Platform.isAndroid ? "Play Store" : "App Store"} settings.",
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  ListTile(
-                    title: const Text('Restore Purchases'),
-                    subtitle: const Text('If you have previously purchased a subscription, you can restore it here.'),
-                    trailing: purchasesRestoreSnapshot.connectionState == ConnectionState.waiting
-                        ? SizedBox(
-                            height: 15,
-                            width: 15,
-                            child: CircularProgressIndicator.adaptive(
-                              strokeWidth: 2,
-                              backgroundColor: context.colorScheme.primary,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      if (customerInfo.value?.managementURL != null) ...[
+                        GestureDetector(
+                          onTap: () {
+                            launchUrlString(customerInfo.value!.managementURL!);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                          )
-                        : purchasesRestoreSnapshot.hasError
-                            ? FaIcon(
-                                FontAwesomeIcons.x,
-                                color: context.colorScheme.error,
-                                size: 15,
-                              )
-                            : purchasesRestored.value
-                                ? const FaIcon(
-                                    FontAwesomeIcons.check,
-                                    color: Colors.green,
-                                    size: 15,
-                                  )
-                                : const SizedBox(
-                                    height: 15,
-                                    width: 15,
-                                  ),
-                    onTap: () {
-                      purchasesRestoreFuture.value = Purchases.restorePurchases().then((purchaserInfo) {
-                        debugPrint('Purchaser Info: $purchaserInfo');
-                        ref.read(currentUserProvider.notifier).refresh();
-                        if (isMounted()) purchasesRestored.value = true;
-                      }).catchError((e) {
-                        debugPrint('Encountered error on purchase: $e');
-                        final errorCode = PurchasesErrorHelper.getErrorCode(e);
-                        if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-                          throw e;
-                        }
-                      });
-                    },
+                            child: Text(
+                              'Manage Subscriptions',
+                              style: context.textTheme.labelLarge?.copyWith(
+                                color: context.colorScheme.secondary,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                      GestureDetector(
+                        onTap: () {
+                          purchasesRestoreFuture.value = Purchases.restorePurchases().then((purchaserInfo) {
+                            debugPrint('Purchaser Info: $purchaserInfo');
+                            ref.read(currentUserProvider.notifier).refresh();
+                            if (isMounted()) purchasesRestored.value = true;
+                          }).catchError((e) {
+                            debugPrint('Encountered error on purchase: $e');
+                            final errorCode = PurchasesErrorHelper.getErrorCode(e);
+                            if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+                              throw e;
+                            }
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Text(
+                            'Restore Purchases',
+                            style: context.textTheme.labelLarge?.copyWith(
+                              color: context.colorScheme.secondary,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
-                  if (customerInfo.value?.managementURL != null) ...[
-                    ListTile(
-                      title: const Text('Manage Subscriptions'),
-                      subtitle: const Text('Manage your subscription on the App Store or Google Play Store.'),
-                      trailing: const FaIcon(
-                        FontAwesomeIcons.upRightFromSquare,
-                        size: 15,
-                      ),
-                      onTap: () {
-                        launchUrlString(customerInfo.value!.managementURL!);
-                      },
-                    )
-                  ],
                 ],
               ),
             ),
@@ -281,19 +340,60 @@ class ProductTile extends HookConsumerWidget {
     }, [alert.value]);
 
     return ListTile(
-      title: Text.rich(
-        TextSpan(text: product.title.split('(').first.trim(), children: [
-          const WidgetSpan(child: SizedBox(width: 5)),
-          const WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: FaIcon(FontAwesomeIcons.solidCircle, size: 5),
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 5,
+      ),
+      tileColor: context.colorScheme.secondary.withOpacity(0.2),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: context.colorScheme.secondary,
+          width: 2,
+        ),
+      ),
+      leading: Container(
+        padding: const EdgeInsets.only(
+          right: 20,
+        ),
+        decoration: BoxDecoration(
+          border: Border(
+            right: BorderSide(
+              color: context.colorScheme.primary,
+              width: 2,
+            ),
           ),
-          const WidgetSpan(child: SizedBox(width: 5)),
-          TextSpan(
-            text: '${product.priceString}/${(product.subscriptionPeriod ?? 'P1M').replaceFirst("P", "")}',
-            style: context.textTheme.labelLarge,
-          ),
-        ]),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              product.priceString,
+              style: context.textTheme.titleMedium,
+            ),
+            const SizedBox(
+              width: 50,
+              height: 5,
+              child: Divider(),
+            ),
+            Text(
+              (product.subscriptionPeriod ?? 'P1M')
+                  .replaceFirst("P", "")
+                  .split("")
+                  .join(" ")
+                  .replaceAll("M", "Month")
+                  .replaceAll("Y", "Year")
+                  .replaceAll("W", "Week")
+                  .replaceAll("D", "Day"),
+              style: context.textTheme.labelMedium,
+            ),
+          ],
+        ),
+      ),
+      title: Text(
+        product.title.split('(').first.trim(),
+        style: context.textTheme.titleMedium,
       ),
       subtitle: Text(
         product.description,
@@ -327,11 +427,11 @@ class ProductTile extends HookConsumerWidget {
             )
           : purchasingSnapshot.connectionState == ConnectionState.waiting
               ? SizedBox(
-                  height: 15,
-                  width: 15,
-                  child: CircularProgressIndicator.adaptive(
-                    strokeWidth: 2,
-                    backgroundColor: context.colorScheme.primary,
+                  height: 20,
+                  width: 20,
+                  child: SpinKitSpinningLines(
+                    lineWidth: 1,
+                    color: context.colorScheme.primary,
                   ),
                 )
               : purchasingSnapshot.hasError
@@ -346,10 +446,7 @@ class ProductTile extends HookConsumerWidget {
                           color: Colors.green,
                           size: 15,
                         )
-                      : const SizedBox(
-                          height: 15,
-                          width: 15,
-                        ),
+                      : null,
     );
   }
 }
