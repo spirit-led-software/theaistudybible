@@ -122,7 +122,7 @@ class UpgradeScreen extends HookConsumerWidget {
                         ),
                         const WidgetSpan(child: SizedBox(width: 5)),
                         TextSpan(
-                          text: 'Free',
+                          text: 'Free Forever',
                           style: context.textTheme.labelLarge,
                         ),
                       ]),
