@@ -126,7 +126,7 @@ class RegisterScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  (snapshot.connectionState == ConnectionState.waiting)
+                  (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasError)
                       ? SpinKitSpinningLines(
                           color: context.secondaryColor,
                           size: 32,
