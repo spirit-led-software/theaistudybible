@@ -34,16 +34,16 @@ class LoginScreen extends HookConsumerWidget {
 
     final showPassword = useState(false);
 
-    void handleSubmit() {
+    final handleSubmit = useCallback(() async {
       if (formKey.value.currentState?.validate() ?? false) {
-        final future = ref
+        pendingLogin.value = ref
             .read(currentUserProvider.notifier)
             .login(emailTextController.value.text, passwordTextController.value.text);
-        pendingLogin.value = future;
+        await pendingLogin.value;
       }
-    }
+    }, [ref, formKey.value, emailTextController.value.text, passwordTextController.value.text]);
 
-    void handleSocialLogin(String provider) async {
+    final handleSocialLogin = useCallback((String provider) async {
       final url = "${API.url}/auth/$provider-mobile/authorize";
       final authResult = await FlutterWebAuth2.authenticate(
         url: url,
@@ -57,9 +57,9 @@ class LoginScreen extends HookConsumerWidget {
         );
         return;
       }
-      final future = ref.read(currentUserProvider.notifier).loginWithToken(token);
-      pendingLogin.value = future;
-    }
+      pendingLogin.value = ref.read(currentUserProvider.notifier).loginWithToken(token);
+			await pendingLogin.value;
+    }, [ref]);
 
     useEffect(() {
       if (resetPassword == true) {
