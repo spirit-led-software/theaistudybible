@@ -32,46 +32,68 @@ class ForgotPasswordScreen extends HookConsumerWidget {
     final showPassword = useState(false);
     final showConfirmPassword = useState(false);
 
-    void handleSubmit() {
-      if (token == null) {
-        if (emailTextController.text.isEmpty) {
-          alert.value = Alert(
-            message: "Email is required",
-            type: AlertType.error,
-          );
-          return;
-        }
-        pending.value = ref
-            .read(currentUserProvider.notifier)
-            .forgotPassword(
-              emailTextController.text,
-            )
-            .then((value) {
-          alert.value = Alert(
-            message: "Password reset email sent",
-            type: AlertType.success,
-          );
-        });
-      } else {
-        if (passwordTextController.text != confirmPasswordTextController.text) {
-          alert.value = Alert(
-            message: "Passwords do not match",
-            type: AlertType.error,
-          );
-          return;
-        }
+    final isLoading = !snapshot.hasData && !snapshot.hasError && snapshot.connectionState == ConnectionState.waiting;
 
-        pending.value = ref
-            .read(currentUserProvider.notifier)
-            .resetPassword(
-              token!,
-              passwordTextController.text,
-            )
-            .then((value) {
-          context.go('/auth/login?resetPassword=success');
-        });
-      }
-    }
+    final handleSubmit = useCallback(
+      () async {
+        if (token == null) {
+          if (emailTextController.text.isEmpty) {
+            alert.value = Alert(
+              message: "Email is required",
+              type: AlertType.error,
+            );
+            return;
+          }
+          pending.value = ref
+              .read(currentUserProvider.notifier)
+              .forgotPassword(
+                emailTextController.text,
+              )
+              .then((value) {
+            alert.value = Alert(
+              message: "Password reset email sent",
+              type: AlertType.success,
+            );
+          }).catchError((error) {
+            alert.value = Alert(
+              message: error.toString(),
+              type: AlertType.error,
+            );
+          });
+          await pending.value;
+        } else {
+          if (passwordTextController.text != confirmPasswordTextController.text) {
+            alert.value = Alert(
+              message: "Passwords do not match",
+              type: AlertType.error,
+            );
+            return;
+          }
+
+          pending.value = ref
+              .read(currentUserProvider.notifier)
+              .resetPassword(
+                token!,
+                passwordTextController.text,
+              )
+              .then((value) {
+            context.go('/auth/login?resetPassword=success');
+          }).catchError((error) {
+            alert.value = Alert(
+              message: error.toString(),
+              type: AlertType.error,
+            );
+          });
+          await pending.value;
+        }
+      },
+      [
+        token,
+        emailTextController.text,
+        passwordTextController.text,
+        confirmPasswordTextController.text,
+      ],
+    );
 
     useEffect(
       () {
@@ -95,11 +117,9 @@ class ForgotPasswordScreen extends HookConsumerWidget {
         if (alert.value != null) {
           Future.delayed(
             const Duration(seconds: 8),
-          ).then(
-            (value) => alert.value = null,
+            () => alert.value = null,
           );
         }
-
         return () {};
       },
       [alert.value],
@@ -137,7 +157,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                             ),
                           ),
                         )
-                      : (snapshot.connectionState == ConnectionState.waiting)
+                      : (isLoading)
                           ? SpinKitSpinningLines(
                               color: context.colorScheme.secondary,
                               size: 32,

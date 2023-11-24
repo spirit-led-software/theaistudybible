@@ -34,11 +34,19 @@ class LoginScreen extends HookConsumerWidget {
 
     final showPassword = useState(false);
 
+    final isLoading = !snapshot.hasData && !snapshot.hasError && snapshot.connectionState == ConnectionState.waiting;
+
     final handleSubmit = useCallback(() async {
       if (formKey.value.currentState?.validate() ?? false) {
         pendingLogin.value = ref
             .read(currentUserProvider.notifier)
-            .login(emailTextController.value.text, passwordTextController.value.text);
+            .login(emailTextController.value.text, passwordTextController.value.text)
+            .catchError((error) {
+          alert.value = Alert(
+            message: error.toString(),
+            type: AlertType.error,
+          );
+        });
         await pendingLogin.value;
       }
     }, [ref, formKey.value, emailTextController.value.text, passwordTextController.value.text]);
@@ -57,8 +65,13 @@ class LoginScreen extends HookConsumerWidget {
         );
         return;
       }
-      pendingLogin.value = ref.read(currentUserProvider.notifier).loginWithToken(token);
-			await pendingLogin.value;
+      pendingLogin.value = ref.read(currentUserProvider.notifier).loginWithToken(token).catchError((error) {
+        alert.value = Alert(
+          message: error.toString(),
+          type: AlertType.error,
+        );
+      });
+      await pendingLogin.value;
     }, [ref]);
 
     useEffect(() {
@@ -80,10 +93,10 @@ class LoginScreen extends HookConsumerWidget {
             type: AlertType.error,
           );
         }
-
         return () {};
       },
       [
+        snapshot,
         snapshot.hasError,
         snapshot.error,
       ],
@@ -94,11 +107,9 @@ class LoginScreen extends HookConsumerWidget {
         if (alert.value != null) {
           Future.delayed(
             const Duration(seconds: 8),
-          ).then(
-            (value) => alert.value = null,
+            () => alert.value = null,
           );
         }
-
         return () {};
       },
       [alert.value],
@@ -136,7 +147,7 @@ class LoginScreen extends HookConsumerWidget {
                             ),
                           ),
                         )
-                      : (snapshot.connectionState == ConnectionState.waiting)
+                      : (isLoading)
                           ? SpinKitSpinningLines(
                               color: context.secondaryColor,
                               size: 32,
