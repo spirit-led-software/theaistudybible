@@ -48,6 +48,7 @@ class UpgradeScreen extends HookConsumerWidget {
             message: error.toString(),
           );
         }
+        return [null];
       }).whenComplete(() {
         if (isMounted()) loading.value = false;
       });
