@@ -36,22 +36,37 @@ class RegisterScreen extends HookConsumerWidget {
     final showPassword = useState(false);
     final showConfirmPassword = useState(false);
 
-    void handleSubmit() {
-      if (formKey.value.currentState?.validate() ?? false) {
-        final future = ref
-            .read(currentUserProvider.notifier)
-            .register(emailTextController.value.text, passwordTextController.value.text)
-            .then((value) {
-          alert.value = Alert(
-            message: "Check your email for a verification link.",
-            type: AlertType.success,
-          );
-        });
-        pendingRegister.value = future;
-      }
-    }
+    final isLoading = !snapshot.hasData && !snapshot.hasError && snapshot.connectionState == ConnectionState.waiting;
 
-    void handleSocialLogin(String provider) async {
+    final handleSubmit = useCallback(
+      () async {
+        if (formKey.value.currentState?.validate() ?? false) {
+          pendingRegister.value = ref
+              .read(currentUserProvider.notifier)
+              .register(emailTextController.value.text, passwordTextController.value.text)
+              .then((value) {
+            alert.value = Alert(
+              message: "Check your email for a verification link.",
+              type: AlertType.success,
+            );
+          }).catchError((error) {
+            alert.value = Alert(
+              message: error.toString(),
+              type: AlertType.error,
+            );
+          });
+          await pendingRegister.value;
+        }
+      },
+      [
+        ref,
+        formKey.value,
+        emailTextController.value.text,
+        passwordTextController.value.text,
+      ],
+    );
+
+    final handleSocialLogin = useCallback((String provider) async {
       final url = "${API.url}/auth/$provider-mobile/authorize";
       final authResult = await FlutterWebAuth2.authenticate(
         url: url,
@@ -65,9 +80,14 @@ class RegisterScreen extends HookConsumerWidget {
         );
         return;
       }
-      final future = ref.read(currentUserProvider.notifier).loginWithToken(token);
-      pendingRegister.value = future;
-    }
+      pendingRegister.value = ref.read(currentUserProvider.notifier).loginWithToken(token).catchError((error) {
+        alert.value = Alert(
+          message: error.toString(),
+          type: AlertType.error,
+        );
+      });
+      await pendingRegister.value;
+    }, [ref]);
 
     useEffect(
       () {
@@ -77,10 +97,10 @@ class RegisterScreen extends HookConsumerWidget {
             type: AlertType.error,
           );
         }
-
         return () {};
       },
       [
+        snapshot,
         snapshot.hasError,
         snapshot.error,
       ],
@@ -91,11 +111,9 @@ class RegisterScreen extends HookConsumerWidget {
         if (alert.value != null) {
           Future.delayed(
             const Duration(seconds: 8),
-          ).then(
-            (value) => alert.value = null,
+            () => alert.value = null,
           );
         }
-
         return () {};
       },
       [alert.value],
@@ -133,7 +151,7 @@ class RegisterScreen extends HookConsumerWidget {
                             ),
                           ),
                         )
-                      : (snapshot.connectionState == ConnectionState.waiting)
+                      : (isLoading)
                           ? SpinKitSpinningLines(
                               color: context.secondaryColor,
                               size: 32,
