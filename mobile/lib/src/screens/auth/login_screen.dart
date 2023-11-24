@@ -22,12 +22,10 @@ class LoginScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useRef(GlobalKey<FormState>());
 
-    final TextEditingController emailTextController =
-        useTextEditingController();
+    final TextEditingController emailTextController = useTextEditingController();
     final emailFocusNode = useFocusNode();
 
-    final TextEditingController passwordTextController =
-        useTextEditingController();
+    final TextEditingController passwordTextController = useTextEditingController();
     final passwordFocusNode = useFocusNode();
 
     final pendingLogin = useState<Future<void>?>(null);
@@ -38,8 +36,9 @@ class LoginScreen extends HookConsumerWidget {
 
     void handleSubmit() {
       if (formKey.value.currentState?.validate() ?? false) {
-        final future = ref.read(currentUserProvider.notifier).login(
-            emailTextController.value.text, passwordTextController.value.text);
+        final future = ref
+            .read(currentUserProvider.notifier)
+            .login(emailTextController.value.text, passwordTextController.value.text);
         pendingLogin.value = future;
       }
     }
@@ -58,16 +57,14 @@ class LoginScreen extends HookConsumerWidget {
         );
         return;
       }
-      final future =
-          ref.read(currentUserProvider.notifier).loginWithToken(token);
+      final future = ref.read(currentUserProvider.notifier).loginWithToken(token);
       pendingLogin.value = future;
     }
 
     useEffect(() {
       if (resetPassword == true) {
         alert.value = Alert(
-          message:
-              "Password reset successful. Please login with your new password.",
+          message: "Password reset successful. Please login with your new password.",
           type: AlertType.success,
         );
       }
@@ -77,8 +74,7 @@ class LoginScreen extends HookConsumerWidget {
 
     useEffect(
       () {
-        if (snapshot.hasError &&
-            snapshot.connectionState != ConnectionState.waiting) {
+        if (snapshot.hasError) {
           alert.value = Alert(
             message: snapshot.error.toString(),
             type: AlertType.error,
@@ -88,7 +84,6 @@ class LoginScreen extends HookConsumerWidget {
         return () {};
       },
       [
-        snapshot.connectionState,
         snapshot.hasError,
         snapshot.error,
       ],
@@ -127,26 +122,24 @@ class LoginScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasError)
-                      ? SpinKitSpinningLines(
-                          color: context.secondaryColor,
-                          size: 32,
+                  alert.value != null
+                      ? Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
+                          ),
+                          child: Text(
+                            alert.value!.message,
+                            style: TextStyle(
+                              color: context.colorScheme.onError,
+                            ),
+                          ),
                         )
-                      : alert.value != null
-                          ? Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: alert.value!.type == AlertType.error
-                                    ? Colors.red
-                                    : Colors.green,
-                              ),
-                              child: Text(
-                                alert.value!.message,
-                                style: TextStyle(
-                                  color: context.colorScheme.onError,
-                                ),
-                              ),
+                      : (snapshot.connectionState == ConnectionState.waiting)
+                          ? SpinKitSpinningLines(
+                              color: context.secondaryColor,
+                              size: 32,
                             )
                           : const CircularLogo(radius: 30),
                   const SizedBox(
@@ -284,8 +277,7 @@ class LoginScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color:
-                              context.colorScheme.onBackground.withOpacity(0.5),
+                          color: context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                       const SizedBox(
@@ -300,8 +292,7 @@ class LoginScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color:
-                              context.colorScheme.onBackground.withOpacity(0.5),
+                          color: context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                     ],
@@ -366,9 +357,7 @@ class LoginScreen extends HookConsumerWidget {
                                   showPassword.value = !showPassword.value;
                                 },
                                 icon: FaIcon(
-                                  showPassword.value
-                                      ? FontAwesomeIcons.eye
-                                      : FontAwesomeIcons.eyeSlash,
+                                  showPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                                   size: 18,
                                 ),
                               ),

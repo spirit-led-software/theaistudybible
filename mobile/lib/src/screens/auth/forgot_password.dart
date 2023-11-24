@@ -16,16 +16,13 @@ class ForgotPasswordScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController emailTextController =
-        useTextEditingController();
+    final TextEditingController emailTextController = useTextEditingController();
     final emailFocusNode = useFocusNode();
 
-    final TextEditingController passwordTextController =
-        useTextEditingController();
+    final TextEditingController passwordTextController = useTextEditingController();
     final passwordFocusNode = useFocusNode();
 
-    final TextEditingController confirmPasswordTextController =
-        useTextEditingController();
+    final TextEditingController confirmPasswordTextController = useTextEditingController();
     final confirmPasswordFocusNode = useFocusNode();
 
     final pending = useState<Future<void>?>(null);
@@ -78,8 +75,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
 
     useEffect(
       () {
-        if (snapshot.hasError &&
-            snapshot.connectionState != ConnectionState.waiting) {
+        if (snapshot.hasError) {
           alert.value = Alert(
             message: snapshot.error.toString(),
             type: AlertType.error,
@@ -89,7 +85,6 @@ class ForgotPasswordScreen extends HookConsumerWidget {
         return () {};
       },
       [
-        snapshot.connectionState,
         snapshot.hasError,
         snapshot.error,
       ],
@@ -128,26 +123,24 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasError)
-                      ? SpinKitSpinningLines(
-                          color: context.colorScheme.secondary,
-                          size: 32,
+                  alert.value != null
+                      ? Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
+                          ),
+                          child: Text(
+                            alert.value!.message,
+                            style: TextStyle(
+                              color: context.colorScheme.onError,
+                            ),
+                          ),
                         )
-                      : alert.value != null
-                          ? Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: alert.value!.type == AlertType.error
-                                    ? Colors.red
-                                    : Colors.green,
-                              ),
-                              child: Text(
-                                alert.value!.message,
-                                style: TextStyle(
-                                  color: context.colorScheme.onError,
-                                ),
-                              ),
+                      : (snapshot.connectionState == ConnectionState.waiting)
+                          ? SpinKitSpinningLines(
+                              color: context.colorScheme.secondary,
+                              size: 32,
                             )
                           : const CircularLogo(radius: 30),
                   const SizedBox(
@@ -197,9 +190,7 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                                   showPassword.value = !showPassword.value;
                                 },
                                 icon: FaIcon(
-                                  showPassword.value
-                                      ? FontAwesomeIcons.eye
-                                      : FontAwesomeIcons.eyeSlash,
+                                  showPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                                   size: 18,
                                 ),
                               ),
@@ -225,13 +216,10 @@ class ForgotPasswordScreen extends HookConsumerWidget {
                               hintText: "Confirm Password",
                               suffixIcon: IconButton(
                                 onPressed: () {
-                                  showConfirmPassword.value =
-                                      !showConfirmPassword.value;
+                                  showConfirmPassword.value = !showConfirmPassword.value;
                                 },
                                 icon: FaIcon(
-                                  showConfirmPassword.value
-                                      ? FontAwesomeIcons.eye
-                                      : FontAwesomeIcons.eyeSlash,
+                                  showConfirmPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                                   size: 18,
                                 ),
                               ),

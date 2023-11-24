@@ -20,16 +20,13 @@ class RegisterScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final formKey = useRef(GlobalKey<FormState>());
 
-    final TextEditingController emailTextController =
-        useTextEditingController();
+    final TextEditingController emailTextController = useTextEditingController();
     final emailFocusNode = useFocusNode();
 
-    final TextEditingController passwordTextController =
-        useTextEditingController();
+    final TextEditingController passwordTextController = useTextEditingController();
     final passwordFocusNode = useFocusNode();
 
-    final TextEditingController confirmPasswordTextController =
-        useTextEditingController();
+    final TextEditingController confirmPasswordTextController = useTextEditingController();
     final confirmPasswordFocusNode = useFocusNode();
 
     final pendingRegister = useState<Future<void>?>(null);
@@ -43,8 +40,7 @@ class RegisterScreen extends HookConsumerWidget {
       if (formKey.value.currentState?.validate() ?? false) {
         final future = ref
             .read(currentUserProvider.notifier)
-            .register(emailTextController.value.text,
-                passwordTextController.value.text)
+            .register(emailTextController.value.text, passwordTextController.value.text)
             .then((value) {
           alert.value = Alert(
             message: "Check your email for a verification link.",
@@ -69,15 +65,13 @@ class RegisterScreen extends HookConsumerWidget {
         );
         return;
       }
-      final future =
-          ref.read(currentUserProvider.notifier).loginWithToken(token);
+      final future = ref.read(currentUserProvider.notifier).loginWithToken(token);
       pendingRegister.value = future;
     }
 
     useEffect(
       () {
-        if (snapshot.hasError &&
-            snapshot.connectionState != ConnectionState.waiting) {
+        if (snapshot.hasError) {
           alert.value = Alert(
             message: snapshot.error.toString(),
             type: AlertType.error,
@@ -87,7 +81,6 @@ class RegisterScreen extends HookConsumerWidget {
         return () {};
       },
       [
-        snapshot.connectionState,
         snapshot.hasError,
         snapshot.error,
       ],
@@ -136,9 +129,7 @@ class RegisterScreen extends HookConsumerWidget {
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(15),
-                                color: alert.value!.type == AlertType.error
-                                    ? Colors.red
-                                    : Colors.green,
+                                color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
                               ),
                               child: Text(
                                 alert.value!.message,
@@ -283,8 +274,7 @@ class RegisterScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color:
-                              context.colorScheme.onBackground.withOpacity(0.5),
+                          color: context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                       const SizedBox(
@@ -299,8 +289,7 @@ class RegisterScreen extends HookConsumerWidget {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color:
-                              context.colorScheme.onBackground.withOpacity(0.5),
+                          color: context.colorScheme.onBackground.withOpacity(0.5),
                         ),
                       ),
                     ],
@@ -353,9 +342,7 @@ class RegisterScreen extends HookConsumerWidget {
                                   showPassword.value = !showPassword.value;
                                 },
                                 icon: FaIcon(
-                                  showPassword.value
-                                      ? FontAwesomeIcons.eye
-                                      : FontAwesomeIcons.eyeSlash,
+                                  showPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                                   size: 18,
                                 ),
                               ),
@@ -388,13 +375,10 @@ class RegisterScreen extends HookConsumerWidget {
                               hintText: "Confirm Password",
                               suffixIcon: IconButton(
                                 onPressed: () {
-                                  showConfirmPassword.value =
-                                      !showConfirmPassword.value;
+                                  showConfirmPassword.value = !showConfirmPassword.value;
                                 },
                                 icon: FaIcon(
-                                  showConfirmPassword.value
-                                      ? FontAwesomeIcons.eye
-                                      : FontAwesomeIcons.eyeSlash,
+                                  showConfirmPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
                                   size: 18,
                                 ),
                               ),

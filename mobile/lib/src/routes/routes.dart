@@ -38,7 +38,9 @@ List<RouteBase> routes = [
   GoRoute(
     path: "/",
     builder: (context, state) {
-      return const SplashScreen();
+      return SplashScreen(
+        redirectPath: state.uri.queryParameters["redirect"],
+      );
     },
   ),
   GoRoute(

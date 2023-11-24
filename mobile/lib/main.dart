@@ -48,7 +48,7 @@ Future<void> main() async {
     debugPrint('Handling a background message ${initMessage.messageId}');
     switch (initMessage.data['task']) {
       case 'daily-devo':
-        initLocation = '/devotions/${initMessage.data['id'] ?? ''}';
+        initLocation = '/?redirect=${Uri.encodeComponent('/devotions/${initMessage.data['id'] ?? ''}')}';
         break;
       default:
         break;
