@@ -119,24 +119,24 @@ class RegisterScreen extends HookConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasError)
-                      ? SpinKitSpinningLines(
-                          color: context.secondaryColor,
-                          size: 32,
+                  alert.value != null
+                      ? Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
+                          ),
+                          child: Text(
+                            alert.value!.message,
+                            style: TextStyle(
+                              color: context.colorScheme.onError,
+                            ),
+                          ),
                         )
-                      : alert.value != null
-                          ? Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
-                              ),
-                              child: Text(
-                                alert.value!.message,
-                                style: TextStyle(
-                                  color: context.colorScheme.onError,
-                                ),
-                              ),
+                      : (snapshot.connectionState == ConnectionState.waiting)
+                          ? SpinKitSpinningLines(
+                              color: context.secondaryColor,
+                              size: 32,
                             )
                           : const CircularLogo(radius: 30),
                   const SizedBox(

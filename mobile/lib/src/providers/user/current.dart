@@ -64,9 +64,9 @@ class CurrentUser extends _$CurrentUser {
       }),
     );
 
-    if (res.statusCode != 200) {
+    if (!res.ok) {
       debugPrint("Failed to login: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to login');
+      throw res.exception;
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -76,12 +76,7 @@ class CurrentUser extends _$CurrentUser {
   }
 
   Future<void> loginWithToken(String session) async {
-    try {
-      state = AsyncData<UserInfo>(await _loginWithToken(session));
-    } catch (e) {
-      debugPrint("Failed to login with token: $e");
-      throw Exception('Failed to login with token');
-    }
+    state = AsyncData<UserInfo>(await _loginWithToken(session));
   }
 
   Future<void> loginWithApple(String authorizationCode) async {
@@ -97,9 +92,9 @@ class CurrentUser extends _$CurrentUser {
       },
     );
 
-    if (res.statusCode != 200) {
+    if (!res.ok) {
       debugPrint("Failed to login with Apple: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to login with Apple');
+      throw res.exception;
     }
 
     var data = jsonDecode(utf8.decode(res.bodyBytes));
@@ -155,7 +150,10 @@ class CurrentUser extends _$CurrentUser {
       return await UserService.getUserInfo(session);
     } catch (e) {
       debugPrint("Failed to login with token: $e");
-      throw Exception('Failed to login with token');
+      if (e is RAIHttpException && e.isUnauthorized) {
+        _sharedPreferences.remove(_sharedPrefsKey);
+      }
+      rethrow;
     }
   }
 
@@ -173,9 +171,9 @@ class CurrentUser extends _$CurrentUser {
       }),
     );
 
-    if (res.statusCode != 200) {
+    if (!res.ok) {
       debugPrint("Failed to register: ${res.statusCode} ${res.body}");
-      throw Exception(['Failed to register user', res.body]);
+      throw res.exception;
     }
   }
 
@@ -184,9 +182,9 @@ class CurrentUser extends _$CurrentUser {
       Uri.parse('${API.url}/auth/credentials-mobile/forgot-password?email=$email'),
     );
 
-    if (res.statusCode != 200) {
+    if (!res.ok) {
       debugPrint("Failed to send forgot password email: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to send forgot password email');
+      throw res.exception;
     }
   }
 
@@ -204,9 +202,9 @@ class CurrentUser extends _$CurrentUser {
       }),
     );
 
-    if (res.statusCode != 200) {
+    if (!res.ok) {
       debugPrint("Failed to reset password: ${res.statusCode} ${res.body}");
-      throw Exception('Failed to reset password');
+      throw res.exception;
     }
   }
 
