@@ -36,9 +36,9 @@ class RegisterScreen extends HookConsumerWidget {
     final showPassword = useState(false);
     final showConfirmPassword = useState(false);
 
-    void handleSubmit() {
+    final handleSubmit = useCallback(() async {
       if (formKey.value.currentState?.validate() ?? false) {
-        final future = ref
+        pendingRegister.value = ref
             .read(currentUserProvider.notifier)
             .register(emailTextController.value.text, passwordTextController.value.text)
             .then((value) {
@@ -47,11 +47,11 @@ class RegisterScreen extends HookConsumerWidget {
             type: AlertType.success,
           );
         });
-        pendingRegister.value = future;
+        await pendingRegister.value;
       }
-    }
+    }, [ref, formKey.value, emailTextController.value.text, passwordTextController.value.text]);
 
-    void handleSocialLogin(String provider) async {
+    final handleSocialLogin = useCallback((String provider) async {
       final url = "${API.url}/auth/$provider-mobile/authorize";
       final authResult = await FlutterWebAuth2.authenticate(
         url: url,
@@ -65,9 +65,9 @@ class RegisterScreen extends HookConsumerWidget {
         );
         return;
       }
-      final future = ref.read(currentUserProvider.notifier).loginWithToken(token);
-      pendingRegister.value = future;
-    }
+      pendingRegister.value = ref.read(currentUserProvider.notifier).loginWithToken(token);
+			await pendingRegister.value;
+    }, [ref]);
 
     useEffect(
       () {
