@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/colors.dart';
-import 'package:revelationsai/src/providers/user/current.dart';
+import 'package:revelationsai/src/routes/router_listenable.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
 
@@ -14,14 +14,14 @@ class SplashScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider);
+    final routerListenable = ref.watch(routerListenableProvider);
 
     useEffect(() {
-      if (redirectPath != null && currentUser.hasValue) {
+      if (redirectPath != null && !routerListenable.isLoading) {
         context.go(redirectPath!);
       }
       return () {};
-    }, [currentUser.hasValue, redirectPath]);
+    }, [redirectPath, routerListenable.isLoading]);
 
     return Scaffold(
       backgroundColor: context.colorScheme.background,

@@ -51,7 +51,8 @@ class RAIApp extends HookConsumerWidget {
       FirebaseMessaging.onMessage.listen((message) {
         switch (message.data['task']) {
           case 'daily-devo':
-            context.go('/devotions/${message.data['id'] ?? ''}');
+            final id = message.data['id'] ?? '';
+            context.go('/?redirect=${Uri.encodeComponent('/devotions/$id')}');
             break;
           default:
             break;
@@ -64,7 +65,8 @@ class RAIApp extends HookConsumerWidget {
       FirebaseMessaging.onMessageOpenedApp.listen((message) {
         switch (message.data['task']) {
           case 'daily-devo':
-            context.go('/devotions/${message.data['id'] ?? ''}');
+            final id = message.data['id'] ?? '';
+            context.go('/?redirect=${Uri.encodeComponent('/devotions/$id')}');
             break;
           default:
             break;
