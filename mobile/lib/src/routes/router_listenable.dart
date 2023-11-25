@@ -41,21 +41,22 @@ class RouterListenable extends _$RouterListenable implements Listenable {
 
   /// Redirects the user when our authentication changes
   String? redirect(BuildContext context, GoRouterState state) {
-    if (this.state.isLoading) {
-      debugPrint("Router is loading");
-      return null;
-    }
+    final isSplash = state.uri.path == "/";
 
     if (this.state.hasError) {
       debugPrint("Router has error: ${this.state.error}");
       return null;
     }
 
+    if (this.state.isLoading) {
+      debugPrint("Router is loading");
+      return isSplash ? null : "/?redirect=${Uri.encodeComponent(state.uri.path)}";
+    }
+
     debugPrint("Router initialized, removing splash screen...");
     FlutterNativeSplash.remove();
     debugPrint("Router path: ${state.uri.path}");
 
-    final isSplash = state.uri.path == "/";
     final isChatBase = state.uri.path == "/chat";
     final isDevotionBase = state.uri.path == "/devotions";
 
