@@ -52,7 +52,7 @@ class MessageActionsDialog extends HookConsumerWidget {
                       left: 10,
                       right: 15,
                     ),
-                    child: ChatMarkdownBody(
+                    child: MessageMarkdownBody(
                       followLinks: true,
                       selectable: true,
                       data: message.content.trim(),

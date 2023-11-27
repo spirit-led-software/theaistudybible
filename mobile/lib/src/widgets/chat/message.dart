@@ -136,7 +136,7 @@ class Message extends HookConsumerWidget {
                             children: <InlineSpan>[
                               if (message.role == Role.assistant && message.content.isNotEmpty) ...[
                                 WidgetSpan(
-                                  child: ChatMarkdownBody(
+                                  child: MessageMarkdownBody(
                                     data: message.content.trim(),
                                   ),
                                 )

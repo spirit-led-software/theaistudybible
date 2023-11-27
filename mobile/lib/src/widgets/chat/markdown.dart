@@ -3,12 +3,17 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class ChatMarkdownBody extends StatelessWidget {
+class MessageMarkdownBody extends StatelessWidget {
   final String data;
   final bool selectable;
   final bool followLinks;
 
-  const ChatMarkdownBody({super.key, required this.data, this.selectable = false, this.followLinks = false});
+  const MessageMarkdownBody({
+    super.key,
+    required this.data,
+    this.selectable = false,
+    this.followLinks = false,
+  });
 
   @override
   Widget build(BuildContext context) {
