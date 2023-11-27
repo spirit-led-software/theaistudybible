@@ -114,7 +114,7 @@ export const handler: S3Handler = async (event) => {
       chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
     });
     console.log("Starting split documents");
-    docs = await splitter.invoke(docs);
+    docs = await splitter.invoke(docs, {});
 
     console.log("Finished load and split documents");
     console.log(`Loaded ${docs.length} documents`);

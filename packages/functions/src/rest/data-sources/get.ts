@@ -7,7 +7,6 @@ import {
 } from "@lib/api-responses";
 import { getDataSources } from "@services/data-source";
 import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
@@ -18,8 +17,8 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userWithRoles.id))) {
+    const { isValid } = await validApiHandlerSession();
+    if (!isValid) {
       return UnauthorizedResponse();
     }
 

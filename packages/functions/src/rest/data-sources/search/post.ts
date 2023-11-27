@@ -7,7 +7,6 @@ import {
 } from "@lib/api-responses";
 import { getDataSources } from "@services/data-source";
 import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
 import { and } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
@@ -28,13 +27,9 @@ export const handler = ApiHandler(async (event) => {
   });
 
   try {
-    const { isValid, userWithRoles } = await validApiHandlerSession();
+    const { isValid } = await validApiHandlerSession();
     if (!isValid) {
-      return UnauthorizedResponse("You must be logged in");
-    }
-
-    if (!(await isAdmin(userWithRoles.id))) {
-      return UnauthorizedResponse("You must be an admin");
+      return UnauthorizedResponse();
     }
 
     const dataSources = await getDataSources({

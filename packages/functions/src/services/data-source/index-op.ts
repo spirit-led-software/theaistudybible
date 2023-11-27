@@ -320,7 +320,7 @@ export async function indexYoutubeVideo({
       chunkSize: vectorDBConfig.docEmbeddingContentLength,
       chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
     });
-    docs = await splitter.invoke(docs);
+    docs = await splitter.invoke(docs, {});
 
     console.log(`Successfully loaded ${docs.length} docs from youtube video.`);
     docs = docs.map((doc) => {

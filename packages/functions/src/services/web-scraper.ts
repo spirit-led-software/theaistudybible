@@ -45,7 +45,7 @@ export async function generatePageContentEmbeddings(
           chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
         });
         console.log("Splitting documents.");
-        docs = await splitter.invoke(docs);
+        docs = await splitter.invoke(docs, {});
         console.log(`Split into ${docs.length} documents from url '${url}'.`);
       }
 
