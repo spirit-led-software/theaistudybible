@@ -182,7 +182,7 @@ class ChatScreen extends HookConsumerWidget {
           "ChatScreen: chatHook.loading.value: ${chatHook.loading.value} chatHook.currentResponseId.value: ${chatHook.currentResponseId.value} chatHook.error.value: ${chatHook.error.value}");
       if (!chatHook.loading.value && chatHook.currentResponseId.value == null && chatHook.error.value == null) {
         debugPrint("Refreshing chat data since chat is idle.");
-        refreshChatData();
+        Future(() => refreshChatData());
       }
       return () {};
     }, [chatHook.loading.value, chatHook.currentResponseId.value, chatHook.error.value]);
@@ -273,7 +273,7 @@ class ChatScreen extends HookConsumerWidget {
               children: [
                 PopupMenuButton(
                   offset: const Offset(0, 50),
-                  color: context.colorScheme.background,
+                  color: context.brightness == Brightness.dark ? context.colorScheme.primary : Colors.grey.shade200,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -284,17 +284,23 @@ class ChatScreen extends HookConsumerWidget {
                     return [
                       PopupMenuItem(
                         enabled: false,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: context.width * 0.4,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 10,
                           ),
-                          child: Text(
-                            chat.value?.name ?? "New Chat",
-                            softWrap: true,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: context.colorScheme.onBackground,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: context.width * 0.4,
+                            ),
+                            child: Text(
+                              chat.value?.name ?? "New Chat",
+                              softWrap: true,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: context.colorScheme.onBackground,
+                              ),
                             ),
                           ),
                         ),
@@ -709,7 +715,7 @@ class ChatScreen extends HookConsumerWidget {
                   if (isRefreshingChat.value) ...[
                     Positioned.fill(
                       child: Container(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withOpacity(0.4),
                         child: Center(
                           child: SpinKitSpinningLines(
                             color: context.colorScheme.secondary,

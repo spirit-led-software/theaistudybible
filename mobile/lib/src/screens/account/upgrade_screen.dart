@@ -144,7 +144,7 @@ class UpgradeScreen extends HookConsumerWidget {
                         decoration: BoxDecoration(
                           border: Border(
                             right: BorderSide(
-                              color: context.colorScheme.primary,
+                              color: context.colorScheme.onBackground,
                               width: 2,
                             ),
                           ),
@@ -177,15 +177,15 @@ class UpgradeScreen extends HookConsumerWidget {
                       ),
                       trailing: customerInfo.value?.activeSubscriptions.isEmpty ?? true
                           ? Container(
-                              padding: const EdgeInsets.all(5),
+                              padding: const EdgeInsets.all(8.0),
                               decoration: BoxDecoration(
-                                color: context.colorScheme.primary,
+                                color: context.colorScheme.onBackground,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 "Active",
                                 style: context.textTheme.labelLarge?.copyWith(
-                                  color: context.colorScheme.onPrimary,
+                                  color: context.colorScheme.background,
                                 ),
                               ),
                             )
@@ -361,7 +361,7 @@ class ProductTile extends HookConsumerWidget {
         decoration: BoxDecoration(
           border: Border(
             right: BorderSide(
-              color: context.colorScheme.primary,
+              color: context.colorScheme.onBackground,
               width: 2,
             ),
           ),
@@ -414,15 +414,15 @@ class ProductTile extends HookConsumerWidget {
       },
       trailing: customerInfo?.activeSubscriptions.contains(product.identifier) ?? false
           ? Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: context.colorScheme.primary,
+                color: context.colorScheme.onBackground,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 "Active",
                 style: context.textTheme.labelLarge?.copyWith(
-                  color: context.colorScheme.onPrimary,
+                  color: context.colorScheme.background,
                 ),
               ),
             )

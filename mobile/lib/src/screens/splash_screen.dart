@@ -17,6 +17,7 @@ class SplashScreen extends HookConsumerWidget {
     final routerListenable = ref.watch(routerListenableProvider);
 
     useEffect(() {
+      debugPrint("SplashScreen: useEffect redirectPath=$redirectPath, isLoading=${routerListenable.isLoading}");
       if (redirectPath != null && !routerListenable.isLoading) {
         context.go(redirectPath!);
       }

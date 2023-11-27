@@ -12,6 +12,7 @@ import 'package:revelationsai/src/providers/user/generated_image/pages.dart';
 import 'package:revelationsai/src/providers/user/generated_image/single.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:revelationsai/src/widgets/refresh_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ImageScreen extends HookConsumerWidget {
@@ -84,7 +85,7 @@ class ImageScreen extends HookConsumerWidget {
           )
         ],
       ),
-      body: RefreshIndicator(
+      body: RAIRefreshIndicator(
         onRefresh: () async {
           await imageNotifier.refresh();
         },

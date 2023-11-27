@@ -128,10 +128,10 @@ PODS:
     - Flutter
     - FlutterMacOS
   - PromisesObjC (2.3.1)
-  - purchases_flutter (6.3.0):
+  - purchases_flutter (6.4.0):
     - Flutter
-    - PurchasesHybridCommon (= 7.3.3)
-  - PurchasesHybridCommon (7.3.3):
+    - PurchasesHybridCommon (= 8.0.0)
+  - PurchasesHybridCommon (8.0.0):
     - RevenueCat (= 4.30.5)
   - RevenueCat (4.30.5)
   - share_plus (0.0.1):
@@ -275,8 +275,8 @@ SPEC CHECKSUMS:
   package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
   path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
-  purchases_flutter: 07c76f15de1cde7f9a5e46ea8b76fc890ac9dd11
-  PurchasesHybridCommon: 347eab2636e0f03e3001d3aaad1ba1d9d0481b12
+  purchases_flutter: a428f3e8ac54dfb499ff190efa99d6701094bc32
+  PurchasesHybridCommon: 80262c5ffe6621e3cf3812e6103170f6d7fbcb79
   RevenueCat: c1e33f4e1f1fd239ba461652f02928e220becc31
   share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126

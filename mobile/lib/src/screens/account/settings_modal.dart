@@ -13,6 +13,7 @@ import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/account/delete_account_dialog.dart';
+import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -74,7 +75,10 @@ class SettingsModal extends HookConsumerWidget {
             mainAxis: Axis.vertical,
             children: [
               ListTile(
-                leading: const Icon(Icons.info_outlined),
+                leading: const CircularLogo(
+                  radius: 12,
+                  noShadow: true,
+                ),
                 title: const Text('About RevelationsAI'),
                 onTap: () {
                   context.go("/about");
@@ -147,8 +151,8 @@ class SettingsModal extends HookConsumerWidget {
                 ),
               ),
               ListTile(
-                leading: const FaIcon(FontAwesomeIcons.language),
-                title: const Text('Preferred Translation'),
+                leading: const FaIcon(FontAwesomeIcons.bookBible),
+                title: const Text('Bible Translation'),
                 trailing: DropdownButton(
                   value: ref.watch(currentUserProvider).requireValue.translation,
                   onChanged: (value) async {

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -214,25 +215,30 @@ class AccountScreen extends HookConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Flexible(
+                            Flexible(
                               child: Text.rich(
                                 TextSpan(
                                   text: "Password:",
                                   children: [
-                                    WidgetSpan(
+                                    const WidgetSpan(
                                       child: SizedBox(
                                         width: 10,
                                       ),
                                     ),
-                                    TextSpan(
-                                      text: "***********",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.normal,
+                                    for (int i = 0; i < 12; i++) ...[
+                                      const WidgetSpan(
+                                        alignment: PlaceholderAlignment.middle,
+                                        child: Icon(Icons.circle, size: 7),
                                       ),
-                                    ),
+                                      const WidgetSpan(
+                                        child: SizedBox(
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -260,56 +266,159 @@ class AccountScreen extends HookConsumerWidget {
                   const SizedBox(
                     height: 30,
                   ),
-                  Text(
-                    '${currentUser.remainingQueries}/${currentUser.maxQueries}',
-                    style: TextStyle(
-                      color: currentUser.remainingQueries <= 3 ? Colors.red : null,
-                    ),
-                  ),
-                  Text(
-                    'Queries Remaining',
-                    style: TextStyle(
-                      color: currentUser.remainingQueries <= 3 ? Colors.red : null,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    '${currentUser.remainingGeneratedImages}/${currentUser.maxGeneratedImages}',
-                    style: TextStyle(
-                      color: currentUser.remainingGeneratedImages <= 3 ? Colors.red : null,
-                    ),
-                  ),
-                  Text(
-                    'Images Remaining',
-                    style: TextStyle(
-                      color: currentUser.remainingGeneratedImages <= 3 ? Colors.red : null,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: RAIColors.secondary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 15,
-                        horizontal: 50,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Queries:',
+                                style: context.textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: currentUser.remainingQueries <= 3
+                                      ? context.colorScheme.error.withOpacity(0.5)
+                                      : context.primaryColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    currentUser.remainingQueries > 100
+                                        ? Icon(
+                                            CupertinoIcons.infinite,
+                                            color: context.colorScheme.onPrimary,
+                                            size: 18,
+                                          )
+                                        : Text(
+                                            currentUser.remainingQueries.toString(),
+                                            style: context.textTheme.labelLarge?.copyWith(
+                                              color: currentUser.remainingQueries <= 3
+                                                  ? context.colorScheme.onError
+                                                  : context.colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                    SizedBox(
+                                      height: 15,
+                                      child: VerticalDivider(
+                                        color: currentUser.remainingQueries <= 3
+                                            ? context.colorScheme.onError
+                                            : context.colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                    currentUser.remainingQueries > 100
+                                        ? Icon(
+                                            CupertinoIcons.infinite,
+                                            color: context.colorScheme.onPrimary,
+                                            size: 18,
+                                          )
+                                        : Text(
+                                            currentUser.remainingQueries.toString(),
+                                            style: context.textTheme.labelLarge?.copyWith(
+                                              color: currentUser.remainingQueries <= 3
+                                                  ? context.colorScheme.onError
+                                                  : context.colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Images:',
+                                style: context.textTheme.titleMedium,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: currentUser.remainingGeneratedImages <= 3
+                                      ? context.colorScheme.error.withOpacity(0.5)
+                                      : context.primaryColor,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  children: [
+                                    currentUser.remainingGeneratedImages > 100
+                                        ? Icon(
+                                            CupertinoIcons.infinite,
+                                            color: context.colorScheme.onPrimary,
+                                            size: 18,
+                                          )
+                                        : Text(
+                                            currentUser.remainingGeneratedImages.toString(),
+                                            style: context.textTheme.labelLarge?.copyWith(
+                                              color: currentUser.remainingGeneratedImages <= 3
+                                                  ? context.colorScheme.onError
+                                                  : context.colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                    SizedBox(
+                                      height: 15,
+                                      child: VerticalDivider(
+                                        color: currentUser.remainingGeneratedImages <= 3
+                                            ? context.colorScheme.onError
+                                            : context.colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                    currentUser.remainingGeneratedImages > 100
+                                        ? Icon(
+                                            CupertinoIcons.infinite,
+                                            color: context.colorScheme.onPrimary,
+                                            size: 18,
+                                          )
+                                        : Text(
+                                            currentUser.remainingGeneratedImages.toString(),
+                                            style: context.textTheme.labelLarge?.copyWith(
+                                              color: currentUser.remainingGeneratedImages <= 3
+                                                  ? context.colorScheme.onError
+                                                  : context.colorScheme.onPrimary,
+                                            ),
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 15,
+                            horizontal: 40,
+                          ),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
                         ),
+                        onPressed: () {
+                          context.go("/upgrade");
+                        },
+                        child: const Text("Upgrade"),
                       ),
-                      shadowColor: Colors.black.withOpacity(0.2),
-                      elevation: 20,
-                    ),
-                    onPressed: () {
-                      context.go("/upgrade");
-                    },
-                    child: const Text("Upgrade"),
+                    ],
                   ),
                 ],
               ),

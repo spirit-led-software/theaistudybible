@@ -8,6 +8,7 @@ import 'package:revelationsai/src/providers/devotion/current_id.dart';
 import 'package:revelationsai/src/providers/devotion/pages.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/utils/capitalization.dart';
+import 'package:revelationsai/src/widgets/refresh_indicator.dart';
 
 class DevotionModal extends HookConsumerWidget {
   const DevotionModal({super.key});
@@ -76,7 +77,7 @@ class DevotionModal extends HookConsumerWidget {
                   ),
                 )
               : Expanded(
-                  child: RefreshIndicator(
+                  child: RAIRefreshIndicator(
                     onRefresh: () async {
                       await ref.read(devotionsPagesProvider.notifier).refresh();
                     },

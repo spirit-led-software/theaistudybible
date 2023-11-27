@@ -10,6 +10,7 @@ import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/generated_image/create_image_dialog.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:revelationsai/src/widgets/refresh_indicator.dart';
 
 class AllImagesScreen extends HookConsumerWidget {
   const AllImagesScreen({super.key});
@@ -92,7 +93,7 @@ class AllImagesScreen extends HookConsumerWidget {
             );
           }
 
-          return RefreshIndicator(
+          return RAIRefreshIndicator(
             onRefresh: () async {
               await imagesNotifier.refresh();
             },

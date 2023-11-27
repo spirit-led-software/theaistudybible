@@ -16,6 +16,7 @@ class RAITheme {
       onBackground: RAIColors.primary,
       surface: Colors.white,
       onSurface: RAIColors.primary,
+      shadow: Colors.black.withOpacity(0.2),
     ),
     scaffoldBackgroundColor: Colors.white,
     appBarTheme: AppBarTheme(
@@ -83,6 +84,7 @@ class RAITheme {
       onBackground: Colors.white,
       surface: RAIColors.primary,
       onSurface: Colors.white,
+      shadow: Colors.black.withOpacity(0.3),
     ),
     scaffoldBackgroundColor: RAIColors.darkBackground,
     appBarTheme: AppBarTheme(
@@ -93,18 +95,18 @@ class RAITheme {
       backgroundColor: RAIColors.primary,
     ),
     buttonTheme: ButtonThemeData(
-      buttonColor: RAIColors.secondary,
+      buttonColor: RAIColors.primary,
       textTheme: ButtonTextTheme.primary,
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        backgroundColor: RAIColors.secondary,
+        backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: RAIColors.secondary,
+        backgroundColor: RAIColors.primary,
         foregroundColor: Colors.white,
       ),
     ),

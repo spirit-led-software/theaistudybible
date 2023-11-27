@@ -27,6 +27,7 @@ import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/utils/capitalization.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
+import 'package:revelationsai/src/widgets/refresh_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
 
@@ -197,7 +198,7 @@ class DevotionScreen extends HookConsumerWidget {
               ),
               child: PopupMenuButton(
                 offset: const Offset(0, 60),
-                color: context.colorScheme.background,
+                color: context.brightness == Brightness.light ? Colors.grey.shade200 : context.colorScheme.primary,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(15),
@@ -355,7 +356,7 @@ class DevotionScreen extends HookConsumerWidget {
                 left: 10,
                 right: 10,
               ),
-              child: RefreshIndicator(
+              child: RAIRefreshIndicator(
                 onRefresh: () async {
                   await refreshDevoData();
                 },

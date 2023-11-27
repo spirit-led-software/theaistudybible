@@ -13,8 +13,12 @@ part 'router_listenable.g.dart';
 
 @riverpod
 class RouterListenable extends _$RouterListenable implements Listenable {
+  static const chatBasePath = "/chat";
+  static const devotionsBasePath = "/devotions";
+
   VoidCallback? _routerListener;
-  late bool _isAuth = false; // Useful for our global redirect function
+
+  late bool _isAuth = false;
 
   @override
   Future<void> build() async {
@@ -33,13 +37,11 @@ class RouterListenable extends _$RouterListenable implements Listenable {
     await ref.read(interstitialAdsProvider.future);
 
     ref.listenSelf((_, __) {
-      // One could write more conditional logic for when to call redirection
       if (state.isLoading) return;
       _routerListener?.call();
     });
   }
 
-  /// Redirects the user when our authentication changes
   String? redirect(BuildContext context, GoRouterState state) {
     final isSplash = state.uri.path == "/";
 
@@ -55,16 +57,17 @@ class RouterListenable extends _$RouterListenable implements Listenable {
 
     debugPrint("Router initialized, removing splash screen...");
     FlutterNativeSplash.remove();
+
     debugPrint("Router path: ${state.uri.path}");
 
-    final isChatBase = state.uri.path == "/chat";
-    final isDevotionBase = state.uri.path == "/devotions";
+    final isChatBase = state.uri.path == chatBasePath;
+    final isDevotionBase = state.uri.path == devotionsBasePath;
 
     final currentChatId = ref.read(currentChatIdProvider);
-    final chatPath = "/chat/${currentChatId ?? ""}";
+    final chatPath = "$chatBasePath/${currentChatId ?? ""}";
 
     if (isSplash) {
-			final redirect = state.uri.queryParameters["redirect"] ?? chatPath;
+      final redirect = state.uri.queryParameters["redirect"] ?? chatPath;
       debugPrint("Redirecting to $redirect");
       return _isAuth ? redirect : "/auth/login";
     }
@@ -82,7 +85,7 @@ class RouterListenable extends _$RouterListenable implements Listenable {
 
     final currentDevotionId = ref.read(currentDevotionIdProvider);
     if (isDevotionBase && currentDevotionId != null) {
-      final devoPath = "/devotions/$currentDevotionId";
+      final devoPath = "$devotionsBasePath/$currentDevotionId";
       debugPrint("Redirecting to $devoPath");
       return devoPath;
     }

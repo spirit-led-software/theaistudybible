@@ -105,12 +105,10 @@ class Message extends HookConsumerWidget {
                 },
                 child: Card(
                   color: message.role == Role.user
-                      ? context.brightness == Brightness.light
-                          ? context.colorScheme.primary
-                          : context.colorScheme.secondary
+                      ? context.colorScheme.primary
                       : context.brightness == Brightness.light
                           ? Colors.grey.shade100
-                          : context.colorScheme.primary,
+                          : Colors.grey.shade900,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(30),

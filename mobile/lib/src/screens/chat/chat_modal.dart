@@ -8,6 +8,7 @@ import 'package:revelationsai/src/providers/chat/current_id.dart';
 import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/create_dialog.dart';
+import 'package:revelationsai/src/widgets/refresh_indicator.dart';
 
 class ChatModal extends HookConsumerWidget {
   const ChatModal({super.key});
@@ -108,7 +109,7 @@ class ChatModal extends HookConsumerWidget {
                   ),
                 )
               : Expanded(
-                  child: RefreshIndicator(
+                  child: RAIRefreshIndicator(
                     onRefresh: () async {
                       await ref.read(chatsPagesProvider.notifier).refresh();
                     },

@@ -13,6 +13,7 @@ import 'package:revelationsai/src/screens/chat/chat_screen.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_screen.dart';
 import 'package:revelationsai/src/screens/images/all_images_screen.dart';
 import 'package:revelationsai/src/screens/images/image_screen.dart';
+import 'package:revelationsai/src/screens/sources_screen.dart';
 import 'package:revelationsai/src/screens/splash_screen.dart';
 import 'package:revelationsai/src/widgets/tabs_scaffold.dart';
 
@@ -53,6 +54,19 @@ List<RouteBase> routes = [
         context: context,
         state: state,
         child: const AboutScreen(),
+      );
+    },
+  ),
+  GoRoute(
+    path: "/sources",
+    builder: (context, state) {
+      return const SourcesScreen();
+    },
+    pageBuilder: (context, state) {
+      return buildPageWithDefaultTransition(
+        context: context,
+        state: state,
+        child: const SourcesScreen(),
       );
     },
   ),

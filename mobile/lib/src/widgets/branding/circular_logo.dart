@@ -3,8 +3,9 @@ import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class CircularLogo extends StatelessWidget {
   final double radius;
+  final bool noShadow;
 
-  const CircularLogo({super.key, this.radius = 25});
+  const CircularLogo({super.key, this.radius = 25, this.noShadow = false});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +16,13 @@ class CircularLogo extends StatelessWidget {
           color: context.primaryColor,
           borderRadius: BorderRadius.circular(100),
           boxShadow: [
-            BoxShadow(
-              color: context.theme.shadowColor.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
+            if (!noShadow) ...[
+              BoxShadow(
+                color: context.theme.shadowColor.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ],
         ),
         child: ClipRRect(
