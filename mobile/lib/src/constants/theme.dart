@@ -82,7 +82,7 @@ class RAITheme {
       onError: Colors.white,
       background: RAIColors.darkBackground,
       onBackground: Colors.white,
-      surface: RAIColors.primary,
+      surface: RAIColors.darkCard,
       onSurface: Colors.white,
       shadow: Colors.black.withOpacity(0.3),
     ),

@@ -9,6 +9,7 @@ import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/widgets/chat/markdown.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
 
@@ -51,10 +52,10 @@ class MessageActionsDialog extends HookConsumerWidget {
                       left: 10,
                       right: 15,
                     ),
-                    child: SelectableText.rich(
-                      TextSpan(
-                        text: message.content,
-                      ),
+                    child: ChatMarkdownBody(
+                      followLinks: true,
+                      selectable: true,
+                      data: message.content.trim(),
                     ),
                   ),
                 ),

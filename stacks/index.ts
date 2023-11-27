@@ -1,9 +1,11 @@
 export * from "./API";
 export * from "./Auth";
+export * from "./Chat-API";
 export * from "./Constants";
 export * from "./Crons";
 export * from "./DatabaseScripts";
 export * from "./Queues";
+export * from "./Rest-API";
 export * from "./S3";
 export * from "./Website";
 

@@ -10,6 +10,7 @@ import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
+import 'package:revelationsai/src/widgets/chat/markdown.dart';
 import 'package:revelationsai/src/widgets/chat/message_actions_dialog.dart';
 
 class Message extends HookConsumerWidget {
@@ -133,29 +134,32 @@ class Message extends HookConsumerWidget {
                         Text.rich(
                           TextSpan(
                             children: <InlineSpan>[
-                              TextSpan(
-                                text: message.content.trim(),
-                                style: context.textTheme.bodyMedium?.copyWith(
-                                  color: message.role == Role.user
-                                      ? context.colorScheme.onPrimary
-                                      : context.colorScheme.onBackground,
+                              if (message.role == Role.assistant && message.content.isNotEmpty) ...[
+                                WidgetSpan(
+                                  child: ChatMarkdownBody(
+                                    data: message.content.trim(),
+                                  ),
+                                )
+                              ],
+                              if (message.role == Role.user) ...[
+                                TextSpan(
+                                  text: message.content.trim(),
+                                  style: context.textTheme.bodyMedium?.copyWith(
+                                    color: message.role == Role.user
+                                        ? context.colorScheme.onPrimary
+                                        : context.colorScheme.onBackground,
+                                  ),
                                 ),
-                              ),
+                              ],
                               if (isCurrentResponse) ...[
                                 WidgetSpan(
                                   child: SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: message.content.trim().isEmpty
-                                        ? SpinKitSpinningLines(
-                                            color: context.colorScheme.onBackground,
-                                            size: 20,
-                                          )
-                                        : Icon(
-                                            Icons.circle,
-                                            color: context.colorScheme.onBackground,
-                                            size: 15,
-                                          ),
+                                    child: SpinKitSpinningLines(
+                                      color: context.colorScheme.onBackground,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
                               ]

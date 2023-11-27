@@ -1,6 +1,7 @@
 import {
   API,
   Auth,
+  ChatAPI,
   Constants,
   Crons,
   DatabaseScripts,
@@ -9,6 +10,7 @@ import {
   Website,
 } from "@stacks";
 import { SSTConfig } from "sst";
+import { RestAPI } from "./stacks/Rest-API";
 
 export default {
   config(_input) {
@@ -23,8 +25,10 @@ export default {
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(Queues)
-      .stack(Auth)
+      .stack(ChatAPI)
       .stack(API)
+      .stack(RestAPI)
+      .stack(Auth)
       .stack(Website)
       .stack(Crons);
 

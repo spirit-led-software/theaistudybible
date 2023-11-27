@@ -154,11 +154,14 @@ Future<ChatMessage> getStreamedResponse({
       appendFutures.add(
         Future.sync(() async {
           if (appendFutures.isNotEmpty) await appendFutures.last;
-          for (int i = 0; i < value.length; i++) {
+
+          // split chunk into words
+          final words = value.split(' ').where((element) => element.isNotEmpty).toList();
+          for (int i = 0; i < words.length; i++) {
             await Future.delayed(
               const Duration(milliseconds: 5),
               () {
-                reply = reply.copyWith(content: "${reply.content}${value[i]}");
+                reply = reply.copyWith(content: "${reply.content} ${words[i]}");
                 messages.value = [
                   ...chatRequest.messages,
                   reply,

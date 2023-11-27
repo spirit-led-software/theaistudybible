@@ -224,6 +224,9 @@ importers:
       autosize:
         specifier: ^6.0.1
         version: 6.0.1
+      marked:
+        specifier: ^10.0.0
+        version: 10.0.0
       moment:
         specifier: ^2.29.4
         version: 2.29.4
@@ -8583,6 +8586,12 @@ packages:
       uc.micro: 1.0.6
     dev: false
     optional: true
+
+  /marked@10.0.0:
+    resolution: {integrity: sha512-YiGcYcWj50YrwBgNzFoYhQ1hT6GmQbFG8SksnYJX1z4BXTHSOrz1GB5/Jm2yQvMg4nN1FHP4M6r03R10KrVUiA==}
+    engines: {node: '>= 18'}
+    hasBin: true
+    dev: false
 
   /marked@4.3.0:
     resolution: {integrity: sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==}

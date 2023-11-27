@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
+import { API, Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
 import {
   Auth as AuthConstruct,
   StackContext,
@@ -9,6 +9,7 @@ import {
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { api } = use(API);
   const { websiteUrl } = use(Constants);
   const { dbReadOnlyUrl, dbReadWriteUrl } = use(DatabaseScripts);
 
@@ -34,6 +35,10 @@ export function Auth({ stack }: StackContext) {
       timeout: "30 seconds",
       memorySize: "512 MB",
     },
+  });
+
+  auth.attach(stack, {
+    api,
   });
 
   return {

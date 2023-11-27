@@ -15,6 +15,7 @@
 	import CompactLogo from '../branding/CompactLogo.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
+	import MessageMarkdown from './MessageMarkdown.svelte';
 	import ResponseSources from './ResponseSources.svelte';
 
 	export let chatId: string | undefined;
@@ -46,7 +47,7 @@
 </script>
 
 <div class="flex flex-row w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300">
-	<div class="flex flex-col content-start w-12">
+	<div class="flex flex-col content-start w-16">
 		{#if role === 'user'}
 			<Avatar size="lg" class="border shadow-xl border-slate-100" />
 		{:else}
@@ -63,7 +64,7 @@
 		{/if}
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
-		<div class="w-full break-words whitespace-pre-wrap">{content}</div>
+		<MessageMarkdown {content} />
 		<div class="flex justify-end w-full mt-2 text-xs text-gray-400">
 			{Moment(message.createdAt).format('MMMM Do YYYY h:mm a')}
 		</div>

@@ -74,6 +74,7 @@ dependencies:
   cached_network_image: ^3.3.0
   image_gallery_saver: ^2.0.3
   flutter_inappwebview: ^5.8.0
+  flutter_markdown: ^0.6.18+2
 
 dev_dependencies:
   flutter_test:
