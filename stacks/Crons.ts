@@ -22,7 +22,7 @@ export function Crons({ stack, app }: StackContext) {
 
   if (app.stage === "prod") {
     const dailyDevotionCron = new Cron(stack, "dailyDevoCron", {
-      schedule: "cron(0 12 * * ? *)",
+      schedule: "cron(0 23 * * ? *)",
       job: {
         function: {
           handler: "packages/functions/src/daily-devo.handler",
@@ -50,7 +50,7 @@ export function Crons({ stack, app }: StackContext) {
     });
 
     const indexOpCleanupCron = new Cron(stack, "indexOpCleanupCron", {
-      schedule: "cron(0 23 * * ? *)",
+      schedule: "cron(0 0 * * ? *)",
       job: {
         function: {
           handler: "packages/functions/src/index-op-cleanup.handler",
