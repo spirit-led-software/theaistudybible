@@ -92,4 +92,4 @@ jobs:
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - id: sst_remove
         name: Remove SST deployment
-        run: pnpx sst remove --stage pr-${{ github.event.pull_request.number }}
+        run: pnpm run remove pr-${{ github.event.pull_request.number }}

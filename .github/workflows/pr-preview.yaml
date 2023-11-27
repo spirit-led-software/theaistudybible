@@ -101,7 +101,7 @@ jobs:
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - id: sst_deploy
         name: Deploy to AWS
-        run: pnpx sst deploy --stage pr-${{ github.event.pull_request.number }}
+        run: pnpm run deploy pr-${{ github.event.pull_request.number }}
       - id: extract_website_url
         name: Extract website URL
         run: |

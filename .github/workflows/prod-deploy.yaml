@@ -102,4 +102,4 @@ jobs:
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - id: sst_deploy
         name: Deploy to AWS
-        run: pnpx sst deploy --stage prod
+        run: pnpm run deploy prod
