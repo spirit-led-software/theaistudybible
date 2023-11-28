@@ -235,7 +235,7 @@ export async function getDocumentQaChain(options: {
     verbose: true,
   }).then((store) =>
     store.asRetriever({
-      k: 7,
+      k: 5,
       verbose: true,
     })
   );
