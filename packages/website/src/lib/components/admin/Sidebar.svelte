@@ -20,6 +20,16 @@
 			name: 'Index Operations',
 			icon: 'mdi:database',
 			href: '/admin/index-operations'
+		},
+		{
+			name: 'Devotion Reactions',
+			icon: 'mdi:heart',
+			href: '/admin/reactions/devotion'
+		},
+		{
+			name: 'Response Reactions',
+			icon: 'mdi:heart',
+			href: '/admin/reactions/ai-response'
 		}
 	];
 

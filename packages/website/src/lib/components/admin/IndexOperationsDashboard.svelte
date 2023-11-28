@@ -3,7 +3,7 @@
 	import { session } from '$lib/stores/user';
 	import type { IndexOperation } from '@core/model';
 	import { indexOperations as indexOperationsTable } from '@core/schema';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';
 	import { SolidLineSpinner } from '../loading';
 
@@ -14,15 +14,26 @@
 	let isLoading = false;
 	let alert: { type: 'error' | 'success'; message: string } | undefined = undefined;
 
-	const query = createQuery({
-		queryKey: ['index-operations'],
-		queryFn: () => getIndexOperations({ limit, session: $session! }).then((r) => r.indexOperations),
-		initialData: initIndexOps,
+	const query = createInfiniteQuery({
+		queryKey: ['infinite-index-operations'],
+		queryFn: ({ pageParam = 1 }) =>
+			getIndexOperations({ limit, session: $session!, page: pageParam }).then(
+				(r) => r.indexOperations
+			),
+		getNextPageParam: (lastPage, pages) => {
+			if (lastPage.length < limit) return undefined;
+			return pages.length + 1;
+		},
+		initialPageParam: 1,
+		initialData: {
+			pages: [initIndexOps],
+			pageParams: [1]
+		},
 		refetchInterval: 8000
 	});
 	query.subscribe(({ data, isSuccess }) => {
 		if (isSuccess) {
-			indexOps = data;
+			indexOps = data.pages.flat();
 		}
 	});
 
@@ -84,8 +95,8 @@
 								indexOp.status === 'FAILED'
 									? 'text-red-500'
 									: indexOp.status === 'SUCCEEDED'
-									? 'text-green-500'
-									: 'text-yellow-500'
+									  ? 'text-green-500'
+									  : 'text-yellow-500'
 							}`}
 						>
 							<select on:change={(event) => handleUpdateStatus(event, indexOp.id)}>
@@ -101,6 +112,20 @@
 						</td>
 					</tr>
 				{/each}
+				{#if $query.hasNextPage}
+					<tr>
+						<td colspan="7">
+							<button
+								class="w-full btn btn-ghost"
+								on:click={() => {
+									$query.fetchNextPage();
+								}}
+							>
+								Load More
+							</button>
+						</td>
+					</tr>
+				{/if}
 			</tbody>
 		</table>
 	</div>

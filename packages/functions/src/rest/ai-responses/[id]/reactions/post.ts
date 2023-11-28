@@ -14,6 +14,7 @@ import {
   updateAiResponseReaction,
 } from "@services/ai-response";
 import { validApiHandlerSession } from "@services/session";
+import { isObjectOwner } from "@services/user";
 import { and, eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";
 
@@ -45,6 +46,12 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse("You must be signed in.");
     }
 
+    if (!isObjectOwner(aiResponse, userWithRoles.id)) {
+      return UnauthorizedResponse(
+        "You do not have permission to react to this AI response."
+      );
+    }
+
     let aiResponseReaction = (
       await getAiResponseReactions({
         where: and(
@@ -62,10 +69,13 @@ export const handler = ApiHandler(async (event) => {
         );
       } else {
         aiResponseReaction.reaction = reaction;
-        aiResponseReaction = await updateAiResponseReaction(aiResponseReaction.id, {
-          reaction,
-          comment,
-        });
+        aiResponseReaction = await updateAiResponseReaction(
+          aiResponseReaction.id,
+          {
+            reaction,
+            comment,
+          }
+        );
         return OkResponse(aiResponseReaction);
       }
     }

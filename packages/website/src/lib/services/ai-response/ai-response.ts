@@ -1,13 +1,13 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { AiResponse, CreateAiResponseData, UpdateAiResponseData } from '@core/model';
-import { GetEntitiesSearchParams } from './helpers/search-params';
+import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
 	PaginatedEntitiesResponse,
 	ProtectedApiOptions,
 	SearchForEntitiesOptions
-} from './types';
+} from '../types';
 export async function getAiResponses(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
 	const response = await fetch(`${PUBLIC_API_URL}/ai-responses?${searchParams.toString()}`, {

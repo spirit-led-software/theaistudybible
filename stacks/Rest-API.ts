@@ -54,7 +54,7 @@ export function RestAPI({ stack }: StackContext) {
     // AI Response Source Documents
     "GET /ai-responses/{id}/source-documents":
       "packages/functions/src/rest/ai-responses/[id]/source-documents/get.handler",
-    
+
     // AI Response Reactions
     "GET /ai-responses/{id}/reactions":
       "packages/functions/src/rest/ai-responses/[id]/reactions/get.handler",
@@ -153,6 +153,12 @@ export function RestAPI({ stack }: StackContext) {
       "packages/functions/src/rest/index-operations/[id]/put.handler",
     "DELETE /index-operations/{id}":
       "packages/functions/src/rest/index-operations/[id]/delete.handler",
+
+    // Reactions
+    "GET /reactions/ai-response":
+      "packages/functions/src/rest/reactions/ai-response/get.handler",
+    "GET /reactions/devotion":
+      "packages/functions/src/rest/reactions/devotion/get.handler",
 
     // User Messages
     "GET /user-messages":

@@ -1,19 +1,17 @@
 import { buildOrderBy } from "@core/database/helpers";
-import { aiResponseReactions } from "@core/schema";
+import type { DevotionReactionInfo } from "@core/model";
+import { devotionReactions } from "@core/schema";
 import {
   InternalServerErrorResponse,
-  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getAiResponse, getAiResponseReactions } from "@services/ai-response";
+import { getDevotionReactionsWithInfo } from "@services/devotion";
 import { validApiHandlerSession } from "@services/session";
-import { isObjectOwner } from "@services/user";
-import { eq } from "drizzle-orm";
+import { isAdminSync } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
-  const id = event.pathParameters!.id!;
   const searchParams = event.queryStringParameters ?? {};
   const limit = parseInt(searchParams.limit ?? "25");
   const page = parseInt(searchParams.page ?? "1");
@@ -21,31 +19,32 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    let aiResponse = await getAiResponse(id);
-    if (!aiResponse) {
-      return ObjectNotFoundResponse(id);
-    }
-
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be signed in.");
     }
 
-    if (!isObjectOwner(aiResponse, userWithRoles.id)) {
+    if (!isAdminSync(userWithRoles)) {
       return UnauthorizedResponse(
         "You do not have permission to view these reactions."
       );
     }
 
-    const reactions = await getAiResponseReactions({
-      where: eq(aiResponseReactions.aiResponseId, aiResponse.id),
+    const reactions = await getDevotionReactionsWithInfo({
       limit,
       offset: (page - 1) * limit,
-      orderBy: buildOrderBy(aiResponseReactions, orderBy, order),
+      orderBy: buildOrderBy(devotionReactions, orderBy, order),
     });
 
     return OkResponse({
-      entities: reactions,
+      entities: reactions.map(
+        (reaction) =>
+          ({
+            ...reaction.devotion_reactions,
+            user: reaction.users,
+            devotion: reaction.devotions,
+          }) satisfies DevotionReactionInfo
+      ),
       page,
       perPage: limit,
     });

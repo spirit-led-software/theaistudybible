@@ -1,19 +1,17 @@
 import { buildOrderBy } from "@core/database/helpers";
+import type { AiResponseReactionInfo } from "@core/model";
 import { aiResponseReactions } from "@core/schema";
 import {
   InternalServerErrorResponse,
-  ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getAiResponse, getAiResponseReactions } from "@services/ai-response";
+import { getAiResponseReactionsWithInfo } from "@services/ai-response";
 import { validApiHandlerSession } from "@services/session";
-import { isObjectOwner } from "@services/user";
-import { eq } from "drizzle-orm";
+import { isAdminSync } from "@services/user";
 import { ApiHandler } from "sst/node/api";
 
 export const handler = ApiHandler(async (event) => {
-  const id = event.pathParameters!.id!;
   const searchParams = event.queryStringParameters ?? {};
   const limit = parseInt(searchParams.limit ?? "25");
   const page = parseInt(searchParams.page ?? "1");
@@ -21,31 +19,32 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? "desc";
 
   try {
-    let aiResponse = await getAiResponse(id);
-    if (!aiResponse) {
-      return ObjectNotFoundResponse(id);
-    }
-
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse("You must be signed in.");
     }
 
-    if (!isObjectOwner(aiResponse, userWithRoles.id)) {
+    if (!isAdminSync(userWithRoles)) {
       return UnauthorizedResponse(
         "You do not have permission to view these reactions."
       );
     }
 
-    const reactions = await getAiResponseReactions({
-      where: eq(aiResponseReactions.aiResponseId, aiResponse.id),
+    const reactions = await getAiResponseReactionsWithInfo({
       limit,
       offset: (page - 1) * limit,
       orderBy: buildOrderBy(aiResponseReactions, orderBy, order),
     });
 
     return OkResponse({
-      entities: reactions,
+      entities: reactions.map(
+        (reaction) =>
+          ({
+            ...reaction.ai_response_reactions,
+            user: reaction.users,
+            response: reaction.ai_responses,
+          }) satisfies AiResponseReactionInfo
+      ),
       page,
       perPage: limit,
     });
