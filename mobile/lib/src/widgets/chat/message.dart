@@ -6,6 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
+import 'package:revelationsai/src/providers/ai_response/reaction.dart';
+import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/account/user_avatar.dart';
@@ -33,11 +35,17 @@ class Message extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hapticFeedback = ref.watch(currentUserPreferencesProvider).requireValue.hapticFeedback;
+    final hapticFeedback = ref.watch(
+      currentUserPreferencesProvider.select((value) => value.value?.hapticFeedback ?? true),
+    );
 
-    final showMessageDialog = useCallback((context) {
+    final showMessageDialog = useCallback(() {
       if (!isLoading) {
         if (hapticFeedback) HapticFeedback.mediumImpact();
+        if (message.role == Role.assistant) {
+          ref.read(aiResponseSourceDocumentsProvider(message.uuid).notifier).refresh();
+          ref.read(aiResponseReactionsProvider(message.uuid).notifier).refresh();
+        }
         showDialog(
           context: context,
           builder: (context) {
@@ -48,7 +56,7 @@ class Message extends HookConsumerWidget {
           },
         );
       }
-    }, [hapticFeedback, isLoading, message, previousMessage]);
+    }, [context, hapticFeedback, isLoading, message, previousMessage]);
 
     return Dismissible(
       key: ValueKey(message.uuid),
@@ -99,10 +107,10 @@ class Message extends HookConsumerWidget {
             Flexible(
               child: GestureDetector(
                 onDoubleTap: () {
-                  showMessageDialog(context);
+                  showMessageDialog();
                 },
                 onLongPress: () {
-                  showMessageDialog(context);
+                  showMessageDialog();
                 },
                 child: Card(
                   color: message.role == Role.user

@@ -169,6 +169,13 @@
       "when": 1700563226967,
       "tag": "0023_big_captain_flint",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1701181654619,
+      "tag": "0024_flowery_ghost_rider",
+      "breakpoints": true
     }
   ]
 }

@@ -4,7 +4,7 @@ import {
   ObjectNotFoundResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { deleteAiResponse, getAiResponse } from "@services/ai-response";
+import { deleteAiResponse, getAiResponse } from "@services/ai-response/ai-response";
 import { validApiHandlerSession } from "@services/session";
 import { isObjectOwner } from "@services/user";
 import { ApiHandler } from "sst/node/api";

@@ -1,7 +1,9 @@
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/repositories.dart';
+import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'reaction.g.dart';
 
@@ -17,13 +19,36 @@ class DevotionReactions extends _$DevotionReactions {
   }
 
   Future<void> createReaction({
-    required DevotionReactionType reaction,
-    required String session,
+    required DevotionReactionType reactionType,
+    String? comment,
   }) async {
-    return await ref.devotionReactions.createForDevotionId(_id, reaction).then((value) {
-      refresh();
-      ref.read(devotionReactionCountsProvider(_id).notifier).increment(reaction);
-    });
+    final previousState = state;
+
+    final reaction = DevotionReaction(
+      id: Uuid().v4(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      devotionId: _id,
+      userId: ref.read(currentUserProvider).requireValue.id,
+      reaction: reactionType,
+    );
+
+    state = AsyncData([
+      if (state.hasValue) ...state.requireValue,
+      reaction,
+    ]);
+
+    return await ref.devotionReactions.createForDevotionId(_id, reactionType, comment: comment).then(
+      (value) {
+        refresh();
+        ref.read(devotionReactionCountsProvider(_id).notifier).increment(reactionType);
+      },
+    ).catchError(
+      (error) {
+        state = previousState;
+        throw error;
+      },
+    );
   }
 
   Future<List<DevotionReaction>> refresh() async {

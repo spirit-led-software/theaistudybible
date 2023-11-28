@@ -8,7 +8,7 @@ import {
   getAiResponse,
   getAiResponsesByUserMessageId,
   updateAiResponse,
-} from "@services/ai-response";
+} from "@services/ai-response/ai-response";
 import { aiRenameChat, createChat, getChat } from "@services/chat";
 import { getRAIChatChain } from "@services/chat/langchain";
 import { validSessionFromEvent } from "@services/session";

@@ -35,19 +35,23 @@ class MessageMarkdownBody extends StatelessWidget {
         h4: context.textTheme.labelMedium,
         h5: context.textTheme.labelSmall,
         h6: context.textTheme.bodyLarge,
+        p: context.textTheme.bodyMedium,
+        a: context.textTheme.bodyMedium?.copyWith(
+          color: context.colorScheme.secondary,
+        ),
         blockquote: context.textTheme.bodySmall?.copyWith(
           color: context.colorScheme.onBackground,
         ),
         blockquoteDecoration: BoxDecoration(
-          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
+          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade800,
           borderRadius: BorderRadius.circular(4),
         ),
         codeblockDecoration: BoxDecoration(
-          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
+          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade800,
           borderRadius: BorderRadius.circular(4),
         ),
         tableCellsDecoration: BoxDecoration(
-          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
+          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade800,
           borderRadius: BorderRadius.circular(4),
         ),
       ),

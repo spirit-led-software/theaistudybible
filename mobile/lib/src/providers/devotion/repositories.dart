@@ -205,9 +205,13 @@ class DevotionReactionRepository {
     return await _fetchByDevotionId(devotionId);
   }
 
-  Future<void> createForDevotionId(String devotionId, DevotionReactionType type) async {
-    return await DevotionReactionService.createDevotionReaction(id: devotionId, session: _session, reaction: type)
-        .then((value) async {
+  Future<void> createForDevotionId(String devotionId, DevotionReactionType type, {String? comment}) async {
+    return await DevotionReactionService.createDevotionReaction(
+      id: devotionId,
+      session: _session,
+      reaction: type,
+      comment: comment,
+    ).then((value) async {
       await _fetchByDevotionId(devotionId);
     });
   }

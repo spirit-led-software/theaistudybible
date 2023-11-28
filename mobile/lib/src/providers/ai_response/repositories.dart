@@ -1,9 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
+import 'package:revelationsai/src/models/ai_response/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/ai_response.dart';
+import 'package:revelationsai/src/services/ai_response/reaction.dart';
 import 'package:revelationsai/src/utils/filter_source_document.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -82,12 +84,90 @@ class AiResponseSourceDocumentRepository {
   }
 }
 
+@Riverpod(keepAlive: true)
+Future<AiResponseReactionRepository> aiResponseReactionRepository(AiResponseReactionRepositoryRef ref) async {
+  final isar = await ref.watch(isarInstanceProvider.future);
+  final session = await ref.watch(currentUserProvider.selectAsync((data) => data.session));
+  return AiResponseReactionRepository(isar, session);
+}
+
+class AiResponseReactionRepository {
+  final Isar _isar;
+  final String _session;
+
+  AiResponseReactionRepository(
+    Isar isar,
+    String session,
+  )   : _isar = isar,
+        _session = session;
+
+  Future<bool> _hasLocalForAiResponseId(String aiResponseId) async {
+    final reactions = await _isar.aiResponseReactions.where().aiResponseIdEqualTo(aiResponseId).findAll();
+    return reactions.isNotEmpty;
+  }
+
+  Future<List<AiResponseReaction>> getByAiResponseId(String aiResponseId) async {
+    if (await _hasLocalForAiResponseId(aiResponseId)) {
+      return await _getLocalByAiResponseId(aiResponseId);
+    }
+
+    return await _fetchByAiResponseId(aiResponseId);
+  }
+
+  Future<List<AiResponseReaction>> _getLocalByAiResponseId(String aiResponseId) async {
+    return await _isar.aiResponseReactions.where().aiResponseIdEqualTo(aiResponseId).sortByCreatedAt().findAll();
+  }
+
+  Future<List<AiResponseReaction>> _fetchByAiResponseId(String aiResponseId) async {
+    return await AiResponseReactionService.getAiResponseReactions(
+      id: aiResponseId,
+    ).then((value) async {
+      await _save(value.entities);
+      return value.entities;
+    });
+  }
+
+  Future<List<AiResponseReaction>> refreshByAiResponseId(String aiResponseId) async {
+    return await _fetchByAiResponseId(aiResponseId);
+  }
+
+  Future<void> createForAiResponseId(String aiResponseId, AiResponseReactionType type, {String? comment}) async {
+    return await AiResponseReactionService.createAiResponseReaction(
+      id: aiResponseId,
+      session: _session,
+      reaction: type,
+      comment: comment,
+    ).then((value) async {
+      await _fetchByAiResponseId(aiResponseId);
+    });
+  }
+
+  Future<List<int>> _save(List<AiResponseReaction> reactions) async {
+    return await _isar.writeTxn(() async {
+      return await _isar.aiResponseReactions.putAll(reactions);
+    });
+  }
+
+  Future<void> deleteLocalByAiResponseId(String aiResponseId) async {
+    if (await _hasLocalForAiResponseId(aiResponseId)) {
+      await _isar.writeTxn(() async {
+        final reactions = await _isar.aiResponseReactions.where().aiResponseIdEqualTo(aiResponseId).findAll();
+        await _isar.aiResponseReactions.deleteAll(reactions.map((e) => e.isarId).toList());
+      });
+    }
+  }
+}
+
 extension AiResponseRepositoryRefX on Ref {
   AiResponseSourceDocumentRepository get aiResponseSourceDocuments =>
       watch(aiResponseSourceDocumentRepositoryProvider).requireValue;
+
+  AiResponseReactionRepository get aiResponseReactions => watch(aiResponseReactionRepositoryProvider).requireValue;
 }
 
 extension AiResponseRepositoryWidgetRefX on WidgetRef {
   AiResponseSourceDocumentRepository get aiResponseSourceDocuments =>
       watch(aiResponseSourceDocumentRepositoryProvider).requireValue;
+
+  AiResponseReactionRepository get aiResponseReactions => watch(aiResponseReactionRepositoryProvider).requireValue;
 }

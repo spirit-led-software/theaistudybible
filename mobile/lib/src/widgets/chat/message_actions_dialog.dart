@@ -6,10 +6,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
+import 'package:revelationsai/src/models/ai_response/reaction.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
+import 'package:revelationsai/src/providers/ai_response/reaction.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/markdown.dart';
+import 'package:revelationsai/src/widgets/chat/reaction_comment_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
 
@@ -22,6 +25,11 @@ class MessageActionsDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hapticFeedback = ref.watch(currentUserPreferencesProvider).requireValue.hapticFeedback;
+
+    final reactionsNotifier =
+        message.role == Role.assistant ? ref.watch(aiResponseReactionsProvider(message.uuid).notifier) : null;
+    final reactions =
+        message.role == Role.assistant ? ref.watch(aiResponseReactionsProvider(message.uuid)).value : null;
 
     final isMounted = useIsMounted();
     final copied = useState(false);
@@ -113,6 +121,60 @@ class MessageActionsDialog extends HookConsumerWidget {
                           );
                         },
                       ),
+                      if (message.role == Role.assistant) ...[
+                        IconButton(
+                          visualDensity: RAIVisualDensity.tightest,
+                          iconSize: 20,
+                          icon: Icon(
+                            reactions?.where((element) => element.reaction == AiResponseReactionType.LIKE).isNotEmpty ??
+                                    false
+                                ? CupertinoIcons.hand_thumbsup_fill
+                                : CupertinoIcons.hand_thumbsup,
+                          ),
+                          color: reactions
+                                      ?.where((element) => element.reaction == AiResponseReactionType.LIKE)
+                                      .isNotEmpty ??
+                                  false
+                              ? Colors.green
+                              : context.colorScheme.onBackground,
+                          onPressed: () {
+                            if (hapticFeedback) HapticFeedback.mediumImpact();
+                            reactionsNotifier!.createReaction(
+                              reactionType: AiResponseReactionType.LIKE,
+                            );
+                          },
+                        ),
+                        IconButton(
+                          visualDensity: RAIVisualDensity.tightest,
+                          iconSize: 20,
+                          icon: Icon(
+                            reactions
+                                        ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
+                                        .isNotEmpty ??
+                                    false
+                                ? CupertinoIcons.hand_thumbsdown_fill
+                                : CupertinoIcons.hand_thumbsdown,
+                          ),
+                          color: reactions
+                                      ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
+                                      .isNotEmpty ??
+                                  false
+                              ? Colors.red
+                              : context.colorScheme.onBackground,
+                          onPressed: () {
+                            if (hapticFeedback) HapticFeedback.mediumImpact();
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ReactionCommentDialog(
+                                  aiResponseId: message.uuid,
+                                  reactionType: AiResponseReactionType.DISLIKE,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
                     ],
                   ),
                   Text(

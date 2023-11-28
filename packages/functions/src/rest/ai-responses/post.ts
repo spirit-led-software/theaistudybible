@@ -3,7 +3,7 @@ import {
   InternalServerErrorResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { createAiResponse } from "@services/ai-response";
+import { createAiResponse } from "@services/ai-response/ai-response";
 import { validApiHandlerSession } from "@services/session";
 import { ApiHandler } from "sst/node/api";
 

@@ -54,6 +54,12 @@ export function RestAPI({ stack }: StackContext) {
     // AI Response Source Documents
     "GET /ai-responses/{id}/source-documents":
       "packages/functions/src/rest/ai-responses/[id]/source-documents/get.handler",
+    
+    // AI Response Reactions
+    "GET /ai-responses/{id}/reactions":
+      "packages/functions/src/rest/ai-responses/[id]/reactions/get.handler",
+    "POST /ai-responses/{id}/reactions":
+      "packages/functions/src/rest/ai-responses/[id]/reactions/post.handler",
 
     // Chats
     "GET /chats": "packages/functions/src/rest/chats/get.handler",

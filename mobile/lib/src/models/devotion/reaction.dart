@@ -16,22 +16,13 @@ class DevotionReaction with _$DevotionReaction {
   const DevotionReaction._();
 
   factory DevotionReaction({
-    /* Convert from TypeScript:
-    type DevotionReaction = {
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      devotionId: string;
-      userId: string;
-      reaction: "LIKE" | "DISLIKE";
-    }
-    */
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
     @Index() required String devotionId,
     required String userId,
     required DevotionReactionType reaction,
+    String? comment,
   }) = _DevotionReaction;
 
   // ignore: recursive_getters

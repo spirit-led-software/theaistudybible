@@ -14,6 +14,7 @@ Future<void> repositoryInitialization(RepositoryInitializationRef ref) async {
   await ref.watch(chatRepositoryProvider.future);
   await ref.watch(chatMessagesRepositoryProvider.future);
   await ref.watch(aiResponseSourceDocumentRepositoryProvider.future);
+  await ref.watch(aiResponseReactionRepositoryProvider.future);
 
   await ref.watch(devotionRepositoryProvider.future);
   await ref.watch(devotionImageRepositoryProvider.future);

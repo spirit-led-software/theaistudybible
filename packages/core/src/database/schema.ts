@@ -49,8 +49,55 @@ export const aiResponsesRelations = relations(aiResponses, ({ one, many }) => {
       fields: [aiResponses.userMessageId],
       references: [userMessages.id],
     }),
+    aiResponseReactions: many(aiResponseReactions),
   };
 });
+
+export const aiResponseReactions = pgTable(
+  "ai_response_reactions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    aiResponseId: uuid("ai_response_id")
+      .notNull()
+      .references(() => aiResponses.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    reaction: text("reaction", { enum: ["LIKE", "DISLIKE"] }).notNull(),
+    comment: text("comment"),
+  },
+  (table) => {
+    return {
+      aiResponseIdIdx: index("ai_response_reactions_ai_response_id").on(
+        table.aiResponseId
+      ),
+    };
+  }
+);
+
+export const aiResponseReactionsRelations = relations(
+  aiResponseReactions,
+  ({ one }) => {
+    return {
+      aiResponse: one(aiResponses, {
+        fields: [aiResponseReactions.aiResponseId],
+        references: [aiResponses.id],
+      }),
+      user: one(users, {
+        fields: [aiResponseReactions.userId],
+        references: [users.id],
+      }),
+    };
+  }
+);
 
 export const roles = pgTable(
   "roles",
@@ -106,6 +153,12 @@ export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
     userQueryCounts: many(userQueryCounts),
+    userGeneratedImages: many(userGeneratedImages),
+    userGeneratedImageCounts: many(userGeneratedImageCounts),
+    userMessages: many(userMessages),
+    aiResponses: many(aiResponses),
+    devotionReactions: many(devotionReactions),
+    aiResponseReactions: many(aiResponseReactions),
   };
 });
 
@@ -188,6 +241,7 @@ export const devotionReactions = pgTable(
         onUpdate: "cascade",
       }),
     reaction: text("reaction", { enum: ["LIKE", "DISLIKE"] }).notNull(),
+    comment: text("comment"),
   },
   (table) => {
     return {

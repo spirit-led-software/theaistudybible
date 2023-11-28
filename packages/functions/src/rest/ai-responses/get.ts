@@ -5,7 +5,7 @@ import {
   OkResponse,
   UnauthorizedResponse,
 } from "@lib/api-responses";
-import { getAiResponses } from "@services/ai-response";
+import { getAiResponses } from "@services/ai-response/ai-response";
 import { validApiHandlerSession } from "@services/session";
 import { and, eq } from "drizzle-orm";
 import { ApiHandler } from "sst/node/api";

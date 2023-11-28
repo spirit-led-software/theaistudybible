@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
-import 'package:revelationsai/src/models/source_document.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
@@ -34,44 +33,7 @@ class Sources extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
 
-    final isMounted = useIsMounted();
-    final isLoading = useState(false);
-    final sourceDocuments = useState<List<SourceDocument>>([]);
-    final hasLoaded = useState(false);
-
-    final refreshSources = useCallback(() async {
-      await ref.read(aiResponseSourceDocumentsProvider(message.uuid).notifier).refresh().then((value) {
-        if (isMounted()) {
-          sourceDocuments.value = value;
-        }
-      });
-    }, [ref, message.uuid, isMounted]);
-
-    useEffect(
-      () {
-        if (sourceDocuments.value.isEmpty && !hasLoaded.value && !isChatLoading) {
-          isLoading.value = true;
-          ref.read(aiResponseSourceDocumentsProvider(message.uuid).future).then((value) {
-            if (isMounted()) {
-              sourceDocuments.value = value;
-              hasLoaded.value = true;
-            }
-          }).catchError((e, stack) {
-            debugPrint("Failed to load sources: $e $stack");
-          }).whenComplete(() {
-            if (isMounted()) {
-              isLoading.value = false;
-              Future(() => refreshSources());
-            }
-          });
-        }
-        return () {};
-      },
-      [
-        message.uuid,
-        isChatLoading,
-      ],
-    );
+    final sourceDocuments = ref.watch(aiResponseSourceDocumentsProvider(message.uuid));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -85,26 +47,28 @@ class Sources extends HookConsumerWidget {
         const SizedBox(height: 10),
         SizedBox(
           width: context.width,
-          height: sourceDocuments.value.isNotEmpty ? 50 : 25,
+          height: (!sourceDocuments.hasValue || sourceDocuments.requireValue.isEmpty) ? 25 : 50,
           child: ListView.builder(
             shrinkWrap: true,
             scrollDirection: Axis.horizontal,
-            itemCount: sourceDocuments.value.isNotEmpty ? sourceDocuments.value.length : 1,
+            itemCount:
+                (!sourceDocuments.hasValue || sourceDocuments.requireValue.isEmpty) ? 1 : sourceDocuments.value!.length,
             itemBuilder: (context, index) {
-              final sourcesSorted = sourceDocuments.value
-                ..sort(
-                  (a, b) => a.distance.compareTo(b.distance),
-                );
-
-              if (sourceDocuments.value.isEmpty && !isLoading.value) {
+              if (!sourceDocuments.isLoading && sourceDocuments.hasValue && sourceDocuments.requireValue.isEmpty) {
                 return const Text("None", textAlign: TextAlign.center);
-              } else if (isLoading.value) {
+              } else if (sourceDocuments.isLoading) {
                 return SpinKitPulse(
                   color: context.colorScheme.onBackground,
                   size: 20,
                 );
+              } else if (!sourceDocuments.isLoading && sourceDocuments.hasError) {
+                return const Text("Error", textAlign: TextAlign.center);
               }
 
+              final sourcesSorted = sourceDocuments.requireValue
+                ..sort(
+                  (a, b) => a.distance.compareTo(b.distance),
+                );
               final source = sourcesSorted[index];
               return Link(
                 uri: Uri.parse(source.metadata["url"]),
@@ -191,6 +155,11 @@ class Sources extends HookConsumerWidget {
                             ),
                           )
                         ],
+                      ),
+                      trailing: FaIcon(
+                        FontAwesomeIcons.arrowUpRightFromSquare,
+                        color: context.colorScheme.onPrimary,
+                        size: 15,
                       ),
                     ),
                   );

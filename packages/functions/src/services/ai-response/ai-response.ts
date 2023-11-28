@@ -6,7 +6,7 @@ import type {
 import { aiResponses, aiResponsesToSourceDocuments } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
 import { SQL, asc, desc, eq } from "drizzle-orm";
-import { getDocumentVectorStore } from "./vector-db";
+import { getDocumentVectorStore } from "../vector-db";
 
 export async function getAiResponses(
   options: {

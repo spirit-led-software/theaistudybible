@@ -1,5 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:revelationsai/src/models/ai_response/reaction.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/devotion.dart';
@@ -16,6 +17,7 @@ Future<Isar> isarInstance(IsarInstanceRef ref) async {
   final appDir = await getApplicationDocumentsDirectory();
   return await Isar.open(
     [
+      AiResponseReactionSchema,
       ChatSchema,
       ChatMessageSchema,
       DevotionSchema,

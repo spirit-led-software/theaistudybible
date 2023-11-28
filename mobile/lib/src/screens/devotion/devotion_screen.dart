@@ -20,7 +20,6 @@ import 'package:revelationsai/src/providers/devotion/reaction_count.dart';
 import 'package:revelationsai/src/providers/devotion/repositories.dart';
 import 'package:revelationsai/src/providers/devotion/single.dart';
 import 'package:revelationsai/src/providers/devotion/source_document.dart';
-import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
@@ -41,7 +40,6 @@ class DevotionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUser = ref.watch(currentUserProvider).requireValue;
     final currentUserPrefs = ref.watch(currentUserPreferencesProvider).requireValue;
 
     final isMounted = useIsMounted();
@@ -236,8 +234,7 @@ class DevotionScreen extends HookConsumerWidget {
                       await ref
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
-                            reaction: DevotionReactionType.LIKE,
-                            session: currentUser.session,
+                            reactionType: DevotionReactionType.LIKE,
                           )
                           .then((value) {
                         ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
@@ -287,8 +284,7 @@ class DevotionScreen extends HookConsumerWidget {
                       await ref
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
                           .createReaction(
-                            reaction: DevotionReactionType.DISLIKE,
-                            session: currentUser.session,
+                            reactionType: DevotionReactionType.DISLIKE,
                           )
                           .then((value) {
                         ref.read(devotionReactionCountsProvider(devotion.value?.id).notifier).refresh().then((value) {
