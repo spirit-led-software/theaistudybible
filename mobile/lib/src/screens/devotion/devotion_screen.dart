@@ -25,6 +25,7 @@ import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/utils/capitalization.dart';
+import 'package:revelationsai/src/widgets/devotion/reaction_comment_dialog.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:revelationsai/src/widgets/refresh_indicator.dart';
 import 'package:share_plus/share_plus.dart';
@@ -231,31 +232,35 @@ class DevotionScreen extends HookConsumerWidget {
                       ],
                     ),
                     onTap: () async {
+                      reactionCounts.value[DevotionReactionType.LIKE] =
+                          (reactionCounts.value[DevotionReactionType.LIKE] ?? 0) + 1;
                       await ref
                           .read(devotionReactionsProvider(devotion.value!.id).notifier)
-                          .createReaction(
-                            reactionType: DevotionReactionType.LIKE,
-                          )
-                          .then((value) {
-                        ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
-                          if (isMounted()) {
-                            reactionCounts.value[DevotionReactionType.LIKE] = value[DevotionReactionType.LIKE]!;
-                          }
-                        });
-                      }).catchError((error, stackTrace) {
-                        debugPrint("Failed to create reaction: $error $stackTrace");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "$error",
-                              style: TextStyle(
-                                color: context.colorScheme.onError,
+                          .createReaction(reactionType: DevotionReactionType.LIKE)
+                          .then(
+                        (value) {
+                          ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
+                            if (isMounted()) {
+                              reactionCounts.value = value;
+                            }
+                          });
+                        },
+                      ).catchError(
+                        (error, stackTrace) {
+                          debugPrint("Failed to create reaction: $error $stackTrace");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "$error",
+                                style: TextStyle(
+                                  color: context.colorScheme.onError,
+                                ),
                               ),
+                              backgroundColor: context.colorScheme.error,
                             ),
-                            backgroundColor: context.colorScheme.error,
-                          ),
-                        );
-                      });
+                          );
+                        },
+                      );
                     },
                   ),
                   PopupMenuItem(
@@ -281,31 +286,38 @@ class DevotionScreen extends HookConsumerWidget {
                       ],
                     ),
                     onTap: () async {
-                      await ref
-                          .read(devotionReactionsProvider(devotion.value!.id).notifier)
-                          .createReaction(
-                            reactionType: DevotionReactionType.DISLIKE,
-                          )
-                          .then((value) {
-                        ref.read(devotionReactionCountsProvider(devotion.value?.id).notifier).refresh().then((value) {
-                          if (isMounted()) {
-                            reactionCounts.value[DevotionReactionType.DISLIKE] = value[DevotionReactionType.DISLIKE]!;
-                          }
-                        });
-                      }).catchError((error, stackTrace) {
-                        debugPrint("Failed to create reaction: $error $stackTrace");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "$error",
-                              style: TextStyle(
-                                color: context.colorScheme.onError,
+                      reactionCounts.value[DevotionReactionType.DISLIKE] =
+                          (reactionCounts.value[DevotionReactionType.DISLIKE] ?? 0) + 1;
+                      await showDialog(
+                        context: context,
+                        builder: (_) => ReactionCommentDialog(
+                          devotionId: devotion.value!.id,
+                          reactionType: DevotionReactionType.DISLIKE,
+                        ),
+                      ).then(
+                        (value) {
+                          ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
+                            if (isMounted()) {
+                              reactionCounts.value = value;
+                            }
+                          });
+                        },
+                      ).catchError(
+                        (error, stackTrace) {
+                          debugPrint("Failed to create reaction: $error $stackTrace");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "$error",
+                                style: TextStyle(
+                                  color: context.colorScheme.onError,
+                                ),
                               ),
+                              backgroundColor: context.colorScheme.error,
                             ),
-                            backgroundColor: context.colorScheme.error,
-                          ),
-                        );
-                      });
+                          );
+                        },
+                      );
                     },
                   ),
                   PopupMenuItem(
