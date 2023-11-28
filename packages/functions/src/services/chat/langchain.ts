@@ -24,6 +24,7 @@ import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
+  CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE,
   CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
   CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
@@ -136,6 +137,25 @@ export const getRAIChatChain = async (
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   });
 
+  const irrelevantQueryChain = RunnableSequence.from([
+    {
+      query: (input) => input.routingInstructions.next_inputs.query,
+    },
+    {
+      text: PromptTemplate.fromTemplate(
+        CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE
+      )
+        .pipe(
+          getLargeContextModel({
+            stream: true,
+            promptSuffix: "<answer>",
+            stopSequences: ["</answer>"],
+          })
+        )
+        .pipe(new StringOutputParser()),
+    },
+  ]);
+
   const branch = RunnableBranch.from([
     [(x) => x.routingInstructions.destination === "identity", identityChain],
     [
@@ -153,6 +173,10 @@ export const getRAIChatChain = async (
       theologyQaChain,
     ],
     [(x) => x.routingInstructions.destination === "faith-qa", faithQaChain],
+    [
+      (x) => x.routingInstructions.destination === "irrelevant-query",
+      irrelevantQueryChain,
+    ],
     faithQaChain,
   ]);
 
@@ -187,6 +211,7 @@ export const getRAIChatChain = async (
           "sermon-qa: Good for recommending and answering questions about sermons.",
           "theology-qa: Good for answering questions about Christian theology.",
           "faith-qa: Good for answering general questions about Christian faith.",
+          "irrelevant-query: Good for responding to queries that are inappropriate and/or irrelevant to the Christian faith.",
         ].join("\n"),
         history: (await history.getMessages())
           .map(
