@@ -37,6 +37,7 @@ class SourceDocument with _$SourceDocument {
 
   bool get isFile => metadata['type'].toString().toLowerCase() == 'file';
   bool get isWebpage => metadata['type'].toString().toLowerCase() == 'webpage';
+  bool get isYoutube => metadata['type'].toString().toLowerCase() == 'youtube';
 
   bool get hasTitle => metadata['title'] != null;
   String? get title => metadata['title'];

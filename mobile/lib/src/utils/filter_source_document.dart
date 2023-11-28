@@ -36,7 +36,7 @@ List<SourceDocument> filterSourceDocuments(List<SourceDocument> value) {
     }
 
     for (final match in matches.toList()) {
-      if (prospect.isWebpage && prospect.url == match.url) {
+      if ((prospect.isWebpage || prospect.isYoutube) && prospect.url == match.url) {
         filteredSources.removeWhere((element) => element.id == match.id);
         filteredSources.add(prospect.copyWith(
           pageContent: "${match.pageContent}\n$contentSeparator\n${prospect.pageContent}",
