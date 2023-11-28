@@ -61,6 +61,8 @@ class MessageMarkdownBody extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(4),
         ),
+        tableVerticalAlignment: TableCellVerticalAlignment.top,
+        tableCellsPadding: const EdgeInsets.all(10),
         tableCellsDecoration: BoxDecoration(
           color: (context.brightness == Brightness.light ? Colors.grey.shade400 : Colors.grey.shade800).withOpacity(
             0.3,

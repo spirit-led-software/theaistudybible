@@ -25,7 +25,7 @@ class DevotionReactions extends _$DevotionReactions {
     final previousState = state;
 
     final reaction = DevotionReaction(
-      id: Uuid().v4(),
+      id: const Uuid().v4(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       devotionId: _id,

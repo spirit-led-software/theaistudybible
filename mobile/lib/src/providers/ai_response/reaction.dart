@@ -28,7 +28,7 @@ class AiResponseReactions extends _$AiResponseReactions {
     final previousState = state;
 
     final reaction = AiResponseReaction(
-      id: Uuid().v4(),
+      id: const Uuid().v4(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       aiResponseId: aiResponseId!,
