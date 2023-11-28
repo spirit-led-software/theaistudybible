@@ -1,10 +1,6 @@
 <script lang="ts">
-	// @ts-ignore
-	import Email from 'svelte-share-buttons-component/src/Email.svelte';
-	// @ts-ignore
-	import Facebook from 'svelte-share-buttons-component/src/Facebook.svelte';
-	// @ts-ignore
-	import Twitter from 'svelte-share-buttons-component/src/Twitter.svelte';
+	/// @ts-ignore
+	import { Email, Facebook, X } from 'svelte-share-buttons-component';
 
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import { cn } from '$lib/utils/class-names';
@@ -87,7 +83,7 @@
 									{url}
 									quote={sharableContent}
 								/>
-								<Twitter
+								<X
 									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
 									text={sharableContent}
 									{url}

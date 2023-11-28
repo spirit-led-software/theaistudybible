@@ -1,6 +1,6 @@
 <script lang="ts">
 	/* @ts-ignore */
-	import { Email, Facebook, Twitter } from 'svelte-share-buttons-component';
+	import { Email, Facebook, X } from 'svelte-share-buttons-component';
 
 	import { page } from '$app/stores';
 	import { PUBLIC_API_URL } from '$env/static/public';
@@ -109,7 +109,7 @@
 							url={$page.url.toString()}
 							quote="Checkout the latest devotion from RevelationsAI"
 						/>
-						<Twitter
+						<X
 							class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
 							text="Checkout the latest devotion from RevelationsAI:"
 							url={$page.url.toString()}
