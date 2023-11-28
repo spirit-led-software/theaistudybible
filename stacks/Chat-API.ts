@@ -56,7 +56,6 @@ export function ChatAPI({ stack, app }: StackContext) {
       VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
     },
     timeout: "2 minutes",
-    runtime: "nodejs18.x",
     enableLiveDev: false, // Cannot live dev with response stream
     memorySize: "1 GB",
     permissions: [invokeBedrockPolicy],

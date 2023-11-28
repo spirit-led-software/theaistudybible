@@ -31,8 +31,6 @@ export class NeonBranch extends Construct {
       environment: {
         DEPLOY_DATE_TIME: Date.now().toString(), // Force update on every deploy
       },
-      runtime: "nodejs18.x",
-      architecture: "x86_64",
       enableLiveDev: false, // No live dev on custom resources
     });
 

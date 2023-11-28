@@ -33,7 +33,7 @@ export function Constants({ stack, app }: StackContext) {
       WEBSITE_URL: websiteUrl,
     },
     timeout: "60 seconds",
-    runtime: "nodejs18.x",
+    runtime: "nodejs20.x",
     nodejs: {
       esbuild: {
         minify: stack.stage === "prod",

@@ -106,7 +106,6 @@ export function API({ stack, app }: StackContext) {
     defaults: {
       function: {
         environment: lambdaEnv,
-        runtime: "nodejs18.x",
         timeout: "60 seconds",
         memorySize: "1 GB",
       },
