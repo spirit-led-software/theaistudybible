@@ -46,7 +46,7 @@
 		},
 		onFinish: (message: ChatMessage) => {
 			lastChatMessage = message;
-			queryClient.invalidateQueries(['infinite-chats']);
+			queryClient.invalidateQueries({ queryKey: ['infinite-chats'] });
 		}
 	});
 	error.subscribe((err) => {

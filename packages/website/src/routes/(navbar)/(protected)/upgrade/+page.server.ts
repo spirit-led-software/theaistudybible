@@ -2,13 +2,13 @@ import { STRIPE_API_KEY } from '$env/static/private';
 import Stripe from 'stripe';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async () => {
 	let productInfos: {
 		product: Stripe.Product;
 		paymentLink: Stripe.PaymentLink;
 	}[] = [];
 
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2023-08-16' });
+	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2023-10-16' });
 
 	const [productsResponse, paymentLinksResponse] = await Promise.all([
 		stripe.products.list({

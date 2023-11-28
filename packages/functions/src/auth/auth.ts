@@ -123,7 +123,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
 
 async function createStripeCustomer(user: User) {
   const stripe = new Stripe(stripeConfig.apiKey, {
-    apiVersion: "2023-08-16",
+    apiVersion: "2023-10-16",
   });
 
   const customer = await stripe.customers.create({

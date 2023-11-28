@@ -43,7 +43,7 @@
 	const editDataSourceMutation = createMutation({
 		mutationFn: handleUpdate,
 		onMutate: async (input) => {
-			await client.cancelQueries(['infinite-data-sources']);
+			await client.cancelQueries({ queryKey: ['infinite-data-sources'] });
 			const previousDataSources = client.getQueryData<InfiniteData<DataSource[]>>([
 				'infinite-data-sources'
 			]);
@@ -58,7 +58,7 @@
 			return { previousDataSources };
 		},
 		onSettled: async () => {
-			await client.invalidateQueries(['infinite-data-sources']);
+			await client.invalidateQueries({ queryKey: ['infinite-data-sources'] });
 		}
 	});
 

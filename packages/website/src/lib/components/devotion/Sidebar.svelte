@@ -28,6 +28,7 @@
 			if (lastPage.length < 7) return undefined;
 			return pages.length + 1;
 		},
+		initialPageParam: 1,
 		initialData: {
 			pages: [devotions],
 			pageParams: [1]

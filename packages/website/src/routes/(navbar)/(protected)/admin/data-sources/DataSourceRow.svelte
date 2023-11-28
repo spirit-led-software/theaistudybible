@@ -34,7 +34,7 @@
 	const deleteDataSourceMutation = createMutation({
 		mutationFn: handleDelete,
 		onMutate: async (id: string) => {
-			await client.cancelQueries(['infinite-data-sources']);
+			await client.cancelQueries({ queryKey: ['infinite-data-sources'] });
 			const previousDataSources = client.getQueryData<InfiniteData<DataSource[]>>([
 				'infinite-data-sources'
 			]);
@@ -47,7 +47,7 @@
 			return { previousDataSources };
 		},
 		onSettled: async () => {
-			await client.invalidateQueries(['infinite-data-sources']);
+			await client.invalidateQueries({ queryKey: ['infinite-data-sources'] });
 		}
 	});
 
@@ -73,7 +73,7 @@
 						alert(`Failed to sync data source ${dataSource.name}\n${e}`);
 					})
 					.finally(async () => {
-						await client.invalidateQueries(['infinite-data-sources']);
+						await client.invalidateQueries({ queryKey: ['infinite-data-sources'] });
 						isSyncing = false;
 					});
 			}}

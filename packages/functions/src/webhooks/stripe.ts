@@ -9,7 +9,7 @@ import Stripe from "stripe";
 import { stripeConfig } from "../configs";
 
 const stripe = new Stripe(stripeConfig.apiKey, {
-  apiVersion: "2023-08-16",
+  apiVersion: "2023-10-16",
 });
 
 export const handler = ApiHandler(async (event) => {

@@ -39,7 +39,7 @@
 	const createChatMutation = createMutation({
 		mutationFn: handleCreate,
 		onMutate: async () => {
-			await client.cancelQueries(['infinite-chats']);
+			await client.cancelQueries({ queryKey: ['infinite-chats'] });
 			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
 			if (previousChats) {
 				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
@@ -63,7 +63,7 @@
 			return { previousChats };
 		},
 		onSettled: () => {
-			client.invalidateQueries(['infinite-chats']);
+			client.invalidateQueries({ queryKey: ['infinite-chats'] });
 		}
 	});
 
@@ -86,7 +86,7 @@
 	const editChatMutation = createMutation({
 		mutationFn: handleUpdate,
 		onMutate: async ({ name, id }) => {
-			await client.cancelQueries(['infinite-chats']);
+			await client.cancelQueries({ queryKey: ['infinite-chats'] });
 			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
 			if (previousChats) {
 				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
@@ -99,7 +99,7 @@
 			return { previousChats };
 		},
 		onSettled: () => {
-			client.invalidateQueries(['infinite-chats']);
+			client.invalidateQueries({ queryKey: ['infinite-chats'] });
 		}
 	});
 
@@ -125,7 +125,7 @@
 	const deleteChatMutation = createMutation({
 		mutationFn: handleDelete,
 		onMutate: async (id: string) => {
-			await client.cancelQueries(['infinite-chats']);
+			await client.cancelQueries({ queryKey: ['infinite-chats'] });
 			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
 			if (previousChats) {
 				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
@@ -136,7 +136,7 @@
 			return { previousChats };
 		},
 		onSettled: async () => {
-			client.invalidateQueries(['infinite-chats']);
+			client.invalidateQueries({ queryKey: ['infinite-chats'] });
 		}
 	});
 
@@ -160,6 +160,7 @@
 			if (lastPage.length < 7) return undefined;
 			return pages.length + 1;
 		},
+		initialPageParam: 1,
 		initialData: {
 			pages: [chats],
 			pageParams: [1]
