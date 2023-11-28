@@ -50,6 +50,11 @@ This is a code block
 | Row 2, Column 1 | Row 2, Column 2 | Row 2, Column 3 |
 | Row 3, Column 1 | Row 3, Column 2 | Row 3, Column 3 |
 
+- You cannot use markdown within a table. Instead, you must use HTML tags. Here is an example:
+| Column 1 | Column 2 | Column 3 |
+| -------- | -------- | -------- |
+| <strong>Row 1, Column 1</strong> | <em>Row 1, Column 2</em> | <a href="https://www.example.com">Row 1, Column 3</a> |
+
 - You must use the following markdown syntax for a task list:
 - [x] Task 1
 - [x] Task 2

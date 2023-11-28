@@ -9,12 +9,14 @@ import 'package:revelationsai/src/utils/http_helpers.dart';
 class AiResponseReactionService {
   static Future<PaginatedEntitiesResponseData<AiResponseReaction>> getAiResponseReactions({
     required String id,
+    required String session,
     PaginatedEntitiesRequestOptions paginationOptions = const PaginatedEntitiesRequestOptions(),
   }) async {
     Response res = await get(
       Uri.parse('${API.url}/ai-responses/$id/reactions?${paginationOptions.searchQuery}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $session',
       },
     );
 

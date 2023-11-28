@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:markdown/markdown.dart' as md;
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -28,6 +29,12 @@ class MessageMarkdownBody extends StatelessWidget {
           );
         }
       },
+      inlineSyntaxes: <md.InlineSyntax>[
+        ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
+      ],
+      blockSyntaxes: <md.BlockSyntax>[
+        ...md.ExtensionSet.gitHubFlavored.blockSyntaxes,
+      ],
       styleSheet: MarkdownStyleSheet(
         h1: context.textTheme.titleMedium,
         h2: context.textTheme.titleSmall,
@@ -39,20 +46,28 @@ class MessageMarkdownBody extends StatelessWidget {
         a: context.textTheme.bodyMedium?.copyWith(
           color: context.colorScheme.secondary,
         ),
-        blockquote: context.textTheme.bodySmall?.copyWith(
-          color: context.colorScheme.onBackground,
-        ),
+        blockquote: context.textTheme.bodySmall,
         blockquoteDecoration: BoxDecoration(
-          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade800,
+          color: (context.brightness == Brightness.light ? Colors.grey.shade400 : Colors.grey.shade800).withOpacity(
+            0.3,
+          ),
           borderRadius: BorderRadius.circular(4),
         ),
+        blockquotePadding: const EdgeInsets.all(15),
+        code: context.textTheme.bodySmall,
         codeblockDecoration: BoxDecoration(
-          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade800,
+          color: (context.brightness == Brightness.light ? Colors.grey.shade400 : Colors.grey.shade800).withOpacity(
+            0.3,
+          ),
           borderRadius: BorderRadius.circular(4),
         ),
         tableCellsDecoration: BoxDecoration(
-          color: context.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade800,
-          borderRadius: BorderRadius.circular(4),
+          color: (context.brightness == Brightness.light ? Colors.grey.shade400 : Colors.grey.shade800).withOpacity(
+            0.3,
+          ),
+          border: Border.all(
+            color: context.colorScheme.onBackground,
+          ),
         ),
       ),
       data: data,

@@ -121,6 +121,7 @@ class AiResponseReactionRepository {
   Future<List<AiResponseReaction>> _fetchByAiResponseId(String aiResponseId) async {
     return await AiResponseReactionService.getAiResponseReactions(
       id: aiResponseId,
+      session: _session,
     ).then((value) async {
       await _save(value.entities);
       return value.entities;
