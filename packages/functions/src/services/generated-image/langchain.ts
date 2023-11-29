@@ -13,10 +13,14 @@ import {
 
 const validationOutputParser = StructuredOutputParser.fromZodSchema(
   z
-    .boolean()
-    .describe(
-      "A boolean value that indicates whether the prompt is inappropriate."
-    )
+    .object({
+      inappropriate: z
+        .boolean()
+        .describe(
+          "A boolean value that indicates whether the prompt is inappropriate."
+        ),
+    })
+    .describe("The output of the validation prompt.")
 );
 
 const phraseOutputParser = StructuredOutputParser.fromZodSchema(
@@ -51,7 +55,7 @@ export const getImagePromptChain = async () => {
   const chain = RunnableSequence.from([
     {
       userPrompt: (input) => input.userPrompt,
-      inappropriate: PromptTemplate.fromTemplate(
+      validation: PromptTemplate.fromTemplate(
         USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
         {
           partialVariables: {
@@ -68,8 +72,8 @@ export const getImagePromptChain = async () => {
         .pipe(validationOutputParser),
     },
     {
-      inappropriate: (previousStepResult) => {
-        if (previousStepResult.inappropriate) {
+      validation: (previousStepResult) => {
+        if (previousStepResult.validation.inappropriate) {
           throw new Error("The prompt that was provided is inappropriate.");
         }
       },

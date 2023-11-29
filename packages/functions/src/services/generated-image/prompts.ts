@@ -10,8 +10,6 @@ Here are some important rules for you to follow:
 - A prompt is inappropriate if it includes anything illegal.
 - A prompt is inappropriate if it includes anything hateful.
 - A prompt is inappropriate if it includes anything harmful.
-- A prompt is inappropriate if it includes anything offensive.
-- A prompt is inappropriate if it includes anything obscene.
 
 Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 <user_prompt>
