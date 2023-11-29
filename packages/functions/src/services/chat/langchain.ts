@@ -51,6 +51,25 @@ export const getRAIChatChain = async (
     })
   );
 
+  const irrelevantQueryChain = RunnableSequence.from([
+    {
+      query: (input) => input.routingInstructions.next_inputs.query,
+    },
+    {
+      text: PromptTemplate.fromTemplate(
+        CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE
+      )
+        .pipe(
+          getLargeContextModel({
+            stream: true,
+            promptSuffix: "<answer>",
+            stopSequences: ["</answer>"],
+          })
+        )
+        .pipe(new StringOutputParser()),
+    },
+  ]);
+
   const identityChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query,
@@ -137,26 +156,11 @@ export const getRAIChatChain = async (
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   });
 
-  const irrelevantQueryChain = RunnableSequence.from([
-    {
-      query: (input) => input.routingInstructions.next_inputs.query,
-    },
-    {
-      text: PromptTemplate.fromTemplate(
-        CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE
-      )
-        .pipe(
-          getLargeContextModel({
-            stream: true,
-            promptSuffix: "<answer>",
-            stopSequences: ["</answer>"],
-          })
-        )
-        .pipe(new StringOutputParser()),
-    },
-  ]);
-
   const branch = RunnableBranch.from([
+    [
+      (x) => x.routingInstructions.destination === "irrelevant-query",
+      irrelevantQueryChain,
+    ],
     [(x) => x.routingInstructions.destination === "identity", identityChain],
     [
       (x) => x.routingInstructions.destination === "chat-history",
@@ -173,10 +177,6 @@ export const getRAIChatChain = async (
       theologyQaChain,
     ],
     [(x) => x.routingInstructions.destination === "faith-qa", faithQaChain],
-    [
-      (x) => x.routingInstructions.destination === "irrelevant-query",
-      irrelevantQueryChain,
-    ],
     faithQaChain,
   ]);
 
@@ -204,14 +204,14 @@ export const getRAIChatChain = async (
       partialVariables: {
         formatInstructions: routerChainOutputParser.getFormatInstructions(),
         destinations: [
-          "identity: Good for greetings, introducing yourself, or talking about yourself.",
-          "chat-history: Good for retrieving information about the current chat conversation.",
-          "bible-quote: Good for retrieving verses and passages from the Bible.",
-          "bible-qa: Good for answering questions about the Bible, its interpretation, and its history.",
-          "sermon-qa: Good for recommending and answering questions about sermons.",
-          "theology-qa: Good for answering questions about Christian theology.",
-          "faith-qa: Good for answering general questions about Christian faith.",
-          "irrelevant-query: Good for responding to queries that are inappropriate and/or irrelevant to the Christian faith.",
+          "irrelevant-query: For responding to queries that are inappropriate and/or irrelevant to the Christian faith.",
+          "identity: For greetings, introducing yourself, or talking about yourself.",
+          "chat-history: For retrieving information about the current chat conversation.",
+          "bible-quote: For retrieving verses and passages from the Bible.",
+          "bible-qa: For answering questions about the Bible, its interpretation, and its history.",
+          "sermon-qa: For recommending and answering questions about previously recorded sermons.",
+          "theology-qa: For answering questions about Christian theology.",
+          "faith-qa: For answering general questions about Christian faith.",
         ].join("\n"),
         history: (await history.getMessages())
           .map(
