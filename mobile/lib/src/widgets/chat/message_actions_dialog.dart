@@ -13,7 +13,6 @@ import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/chat/markdown.dart';
 import 'package:revelationsai/src/widgets/chat/reaction_comment_dialog.dart';
-import 'package:revelationsai/src/widgets/chat/share_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
 
 class MessageActionsDialog extends HookConsumerWidget {
@@ -52,20 +51,14 @@ class MessageActionsDialog extends HookConsumerWidget {
               ),
               child: Scrollbar(
                 thumbVisibility: true,
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.zero,
-                  child: Container(
-                    padding: const EdgeInsets.only(
-                      bottom: 10,
-                      left: 10,
-                      right: 15,
-                    ),
-                    child: MessageMarkdownBody(
-                      followLinks: true,
-                      selectable: true,
-                      data: message.content.trim(),
-                    ),
+                child: ChatMessageMarkdown(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 15,
                   ),
+                  followLinks: true,
+                  selectable: true,
+                  data: message.content.trim(),
                 ),
               ),
             ),
@@ -99,26 +92,6 @@ class MessageActionsDialog extends HookConsumerWidget {
                           Future.delayed(const Duration(seconds: 3), () {
                             if (isMounted()) copied.value = false;
                           });
-                        },
-                      ),
-                      IconButton(
-                        visualDensity: RAIVisualDensity.tightest,
-                        iconSize: 20,
-                        icon: const Icon(
-                          CupertinoIcons.share_up,
-                        ),
-                        color: context.colorScheme.onBackground,
-                        onPressed: () {
-                          if (hapticFeedback) HapticFeedback.mediumImpact();
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return ShareDialog(
-                                message: message,
-                                previousMessage: previousMessage,
-                              );
-                            },
-                          );
                         },
                       ),
                       if (message.role == Role.assistant) ...[
@@ -166,7 +139,7 @@ class MessageActionsDialog extends HookConsumerWidget {
                             showDialog(
                               context: context,
                               builder: (context) {
-                                return ReactionCommentDialog(
+                                return ResponseReactionCommentDialog(
                                   aiResponseId: message.uuid,
                                   reactionType: AiResponseReactionType.DISLIKE,
                                 );

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/constants/colors.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class TabsScaffold extends HookConsumerWidget {
   final Widget child;
@@ -62,9 +62,9 @@ class TabsScaffold extends HookConsumerWidget {
               label: "Account",
             ),
           ],
-          backgroundColor: RAIColors.primary,
-          selectedItemColor: RAIColors.secondary,
-          unselectedItemColor: Colors.white,
+          backgroundColor: context.theme.bottomNavigationBarTheme.backgroundColor,
+          selectedItemColor: context.theme.bottomNavigationBarTheme.selectedItemColor,
+          unselectedItemColor: context.theme.bottomNavigationBarTheme.unselectedItemColor,
           currentIndex: _calculateCurrentIndex(context),
           onTap: (value) {
             switch (value) {

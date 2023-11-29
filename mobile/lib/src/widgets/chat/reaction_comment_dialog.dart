@@ -6,11 +6,11 @@ import 'package:revelationsai/src/models/ai_response/reaction.dart';
 import 'package:revelationsai/src/providers/ai_response/reaction.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
-class ReactionCommentDialog extends HookConsumerWidget {
+class ResponseReactionCommentDialog extends HookConsumerWidget {
   final String? aiResponseId;
   final AiResponseReactionType reactionType;
 
-  const ReactionCommentDialog({super.key, required this.aiResponseId, required this.reactionType});
+  const ResponseReactionCommentDialog({super.key, required this.aiResponseId, required this.reactionType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

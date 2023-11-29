@@ -8,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
-import 'package:revelationsai/src/constants/website.dart';
 import 'package:revelationsai/src/models/devotion.dart';
 import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/models/source_document.dart';
@@ -25,10 +24,9 @@ import 'package:revelationsai/src/screens/devotion/devotion_modal.dart';
 import 'package:revelationsai/src/utils/advertisement.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/utils/capitalization.dart';
-import 'package:revelationsai/src/widgets/devotion/reaction_comment_dialog.dart';
+import 'package:revelationsai/src/widgets/devotion/action_menu_button.dart';
 import 'package:revelationsai/src/widgets/network_image.dart';
 import 'package:revelationsai/src/widgets/refresh_indicator.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
 
 class DevotionScreen extends HookConsumerWidget {
@@ -195,161 +193,10 @@ class DevotionScreen extends HookConsumerWidget {
                   Radius.circular(15),
                 ),
               ),
-              child: PopupMenuButton(
-                offset: const Offset(0, 60),
-                color: context.brightness == Brightness.light ? Colors.grey.shade200 : context.colorScheme.primary,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(15),
-                  ),
-                ),
-                onOpened: () {
-                  if (currentUserPrefs.hapticFeedback) {
-                    HapticFeedback.mediumImpact();
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.thumb_up,
-                          color: context.colorScheme.onBackground,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "${reactionCounts.value[DevotionReactionType.LIKE]}"
-                          " Likes",
-                          style: TextStyle(
-                            color: context.colorScheme.onBackground,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () async {
-                      reactionCounts.value[DevotionReactionType.LIKE] =
-                          (reactionCounts.value[DevotionReactionType.LIKE] ?? 0) + 1;
-                      await ref
-                          .read(devotionReactionsProvider(devotion.value!.id).notifier)
-                          .createReaction(reactionType: DevotionReactionType.LIKE)
-                          .then(
-                        (value) {
-                          ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
-                            if (isMounted()) {
-                              reactionCounts.value = value;
-                            }
-                          });
-                        },
-                      ).catchError(
-                        (error, stackTrace) {
-                          debugPrint("Failed to create reaction: $error $stackTrace");
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "$error",
-                                style: TextStyle(
-                                  color: context.colorScheme.onError,
-                                ),
-                              ),
-                              backgroundColor: context.colorScheme.error,
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  PopupMenuItem(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.thumb_down,
-                          color: context.colorScheme.onBackground,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "${(reactionCounts.value[DevotionReactionType.DISLIKE])}"
-                          " Dislikes",
-                          style: TextStyle(
-                            color: context.colorScheme.onBackground,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () async {
-                      reactionCounts.value[DevotionReactionType.DISLIKE] =
-                          (reactionCounts.value[DevotionReactionType.DISLIKE] ?? 0) + 1;
-                      await showDialog(
-                        context: context,
-                        builder: (_) => ReactionCommentDialog(
-                          devotionId: devotion.value!.id,
-                          reactionType: DevotionReactionType.DISLIKE,
-                        ),
-                      ).then(
-                        (value) {
-                          ref.read(devotionReactionCountsProvider(devotion.value!.id).notifier).refresh().then((value) {
-                            if (isMounted()) {
-                              reactionCounts.value = value;
-                            }
-                          });
-                        },
-                      ).catchError(
-                        (error, stackTrace) {
-                          debugPrint("Failed to create reaction: $error $stackTrace");
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "$error",
-                                style: TextStyle(
-                                  color: context.colorScheme.onError,
-                                ),
-                              ),
-                              backgroundColor: context.colorScheme.error,
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  PopupMenuItem(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Icon(
-                          CupertinoIcons.share_up,
-                          color: context.colorScheme.onBackground,
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "Share",
-                          style: TextStyle(
-                            color: context.colorScheme.onBackground,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      Share.shareUri(Uri.parse('${Website.url}/devotions/${devotion.value!.id}'));
-                    },
-                  ),
-                ],
-                icon: Icon(
-                  Icons.thumbs_up_down,
-                  color: context.colorScheme.onSecondary,
-                ),
+              child: DevotionActionMenuButton(
+                devotion: devotion,
+                reactionCounts: reactionCounts,
+                isMounted: isMounted,
               ),
             ),
       body: loading.value || devotion.value == null

@@ -23,6 +23,11 @@ class RAITheme {
       color: RAIColors.primary,
       foregroundColor: Colors.white,
     ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: RAIColors.primary,
+      selectedItemColor: RAIColors.secondary,
+      unselectedItemColor: Colors.white,
+    ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: RAIColors.primary,
     ),
@@ -74,7 +79,7 @@ class RAITheme {
     fontFamily: "Catamaran",
     colorScheme: ColorScheme(
       brightness: Brightness.dark,
-      primary: RAIColors.primary,
+      primary: RAIColors.darkPrimary,
       onPrimary: Colors.white,
       secondary: RAIColors.secondary,
       onSecondary: Colors.white,
@@ -88,25 +93,30 @@ class RAITheme {
     ),
     scaffoldBackgroundColor: RAIColors.darkBackground,
     appBarTheme: AppBarTheme(
-      color: RAIColors.primary,
+      color: RAIColors.darkPrimary,
       foregroundColor: Colors.white,
     ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: RAIColors.darkPrimary,
+      selectedItemColor: RAIColors.secondary,
+      unselectedItemColor: Colors.white,
+    ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: RAIColors.primary,
+      backgroundColor: RAIColors.darkPrimary,
     ),
     buttonTheme: ButtonThemeData(
-      buttonColor: RAIColors.primary,
+      buttonColor: RAIColors.darkPrimary,
       textTheme: ButtonTextTheme.primary,
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        backgroundColor: RAIColors.primary,
+        backgroundColor: RAIColors.darkPrimary,
         foregroundColor: Colors.white,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: RAIColors.primary,
+        backgroundColor: RAIColors.darkPrimary,
         foregroundColor: Colors.white,
       ),
     ),

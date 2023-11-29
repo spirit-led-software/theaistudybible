@@ -6,11 +6,11 @@ import 'package:revelationsai/src/models/devotion/reaction.dart';
 import 'package:revelationsai/src/providers/devotion/reaction.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
-class ReactionCommentDialog extends HookConsumerWidget {
+class DevotionReactionCommentDialog extends HookConsumerWidget {
   final String? devotionId;
   final DevotionReactionType reactionType;
 
-  const ReactionCommentDialog({super.key, required this.devotionId, required this.reactionType});
+  const DevotionReactionCommentDialog({super.key, required this.devotionId, required this.reactionType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
