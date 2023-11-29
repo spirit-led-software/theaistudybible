@@ -45,11 +45,14 @@ export const getImagePromptChain = async () => {
       {
         category: "bible",
       },
+      {
+        category: "commentary",
+      },
     ],
     verbose: envConfig.isLocal,
   }).then((store) =>
     store.asRetriever({
-      k: 10,
+      k: 20,
       verbose: envConfig.isLocal,
     })
   );
