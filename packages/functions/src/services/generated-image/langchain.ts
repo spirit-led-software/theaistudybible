@@ -69,7 +69,7 @@ export const getImagePromptChain = async () => {
     },
     {
       inappropriate: (previousStepResult) => {
-        if (previousStepResult.inappropriate.trim() === "true") {
+        if (previousStepResult.inappropriate) {
           throw new Error("The prompt that was provided is inappropriate.");
         }
       },
