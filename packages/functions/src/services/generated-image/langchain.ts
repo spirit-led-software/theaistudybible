@@ -95,8 +95,9 @@ export const getImagePromptChain = async () => {
     },
     new PromptTemplate({
       template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-      inputVariables: ["userPrompt", "documents", "numPhrases"],
+      inputVariables: ["userPrompt", "documents"],
       partialVariables: {
+        numPhrases: phraseOutputParser.schema._type.length.toString(),
         formatInstructions: phraseOutputParser.getFormatInstructions(),
       },
     })
