@@ -1,9 +1,17 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
-export const USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE = `Given the following prompt provided from a user, check whether the prompt is inappropriate. Inappropriate prompts include anything that involves sex, excessive violence or anything going against or irrelevant to Christian doctrine.
+export const USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE = `Given the following prompt provided from a user, check whether the prompt is inappropriate.
 
 Here are some important rules for you to follow:
-- You can only respond with "true" or "false" (without the quotes).
+- Your output must match the formatting instructions exactly.
+- A prompt is inappropriate if it is not biblically relevant.
+- A prompt is inappropriate if it includes anything sexual.
+- A prompt is inappropriate if it includes excessive violence.
+- A prompt is inappropriate if it includes anything illegal.
+- A prompt is inappropriate if it includes anything hateful.
+- A prompt is inappropriate if it includes anything harmful.
+- A prompt is inappropriate if it includes anything offensive.
+- A prompt is inappropriate if it includes anything obscene.
 
 Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 <user_prompt>
@@ -12,7 +20,10 @@ Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 
 Is the prompt inappropriate?
 
-Think about your output first before you respond.
+Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
+<format_instructions>
+{formatInstructions}
+</format_instructions>
 
 Place your output within <output></output> XML tags.`;
 
@@ -45,7 +56,7 @@ Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 {userPrompt}
 </user_prompt>
 
-What are some phrases that could help to aid the user's prompt when generating a stable diffusion model image?
+What are {numPhrases} phrases that could help to aid the user's prompt when generating a stable diffusion model image?
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>

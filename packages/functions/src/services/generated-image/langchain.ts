@@ -1,9 +1,9 @@
+import { envConfig } from "@core/configs";
 import { getLargeContextModel } from "@services/llm";
 import { getDocumentVectorStore } from "@services/vector-db";
 import type { Document } from "langchain/document";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { PromptTemplate } from "langchain/prompts";
-import { StringOutputParser } from "langchain/schema/output_parser";
 import { RunnableSequence } from "langchain/schema/runnable";
 import { z } from "zod";
 import {
@@ -11,23 +11,53 @@ import {
   USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
 } from "./prompts";
 
+const validationOutputParser = StructuredOutputParser.fromZodSchema(
+  z
+    .boolean()
+    .describe(
+      "A boolean value that indicates whether the prompt is inappropriate."
+    )
+);
+
+const phraseOutputParser = StructuredOutputParser.fromZodSchema(
+  z
+    .array(
+      z
+        .string()
+        .describe(
+          "A short, concise, yet descriptive phrase that will help generate a biblically accurate image."
+        )
+    )
+    .length(4)
+    .describe(
+      "A list of exactly four (4) phrases that will help generate a biblically accurate image."
+    )
+);
+
 export const getImagePromptChain = async () => {
-  const outputParser = StructuredOutputParser.fromZodSchema(
-    z
-      .array(z.string())
-      .length(4)
-      .describe(
-        "A short, concise, yet descriptive phrase that will help generate a biblically accurate image."
-      )
-  );
-  const retriever = await getDocumentVectorStore().then((store) =>
-    store.asRetriever(25)
+  const retriever = await getDocumentVectorStore({
+    filters: [
+      {
+        category: "bible",
+      },
+    ],
+    verbose: envConfig.isLocal,
+  }).then((store) =>
+    store.asRetriever({
+      k: 10,
+      verbose: envConfig.isLocal,
+    })
   );
   const chain = RunnableSequence.from([
     {
       userPrompt: (input) => input.userPrompt,
       inappropriate: PromptTemplate.fromTemplate(
-        USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE
+        USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
+        {
+          partialVariables: {
+            formatInstructions: validationOutputParser.getFormatInstructions(),
+          },
+        }
       )
         .pipe(
           getLargeContextModel({
@@ -35,7 +65,7 @@ export const getImagePromptChain = async () => {
             promptSuffix: "<output>",
           })
         )
-        .pipe(new StringOutputParser()),
+        .pipe(validationOutputParser),
     },
     {
       inappropriate: (previousStepResult) => {
@@ -61,9 +91,9 @@ export const getImagePromptChain = async () => {
     },
     new PromptTemplate({
       template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-      inputVariables: ["userPrompt", "documents"],
+      inputVariables: ["userPrompt", "documents", "numPhrases"],
       partialVariables: {
-        formatInstructions: outputParser.getFormatInstructions(),
+        formatInstructions: phraseOutputParser.getFormatInstructions(),
       },
     })
       .pipe(
@@ -73,7 +103,7 @@ export const getImagePromptChain = async () => {
           promptSuffix: "<output>",
         })
       )
-      .pipe(outputParser),
+      .pipe(phraseOutputParser),
   ]);
 
   return chain;
