@@ -51,24 +51,18 @@ export const getRAIChatChain = async (
     })
   );
 
-  const irrelevantQueryChain = RunnableSequence.from([
-    {
-      query: (input) => input.routingInstructions.next_inputs.query,
-    },
-    {
-      text: PromptTemplate.fromTemplate(
-        CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE
-      )
-        .pipe(
-          getLargeContextModel({
-            stream: true,
-            promptSuffix: "<answer>",
-            stopSequences: ["</answer>"],
-          })
-        )
-        .pipe(new StringOutputParser()),
-    },
-  ]);
+  const irrelevantQueryChain = await getDocumentQaChain({
+    prompt: CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE,
+    filters: [
+      {
+        category: "bible",
+        translation: user.translation,
+      },
+      {
+        category: "commentary",
+      },
+    ],
+  });
 
   const identityChain = RunnableSequence.from([
     {
