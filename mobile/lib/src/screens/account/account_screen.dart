@@ -320,7 +320,7 @@ class AccountScreen extends HookConsumerWidget {
                                             size: 18,
                                           )
                                         : Text(
-                                            currentUser.remainingQueries.toString(),
+                                            currentUser.maxQueries.toString(),
                                             style: context.textTheme.labelLarge?.copyWith(
                                               color: currentUser.remainingQueries <= 3
                                                   ? context.colorScheme.onError
@@ -384,7 +384,7 @@ class AccountScreen extends HookConsumerWidget {
                                             size: 18,
                                           )
                                         : Text(
-                                            currentUser.remainingGeneratedImages.toString(),
+                                            currentUser.maxGeneratedImages.toString(),
                                             style: context.textTheme.labelLarge?.copyWith(
                                               color: currentUser.remainingGeneratedImages <= 3
                                                   ? context.colorScheme.onError
