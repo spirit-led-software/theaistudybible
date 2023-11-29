@@ -202,10 +202,10 @@ export const getRAIChatChain = async (
           "identity: For greetings, introducing yourself, or talking about yourself.",
           "chat-history: For retrieving information about the current chat conversation.",
           "bible-quote: For retrieving verses and passages from the Bible.",
-          "bible-qa: For answering questions about the Bible, its interpretation, and its history.",
-          "sermon-qa: For recommending and answering questions about previously recorded sermons.",
-          "theology-qa: For answering questions about Christian theology.",
-          "faith-qa: For answering general questions about Christian faith.",
+          "bible-qa: For answering queries about the Bible, its interpretation, and its history.",
+          "sermon-qa: For recommending and answering queries about previously recorded sermons.",
+          "theology-qa: For answering queries about Christian theology.",
+          "faith-qa: For answering general queries about Christian faith.",
         ].join("\n"),
         history: (await history.getMessages())
           .map(
