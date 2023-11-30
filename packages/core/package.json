@@ -4,12 +4,14 @@
   "type": "module",
   "scripts": {
     "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "lint": "prettier --check . && eslint .",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@opensearch-project/opensearch": "^2.4.0",
     "@types/email-templates": "^10.0.4",
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.10.1",
     "sst": "2.36.7",
     "vitest": "^0.34.6"
   },

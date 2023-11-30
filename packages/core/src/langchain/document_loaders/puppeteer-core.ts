@@ -1,26 +1,20 @@
-import chromium from "@sparticuz/chromium";
-import { Document } from "langchain/document";
-import {
-  BaseDocumentLoader,
-  type DocumentLoader,
-} from "langchain/document_loaders/base";
+import chromium from '@sparticuz/chromium';
+import { Document } from 'langchain/document';
+import { BaseDocumentLoader, type DocumentLoader } from 'langchain/document_loaders/base';
 import {
   Browser,
   Page,
   launch,
   type PuppeteerLaunchOptions,
-  type WaitForOptions,
-} from "puppeteer-core";
+  type WaitForOptions
+} from 'puppeteer-core';
 
 export type PuppeteerCoreGoToOptions = WaitForOptions & {
   referer?: string;
   referrerPolicy?: string;
 };
 
-export type PuppeteerCoreEvaluate = (
-  page: Page,
-  browser: Browser
-) => Promise<string>;
+export type PuppeteerCoreEvaluate = (page: Page, browser: Browser) => Promise<string>;
 
 export type PuppeteerCoreWebBaseLoaderOptions = {
   launchOptions?: PuppeteerLaunchOptions;
@@ -28,10 +22,7 @@ export type PuppeteerCoreWebBaseLoaderOptions = {
   evaluate?: PuppeteerCoreEvaluate;
 };
 
-export class PuppeteerCoreWebBaseLoader
-  extends BaseDocumentLoader
-  implements DocumentLoader
-{
+export class PuppeteerCoreWebBaseLoader extends BaseDocumentLoader implements DocumentLoader {
   options: PuppeteerCoreWebBaseLoaderOptions | undefined;
 
   constructor(
@@ -49,18 +40,18 @@ export class PuppeteerCoreWebBaseLoader
     console.log(`Launching puppeteer for url '${url}'`);
     const browser = await launch({
       headless: chromium.headless,
-      args: [...chromium.args, "--no-sandbox"],
+      args: [...chromium.args, '--no-sandbox'],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
-      ...options?.launchOptions,
+      ...options?.launchOptions
     });
 
     console.log(`Puppeteer launched for url '${url}'. Loading page...`);
     const page = await browser.newPage();
     await page.goto(url, {
       timeout: 180000,
-      waitUntil: "domcontentloaded",
-      ...options?.gotoOptions,
+      waitUntil: 'domcontentloaded',
+      ...options?.gotoOptions
     });
 
     console.log(`Page loaded for url '${url}'. Scraping...`);
@@ -78,7 +69,7 @@ export class PuppeteerCoreWebBaseLoader
 
     return {
       title: title,
-      content: bodyHTML,
+      content: bodyHTML
     };
   }
 

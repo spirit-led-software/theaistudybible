@@ -65,7 +65,7 @@
 			on:click={() => {
 				isSyncing = true;
 				syncDataSource(dataSource.id, {
-					// @ts-ignore
+					// @ts-expect-error Can't use a bang here
 					session: $session
 				})
 					.catch((e) => {

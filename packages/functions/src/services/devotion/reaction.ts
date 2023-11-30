@@ -1,10 +1,7 @@
-import type {
-  CreateDevotionReactionData,
-  UpdateDevotionReactionData,
-} from "@core/model";
-import { devotionReactions, devotions, users } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, and, desc, eq } from "drizzle-orm";
+import type { CreateDevotionReactionData, UpdateDevotionReactionData } from '@core/model';
+import { devotionReactions, devotions, users } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, and, desc, eq } from 'drizzle-orm';
 
 export async function getDevotionReactions(
   options: {
@@ -14,12 +11,7 @@ export async function getDevotionReactions(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(devotionReactions.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(devotionReactions.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -38,12 +30,7 @@ export async function getDevotionReactionsWithInfo(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(devotionReactions.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(devotionReactions.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -58,10 +45,7 @@ export async function getDevotionReactionsWithInfo(
 
 export async function getDevotionReaction(id: string) {
   return (
-    await readOnlyDatabase
-      .select()
-      .from(devotionReactions)
-      .where(eq(devotionReactions.id, id))
+    await readOnlyDatabase.select().from(devotionReactions).where(eq(devotionReactions.id, id))
   ).at(0);
 }
 
@@ -98,15 +82,14 @@ export async function getDevotionReactionCountByDevotionIdAndReactionType(
 }
 
 export async function getDevotionReactionCounts(devotionId: string) {
-  let devoReactionCounts: {
+  const devoReactionCounts: {
     [key in (typeof devotionReactions.reaction.enumValues)[number]]?: number;
   } = {};
   for (const reactionType of devotionReactions.reaction.enumValues) {
-    const reactionCount =
-      await getDevotionReactionCountByDevotionIdAndReactionType(
-        devotionId,
-        reactionType
-      );
+    const reactionCount = await getDevotionReactionCountByDevotionIdAndReactionType(
+      devotionId,
+      reactionType
+    );
     devoReactionCounts[reactionType] = reactionCount;
   }
   return devoReactionCounts;
@@ -114,20 +97,25 @@ export async function getDevotionReactionCounts(devotionId: string) {
 
 export async function createDevotionReaction(data: CreateDevotionReactionData) {
   return (
-    await readWriteDatabase.insert(devotionReactions).values(data).returning()
+    await readWriteDatabase
+      .insert(devotionReactions)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
-export async function updateDevotionReaction(
-  id: string,
-  data: UpdateDevotionReactionData
-) {
+export async function updateDevotionReaction(id: string, data: UpdateDevotionReactionData) {
   return (
     await readWriteDatabase
       .update(devotionReactions)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(devotionReactions.id, id))
       .returning()

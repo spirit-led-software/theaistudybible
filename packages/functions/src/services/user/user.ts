@@ -1,11 +1,7 @@
-import type {
-  CreateUserData,
-  UpdateUserData,
-  UserWithRoles,
-} from "@core/model";
-import { roles, users, usersToRoles } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq } from "drizzle-orm";
+import type { CreateUserData, UpdateUserData, UserWithRoles } from '@core/model';
+import { roles, users, usersToRoles } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, desc, eq } from 'drizzle-orm';
 
 export async function getUsers(
   options: {
@@ -15,12 +11,7 @@ export async function getUsers(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(users.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(users.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -32,9 +23,7 @@ export async function getUsers(
 }
 
 export async function getUser(id: string) {
-  return (
-    await readOnlyDatabase.select().from(users).where(eq(users.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(users).where(eq(users.id, id))).at(0);
 }
 
 export async function getUserOrThrow(id: string) {
@@ -58,9 +47,7 @@ export async function getUserRoles(id: string) {
 }
 
 export async function getUserByEmail(email: string) {
-  return (
-    await readOnlyDatabase.select().from(users).where(eq(users.email, email))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(users).where(eq(users.email, email))).at(0);
 }
 
 export async function getUserByEmailOrThrow(email: string) {
@@ -73,10 +60,7 @@ export async function getUserByEmailOrThrow(email: string) {
 
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
   return (
-    await readOnlyDatabase
-      .select()
-      .from(users)
-      .where(eq(users.stripeCustomerId, stripeCustomerId))
+    await readOnlyDatabase.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId))
   ).at(0);
 }
 
@@ -84,7 +68,12 @@ export async function createUser(data: CreateUserData) {
   return (
     await readWriteDatabase
       .insert(users)
-      .values({ customImage: data.image ? true : false, ...data })
+      .values({
+        customImage: data.image ? true : false,
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
       .returning()
   )[0];
 }
@@ -96,7 +85,8 @@ export async function updateUser(id: string, data: UpdateUserData) {
       .set({
         customImage: data.image ? true : false,
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(users.id, id))
       .returning()
@@ -104,9 +94,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
 }
 
 export async function deleteUser(id: string) {
-  return (
-    await readWriteDatabase.delete(users).where(eq(users.id, id)).returning()
-  )[0];
+  return (await readWriteDatabase.delete(users).where(eq(users.id, id)).returning())[0];
 }
 
 export async function isAdmin(userId: string) {
@@ -117,12 +105,12 @@ export async function isAdmin(userId: string) {
     .rightJoin(roles, eq(roles.id, usersToRoles.roleId));
 
   return userRolesRelation.some((userRoleRelation) => {
-    return userRoleRelation.roles.name === "admin";
+    return userRoleRelation.roles.name === 'admin';
   });
 }
 
 export function isAdminSync(userWithRoles: UserWithRoles) {
-  return userWithRoles.roles.some((role) => role.name === "admin");
+  return userWithRoles.roles.some((role) => role.name === 'admin');
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {
@@ -133,14 +121,11 @@ export function getUserMaxQueries(userWithRoles: UserWithRoles) {
   const queryPermissions: string[] = [];
   userWithRoles.roles.forEach((role) => {
     const queryPermission = role.permissions.find((permission) => {
-      return permission.startsWith("query:");
+      return permission.startsWith('query:');
     });
     if (queryPermission) queryPermissions.push(queryPermission);
   });
-  const maxQueries = Math.max(
-    5,
-    ...queryPermissions.map((p) => parseInt(p.split(":")[1]))
-  );
+  const maxQueries = Math.max(5, ...queryPermissions.map((p) => parseInt(p.split(':')[1])));
   return maxQueries;
 }
 
@@ -148,13 +133,10 @@ export function getUserMaxGeneratedImages(userWithRoles: UserWithRoles) {
   const imagePermissions: string[] = [];
   userWithRoles.roles.forEach((role) => {
     const queryPermission = role.permissions.find((permission) => {
-      return permission.startsWith("image:");
+      return permission.startsWith('image:');
     });
     if (queryPermission) imagePermissions.push(queryPermission);
   });
-  const maxQueries = Math.max(
-    1,
-    ...imagePermissions.map((p) => parseInt(p.split(":")[1]))
-  );
+  const maxQueries = Math.max(1, ...imagePermissions.map((p) => parseInt(p.split(':')[1])));
   return maxQueries;
 }

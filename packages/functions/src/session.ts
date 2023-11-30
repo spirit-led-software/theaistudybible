@@ -1,10 +1,10 @@
-import type { UserInfo } from "@core/model";
-import { OkResponse, UnauthorizedResponse } from "@lib/api-responses";
-import { validApiHandlerSession } from "@services/session";
-import { ApiHandler } from "sst/node/api";
+import type { UserInfo } from '@core/model';
+import { OkResponse, UnauthorizedResponse } from '@lib/api-responses';
+import { validApiHandlerSession } from '@services/session';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
-  console.debug("Received session validation event: ", event);
+  console.debug('Received session validation event: ', event);
 
   const {
     isValid,
@@ -13,12 +13,12 @@ export const handler = ApiHandler(async (event) => {
     remainingQueries,
     sessionToken,
     maxGeneratedImages,
-    remainingGeneratedImages,
+    remainingGeneratedImages
   } = await validApiHandlerSession();
 
   if (!isValid) {
-    console.debug("Invalid session token: ", sessionToken);
-    return UnauthorizedResponse("Invalid session token");
+    console.debug('Invalid session token: ', sessionToken);
+    return UnauthorizedResponse('Invalid session token');
   }
 
   return OkResponse({
@@ -26,6 +26,6 @@ export const handler = ApiHandler(async (event) => {
     maxQueries,
     remainingQueries,
     maxGeneratedImages,
-    remainingGeneratedImages,
+    remainingGeneratedImages
   } satisfies UserInfo);
 });

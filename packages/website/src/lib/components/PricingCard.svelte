@@ -10,7 +10,7 @@
 	let priceString: string | undefined = undefined;
 
 	$: if (typeof price === 'object' && price?.unit_amount) {
-		priceString = `\$${price.unit_amount / 100}/${price.recurring?.interval.toString()}`;
+		priceString = `$${price.unit_amount / 100}/${price.recurring?.interval.toString()}`;
 	} else if (typeof price === 'string') {
 		priceString = price;
 	}

@@ -5,8 +5,7 @@ export type ReplicateConfig = {
 
 export const config: ReplicateConfig = {
   apiKey: process.env.REPLICATE_API_KEY!,
-  imageModel: process.env
-    .REPLICATE_IMAGE_MODEL as `${string}/${string}:${string}`,
+  imageModel: process.env.REPLICATE_IMAGE_MODEL as `${string}/${string}:${string}`
 };
 
 export default config;

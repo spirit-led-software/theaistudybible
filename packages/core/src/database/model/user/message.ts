@@ -1,5 +1,5 @@
-import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
-import type { userMessages } from "../../schema";
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
+import type { userMessages } from '../../schema';
 
 export type UserMessage = typeof userMessages.$inferSelect;
 

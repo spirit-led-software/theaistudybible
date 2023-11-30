@@ -1,12 +1,8 @@
-import {
-  InternalServerErrorResponse,
-  OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { getIndexOperationOrThrow } from "@services/data-source/index-op";
-import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
+import { getIndexOperationOrThrow } from '@services/data-source/index-op';
+import { validApiHandlerSession } from '@services/session';
+import { isAdmin } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
@@ -20,8 +16,12 @@ export const handler = ApiHandler(async (event) => {
     const indexOp = await getIndexOperationOrThrow(id);
 
     return OkResponse(indexOp);
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error getting index operation '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

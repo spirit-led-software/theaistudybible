@@ -1,8 +1,6 @@
-import type { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
+import type { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime';
 
-export type AmazonModelId =
-  | "amazon.titan-text-express-v1"
-  | "amazon.titan-text-lite-v1";
+export type AmazonModelId = 'amazon.titan-text-express-v1' | 'amazon.titan-text-lite-v1';
 
 export type AmazonModelBody = {
   textGenerationConfig: {
@@ -14,9 +12,9 @@ export type AmazonModelBody = {
 };
 
 export type AnthropicModelId =
-  | "anthropic.claude-v1"
-  | "anthropic.claude-v2"
-  | "anthropic.claude-instant-v1";
+  | 'anthropic.claude-v1'
+  | 'anthropic.claude-v2'
+  | 'anthropic.claude-instant-v1';
 
 export type AnthropicModelBody = {
   temperature: number;
@@ -26,7 +24,7 @@ export type AnthropicModelBody = {
   stop_sequences?: string[];
 };
 
-export type AI21ModelId = "ai21.j2-ultra-v1" | "ai21.j2-mid-v1";
+export type AI21ModelId = 'ai21.j2-ultra-v1' | 'ai21.j2-mid-v1';
 
 export type AI21ModelBody = {
   temperature: number;
@@ -44,7 +42,7 @@ export type AI21ModelBody = {
   };
 };
 
-export type CohereModelId = "cohere.command-text-v14";
+export type CohereModelId = 'cohere.command-text-v14';
 
 export type CohereModelBody = {
   max_tokens: number;
@@ -52,15 +50,11 @@ export type CohereModelBody = {
   p: number;
   k: number;
   stop_sequences?: string[];
-  return_likelihoods?: "NONE" | "GENERATIONS" | "ALL";
+  return_likelihoods?: 'NONE' | 'GENERATIONS' | 'ALL';
   num_generations?: number;
 };
 
-export type BedrockModelId =
-  | AmazonModelId
-  | AnthropicModelId
-  | AI21ModelId
-  | CohereModelId;
+export type BedrockModelId = AmazonModelId | AnthropicModelId | AI21ModelId | CohereModelId;
 
 export type BedrockInput = {
   region: string;

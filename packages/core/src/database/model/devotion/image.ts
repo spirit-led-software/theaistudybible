@@ -1,5 +1,5 @@
-import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
-import type { devotionImages } from "../../schema";
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
+import type { devotionImages } from '../../schema';
 
 export type DevotionImage = typeof devotionImages.$inferSelect;
 

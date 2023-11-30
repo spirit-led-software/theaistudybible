@@ -1,16 +1,12 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { axios, replicateConfig, s3Config } from "@core/configs";
-import type {
-  CreateDevotionImageData,
-  Devotion,
-  UpdateDevotionImageData,
-} from "@core/model";
-import { devotionImages } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, desc, eq } from "drizzle-orm";
-import Replicate from "replicate";
-import { getImageCaptionChain, getImagePromptChain } from "./langchain";
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { axios, replicateConfig, s3Config } from '@core/configs';
+import type { CreateDevotionImageData, Devotion, UpdateDevotionImageData } from '@core/model';
+import { devotionImages } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, desc, eq } from 'drizzle-orm';
+import Replicate from 'replicate';
+import { getImageCaptionChain, getImagePromptChain } from './langchain';
 
 export async function getDevotionImages(
   options: {
@@ -20,12 +16,7 @@ export async function getDevotionImages(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(devotionImages.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(devotionImages.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -37,12 +28,9 @@ export async function getDevotionImages(
 }
 
 export async function getDevotionImage(id: string) {
-  return (
-    await readOnlyDatabase
-      .select()
-      .from(devotionImages)
-      .where(eq(devotionImages.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(devotionImages).where(eq(devotionImages.id, id))).at(
+    0
+  );
 }
 
 export async function getDevotionImageOrThrow(id: string) {
@@ -62,20 +50,25 @@ export async function getDevotionImagesByDevotionId(devotionId: string) {
 
 export async function createDevotionImage(data: CreateDevotionImageData) {
   return (
-    await readWriteDatabase.insert(devotionImages).values(data).returning()
+    await readWriteDatabase
+      .insert(devotionImages)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
-export async function updateDevotionImage(
-  id: string,
-  data: UpdateDevotionImageData
-) {
+export async function updateDevotionImage(id: string, data: UpdateDevotionImageData) {
   return (
     await readWriteDatabase
       .update(devotionImages)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(devotionImages.id, id))
       .returning()
@@ -84,10 +77,7 @@ export async function updateDevotionImage(
 
 export async function deleteDevotionImage(id: string) {
   return (
-    await readWriteDatabase
-      .delete(devotionImages)
-      .where(eq(devotionImages.id, id))
-      .returning()
+    await readWriteDatabase.delete(devotionImages).where(eq(devotionImages.id, id)).returning()
   )[0];
 }
 
@@ -97,27 +87,27 @@ export async function generateDevotionImages(devo: Devotion) {
     bibleReading: devo.bibleReading,
     summary: devo.summary,
     reflection: devo.reflection,
-    prayer: devo.prayer,
+    prayer: devo.prayer
   });
-  console.log("Image prompt phrases:", imagePromptPhrases);
+  console.log('Image prompt phrases:', imagePromptPhrases);
 
   const imageCaptionChain = getImageCaptionChain();
   const imageCaption = await imageCaptionChain.invoke({
-    imagePrompt: imagePromptPhrases.join(", "),
+    imagePrompt: imagePromptPhrases.join(', '),
     bibleReading: devo.bibleReading,
     summary: devo.summary,
     reflection: devo.reflection!,
-    prayer: devo.prayer!,
+    prayer: devo.prayer!
   });
-  console.log("Image caption:", imageCaption);
+  console.log('Image caption:', imageCaption);
 
   const imagePrompt = `${imagePromptPhrases.join(
-    ", "
+    ', '
   )}, christian, photo realistic, beautiful, stunning, 8k uhd, high quality, high definition, color, 3d, detailed hands, detailed fingers, detailed eyes, detailed feet`;
   const negativeImagePrompt = `deformed iris, deformed pupils, semi-realistic, cgi, render, sketch, cartoon, drawing, anime, text, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, random floating objects, black and white`;
 
   const replicate = new Replicate({
-    auth: replicateConfig.apiKey,
+    auth: replicateConfig.apiKey
   });
   const output = await replicate.run(replicateConfig.imageModel, {
     input: {
@@ -126,17 +116,17 @@ export async function generateDevotionImages(devo: Devotion) {
       width: 1024,
       height: 1024,
       num_outputs: 1,
-      scheduler: "KarrasDPM",
-      refine: "expert_ensemble_refiner",
+      scheduler: 'KarrasDPM',
+      refine: 'expert_ensemble_refiner',
       num_inference_steps: 50,
       guidance_scale: 14,
       prompt_strength: 1.0,
-      high_noise_frac: 0.8,
-    },
+      high_noise_frac: 0.8
+    }
   });
-  console.log("Output from replicate:", output);
+  console.log('Output from replicate:', output);
   if (!Array.isArray(output)) {
-    throw new Error("Replicate output not formatted as expected");
+    throw new Error('Replicate output not formatted as expected');
   }
 
   const urlArray = output as string[];
@@ -145,29 +135,29 @@ export async function generateDevotionImages(devo: Devotion) {
     const url = urlArray[i];
     try {
       const image = await axios.get(url, {
-        responseType: "arraybuffer",
+        responseType: 'arraybuffer'
       });
 
       const s3Client = new S3Client({});
       const s3Url = await getSignedUrl(
         s3Client,
         new PutObjectCommand({
-          ACL: "public-read",
-          ContentType: "image/png",
+          ACL: 'public-read',
+          ContentType: 'image/png',
           Bucket: s3Config.devotionImageBucket,
-          Key: `${devo.id}-${i}.png`,
+          Key: `${devo.id}-${i}.png`
         })
       );
 
       if (!s3Url) {
-        throw new Error("Failed to get presigned url for s3 upload");
+        throw new Error('Failed to get presigned url for s3 upload');
       }
 
       const s3UploadResponse = await axios.put(s3Url, image.data, {
         headers: {
-          "Content-Type": "image/png",
-          "Content-Length": image.data.byteLength,
-        },
+          'Content-Type': 'image/png',
+          'Content-Length': image.data.byteLength
+        }
       });
 
       if (s3UploadResponse.status !== 200) {
@@ -176,16 +166,16 @@ export async function generateDevotionImages(devo: Devotion) {
         );
       }
 
-      const imageUrl = s3Url.split("?")[0];
+      const imageUrl = s3Url.split('?')[0];
       await createDevotionImage({
         devotionId: devo.id,
         url: imageUrl,
         caption: imageCaption,
         prompt: imagePrompt,
-        negativePrompt: negativeImagePrompt,
+        negativePrompt: negativeImagePrompt
       });
     } catch (e) {
-      console.error("Error saving devotion image", e);
+      console.error('Error saving devotion image', e);
     }
   }
 }

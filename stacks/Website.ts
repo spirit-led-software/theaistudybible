@@ -1,12 +1,5 @@
-import {
-  API,
-  ChatAPI,
-  Constants,
-  DatabaseScripts,
-  S3,
-  STATIC_ENV_VARS,
-} from "@stacks";
-import { StackContext, SvelteKitSite, dependsOn, use } from "sst/constructs";
+import { API, ChatAPI, Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from '@stacks';
+import { StackContext, SvelteKitSite, dependsOn, use } from 'sst/constructs';
 
 export function Website({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -16,33 +9,33 @@ export function Website({ stack }: StackContext) {
   const { chatApiUrl } = use(ChatAPI);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
 
-  const website = new SvelteKitSite(stack, "website", {
-    path: "packages/website",
+  const website = new SvelteKitSite(stack, 'website', {
+    path: 'packages/website',
     bind: [api, indexFileBucket],
     permissions: [api, indexFileBucket],
     environment: {
       ...STATIC_ENV_VARS,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
-      PUBLIC_CHAT_API_URL: chatApiUrl,
+      PUBLIC_CHAT_API_URL: chatApiUrl
     },
     customDomain: {
       domainName: domainName,
-      hostedZone: hostedZone.zoneName,
+      hostedZone: hostedZone.zoneName
     },
     dev: {
-      url: websiteUrl,
+      url: websiteUrl
     },
-    memorySize: "1 GB",
+    memorySize: '1 GB'
   });
   api.bind([website]);
 
   stack.addOutputs({
-    WebsiteUrl: websiteUrl,
+    WebsiteUrl: websiteUrl
   });
 
   return {
     website,
-    websiteUrl,
+    websiteUrl
   };
 }

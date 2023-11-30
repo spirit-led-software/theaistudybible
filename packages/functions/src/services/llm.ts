@@ -1,12 +1,9 @@
-import { envConfig, upstashRedisConfig } from "@core/configs";
-import { RAIBedrockEmbeddings } from "@core/langchain/embeddings/bedrock";
-import { RAIBedrock } from "@core/langchain/llms/bedrock";
-import type {
-  AnthropicModelId,
-  CohereModelId,
-} from "@core/langchain/types/bedrock-types";
-import { UpstashRedisCache } from "langchain/cache/upstash_redis";
-import type { BaseCache } from "langchain/schema";
+import { envConfig, upstashRedisConfig } from '@core/configs';
+import { RAIBedrockEmbeddings } from '@core/langchain/embeddings/bedrock';
+import { RAIBedrock } from '@core/langchain/llms/bedrock';
+import type { AnthropicModelId, CohereModelId } from '@core/langchain/types/bedrock-types';
+import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
+import type { BaseCache } from 'langchain/schema';
 
 export type StandardModelInput = {
   stream?: boolean;
@@ -25,18 +22,18 @@ export const llmCache =
     ? new UpstashRedisCache({
         config: {
           url: upstashRedisConfig.url,
-          token: upstashRedisConfig.token,
-        },
+          token: upstashRedisConfig.token
+        }
       })
     : undefined;
 
 export const getEmbeddingsModel = () =>
   new RAIBedrockEmbeddings({
-    model: "cohere.embed-english-v3",
+    model: 'cohere.embed-english-v3'
   });
 
 export const getSmallContextModel = ({
-  modelId = "cohere.command-text-v14",
+  modelId = 'cohere.command-text-v14',
   temperature = 0.5,
   maxTokens = 2048,
   stopSequences = [],
@@ -45,7 +42,7 @@ export const getSmallContextModel = ({
   topP = 0.5,
   promptPrefix,
   promptSuffix,
-  cache,
+  cache
 }: StandardModelInput & { modelId?: CohereModelId } = {}) =>
   new RAIBedrock({
     modelId: modelId,
@@ -56,16 +53,16 @@ export const getSmallContextModel = ({
       p: topP,
       k: topK,
       stop_sequences: stopSequences,
-      return_likelihoods: "NONE",
+      return_likelihoods: 'NONE'
     },
     promptPrefix,
     promptSuffix,
     cache,
-    verbose: envConfig.isLocal,
+    verbose: envConfig.isLocal
   });
 
 export const getLargeContextModel = ({
-  modelId = "anthropic.claude-instant-v1",
+  modelId = 'anthropic.claude-instant-v1',
   temperature = 0.5,
   maxTokens = 2048,
   stopSequences = [],
@@ -74,7 +71,7 @@ export const getLargeContextModel = ({
   topP = 0.5,
   promptPrefix,
   promptSuffix,
-  cache,
+  cache
 }: StandardModelInput & { modelId?: AnthropicModelId } = {}) =>
   new RAIBedrock({
     modelId: modelId,
@@ -84,10 +81,10 @@ export const getLargeContextModel = ({
       temperature: temperature,
       top_p: topP,
       top_k: topK,
-      stop_sequences: stopSequences,
+      stop_sequences: stopSequences
     },
     promptPrefix,
     promptSuffix,
     cache,
-    verbose: envConfig.isLocal,
+    verbose: envConfig.isLocal
   });

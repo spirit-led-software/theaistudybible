@@ -1,25 +1,22 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { unstructuredConfig, vectorDBConfig } from "@core/configs";
-import type { IndexOperation } from "@core/model";
-import { indexOperations } from "@core/schema";
-import { getDataSourceOrThrow, updateDataSource } from "@services/data-source";
-import {
-  createIndexOperation,
-  updateIndexOperation,
-} from "@services/data-source/index-op";
-import { getDocumentVectorStore } from "@services/vector-db";
-import type { S3Handler } from "aws-lambda";
-import { sql } from "drizzle-orm";
-import { mkdtempSync, writeFileSync } from "fs";
-import type { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
-import { DocxLoader } from "langchain/document_loaders/fs/docx";
-import { JSONLoader } from "langchain/document_loaders/fs/json";
-import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { TextLoader } from "langchain/document_loaders/fs/text";
-import { UnstructuredLoader } from "langchain/document_loaders/fs/unstructured";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { tmpdir } from "os";
-import { join } from "path";
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { unstructuredConfig, vectorDBConfig } from '@core/configs';
+import type { IndexOperation } from '@core/model';
+import { indexOperations } from '@core/schema';
+import { getDataSourceOrThrow, updateDataSource } from '@services/data-source';
+import { createIndexOperation, updateIndexOperation } from '@services/data-source/index-op';
+import { getDocumentVectorStore } from '@services/vector-db';
+import type { S3Handler } from 'aws-lambda';
+import { sql } from 'drizzle-orm';
+import { mkdtempSync, writeFileSync } from 'fs';
+import type { BaseDocumentLoader } from 'langchain/dist/document_loaders/base';
+import { DocxLoader } from 'langchain/document_loaders/fs/docx';
+import { JSONLoader } from 'langchain/document_loaders/fs/json';
+import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
+import { TextLoader } from 'langchain/document_loaders/fs/text';
+import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 const s3Client = new S3Client({});
 
@@ -28,27 +25,27 @@ export const handler: S3Handler = async (event) => {
   const { bucket, object } = records[0].s3;
 
   if (!bucket || !object) {
-    throw new Error("Invalid S3 event");
+    throw new Error('Invalid S3 event');
   }
 
   const { key, size } = object;
 
   let indexOp: IndexOperation | undefined;
   try {
-    const sanitizedKey = decodeURIComponent(key).replace(/\+/g, " ");
+    const sanitizedKey = decodeURIComponent(key).replace(/\+/g, ' ');
     const getObjectCommand = new GetObjectCommand({
       Bucket: bucket.name,
-      Key: sanitizedKey,
+      Key: sanitizedKey
     });
 
     const getRequest = await s3Client.send(getObjectCommand);
     if (!getRequest.Body) {
-      throw new Error("Failed to get file from S3");
+      throw new Error('Failed to get file from S3');
     }
 
     const byteArray = await getRequest.Body.transformToByteArray();
     if (!byteArray) {
-      throw new Error("Failed to get file from S3");
+      throw new Error('Failed to get file from S3');
     }
 
     const fileName = sanitizedKey;
@@ -58,74 +55,73 @@ export const handler: S3Handler = async (event) => {
     const { datasourceid: dataSourceId, name, url } = metadata;
 
     if (!dataSourceId || !name || !url) {
-      throw new Error("Missing required metadata");
+      throw new Error('Missing required metadata');
     }
 
-    let indexOpMetadata: any = {
+    let indexOpMetadata: unknown = {
       ...metadata,
       name,
       url,
       fileName,
       size,
-      fileType,
+      fileType
     };
 
     let loader: BaseDocumentLoader;
-    if (fileType === "application/pdf") {
+    if (fileType === 'application/pdf') {
       loader = new PDFLoader(blob, {
-        splitPages: false,
+        splitPages: false
       });
-    } else if (fileType === "text/plain") {
+    } else if (fileType === 'text/plain') {
       loader = new TextLoader(blob);
-    } else if (fileType === "application/json" || fileType === "text/json") {
+    } else if (fileType === 'application/json' || fileType === 'text/json') {
       loader = new JSONLoader(blob);
     } else if (
-      fileType ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
       loader = new DocxLoader(blob);
     } else {
-      const tmpDir = mkdtempSync(join(tmpdir(), "langchain-"));
+      const tmpDir = mkdtempSync(join(tmpdir(), 'langchain-'));
       const filePath = join(tmpDir, fileName);
       writeFileSync(filePath, Buffer.from(await blob.arrayBuffer()));
       loader = new UnstructuredLoader(filePath, {
-        apiKey: unstructuredConfig.apiKey,
+        apiKey: unstructuredConfig.apiKey
       });
       indexOpMetadata = {
-        ...indexOpMetadata,
-        tempFilePath: filePath,
+        ...(indexOpMetadata as object),
+        tempFilePath: filePath
       };
     }
 
     let [indexOp, dataSource] = await Promise.all([
       createIndexOperation({
-        status: "RUNNING",
+        status: 'RUNNING',
         metadata: indexOpMetadata,
-        dataSourceId,
+        dataSourceId
       }),
-      getDataSourceOrThrow(dataSourceId),
+      getDataSourceOrThrow(dataSourceId)
     ]);
 
-    console.log("Starting load documents");
+    console.log('Starting load documents');
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: vectorDBConfig.docEmbeddingContentLength,
-      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
     });
-    console.log("Starting split documents");
+    console.log('Starting split documents');
     docs = await splitter.invoke(docs, {});
 
-    console.log("Finished load and split documents");
+    console.log('Finished load and split documents');
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
       doc.metadata = {
-        ...dataSource.metadata,
-        ...indexOpMetadata,
+        ...(dataSource.metadata as object),
+        ...(indexOpMetadata as object),
         ...doc.metadata,
         indexDate: new Date().toISOString(),
-        type: "file",
-        dataSourceId,
+        type: 'file',
+        dataSourceId
       };
       let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
       if (doc.metadata.title && doc.metadata.author) {
@@ -134,27 +130,28 @@ export const handler: S3Handler = async (event) => {
       doc.pageContent = newPageContent;
       return doc;
     });
-    console.log("Adding documents to vector store");
+    console.log('Adding documents to vector store');
     const vectorStore = await getDocumentVectorStore();
     await vectorStore.addDocuments(docs);
     [indexOp, dataSource] = await Promise.all([
       updateIndexOperation(indexOp!.id, {
-        status: "SUCCEEDED",
+        status: 'SUCCEEDED'
       }),
       updateDataSource(dataSourceId, {
-        numberOfDocuments: docs.length,
-      }),
+        numberOfDocuments: docs.length
+      })
     ]);
-    console.log("Finished adding documents to vector store");
-  } catch (error: any) {
-    console.error(error);
-
+    console.log('Finished adding documents to vector store');
+  } catch (error) {
+    console.error('Error indexing file:', error);
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
-        status: "FAILED",
-        errorMessages: sql`${
-          indexOperations.errorMessages
-        } || jsonb_build_array('${sql.raw(error.stack ?? error.message)}')`,
+        status: 'FAILED',
+        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+          error instanceof Error
+            ? `${error.message}: ${error.stack}`
+            : `Error: ${JSON.stringify(error)}`
+        )}')`
       });
     }
 

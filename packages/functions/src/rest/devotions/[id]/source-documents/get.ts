@@ -1,10 +1,10 @@
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  OkResponse,
-} from "@lib/api-responses";
-import { getDevotion, getDevotionSourceDocuments } from "@services/devotion";
-import { ApiHandler } from "sst/node/api";
+  OkResponse
+} from '@lib/api-responses';
+import { getDevotion, getDevotionSourceDocuments } from '@services/devotion';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
@@ -19,12 +19,17 @@ export const handler = ApiHandler(async (event) => {
 
     return OkResponse(
       sourceDocuments.map((sourceDocument) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { embedding, ...rest } = sourceDocument;
         return rest;
       })
     );
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error getting source documents for devotion '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

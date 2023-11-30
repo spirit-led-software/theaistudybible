@@ -1,10 +1,5 @@
-import { API, Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
-import {
-  Auth as AuthConstruct,
-  StackContext,
-  dependsOn,
-  use,
-} from "sst/constructs";
+import { API, Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { Auth as AuthConstruct, StackContext, dependsOn, use } from 'sst/constructs';
 
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -13,35 +8,35 @@ export function Auth({ stack }: StackContext) {
   const { websiteUrl } = use(Constants);
   const { dbReadOnlyUrl, dbReadWriteUrl } = use(DatabaseScripts);
 
-  const auth = new AuthConstruct(stack, "auth", {
+  const auth = new AuthConstruct(stack, 'auth', {
     authenticator: {
-      handler: "packages/functions/src/auth/auth.handler",
+      handler: 'packages/functions/src/auth/auth.handler',
       copyFiles: [
         {
-          from: "emails",
-          to: "emails",
+          from: 'emails',
+          to: 'emails'
         },
         {
-          from: "apple-auth-key.p8",
-          to: "apple-auth-key.p8",
-        },
+          from: 'apple-auth-key.p8',
+          to: 'apple-auth-key.p8'
+        }
       ],
       environment: {
         ...STATIC_ENV_VARS,
         WEBSITE_URL: websiteUrl,
         DATABASE_READWRITE_URL: dbReadWriteUrl,
-        DATABASE_READONLY_URL: dbReadOnlyUrl,
+        DATABASE_READONLY_URL: dbReadOnlyUrl
       },
-      timeout: "30 seconds",
-      memorySize: "512 MB",
-    },
+      timeout: '30 seconds',
+      memorySize: '512 MB'
+    }
   });
 
   auth.attach(stack, {
-    api,
+    api
   });
 
   return {
-    auth,
+    auth
   };
 }

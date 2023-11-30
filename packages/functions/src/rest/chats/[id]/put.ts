@@ -1,18 +1,18 @@
-import type { Chat } from "@core/model";
+import type { Chat } from '@core/model';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { getChat, updateChat } from "@services/chat/chat";
-import { validApiHandlerSession } from "@services/session";
-import { isObjectOwner } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { getChat, updateChat } from '@services/chat/chat';
+import { validApiHandlerSession } from '@services/session';
+import { isObjectOwner } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data = JSON.parse(event.body ?? "{}");
+  const data = JSON.parse(event.body ?? '{}');
 
   try {
     let chat: Chat | undefined = await getChat(id);
@@ -22,13 +22,18 @@ export const handler = ApiHandler(async (event) => {
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid || !isObjectOwner(chat, userWithRoles.id)) {
-      return UnauthorizedResponse("You are not authorized to edit this chat");
+      return UnauthorizedResponse('You are not authorized to edit this chat');
     }
 
     chat = await updateChat(chat!.id, data);
 
     return OkResponse(chat);
-  } catch (error: any) {
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error updating chat '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

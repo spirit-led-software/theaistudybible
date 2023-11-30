@@ -1,16 +1,11 @@
-import {
-  Client,
-  neon,
-  neonConfig,
-  type NeonQueryFunction,
-} from "@neondatabase/serverless";
-import type { Metadata } from "@opensearch-project/opensearch/api/types";
-import { Document } from "langchain/document";
-import type { Embeddings } from "langchain/embeddings/base";
-import { VectorStore } from "langchain/vectorstores/base";
-import ws from "ws";
+import { Client, neon, neonConfig, type NeonQueryFunction } from '@neondatabase/serverless';
+import { Document } from 'langchain/document';
+import type { Embeddings } from 'langchain/embeddings/base';
+import { VectorStore } from 'langchain/vectorstores/base';
+import ws from 'ws';
+import type { Metadata } from '../../types/metadata';
 
-export type DistanceMetric = "l2" | "cosine" | "innerProduct";
+export type DistanceMetric = 'l2' | 'cosine' | 'innerProduct';
 
 export interface NeonVectorStoreArgs {
   connectionOptions: {
@@ -49,12 +44,12 @@ export class NeonVectorStoreDocument extends Document {
   }
 }
 
-const defaultDocumentTableName = "documents";
+const defaultDocumentTableName = 'documents';
 
 const distanceOperators = {
-  l2: "<->",
-  cosine: "<=>",
-  innerProduct: "<#>",
+  l2: '<->',
+  cosine: '<=>',
+  innerProduct: '<#>'
 };
 
 export class NeonVectorStore extends VectorStore {
@@ -76,7 +71,7 @@ export class NeonVectorStore extends VectorStore {
   private readonly readWriteQueryFn: NeonQueryFunction<false, false>;
 
   _vectorstoreType(): string {
-    return "neon";
+    return 'neon';
   }
 
   private constructor(embeddings: Embeddings, fields: NeonVectorStoreArgs) {
@@ -85,7 +80,7 @@ export class NeonVectorStore extends VectorStore {
     this.filters = fields.filters ?? [];
     this.dimensions = fields.dimensions;
     this.verbose = fields.verbose ?? false;
-    this.distance = fields.distance ?? "l2";
+    this.distance = fields.distance ?? 'l2';
     this.hnswIdxM = fields.hnswIdxM ?? 16;
     this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
     this.hnswIdxEfSearch = fields.hnswIdxEfSearch ?? 40;
@@ -93,19 +88,18 @@ export class NeonVectorStore extends VectorStore {
     neonConfig.webSocketConstructor = ws;
 
     this.readOnlyUrl =
-      fields.connectionOptions.readOnlyUrl ||
-      fields.connectionOptions.readWriteUrl;
+      fields.connectionOptions.readOnlyUrl || fields.connectionOptions.readWriteUrl;
     this.readOnlyQueryFn = neon(this.readOnlyUrl, {
-      readOnly: true,
+      readOnly: true
     });
 
     this.readWriteUrl = fields.connectionOptions.readWriteUrl;
     this.readWriteQueryFn = neon(this.readWriteUrl, {
-      readOnly: false,
+      readOnly: false
     });
   }
 
-  _log(message: any, ...optionalParams: any[]): void {
+  _log(message: unknown, ...optionalParams: unknown[]): void {
     if (this.verbose) {
       console.log(`[NeonVectorStore] ${message}`, ...optionalParams);
     }
@@ -119,18 +113,18 @@ export class NeonVectorStore extends VectorStore {
     return neonVectorStore;
   }
 
-  _generateFiltersString(filter?: this["FilterType"]): string {
-    let filterString = "";
+  _generateFiltersString(filter?: this['FilterType']): string {
+    let filterString = '';
     if (filter) {
       filterString = `(metadata @> '${JSON.stringify(filter)}'::jsonb)`;
     }
     if (this.filters.length > 0) {
       if (filterString.length > 0) {
-        filterString += " AND ";
+        filterString += ' AND ';
       }
       filterString += `(${this.filters
         .map((value) => `(metadata @> '${JSON.stringify(value)}')`)
-        .join(" OR ")})`;
+        .join(' OR ')})`;
     }
     return filterString;
   }
@@ -142,33 +136,27 @@ export class NeonVectorStore extends VectorStore {
     }
 
     await this.addVectors(
-      await this.embeddings.embedDocuments(
-        documents.map(({ pageContent }) => pageContent)
-      ),
+      await this.embeddings.embedDocuments(documents.map(({ pageContent }) => pageContent)),
       documents
     );
   }
 
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
     const rows = vectors.map((embedding, idx) => {
-      const embeddingString = `[${embedding.join(",")}]`;
+      const embeddingString = `[${embedding.join(',')}]`;
       const documentRow = {
         page_content: documents[idx].pageContent,
         embedding: embeddingString,
-        metadata: documents[idx].metadata,
+        metadata: documents[idx].metadata
       };
       return documentRow;
     });
 
-    const errors: any[] = [];
+    const errors: unknown[] = [];
     const chunkSize = 100;
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
-      this._log(
-        `Inserting ${chunk.length} rows into vector store ${i} to ${
-          i + chunk.length
-        }`
-      );
+      this._log(`Inserting ${chunk.length} rows into vector store ${i} to ${i + chunk.length}`);
 
       try {
         await this.readWriteQueryFn(
@@ -191,10 +179,10 @@ export class NeonVectorStore extends VectorStore {
   async similaritySearchVectorWithScore(
     query: number[],
     k: number,
-    filter?: this["FilterType"],
+    filter?: this['FilterType'],
     offset?: number
   ): Promise<[NeonVectorStoreDocument, number][]> {
-    const embeddingString = `[${query.join(",")}]`;
+    const embeddingString = `[${query.join(',')}]`;
     const _filter = this._generateFiltersString(filter);
     const _offset = offset ?? 0;
     this._log(
@@ -204,37 +192,31 @@ export class NeonVectorStore extends VectorStore {
     try {
       const docRows = await this.readOperation(async (client) => {
         client.query(`SET LOCAL hnsw.ef_search = '${this.hnswIdxEfSearch}';`);
-        if (this.distance === "l2") {
+        if (this.distance === 'l2') {
           return await client.query(
-            `SELECT *, embedding ${
-              distanceOperators[this.distance]
-            } $1 AS "_distance"
+            `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
             FROM ${this.tableName}
-            ${_filter ? `WHERE (${_filter})` : ""}
+            ${_filter ? `WHERE (${_filter})` : ''}
             ORDER BY "_distance" ASC
             LIMIT $2
             OFFSET $3;`,
             [embeddingString, k, _offset]
           );
-        } else if (this.distance === "cosine") {
+        } else if (this.distance === 'cosine') {
           return await client.query(
-            `SELECT *, embedding ${
-              distanceOperators[this.distance]
-            } $1 AS "_distance"
+            `SELECT *, embedding ${distanceOperators[this.distance]} $1 AS "_distance"
             FROM ${this.tableName}
-            ${_filter ? `WHERE (${_filter})` : ""}
+            ${_filter ? `WHERE (${_filter})` : ''}
             ORDER BY "_distance" ASC
             LIMIT $2
             OFFSET $3;`,
             [embeddingString, k, _offset]
           );
-        } else if (this.distance === "innerProduct") {
+        } else if (this.distance === 'innerProduct') {
           return await client.query(
-            `SELECT *, (embedding ${
-              distanceOperators[this.distance]
-            } $1) * -1 AS "_distance"
+            `SELECT *, (embedding ${distanceOperators[this.distance]} $1) * -1 AS "_distance"
             FROM ${this.tableName}
-            ${_filter ? `WHERE (${_filter})` : ""}
+            ${_filter ? `WHERE (${_filter})` : ''}
             ORDER BY "_distance" DESC
             LIMIT $2
             OFFSET $3;`,
@@ -254,16 +236,14 @@ export class NeonVectorStore extends VectorStore {
             pageContent: doc.page_content,
             embedding: doc.embedding,
             distance: doc._distance,
-            distanceMetric: this.distance,
+            distanceMetric: this.distance
           });
           results.push([document, doc._distance]);
         }
       }
 
       this._log(
-        `Found ${
-          docRows.rows.length
-        } similar results from vector store: ${JSON.stringify(results)}`
+        `Found ${docRows.rows.length} similar results from vector store: ${JSON.stringify(results)}`
       );
       return results;
     } catch (e) {
@@ -274,7 +254,7 @@ export class NeonVectorStore extends VectorStore {
 
   async getDocumentsByIds(
     ids: string[],
-    filter?: this["FilterType"]
+    filter?: this['FilterType']
   ): Promise<NeonVectorStoreDocument[]> {
     const _filter = this._generateFiltersString(filter);
     this._log(`Getting documents\nids=${ids}\nfilter='${_filter}'`);
@@ -284,23 +264,23 @@ export class NeonVectorStore extends VectorStore {
           `SELECT * FROM ${this.tableName}
           WHERE (
             id = ANY($1)
-            ${_filter ? `AND (${_filter})` : ""}
+            ${_filter ? `AND (${_filter})` : ''}
           );`,
           [ids]
         );
       });
 
       this._log(
-        `Found ${
-          docRows.rows.length
-        } documents by ids from vector store: ${JSON.stringify(docRows.rows)}`
+        `Found ${docRows.rows.length} documents by ids from vector store: ${JSON.stringify(
+          docRows.rows
+        )}`
       );
       return docRows.rows.map((row) => {
         return new NeonVectorStoreDocument({
           id: row.id,
           metadata: row.metadata,
           pageContent: row.page_content,
-          embedding: row.embedding,
+          embedding: row.embedding
         });
       });
     } catch (e) {
@@ -316,8 +296,8 @@ export class NeonVectorStore extends VectorStore {
   async ensureTableInDatabase(): Promise<void> {
     try {
       await this.transaction(async (client) => {
-        this._log("Creating vector extension");
-        await client.query("CREATE EXTENSION IF NOT EXISTS vector;");
+        this._log('Creating vector extension');
+        await client.query('CREATE EXTENSION IF NOT EXISTS vector;');
 
         this._log(`Creating table ${this.tableName}`);
         await client.query(`
@@ -329,7 +309,7 @@ export class NeonVectorStore extends VectorStore {
           );
         `);
 
-        if (this.distance === "l2") {
+        if (this.distance === 'l2') {
           this._log(`Creating L2 HNSW index on ${this.tableName}.`);
           const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
           await client.query(
@@ -340,7 +320,7 @@ export class NeonVectorStore extends VectorStore {
                 ef_construction = ${this.hnswIdxEfConstruction}
               );`
           );
-        } else if (this.distance === "cosine") {
+        } else if (this.distance === 'cosine') {
           this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
           const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
           await client.query(
@@ -351,7 +331,7 @@ export class NeonVectorStore extends VectorStore {
                 ef_construction = ${this.hnswIdxEfConstruction}
               );`
           );
-        } else if (this.distance === "innerProduct") {
+        } else if (this.distance === 'innerProduct') {
           this._log(`Creating inner product HNSW index on ${this.tableName}.`);
           const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
           await client.query(
@@ -374,15 +354,12 @@ export class NeonVectorStore extends VectorStore {
         );
       });
     } catch (e) {
-      this._log("Error ensuring table in database:", e);
+      this._log('Error ensuring table in database:', e);
       throw e;
     }
   }
 
-  async createPartialHnswIndex(
-    indexName: string,
-    filter?: this["FilterType"]
-  ): Promise<void> {
+  async createPartialHnswIndex(indexName: string, filter?: this['FilterType']): Promise<void> {
     const _filter = this._generateFiltersString(filter);
     if (_filter.length === 0) {
       throw new Error(`Cannot create a partial HNSW index without filter`);
@@ -390,7 +367,7 @@ export class NeonVectorStore extends VectorStore {
 
     try {
       await this.transaction(async (client) => {
-        if (this.distance === "l2") {
+        if (this.distance === 'l2') {
           this._log(`Creating L2 HNSW index on ${this.tableName}.`);
           await client.query(
             `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_l2_idx
@@ -402,7 +379,7 @@ export class NeonVectorStore extends VectorStore {
               )
               WHERE (${_filter});`
           );
-        } else if (this.distance === "cosine") {
+        } else if (this.distance === 'cosine') {
           this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
           await client.query(
             `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_cosine_idx 
@@ -414,7 +391,7 @@ export class NeonVectorStore extends VectorStore {
               )
               WHERE (${_filter});`
           );
-        } else if (this.distance === "innerProduct") {
+        } else if (this.distance === 'innerProduct') {
           this._log(`Creating inner product HNSW index on ${this.tableName}.`);
           await client.query(
             `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_ip_idx 
@@ -431,30 +408,28 @@ export class NeonVectorStore extends VectorStore {
         }
       });
     } catch (e) {
-      this._log("Error creating partial HNSW index:", e);
+      this._log('Error creating partial HNSW index:', e);
       throw e;
     }
   }
 
   async deleteTableInDatabase(): Promise<void> {
     this._log(`Dropping table ${this.tableName}`);
-    await this.readWriteQueryFn(
-      `DROP TABLE IF EXISTS ${this.tableName} CASCADE;`
-    );
+    await this.readWriteQueryFn(`DROP TABLE IF EXISTS ${this.tableName} CASCADE;`);
   }
 
   async dropHnswIndex(): Promise<void> {
     try {
       await this.transaction(async (client) => {
-        if (this.distance === "l2") {
+        if (this.distance === 'l2') {
           this._log(`Dropping L2 HNSW index on ${this.tableName}.`);
           const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
           await client.query(`DROP INDEX IF EXISTS ${l2IndexName};`);
-        } else if (this.distance === "cosine") {
+        } else if (this.distance === 'cosine') {
           this._log(`Dropping Cosine HNSW index on ${this.tableName}.`);
           const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
           await client.query(`DROP INDEX IF EXISTS ${cosineIndexName};`);
-        } else if (this.distance === "innerProduct") {
+        } else if (this.distance === 'innerProduct') {
           this._log(`Dropping inner product HNSW index on ${this.tableName}.`);
           const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
           await client.query(`DROP INDEX IF EXISTS ${ipIndexName};`);
@@ -463,28 +438,25 @@ export class NeonVectorStore extends VectorStore {
         }
       });
     } catch (e) {
-      this._log("Error dropping HNSW index:", e);
+      this._log('Error dropping HNSW index:', e);
       throw e;
     }
   }
 
-  async deleteDocumentsByIds(
-    ids: string[],
-    filter?: this["FilterType"]
-  ): Promise<void> {
+  async deleteDocumentsByIds(ids: string[], filter?: this['FilterType']): Promise<void> {
     const _filter = this._generateFiltersString(filter);
     this._log(`Deleting documents\nids=${ids}\nfilter='${_filter}'`);
     await this.readWriteQueryFn(
       `DELETE FROM ${this.tableName}
       WHERE (
         id = ANY($1)
-        ${_filter ? `AND (${_filter})` : ""}
+        ${_filter ? `AND (${_filter})` : ''}
       );`,
       [ids]
     );
   }
 
-  async deleteDocumentsByFilter(filter: this["FilterType"]): Promise<void> {
+  async deleteDocumentsByFilter(filter: this['FilterType']): Promise<void> {
     const _filter = this._generateFiltersString(filter);
     this._log(`Deleting documents\nfilter='${_filter}'`);
 
@@ -500,28 +472,28 @@ export class NeonVectorStore extends VectorStore {
     let client: Client | undefined;
     try {
       client = new Client(this.readWriteUrl);
-      this._log("Connecting to database");
+      this._log('Connecting to database');
       await client.connect();
 
-      this._log("Beginning transaction");
-      await client.query("BEGIN;");
+      this._log('Beginning transaction');
+      await client.query('BEGIN;');
 
       const response = await fn(client);
 
-      this._log("Committing transaction");
-      await client.query("COMMIT;");
+      this._log('Committing transaction');
+      await client.query('COMMIT;');
 
       return response;
     } catch (e) {
-      this._log("Error in transaction:", e);
+      this._log('Error in transaction:', e);
       if (client) {
-        this._log("Rolling back transaction");
-        await client.query("ROLLBACK;");
+        this._log('Rolling back transaction');
+        await client.query('ROLLBACK;');
       }
       throw e;
     } finally {
       if (client) {
-        this._log("Closing database connection");
+        this._log('Closing database connection');
         await client.end();
       }
     }
@@ -532,16 +504,16 @@ export class NeonVectorStore extends VectorStore {
     try {
       client = new Client(this.readOnlyUrl);
 
-      this._log("Connecting to database");
+      this._log('Connecting to database');
       await client.connect();
 
       return await fn(client);
     } catch (e) {
-      this._log("Error in read operation:", e);
+      this._log('Error in read operation:', e);
       throw e;
     } finally {
       if (client) {
-        this._log("Closing database connection");
+        this._log('Closing database connection');
         await client.end();
       }
     }
@@ -558,7 +530,7 @@ export class NeonVectorStore extends VectorStore {
       const _metadata = Array.isArray(metadata) ? metadata[i] : metadata;
       const newDoc = new Document({
         pageContent: texts[i],
-        metadata: _metadata,
+        metadata: _metadata
       });
       docs.push(newDoc);
     }
@@ -570,10 +542,7 @@ export class NeonVectorStore extends VectorStore {
     embeddings: Embeddings,
     dbConfig: NeonVectorStoreArgs
   ): Promise<NeonVectorStore> {
-    const instance = await NeonVectorStore.fromConnectionString(
-      embeddings,
-      dbConfig
-    );
+    const instance = await NeonVectorStore.fromConnectionString(embeddings, dbConfig);
     await instance.addDocuments(docs);
     return instance;
   }
@@ -582,10 +551,7 @@ export class NeonVectorStore extends VectorStore {
     embeddings: Embeddings,
     dbConfig: NeonVectorStoreArgs
   ): Promise<NeonVectorStore> {
-    const instance = await NeonVectorStore.fromConnectionString(
-      embeddings,
-      dbConfig
-    );
+    const instance = await NeonVectorStore.fromConnectionString(embeddings, dbConfig);
     return instance;
   }
 }

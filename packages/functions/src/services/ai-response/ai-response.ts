@@ -1,12 +1,8 @@
-import type {
-  AiResponse,
-  CreateAiResponseData,
-  UpdateAiResponseData,
-} from "@core/model";
-import { aiResponses, aiResponsesToSourceDocuments } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, asc, desc, eq } from "drizzle-orm";
-import { getDocumentVectorStore } from "../vector-db";
+import type { AiResponse, CreateAiResponseData, UpdateAiResponseData } from '@core/model';
+import { aiResponses, aiResponsesToSourceDocuments } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, asc, desc, eq } from 'drizzle-orm';
+import { getDocumentVectorStore } from '../vector-db';
 
 export async function getAiResponses(
   options: {
@@ -16,12 +12,7 @@ export async function getAiResponses(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(aiResponses.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(aiResponses.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -33,12 +24,7 @@ export async function getAiResponses(
 }
 
 export async function getAiResponse(id: string) {
-  return (
-    await readOnlyDatabase
-      .select()
-      .from(aiResponses)
-      .where(eq(aiResponses.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(aiResponses).where(eq(aiResponses.id, id))).at(0);
 }
 
 export async function getAiResponseOrThrow(id: string) {
@@ -70,20 +56,25 @@ export async function getAiResponseSourceDocuments(aiResponse: AiResponse) {
   );
 
   return foundSourceDocuments.map((d) => {
-    const relationship = sourceDocumentRelationships.find(
-      (r) => r.sourceDocumentId === d.id
-    );
+    const relationship = sourceDocumentRelationships.find((r) => r.sourceDocumentId === d.id);
     return {
       ...d,
       distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? "cosine",
+      distanceMetric: relationship?.distanceMetric ?? 'cosine'
     };
   });
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {
   return (
-    await readWriteDatabase.insert(aiResponses).values(data).returning()
+    await readWriteDatabase
+      .insert(aiResponses)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
@@ -93,7 +84,8 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
       .update(aiResponses)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(aiResponses.id, id))
       .returning()
@@ -101,10 +93,5 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
 }
 
 export async function deleteAiResponse(id: string) {
-  return (
-    await readWriteDatabase
-      .delete(aiResponses)
-      .where(eq(aiResponses.id, id))
-      .returning()
-  )[0];
+  return (await readWriteDatabase.delete(aiResponses).where(eq(aiResponses.id, id)).returning())[0];
 }

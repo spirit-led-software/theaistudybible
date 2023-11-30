@@ -24,14 +24,14 @@
 		metadata = {}
 	}: {
 		url: string;
-		syncSchedule: string;
+		syncSchedule: DataSource['syncSchedule'];
 		metadata: object;
 	}) => {
 		return await updateDataSource(
 			dataSource.id,
 			{
 				url,
-				syncSchedule: syncSchedule as any,
+				syncSchedule: syncSchedule,
 				metadata
 			},
 			{
@@ -50,7 +50,7 @@
 			if (previousDataSources) {
 				client.setQueryData<InfiniteData<DataSource[]>>(['infinite-data-sources'], {
 					pages: previousDataSources.pages.map((page) =>
-						page.map((c) => (c.id === dataSource.id ? { ...c, ...(input as any) } : c))
+						page.map((c) => (c.id === dataSource.id ? { ...c, ...input } : c))
 					),
 					pageParams: previousDataSources.pageParams
 				});
@@ -71,7 +71,9 @@
 		const author = (formData.get('author') || undefined) as string | undefined;
 		const category = (formData.get('category') || undefined) as string | undefined;
 		const metadataString = (formData.get('metadata') || undefined) as string | undefined;
-		let syncSchedule = (formData.get('syncSchedule') || undefined) as string | undefined;
+		let syncSchedule = (formData.get('syncSchedule') || undefined) as
+			| DataSource['syncSchedule']
+			| undefined;
 
 		if (!url) {
 			alert('Missing required field "URL"');
@@ -156,9 +158,10 @@
 			}
 
 			editDialog?.close();
-		} catch (e: any) {
-			alert(e.message);
+		} catch (e) {
+			alert(e instanceof Error ? e.message : 'Unknown error');
 		} finally {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			isLoading = false;
 		}
 	};

@@ -1,18 +1,5 @@
-import {
-  SQL,
-  and,
-  asc,
-  desc,
-  eq,
-  gt,
-  gte,
-  like,
-  lt,
-  lte,
-  not,
-  or,
-} from "drizzle-orm";
-import type { PgTableWithColumns } from "drizzle-orm/pg-core";
+import { SQL, and, asc, desc, eq, gt, gte, like, lt, lte, not, or } from 'drizzle-orm';
+import type { PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 export interface ColumnValue {
   column: string;
@@ -40,17 +27,16 @@ export interface Query {
 }
 
 export function buildQuery(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   table: PgTableWithColumns<any>,
   query: Query
 ): SQL<unknown> | undefined {
   if (query.AND && query.OR) {
-    throw new Error("Cannot have both AND and OR at the top level of a query");
+    throw new Error('Cannot have both AND and OR at the top level of a query');
   }
 
   if ((query.AND || query.OR) && query.NOT) {
-    throw new Error(
-      "Cannot have both AND/OR and NOT at the top level of a query"
-    );
+    throw new Error('Cannot have both AND/OR and NOT at the top level of a query');
   }
 
   if (query.AND) {
@@ -97,6 +83,7 @@ export function buildQuery(
 }
 
 export function buildOrderBy(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   table: PgTableWithColumns<any>,
   orderBy: string,
   order: string
@@ -105,9 +92,9 @@ export function buildOrderBy(
     throw new Error(`Cannot order by ${orderBy} on table ${table.name}`);
   }
 
-  if (order === "asc") {
+  if (order === 'asc') {
     return asc(table[orderBy]);
-  } else if (order === "desc") {
+  } else if (order === 'desc') {
     return desc(table[orderBy]);
   } else {
     throw new Error(`Invalid order operator ${order}`);

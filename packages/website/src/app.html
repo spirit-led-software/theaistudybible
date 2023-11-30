@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
 	<head>
 		<meta charset="utf-8" />
@@ -176,11 +176,11 @@
 												u(t)
 													? (e.mask_selector = t + ',[data-nr-mask]')
 													: null === t
-													? (e.mask_selector = t)
-													: (0, l.Z)(
-															'An invalid session_replay.mask_selector was provided and will not be used',
-															t
-													  );
+													  ? (e.mask_selector = t)
+													  : (0, l.Z)(
+																'An invalid session_replay.mask_selector was provided and will not be used',
+																t
+													    );
 											},
 											get block_class() {
 												return 'nr-block';
@@ -326,8 +326,8 @@
 												Array.isArray(e[a]) && Array.isArray(t[a])
 													? (r[a] = Array.from(new Set([...e[a], ...t[a]])))
 													: 'object' == typeof e[a] && 'object' == typeof t[a]
-													? (r[a] = i(e[a], t[a]))
-													: (r[a] = e[a]);
+													  ? (r[a] = i(e[a], t[a]))
+													  : (r[a] = e[a]);
 											} catch (e) {
 												(0, n.Z)('An error occurred while setting a property of a Configurable', e);
 											}
@@ -625,8 +625,8 @@
 											'x' === e
 												? o(t, ++r).toString(16)
 												: 'y' === e
-												? ((3 & o()) | 8).toString(16)
-												: e
+												  ? ((3 & o()) | 8).toString(16)
+												  : e
 										)
 										.join('')
 								);
@@ -1790,8 +1790,8 @@
 					(i.f = {}),
 					(i.e = (e) => Promise.all(Object.keys(i.f).reduce((t, r) => (i.f[r](e, t), t), []))),
 					(i.u = (e) =>
-						({ 111: 'nr-spa', 164: 'nr-spa-compressor', 433: 'nr-spa-recorder' }[e] +
-						'-1.246.0.min.js')),
+						({ 111: 'nr-spa', 164: 'nr-spa-compressor', 433: 'nr-spa-recorder' })[e] +
+						'-1.246.0.min.js'),
 					(i.o = (e, t) => Object.prototype.hasOwnProperty.call(e, t)),
 					(e = {}),
 					(t = 'NRBA-1.246.0.PROD:'),
@@ -2113,14 +2113,14 @@
 										return e;
 								  })(t)
 								: t
-								? (t.c || (t = y(t.t)),
-								  (t.c += 1),
-								  (t.t += e),
-								  (t.sos += e * e),
-								  e > t.max && (t.max = e),
-								  e < t.min && (t.min = e),
-								  t)
-								: { t: e };
+								  ? (t.c || (t = y(t.t)),
+								    (t.c += 1),
+								    (t.t += e),
+								    (t.sos += e * e),
+								    e > t.max && (t.max = e),
+								    e < t.min && (t.min = e),
+								    t)
+								  : { t: e };
 						}
 						function y(e) {
 							return { t: e, min: e, max: e, sos: e * e, c: 1 };
@@ -2229,13 +2229,13 @@
 								return e instanceof Error
 									? e
 									: void 0 !== e?.message
-									? new I(
-											e.message,
-											e.filename || e.sourceURL,
-											e.lineno || e.line,
-											e.colno || e.col
-									  )
-									: new I('string' == typeof e ? e : (0, _.P)(e));
+									  ? new I(
+												e.message,
+												e.filename || e.sourceURL,
+												e.lineno || e.line,
+												e.colno || e.col
+									    )
+									  : new I('string' == typeof e ? e : (0, _.P)(e));
 							}
 							#r(e) {
 								let t = 'Unhandled Promise Rejection: ';
@@ -2263,10 +2263,10 @@
 							return !e || ('object' !== t && 'function' !== t)
 								? -1
 								: e === l._A
-								? 0
-								: (0, H.X)(e, L, function () {
-										return z++;
-								  });
+								  ? 0
+								  : (0, H.X)(e, L, function () {
+											return z++;
+								    });
 						}
 						function F(e) {
 							if ('string' == typeof e && e.length) return e.length;
@@ -2532,10 +2532,10 @@
 													('string' == typeof e[0]
 														? 0 === (t = e[0]).length && l.il && (t = '' + l._A.location.href)
 														: e[0] && e[0].url
-														? (t = e[0].url)
-														: l._A?.URL && e[0] && e[0] instanceof URL
-														? (t = e[0].href)
-														: 'function' == typeof e[0].toString && (t = e[0].toString()),
+														  ? (t = e[0].url)
+														  : l._A?.URL && e[0] && e[0] instanceof URL
+														    ? (t = e[0].href)
+														    : 'function' == typeof e[0].toString && (t = e[0].toString()),
 													'string' == typeof t && 0 !== t.length)
 												) {
 													t &&
@@ -2578,8 +2578,8 @@
 												'string' == typeof i
 													? (r = i)
 													: 'object' == typeof i && i instanceof W
-													? (r = i.url)
-													: l._A?.URL && 'object' == typeof i && i instanceof URL && (r = i.href),
+													  ? (r = i.url)
+													  : l._A?.URL && 'object' == typeof i && i instanceof URL && (r = i.href),
 													K(this, r);
 												var o = (
 													'' + ((i && i instanceof W && i.method) || n.method || 'GET')
@@ -2631,10 +2631,10 @@
 													return 'json' === r && null !== t
 														? t
 														: 'arraybuffer' === r || 'blob' === r || 'json' === r
-														? F(e.response)
-														: 'text' === r || '' === r || void 0 === r
-														? F(e.responseText)
-														: void 0;
+														  ? F(e.response)
+														  : 'text' === r || '' === r || void 0 === r
+														    ? F(e.responseText)
+														    : void 0;
 												})(t, e.lastSize);
 												if ((r && (e.metrics.rxSize = r), e.sameOrigin)) {
 													var n = t.getResponseHeader('X-NewRelic-App-Data');
@@ -2840,16 +2840,26 @@
 												this.bstStart = (0, j.z)();
 											}),
 											this.eventsEE.on(ie, function (e, t) {
-												(0,
-												T.p)('bst', [e[0], t, this.bstStart, (0, j.z)()], void 0, r.D.sessionTrace, n);
+												(0, T.p)(
+													'bst',
+													[e[0], t, this.bstStart, (0, j.z)()],
+													void 0,
+													r.D.sessionTrace,
+													n
+												);
 											}),
 											n.on(ae + te, function (e) {
 												(this.time = (0, j.z)()),
 													(this.startPath = location.pathname + location.hash);
 											}),
 											n.on(ae + re, function (e) {
-												(0,
-												T.p)('bstHist', [location.pathname + location.hash, this.startPath, this.time], void 0, r.D.sessionTrace, n);
+												(0, T.p)(
+													'bstHist',
+													[location.pathname + location.hash, this.startPath, this.time],
+													void 0,
+													r.D.sessionTrace,
+													n
+												);
 											});
 										try {
 											(i = new PerformanceObserver((e) => {

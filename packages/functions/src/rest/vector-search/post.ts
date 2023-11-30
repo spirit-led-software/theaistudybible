@@ -1,22 +1,18 @@
-import {
-  BadRequestResponse,
-  InternalServerErrorResponse,
-  OkResponse,
-} from "@lib/api-responses";
-import { getEmbeddingsModel } from "@services/llm";
-import { getDocumentVectorStore } from "@services/vector-db";
-import { ApiHandler } from "sst/node/api";
+import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
+import { getEmbeddingsModel } from '@services/llm';
+import { getDocumentVectorStore } from '@services/vector-db';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Received vector similarity search request event", event);
+  console.log('Received vector similarity search request event', event);
 
   const searchParams = event.queryStringParameters ?? {};
-  const limit = parseInt(searchParams.limit ?? "25");
-  const page = parseInt(searchParams.page ?? "1");
-  const { query, filter } = JSON.parse(event.body ?? "{}");
+  const limit = parseInt(searchParams.limit ?? '25');
+  const page = parseInt(searchParams.page ?? '1');
+  const { query, filter } = JSON.parse(event.body ?? '{}');
 
   if (!query) {
-    return BadRequestResponse("Missing query");
+    return BadRequestResponse('Missing query');
   }
 
   try {
@@ -36,14 +32,18 @@ export const handler = ApiHandler(async (event) => {
           id: doc.id,
           pageContent: doc.pageContent,
           metadata: doc.metadata,
-          score,
+          score
         };
       }),
       page,
-      perPage: limit,
+      perPage: limit
     });
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.message);
+  } catch (error) {
+    console.error('Error getting vector similarity search results:', error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

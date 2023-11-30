@@ -41,13 +41,13 @@
 		event: Event & { currentTarget: EventTarget & HTMLSelectElement },
 		id: string
 	) => {
-		const status = event.currentTarget.value;
+		const status = event.currentTarget.value as IndexOperation['status'];
 		try {
 			isLoading = true;
-			await updateIndexOperation(id, { status: status as any }, { session: $session! });
+			await updateIndexOperation(id, { status }, { session: $session! });
 			alert = { type: 'success', message: `Successfully updated status to ${status}` };
-		} catch (e: any) {
-			alert = { type: 'error', message: e.message };
+		} catch (e) {
+			alert = { type: 'error', message: e instanceof Error ? e.message : 'Unknown error' };
 		} finally {
 			await $query.refetch();
 			isLoading = false;

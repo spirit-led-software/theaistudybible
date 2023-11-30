@@ -1,5 +1,5 @@
-import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
-import type { roles } from "../schema";
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
+import type { roles } from '../schema';
 
 export type Role = typeof roles.$inferSelect;
 

@@ -1,19 +1,19 @@
-import type { BaseLanguageModel } from "langchain/base_language";
+import type { BaseLanguageModel } from 'langchain/base_language';
 import {
   BaseChain,
   LLMRouterChain,
   MultiRouteChain,
   type LLMRouterChainInput,
-  type MultiRouteChainInput,
-} from "langchain/chains";
-import { RouterOutputParser } from "langchain/output_parsers";
-import { PromptTemplate } from "langchain/prompts";
-import type { BaseChatMessageHistory } from "langchain/schema";
-import { z } from "zod";
+  type MultiRouteChainInput
+} from 'langchain/chains';
+import { RouterOutputParser } from 'langchain/output_parsers';
+import { PromptTemplate } from 'langchain/prompts';
+import type { BaseChatMessageHistory } from 'langchain/schema';
+import { z } from 'zod';
 
 const ROUTER_TEMPLATE = (
   formatting: string,
-  historyString: string = ""
+  historyString: string = ''
 ) => `Given a query to a question answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what questions the system is best suited for. The formatting must match the the following instructions exactly.
 
 The formatting instructions are within <format_instructions></format_instructions> XML tags.
@@ -50,7 +50,7 @@ export type DefaultChain = keyof DestinationChainsInfo;
 
 export class RAIChatMultiRouteChain extends MultiRouteChain {
   get outputKeys(): string[] {
-    return ["result"];
+    return ['result'];
   }
 
   static async fromLLMAndChains(
@@ -59,7 +59,7 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
       multiRouteChainOpts,
       routerChainOpts,
       destinationChainsInfo,
-      defaultChain,
+      defaultChain
     }: {
       multiRouteChainOpts?: Partial<MultiRouteChainInput>;
       routerChainOpts?: Partial<LLMRouterChainInput> & {
@@ -82,35 +82,33 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
         ),
       next_inputs: z
         .object({
-          query: z
-            .string()
-            .describe("The query to be fed into the next model."),
+          query: z.string().describe('The query to be fed into the next model.')
         })
-        .describe("The input to be fed into the next model."),
+        .describe('The input to be fed into the next model.')
     });
 
-    const outputParser = new RouterOutputParser<
-      typeof structuredOutputParserSchema
-    >(structuredOutputParserSchema);
+    const outputParser = new RouterOutputParser<typeof structuredOutputParserSchema>(
+      structuredOutputParserSchema
+    );
 
-    const destinationsStr = destinations.join("\n");
+    const destinationsStr = destinations.join('\n');
     const routerTemplate = PromptTemplate.fromTemplate(
       await ROUTER_TEMPLATE(
         outputParser.getFormatInstructions({ interpolationDepth: 4 }),
         (await routerChainOpts?.history?.getMessages())
           ?.map((m) => `${m.name}: ${m.content}`)
-          .join("\n")
+          .join('\n')
       )
     );
     const routerPrompt = new PromptTemplate({
       template: await routerTemplate.format({
-        destinations: destinationsStr,
+        destinations: destinationsStr
       }),
-      inputVariables: ["input"],
-      outputParser,
+      inputVariables: ['input'],
+      outputParser
     });
     const routerChain = LLMRouterChain.fromLLM(llm, routerPrompt, {
-      ...routerChainOpts,
+      ...routerChainOpts
     });
 
     const destinationChains: {
@@ -121,20 +119,18 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
     }
 
     if (!destinationChains[defaultChain]) {
-      throw new Error(
-        `Default chain ${defaultChain} not found in destination chains`
-      );
+      throw new Error(`Default chain ${defaultChain} not found in destination chains`);
     }
 
     return new RAIChatMultiRouteChain({
       ...multiRouteChainOpts,
       routerChain,
       destinationChains,
-      defaultChain: destinationChains[defaultChain],
+      defaultChain: destinationChains[defaultChain]
     });
   }
 
   _chainType(): string {
-    return "rai_chat_multi_route";
+    return 'rai_chat_multi_route';
   }
 }

@@ -1,22 +1,22 @@
-import { buildOrderBy } from "@core/database/helpers";
-import { userQueryCounts } from "@core/schema";
+import { buildOrderBy } from '@core/database/helpers';
+import { userQueryCounts } from '@core/schema';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { validApiHandlerSession } from "@services/session";
-import { getUser, getUserQueryCountsByUserId } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { validApiHandlerSession } from '@services/session';
+import { getUser, getUserQueryCountsByUserId } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
   const searchParams = event.queryStringParameters ?? {};
-  const limit = parseInt(searchParams.limit ?? "25");
-  const page = parseInt(searchParams.page ?? "1");
-  const orderBy = searchParams.orderBy ?? "createdAt";
-  const order = searchParams.order ?? "desc";
+  const limit = parseInt(searchParams.limit ?? '25');
+  const page = parseInt(searchParams.page ?? '1');
+  const orderBy = searchParams.orderBy ?? 'createdAt';
+  const order = searchParams.order ?? 'desc';
 
   try {
     const user = await getUser(id);
@@ -26,24 +26,26 @@ export const handler = ApiHandler(async (event) => {
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid || user.id !== userWithRoles.id) {
-      return UnauthorizedResponse(
-        "You are not authorized to view this user's query count."
-      );
+      return UnauthorizedResponse("You are not authorized to view this user's query count.");
     }
 
     const queryCounts = await getUserQueryCountsByUserId(id, {
       limit,
       offset: (page - 1) * limit,
-      orderBy: buildOrderBy(userQueryCounts, orderBy, order),
+      orderBy: buildOrderBy(userQueryCounts, orderBy, order)
     });
 
     return OkResponse({
       entities: queryCounts,
       page,
-      perPage: limit,
+      perPage: limit
     });
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error('Error getting user query counts:', error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

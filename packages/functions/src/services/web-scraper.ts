@@ -1,15 +1,15 @@
-import { SQSClient, SendMessageBatchCommand } from "@aws-sdk/client-sqs";
-import { axios, vectorDBConfig } from "@core/configs";
-import { PuppeteerCoreWebBaseLoader } from "@core/langchain/document_loaders/puppeteer-core";
-import { dataSources } from "@core/schema";
-import { getDocumentVectorStore } from "@services/vector-db";
-import { sql } from "drizzle-orm";
-import { XMLParser } from "fast-xml-parser";
-import type { Document } from "langchain/document";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { Queue } from "sst/node/queue";
-import { v4 as uuidV4 } from "uuid";
-import { updateDataSource } from "./data-source";
+import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { axios, vectorDBConfig } from '@core/configs';
+import { PuppeteerCoreWebBaseLoader } from '@core/langchain/document_loaders/puppeteer-core';
+import { dataSources } from '@core/schema';
+import { getDocumentVectorStore } from '@services/vector-db';
+import { sql } from 'drizzle-orm';
+import { XMLParser } from 'fast-xml-parser';
+import type { Document } from 'langchain/document';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { Queue } from 'sst/node/queue';
+import { v4 as uuidV4 } from 'uuid';
+import { updateDataSource } from './data-source';
 
 export async function generatePageContentEmbeddings(
   name: string,
@@ -18,8 +18,8 @@ export async function generatePageContentEmbeddings(
   metadata: object
 ): Promise<void> {
   console.log(`Generating page content embeddings for url '${url}'`);
-  let error: any | undefined = undefined;
-  let docs: Document<Record<string, any>>[] | undefined = undefined;
+  let error: unknown | undefined = undefined;
+  let docs: Document<Record<string, unknown>>[] | undefined = undefined;
   for (let retries = 0; retries < 5; retries++) {
     console.log(`Attempt ${retries + 1} of 5`);
     try {
@@ -27,14 +27,11 @@ export async function generatePageContentEmbeddings(
         const loader = new PuppeteerCoreWebBaseLoader(url, {
           evaluate: async (page) => {
             await page.waitForNetworkIdle();
-            await page.waitForSelector("body");
+            await page.waitForSelector('body');
             return await page.evaluate(() => {
-              return (
-                document.querySelector("main")?.innerText ??
-                document.body.innerText
-              );
+              return document.querySelector('main')?.innerText ?? document.body.innerText;
             });
-          },
+          }
         });
         console.log(`Loading documents from url '${url}'`);
         docs = await loader.load();
@@ -42,23 +39,23 @@ export async function generatePageContentEmbeddings(
 
         const splitter = new RecursiveCharacterTextSplitter({
           chunkSize: vectorDBConfig.docEmbeddingContentLength,
-          chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+          chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
         });
-        console.log("Splitting documents.");
+        console.log('Splitting documents.');
         docs = await splitter.invoke(docs, {});
         console.log(`Split into ${docs.length} documents from url '${url}'.`);
       }
 
-      console.log("Adding metadata to documents.");
+      console.log('Adding metadata to documents.');
       docs = docs.map((doc) => {
         doc.metadata = {
           ...metadata,
           ...doc.metadata,
           indexDate: new Date().toISOString(),
-          type: "webpage",
+          type: 'webpage',
           dataSourceId,
           name,
-          url,
+          url
         };
         let newPageContent = `TITLE: ${name}\n---\n${doc.pageContent}`;
         if (doc.metadata.title) {
@@ -67,24 +64,24 @@ export async function generatePageContentEmbeddings(
         doc.pageContent = newPageContent;
         return doc;
       });
-      console.log("Docs ready. Adding them to the vector store.");
+      console.log('Docs ready. Adding them to the vector store.');
       const vectorStore = await getDocumentVectorStore();
       await vectorStore.addDocuments(docs);
 
       await updateDataSource(dataSourceId, {
-        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`,
+        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`
       });
 
       error = undefined;
       break;
-    } catch (err: any) {
-      console.error("Failed attempt:", err);
+    } catch (err: unknown) {
+      console.error('Failed attempt:', err);
       error = err;
     }
   }
   if (error) {
     throw new Error(
-      `Failed to generate page content embeddings for url '${url}'\n${error.stack}`
+      `Failed to generate page content embeddings for url '${url}'\n${(error as Error).stack}`
     );
   }
 }
@@ -93,13 +90,11 @@ export async function getSitemaps(url: string): Promise<string[]> {
   const response = await axios.get(`${url}/robots.txt`, {});
   if (response.status === 200) {
     const text: string = response.data;
-    const lines = text.split("\n");
-    const sitemapLines = lines.filter((line) =>
-      line.toLowerCase().includes("sitemap")
-    );
+    const lines = text.split('\n');
+    const sitemapLines = lines.filter((line) => line.toLowerCase().includes('sitemap'));
     const sitemapUrls: Set<string> = new Set<string>(
       sitemapLines.map((line) => {
-        const url = line.split(": ")[1].trim();
+        const url = line.split(': ')[1].trim();
         return url;
       })
     );
@@ -121,9 +116,9 @@ export async function navigateSitemap(
 
     // Parse the XML string to an XML Object
     const parser = new XMLParser({});
-    const sitemapXmlObj = parser.parse(sitemapXml) as any;
+    const sitemapXmlObj = parser.parse(sitemapXml);
 
-    let sitemapUrls: any[] = [];
+    let sitemapUrls: { loc: string }[] = [];
     if (sitemapXmlObj.urlset) {
       sitemapUrls = sitemapXmlObj.urlset.url;
     } else if (sitemapXmlObj.sitemapindex) {
@@ -132,7 +127,7 @@ export async function navigateSitemap(
       console.debug(`sitemapXmlObj: ${JSON.stringify(sitemapXmlObj)}`);
     }
 
-    let siteMapUrlsArray = [];
+    let siteMapUrlsArray: { loc: string }[] = [];
     if (Array.isArray(sitemapUrls)) {
       siteMapUrlsArray = sitemapUrls;
     } else {
@@ -140,16 +135,14 @@ export async function navigateSitemap(
     }
 
     const failed: string[][] = [];
-    const foundUrls: string[] = siteMapUrlsArray.map(
-      (sitemapObj) => sitemapObj.loc
-    );
+    const foundUrls: string[] = siteMapUrlsArray.map((sitemapObj) => sitemapObj.loc);
 
     const indexableUrls = foundUrls.filter((url) => urlRegex.test(url));
     if (indexableUrls.length > 0) {
       console.log(
-        `Found ${
-          indexableUrls.length
-        } indexable urls from sitemap: ${JSON.stringify(indexableUrls)}`
+        `Found ${indexableUrls.length} indexable urls from sitemap: ${JSON.stringify(
+          indexableUrls
+        )}`
       );
 
       const sliceSize = 10;
@@ -158,55 +151,44 @@ export async function navigateSitemap(
         try {
           await sendUrlsToQueue(name, indexableUrlsSlice, indexOpId);
           urlCount += indexableUrlsSlice.length;
-        } catch (err: any) {
-          console.error(
-            `Error sending index url message to queue: ${err.stack}`
-          );
+        } catch (err: unknown) {
+          console.error(`Error sending index url message to queue: ${(err as Error).stack}`);
           failed.push(indexableUrlsSlice);
         }
       }
     }
 
-    const additionalSitemaps = foundUrls.filter((url) => url.endsWith(".xml"));
+    const additionalSitemaps = foundUrls.filter((url) => url.endsWith('.xml'));
     try {
       for (const additionalSitemap of additionalSitemaps) {
         console.log(`Found additional sitemap: ${additionalSitemap}`);
-        urlCount += await navigateSitemap(
-          additionalSitemap,
-          urlRegex,
-          name,
-          indexOpId
-        );
+        urlCount += await navigateSitemap(additionalSitemap, urlRegex, name, indexOpId);
       }
-    } catch (err: any) {
-      console.error(`Error navigating additional sitemaps: ${err.stack}`);
+    } catch (err: unknown) {
+      console.error(`Error navigating additional sitemaps: ${(err as Error).stack}`);
       failed.push(additionalSitemaps);
     }
 
     if (failed.length > 0) {
       console.error(
-        `Failed to navigate ${
-          failed.length
-        } urls from sitemap\n${JSON.stringify(failed)}`
+        `Failed to navigate ${failed.length} urls from sitemap\n${JSON.stringify(failed)}`
       );
       throw new Error(
-        `Failed to navigate ${
-          failed.length
-        } urls from sitemap\n${JSON.stringify(failed)}`
+        `Failed to navigate ${failed.length} urls from sitemap\n${JSON.stringify(failed)}`
       );
     }
-  } catch (err: any) {
-    console.error(`Error navigating sitemap: ${err.stack}`);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`Error navigating sitemap: ${err.stack}`);
+    } else {
+      console.error(`Error navigating sitemap: ${JSON.stringify(err)}`);
+    }
     throw err;
   }
   return urlCount;
 }
 
-async function sendUrlsToQueue(
-  name: string,
-  urls: string[],
-  indexOpId: string
-) {
+async function sendUrlsToQueue(name: string, urls: string[], indexOpId: string) {
   const sqsClient = new SQSClient({});
   const sendMessageCommand = new SendMessageBatchCommand({
     QueueUrl: Queue.webpageIndexQueue.queueUrl,
@@ -215,24 +197,19 @@ async function sendUrlsToQueue(
       MessageBody: JSON.stringify({
         name,
         url,
-        indexOpId,
-      }),
-    })),
+        indexOpId
+      })
+    }))
   });
   const sendMessageResponse = await sqsClient.send(sendMessageCommand);
   if (sendMessageResponse.$metadata.httpStatusCode !== 200) {
-    console.error(
-      "Failed to send message to SQS:",
-      JSON.stringify(sendMessageResponse)
-    );
-    throw new Error(
-      `Failed to send message to SQS: ${JSON.stringify(sendMessageResponse)}`
-    );
+    console.error('Failed to send message to SQS:', JSON.stringify(sendMessageResponse));
+    throw new Error(`Failed to send message to SQS: ${JSON.stringify(sendMessageResponse)}`);
   }
 }
 
 export function getFileNameFromUrl(url: string) {
-  const parts = url.split("/");
+  const parts = url.split('/');
   const filename = parts[parts.length - 1];
   return filename;
 }

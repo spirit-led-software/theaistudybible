@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
 export type EmailConfig = {
   from: string;
@@ -18,8 +18,8 @@ export const config: EmailConfig = {
   port: parseInt(process.env.EMAIL_SERVER_PORT!),
   credentials: {
     username: process.env.EMAIL_SERVER_USERNAME!,
-    password: process.env.EMAIL_SERVER_PASSWORD!,
-  },
+    password: process.env.EMAIL_SERVER_PASSWORD!
+  }
 };
 
 export const emailTransport = nodemailer.createTransport({
@@ -27,9 +27,9 @@ export const emailTransport = nodemailer.createTransport({
   port: config.port,
   auth: {
     user: config.credentials.username,
-    pass: config.credentials.password,
+    pass: config.credentials.password
   },
-  from: config.from,
+  from: config.from
 });
 
 export default config;

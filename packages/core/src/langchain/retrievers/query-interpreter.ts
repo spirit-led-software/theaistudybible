@@ -1,14 +1,11 @@
-import type { CallbackManagerForRetrieverRun } from "langchain/callbacks";
-import { LLMChain } from "langchain/chains";
-import type { Document } from "langchain/document";
-import type { BaseLLMCallOptions, LLM } from "langchain/llms/base";
-import { StructuredOutputParser } from "langchain/output_parsers";
-import { PromptTemplate } from "langchain/prompts";
-import {
-  BaseRetriever,
-  type BaseRetrieverInput,
-} from "langchain/schema/retriever";
-import { z } from "zod";
+import type { CallbackManagerForRetrieverRun } from 'langchain/callbacks';
+import { LLMChain } from 'langchain/chains';
+import type { Document } from 'langchain/document';
+import type { BaseLLMCallOptions, LLM } from 'langchain/llms/base';
+import { StructuredOutputParser } from 'langchain/output_parsers';
+import { PromptTemplate } from 'langchain/prompts';
+import { BaseRetriever, type BaseRetrieverInput } from 'langchain/schema/retriever';
+import { z } from 'zod';
 
 export const QUERY_INTERPRETER_DEFAULT_PROMPT_TEMPLATE = `Given the user query below, the you need to generate {numSearchTerms} unique search terms or phrases to effectively retrieve relevant documents. The objective is to capture the user's intent and provide accurate and diverse results. Please consider the following guidelines:
 
@@ -83,10 +80,10 @@ export type QueryInterpreterInput = BaseRetrieverInput & {
  */
 export class QueryInterpreterRetriever extends BaseRetriever {
   static lc_name(): string {
-    return "QueryInterpreterRetriever";
+    return 'QueryInterpreterRetriever';
   }
 
-  lc_namespace = ["langhchain", "retrievers", "query_interpreter"];
+  lc_namespace = ['langhchain', 'retrievers', 'query_interpreter'];
 
   llmChain: LLMChain<Set<string>, LLM<BaseLLMCallOptions>>;
 
@@ -109,22 +106,19 @@ export class QueryInterpreterRetriever extends BaseRetriever {
       z
         .array(z.string())
         .length(this.numSearchTerms)
-        .describe(
-          "Search terms or phrases that you would use to find relevant documents."
-        )
+        .describe('Search terms or phrases that you would use to find relevant documents.')
     );
 
     this.llmChain = new LLMChain({
       llm: fields.llm,
       prompt:
-        fields.prompt ||
-        PromptTemplate.fromTemplate(QUERY_INTERPRETER_DEFAULT_PROMPT_TEMPLATE),
-      outputKey: "text",
-      verbose: fields.verbose,
+        fields.prompt || PromptTemplate.fromTemplate(QUERY_INTERPRETER_DEFAULT_PROMPT_TEMPLATE),
+      outputKey: 'text',
+      verbose: fields.verbose
     });
 
     this.desiredLength = fields.desiredLength;
-    this.paddingCharacter = fields.paddingCharacter || "0";
+    this.paddingCharacter = fields.paddingCharacter || '0';
   }
 
   async _getRelevantDocuments(
@@ -135,7 +129,7 @@ export class QueryInterpreterRetriever extends BaseRetriever {
       {
         query,
         numSearchTerms: this.numSearchTerms,
-        formatInstructions: this.outputParser.getFormatInstructions(),
+        formatInstructions: this.outputParser.getFormatInstructions()
       },
       runManager?.getChild()
     );
@@ -147,7 +141,7 @@ export class QueryInterpreterRetriever extends BaseRetriever {
       searchTerms.map(async (searchTerm) => {
         let paddedSearchTerm = searchTerm;
         if (this.desiredLength && searchTerm.length < this.desiredLength) {
-          paddedSearchTerm = searchTerm.padEnd(this.desiredLength, "0");
+          paddedSearchTerm = searchTerm.padEnd(this.desiredLength, '0');
         }
         return await this.baseRetriever.getRelevantDocuments(
           paddedSearchTerm,

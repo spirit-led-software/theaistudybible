@@ -15,5 +15,7 @@
     "unfocus",
     "upstash"
   ],
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "eslint.workingDirectories": [".", "packages/core", "packages/functions", "packages/website"],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "svelte"]
 }

@@ -3,16 +3,11 @@ import {
   ForbiddenResponse,
   InternalServerErrorResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import {
-  addRoleToUser,
-  doesUserHaveRole,
-  getRoleByName,
-  removeRoleFromUser,
-} from "@services/role";
-import { getUser, getUserRoles } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { addRoleToUser, doesUserHaveRole, getRoleByName, removeRoleFromUser } from '@services/role';
+import { getUser, getUserRoles } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 // https://www.revenuecat.com/docs/event-types-and-fields
 type RootEventObject = {
@@ -43,65 +38,65 @@ type Event = {
   product_id: string;
   purchased_at_ms: number;
   store: string;
-  subscriber_attributes: any;
+  subscriber_attributes: unknown;
   takehome_percentage: number;
   tax_percentage: number;
   transaction_id: string;
   type:
-    | "TEST"
-    | "INITIAL_PURCHASE"
-    | "RENEWAL"
-    | "CANCELLATION"
-    | "UNCANCELLATION"
-    | "NON_RENEWING_PURCHASE"
-    | "SUBSCRIPTION_PAUSED"
-    | "EXPIRATION"
-    | "BILLING_ISSUE"
-    | "PRODUCT_CHANGE"
-    | "TRANSFER"
-    | "SUBSCRIBER_ALIAS";
+    | 'TEST'
+    | 'INITIAL_PURCHASE'
+    | 'RENEWAL'
+    | 'CANCELLATION'
+    | 'UNCANCELLATION'
+    | 'NON_RENEWING_PURCHASE'
+    | 'SUBSCRIPTION_PAUSED'
+    | 'EXPIRATION'
+    | 'BILLING_ISSUE'
+    | 'PRODUCT_CHANGE'
+    | 'TRANSFER'
+    | 'SUBSCRIBER_ALIAS';
 };
 
 export const handler = ApiHandler(async (event) => {
-  console.log("Received Revenue Cat event: ", event);
+  console.log('Received Revenue Cat event: ', event);
 
-  const authHeader = event.headers["authorization"];
+  const authHeader = event.headers['authorization'];
   if (!authHeader) {
     return UnauthorizedResponse();
   } else {
-    const [authType, authKey] = authHeader.split(" ");
-    if (authType !== "Bearer") {
-      return BadRequestResponse("Invalid authorization header");
+    const [authType, authKey] = authHeader.split(' ');
+    if (authType !== 'Bearer') {
+      return BadRequestResponse('Invalid authorization header');
     } else if (authKey !== process.env.REVENUECAT_WEBHOOK_SECRET) {
       return ForbiddenResponse();
     } else {
-      console.log("Authorized Revenue Cat webhook");
+      console.log('Authorized Revenue Cat webhook');
     }
   }
 
   if (!event.body) {
-    return BadRequestResponse("Missing body");
+    return BadRequestResponse('Missing body');
   }
 
   const body: RootEventObject = JSON.parse(event.body);
 
-  if (body.api_version !== "1.0") {
-    return BadRequestResponse("Invalid API version");
+  if (body.api_version !== '1.0') {
+    return BadRequestResponse('Invalid API version');
   }
 
   try {
     const eventObj = body.event;
-    if (eventObj.type === "INITIAL_PURCHASE" || eventObj.type === "RENEWAL") {
-      console.log("Purchase event: ", eventObj);
+    if (eventObj.type === 'INITIAL_PURCHASE' || eventObj.type === 'RENEWAL') {
+      console.log('Purchase event: ', eventObj);
       const user = await getUser(eventObj.app_user_id);
       if (!user) {
-        return BadRequestResponse("User not found");
+        return BadRequestResponse('User not found');
       }
 
       // Remove all existing RC roles
       await getUserRoles(user.id).then(async (roles) => {
         for (const role of roles) {
-          if (role.name.startsWith("rc:")) {
+          if (role.name.startsWith('rc:')) {
             await removeRoleFromUser(role.name, user.id);
           }
         }
@@ -111,7 +106,7 @@ export const handler = ApiHandler(async (event) => {
       for (const entitlementId of eventObj.entitlement_ids) {
         const role = await getRoleByName(`rc:${entitlementId}`);
         if (!role) {
-          return BadRequestResponse("Role not found");
+          return BadRequestResponse('Role not found');
         }
         await doesUserHaveRole(role.name, user.id).then(async (hasRole) => {
           if (!hasRole) {
@@ -119,30 +114,30 @@ export const handler = ApiHandler(async (event) => {
           }
         });
       }
-    } else if (eventObj.type === "EXPIRATION") {
-      console.log("Expiration event: ", eventObj);
+    } else if (eventObj.type === 'EXPIRATION') {
+      console.log('Expiration event: ', eventObj);
       const user = await getUser(eventObj.app_user_id);
       if (!user) {
-        return BadRequestResponse("User not found");
+        return BadRequestResponse('User not found');
       }
 
       // Remove all RC roles
       await getUserRoles(user.id).then(async (roles) => {
         for (const role of roles) {
-          if (role.name.startsWith("rc:")) {
+          if (role.name.startsWith('rc:')) {
             await removeRoleFromUser(role.name, user.id);
           }
         }
       });
-    } else if (eventObj.type === "TEST") {
-      console.log("Test event: ", eventObj);
+    } else if (eventObj.type === 'TEST') {
+      console.log('Test event: ', eventObj);
     } else {
-      console.log("Unhandled event type: ", eventObj.type);
+      console.log('Unhandled event type: ', eventObj.type);
     }
 
     return OkResponse();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return InternalServerErrorResponse(error.message);
+    return InternalServerErrorResponse((error as Error).message);
   }
 });

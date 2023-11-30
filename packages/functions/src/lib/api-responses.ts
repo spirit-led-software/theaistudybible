@@ -1,133 +1,115 @@
-import type { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 
-export const OkResponse = (data?: any): APIGatewayProxyStructuredResultV2 => {
+export const OkResponse = (data?: unknown): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 200,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(
       data ?? {
-        message: "Ok",
+        message: 'Ok'
       }
-    ),
+    )
   };
 };
 
-export const CreatedResponse = (
-  data?: any
-): APIGatewayProxyStructuredResultV2 => {
+export const CreatedResponse = (data?: unknown): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 201,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(
       data ?? {
-        message: "Created successfully",
+        message: 'Created successfully'
       }
-    ),
+    )
   };
 };
 
-export const DeletedResponse = (
-  identifier?: string
-): APIGatewayProxyStructuredResultV2 => {
-  const message = identifier
-    ? `Deleted ${identifier} successfully`
-    : "Deleted successfully";
+export const DeletedResponse = (identifier?: string): APIGatewayProxyStructuredResultV2 => {
+  const message = identifier ? `Deleted ${identifier} successfully` : 'Deleted successfully';
   return {
     statusCode: 200,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      message,
-    }),
+      message
+    })
   };
 };
 
-export const TooManyRequestsResponse = (
-  message?: string
-): APIGatewayProxyStructuredResultV2 => {
+export const TooManyRequestsResponse = (message?: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 429,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? "Too many requests",
-    }),
+      error: message ?? 'Too munknown requests'
+    })
   };
 };
 
-export const BadRequestResponse = (
-  message?: string
-): APIGatewayProxyStructuredResultV2 => {
+export const BadRequestResponse = (message?: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 400,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? "Bad request",
-    }),
+      error: message ?? 'Bad request'
+    })
   };
 };
 
-export const UnauthorizedResponse = (
-  message?: string
-): APIGatewayProxyStructuredResultV2 => {
+export const UnauthorizedResponse = (message?: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 401,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? "Unauthorized",
-    }),
+      error: message ?? 'Unauthorized'
+    })
   };
 };
 
-export const ForbiddenResponse = (
-  message?: string
-): APIGatewayProxyStructuredResultV2 => {
+export const ForbiddenResponse = (message?: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 403,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? "Forbidden",
-    }),
+      error: message ?? 'Forbidden'
+    })
   };
 };
 
-export const NotFoundResponse = (
-  message?: string
-): APIGatewayProxyStructuredResultV2 => {
+export const NotFoundResponse = (message?: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 404,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? "Not found",
-    }),
+      error: message ?? 'Not found'
+    })
   };
 };
 
-export const ObjectNotFoundResponse = (
-  identifier: string
-): APIGatewayProxyStructuredResultV2 => {
+export const ObjectNotFoundResponse = (identifier: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 404,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: `Object ${identifier} not found`,
-    }),
+      error: `Object ${identifier} not found`
+    })
   };
 };
 
@@ -137,21 +119,19 @@ export const InternalServerErrorResponse = (
   return {
     statusCode: 500,
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? "Internal server error",
-    }),
+      error: message ?? 'Internal server error'
+    })
   };
 };
 
-export const RedirectResponse = (
-  url: string
-): APIGatewayProxyStructuredResultV2 => {
+export const RedirectResponse = (url: string): APIGatewayProxyStructuredResultV2 => {
   return {
     statusCode: 302,
     headers: {
-      Location: url,
-    },
+      Location: url
+    }
   };
 };

@@ -1,29 +1,26 @@
-import type { IndexOperation } from "@core/model";
-import { indexOperations } from "@core/schema";
-import { getDataSourceOrThrow } from "@services/data-source";
-import {
-  getIndexOperationOrThrow,
-  updateIndexOperation,
-} from "@services/data-source/index-op";
-import type { SQSHandler } from "aws-lambda";
-import { sql } from "drizzle-orm";
-import { generatePageContentEmbeddings } from "../../services/web-scraper";
+import type { IndexOperation } from '@core/model';
+import { indexOperations } from '@core/schema';
+import { getDataSourceOrThrow } from '@services/data-source';
+import { getIndexOperationOrThrow, updateIndexOperation } from '@services/data-source/index-op';
+import type { SQSHandler } from 'aws-lambda';
+import { sql } from 'drizzle-orm';
+import { generatePageContentEmbeddings } from '../../services/web-scraper';
 
 export const consumer: SQSHandler = async (event) => {
-  console.log("Received event: ", JSON.stringify(event));
+  console.log('Received event: ', JSON.stringify(event));
   const records = event.Records;
-  console.log("Processing event: ", JSON.stringify(records[0]));
+  console.log('Processing event: ', JSON.stringify(records[0]));
   const { body } = records[0];
 
   const { url, name, indexOpId } = JSON.parse(body);
   if (!url || !name || !indexOpId) {
-    throw new Error("Missing required fields");
+    throw new Error('Missing required fields');
   }
 
   let indexOp: IndexOperation | undefined;
   try {
     if (!indexOpId) {
-      throw new Error("Missing index op id");
+      throw new Error('Missing index op id');
     }
 
     indexOp = await getIndexOperationOrThrow(indexOpId);
@@ -33,7 +30,7 @@ export const consumer: SQSHandler = async (event) => {
       name,
       url,
       indexOp.dataSourceId,
-      dataSource.metadata
+      dataSource.metadata as object
     );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
@@ -56,11 +53,11 @@ export const consumer: SQSHandler = async (event) => {
           '[]'::jsonb
         ) || jsonb_build_array('${sql.raw(url)}'),
         true
-      )`,
+      )`
     });
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
-  } catch (err: any) {
-    console.error(err.stack);
+  } catch (err) {
+    console.error(`Error indexing url '${url}':`, err);
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
         metadata: sql`jsonb_set(${indexOperations.metadata}, 
@@ -71,9 +68,9 @@ export const consumer: SQSHandler = async (event) => {
           ) || jsonb_build_array('${sql.raw(url)}'),
           true
         )`,
-        errorMessages: sql`${
-          indexOperations.errorMessages
-        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
+        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+        )}')`
       });
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
     }
@@ -98,10 +95,10 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
             ELSE 'SUCCEEDED'
           END
         ELSE 'RUNNING'
-      END`,
+      END`
     });
-  } catch (err: any) {
-    console.error("Failed to check if index op is complete:", err.stack);
+  } catch (err) {
+    console.error('Failed to check if index op is complete:', err);
   }
   return indexOp;
 };

@@ -4,26 +4,28 @@
   "type": "module",
   "scripts": {
     "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "lint": "prettier --check . && eslint .",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@sparticuz/chromium": "^119.0.0",
-    "@types/aws-lambda": "^8.10.129",
+    "@types/aws-lambda": "^8.10.130",
     "@types/bcryptjs": "^2.4.6",
     "@types/busboy": "^1.5.3",
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.10.1",
     "@types/nodemailer": "^6.4.14",
     "sst": "2.36.7",
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@apple/app-store-server-library": "^0.1.1",
+    "@apple/app-store-server-library": "^0.2.0",
     "@middy/core": "^5.0.3",
     "@middy/http-cors": "^5.0.3",
     "@middy/http-error-handler": "^5.0.3",
     "@revelationsai/core": "workspace:*",
     "@upstash/redis": "^1.25.1",
-    "ai": "^2.2.26",
+    "ai": "^2.2.27",
     "bcryptjs": "^2.4.3",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",

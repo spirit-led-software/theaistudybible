@@ -2,12 +2,12 @@ import {
   DeletedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { deleteDevotion, getDevotion } from "@services/devotion";
-import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { deleteDevotion, getDevotion } from '@services/devotion';
+import { validApiHandlerSession } from '@services/session';
+import { isAdmin } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
@@ -25,8 +25,12 @@ export const handler = ApiHandler(async (event) => {
 
     await deleteDevotion(devo.id);
     return DeletedResponse(devo.id);
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error deleting devotion '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

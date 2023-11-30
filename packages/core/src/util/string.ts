@@ -4,7 +4,7 @@ export function toCapitalizedCase(str: string) {
 
 export function toTitleCase(str: string) {
   return str
-    .split(" ")
+    .split(' ')
     .map((word) => toCapitalizedCase(word))
-    .join(" ");
+    .join(' ');
 }

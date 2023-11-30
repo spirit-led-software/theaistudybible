@@ -1,10 +1,10 @@
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  OkResponse,
-} from "@lib/api-responses";
-import { getUser } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  OkResponse
+} from '@lib/api-responses';
+import { getUser } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
@@ -15,8 +15,12 @@ export const handler = ApiHandler(async (event) => {
     }
 
     return OkResponse(user);
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error getting user '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

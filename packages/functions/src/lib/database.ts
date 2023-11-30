@@ -1,32 +1,18 @@
-import { databaseConfig, envConfig } from "@core/configs";
-import * as schema from "@core/database/schema";
-import {
-  Client,
-  neon,
-  neonConfig,
-  type NeonQueryFunction,
-} from "@neondatabase/serverless";
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import {
-  drizzle as drizzleHttp,
-  type NeonHttpDatabase,
-} from "drizzle-orm/neon-http";
-import {
-  drizzle as drizzleWs,
-  type NeonQueryResultHKT,
-} from "drizzle-orm/neon-serverless";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import ws from "ws";
+import { databaseConfig, envConfig } from '@core/configs';
+import * as schema from '@core/database/schema';
+import { Client, neon, neonConfig, type NeonQueryFunction } from '@neondatabase/serverless';
+import type { ExtractTablesWithRelations } from 'drizzle-orm';
+import { drizzle as drizzleHttp, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import { drizzle as drizzleWs, type NeonQueryResultHKT } from 'drizzle-orm/neon-serverless';
+import type { PgTransaction } from 'drizzle-orm/pg-core';
+import ws from 'ws';
 
 export type RAIDatabaseConfigInput = {
   connectionString: string;
   readOnly?: boolean;
 };
 
-export async function neonFetchFn(
-  input: RequestInfo | URL,
-  init?: RequestInit
-): Promise<Response> {
+export async function neonFetchFn(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const retries = 5;
 
   let tryCount = 1;
@@ -35,34 +21,36 @@ export async function neonFetchFn(
       const response = await fetch(input, init);
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch url=${input}\nrequest=${JSON.stringify(
-            init
-          )}\nresponseStatus=${response.status}\nresponseStatusText=${
-            response.statusText
-          }`
+          `Failed to fetch url=${input}\nrequest=${JSON.stringify(init)}\nresponseStatus=${
+            response.status
+          }\nresponseStatusText=${response.statusText}`
         );
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       if (tryCount < retries) {
         console.log(
-          `[Neon Fetch] Retrying neon fetch after ${tryCount} attempt(s) with error: ${error.message}\n${error.stack}`
+          '[Neon Fetch] Retrying neon fetch after ${tryCount} attempt(s) with error:',
+          error instanceof Error
+            ? `${error.message}\n${error.stack}`
+            : `Error: ${JSON.stringify(error)}`
         );
-        console.log(
-          `[Neon Fetch] Waiting ${tryCount * 1000} seconds before retrying`
-        );
+        console.log(`[Neon Fetch] Waiting ${tryCount * 1000} seconds before retrying`);
         await new Promise((resolve) => setTimeout(resolve, 1000 * tryCount));
         tryCount++;
         continue;
       }
       console.log(
-        `[Neon Fetch] Failed after ${tryCount} attempts with error: ${error.message}\n${error.stack}`
+        `[Neon Fetch] Failed after ${tryCount} attempts with error:`,
+        error instanceof Error
+          ? `${error.message}\n${error.stack}`
+          : `Error: ${JSON.stringify(error)}`
       );
       throw error;
     }
   }
-  throw new Error("Failed to fetch");
+  throw new Error('Failed to fetch');
 }
 
 export class RAIDatabaseConfig {
@@ -76,11 +64,11 @@ export class RAIDatabaseConfig {
 
     neonConfig.fetchFunction = neonFetchFn;
     this.queryFn = neon(connectionString, {
-      readOnly,
+      readOnly
     });
     this.database = drizzleHttp(this.queryFn, {
       schema,
-      logger: envConfig.isLocal,
+      logger: envConfig.isLocal
     });
   }
 
@@ -92,28 +80,24 @@ export class RAIDatabaseConfig {
 
 export const readOnlyDatabaseConfig = new RAIDatabaseConfig({
   connectionString: databaseConfig.readOnlyUrl,
-  readOnly: true,
+  readOnly: true
 });
 export const readOnlyDatabase = readOnlyDatabaseConfig.database;
 
 export const readWriteDatabaseConfig = new RAIDatabaseConfig({
   connectionString: databaseConfig.readWriteUrl,
-  readOnly: false,
+  readOnly: false
 });
 export const readWriteDatabase = readWriteDatabaseConfig.database;
 
 export default {
   readOnlyDatabase,
-  readWriteDatabase,
+  readWriteDatabase
 };
 
 export async function transaction<T>(
   fn: (
-    db: PgTransaction<
-      NeonQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >
+    db: PgTransaction<NeonQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>
   ) => Promise<T>
 ): Promise<T> {
   const client = readWriteDatabaseConfig.getWsClient();

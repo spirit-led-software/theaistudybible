@@ -1,10 +1,10 @@
 import type {
   CreateAiResponseReactionData,
-  UpdateAiResponseReactionData,
-} from "@core/model/ai-response";
-import { aiResponseReactions, aiResponses, users } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, and, desc, eq } from "drizzle-orm";
+  UpdateAiResponseReactionData
+} from '@core/model/ai-response';
+import { aiResponseReactions, aiResponses, users } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, and, desc, eq } from 'drizzle-orm';
 
 export async function getAiResponseReactions(
   options: {
@@ -14,12 +14,7 @@ export async function getAiResponseReactions(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(aiResponseReactions.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(aiResponseReactions.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -38,21 +33,13 @@ export async function getAiResponseReactionsWithInfo(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(aiResponseReactions.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(aiResponseReactions.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
     .from(aiResponseReactions)
     .innerJoin(users, eq(aiResponseReactions.userId, users.id))
-    .innerJoin(
-      aiResponses,
-      eq(aiResponseReactions.aiResponseId, aiResponses.id)
-    )
+    .innerJoin(aiResponses, eq(aiResponseReactions.aiResponseId, aiResponses.id))
     .where(where)
     .limit(limit)
     .offset(offset)
@@ -61,10 +48,7 @@ export async function getAiResponseReactionsWithInfo(
 
 export async function getAiResponseReaction(id: string) {
   return (
-    await readOnlyDatabase
-      .select()
-      .from(aiResponseReactions)
-      .where(eq(aiResponseReactions.id, id))
+    await readOnlyDatabase.select().from(aiResponseReactions).where(eq(aiResponseReactions.id, id))
   ).at(0);
 }
 
@@ -76,9 +60,7 @@ export async function getAiResponseReactionOrThrow(id: string) {
   return aiResponseImage;
 }
 
-export async function getAiResponseReactionsByAiResponseId(
-  aiResponseId: string
-) {
+export async function getAiResponseReactionsByAiResponseId(aiResponseId: string) {
   return await readOnlyDatabase
     .select()
     .from(aiResponseReactions)
@@ -103,38 +85,39 @@ export async function getAiResponseReactionCountByAiResponseIdAndReactionType(
 }
 
 export async function getAiResponseReactionCounts(aiResponseId: string) {
-  let devoReactionCounts: {
+  const devoReactionCounts: {
     [key in (typeof aiResponseReactions.reaction.enumValues)[number]]?: number;
   } = {};
   for (const reactionType of aiResponseReactions.reaction.enumValues) {
-    const reactionCount =
-      await getAiResponseReactionCountByAiResponseIdAndReactionType(
-        aiResponseId,
-        reactionType
-      );
+    const reactionCount = await getAiResponseReactionCountByAiResponseIdAndReactionType(
+      aiResponseId,
+      reactionType
+    );
     devoReactionCounts[reactionType] = reactionCount;
   }
   return devoReactionCounts;
 }
 
-export async function createAiResponseReaction(
-  data: CreateAiResponseReactionData
-) {
+export async function createAiResponseReaction(data: CreateAiResponseReactionData) {
   return (
-    await readWriteDatabase.insert(aiResponseReactions).values(data).returning()
+    await readWriteDatabase
+      .insert(aiResponseReactions)
+      .values({
+        ...data,
+        createdAt: new Date(new Date().toUTCString()),
+        updatedAt: new Date(new Date().toUTCString())
+      })
+      .returning()
   )[0];
 }
 
-export async function updateAiResponseReaction(
-  id: string,
-  data: UpdateAiResponseReactionData
-) {
+export async function updateAiResponseReaction(id: string, data: UpdateAiResponseReactionData) {
   return (
     await readWriteDatabase
       .update(aiResponseReactions)
       .set({
         ...data,
-        updatedAt: new Date(),
+        updatedAt: new Date()
       })
       .where(eq(aiResponseReactions.id, id))
       .returning()

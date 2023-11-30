@@ -1,7 +1,7 @@
-import { CustomResource } from "aws-cdk-lib";
-import { Provider } from "aws-cdk-lib/custom-resources";
-import { Construct } from "constructs";
-import { Function } from "sst/constructs";
+import { CustomResource } from 'aws-cdk-lib';
+import { Provider } from 'aws-cdk-lib/custom-resources';
+import { Construct } from 'constructs';
+import { Function } from 'sst/constructs';
 
 export type NeonBranchProps = {
   isProd: boolean;
@@ -26,46 +26,38 @@ export class NeonBranch extends Construct {
   constructor(scope: Construct, id: string, props: NeonBranchProps) {
     super(scope, id);
 
-    const neonBranchFunction = new Function(this, "neonBranchFunction", {
-      handler: "packages/functions/src/database/branch.handler",
+    const neonBranchFunction = new Function(this, 'neonBranchFunction', {
+      handler: 'packages/functions/src/database/branch.handler',
       environment: {
-        DEPLOY_DATE_TIME: Date.now().toString(), // Force update on every deploy
+        DEPLOY_DATE_TIME: Date.now().toString() // Force update on every deploy
       },
-      enableLiveDev: false, // No live dev on custom resources
+      enableLiveDev: false // No live dev on custom resources
     });
 
-    const neonBranchProvider = new Provider(this, "neonBranchProvider", {
-      onEventHandler: neonBranchFunction,
+    const neonBranchProvider = new Provider(this, 'neonBranchProvider', {
+      onEventHandler: neonBranchFunction
     });
 
-    const neonBranchCustomResource = new CustomResource(
-      this,
-      "neonBranchCustomResource",
-      {
-        resourceType: "Custom::NeonBranch",
-        serviceToken: neonBranchProvider.serviceToken,
-        properties: {
-          isProd: props.isProd,
-          projectName: props.projectName,
-          branchName: props.branchName,
-          roleName: props.roleName,
-          apiKey: props.apiKey,
-          deployDateTime: Date.now().toString(), // Force update on every deploy
-        },
+    const neonBranchCustomResource = new CustomResource(this, 'neonBranchCustomResource', {
+      resourceType: 'Custom::NeonBranch',
+      serviceToken: neonBranchProvider.serviceToken,
+      properties: {
+        isProd: props.isProd,
+        projectName: props.projectName,
+        branchName: props.branchName,
+        roleName: props.roleName,
+        apiKey: props.apiKey,
+        deployDateTime: Date.now().toString() // Force update on every deploy
       }
-    );
+    });
 
-    this.projectId = neonBranchCustomResource.getAttString("projectId");
+    this.projectId = neonBranchCustomResource.getAttString('projectId');
 
     this.urls = {
-      dbReadOnlyUrl: neonBranchCustomResource.getAttString("dbReadOnlyUrl"),
-      dbReadWriteUrl: neonBranchCustomResource.getAttString("dbReadWriteUrl"),
-      vectorDbReadOnlyUrl: neonBranchCustomResource.getAttString(
-        "vectorDbReadOnlyUrl"
-      ),
-      vectorDbReadWriteUrl: neonBranchCustomResource.getAttString(
-        "vectorDbReadWriteUrl"
-      ),
+      dbReadOnlyUrl: neonBranchCustomResource.getAttString('dbReadOnlyUrl'),
+      dbReadWriteUrl: neonBranchCustomResource.getAttString('dbReadWriteUrl'),
+      vectorDbReadOnlyUrl: neonBranchCustomResource.getAttString('vectorDbReadOnlyUrl'),
+      vectorDbReadWriteUrl: neonBranchCustomResource.getAttString('vectorDbReadWriteUrl')
     };
   }
 }

@@ -1,1 +1,1 @@
-export * from "./neon-doc";
+export * from './neon-doc';

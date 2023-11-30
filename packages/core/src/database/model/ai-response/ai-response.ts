@@ -1,5 +1,5 @@
-import type { PgInsertValue, PgUpdateSetSource } from "drizzle-orm/pg-core";
-import type { aiResponses } from "../../schema";
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
+import type { aiResponses } from '../../schema';
 
 export type AiResponse = typeof aiResponses.$inferSelect;
 

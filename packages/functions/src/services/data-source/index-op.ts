@@ -1,25 +1,26 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { axios, s3Config, vectorDBConfig } from "@core/configs";
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { axios, s3Config, vectorDBConfig } from '@core/configs';
 import type {
   CreateIndexOperationData,
   DataSource,
   IndexOperation,
-  UpdateIndexOperationData,
-} from "@core/model";
-import { indexOperations } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { getDocumentVectorStore } from "@services/vector-db";
+  UpdateIndexOperationData
+} from '@core/model';
+import { indexOperations } from '@core/schema';
+import type { Metadata } from '@core/types/metadata';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { getDocumentVectorStore } from '@services/vector-db';
 import {
   generatePageContentEmbeddings,
   getFileNameFromUrl,
   getSitemaps,
-  navigateSitemap,
-} from "@services/web-scraper";
-import { SQL, desc, eq, sql } from "drizzle-orm";
-import escapeStringRegexp from "escape-string-regexp";
-import { YoutubeLoader } from "langchain/document_loaders/web/youtube";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { getDataSourceOrThrow, updateDataSource } from "./data-source";
+  navigateSitemap
+} from '@services/web-scraper';
+import { SQL, desc, eq, sql } from 'drizzle-orm';
+import escapeStringRegexp from 'escape-string-regexp';
+import { YoutubeLoader } from 'langchain/document_loaders/web/youtube';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { getDataSourceOrThrow, updateDataSource } from './data-source';
 
 export async function getIndexOperations(
   options: {
@@ -29,12 +30,7 @@ export async function getIndexOperations(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(indexOperations.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(indexOperations.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -47,10 +43,7 @@ export async function getIndexOperations(
 
 export async function getIndexOperation(id: string) {
   return (
-    await readOnlyDatabase
-      .select()
-      .from(indexOperations)
-      .where(eq(indexOperations.id, id))
+    await readOnlyDatabase.select().from(indexOperations).where(eq(indexOperations.id, id))
   ).at(0);
 }
 
@@ -64,20 +57,25 @@ export async function getIndexOperationOrThrow(id: string) {
 
 export async function createIndexOperation(data: CreateIndexOperationData) {
   return (
-    await readWriteDatabase.insert(indexOperations).values(data).returning()
+    await readWriteDatabase
+      .insert(indexOperations)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
-export async function updateIndexOperation(
-  id: string,
-  data: UpdateIndexOperationData
-) {
+export async function updateIndexOperation(id: string, data: UpdateIndexOperationData) {
   return (
     await readWriteDatabase
       .update(indexOperations)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(indexOperations.id, id))
       .returning()
@@ -86,10 +84,7 @@ export async function updateIndexOperation(
 
 export async function deleteIndexOperation(id: string) {
   return (
-    await readWriteDatabase
-      .delete(indexOperations)
-      .where(eq(indexOperations.id, id))
-      .returning()
+    await readWriteDatabase.delete(indexOperations).where(eq(indexOperations.id, id)).returning()
   )[0];
 }
 
@@ -97,42 +92,42 @@ export async function indexWebPage({
   dataSourceId,
   name,
   url,
-  metadata = {},
+  metadata = {}
 }: {
   dataSourceId: string;
   name: string;
   url: string;
-  metadata?: any;
+  metadata?: Metadata;
 }): Promise<IndexOperation> {
   let indexOp: IndexOperation | undefined;
   try {
     indexOp = await createIndexOperation({
-      status: "RUNNING",
+      status: 'RUNNING',
       metadata: {
         ...metadata,
         name,
-        url,
+        url
       },
-      dataSourceId,
+      dataSourceId
     });
 
     console.log(`Started indexing url '${url}'.`);
     await generatePageContentEmbeddings(name, url, dataSourceId, metadata);
 
     console.log(`Successfully indexed url '${url}'. Updating index op status.`);
-    indexOp = await updateIndexOperation(indexOp?.id!, {
-      status: "SUCCEEDED",
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      status: 'SUCCEEDED'
     });
 
     return indexOp;
-  } catch (err: any) {
-    console.error(err.stack);
+  } catch (err) {
+    console.error(`Error indexing url '${url}':`, err);
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
-        status: "FAILED",
-        errorMessages: sql`${
-          indexOperations.errorMessages
-        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
+        status: 'FAILED',
+        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+        )}')`
       });
     }
     throw err;
@@ -144,12 +139,13 @@ export async function indexWebCrawl({
   url,
   pathRegex: pathRegexString,
   name,
-  metadata = {},
+  metadata = {}
 }: {
   dataSourceId: string;
   url: string;
   pathRegex?: string;
   name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: any;
 }): Promise<IndexOperation> {
   let indexOp: IndexOperation | undefined;
@@ -160,14 +156,14 @@ export async function indexWebCrawl({
     let sitemapUrls: string[] | undefined = undefined;
 
     // if sitemap was provided, use that
-    if (url.endsWith(".xml")) {
+    if (url.endsWith('.xml')) {
       sitemapUrls = [url];
 
       const urlObject = new URL(baseUrl);
       baseUrl = urlObject.origin;
     }
     // remove trailing slash
-    if (baseUrl.endsWith("/")) {
+    if (baseUrl.endsWith('/')) {
       baseUrl = baseUrl.substring(0, baseUrl.length - 1);
     }
 
@@ -179,7 +175,7 @@ export async function indexWebCrawl({
     urlRegex = new RegExp(regexString);
 
     indexOp = await createIndexOperation({
-      status: "RUNNING",
+      status: 'RUNNING',
       metadata: {
         ...metadata,
         succeededUrls: [],
@@ -187,9 +183,9 @@ export async function indexWebCrawl({
         totalUrls: 0,
         name,
         baseUrl,
-        urlRegex: urlRegex.source,
+        urlRegex: urlRegex.source
       },
-      dataSourceId,
+      dataSourceId
     });
 
     if (!sitemapUrls) {
@@ -198,38 +194,31 @@ export async function indexWebCrawl({
     console.debug(`sitemapUrls: ${sitemapUrls}`);
 
     for (const sitemapUrl of sitemapUrls) {
-      urlCount += await navigateSitemap(
-        sitemapUrl,
-        urlRegex,
-        name,
-        indexOp!.id
-      );
+      urlCount += await navigateSitemap(sitemapUrl, urlRegex, name, indexOp!.id);
     }
 
-    console.log(
-      `Successfully crawled ${urlCount} urls. Updating index op status.`
-    );
+    console.log(`Successfully crawled ${urlCount} urls. Updating index op status.`);
     indexOp = await updateIndexOperation(indexOp!.id, {
       metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
-        totalUrls: urlCount,
-      })}`,
+        totalUrls: urlCount
+      })}`
     });
 
     return indexOp;
-  } catch (err: any) {
-    console.error(`${err.stack}`);
+  } catch (err) {
+    console.error(`Error crawling url '${url}':`, err);
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
-        status: "FAILED",
-        errorMessages: sql`${
-          indexOperations.errorMessages
-        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
+        status: 'FAILED',
+        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+        )}')`
       });
       if (urlCount > 0) {
         indexOp = await updateIndexOperation(indexOp.id, {
           metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
-            totalUrls: urlCount,
-          })}`,
+            totalUrls: urlCount
+          })}`
         });
       }
     }
@@ -241,20 +230,20 @@ export async function indexRemoteFile({
   dataSourceId,
   name,
   url,
-  metadata = {},
+  metadata = {}
 }: {
   dataSourceId: string;
   name: string;
   url: string;
-  metadata?: any;
+  metadata?: Metadata;
 }) {
   const downloadResponse = await axios.get(url, {
     decompress: false,
-    responseType: "arraybuffer",
+    responseType: 'arraybuffer'
   });
 
   const filename = getFileNameFromUrl(url);
-  const contentType = downloadResponse.headers["content-type"];
+  const contentType = downloadResponse.headers['content-type'];
 
   const s3Client = new S3Client({});
   const putCommandResponse = await s3Client.send(
@@ -267,8 +256,8 @@ export async function indexRemoteFile({
         ...metadata,
         dataSourceId,
         name,
-        url,
-      },
+        url
+      }
     })
   );
 
@@ -276,9 +265,7 @@ export async function indexRemoteFile({
     !putCommandResponse.$metadata?.httpStatusCode ||
     putCommandResponse.$metadata?.httpStatusCode !== 200
   ) {
-    throw new Error(
-      `Failed to upload file to S3 ${putCommandResponse.$metadata?.httpStatusCode}`
-    );
+    throw new Error(`Failed to upload file to S3 ${putCommandResponse.$metadata?.httpStatusCode}`);
   }
 }
 
@@ -286,12 +273,12 @@ export async function indexYoutubeVideo({
   dataSourceId,
   name,
   url,
-  metadata = {},
+  metadata = {}
 }: {
   dataSourceId: string;
   name: string;
   url: string;
-  metadata?: any;
+  metadata?: Metadata;
 }) {
   let indexOp: IndexOperation | undefined;
   try {
@@ -299,26 +286,26 @@ export async function indexYoutubeVideo({
 
     [indexOp, dataSource] = await Promise.all([
       createIndexOperation({
-        status: "RUNNING",
+        status: 'RUNNING',
         metadata: {
           ...metadata,
           name,
-          url,
+          url
         },
-        dataSourceId,
+        dataSourceId
       }),
-      getDataSourceOrThrow(dataSourceId),
+      getDataSourceOrThrow(dataSourceId)
     ]);
 
     const loader = YoutubeLoader.createFromUrl(url, {
-      language: metadata.language ?? "en",
-      addVideoInfo: true,
+      language: metadata.language ?? 'en',
+      addVideoInfo: true
     });
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: vectorDBConfig.docEmbeddingContentLength,
-      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap,
+      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
     });
     docs = await splitter.invoke(docs, {});
 
@@ -328,10 +315,10 @@ export async function indexYoutubeVideo({
         ...metadata,
         ...doc.metadata,
         indexDate: new Date().toISOString(),
-        type: "youtube",
+        type: 'youtube',
         dataSourceId,
         name,
-        url,
+        url
       };
 
       let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
@@ -343,28 +330,28 @@ export async function indexYoutubeVideo({
       return doc;
     });
 
-    console.log("Adding documents to vector store");
+    console.log('Adding documents to vector store');
     const vectorStore = await getDocumentVectorStore();
     await vectorStore.addDocuments(docs);
 
     console.log(`Successfully indexed youtube video '${url}'.`);
     indexOp = await updateIndexOperation(indexOp!.id, {
-      status: "SUCCEEDED",
+      status: 'SUCCEEDED'
     });
 
-    dataSource = await updateDataSource(dataSource.id, {
-      numberOfDocuments: docs.length,
+    await updateDataSource(dataSource.id, {
+      numberOfDocuments: docs.length
     });
 
     return indexOp;
-  } catch (err: any) {
-    console.error(err.stack);
+  } catch (err) {
+    console.error(`Error indexing youtube video '${url}':`, err);
     if (indexOp) {
       indexOp = await updateIndexOperation(indexOp.id, {
-        status: "FAILED",
-        errorMessages: sql`${
-          indexOperations.errorMessages
-        } || jsonb_build_array('${sql.raw(err.stack ?? err.message)}')`,
+        status: 'FAILED',
+        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+        )}')`
       });
     }
     throw err;

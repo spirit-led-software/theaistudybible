@@ -1,64 +1,62 @@
-import { authConfig, emailConfig, websiteConfig } from "@core/configs";
-import { emailTransport } from "@core/configs/email";
-import type { User } from "@core/model";
+import { authConfig, emailConfig, websiteConfig } from '@core/configs';
+import { emailTransport } from '@core/configs/email';
+import type { User } from '@core/model';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   OkResponse,
-  RedirectResponse,
-} from "@lib/api-responses";
-import { addRoleToUser, doesUserHaveRole } from "@services/role";
-import { createUser, getUserByEmail, updateUser } from "@services/user";
-import * as bcrypt from "bcryptjs";
-import fs from "fs";
-import jwt from "jsonwebtoken";
-import type { TokenSet } from "openid-client";
-import path from "path";
-import pug from "pug";
-import { AuthHandler, GoogleAdapter, Session } from "sst/node/auth";
-import Stripe from "stripe";
-import { stripeConfig } from "../configs";
-import { AppleAdapter, CredentialsAdapter } from "./providers";
+  RedirectResponse
+} from '@lib/api-responses';
+import { addRoleToUser, doesUserHaveRole } from '@services/role';
+import { createUser, getUserByEmail, updateUser } from '@services/user';
+import * as bcrypt from 'bcryptjs';
+import fs from 'fs';
+import jwt from 'jsonwebtoken';
+import type { TokenSet } from 'openid-client';
+import path from 'path';
+import pug from 'pug';
+import { AuthHandler, GoogleAdapter, Session } from 'sst/node/auth';
+import Stripe from 'stripe';
+import { stripeConfig } from '../configs';
+import { AppleAdapter, CredentialsAdapter } from './providers';
 
 const SessionResponse = (user: User) => {
   const session = Session.create({
-    type: "user",
+    type: 'user',
     options: {
       expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
-      sub: user.id,
+      sub: user.id
     },
     properties: {
-      id: user.id,
-    },
+      id: user.id
+    }
   });
 
   return OkResponse({
-    session,
+    session
   });
 };
 
 const SessionParameter = (user: User, url?: string) =>
   Session.parameter({
-    type: "user",
+    type: 'user',
     options: {
       expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
-      sub: user.id,
+      sub: user.id
     },
     redirect: url || `${websiteConfig.url}/auth/callback`,
     properties: {
-      id: user.id,
-    },
+      id: user.id
+    }
   });
 
 const AppleClientSecret = () => {
-  const audience = "https://appleid.apple.com";
+  const audience = 'https://appleid.apple.com';
   const keyId = process.env.APPLE_KEY_ID!;
   const teamId = process.env.APPLE_TEAM_ID!;
   const clientId = process.env.APPLE_CLIENT_ID!;
 
-  const privateKey = fs
-    .readFileSync(path.resolve("apple-auth-key.p8"))
-    .toString();
+  const privateKey = fs.readFileSync(path.resolve('apple-auth-key.p8')).toString();
 
   const clientSecret = jwt.sign(
     {
@@ -66,15 +64,15 @@ const AppleClientSecret = () => {
       iat: Math.floor(Date.now() / 1000) - 30, // 30 seconds ago
       exp: Math.floor(Date.now() / 1000) + 86400 * 180, // 180 days
       aud: audience,
-      sub: clientId,
+      sub: clientId
     },
     privateKey,
     {
-      algorithm: "ES256",
+      algorithm: 'ES256',
       header: {
-        alg: "ES256",
-        kid: keyId,
-      },
+        alg: 'ES256',
+        kid: keyId
+      }
     }
   );
 
@@ -90,12 +88,12 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
       email: tokenSet.claims().email!,
       name: tokenSet.claims().name!,
       image: tokenSet.claims().picture!,
-      customImage: false,
+      customImage: false
     });
   } else {
     if (tokenSet.claims().name && user.name !== tokenSet.claims().name) {
       user = await updateUser(user.id, {
-        name: tokenSet.claims().name!,
+        name: tokenSet.claims().name!
       });
     }
     if (
@@ -105,13 +103,13 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
     ) {
       user = await updateUser(user.id, {
         image: tokenSet.claims().picture!,
-        customImage: false,
+        customImage: false
       });
     }
   }
 
-  await doesUserHaveRole("user", user.id).then(async (hasRole) => {
-    if (!hasRole) await addRoleToUser("user", user!.id);
+  await doesUserHaveRole('user', user.id).then(async (hasRole) => {
+    if (!hasRole) await addRoleToUser('user', user!.id);
   });
 
   if (!user.stripeCustomerId) {
@@ -123,16 +121,16 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
 
 async function createStripeCustomer(user: User) {
   const stripe = new Stripe(stripeConfig.apiKey, {
-    apiVersion: "2023-10-16",
+    apiVersion: '2023-10-16'
   });
 
   const customer = await stripe.customers.create({
     email: user.email,
-    name: user.name || undefined,
+    name: user.name || undefined
   });
 
   user = await updateUser(user.id, {
-    stripeCustomerId: customer.id,
+    stripeCustomerId: customer.id
   });
 
   return user;
@@ -163,69 +161,59 @@ export const handler = AuthHandler({
       },
     }), */
     google: GoogleAdapter({
-      mode: "oidc",
+      mode: 'oidc',
       clientID: process.env.GOOGLE_CLIENT_ID!,
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
         return SessionParameter(user);
-      },
+      }
     }),
-    "google-mobile": GoogleAdapter({
-      mode: "oidc",
+    'google-mobile': GoogleAdapter({
+      mode: 'oidc',
       clientID: process.env.GOOGLE_CLIENT_ID!,
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(
-          user,
-          "revelationsai://revelationsai/auth/callback"
-        );
-      },
+        return SessionParameter(user, 'revelationsai://revelationsai/auth/callback');
+      }
     }),
     apple: AppleAdapter({
       clientID: process.env.APPLE_CLIENT_ID!,
       clientSecret: appleClientSecret,
-      scope: "openid name email",
+      scope: 'openid name email',
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
         return SessionParameter(user);
-      },
+      }
     }),
-    "apple-mobile": AppleAdapter({
+    'apple-mobile': AppleAdapter({
       clientID: process.env.APPLE_CLIENT_ID!,
       clientSecret: appleClientSecret,
-      scope: "openid name email",
+      scope: 'openid name email',
       onSuccess: async (tokenSet) => {
         const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(
-          user,
-          "revelationsai://revelationsai/auth/callback"
-        );
-      },
+        return SessionParameter(user, 'revelationsai://revelationsai/auth/callback');
+      }
     }),
     credentials: CredentialsAdapter({
       onRegister: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile(
-          "emails/verify-email/html.pug"
-        );
+        const htmlCompileFunction = pug.compileFile('emails/verify-email/html.pug');
         const html = htmlCompileFunction({
-          link,
+          link
         });
         const sendEmailResponse = await emailTransport.sendMail({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: claims.email,
-          subject: "Verify your email",
-          html,
+          subject: 'Verify your email',
+          html
         });
 
         if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse(
-            "Failed to send verification email"
-          );
+          return InternalServerErrorResponse('Failed to send verification email');
         }
 
         return OkResponse({
-          message: "Verify email sent",
+          message: 'Verify email sent'
         });
       },
       onRegisterCallback: async (email, password) => {
@@ -233,33 +221,30 @@ export const handler = AuthHandler({
         if (!user) {
           user = await createUser({
             email: email,
-            passwordHash: await bcrypt.hash(
-              password,
-              authConfig.bcrypt.saltRounds
-            ),
+            passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
           });
-          await addRoleToUser("user", user.id);
+          await addRoleToUser('user', user.id);
           await createStripeCustomer(user);
         } else {
-          return BadRequestResponse("A user already exists with this email");
+          return BadRequestResponse('A user already exists with this email');
         }
         return SessionParameter(user);
       },
       onLogin: async (claims) => {
         let user: User | undefined = await getUserByEmail(claims.email);
         if (!user) {
-          return InternalServerErrorResponse("User not found");
+          return InternalServerErrorResponse('User not found');
         }
         if (!user.passwordHash) {
           return BadRequestResponse(
-            "You may have signed up with a different provider. Try using facebook or google to login."
+            'You may have signed up with a different provider. Try using facebook or google to login.'
           );
         }
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
-          return BadRequestResponse("Incorrect password");
+          return BadRequestResponse('Incorrect password');
         }
-        await doesUserHaveRole("user", user.id).then(async (hasRole) => {
-          if (!hasRole) await addRoleToUser("user", user!.id);
+        await doesUserHaveRole('user', user.id).then(async (hasRole) => {
+          if (!hasRole) await addRoleToUser('user', user!.id);
         });
         if (!user.stripeCustomerId) {
           user = await createStripeCustomer(user);
@@ -267,87 +252,74 @@ export const handler = AuthHandler({
         return SessionResponse(user);
       },
       onForgotPassword: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile(
-          "emails/reset-password/html.pug"
-        );
+        const htmlCompileFunction = pug.compileFile('emails/reset-password/html.pug');
         const html = htmlCompileFunction({
-          link,
+          link
         });
         const sendEmailResponse = await emailTransport.sendMail({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: claims.email,
-          subject: "Reset Your Password",
-          html,
+          subject: 'Reset Your Password',
+          html
         });
 
         if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse(
-            "Failed to send password reset email"
-          );
+          return InternalServerErrorResponse('Failed to send password reset email');
         }
         return OkResponse({
-          message: "Password reset email sent",
+          message: 'Password reset email sent'
         });
       },
       onForgotPasswordCallback: async (token) => {
-        return RedirectResponse(
-          `${websiteConfig.url}/auth/forgot-password?token=${token}`
-        );
+        return RedirectResponse(`${websiteConfig.url}/auth/forgot-password?token=${token}`);
       },
       onResetPassword: async (email, password) => {
         const user = await getUserByEmail(email);
         if (!user) {
-          return InternalServerErrorResponse("User not found");
+          return InternalServerErrorResponse('User not found');
         }
 
-        if (
-          user.passwordHash &&
-          bcrypt.compareSync(password, user.passwordHash)
-        ) {
-          return BadRequestResponse(
-            "Password cannot be the same as the old password"
-          );
+        if (user.passwordHash && bcrypt.compareSync(password, user.passwordHash)) {
+          return BadRequestResponse('Password cannot be the same as the old password');
         }
 
         await updateUser(user.id, {
-          passwordHash: await bcrypt.hash(
-            password,
-            authConfig.bcrypt.saltRounds
-          ),
+          passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
         });
-        return OkResponse("Password reset successfully");
+        return OkResponse('Password reset successfully');
       },
       onError: async (error) => {
-        return InternalServerErrorResponse(
-          error.stack || error.message || "Something went wrong"
-        );
-      },
+        console.error(JSON.stringify(error));
+        if (error instanceof Error) {
+          return InternalServerErrorResponse(
+            error.stack || error.message || 'Something went wrong'
+          );
+        } else {
+          return InternalServerErrorResponse(`Something went wrong: ${JSON.stringify(error)}`);
+        }
+      }
     }),
-    "credentials-mobile": CredentialsAdapter({
+    'credentials-mobile': CredentialsAdapter({
       onRegister: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile(
-          "emails/verify-email/html.pug"
-        );
+        const htmlCompileFunction = pug.compileFile('emails/verify-email/html.pug');
         const html = htmlCompileFunction({
-          link,
+          link
         });
         const sendEmailResponse = await emailTransport.sendMail({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: claims.email,
-          subject: "Verify your email",
-          html,
+          subject: 'Verify your email',
+          html
         });
 
         if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse(
-            "Failed to send verification email"
-          );
+          return InternalServerErrorResponse('Failed to send verification email');
         }
 
         return OkResponse({
-          message: "Verify email sent",
+          message: 'Verify email sent'
         });
       },
       onRegisterCallback: async (email, password) => {
@@ -355,36 +327,30 @@ export const handler = AuthHandler({
         if (!user) {
           user = await createUser({
             email: email,
-            passwordHash: await bcrypt.hash(
-              password,
-              authConfig.bcrypt.saltRounds
-            ),
+            passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
           });
-          await addRoleToUser("user", user.id);
+          await addRoleToUser('user', user.id);
           await createStripeCustomer(user);
         } else {
-          return BadRequestResponse("A user already exists with this email");
+          return BadRequestResponse('A user already exists with this email');
         }
-        return SessionParameter(
-          user,
-          "revelationsai://revelationsai/auth/callback"
-        );
+        return SessionParameter(user, 'revelationsai://revelationsai/auth/callback');
       },
       onLogin: async (claims) => {
         let user: User | undefined = await getUserByEmail(claims.email);
         if (!user) {
-          return InternalServerErrorResponse("User not found");
+          return InternalServerErrorResponse('User not found');
         }
         if (!user.passwordHash) {
           return BadRequestResponse(
-            "You may have signed up with a different provider. Try using facebook or google to login."
+            'You may have signed up with a different provider. Try using facebook or google to login.'
           );
         }
         if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
-          return BadRequestResponse("Incorrect password");
+          return BadRequestResponse('Incorrect password');
         }
-        await doesUserHaveRole("user", user.id).then(async (hasRole) => {
-          if (!hasRole) await addRoleToUser("user", user!.id);
+        await doesUserHaveRole('user', user.id).then(async (hasRole) => {
+          if (!hasRole) await addRoleToUser('user', user!.id);
         });
         if (!user.stripeCustomerId) {
           user = await createStripeCustomer(user);
@@ -392,27 +358,23 @@ export const handler = AuthHandler({
         return SessionResponse(user);
       },
       onForgotPassword: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile(
-          "emails/reset-password/html.pug"
-        );
+        const htmlCompileFunction = pug.compileFile('emails/reset-password/html.pug');
         const html = htmlCompileFunction({
-          link,
+          link
         });
         const sendEmailResponse = await emailTransport.sendMail({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: claims.email,
-          subject: "Reset Your Password",
-          html,
+          subject: 'Reset Your Password',
+          html
         });
 
         if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse(
-            "Failed to send password reset email"
-          );
+          return InternalServerErrorResponse('Failed to send password reset email');
         }
         return OkResponse({
-          message: "Password reset email sent",
+          message: 'Password reset email sent'
         });
       },
       onForgotPasswordCallback: async (token) => {
@@ -423,31 +385,28 @@ export const handler = AuthHandler({
       onResetPassword: async (email, password) => {
         const user = await getUserByEmail(email);
         if (!user) {
-          return InternalServerErrorResponse("User not found");
+          return InternalServerErrorResponse('User not found');
         }
 
-        if (
-          user.passwordHash &&
-          bcrypt.compareSync(password, user.passwordHash)
-        ) {
-          return BadRequestResponse(
-            "Password cannot be the same as the old password"
-          );
+        if (user.passwordHash && bcrypt.compareSync(password, user.passwordHash)) {
+          return BadRequestResponse('Password cannot be the same as the old password');
         }
 
         await updateUser(user.id, {
-          passwordHash: await bcrypt.hash(
-            password,
-            authConfig.bcrypt.saltRounds
-          ),
+          passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
         });
-        return OkResponse("Password reset successfully");
+        return OkResponse('Password reset successfully');
       },
       onError: async (error) => {
-        return InternalServerErrorResponse(
-          error.stack || error.message || "Something went wrong"
-        );
-      },
-    }),
-  },
+        console.error(JSON.stringify(error));
+        if (error instanceof Error) {
+          return InternalServerErrorResponse(
+            error.stack || error.message || 'Something went wrong'
+          );
+        } else {
+          return InternalServerErrorResponse(`Something went wrong: ${JSON.stringify(error)}`);
+        }
+      }
+    })
+  }
 });

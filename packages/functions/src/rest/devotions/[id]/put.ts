@@ -1,18 +1,18 @@
-import type { Devotion } from "@core/model";
+import type { Devotion } from '@core/model';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { getDevotion, updateDevotion } from "@services/devotion";
-import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { getDevotion, updateDevotion } from '@services/devotion';
+import { validApiHandlerSession } from '@services/session';
+import { isAdmin } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data = JSON.parse(event.body ?? "{}");
+  const data = JSON.parse(event.body ?? '{}');
 
   try {
     let devo: Devotion | undefined = await getDevotion(id);
@@ -28,8 +28,12 @@ export const handler = ApiHandler(async (event) => {
     devo = await updateDevotion(devo!.id, data);
 
     return OkResponse(devo);
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error updating devotion '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

@@ -1,55 +1,53 @@
-import { aiResponseReactions } from "@core/schema";
+import { aiResponseReactions } from '@core/schema';
 import {
   BadRequestResponse,
   CreatedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
+  UnauthorizedResponse
+} from '@lib/api-responses';
 import {
   createAiResponseReaction,
   getAiResponse,
   getAiResponseReactions,
-  updateAiResponseReaction,
-} from "@services/ai-response";
-import { validApiHandlerSession } from "@services/session";
-import { isObjectOwner } from "@services/user";
-import { and, eq } from "drizzle-orm";
-import { ApiHandler } from "sst/node/api";
+  updateAiResponseReaction
+} from '@services/ai-response';
+import { validApiHandlerSession } from '@services/session';
+import { isObjectOwner } from '@services/user';
+import { and, eq } from 'drizzle-orm';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data = JSON.parse(event.body ?? "{}");
+  const data = JSON.parse(event.body ?? '{}');
 
   const { reaction, comment } = data;
   if (!reaction) {
-    return BadRequestResponse("Missing required parameter: reaction");
+    return BadRequestResponse('Missing required parameter: reaction');
   }
 
   if (!aiResponseReactions.reaction.enumValues.includes(reaction)) {
     return BadRequestResponse(
       `Invalid reaction: ${reaction}. Must be one of ${aiResponseReactions.reaction.enumValues.join(
-        ", "
+        ', '
       )}`
     );
   }
 
   try {
-    let aiResponse = await getAiResponse(id);
+    const aiResponse = await getAiResponse(id);
     if (!aiResponse) {
       return ObjectNotFoundResponse(id);
     }
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
-      return UnauthorizedResponse("You must be signed in.");
+      return UnauthorizedResponse('You must be signed in.');
     }
 
     if (!isObjectOwner(aiResponse, userWithRoles.id)) {
-      return UnauthorizedResponse(
-        "You do not have permission to react to this AI response."
-      );
+      return UnauthorizedResponse('You do not have permission to react to this AI response.');
     }
 
     let aiResponseReaction = (
@@ -58,24 +56,19 @@ export const handler = ApiHandler(async (event) => {
           eq(aiResponseReactions.aiResponseId, aiResponse.id),
           eq(aiResponseReactions.userId, userWithRoles.id)
         ),
-        limit: 1,
+        limit: 1
       })
     ).at(0);
 
     if (aiResponseReaction) {
       if (aiResponseReaction.reaction === reaction) {
-        return BadRequestResponse(
-          "You have already reacted with this reaction."
-        );
+        return BadRequestResponse('You have already reacted with this reaction.');
       } else {
         aiResponseReaction.reaction = reaction;
-        aiResponseReaction = await updateAiResponseReaction(
-          aiResponseReaction.id,
-          {
-            reaction,
-            comment,
-          }
-        );
+        aiResponseReaction = await updateAiResponseReaction(aiResponseReaction.id, {
+          reaction,
+          comment
+        });
         return OkResponse(aiResponseReaction);
       }
     }
@@ -84,11 +77,15 @@ export const handler = ApiHandler(async (event) => {
       aiResponseId: aiResponse.id,
       userId: userWithRoles.id,
       reaction,
-      comment,
+      comment
     });
     return CreatedResponse(aiResponseReaction);
-  } catch (err: any) {
-    console.error(err);
-    return InternalServerErrorResponse(err.stack);
+  } catch (err) {
+    console.error(`Error reacting to ai response '${id}':`, err);
+    if (err instanceof Error) {
+      return InternalServerErrorResponse(`${err.message}\n${err.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(err));
+    }
   }
 });

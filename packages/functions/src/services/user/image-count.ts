@@ -1,10 +1,10 @@
 import type {
   CreateUserGeneratedImageCountData,
-  UpdateUserGeneratedImageCountData,
-} from "@core/model/user/image-count";
-import { userGeneratedImageCounts } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, and, desc, eq } from "drizzle-orm";
+  UpdateUserGeneratedImageCountData
+} from '@core/model/user/image-count';
+import { userGeneratedImageCounts } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, and, desc, eq } from 'drizzle-orm';
 
 export async function getUserGeneratedImageCounts(
   options: {
@@ -18,7 +18,7 @@ export async function getUserGeneratedImageCounts(
     where,
     limit = 25,
     offset = 0,
-    orderBy = desc(userGeneratedImageCounts.createdAt),
+    orderBy = desc(userGeneratedImageCounts.createdAt)
   } = options;
 
   return await readOnlyDatabase
@@ -43,7 +43,7 @@ export async function getUserGeneratedImageCountsByUserId(
     where,
     limit = 25,
     offset = 0,
-    orderBy = desc(userGeneratedImageCounts.createdAt),
+    orderBy = desc(userGeneratedImageCounts.createdAt)
   } = options;
 
   return await readOnlyDatabase
@@ -55,30 +55,26 @@ export async function getUserGeneratedImageCountsByUserId(
     .orderBy(orderBy);
 }
 
-export async function getUserGeneratedImageCountByUserIdAndDate(
-  userId: string,
-  date: Date
-) {
+export async function getUserGeneratedImageCountByUserIdAndDate(userId: string, date: Date) {
   return (
     await readOnlyDatabase
       .select()
       .from(userGeneratedImageCounts)
       .where(
-        and(
-          eq(userGeneratedImageCounts.userId, userId),
-          eq(userGeneratedImageCounts.date, date)
-        )
+        and(eq(userGeneratedImageCounts.userId, userId), eq(userGeneratedImageCounts.date, date))
       )
   ).at(0);
 }
 
-export async function createUserGeneratedImageCount(
-  data: CreateUserGeneratedImageCountData
-) {
+export async function createUserGeneratedImageCount(data: CreateUserGeneratedImageCountData) {
   return (
     await readWriteDatabase
       .insert(userGeneratedImageCounts)
-      .values(data)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
       .returning()
   )[0];
 }
@@ -92,7 +88,8 @@ export async function updateUserGeneratedImageCount(
       .update(userGeneratedImageCounts)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(userGeneratedImageCounts.id, id))
       .returning()
@@ -100,43 +97,37 @@ export async function updateUserGeneratedImageCount(
 }
 
 export async function incrementUserGeneratedImageCount(userId: string) {
-  console.log("Incrementing user generated image count for user:", userId);
+  console.log('Incrementing user generated image count for user:', userId);
 
-  const todaysImages = await getUserGeneratedImageCountByUserIdAndDate(
-    userId,
-    new Date()
-  );
+  const todaysImages = await getUserGeneratedImageCountByUserIdAndDate(userId, new Date());
 
   if (todaysImages) {
     return await updateUserGeneratedImageCount(todaysImages.id, {
-      count: todaysImages.count + 1,
+      count: todaysImages.count + 1
     });
   } else {
     return await createUserGeneratedImageCount({
       userId,
       count: 1,
-      date: new Date(),
+      date: new Date()
     });
   }
 }
 
 export async function decrementUserGeneratedImageCount(userId: string) {
-  console.log("Decrementing user generated image count for user:", userId);
+  console.log('Decrementing user generated image count for user:', userId);
 
-  const todaysImages = await getUserGeneratedImageCountByUserIdAndDate(
-    userId,
-    new Date()
-  );
+  const todaysImages = await getUserGeneratedImageCountByUserIdAndDate(userId, new Date());
 
   if (todaysImages) {
     return await updateUserGeneratedImageCount(todaysImages.id, {
-      count: todaysImages.count > 0 ? todaysImages.count - 1 : 0,
+      count: todaysImages.count > 0 ? todaysImages.count - 1 : 0
     });
   } else {
     return await createUserGeneratedImageCount({
       userId,
       count: 0,
-      date: new Date(),
+      date: new Date()
     });
   }
 }

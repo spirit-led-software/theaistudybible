@@ -1,19 +1,15 @@
-import { Constants, DatabaseScripts, STATIC_ENV_VARS } from "@stacks";
-import { RemovalPolicy } from "aws-cdk-lib/core";
-import { Bucket, StackContext, dependsOn, use } from "sst/constructs";
+import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { RemovalPolicy } from 'aws-cdk-lib/core';
+import { Bucket, StackContext, dependsOn, use } from 'sst/constructs';
 
 export function S3({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
-  const {
-    dbReadWriteUrl,
-    dbReadOnlyUrl,
-    vectorDbReadWriteUrl,
-    vectorDbReadOnlyUrl,
-  } = use(DatabaseScripts);
+  const { dbReadWriteUrl, dbReadOnlyUrl, vectorDbReadWriteUrl, vectorDbReadOnlyUrl } =
+    use(DatabaseScripts);
 
-  const indexFileBucket = new Bucket(stack, "indexFileBucket", {
+  const indexFileBucket = new Bucket(stack, 'indexFileBucket', {
     defaults: {
       function: {
         environment: {
@@ -21,84 +17,68 @@ export function S3({ stack }: StackContext) {
           DATABASE_READWRITE_URL: dbReadWriteUrl,
           DATABASE_READONLY_URL: dbReadOnlyUrl,
           VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
+          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
         },
-        permissions: ["s3", invokeBedrockPolicy],
-        timeout: "15 minutes",
-        memorySize: "2 GB",
-      },
+        permissions: ['s3', invokeBedrockPolicy],
+        timeout: '15 minutes',
+        memorySize: '2 GB'
+      }
     },
     notifications: {
       indexFile: {
-        events: ["object_created"],
+        events: ['object_created'],
         function: {
-          handler: "packages/functions/src/scraper/file/file.handler",
-          retryAttempts: 0,
-        },
-      },
+          handler: 'packages/functions/src/scraper/file/file.handler',
+          retryAttempts: 0
+        }
+      }
     },
     cdk: {
       bucket: {
-        autoDeleteObjects: stack.stage !== "prod",
-        removalPolicy:
-          stack.stage === "prod" ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-      },
-    },
+        autoDeleteObjects: stack.stage !== 'prod',
+        removalPolicy: stack.stage === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY
+      }
+    }
   });
 
-  const devotionImageBucket = new Bucket(stack, "devotionImageBucket", {
+  const devotionImageBucket = new Bucket(stack, 'devotionImageBucket', {
     cdk: {
       bucket: {
-        autoDeleteObjects: stack.stage !== "prod",
-        removalPolicy:
-          stack.stage === "prod" ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-      },
-    },
+        autoDeleteObjects: stack.stage !== 'prod',
+        removalPolicy: stack.stage === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY
+      }
+    }
   });
 
-  const userProfilePictureBucket = new Bucket(
-    stack,
-    "userProfilePictureBucket",
-    {
-      cdk: {
-        bucket: {
-          autoDeleteObjects: stack.stage !== "prod",
-          removalPolicy:
-            stack.stage === "prod"
-              ? RemovalPolicy.RETAIN
-              : RemovalPolicy.DESTROY,
-        },
-      },
+  const userProfilePictureBucket = new Bucket(stack, 'userProfilePictureBucket', {
+    cdk: {
+      bucket: {
+        autoDeleteObjects: stack.stage !== 'prod',
+        removalPolicy: stack.stage === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY
+      }
     }
-  );
+  });
 
-  const userGeneratedImageBucket = new Bucket(
-    stack,
-    "userGeneratedImageBucket",
-    {
-      cdk: {
-        bucket: {
-          autoDeleteObjects: stack.stage !== "prod",
-          removalPolicy:
-            stack.stage === "prod"
-              ? RemovalPolicy.RETAIN
-              : RemovalPolicy.DESTROY,
-        },
-      },
+  const userGeneratedImageBucket = new Bucket(stack, 'userGeneratedImageBucket', {
+    cdk: {
+      bucket: {
+        autoDeleteObjects: stack.stage !== 'prod',
+        removalPolicy: stack.stage === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY
+      }
     }
-  );
+  });
 
   stack.addOutputs({
     IndexFileBucket: indexFileBucket.bucketName,
     DevotionImageBucket: devotionImageBucket.bucketName,
     UserProfilePictureBucket: userProfilePictureBucket.bucketName,
-    UserGeneratedImageBucket: userGeneratedImageBucket.bucketName,
+    UserGeneratedImageBucket: userGeneratedImageBucket.bucketName
   });
 
   return {
     indexFileBucket,
     devotionImageBucket,
     userProfilePictureBucket,
-    userGeneratedImageBucket,
+    userGeneratedImageBucket
   };
 }

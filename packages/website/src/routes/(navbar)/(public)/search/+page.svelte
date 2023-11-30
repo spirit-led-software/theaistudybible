@@ -50,9 +50,7 @@
 </script>
 
 <svelte:head>
-	<title>
-		AI Vector Search
-	</title>
+	<title>AI Vector Search</title>
 </svelte:head>
 
 <div class="flex flex-col flex-1">

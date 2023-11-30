@@ -1,4 +1,6 @@
 <script lang="ts">
+	/* eslint-disable svelte/no-at-html-tags */
+
 	import { marked } from 'marked';
 
 	export let content: string;

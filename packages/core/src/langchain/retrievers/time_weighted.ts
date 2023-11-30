@@ -1,12 +1,12 @@
-import type { CallbackManagerForRetrieverRun } from "langchain/callbacks";
-import type { Document } from "langchain/document";
+import type { CallbackManagerForRetrieverRun } from 'langchain/callbacks';
+import type { Document } from 'langchain/document';
 import {
   VectorStore,
   VectorStoreRetriever,
   type VectorStoreRetrieverInput,
-  type VectorStoreRetrieverMMRSearchKwargs,
-} from "langchain/vectorstores/base";
-import type { NeonVectorStore } from "../vectorstores";
+  type VectorStoreRetrieverMMRSearchKwargs
+} from 'langchain/vectorstores/base';
+import type { NeonVectorStore } from '../vectorstores';
 
 /**
  * Interface for the fields required to initialize a
@@ -21,8 +21,8 @@ export type RAITimeWeightedVectorStoreRetrieverFields =
     defaultSalience?: number;
   };
 
-export const LAST_ACCESSED_AT_KEY = "last_accessed_at";
-export const BUFFER_IDX = "buffer_idx";
+export const LAST_ACCESSED_AT_KEY = 'last_accessed_at';
+export const BUFFER_IDX = 'buffer_idx';
 
 /**
  * TimeWeightedVectorStoreRetriever retrieves documents based on their time-weighted relevance.
@@ -30,11 +30,11 @@ export const BUFFER_IDX = "buffer_idx";
  */
 export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
   static lc_name() {
-    return "TimeWeightedVectorStoreRetriever";
+    return 'TimeWeightedVectorStoreRetriever';
   }
 
   get lc_namespace() {
-    return ["langchain", "retrievers", "time_weighted"];
+    return ['langchain', 'retrievers', 'time_weighted'];
   }
 
   /**
@@ -87,12 +87,9 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     this.defaultSalience = fields.defaultSalience ?? null;
   }
 
-  _log(message: any, ...optionalParams: any[]) {
+  _log(message: unknown, ...optionalParams: unknown[]) {
     if (this.verbose) {
-      console.log(
-        `[RAITimeWeightedVectorStoreRetriever] ${message}`,
-        ...optionalParams
-      );
+      console.log(`[RAITimeWeightedVectorStoreRetriever] ${message}`, ...optionalParams);
     }
   }
 
@@ -124,10 +121,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     const now = Math.floor(Date.now() / 1000);
     const memoryDocsAndScores = this.getMemoryDocsAndScores();
 
-    const salientDocsAndScores = await this.getSalientDocuments(
-      query,
-      runManager
-    );
+    const salientDocsAndScores = await this.getSalientDocuments(query, runManager);
     const docsAndScores = { ...memoryDocsAndScores, ...salientDocsAndScores };
 
     return this.computeResults(docsAndScores, now);
@@ -153,16 +147,10 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
    * Get memory documents and their scores
    * @returns An object containing memory documents and their scores
    */
-  private getMemoryDocsAndScores(): Record<
-    number,
-    { doc: Document; score: number }
-  > {
+  private getMemoryDocsAndScores(): Record<number, { doc: Document; score: number }> {
     this._log(`Getting memory documents and scores`);
 
-    const memoryDocsAndScores: Record<
-      number,
-      { doc: Document; score: number }
-    > = {};
+    const memoryDocsAndScores: Record<number, { doc: Document; score: number }> = {};
     for (const doc of this.memoryStream.slice(-this.k)) {
       const bufferIdx = doc.metadata[BUFFER_IDX];
       if (bufferIdx === undefined) {
@@ -172,7 +160,7 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
       }
       memoryDocsAndScores[bufferIdx] = {
         doc,
-        score: this.defaultSalience ?? 0,
+        score: this.defaultSalience ?? 0
       };
     }
 
@@ -195,13 +183,12 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
   ): Promise<Record<number, { doc: Document; score: number }>> {
     this._log(`Searching vector store for query: ${query}`);
 
-    const docAndScores: [Document, number][] =
-      await this.vectorStore.similaritySearchWithScore(
-        query,
-        this.k,
-        undefined,
-        runManager?.getChild()
-      );
+    const docAndScores: [Document, number][] = await this.vectorStore.similaritySearchWithScore(
+      query,
+      this.k,
+      undefined,
+      runManager?.getChild()
+    );
     const results: Record<number, { doc: Document; score: number }> = {};
     for (const [fetchedDoc, score] of docAndScores) {
       const bufferIdx = fetchedDoc.metadata[BUFFER_IDX];
@@ -215,9 +202,9 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     }
 
     this._log(
-      `Found ${
-        docAndScores.length
-      } salient documents from vector store: ${JSON.stringify(docAndScores)}`
+      `Found ${docAndScores.length} salient documents from vector store: ${JSON.stringify(
+        docAndScores
+      )}`
     );
     return results;
   }
@@ -233,15 +220,15 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
     now: number
   ): Document[] {
     this._log(
-      `Computing results from ${JSON.stringify(
-        docsAndScores
-      )} with now=${now} and decay_rate=${this.decayRate}`
+      `Computing results from ${JSON.stringify(docsAndScores)} with now=${now} and decay_rate=${
+        this.decayRate
+      }`
     );
 
     const recordedDocs = Object.values(docsAndScores)
       .map(({ doc, score }) => ({
         doc,
-        score: this.getCombinedScore(doc, score, now),
+        score: this.getCombinedScore(doc, score, now)
       }))
       .sort((a, b) => b.score - a.score);
 
@@ -272,8 +259,8 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
         ...doc.metadata,
         [LAST_ACCESSED_AT_KEY]: doc.metadata[LAST_ACCESSED_AT_KEY] ?? now,
         created_at: doc.metadata.created_at ?? now,
-        [BUFFER_IDX]: this.memoryStream.length + i,
-      },
+        [BUFFER_IDX]: this.memoryStream.length + i
+      }
     }));
   }
 
@@ -284,21 +271,14 @@ export class RAITimeWeightedVectorStoreRetriever extends VectorStoreRetriever {
    * @param nowMsec - The current timestamp in milliseconds
    * @returns The combined score for the document
    */
-  private getCombinedScore(
-    doc: Document,
-    vectorRelevance: number | null,
-    nowMsec: number
-  ): number {
+  private getCombinedScore(doc: Document, vectorRelevance: number | null, nowMsec: number): number {
     this._log(
       `Computing combined score for ${JSON.stringify(
         doc
       )} with vector_relevance=${vectorRelevance} and now_msec=${nowMsec}`
     );
 
-    const hoursPassed = this.getHoursPassed(
-      nowMsec,
-      doc.metadata[LAST_ACCESSED_AT_KEY]
-    );
+    const hoursPassed = this.getHoursPassed(nowMsec, doc.metadata[LAST_ACCESSED_AT_KEY]);
     let score = (1.0 - this.decayRate) ** hoursPassed;
     for (const key of this.otherScoreKeys) {
       score += doc.metadata[key];

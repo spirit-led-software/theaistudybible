@@ -1,13 +1,13 @@
-export * from "./API";
-export * from "./Auth";
-export * from "./Chat-API";
-export * from "./Constants";
-export * from "./Crons";
-export * from "./DatabaseScripts";
-export * from "./Queues";
-export * from "./Rest-API";
-export * from "./S3";
-export * from "./Website";
+export * from './API';
+export * from './Auth';
+export * from './Chat-API';
+export * from './Constants';
+export * from './Crons';
+export * from './DatabaseScripts';
+export * from './Queues';
+export * from './Rest-API';
+export * from './S3';
+export * from './Website';
 
 export const STATIC_ENV_VARS: Record<string, string> = {
   // Environment
@@ -80,5 +80,5 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
 
   UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL!,
-  UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN!,
+  UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN!
 };

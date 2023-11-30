@@ -1,11 +1,11 @@
-import type { CreateChatData, UpdateChatData } from "@core/model";
-import { chats } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import type { Message } from "ai";
-import { SQL, desc, eq } from "drizzle-orm";
-import { LLMChain } from "langchain/chains";
-import { PromptTemplate } from "langchain/prompts";
-import { getLargeContextModel } from "../llm";
+import type { CreateChatData, UpdateChatData } from '@core/model';
+import { chats } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import type { Message } from 'ai';
+import { SQL, desc, eq } from 'drizzle-orm';
+import { LLMChain } from 'langchain/chains';
+import { PromptTemplate } from 'langchain/prompts';
+import { getLargeContextModel } from '../llm';
 
 export async function getChats(
   options: {
@@ -15,12 +15,7 @@ export async function getChats(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(chats.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(chats.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -32,9 +27,7 @@ export async function getChats(
 }
 
 export async function getChat(id: string) {
-  return (
-    await readOnlyDatabase.select().from(chats).where(eq(chats.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(chats).where(eq(chats.id, id))).at(0);
 }
 
 export async function getChatOrThrow(id: string) {
@@ -50,8 +43,10 @@ export async function createChat(data: CreateChatData) {
     await readWriteDatabase
       .insert(chats)
       .values({
-        customName: data.name && data.name != "New Chat" ? true : false,
+        customName: data.name && data.name != 'New Chat' ? true : false,
         ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
       })
       .returning()
   )[0];
@@ -62,9 +57,10 @@ export async function updateChat(id: string, data: UpdateChatData) {
     await readWriteDatabase
       .update(chats)
       .set({
-        customName: data.name && data.name != "New Chat" ? true : false,
+        customName: data.name && data.name != 'New Chat' ? true : false,
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(chats.id, id))
       .returning()
@@ -72,23 +68,21 @@ export async function updateChat(id: string, data: UpdateChatData) {
 }
 
 export async function deleteChat(id: string) {
-  return (
-    await readWriteDatabase.delete(chats).where(eq(chats.id, id)).returning()
-  )[0];
+  return (await readWriteDatabase.delete(chats).where(eq(chats.id, id)).returning())[0];
 }
 
 export async function aiRenameChat(id: string, history: Message[]) {
   const chat = await getChatOrThrow(id);
   if (chat.customName) {
-    throw new Error("Chat has already been named by the user");
+    throw new Error('Chat has already been named by the user');
   }
 
   const renameChain = new LLMChain({
     llm: getLargeContextModel({
       stream: false,
       maxTokens: 128,
-      promptSuffix: "<name>",
-      stopSequences: ["</name>"],
+      promptSuffix: '<name>',
+      stopSequences: ['</name>']
     }),
     prompt: PromptTemplate.fromTemplate(
       `Your goal is to come up with a short and concise name for the chat outlined in the chat history below. It should be punctuated and capitalized as a proper title.
@@ -100,16 +94,14 @@ export async function aiRenameChat(id: string, history: Message[]) {
       </chat_history>
       
       Put the name that you come up with in <name></name> XML tags.`
-    ),
+    )
   });
   const result = await renameChain.call({
-    history: history
-      .map((message) => `${message.role}: ${message.content}`)
-      .join("\n"),
+    history: history.map((message) => `${message.role}: ${message.content}`).join('\n')
   });
 
   return await updateChat(id, {
     name: result.text,
-    customName: false,
+    customName: false
   });
 }

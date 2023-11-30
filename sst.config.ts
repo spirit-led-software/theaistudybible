@@ -7,16 +7,16 @@ import {
   DatabaseScripts,
   Queues,
   S3,
-  Website,
-} from "@stacks";
-import { SSTConfig } from "sst";
-import { RestAPI } from "./stacks/Rest-API";
+  Website
+} from '@stacks';
+import { SSTConfig } from 'sst';
+import { RestAPI } from './stacks/Rest-API';
 
 export default {
-  config(_input) {
+  config() {
     return {
-      name: "revelationsai",
-      region: "us-east-1",
+      name: 'revelationsai',
+      region: 'us-east-1'
     };
   },
   async stacks(app) {
@@ -84,5 +84,5 @@ export default {
     //     }
     //   });
     // }
-  },
+  }
 } satisfies SSTConfig;

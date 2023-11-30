@@ -1,18 +1,18 @@
-import type { UpdateUserData } from "@core/model";
+import type { UpdateUserData } from '@core/model';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { validApiHandlerSession } from "@services/session";
-import { getUser, updateUser } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { validApiHandlerSession } from '@services/session';
+import { getUser, updateUser } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data: UpdateUserData = JSON.parse(event.body ?? "{}");
+  const data: UpdateUserData = JSON.parse(event.body ?? '{}');
 
   try {
     let user = await getUser(id);
@@ -22,18 +22,22 @@ export const handler = ApiHandler(async (event) => {
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid || user.id !== userWithRoles.id) {
-      return UnauthorizedResponse("You are not authorized to update this user");
+      return UnauthorizedResponse('You are not authorized to update this user');
     }
 
     if (data.passwordHash) {
-      return BadRequestResponse("You cannot change your password here.");
+      return BadRequestResponse('You cannot change your password here.');
     }
 
     user = await updateUser(user.id, data);
 
     return OkResponse(user);
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error updating user '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

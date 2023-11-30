@@ -1,5 +1,5 @@
 <script lang="ts">
-	/// @ts-ignore
+	// @ts-expect-error These packages don't have types
 	import { Email, Facebook, X } from 'svelte-share-buttons-component';
 
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';

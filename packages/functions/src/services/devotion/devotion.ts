@@ -1,14 +1,10 @@
-import type {
-  CreateDevotionData,
-  Devotion,
-  UpdateDevotionData,
-} from "@core/model";
-import { devotions, devotionsToSourceDocuments } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, asc, desc, eq, sql } from "drizzle-orm";
-import { getDocumentVectorStore } from "../vector-db";
-import { generateDevotionImages } from "./image";
-import { getBibleReadingChain, getDevotionGeneratorChain } from "./langchain";
+import type { CreateDevotionData, Devotion, UpdateDevotionData } from '@core/model';
+import { devotions, devotionsToSourceDocuments } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, asc, desc, eq, sql } from 'drizzle-orm';
+import { getDocumentVectorStore } from '../vector-db';
+import { generateDevotionImages } from './image';
+import { getBibleReadingChain, getDevotionGeneratorChain } from './langchain';
 
 export async function getDevotions(
   options: {
@@ -18,12 +14,7 @@ export async function getDevotions(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(devotions.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(devotions.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -35,9 +26,7 @@ export async function getDevotions(
 }
 
 export async function getDevotion(id: string) {
-  return (
-    await readOnlyDatabase.select().from(devotions).where(eq(devotions.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(devotions).where(eq(devotions.id, id))).at(0);
 }
 
 export async function getDevotionOrThrow(id: string) {
@@ -76,20 +65,25 @@ export async function getDevotionSourceDocuments(devotion: Devotion) {
   );
 
   return foundSourceDocuments.map((d) => {
-    const relationship = sourceDocumentRelationships.find(
-      (d2) => d2.devotionId === d.id
-    );
+    const relationship = sourceDocumentRelationships.find((d2) => d2.devotionId === d.id);
     return {
       ...d,
       distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? "cosine",
+      distanceMetric: relationship?.distanceMetric ?? 'cosine'
     };
   });
 }
 
 export async function createDevotion(data: CreateDevotionData) {
   return (
-    await readWriteDatabase.insert(devotions).values(data).returning()
+    await readWriteDatabase
+      .insert(devotions)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
@@ -99,7 +93,8 @@ export async function updateDevotion(id: string, data: UpdateDevotionData) {
       .update(devotions)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(devotions.id, id))
       .returning()
@@ -107,12 +102,7 @@ export async function updateDevotion(id: string, data: UpdateDevotionData) {
 }
 
 export async function deleteDevotion(id: string) {
-  return (
-    await readWriteDatabase
-      .delete(devotions)
-      .where(eq(devotions.id, id))
-      .returning()
-  )[0];
+  return (await readWriteDatabase.delete(devotions).where(eq(devotions.id, id)).returning())[0];
 }
 
 export async function generateDevotion(topic?: string, bibleReading?: string) {
@@ -127,7 +117,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
     const chain = await getDevotionGeneratorChain();
     const { result, sourceDocuments } = await chain.invoke({
       topic,
-      bibleReading,
+      bibleReading
     });
 
     devo = await createDevotion({
@@ -135,7 +125,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
       bibleReading,
       summary: result.summary,
       reflection: result.reflection,
-      prayer: result.prayer,
+      prayer: result.prayer
     });
 
     await Promise.all(
@@ -144,7 +134,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
           devotionId: devo!.id,
           sourceDocumentId: c.id,
           distance: c.distance,
-          distanceMetric: c.distanceMetric,
+          distanceMetric: c.distanceMetric
         });
       })
     );
@@ -165,7 +155,7 @@ export async function getBibleReading() {
   console.log(`Devotion topic: ${topic}`);
   const chain = await getBibleReadingChain(topic);
   const result = await chain.invoke({
-    topic,
+    topic
   });
 
   const bibleReadingText = `${result.book} ${result.chapter}:${result.verseRange} - ${result.text}`;
@@ -176,37 +166,37 @@ export async function getBibleReading() {
 
 // 31 topics, one for each day of the month
 const devotionTopics = [
-  "new life",
-  "love",
-  "faith",
-  "hope",
-  "joy",
-  "peace",
-  "patience",
-  "kindness",
-  "goodness",
-  "gentleness",
-  "self-control",
-  "forgiveness",
-  "prayer",
-  "history",
-  "prophecy",
-  "salvation",
-  "sin",
-  "heaven",
-  "hell",
-  "baptism",
-  "communion",
-  "money",
-  "work",
-  "marriage",
-  "children",
-  "family",
-  "friendship",
-  "generosity",
-  "justice",
-  "wisdom",
-  "humility",
+  'new life',
+  'love',
+  'faith',
+  'hope',
+  'joy',
+  'peace',
+  'patience',
+  'kindness',
+  'goodness',
+  'gentleness',
+  'self-control',
+  'forgiveness',
+  'prayer',
+  'history',
+  'prophecy',
+  'salvation',
+  'sin',
+  'heaven',
+  'hell',
+  'baptism',
+  'communion',
+  'money',
+  'work',
+  'marriage',
+  'children',
+  'family',
+  'friendship',
+  'generosity',
+  'justice',
+  'wisdom',
+  'humility'
 ];
 
 function getTopic() {

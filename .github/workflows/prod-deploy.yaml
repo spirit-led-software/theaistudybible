@@ -4,12 +4,12 @@ on:
   push:
     branches: [master]
     paths-ignore:
-      - ".github/**"
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - ".gitignore"
-      - "README.md"
-      - "mobile/**"
+      - '.github/**'
+      - '.devcontainer/**'
+      - '.vscode/**'
+      - '.gitignore'
+      - 'README.md'
+      - 'mobile/**'
   workflow_dispatch:
 
 env:
@@ -100,6 +100,12 @@ jobs:
         name: Setup Apple Auth Key
         run: |
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
+      - name: Build workspaces
+        run: pnpm run -r --parallel build
+      - name: Typecheck workspace
+        run: pnpm run typecheck:all
+      - name: Lint workspace
+        run: pnpm run lint:all
       - id: sst_deploy
         name: Deploy to AWS
         run: pnpm run deploy prod

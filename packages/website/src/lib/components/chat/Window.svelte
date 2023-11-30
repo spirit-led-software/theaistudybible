@@ -17,6 +17,7 @@
 	export let initMessages: ChatMessage[] | undefined = undefined;
 
 	let chatId: string | undefined = undefined;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
 	let lastChatMessage: ChatMessage | undefined = undefined;
@@ -112,8 +113,8 @@
 						session: $session!
 					}
 				);
-			} catch (err: any) {
-				alert = `Something went wrong: ${err.message}`;
+			} catch (err) {
+				alert = `Something went wrong: ${err instanceof Error ? err.message : 'Unknown error'}`;
 			}
 		}
 	};

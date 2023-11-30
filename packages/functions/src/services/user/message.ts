@@ -1,7 +1,7 @@
-import type { CreateUserMessageData, UpdateUserMessageData } from "@core/model";
-import { userMessages } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, and, desc, eq } from "drizzle-orm";
+import type { CreateUserMessageData, UpdateUserMessageData } from '@core/model';
+import { userMessages } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { SQL, and, desc, eq } from 'drizzle-orm';
 
 export async function getUserMessages(
   options: {
@@ -11,12 +11,7 @@ export async function getUserMessages(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(userMessages.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(userMessages.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -28,12 +23,7 @@ export async function getUserMessages(
 }
 
 export async function getUserMessage(id: string) {
-  return (
-    await readOnlyDatabase
-      .select()
-      .from(userMessages)
-      .where(eq(userMessages.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(userMessages).where(eq(userMessages.id, id))).at(0);
 }
 
 export async function getUserMessageOrThrow(id: string) {
@@ -52,10 +42,7 @@ export async function getUserMessagesByChatId(chatId: string) {
     .orderBy(desc(userMessages.createdAt));
 }
 
-export async function getUserMessagesByChatIdAndText(
-  chatId: string,
-  text: string
-) {
+export async function getUserMessagesByChatIdAndText(chatId: string, text: string) {
   return await readOnlyDatabase
     .select()
     .from(userMessages)
@@ -65,20 +52,25 @@ export async function getUserMessagesByChatIdAndText(
 
 export async function createUserMessage(data: CreateUserMessageData) {
   return (
-    await readWriteDatabase.insert(userMessages).values(data).returning()
+    await readWriteDatabase
+      .insert(userMessages)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
-export async function updateUserMessage(
-  id: string,
-  data: UpdateUserMessageData
-) {
+export async function updateUserMessage(id: string, data: UpdateUserMessageData) {
   return (
     await readWriteDatabase
       .update(userMessages)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(userMessages.id, id))
       .returning()
@@ -87,9 +79,6 @@ export async function updateUserMessage(
 
 export async function deleteUserMessage(id: string) {
   return (
-    await readWriteDatabase
-      .delete(userMessages)
-      .where(eq(userMessages.id, id))
-      .returning()
+    await readWriteDatabase.delete(userMessages).where(eq(userMessages.id, id)).returning()
   )[0];
 }

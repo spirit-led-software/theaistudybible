@@ -41,7 +41,7 @@
 							)
 						) {
 							await deleteUser(user.id, {
-								// @ts-ignore
+								// @ts-expect-error Can't use a bang here
 								session: session
 							});
 							await goto('/auth/logout');

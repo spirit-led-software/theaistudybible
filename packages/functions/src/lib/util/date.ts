@@ -1,3 +1,12 @@
+/**
+ * Returns today's date as a string in the format YYYY-MM-DD
+ *
+ * @returns {string} date string in the format YYYY-MM-DD
+ * @example
+ * getTodaysDateString(); // "2021-01-01"
+ * getTodaysDateString(); // "2021-01-02"
+ * getTodaysDateString(); // "2021-01-03"
+ */
 export function getTodaysDateString() {
   // format date to YYYY-MM-DD
   const date = new Date();
@@ -11,5 +20,14 @@ export function getTodaysDateString() {
 
   const dateString = `${year}-${monthString}-${dayString}`;
 
-  return dateString as `${number}-${number}-${number}`;
+  return dateString;
+}
+
+/**
+ * Returns the current date in UTC
+ *
+ * @returns {Date} UTC date
+ */
+export function getUtcDate() {
+  return new Date(new Date().toUTCString());
 }

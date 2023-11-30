@@ -1,13 +1,10 @@
-import type { BaseLanguageModel } from "langchain/base_language";
-import { LLMChain } from "langchain/chains";
-import { PromptTemplate } from "langchain/prompts";
-import { LLMChainExtractor } from "langchain/retrievers/document_compressors/chain_extract";
-import {
-  BaseOutputParser,
-  type FormatInstructionsOptions,
-} from "langchain/schema/output_parser";
-import { envConfig } from "../../../../configs";
-import { NeonVectorStoreDocument } from "../../../vectorstores/neon";
+import type { BaseLanguageModel } from 'langchain/base_language';
+import { LLMChain } from 'langchain/chains';
+import { PromptTemplate } from 'langchain/prompts';
+import { LLMChainExtractor } from 'langchain/retrievers/document_compressors/chain_extract';
+import { BaseOutputParser } from 'langchain/schema/output_parser';
+import { envConfig } from '../../../../configs';
+import { NeonVectorStoreDocument } from '../../../vectorstores/neon';
 
 export const PROMPT_TEMPLATE = (
   noOutputStr: string
@@ -27,30 +24,23 @@ function defaultGetInput(query: string, doc: NeonVectorStoreDocument) {
 }
 
 class NoOutputParser extends BaseOutputParser {
-  readonly lc_namespace = [
-    "langchain",
-    "retrievers",
-    "document_compressors",
-    "chain_extract",
-  ];
-  readonly noOutputStr = "NO_OUTPUT";
+  readonly lc_namespace = ['langchain', 'retrievers', 'document_compressors', 'chain_extract'];
+  readonly noOutputStr = 'NO_OUTPUT';
 
   constructor() {
-    super(...arguments);
+    super();
   }
 
   parse(text: string) {
     const cleanedText = text.trim();
     if (cleanedText === this.noOutputStr) {
-      return Promise.resolve("");
+      return Promise.resolve('');
     }
     return Promise.resolve(cleanedText);
   }
 
-  getFormatInstructions(
-    options?: FormatInstructionsOptions | undefined
-  ): string {
-    throw new Error("Method not implemented.");
+  getFormatInstructions(): string {
+    throw new Error('Method not implemented.');
   }
 }
 
@@ -59,8 +49,8 @@ function getDefaultChainPrompt() {
   const template = PROMPT_TEMPLATE(outputParser.noOutputStr);
   return new PromptTemplate({
     template,
-    inputVariables: ["question", "context"],
-    outputParser,
+    inputVariables: ['question', 'context'],
+    outputParser
   });
 }
 
@@ -78,32 +68,28 @@ export class NeonDocLLMChainExtractor extends LLMChainExtractor {
               id: doc.id,
               metadata: doc.metadata,
               pageContent: output,
-              embedding: doc.embedding,
+              embedding: doc.embedding
             })
           : undefined;
       })
     );
-    return compressedDocs.filter(
-      (doc): doc is NeonVectorStoreDocument => doc !== undefined
-    );
+    return compressedDocs.filter((doc): doc is NeonVectorStoreDocument => doc !== undefined);
   }
 
   static fromLLM(
     llm: BaseLanguageModel,
     prompt?: PromptTemplate,
-    getInput?: (
-      query: string,
-      doc: NeonVectorStoreDocument
-    ) => Record<string, unknown>
+    getInput?: (query: string, doc: NeonVectorStoreDocument) => Record<string, unknown>
   ) {
     const _prompt = prompt || getDefaultChainPrompt();
     const _getInput = getInput || defaultGetInput;
     const llmChain = new LLMChain({
       llm,
       prompt: _prompt,
-      verbose: envConfig.isLocal,
+      verbose: envConfig.isLocal
     });
-    // @ts-ignore
+
+    // @ts-expect-error NeonVectorStoreDocument is not recognized as valid
     return new NeonDocLLMChainExtractor({ llmChain, getInput: _getInput });
   }
 }

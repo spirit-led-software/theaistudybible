@@ -2,12 +2,12 @@ import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
-import { getDataSource, syncDataSource } from "@services/data-source";
-import { validApiHandlerSession } from "@services/session";
-import { isAdmin } from "@services/user";
-import { ApiHandler } from "sst/node/api";
+  UnauthorizedResponse
+} from '@lib/api-responses';
+import { getDataSource, syncDataSource } from '@services/data-source';
+import { validApiHandlerSession } from '@services/session';
+import { isAdmin } from '@services/user';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
@@ -18,7 +18,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse();
     }
 
-    let dataSource = await getDataSource(id);
+    const dataSource = await getDataSource(id);
     if (!dataSource) {
       return ObjectNotFoundResponse(id);
     }
@@ -26,8 +26,12 @@ export const handler = ApiHandler(async (event) => {
     await syncDataSource(dataSource.id, true);
 
     return OkResponse(dataSource);
-  } catch (error: any) {
-    console.error("Error syncing data source:", error.stack);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error syncing data source '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

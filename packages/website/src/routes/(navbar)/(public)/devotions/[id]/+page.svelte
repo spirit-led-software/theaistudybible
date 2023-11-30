@@ -1,5 +1,5 @@
 <script lang="ts">
-	/* @ts-ignore */
+	// @ts-expect-error These packages don't have types
 	import { Email, Facebook, X } from 'svelte-share-buttons-component';
 
 	import { page } from '$app/stores';
@@ -47,9 +47,9 @@
 				const { error } = await response.json();
 				throw new Error(error ?? 'An unknown error occurred.');
 			}
-		} catch (error: any) {
+		} catch (error) {
 			console.error(error);
-			alert = error.message;
+			alert = error instanceof Error ? error.message : JSON.stringify(error);
 		}
 		isLoading = false;
 	};

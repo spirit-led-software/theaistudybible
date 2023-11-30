@@ -11,8 +11,7 @@ export 'devotion/image.dart' show DevotionImageService;
 
 class DevotionService {
   static Future<PaginatedEntitiesResponseData<Devotion>> getDevotions({
-    PaginatedEntitiesRequestOptions paginationOptions =
-        const PaginatedEntitiesRequestOptions(),
+    PaginatedEntitiesRequestOptions paginationOptions = const PaginatedEntitiesRequestOptions(),
   }) async {
     Response res = await get(
       Uri.parse('${API.url}/devotions?${paginationOptions.searchQuery}'),
@@ -26,8 +25,7 @@ class DevotionService {
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-    return PaginatedEntitiesResponseData.fromJson(
-        data, (json) => Devotion.fromJson(json as Map<String, dynamic>));
+    return PaginatedEntitiesResponseData.fromJson(data, (json) => Devotion.fromJson(json as Map<String, dynamic>));
   }
 
   static Future<Devotion> getDevotion({
@@ -63,8 +61,6 @@ class DevotionService {
     }
 
     final data = jsonDecode(utf8.decode(res.bodyBytes));
-    return (data as List<dynamic>)
-        .map((e) => SourceDocument.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return (data as List<dynamic>).map((e) => SourceDocument.fromJson(e as Map<String, dynamic>)).toList();
   }
 }

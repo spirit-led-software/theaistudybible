@@ -1,8 +1,6 @@
-import type { AwsCredentialIdentity, Provider } from "@aws-sdk/types";
+import type { AwsCredentialIdentity, Provider } from '@aws-sdk/types';
 
-export type CredentialType =
-  | AwsCredentialIdentity
-  | Provider<AwsCredentialIdentity>;
+export type CredentialType = AwsCredentialIdentity | Provider<AwsCredentialIdentity>;
 
 /** Bedrock models.
     To authenticate, the AWS client uses the following methods to automatically load credentials:
@@ -74,36 +72,36 @@ export class BedrockLLMInputOutputAdapter {
     temperature = 0,
     stopSequences: string[] | undefined = undefined,
     modelKwargs: Record<string, unknown> = {},
-    bedrockMethod: "invoke" | "invoke-with-response-stream" = "invoke"
+    bedrockMethod: 'invoke' | 'invoke-with-response-stream' = 'invoke'
   ): Dict {
     const inputBody: Dict = {};
 
-    if (provider === "anthropic") {
+    if (provider === 'anthropic') {
       inputBody.prompt = prompt;
       inputBody.max_tokens_to_sample = maxTokens;
       inputBody.temperature = temperature;
       inputBody.stop_sequences = stopSequences;
-    } else if (provider === "ai21") {
+    } else if (provider === 'ai21') {
       inputBody.prompt = prompt;
       inputBody.maxTokens = maxTokens;
       inputBody.temperature = temperature;
       inputBody.stopSequences = stopSequences;
-    } else if (provider === "meta") {
+    } else if (provider === 'meta') {
       inputBody.prompt = prompt;
       inputBody.max_gen_len = maxTokens;
       inputBody.temperature = temperature;
-    } else if (provider === "amazon") {
+    } else if (provider === 'amazon') {
       inputBody.inputText = prompt;
       inputBody.textGenerationConfig = {
         maxTokenCount: maxTokens,
-        temperature,
+        temperature
       };
-    } else if (provider === "cohere") {
+    } else if (provider === 'cohere') {
       inputBody.prompt = prompt;
       inputBody.max_tokens = maxTokens;
       inputBody.temperature = temperature;
       inputBody.stop_sequences = stopSequences;
-      if (bedrockMethod === "invoke-with-response-stream") {
+      if (bedrockMethod === 'invoke-with-response-stream') {
         inputBody.stream = true;
       }
     }
@@ -118,13 +116,13 @@ export class BedrockLLMInputOutputAdapter {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static prepareOutput(provider: string, responseBody: any): string {
-    if (provider === "anthropic") {
+    if (provider === 'anthropic') {
       return responseBody.completion;
-    } else if (provider === "ai21") {
-      return responseBody?.completions?.[0]?.data?.text ?? "";
-    } else if (provider === "cohere") {
-      return responseBody?.generations?.[0]?.text ?? responseBody?.text ?? "";
-    } else if (provider === "meta") {
+    } else if (provider === 'ai21') {
+      return responseBody?.completions?.[0]?.data?.text ?? '';
+    } else if (provider === 'cohere') {
+      return responseBody?.generations?.[0]?.text ?? responseBody?.text ?? '';
+    } else if (provider === 'meta') {
       return responseBody.generation;
     }
 

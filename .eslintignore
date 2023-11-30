@@ -1,0 +1,10 @@
+# ignore everything except the stacks directory
+packages
+node_modules
+mobile
+migrations
+assets
+.vscode
+.sst
+.github
+.devcontainer

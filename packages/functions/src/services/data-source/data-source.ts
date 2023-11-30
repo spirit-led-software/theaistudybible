@@ -1,19 +1,15 @@
-import type {
-  CreateDataSourceData,
-  DataSource,
-  UpdateDataSourceData,
-} from "@core/model";
-import { dataSources, indexOperations } from "@core/schema";
-import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { getDocumentVectorStore } from "@services/vector-db";
-import { SQL, and, desc, eq, inArray } from "drizzle-orm";
+import type { CreateDataSourceData, DataSource, UpdateDataSourceData } from '@core/model';
+import { dataSources, indexOperations } from '@core/schema';
+import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { getDocumentVectorStore } from '@services/vector-db';
+import { SQL, and, desc, eq, inArray } from 'drizzle-orm';
 import {
   getIndexOperations,
   indexRemoteFile,
   indexWebCrawl,
   indexWebPage,
-  indexYoutubeVideo,
-} from "./index-op";
+  indexYoutubeVideo
+} from './index-op';
 
 export async function getDataSources(
   options: {
@@ -23,12 +19,7 @@ export async function getDataSources(
     orderBy?: SQL<unknown>;
   } = {}
 ) {
-  const {
-    where,
-    limit = 25,
-    offset = 0,
-    orderBy = desc(dataSources.createdAt),
-  } = options;
+  const { where, limit = 25, offset = 0, orderBy = desc(dataSources.createdAt) } = options;
 
   return await readOnlyDatabase
     .select()
@@ -40,12 +31,7 @@ export async function getDataSources(
 }
 
 export async function getDataSource(id: string) {
-  return (
-    await readOnlyDatabase
-      .select()
-      .from(dataSources)
-      .where(eq(dataSources.id, id))
-  ).at(0);
+  return (await readOnlyDatabase.select().from(dataSources).where(eq(dataSources.id, id))).at(0);
 }
 
 export async function getDataSourceOrThrow(id: string) {
@@ -58,7 +44,14 @@ export async function getDataSourceOrThrow(id: string) {
 
 export async function createDataSource(data: CreateDataSourceData) {
   return (
-    await readWriteDatabase.insert(dataSources).values(data).returning()
+    await readWriteDatabase
+      .insert(dataSources)
+      .values({
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning()
   )[0];
 }
 
@@ -68,7 +61,8 @@ export async function updateDataSource(id: string, data: UpdateDataSourceData) {
       .update(dataSources)
       .set({
         ...data,
-        updatedAt: new Date(),
+        createdAt: undefined,
+        updatedAt: new Date()
       })
       .where(eq(dataSources.id, id))
       .returning()
@@ -90,21 +84,16 @@ export async function updateDataSourceRelatedDocuments(
       [
         JSON.stringify({
           ...dataSource.metadata,
-          dataSourceId: dataSource.id,
+          dataSourceId: dataSource.id
         }),
-        dataSourceId,
+        dataSourceId
       ]
     );
   });
 }
 
 export async function deleteDataSource(id: string) {
-  return (
-    await readWriteDatabase
-      .delete(dataSources)
-      .where(eq(dataSources.id, id))
-      .returning()
-  )[0];
+  return (await readWriteDatabase.delete(dataSources).where(eq(dataSources.id, id)).returning())[0];
 }
 
 export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {
@@ -120,28 +109,23 @@ export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {
   });
 }
 
-export async function syncDataSource(
-  id: string,
-  manual: boolean = false
-): Promise<DataSource> {
+export async function syncDataSource(id: string, manual: boolean = false): Promise<DataSource> {
   let dataSource = await getDataSourceOrThrow(id);
 
   let runningIndexOps = await getIndexOperations({
     where: and(
       eq(indexOperations.dataSourceId, dataSource.id),
-      eq(indexOperations.status, "RUNNING")
+      eq(indexOperations.status, 'RUNNING')
     ),
-    limit: 1,
+    limit: 1
   });
   if (runningIndexOps.length > 0) {
-    throw new Error(
-      `Cannot sync data source ${dataSource.id} because it is already being indexed`
-    );
+    throw new Error(`Cannot sync data source ${dataSource.id} because it is already being indexed`);
   }
 
-  if (dataSource.type === "WEB_CRAWL") {
+  if (dataSource.type === 'WEB_CRAWL') {
     const webCrawlDataSources = await getDataSources({
-      where: and(eq(dataSources.type, "WEB_CRAWL")),
+      where: and(eq(dataSources.type, 'WEB_CRAWL'))
     });
     runningIndexOps = await getIndexOperations({
       where: and(
@@ -149,9 +133,9 @@ export async function syncDataSource(
           indexOperations.dataSourceId,
           webCrawlDataSources.map((ds) => ds.id)
         ),
-        eq(indexOperations.status, "RUNNING")
+        eq(indexOperations.status, 'RUNNING')
       ),
-      limit: 1,
+      limit: 1
     });
     if (runningIndexOps.length > 0) {
       throw new Error(
@@ -161,45 +145,45 @@ export async function syncDataSource(
   }
 
   dataSource = await updateDataSource(dataSource.id, {
-    numberOfDocuments: 0,
+    numberOfDocuments: 0
   });
 
   const syncDate = new Date();
 
   switch (dataSource.type) {
-    case "FILE":
-      throw new Error("You must upload a file to the data source to index it");
-    case "REMOTE_FILE":
+    case 'FILE':
+      throw new Error('You must upload a file to the data source to index it');
+    case 'REMOTE_FILE':
       await indexRemoteFile({
         dataSourceId: dataSource.id,
         name: dataSource.name,
         url: dataSource.url,
-        metadata: dataSource.metadata,
+        metadata: dataSource.metadata
       });
       break;
-    case "WEBPAGE":
+    case 'WEBPAGE':
       await indexWebPage({
         dataSourceId: dataSource.id,
         name: dataSource.name,
         url: dataSource.url,
-        metadata: dataSource.metadata,
+        metadata: dataSource.metadata
       });
       break;
-    case "WEB_CRAWL":
+    case 'WEB_CRAWL':
       await indexWebCrawl({
         dataSourceId: dataSource.id,
         name: dataSource.name,
         url: dataSource.url,
         pathRegex: dataSource.metadata.pathRegex,
-        metadata: dataSource.metadata,
+        metadata: dataSource.metadata
       });
       break;
-    case "YOUTUBE":
+    case 'YOUTUBE':
       await indexYoutubeVideo({
         dataSourceId: dataSource.id,
         name: dataSource.name,
         url: dataSource.url,
-        metadata: dataSource.metadata,
+        metadata: dataSource.metadata
       });
       break;
     default:
@@ -208,7 +192,7 @@ export async function syncDataSource(
 
   dataSource = await updateDataSource(dataSource.id, {
     lastManualSync: manual ? syncDate : undefined,
-    lastAutomaticSync: !manual ? syncDate : undefined,
+    lastAutomaticSync: !manual ? syncDate : undefined
   });
 
   // Delete old vectors

@@ -1,48 +1,48 @@
-import { devotionReactions } from "@core/schema";
+import { devotionReactions } from '@core/schema';
 import {
   BadRequestResponse,
   CreatedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
+  UnauthorizedResponse
+} from '@lib/api-responses';
 import {
   createDevotionReaction,
   getDevotion,
   getDevotionReactions,
-  updateDevotionReaction,
-} from "@services/devotion";
-import { validApiHandlerSession } from "@services/session";
-import { and, eq } from "drizzle-orm";
-import { ApiHandler } from "sst/node/api";
+  updateDevotionReaction
+} from '@services/devotion';
+import { validApiHandlerSession } from '@services/session';
+import { and, eq } from 'drizzle-orm';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data = JSON.parse(event.body ?? "{}");
+  const data = JSON.parse(event.body ?? '{}');
 
   const { reaction, comment } = data;
   if (!reaction) {
-    return BadRequestResponse("Missing required parameter: reaction");
+    return BadRequestResponse('Missing required parameter: reaction');
   }
 
   if (!devotionReactions.reaction.enumValues.includes(reaction)) {
     return BadRequestResponse(
       `Invalid reaction: ${reaction}. Must be one of ${devotionReactions.reaction.enumValues.join(
-        ", "
+        ', '
       )}`
     );
   }
 
   try {
-    let devotion = await getDevotion(id);
+    const devotion = await getDevotion(id);
     if (!devotion) {
       return ObjectNotFoundResponse(id);
     }
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid) {
-      return UnauthorizedResponse("You must be signed in.");
+      return UnauthorizedResponse('You must be signed in.');
     }
 
     let devoReaction = (
@@ -51,20 +51,18 @@ export const handler = ApiHandler(async (event) => {
           eq(devotionReactions.devotionId, devotion.id),
           eq(devotionReactions.userId, userWithRoles.id)
         ),
-        limit: 1,
+        limit: 1
       })
     ).at(0);
 
     if (devoReaction) {
       if (devoReaction.reaction === reaction) {
-        return BadRequestResponse(
-          "You have already reacted with this reaction."
-        );
+        return BadRequestResponse('You have already reacted with this reaction.');
       } else {
         devoReaction.reaction = reaction;
         devoReaction = await updateDevotionReaction(devoReaction.id, {
           reaction,
-          comment,
+          comment
         });
         return OkResponse(devoReaction);
       }
@@ -74,11 +72,15 @@ export const handler = ApiHandler(async (event) => {
       devotionId: devotion.id,
       userId: userWithRoles.id,
       reaction,
-      comment,
+      comment
     });
     return CreatedResponse(devoReaction);
-  } catch (err: any) {
-    console.error(err);
-    return InternalServerErrorResponse(err.stack);
+  } catch (err) {
+    console.error(`Error reacting to devotion '${id}':`, err);
+    if (err instanceof Error) {
+      return InternalServerErrorResponse(`${err.message}\n${err.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(err));
+    }
   }
 });

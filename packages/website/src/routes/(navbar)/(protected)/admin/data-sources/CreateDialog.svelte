@@ -35,17 +35,17 @@
 		id: string;
 		name: string;
 		url: string;
-		type: string;
-		syncSchedule: string;
+		type: DataSource['type'];
+		syncSchedule: DataSource['syncSchedule'];
 		metadata: object;
 	}) => {
 		return await createDataSource(
 			{
 				id,
-				type: type as any,
+				type: type,
 				name,
 				url,
-				syncSchedule: syncSchedule as any,
+				syncSchedule: syncSchedule,
 				metadata
 			},
 			{
@@ -72,8 +72,8 @@
 								updatedAt: new Date(),
 								metadata: input.metadata,
 								numberOfDocuments: 0,
-								syncSchedule: input.syncSchedule as any,
-								type: input.type as any,
+								syncSchedule: input.syncSchedule,
+								type: input.type,
 								url: input.url,
 								lastManualSync: null,
 								lastAutomaticSync: null
@@ -96,14 +96,16 @@
 		const formData = new FormData(event.currentTarget);
 		const name = (formData.get('name') || undefined) as string | undefined;
 		const url = (formData.get('url') || undefined) as string | undefined;
-		const type = (formData.get('type') || undefined) as string | undefined;
+		const type = (formData.get('type') || undefined) as DataSource['type'] | undefined;
 		const file = (formData.get('file') || undefined) as File | undefined;
 		const pathRegex = (formData.get('pathRegex') || undefined) as string | undefined;
 		const title = (formData.get('title') || undefined) as string | undefined;
 		const author = (formData.get('author') || undefined) as string | undefined;
 		const category = (formData.get('category') || undefined) as string | undefined;
 		const metadataString = (formData.get('metadata') || undefined) as string | undefined;
-		let syncSchedule = (formData.get('syncSchedule') || undefined) as string | undefined;
+		let syncSchedule = (formData.get('syncSchedule') || undefined) as
+			| DataSource['syncSchedule']
+			| undefined;
 
 		if (!name || !url || !type) {
 			alert('Missing required fields "name", "url", or "type"');
@@ -128,8 +130,10 @@
 		if (metadataString) {
 			try {
 				metadata = JSON.parse(metadataString);
-			} catch (e: any) {
-				alert(`Invalid JSON in "metadata" field\n${e.stack}`);
+			} catch (e) {
+				alert(
+					`Invalid JSON in "metadata" field:\n${e instanceof Error ? e.message : JSON.stringify(e)}`
+				);
 				return;
 			}
 		}
@@ -194,8 +198,8 @@
 
 			createDialog?.close();
 			event.currentTarget.reset();
-		} catch (e: any) {
-			alert(e.message);
+		} catch (e) {
+			alert(e instanceof Error ? e.message : 'Unknown error');
 		} finally {
 			isLoading = false;
 		}

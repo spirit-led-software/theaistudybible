@@ -2,15 +2,15 @@ import {
   DeletedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  UnauthorizedResponse,
-} from "@lib/api-responses";
+  UnauthorizedResponse
+} from '@lib/api-responses';
 import {
   deleteDataSource,
   deleteDataSourceRelatedDocuments,
-  getDataSource,
-} from "@services/data-source";
-import { validApiHandlerSession } from "@services/session";
-import { ApiHandler } from "sst/node/api";
+  getDataSource
+} from '@services/data-source';
+import { validApiHandlerSession } from '@services/session';
+import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
@@ -28,12 +28,16 @@ export const handler = ApiHandler(async (event) => {
 
     await Promise.all([
       deleteDataSource(dataSource!.id),
-      deleteDataSourceRelatedDocuments(dataSource!.id),
+      deleteDataSourceRelatedDocuments(dataSource!.id)
     ]);
 
     return DeletedResponse();
-  } catch (error: any) {
-    console.error(error);
-    return InternalServerErrorResponse(error.stack);
+  } catch (error) {
+    console.error(`Error deleting data source '${id}':`, error);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
+    } else {
+      return InternalServerErrorResponse(JSON.stringify(error));
+    }
   }
 });

@@ -3,21 +3,21 @@ import {
   InvokeModelCommand,
   InvokeModelWithResponseStreamCommand,
   type InvokeModelCommandInput,
-  type InvokeModelWithResponseStreamCommandInput,
-} from "@aws-sdk/client-bedrock-runtime";
-import type { BaseLanguageModelCallOptions } from "langchain/base_language";
-import type { CallbackManagerForLLMRun } from "langchain/callbacks";
-import { LLM, type BaseLLMParams } from "langchain/llms/base";
-import { GenerationChunk } from "langchain/schema";
-import type { BedrockInput } from "../types/bedrock-types";
+  type InvokeModelWithResponseStreamCommandInput
+} from '@aws-sdk/client-bedrock-runtime';
+import type { BaseLanguageModelCallOptions } from 'langchain/base_language';
+import type { CallbackManagerForLLMRun } from 'langchain/callbacks';
+import { LLM, type BaseLLMParams } from 'langchain/llms/base';
+import { GenerationChunk } from 'langchain/schema';
+import type { BedrockInput } from '../types/bedrock-types';
 
 export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   static lc_name() {
-    return "RAIBedrock";
+    return 'RAIBedrock';
   }
 
   get callKeys() {
-    return [...super.callKeys, "options"];
+    return [...super.callKeys, 'options'];
   }
 
   lc_serializable = true;
@@ -28,14 +28,15 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
 
   get lc_aliases(): Record<string, string> {
     return {
-      modelName: "model",
+      modelName: 'model'
     };
   }
 
-  modelId = "amazon.titan-text-express-v1";
+  modelId = 'amazon.titan-text-express-v1';
 
   private provider: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: Record<string, any>;
 
   streaming = false;
@@ -50,16 +51,16 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
     super(fields ?? {});
 
     this.modelId = fields?.modelId ?? this.modelId;
-    this.provider = this.modelId.split(".")[0];
+    this.provider = this.modelId.split('.')[0];
 
     this.body = fields?.body ?? {};
     this.streaming = fields?.stream ?? false;
     this.client = fields?.client ?? new BedrockRuntimeClient();
-    this.promptPrefix = fields?.promptPrefix ?? "";
-    this.promptSuffix = fields?.promptSuffix ?? "";
+    this.promptPrefix = fields?.promptPrefix ?? '';
+    this.promptSuffix = fields?.promptSuffix ?? '';
   }
 
-  _log(message: any, ...optionalParams: any[]) {
+  _log(message: unknown, ...optionalParams: unknown[]) {
     if (this.verbose) {
       console.log(`[RAIBedrock] ${message}`, ...optionalParams);
     }
@@ -68,48 +69,44 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   /**
    * Get the parameters used to invoke the model
    */
-  invocationParams(options?: this["ParsedCallOptions"]): Omit<
-    InvokeModelWithResponseStreamCommandInput,
-    "body"
-  > &
-    Omit<InvokeModelCommandInput, "body"> & {
+  invocationParams(): Omit<InvokeModelWithResponseStreamCommandInput, 'body'> &
+    Omit<InvokeModelCommandInput, 'body'> & {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: Record<string, any>;
     } {
     return {
       modelId: this.modelId,
       body: this.body,
-      accept: "*/*",
-      contentType: "application/json",
+      accept: '*/*',
+      contentType: 'application/json'
     };
   }
 
   async *_streamResponseChunks(
     prompt: string,
-    options: this["ParsedCallOptions"],
+    options: this['ParsedCallOptions'],
     runManager?: CallbackManagerForLLMRun
   ): AsyncGenerator<GenerationChunk> {
-    const params = this.invocationParams(options);
+    const params = this.invocationParams();
 
     const body = this._createRequestBody(prompt, params);
     const invokeCommand = new InvokeModelWithResponseStreamCommand({
       ...params,
-      body,
+      body
     });
 
-    this._log("Invoking bedrock model with params:", invokeCommand.input);
+    this._log('Invoking bedrock model with params:', invokeCommand.input);
     const response = await this.client.send(invokeCommand);
     if (
       (response.$metadata?.httpStatusCode ?? 0) < 200 ||
       (response.$metadata?.httpStatusCode ?? 500) >= 300
     ) {
-      throw new Error(
-        `Error invoking bedrock model: ${response.$metadata.httpStatusCode}`
-      );
+      throw new Error(`Error invoking bedrock model: ${response.$metadata.httpStatusCode}`);
     }
 
     const stream = response.body;
     if (!stream) {
-      throw new Error("No stream returned from bedrock invocation");
+      throw new Error('No stream returned from bedrock invocation');
     }
 
     const decoder = new TextDecoder();
@@ -121,30 +118,26 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
       const responseBody = decoder.decode(streamPart.chunk.bytes);
       const text = this._extractOutputFromResponseBody(responseBody);
       const generationChunk = new GenerationChunk({
-        text,
+        text
       });
       yield generationChunk;
       void runManager?.handleLLMNewToken(generationChunk.text);
     }
     if (options.signal?.aborted) {
-      throw new Error("AbortError");
+      throw new Error('AbortError');
     }
   }
 
   /** @ignore */
   async _call(
     prompt: string,
-    options: this["ParsedCallOptions"],
+    options: this['ParsedCallOptions'],
     runManager?: CallbackManagerForLLMRun
   ): Promise<string> {
-    const params = this.invocationParams(options);
+    const params = this.invocationParams();
 
     if (this.streaming) {
-      const stream = await this._streamResponseChunks(
-        prompt,
-        options,
-        runManager
-      );
+      const stream = await this._streamResponseChunks(prompt, options, runManager);
       let finalChunk: GenerationChunk | undefined;
       for await (const chunk of stream) {
         if (finalChunk === undefined) {
@@ -153,23 +146,21 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
           finalChunk = finalChunk.concat(chunk);
         }
       }
-      return finalChunk?.text ?? "";
+      return finalChunk?.text ?? '';
     } else {
       const body = this._createRequestBody(prompt, params);
       const invokeCommand = new InvokeModelCommand({
         ...params,
-        body,
+        body
       });
 
-      this._log("Invoking bedrock model with params:", invokeCommand.input);
+      this._log('Invoking bedrock model with params:', invokeCommand.input);
       const response = await this.client.send(invokeCommand);
       if (
         (response.$metadata?.httpStatusCode ?? 0) < 200 ||
         (response.$metadata?.httpStatusCode ?? 500) >= 300
       ) {
-        throw new Error(
-          `Error invoking bedrock model: ${response.$metadata.httpStatusCode}`
-        );
+        throw new Error(`Error invoking bedrock model: ${response.$metadata.httpStatusCode}`);
       }
 
       const responseBody = new TextDecoder().decode(response.body);
@@ -180,52 +171,48 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   _createRequestBody(
     prompt: string,
     params: ReturnType<typeof this.invocationParams>
-  ):
-    | InvokeModelCommandInput["body"]
-    | InvokeModelWithResponseStreamCommandInput["body"] {
-    let body:
-      | InvokeModelCommandInput["body"]
-      | InvokeModelWithResponseStreamCommandInput["body"];
-    if (this.provider === "amazon") {
+  ): InvokeModelCommandInput['body'] | InvokeModelWithResponseStreamCommandInput['body'] {
+    let body: InvokeModelCommandInput['body'] | InvokeModelWithResponseStreamCommandInput['body'];
+    if (this.provider === 'amazon') {
       body = JSON.stringify({
         ...params.body,
-        inputText: `${this.promptPrefix}${prompt}${this.promptSuffix}`,
+        inputText: `${this.promptPrefix}${prompt}${this.promptSuffix}`
       });
-    } else if (this.provider === "cohere") {
+    } else if (this.provider === 'cohere') {
       body = JSON.stringify({
         ...params.body,
         stream: this.streaming,
-        prompt: `${this.promptPrefix}${prompt}${this.promptSuffix}`,
+        prompt: `${this.promptPrefix}${prompt}${this.promptSuffix}`
       });
-    } else if (this.provider === "anthropic") {
+    } else if (this.provider === 'anthropic') {
       body = JSON.stringify({
         ...params.body,
-        stop_sequences: [...(params.body.stop_sequences ?? []), "\n\nHuman:"],
-        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}\n\nAssistant: ${this.promptSuffix}`,
+        stop_sequences: [...(params.body.stop_sequences ?? []), '\n\nHuman:'],
+        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}\n\nAssistant: ${this.promptSuffix}`
       });
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);
     }
 
-    this._log("Created bedrock invoke body:", body);
+    this._log('Created bedrock invoke body:', body);
     return body;
   }
 
   _extractOutputFromResponseBody(response: string): string {
-    this._log("Extracting output from bedrock response:", response);
-    if (this.provider === "amazon") {
+    this._log('Extracting output from bedrock response:', response);
+    if (this.provider === 'amazon') {
       return JSON.parse(response).outputText;
-    } else if (this.provider === "cohere") {
+    } else if (this.provider === 'cohere') {
       if (this.streaming) {
         const text = JSON.parse(response).text;
-        if (!text || text === "<EOS_TOKEN>") {
-          return "";
+        if (!text || text === '<EOS_TOKEN>') {
+          return '';
         }
         return text;
       } else {
         return JSON.parse(response).generations[0].text;
       }
-    } else if (this.provider === "anthropic") {
+    } else if (this.provider === 'anthropic') {
       return JSON.parse(response).completion;
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);
@@ -233,6 +220,6 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   }
 
   _llmType() {
-    return "rai-amazon-bedrock";
+    return 'rai-amazon-bedrock';
   }
 }
