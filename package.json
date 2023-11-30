@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "sst dev",
-    "build": "sst build",
+    "build": "sst build --stage",
     "build:all": "sst build && pnpm run -r --parallel build",
     "deploy": "sst deploy --stage",
     "remove": "sst remove --stage",

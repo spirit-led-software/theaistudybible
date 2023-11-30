@@ -102,8 +102,10 @@ jobs:
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - name: Rename website .env file so sveletekit can find it during build
         run: mv packages/website/.env.example packages/website/.env
-      - name: Build workspace
-        run: pnpm run build:all
+      - name: Build SST
+        run: pnpm sst build --stage prod
+      - name: Build workspaces
+        run: pnpm run -r --parallel build
       - name: Typecheck workspace
         run: pnpm run typecheck:all
       - name: Lint workspace
@@ -112,4 +114,4 @@ jobs:
         run: rm packages/website/.env
       - id: sst_deploy
         name: Deploy to AWS
-        run: pnpm run deploy prod
+        run: pnpm sst deploy --stage prod --from .sst/dist
