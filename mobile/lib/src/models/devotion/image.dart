@@ -24,13 +24,5 @@ class DevotionImage with _$DevotionImage {
   // ignore: recursive_getters
   Id get isarId => fastHash(id);
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory DevotionImage.fromJson(Map<String, dynamic> json) => _$DevotionImageFromJson(json);
 }

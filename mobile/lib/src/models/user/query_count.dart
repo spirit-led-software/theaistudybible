@@ -16,13 +16,5 @@ class UserQueryCount with _$UserQueryCount {
     required int count,
   }) = _UserQueryCount;
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory UserQueryCount.fromJson(Map<String, dynamic> json) => _$UserQueryCountFromJson(json);
 }

@@ -156,7 +156,7 @@ class DevotionListItem extends HookConsumerWidget {
               devotion.bibleReading.split(" - ").first,
             ),
             Text(
-              DateFormat.yMMMMd().format(devotion.createdAt),
+              DateFormat.yMMMMd().format(devotion.createdAt.toLocal()),
             ),
           ],
         ),

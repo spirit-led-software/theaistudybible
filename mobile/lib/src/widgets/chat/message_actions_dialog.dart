@@ -154,7 +154,7 @@ class MessageActionsDialog extends HookConsumerWidget {
                     DateFormat()
                         .add_yMd()
                         .addPattern(DateFormat.HOUR_MINUTE)
-                        .format(message.createdAt ?? DateTime.now().toLocal()),
+                        .format((message.createdAt ?? DateTime.now()).toLocal()),
                   ),
                 ],
               ),

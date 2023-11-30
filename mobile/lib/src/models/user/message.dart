@@ -17,13 +17,5 @@ class UserMessage with _$UserMessage {
     required String text,
   }) = _UserMessage;
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory UserMessage.fromJson(Map<String, dynamic> json) => _$UserMessageFromJson(json);
 }

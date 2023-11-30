@@ -33,14 +33,6 @@ class DevotionReaction with _$DevotionReaction {
   // ignore: recursive_getters
   DevotionReactionType get reaction => reaction;
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory DevotionReaction.fromJson(Map<String, dynamic> json) => _$DevotionReactionFromJson(json);
 }
 

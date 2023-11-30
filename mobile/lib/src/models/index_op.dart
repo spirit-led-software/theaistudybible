@@ -29,13 +29,5 @@ class IndexOperation with _$IndexOperation {
     Map<String, dynamic>? metadata,
   }) = _IndexOperation;
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory IndexOperation.fromJson(Map<String, dynamic> json) => _$IndexOperationFromJson(json);
 }

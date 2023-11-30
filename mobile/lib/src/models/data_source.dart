@@ -29,14 +29,6 @@ class DataSource with _$DataSource {
     required DateTime? lastAutomaticSync,
   }) = _DataSource;
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   String? get title => metadata['title'];
   String? get author => metadata['author'];
 

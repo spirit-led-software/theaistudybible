@@ -20,13 +20,5 @@ class AiResponse with _$AiResponse {
     required bool failed,
   }) = _AiResponse;
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory AiResponse.fromJson(Map<String, dynamic> json) => _$AiResponseFromJson(json);
 }

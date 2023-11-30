@@ -25,14 +25,6 @@ class UserGeneratedImage with _$UserGeneratedImage {
   // ignore: recursive_getters
   Id get isarId => fastHash(id);
 
-  @override
-  // ignore: recursive_getters
-  DateTime get createdAt => createdAt.toLocal();
-
-  @override
-  // ignore: recursive_getters
-  DateTime get updatedAt => updatedAt.toLocal();
-
   factory UserGeneratedImage.fromJson(Map<String, dynamic> json) => _$UserGeneratedImageFromJson(json);
 }
 
