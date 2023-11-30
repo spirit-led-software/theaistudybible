@@ -100,10 +100,10 @@ jobs:
         name: Setup Apple Auth Key
         run: |
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
-      - name: Rename website .env file so sveletekit can find it during build
-        run: mv packages/website/.env.example packages/website/.env
       - name: Build SST
         run: pnpm sst build --stage prod
+      - name: Rename website .env file so sveletekit can find it during build
+        run: mv packages/website/.env.example packages/website/.env
       - name: Build workspaces
         run: pnpm run -r --parallel build
       - name: Typecheck workspace
