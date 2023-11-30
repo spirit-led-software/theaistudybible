@@ -183,6 +183,13 @@
       "when": 1701341970882,
       "tag": "0025_wooden_george_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1701360614010,
+      "tag": "0026_cold_bastion",
+      "breakpoints": true
     }
   ]
 }
