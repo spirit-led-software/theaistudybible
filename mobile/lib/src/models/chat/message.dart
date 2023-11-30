@@ -31,6 +31,10 @@ class ChatMessage with _$ChatMessage {
   Id get isarId => fastHash(uuid ?? id);
 
   @override
+  // ignore: recursive_getters
+  DateTime? get createdAt => createdAt?.toLocal();
+
+  @override
   @enumerated
   // ignore: recursive_getters
   Role get role => role;

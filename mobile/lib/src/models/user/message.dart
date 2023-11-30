@@ -5,6 +5,8 @@ part 'message.g.dart';
 
 @freezed
 class UserMessage with _$UserMessage {
+  const UserMessage._();
+
   factory UserMessage({
     required String id,
     required DateTime createdAt,
@@ -15,6 +17,13 @@ class UserMessage with _$UserMessage {
     required String text,
   }) = _UserMessage;
 
-  factory UserMessage.fromJson(Map<String, dynamic> json) =>
-      _$UserMessageFromJson(json);
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
+
+  factory UserMessage.fromJson(Map<String, dynamic> json) => _$UserMessageFromJson(json);
 }

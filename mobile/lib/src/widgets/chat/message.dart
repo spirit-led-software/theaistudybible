@@ -79,11 +79,10 @@ class Message extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                DateFormat().add_yMd().format((message.createdAt ?? DateTime.now()).toLocal()),
+                DateFormat().add_yMd().format(message.createdAt ?? DateTime.now().toLocal()),
               ),
-              Text(DateFormat()
-                  .addPattern(DateFormat.HOUR_MINUTE)
-                  .format((message.createdAt ?? DateTime.now()).toLocal()))
+              Text(
+                  DateFormat().addPattern(DateFormat.HOUR_MINUTE).format(message.createdAt ?? DateTime.now().toLocal()))
             ],
           ),
         ),

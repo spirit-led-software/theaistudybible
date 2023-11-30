@@ -5,28 +5,32 @@ part 'search.g.dart';
 
 @freezed
 class ColumnValue with _$ColumnValue {
+  const ColumnValue._();
+
   factory ColumnValue({
     required String column,
     required Object? value,
   }) = _ColumnValue;
 
-  factory ColumnValue.fromJson(Map<String, dynamic> json) =>
-      _$ColumnValueFromJson(json);
+  factory ColumnValue.fromJson(Map<String, dynamic> json) => _$ColumnValueFromJson(json);
 }
 
 @freezed
 class ColumnPlaceHolder with _$ColumnPlaceHolder {
+  const ColumnPlaceHolder._();
+
   factory ColumnPlaceHolder({
     required String column,
     required String placeholder,
   }) = _ColumnPlaceHolder;
 
-  factory ColumnPlaceHolder.fromJson(Map<String, dynamic> json) =>
-      _$ColumnPlaceHolderFromJson(json);
+  factory ColumnPlaceHolder.fromJson(Map<String, dynamic> json) => _$ColumnPlaceHolderFromJson(json);
 }
 
 @freezed
 class Query with _$Query {
+  const Query._();
+
   factory Query({
     List<Query>? AND,
     List<Query>? OR,

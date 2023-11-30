@@ -143,6 +143,9 @@ export const getRAIChatChain = async (
       {
         category: "theology",
       },
+      {
+        category: "commentary",
+      },
     ],
   });
 

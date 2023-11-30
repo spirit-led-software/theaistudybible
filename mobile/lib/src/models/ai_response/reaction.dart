@@ -29,6 +29,14 @@ class AiResponseReaction with _$AiResponseReaction {
   Id get isarId => fastHash(id);
 
   @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
+
+  @override
   @enumerated
   // ignore: recursive_getters
   AiResponseReactionType get reaction => reaction;

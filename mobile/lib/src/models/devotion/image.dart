@@ -11,18 +11,6 @@ class DevotionImage with _$DevotionImage {
   const DevotionImage._();
 
   factory DevotionImage({
-    /* Convert from TypeScript:
-    type DevotionImage = {
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      devotionId: string;
-      url: string;
-      caption: string | null;
-      prompt: string | null;
-      negativePrompt: string | null;
-    };
-     */
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -35,6 +23,14 @@ class DevotionImage with _$DevotionImage {
 
   // ignore: recursive_getters
   Id get isarId => fastHash(id);
+
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
 
   factory DevotionImage.fromJson(Map<String, dynamic> json) => _$DevotionImageFromJson(json);
 }

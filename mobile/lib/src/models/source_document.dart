@@ -14,12 +14,6 @@ class SourceDocument with _$SourceDocument {
   const SourceDocument._();
 
   factory SourceDocument({
-    /**
-     * Convert from TypeScript:
-    id: string;
-    metadata?: Metadata;
-    pageContent: string;
-     */
     required String id,
     required Map<String, dynamic> metadata,
     required String pageContent,

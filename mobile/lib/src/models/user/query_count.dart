@@ -5,17 +5,9 @@ part 'query_count.g.dart';
 
 @freezed
 class UserQueryCount with _$UserQueryCount {
+  const UserQueryCount._();
+
   factory UserQueryCount({
-    /* Convert from TypeScript:
-    type UserQueryCount = {
-      date: Date;
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      userId: string;
-      count: number;
-    }
-     */
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -24,6 +16,13 @@ class UserQueryCount with _$UserQueryCount {
     required int count,
   }) = _UserQueryCount;
 
-  factory UserQueryCount.fromJson(Map<String, dynamic> json) =>
-      _$UserQueryCountFromJson(json);
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
+
+  factory UserQueryCount.fromJson(Map<String, dynamic> json) => _$UserQueryCountFromJson(json);
 }

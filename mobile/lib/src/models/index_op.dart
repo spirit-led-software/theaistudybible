@@ -18,17 +18,9 @@ enum IndexOperationStatus {
 
 @freezed
 class IndexOperation with _$IndexOperation {
+  const IndexOperation._();
+
   factory IndexOperation({
-    /* Convert from TypeScript:
-    type IndexOperation = {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    type: "WEBSITE" | "FILE" | "WEBPAGE";
-    status: "FAILED" | "SUCCEEDED" | "RUNNING" | "COMPLETED";
-    metadata: unknown;
-}
-    */
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -37,6 +29,13 @@ class IndexOperation with _$IndexOperation {
     Map<String, dynamic>? metadata,
   }) = _IndexOperation;
 
-  factory IndexOperation.fromJson(Map<String, dynamic> json) =>
-      _$IndexOperationFromJson(json);
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
+
+  factory IndexOperation.fromJson(Map<String, dynamic> json) => _$IndexOperationFromJson(json);
 }

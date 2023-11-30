@@ -82,7 +82,7 @@ class DevotionRepository {
     if (await _isar.devotions.count() >= (options.page * options.limit)) {
       return await _isar.devotions
           .where()
-          .sortByDateDesc()
+          .sortByCreatedAtDesc()
           .offset((options.page - 1) * options.limit)
           .limit(options.limit)
           .findAll();

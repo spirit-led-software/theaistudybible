@@ -176,6 +176,13 @@
       "when": 1701181654619,
       "tag": "0024_flowery_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1701341970882,
+      "tag": "0025_wooden_george_stacy",
+      "breakpoints": true
     }
   ]
 }

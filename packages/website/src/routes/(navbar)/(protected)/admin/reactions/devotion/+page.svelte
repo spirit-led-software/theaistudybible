@@ -62,7 +62,7 @@
 						</td>
 						<td>{reactionInfo.user.name || reactionInfo.user.email}</td>
 						<td>{reactionInfo.comment || 'None'}</td>
-						<td>{moment(reactionInfo.devotion.date).format('YYYY-MM-DD')}</td>
+						<td>{moment(reactionInfo.devotion.createdAt).format('YYYY-MM-DD')}</td>
 					</tr>
 				{/each}
 				{#if $query.hasNextPage}

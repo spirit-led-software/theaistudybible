@@ -237,7 +237,7 @@ class ChatListItem extends HookConsumerWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            DateFormat.yMMMd().format(chat.createdAt.toLocal()),
+            DateFormat.yMMMd().format(chat.updatedAt),
           ),
           trailing: currentChatId == chat.id
               ? Icon(

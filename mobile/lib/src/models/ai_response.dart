@@ -5,21 +5,9 @@ part 'ai_response.g.dart';
 
 @freezed
 class AiResponse with _$AiResponse {
+  const AiResponse._();
+
   factory AiResponse({
-    /* Convert from TypeScript:
-    type AiResponse = {
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        failed: boolean;
-        userId: string;
-        aiId: string | null;
-        text: string | null;
-        regenerated: boolean;
-        chatId: string;
-        userMessageId: string;
-    }
-    */
     required String id,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -32,6 +20,13 @@ class AiResponse with _$AiResponse {
     required bool failed,
   }) = _AiResponse;
 
-  factory AiResponse.fromJson(Map<String, dynamic> json) =>
-      _$AiResponseFromJson(json);
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
+
+  factory AiResponse.fromJson(Map<String, dynamic> json) => _$AiResponseFromJson(json);
 }

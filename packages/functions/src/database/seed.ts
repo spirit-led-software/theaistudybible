@@ -228,6 +228,9 @@ const getPartialHnswIndexInfos = () => {
         {
           category: "theology",
         },
+        {
+          category: "commentary",
+        },
       ],
     },
     {

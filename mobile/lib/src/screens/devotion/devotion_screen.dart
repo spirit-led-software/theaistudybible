@@ -151,7 +151,7 @@ class DevotionScreen extends HookConsumerWidget {
                     devotion.value!.topic.toTitleCase(),
                   ),
                   Text(
-                    DateFormat.yMd().format(devotion.value!.date.toUtc()),
+                    DateFormat.yMd().format(devotion.value!.createdAt),
                     style: context.textTheme.labelLarge?.copyWith(
                       color: context.colorScheme.onPrimary,
                     ),

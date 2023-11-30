@@ -29,6 +29,14 @@ class User with _$User {
     String? stripeCustomerId,
   }) = _User;
 
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
+
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 }
 
@@ -52,6 +60,14 @@ class UserInfo with _$UserInfo {
     required int maxGeneratedImages,
     required int remainingGeneratedImages,
   }) = _UserInfo;
+
+  @override
+  // ignore: recursive_getters
+  DateTime get createdAt => createdAt.toLocal();
+
+  @override
+  // ignore: recursive_getters
+  DateTime get updatedAt => updatedAt.toLocal();
 
   factory UserInfo.fromJson(Map<String, dynamic> json) => _$UserInfoFromJson(json);
 }

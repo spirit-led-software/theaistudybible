@@ -6,6 +6,8 @@ part 'request.g.dart';
 
 @freezed
 class UpdateUserRequest with _$UpdateUserRequest {
+  const UpdateUserRequest._();
+
   @JsonSerializable(includeIfNull: false)
   factory UpdateUserRequest({
     String? name,
@@ -19,6 +21,8 @@ class UpdateUserRequest with _$UpdateUserRequest {
 
 @freezed
 class UpdatePasswordRequest with _$UpdatePasswordRequest {
+  const UpdatePasswordRequest._();
+
   @JsonSerializable(includeIfNull: false)
   factory UpdatePasswordRequest({
     required String currentPassword,

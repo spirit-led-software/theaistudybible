@@ -5,7 +5,7 @@ import type {
 } from "@core/model";
 import { devotions, devotionsToSourceDocuments } from "@core/schema";
 import { readOnlyDatabase, readWriteDatabase } from "@lib/database";
-import { SQL, asc, desc, eq } from "drizzle-orm";
+import { SQL, asc, desc, eq, sql } from "drizzle-orm";
 import { getDocumentVectorStore } from "../vector-db";
 import { generateDevotionImages } from "./image";
 import { getBibleReadingChain, getDevotionGeneratorChain } from "./langchain";
@@ -48,12 +48,18 @@ export async function getDevotionOrThrow(id: string) {
   return devotion;
 }
 
-export async function getDevotionByDate(date: Date) {
+/**
+ * Get the devotion for the given date.
+ *
+ * @param dateString YYYY-MM-DD
+ * @returns
+ */
+export async function getDevotionByCreatedDate(dateString: string) {
   return (
     await readOnlyDatabase
       .select()
       .from(devotions)
-      .where(eq(devotions.date, date))
+      .where(sql`${devotions.createdAt}::date = ${dateString}::date`)
   ).at(0);
 }
 

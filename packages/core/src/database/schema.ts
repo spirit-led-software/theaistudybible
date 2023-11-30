@@ -200,7 +200,6 @@ export const devotions = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    date: date("date", { mode: "date" }).notNull().defaultNow(),
     topic: text("topic").notNull().default("general"),
     bibleReading: text("bible_reading").notNull(),
     summary: text("summary").notNull(),
@@ -210,7 +209,7 @@ export const devotions = pgTable(
   },
   (table) => {
     return {
-      dateIdx: index("devotions_date").on(table.date),
+      createdAtIdx: index("devotions_created_at_idx").on(table.createdAt),
     };
   }
 );

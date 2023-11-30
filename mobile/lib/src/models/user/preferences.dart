@@ -6,6 +6,8 @@ part 'preferences.g.dart';
 
 @freezed
 class UserPreferences with _$UserPreferences {
+  const UserPreferences._();
+
   factory UserPreferences({
     required bool hapticFeedback,
     required bool chatSuggestions,
@@ -18,6 +20,5 @@ class UserPreferences with _$UserPreferences {
         themeMode: ThemeMode.system,
       );
 
-  factory UserPreferences.fromJson(Map<String, dynamic> json) =>
-      _$UserPreferencesFromJson(json);
+  factory UserPreferences.fromJson(Map<String, dynamic> json) => _$UserPreferencesFromJson(json);
 }

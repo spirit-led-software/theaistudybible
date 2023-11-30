@@ -59,14 +59,13 @@ export const getImagePromptChain = async () => {
   const chain = RunnableSequence.from([
     {
       userPrompt: (input) => input.userPrompt,
-      validation: PromptTemplate.fromTemplate(
-        USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
-        {
-          partialVariables: {
-            formatInstructions: validationOutputParser.getFormatInstructions(),
-          },
-        }
-      )
+      validation: new PromptTemplate({
+        template: USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
+        inputVariables: ["userPrompt"],
+        partialVariables: {
+          formatInstructions: validationOutputParser.getFormatInstructions(),
+        },
+      })
         .pipe(
           getLargeContextModel({
             stopSequences: ["</output>"],

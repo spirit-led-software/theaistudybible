@@ -38,7 +38,7 @@ class ImageScreen extends HookConsumerWidget {
       appBar: AppBar(
         title: Text(
           image.hasValue
-              ? DateFormat().add_yMd().addPattern(DateFormat.HOUR_MINUTE).format(image.value!.createdAt.toLocal())
+              ? DateFormat().add_yMd().addPattern(DateFormat.HOUR_MINUTE).format(image.value!.createdAt)
               : "Image",
         ),
         actions: [

@@ -31,6 +31,8 @@ class PaginatedEntitiesRequestOptions {
 
 @Freezed(genericArgumentFactories: true)
 class PaginatedEntitiesResponse<T> with _$PaginatedEntitiesResponse<T> {
+  const PaginatedEntitiesResponse._();
+
   factory PaginatedEntitiesResponse.data({
     required int page,
     required int perPage,
