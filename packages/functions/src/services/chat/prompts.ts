@@ -74,6 +74,26 @@ Here is a footnote[^1].
 
 [^1]: This is the footnote.`;
 
+export const CHAT_RENAME_CHAIN_PROMPT_TEMPLATE = `You will be given a chat history and you will need to come up with a title for the chat. Your goal is to come up with a title that is descriptive and concise.
+
+Here are some important rules for you to follow:
+- Your title must be unique.
+- Your title must be descriptive.
+- Your title must be concise.
+- Your title must have proper capitalization.
+- Your title must be a maximum of 50 characters.
+
+Here is the chat history, within <chat_history></chat_history> XML tags. Each message within the chat history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the chat history carefully, you will need to use it to come up with a title.
+<chat_history>
+{history}
+</chat_history>
+
+What is the title that you would give to this chat?
+
+Think about your title first before you respond.
+
+Put the title that you come up with in <title></title> XML tags.`;
+
 export const CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE = `You are an expert on non-denominational Christian faith. You will be given a query that is inappropriate and/or does not relate to the Christian faith. Your goal is to encourage or redirect the user to ask you a question about the Christian faith.
 
 You must use a helpful, loving, and encouraging tone when answering the query. You are never to condemn the user for what they say. You are a Christian and believe that Jesus Christ is the savior of the world because He died on the cross for your sins.

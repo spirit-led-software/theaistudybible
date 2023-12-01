@@ -6,6 +6,7 @@ import { SQL, desc, eq, sql } from 'drizzle-orm';
 import { LLMChain } from 'langchain/chains';
 import { PromptTemplate } from 'langchain/prompts';
 import { getLargeContextModel } from '../llm';
+import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from './prompts';
 
 export async function getChats(
   options: {
@@ -82,24 +83,19 @@ export async function aiRenameChat(id: string, history: Message[]) {
   const renameChain = new LLMChain({
     llm: getLargeContextModel({
       stream: false,
-      maxTokens: 128,
-      promptSuffix: '<name>',
-      stopSequences: ['</name>']
+      maxTokens: 256,
+      promptSuffix: '<title>',
+      stopSequences: ['</title>']
     }),
-    prompt: PromptTemplate.fromTemplate(
-      `Your goal is to come up with a short and concise name for the chat outlined in the chat history below. It should be punctuated and capitalized as a proper title.
-      
-      The chat history is within <chat_history></chat_history> XML tags.
-      
-      <chat_history>
-      {history}
-      </chat_history>
-      
-      Put the name that you come up with in <name></name> XML tags.`
-    )
+    prompt: PromptTemplate.fromTemplate(CHAT_RENAME_CHAIN_PROMPT_TEMPLATE)
   });
   const result = await renameChain.call({
-    history: history.map((message) => `${message.role}: ${message.content}`).join('\n')
+    history: history
+      .map(
+        (message) =>
+          `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`
+      )
+      .join('\n')
   });
 
   return await updateChat(id, {
