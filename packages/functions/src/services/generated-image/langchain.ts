@@ -21,7 +21,6 @@ const validationOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
     .describe('The output of the validation prompt.')
 );
 
-const numPhrases = 4;
 const phraseOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
   z
     .array(
@@ -31,9 +30,9 @@ const phraseOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
           'A short, concise, yet descriptive phrase that will help generate a biblically accurate image.'
         )
     )
-    .length(numPhrases)
+    .length(4)
     .describe(
-      'A list of exactly four (4) phrases that will help generate a biblically accurate image.'
+      'An array of exactly four (4) phrases that will help generate a biblically accurate image.'
     )
 );
 
@@ -95,7 +94,7 @@ export const getImagePromptChain = async () => {
       template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
       inputVariables: ['userPrompt', 'documents'],
       partialVariables: {
-        numPhrases: numPhrases.toString(),
+        numPhrases: (4).toString(),
         formatInstructions: phraseOutputParser.getFormatInstructions()
       }
     })

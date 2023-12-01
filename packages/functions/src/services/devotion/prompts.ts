@@ -87,7 +87,7 @@ Here is an example of an output that you could generate, within <example></examp
 \`\`\`json ["a man with long hair, a beard, and a crown of thorns on his head is nailed to a cross","women weeping and mourning at the foot of the cross","soldiers standing guard at the foot of the cross","a sign on the cross in a foreign language"]\`\`\`
 </example>
 
-What are some phrases that could generate a beautiful and accurate image based on the devotion?
+What are {numPhrases} phrases that could generate a beautiful and accurate image based on the devotion?
 
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>

@@ -198,16 +198,28 @@ export const getBibleReadingChain = async (topic: string) => {
   return chain;
 };
 
-const imagePromptOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
-  z
-    .array(
-      z
-        .string()
-        .describe(
-          'A short, concise, yet descriptive phrase that will help generate a biblically accurate image.'
-        )
-    )
-    .length(4)
+const imagePromptOutputParser = OutputFixingParser.fromLLM(
+  getLargeContextModel({
+    promptSuffix: '<output>',
+    stopSequences: ['</output>'],
+    temperature: 0.1,
+    topK: 5,
+    topP: 0.1
+  }),
+  JsonMarkdownStructuredOutputParser.fromZodSchema(
+    z
+      .array(
+        z
+          .string()
+          .describe(
+            'A short, concise, yet descriptive phrase that will help generate a biblically accurate image.'
+          )
+      )
+      .length(4)
+      .describe(
+        'An array of exactly four (4) phrases that will help generate a biblically accurate image.'
+      )
+  )
 );
 
 export const getImagePromptChain = () => {
@@ -215,6 +227,7 @@ export const getImagePromptChain = () => {
     template: DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
     inputVariables: ['bibleReading', 'summary', 'reflection', 'prayer'],
     partialVariables: {
+      numPhrases: (4).toString(),
       formatInstructions: imagePromptOutputParser.getFormatInstructions()
     }
   })
