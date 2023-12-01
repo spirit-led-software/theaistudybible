@@ -6,7 +6,7 @@ import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
 import { JsonMarkdownStructuredOutputParser, RouterOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import { AIMessage, HumanMessage } from 'langchain/schema';
+import { AIMessage, HumanMessage, type PartialValues } from 'langchain/schema';
 import { StringOutputParser } from 'langchain/schema/output_parser';
 import { Runnable, RunnableBranch, RunnableSequence } from 'langchain/schema/runnable';
 import { z } from 'zod';
@@ -14,15 +14,12 @@ import { getLargeContextModel, llmCache } from '../llm';
 import { getDocumentVectorStore } from '../vector-db';
 import {
   CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
-  CHAT_BIBLE_QUOTE_CHAIN_PROMPT_TEMPLATE,
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE,
   CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
-  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
-  CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
-  CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE
+  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
 export const getRAIChatChain = async (
@@ -99,18 +96,24 @@ export const getRAIChatChain = async (
     }
   ]);
 
-  const bibleQuoteChain = await getDocumentQaChain({
-    prompt: CHAT_BIBLE_QUOTE_CHAIN_PROMPT_TEMPLATE,
-    filters: [
-      {
-        category: 'bible',
-        translation: user.translation
-      }
-    ]
-  });
+  // const bibleQuoteChain = await getDocumentQaChain({
+  //   prompt: CHAT_BIBLE_QUOTE_CHAIN_PROMPT_TEMPLATE,
+  //   extraPromptVars: {
+  //     translation: user.translation
+  //   },
+  //   filters: [
+  //     {
+  //       category: 'bible',
+  //       translation: user.translation
+  //     }
+  //   ]
+  // });
 
   const bibleQaChain = await getDocumentQaChain({
     prompt: CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
+    extraPromptVars: {
+      translation: user.translation
+    },
     filters: [
       {
         category: 'bible',
@@ -122,26 +125,26 @@ export const getRAIChatChain = async (
     ]
   });
 
-  const sermonQaChain = await getDocumentQaChain({
-    prompt: CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
-    filters: [
-      {
-        category: 'sermons'
-      }
-    ]
-  });
+  // const sermonQaChain = await getDocumentQaChain({
+  //   prompt: CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
+  //   filters: [
+  //     {
+  //       category: 'sermons'
+  //     }
+  //   ]
+  // });
 
-  const theologyQaChain = await getDocumentQaChain({
-    prompt: CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
-    filters: [
-      {
-        category: 'theology'
-      },
-      {
-        category: 'commentary'
-      }
-    ]
-  });
+  // const theologyQaChain = await getDocumentQaChain({
+  //   prompt: CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
+  //   filters: [
+  //     {
+  //       category: 'theology'
+  //     },
+  //     {
+  //       category: 'commentary'
+  //     }
+  //   ]
+  // });
 
   const faithQaChain = await getDocumentQaChain({
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE
@@ -151,10 +154,10 @@ export const getRAIChatChain = async (
     [(x) => x.routingInstructions.destination === 'irrelevant-query', irrelevantQueryChain],
     [(x) => x.routingInstructions.destination === 'identity', identityChain],
     [(x) => x.routingInstructions.destination === 'chat-history', chatHistoryChain],
-    [(x) => x.routingInstructions.destination === 'bible-quote', bibleQuoteChain],
+    // [(x) => x.routingInstructions.destination === 'bible-quote', bibleQuoteChain],
     [(x) => x.routingInstructions.destination === 'bible-qa', bibleQaChain],
-    [(x) => x.routingInstructions.destination === 'sermon-qa', sermonQaChain],
-    [(x) => x.routingInstructions.destination === 'theology-qa', theologyQaChain],
+    // [(x) => x.routingInstructions.destination === 'sermon-qa', sermonQaChain],
+    // [(x) => x.routingInstructions.destination === 'theology-qa', theologyQaChain],
     [(x) => x.routingInstructions.destination === 'faith-qa', faithQaChain],
     faithQaChain
   ]);
@@ -184,10 +187,10 @@ export const getRAIChatChain = async (
           'irrelevant-query: For responding to queries that are inappropriate and/or irrelevant to the Christian faith.',
           'identity: For greetings, introducing yourself, or talking about yourself.',
           'chat-history: For retrieving information about the current chat conversation.',
-          'bible-quote: For retrieving verses and passages from the Bible.',
+          // 'bible-quote: For retrieving verses and passages from the Bible.',
           'bible-qa: For answering queries about the Bible, its interpretation, and its history.',
-          'sermon-qa: For recommending and answering queries about previously recorded sermons.',
-          'theology-qa: For answering queries about Christian theology.',
+          // 'sermon-qa: For recommending and answering queries about previously recorded sermons.',
+          // 'theology-qa: For answering queries about Christian theology.',
           'faith-qa: For answering general queries about Christian faith.'
         ].join('\n'),
         history: (await history.getMessages())
@@ -215,8 +218,12 @@ export const getRAIChatChain = async (
   return multiRouteChain;
 };
 
-export async function getDocumentQaChain(options: { prompt: string; filters?: Metadata[] }) {
-  const { prompt, filters } = options;
+export async function getDocumentQaChain(options: {
+  prompt: string;
+  filters?: Metadata[];
+  extraPromptVars?: PartialValues<string>;
+}) {
+  const { prompt, filters, extraPromptVars } = options;
   const numSearchTerms = 3;
   const queryInterpreterOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
     z
@@ -275,7 +282,9 @@ export async function getDocumentQaChain(options: { prompt: string; filters?: Me
           .join('\n')
     },
     {
-      text: PromptTemplate.fromTemplate(prompt)
+      text: PromptTemplate.fromTemplate(prompt, {
+        partialVariables: extraPromptVars
+      })
         .pipe(
           getLargeContextModel({
             stream: true,
