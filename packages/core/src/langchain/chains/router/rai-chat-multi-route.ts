@@ -73,22 +73,20 @@ export class RAIChatMultiRouteChain extends MultiRouteChain {
       ([name, { description }]) => `${name}: ${description}`
     );
 
-    const structuredOutputParserSchema = z.object({
-      destination: z
-        .string()
-        .optional()
-        .describe(
-          'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
-        ),
-      next_inputs: z
-        .object({
-          query: z.string().describe('The query to be fed into the next model.')
-        })
-        .describe('The input to be fed into the next model.')
-    });
-
-    const outputParser = new RouterOutputParser<typeof structuredOutputParserSchema>(
-      structuredOutputParserSchema
+    const outputParser = RouterOutputParser.fromZodSchema(
+      z.object({
+        destination: z
+          .string()
+          .optional()
+          .describe(
+            'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
+          ),
+        next_inputs: z
+          .object({
+            query: z.string().describe('The query to be fed into the next model.')
+          })
+          .describe('The input to be fed into the next model.')
+      })
     );
 
     const destinationsStr = destinations.join('\n');

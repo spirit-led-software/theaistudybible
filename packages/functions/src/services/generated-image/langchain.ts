@@ -2,7 +2,7 @@ import { envConfig } from '@core/configs';
 import { getLargeContextModel } from '@services/llm';
 import { getDocumentVectorStore } from '@services/vector-db';
 import type { Document } from 'langchain/document';
-import { StructuredOutputParser } from 'langchain/output_parsers';
+import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { RunnableSequence } from 'langchain/schema/runnable';
 import { z } from 'zod';
@@ -11,7 +11,7 @@ import {
   USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE
 } from './prompts';
 
-const validationOutputParser = StructuredOutputParser.fromZodSchema(
+const validationOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
   z
     .object({
       inappropriate: z
@@ -22,7 +22,7 @@ const validationOutputParser = StructuredOutputParser.fromZodSchema(
 );
 
 const numPhrases = 4;
-const phraseOutputParser = StructuredOutputParser.fromZodSchema(
+const phraseOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
   z
     .array(
       z

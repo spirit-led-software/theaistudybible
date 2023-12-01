@@ -4,7 +4,7 @@ import { getLargeContextModel } from '@services/llm';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
-import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
+import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { StringOutputParser } from 'langchain/schema/output_parser';
 import { Runnable, RunnableSequence } from 'langchain/schema/runnable';
@@ -26,7 +26,7 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  StructuredOutputParser.fromZodSchema(
+  JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
       summary: z
         .string()
@@ -119,7 +119,7 @@ const bibleReadingOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  StructuredOutputParser.fromZodSchema(
+  JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
       book: z.string().describe('The book name from within the bible. For example: Genesis'),
       chapter: z
@@ -198,7 +198,7 @@ export const getBibleReadingChain = async (topic: string) => {
   return chain;
 };
 
-const imagePromptOutputParser = StructuredOutputParser.fromZodSchema(
+const imagePromptOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
   z
     .array(
       z

@@ -2,7 +2,7 @@ import type { CallbackManagerForRetrieverRun } from 'langchain/callbacks';
 import { LLMChain } from 'langchain/chains';
 import type { Document } from 'langchain/document';
 import type { BaseLLMCallOptions, LLM } from 'langchain/llms/base';
-import { StructuredOutputParser } from 'langchain/output_parsers';
+import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { BaseRetriever, type BaseRetrieverInput } from 'langchain/schema/retriever';
 import { z } from 'zod';
@@ -91,7 +91,7 @@ export class QueryInterpreterRetriever extends BaseRetriever {
 
   numSearchTerms: number;
 
-  outputParser: StructuredOutputParser<z.ZodArray<z.ZodString>>;
+  outputParser: JsonMarkdownStructuredOutputParser<z.ZodArray<z.ZodString>>;
 
   desiredLength?: number;
 
@@ -102,7 +102,7 @@ export class QueryInterpreterRetriever extends BaseRetriever {
     this.baseRetriever = fields.baseRetriever;
     this.numSearchTerms = fields.numSearchTerms || 4;
 
-    this.outputParser = StructuredOutputParser.fromZodSchema(
+    this.outputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
       z
         .array(z.string())
         .length(this.numSearchTerms)

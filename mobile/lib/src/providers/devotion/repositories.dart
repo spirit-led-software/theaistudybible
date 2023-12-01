@@ -78,11 +78,32 @@ class DevotionRepository {
     });
   }
 
+  QueryBuilder<Devotion, Devotion, QAfterSortBy> _queryBuilderForPageOptions(PaginatedEntitiesRequestOptions options) {
+    final where = _isar.devotions.where();
+    switch (options.orderBy) {
+      case "topic":
+        if (options.order == OrderType.desc) {
+          return where.sortByTopicDesc();
+        }
+        return where.sortByTopic();
+      case "createdAt":
+        if (options.order == OrderType.desc) {
+          return where.sortByCreatedAtDesc();
+        }
+        return where.sortByCreatedAt();
+      case "updatedAt":
+        if (options.order == OrderType.desc) {
+          return where.sortByUpdatedAtDesc();
+        }
+        return where.sortByUpdatedAt();
+      default:
+        throw Exception("You cannot order by this field: ${options.orderBy}");
+    }
+  }
+
   Future<List<Devotion>> getPage(PaginatedEntitiesRequestOptions options) async {
     if (await _isar.devotions.count() >= (options.page * options.limit)) {
-      return await _isar.devotions
-          .where()
-          .sortByCreatedAtDesc()
+      return await _queryBuilderForPageOptions(options)
           .offset((options.page - 1) * options.limit)
           .limit(options.limit)
           .findAll();

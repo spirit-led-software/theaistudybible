@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/chat.dart';
+import 'package:revelationsai/src/providers/chat/pages.dart';
 import 'package:revelationsai/src/providers/chat/repositories.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:uuid/uuid.dart';
@@ -78,6 +79,7 @@ class CreateDialog extends HookConsumerWidget {
             )
                 .then(
               (chat) {
+                ref.read(chatsPagesProvider.notifier).refresh();
                 context.go('/chat/${chat.id}');
                 context.pop();
               },

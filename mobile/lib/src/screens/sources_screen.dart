@@ -30,32 +30,32 @@ class SourcesScreen extends HookConsumerWidget {
               itemCount: sources.length + 1,
               itemBuilder: (context, index) {
                 if (index == sources.length) {
-                  if (dataSourcesNotifier.isLoadingNextPage()) {
-                    return Center(
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: SpinKitSpinningLines(color: context.colorScheme.primary),
-                      ),
-                    );
-                  }
-
-                  if (dataSourcesNotifier.hasNextPage()) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          dataSourcesNotifier.fetchNextPage();
-                        },
-                        child: const Text('Load more'),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox();
-                  }
+                  return dataSourcesNotifier.hasNextPage()
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (dataSourcesNotifier.isLoadingNextPage()) {
+                                return;
+                              }
+                              dataSourcesNotifier.fetchNextPage();
+                            },
+                            child: dataSourcesNotifier.isLoadingNextPage()
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: SpinKitSpinningLines(
+                                      color: context.secondaryColor,
+                                      size: 20,
+                                    ),
+                                  )
+                                : const Text('Load more'),
+                          ),
+                        )
+                      : const SizedBox();
                 }
 
                 final dataSource = sources[index];

@@ -4,7 +4,7 @@ import type { Metadata } from '@core/types/metadata';
 import type { Message } from 'ai';
 import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
-import { RouterOutputParser, StructuredOutputParser } from 'langchain/output_parsers';
+import { JsonMarkdownStructuredOutputParser, RouterOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { AIMessage, HumanMessage } from 'langchain/schema';
 import { StringOutputParser } from 'langchain/schema/output_parser';
@@ -159,7 +159,7 @@ export const getRAIChatChain = async (
     faithQaChain
   ]);
 
-  const routerChainOutputParser = new RouterOutputParser(
+  const routerChainOutputParser = RouterOutputParser.fromZodSchema(
     z.object({
       destination: z
         .string()
@@ -218,7 +218,7 @@ export const getRAIChatChain = async (
 export async function getDocumentQaChain(options: { prompt: string; filters?: Metadata[] }) {
   const { prompt, filters } = options;
   const numSearchTerms = 3;
-  const queryInterpreterOutputParser = StructuredOutputParser.fromZodSchema(
+  const queryInterpreterOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
     z
       .array(z.string())
       .length(numSearchTerms)

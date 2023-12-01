@@ -122,24 +122,27 @@ class AllImagesScreen extends HookConsumerWidget {
                     );
                   },
                 ),
-                if (imagesNotifier.isLoadingNextPage()) ...[
-                  const SizedBox(height: 10),
-                  Center(
-                    child: SpinKitSpinningLines(
-                      color: context.secondaryColor,
-                      size: 30,
+                if (imagesNotifier.hasNextPage()) ...[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: const BeveledRectangleBorder(),
                     ),
-                  ),
-                ],
-                if (!imagesNotifier.isLoadingNextPage() && imagesNotifier.hasNextPage()) ...[
-                  const SizedBox(height: 10),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await imagesNotifier.fetchNextPage();
-                      },
-                      child: const Text("Load more"),
-                    ),
+                    onPressed: () async {
+                      if (imagesNotifier.isLoadingNextPage()) {
+                        return;
+                      }
+                      await imagesNotifier.fetchNextPage();
+                    },
+                    child: imagesNotifier.isLoadingNextPage()
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: SpinKitSpinningLines(
+                              color: context.secondaryColor,
+                              size: 20,
+                            ),
+                          )
+                        : const Text("Load more"),
                   ),
                 ],
               ],

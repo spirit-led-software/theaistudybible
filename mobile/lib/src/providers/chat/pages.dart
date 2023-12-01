@@ -21,7 +21,14 @@ class ChatsPages extends _$ChatsPages {
     _loadingLogic();
     _persistenceLogic();
 
-    return await ref.chats.getPage(PaginatedEntitiesRequestOptions(page: _page, limit: pageSize)).then((value) {
+    return await ref.chats
+        .getPage(PaginatedEntitiesRequestOptions(
+      page: _page,
+      limit: pageSize,
+      orderBy: "updatedAt",
+      order: OrderType.desc,
+    ))
+        .then((value) {
       if (state.hasValue) {
         // replace pages previous content with new content
         return [
@@ -72,7 +79,12 @@ class ChatsPages extends _$ChatsPages {
   Future<List<List<Chat>>> refresh() async {
     final futures = <Future<List<Chat>>>[];
     for (int i = 1; i <= _page; i++) {
-      futures.add(ref.chats.refreshPage(PaginatedEntitiesRequestOptions(page: i, limit: pageSize)));
+      futures.add(ref.chats.refreshPage(PaginatedEntitiesRequestOptions(
+        page: i,
+        limit: pageSize,
+        orderBy: "updatedAt",
+        order: OrderType.desc,
+      )));
     }
     return await Future.wait(futures).then((value) async {
       state = AsyncData(value);

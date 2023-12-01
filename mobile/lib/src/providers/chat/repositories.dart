@@ -3,8 +3,6 @@ import 'package:isar/isar.dart';
 import 'package:revelationsai/src/models/chat.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/pagination.dart';
-import 'package:revelationsai/src/providers/chat/pages.dart';
-import 'package:revelationsai/src/providers/chat/single.dart';
 import 'package:revelationsai/src/providers/isar.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/services/chat.dart';
@@ -17,18 +15,14 @@ part 'repositories.g.dart';
 Future<ChatRepository> chatRepository(ChatRepositoryRef ref) async {
   final isar = await ref.watch(isarInstanceProvider.future);
   final session = await ref.watch(currentUserProvider.selectAsync((data) => data.session));
-  return ChatRepository(ref, isar, session);
+  return ChatRepository(isar, session);
 }
 
 class ChatRepository {
-  final ChatRepositoryRef _ref;
   final Isar _isar;
   final String _session;
 
-  ChatRepository(ChatRepositoryRef ref, Isar isar, String session)
-      : _ref = ref,
-        _isar = isar,
-        _session = session;
+  ChatRepository(this._isar, this._session);
 
   Future<bool> _hasLocal(String id) async {
     final chat = await _isar.chats.get(fastHash(id));
@@ -60,7 +54,6 @@ class ChatRepository {
   Future<Chat> create(CreateChatRequest request) async {
     return await ChatService.createChat(request: request, session: _session).then((value) async {
       await _save(value);
-      _ref.invalidate(chatsPagesProvider);
       return value;
     });
   }
@@ -68,8 +61,6 @@ class ChatRepository {
   Future<Chat> update(String id, UpdateChatRequest request) async {
     return await ChatService.updateChat(id: id, request: request, session: _session).then((value) async {
       await _save(value);
-      _ref.invalidate(singleChatProvider(id));
-      _ref.invalidate(chatsPagesProvider);
       return value;
     });
   }
@@ -87,7 +78,6 @@ class ChatRepository {
       if (await _hasLocal(id)) {
         await deleteLocal(id);
       }
-      _ref.invalidate(chatsPagesProvider);
       return value;
     });
   }
@@ -107,11 +97,32 @@ class ChatRepository {
     });
   }
 
+  QueryBuilder<Chat, Chat, QAfterSortBy> _queryBuilderForPageOptions(PaginatedEntitiesRequestOptions options) {
+    final where = _isar.chats.where();
+    switch (options.orderBy) {
+      case "name":
+        if (options.order == OrderType.desc) {
+          return where.sortByNameDesc();
+        }
+        return where.sortByName();
+      case "createdAt":
+        if (options.order == OrderType.desc) {
+          return where.sortByCreatedAtDesc();
+        }
+        return where.sortByCreatedAt();
+      case "updatedAt":
+        if (options.order == OrderType.desc) {
+          return where.sortByUpdatedAtDesc();
+        }
+        return where.sortByUpdatedAt();
+      default:
+        throw Exception("You cannot order by this field: ${options.orderBy}");
+    }
+  }
+
   Future<List<Chat>> getPage(PaginatedEntitiesRequestOptions options) async {
     if (await _isar.chats.count() >= (options.page * options.limit)) {
-      return await _isar.chats
-          .where()
-          .sortByCreatedAtDesc()
+      return await _queryBuilderForPageOptions(options)
           .offset((options.page - 1) * options.limit)
           .limit(options.limit)
           .findAll();

@@ -2,7 +2,7 @@ name: revelationsai
 description: Revelations AI Mobile App
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.4.3
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
+  sdk: '>=3.1.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -76,6 +76,7 @@ dependencies:
   flutter_inappwebview: ^5.8.0
   flutter_markdown_selectionarea: ^0.6.17+1
   freezed_annotation: ^2.4.1
+  scrollable_positioned_list: ^0.3.8
 
 dev_dependencies:
   flutter_test:
@@ -94,25 +95,25 @@ dev_dependencies:
 
 flutter_launcher_icons:
   ios: true
-  image_path_ios: "assets/icons/ios-icon.png"
+  image_path_ios: 'assets/icons/ios-icon.png'
   remove_alpha_ios: true
 
   android: true
-  image_path_android: "assets/icons/android-icon.png"
-  adaptive_icon_background: "#334155"
-  adaptive_icon_foreground: "assets/icons/android-icon.png"
+  image_path_android: 'assets/icons/android-icon.png'
+  adaptive_icon_background: '#334155'
+  adaptive_icon_foreground: 'assets/icons/android-icon.png'
 
 flutter_native_splash:
-  color: "#334155"
-  color_dark: "#334155"
-  image: "assets/icons/splash-icon.png"
+  color: '#334155'
+  color_dark: '#334155'
+  image: 'assets/icons/splash-icon.png'
 
   ios: true
 
   android: true
   android_12:
-    image: "assets/icons/android-12-splash-icon.png"
-    color: "#334155"
+    image: 'assets/icons/android-12-splash-icon.png'
+    color: '#334155'
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

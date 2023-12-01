@@ -85,37 +85,36 @@ class DevotionModal extends HookConsumerWidget {
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: devotionsPages.requireValue.expand((element) => element).toList().length + 1,
                       itemBuilder: (listItemContext, index) {
-                        if (index == devotionsPages.requireValue.expand((element) => element).toList().length) {
-                          return devotionsPagesNotifier.isLoadingNextPage()
-                              ? Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Center(
-                                    child: SpinKitSpinningLines(
-                                      color: listItemContext.colorScheme.onBackground,
-                                      size: 20,
-                                    ),
+                        final devotionsFlat = devotionsPages.requireValue.expand((element) => element).toList();
+                        if (index == devotionsFlat.length) {
+                          return devotionsPagesNotifier.hasNextPage()
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (devotionsPagesNotifier.isLoadingNextPage()) {
+                                        return;
+                                      }
+                                      devotionsPagesNotifier.fetchNextPage();
+                                    },
+                                    child: devotionsPagesNotifier.isLoadingNextPage()
+                                        ? SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: SpinKitSpinningLines(
+                                              color: context.secondaryColor,
+                                              size: 20,
+                                            ),
+                                          )
+                                        : const Text('Show More'),
                                   ),
                                 )
-                              : devotionsPagesNotifier.hasNextPage()
-                                  ? Container(
-                                      padding: const EdgeInsets.all(5),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                devotionsPagesNotifier.fetchNextPage();
-                                              },
-                                              child: const Text('Show More'),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Container();
+                              : const SizedBox();
                         }
 
-                        final devotionsFlat = devotionsPages.requireValue.expand((element) => element).toList();
                         final devotion = devotionsFlat[index];
                         return DevotionListItem(
                           key: ValueKey(devotion.id),

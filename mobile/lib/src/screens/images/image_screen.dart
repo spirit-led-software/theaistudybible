@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -27,6 +26,7 @@ class ImageScreen extends HookConsumerWidget {
 
     final isMounted = useIsMounted();
     final showImageActions = useState(false);
+    final loadingDownload = useState(false);
     final downloaded = useState(false);
 
     useEffect(() {
@@ -86,7 +86,7 @@ class ImageScreen extends HookConsumerWidget {
               );
             },
             icon: Icon(
-              Icons.delete,
+              CupertinoIcons.trash,
               color: context.colorScheme.error,
             ),
           )
@@ -124,35 +124,59 @@ class ImageScreen extends HookConsumerWidget {
                             imageUrl: image!.url,
                             fallbackText: image.id,
                           ),
-                          if (showImageActions.value) ...[
-                            Positioned.fill(
+                          Positioned.fill(
+                            child: AnimatedOpacity(
+                              opacity: showImageActions.value ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 200),
                               child: Container(
-                                color: context.colorScheme.background.withOpacity(0.5),
+                                color: Colors.black,
                               ),
                             ),
-                            Positioned.fromRelativeRect(
-                              rect: RelativeRect.fill,
+                          ),
+                          Positioned.fill(
+                            child: AnimatedScale(
+                              scale: showImageActions.value ? 1 : 0,
+                              duration: const Duration(milliseconds: 200),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   IconButton(
                                     onPressed: () async {
+                                      if (loadingDownload.value || downloaded.value) {
+                                        return;
+                                      }
+                                      if (isMounted()) {
+                                        loadingDownload.value = true;
+                                      }
                                       final res = await http.get(Uri.parse(image.url!));
                                       await ImageGallerySaver.saveImage(
                                         res.bodyBytes,
                                         name: image.id,
                                         quality: 100,
                                       );
-                                      if (isMounted()) downloaded.value = true;
+                                      if (isMounted()) {
+                                        downloaded.value = true;
+                                        loadingDownload.value = false;
+                                      }
                                       Future.delayed(const Duration(seconds: 5), () {
-                                        if (isMounted()) downloaded.value = false;
+                                        if (isMounted()) {
+                                          downloaded.value = false;
+                                        }
                                       });
                                     },
                                     iconSize: 40,
-                                    icon: Icon(
-                                      downloaded.value ? Icons.check : CupertinoIcons.square_arrow_down,
-                                      color: downloaded.value ? Colors.green : context.colorScheme.onBackground,
-                                    ),
+                                    icon: loadingDownload.value
+                                        ? const SizedBox(
+                                            height: 30,
+                                            width: 30,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : Icon(
+                                            downloaded.value ? Icons.check : CupertinoIcons.square_arrow_down,
+                                            color: downloaded.value ? Colors.green : Colors.white,
+                                          ),
                                   ),
                                   IconButton(
                                     onPressed: () async {
@@ -168,15 +192,15 @@ class ImageScreen extends HookConsumerWidget {
                                       );
                                     },
                                     iconSize: 40,
-                                    icon: FaIcon(
+                                    icon: const Icon(
                                       CupertinoIcons.share_up,
-                                      color: context.colorScheme.onBackground,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ]
+                          ),
                         ],
                       ),
                     ),

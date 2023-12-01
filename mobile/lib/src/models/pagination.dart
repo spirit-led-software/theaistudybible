@@ -3,17 +3,25 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'pagination.freezed.dart';
 part 'pagination.g.dart';
 
+enum OrderType {
+  asc,
+  desc,
+}
+
 class PaginatedEntitiesRequestOptions {
   final int page;
   final int limit;
+
+  // Order by field in T
   final String orderBy;
-  final String order;
+
+  final OrderType order;
 
   const PaginatedEntitiesRequestOptions({
     this.page = 1,
     this.limit = 10,
     this.orderBy = "createdAt",
-    this.order = "desc",
+    this.order = OrderType.desc,
   });
 
   String get searchQuery {
@@ -24,7 +32,7 @@ class PaginatedEntitiesRequestOptions {
     )}&orderBy=${Uri.encodeComponent(
       orderBy,
     )}&order=${Uri.encodeComponent(
-      order,
+      order.name,
     )}";
   }
 }

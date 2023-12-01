@@ -6,6 +6,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/hooks/positioned_scroll/use_item_position_listener.dart';
+import 'package:revelationsai/src/hooks/positioned_scroll/use_item_scroll_conroller.dart';
+import 'package:revelationsai/src/hooks/positioned_scroll/use_scroll_offset_controller.dart';
+import 'package:revelationsai/src/hooks/positioned_scroll/use_scroll_offset_listener.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
@@ -21,6 +25,7 @@ import 'package:revelationsai/src/utils/in_app_review.dart';
 import 'package:revelationsai/src/widgets/chat/action_menu_button.dart';
 import 'package:revelationsai/src/widgets/chat/chat_suggestions.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatScreen extends HookConsumerWidget {
@@ -39,12 +44,16 @@ class ChatScreen extends HookConsumerWidget {
     final currentUserPreferences = ref.watch(currentUserPreferencesProvider).requireValue;
 
     final isMounted = useIsMounted();
-    final scrollController = useScrollController();
     final scrollableEndIsInView = useState(true);
     final isLoadingChat = useState(false);
     final isRefreshingChat = useState(false);
     final alert = useState<Alert?>(null);
     final input = useState("");
+
+    final itemScrollController = useItemScrollController();
+    final itemPositionsListener = useItemPositionsListener();
+    final scrollOffsetController = useScrollOffsetController();
+    final scrollOffsetListener = useScrollOffsetListener();
 
     final chat = useState<Chat?>(null);
     final chatHook = useChat(
@@ -62,6 +71,25 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
+    final messagesReversed = useRef(chatHook.messages.value.reversed.toList());
+    useEffect(() {
+      messagesReversed.value = chatHook.messages.value.reversed.toList();
+      return () {};
+    }, [chatHook.messages.value]);
+
+    final scrollToEnd = useCallback(() {
+      if (itemScrollController.isAttached) {
+        itemScrollController.scrollTo(
+          index: 0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }, [
+      itemScrollController,
+      itemScrollController.isAttached,
+    ]);
+
     final submit = useCallback(() {
       if (currentUser.remainingQueries < 1) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +106,7 @@ class ChatScreen extends HookConsumerWidget {
         context.go("/upgrade");
         return;
       }
+      scrollToEnd();
       chatHook.handleSubmit();
     }, [context, currentUser, chatHook.handleSubmit]);
 
@@ -97,6 +126,7 @@ class ChatScreen extends HookConsumerWidget {
         context.go("/upgrade");
         return;
       }
+      scrollToEnd();
       chatHook.reload();
     }, [context, currentUser, chatHook.reload]);
 
@@ -115,7 +145,6 @@ class ChatScreen extends HookConsumerWidget {
     }, [ref, chatHook.chatId.value, chatHook.loading.value, isMounted]);
 
     useEffect(() {
-      debugPrint("ChatScreen: initChatId: $initChatId");
       chatHook.chatId.value = initChatId;
       return () {};
     }, [initChatId]);
@@ -220,25 +249,39 @@ class ChatScreen extends HookConsumerWidget {
     }, [alert.value]);
 
     useEffect(() {
-      debugPrint("ChatScreen: scrollController.hasClients: ${scrollController.hasClients}");
-      if (scrollController.hasClients) {
-        scrollController.addListener(() {
-          if (scrollController.position.outOfRange) {
-            return;
-          }
-
-          if (scrollController.offset <= scrollController.position.minScrollExtent) {
-            if (isMounted()) scrollableEndIsInView.value = true;
+      closure() {
+        if (isMounted()) {
+          final itemPositions = itemPositionsListener.itemPositions.value;
+          if (itemPositions.isNotEmpty) {
+            if (itemPositions.where((element) => element.index == 0).isNotEmpty) {
+              scrollableEndIsInView.value = true;
+            } else {
+              scrollableEndIsInView.value = false;
+            }
           } else {
-            if (isMounted()) scrollableEndIsInView.value = false;
+            scrollableEndIsInView.value = false;
           }
-        });
-      } else {
-        if (isMounted()) scrollableEndIsInView.value = true;
+        }
       }
 
-      return () {};
-    }, [scrollController.hasClients]);
+      debugPrint("ChatScreen: scrollEvent");
+      if (itemScrollController.isAttached) {
+        itemPositionsListener.itemPositions.addListener(closure);
+      } else {
+        if (isMounted()) {
+          scrollableEndIsInView.value = true;
+        }
+      }
+      return () {
+        if (itemScrollController.isAttached) {
+          itemPositionsListener.itemPositions.removeListener(closure);
+        }
+      };
+    }, [
+      itemScrollController.isAttached,
+      itemPositionsListener.itemPositions,
+      isMounted,
+    ]);
 
     useEffect(() {
       chatHook.inputController.addListener(() {
@@ -273,12 +316,13 @@ class ChatScreen extends HookConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
-                        flex: 1,
-                        child: ListView.builder(
-                          clipBehavior: Clip.none,
-                          controller: scrollController,
-                          physics: const AlwaysScrollableScrollPhysics(),
+                        child: ScrollablePositionedList.builder(
+                          itemPositionsListener: itemPositionsListener,
+                          scrollOffsetListener: scrollOffsetListener,
+                          scrollOffsetController: scrollOffsetController,
+                          itemScrollController: itemScrollController,
                           reverse: true,
+                          physics: const RangeMaintainingScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: chatHook.messages.value.length + 1,
                           itemBuilder: (context, index) {
@@ -288,10 +332,10 @@ class ChatScreen extends HookConsumerWidget {
                               );
                             }
 
-                            final messagesReversed = chatHook.messages.value.reversed.toList();
-                            ChatMessage message = messagesReversed[index - 1];
+                            ChatMessage message = messagesReversed.value[index - 1];
                             ChatMessage? previousMessage =
-                                index + 1 <= messagesReversed.length ? messagesReversed[index] : null;
+                                index < messagesReversed.value.length - 1 ? messagesReversed.value[index] : null;
+
                             return Message(
                               key: ValueKey(message.id),
                               chatId: chatHook.chatId.value,
@@ -335,12 +379,7 @@ class ChatScreen extends HookConsumerWidget {
                             child: IconButton(
                               onPressed: () {
                                 if (currentUserPreferences.hapticFeedback) HapticFeedback.mediumImpact();
-
-                                scrollController.animateTo(
-                                  0,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
+                                scrollToEnd();
                               },
                               style: IconButton.styleFrom(
                                 shape: const CircleBorder(),
@@ -372,7 +411,7 @@ class ChatScreen extends HookConsumerWidget {
                                     maxLines: 4,
                                     controller: chatHook.inputController,
                                     focusNode: chatHook.inputFocusNode,
-                                    onSubmitted: (value) {
+                                    onSubmitted: (_) {
                                       submit();
                                     },
                                     onTapOutside: (event) {
@@ -435,21 +474,19 @@ class ChatScreen extends HookConsumerWidget {
                                               ),
                                             )
                                           : input.value.isEmpty
-                                              ? IconButton(
-                                                  visualDensity: VisualDensity.compact,
-                                                  onPressed: () {
-                                                    reload();
-                                                  },
-                                                  icon: const FaIcon(
-                                                    FontAwesomeIcons.arrowRotateRight,
-                                                    size: 18,
-                                                  ),
-                                                )
+                                              ? chatHook.messages.value.isNotEmpty
+                                                  ? IconButton(
+                                                      visualDensity: VisualDensity.compact,
+                                                      onPressed: reload,
+                                                      icon: const FaIcon(
+                                                        FontAwesomeIcons.arrowRotateRight,
+                                                        size: 18,
+                                                      ),
+                                                    )
+                                                  : const SizedBox()
                                               : IconButton(
                                                   visualDensity: VisualDensity.compact,
-                                                  onPressed: () {
-                                                    submit();
-                                                  },
+                                                  onPressed: submit,
                                                   icon: const Icon(
                                                     FontAwesomeIcons.arrowUp,
                                                     size: 18,

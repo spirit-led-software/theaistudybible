@@ -159,9 +159,9 @@ Future<ChatMessage> getStreamedResponse({
           final words = value.split(' ').where((element) => element.isNotEmpty).toList();
           for (int i = 0; i < words.length; i++) {
             await Future.delayed(
-              const Duration(milliseconds: 5),
+              const Duration(milliseconds: 8),
               () {
-                reply = reply.copyWith(content: "${reply.content} ${words[i]}");
+                reply = reply.copyWith(content: "${reply.content}${i == 0 ? "" : " "}${words[i]}");
                 messages.value = [
                   ...chatRequest.messages,
                   reply,
