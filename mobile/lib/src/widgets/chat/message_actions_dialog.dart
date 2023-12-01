@@ -16,10 +16,9 @@ import 'package:revelationsai/src/widgets/chat/reaction_comment_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
 
 class MessageActionsDialog extends HookConsumerWidget {
-  final ChatMessage? previousMessage;
   final ChatMessage message;
 
-  const MessageActionsDialog({super.key, required this.message, this.previousMessage});
+  const MessageActionsDialog({super.key, required this.message});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

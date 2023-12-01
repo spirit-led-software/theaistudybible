@@ -18,7 +18,6 @@ import 'package:revelationsai/src/widgets/chat/message_actions_dialog.dart';
 class Message extends HookConsumerWidget {
   final String? chatId;
   final ChatMessage message;
-  final ChatMessage? previousMessage;
   final bool isLoading;
   final bool isCurrentResponse;
   final bool isLastMessage;
@@ -27,7 +26,6 @@ class Message extends HookConsumerWidget {
     super.key,
     this.chatId,
     required this.message,
-    this.previousMessage,
     this.isLoading = false,
     this.isCurrentResponse = false,
     this.isLastMessage = false,
@@ -51,12 +49,11 @@ class Message extends HookConsumerWidget {
           builder: (context) {
             return MessageActionsDialog(
               message: message,
-              previousMessage: previousMessage,
             );
           },
         );
       }
-    }, [context, hapticFeedback, isLoading, message, previousMessage]);
+    }, [context, hapticFeedback, isLoading, message]);
 
     return Dismissible(
       key: ValueKey(message.uuid),

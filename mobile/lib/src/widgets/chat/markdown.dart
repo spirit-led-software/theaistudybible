@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_markdown_selectionarea/flutter_markdown_selectionarea.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class ChatMessageMarkdown extends StatelessWidget {
+class ChatMessageMarkdown extends HookWidget {
   final String data;
   final bool selectable;
   final bool followLinks;

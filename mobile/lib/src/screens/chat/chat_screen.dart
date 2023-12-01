@@ -6,10 +6,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:revelationsai/src/hooks/positioned_scroll/use_item_position_listener.dart';
-import 'package:revelationsai/src/hooks/positioned_scroll/use_item_scroll_conroller.dart';
-import 'package:revelationsai/src/hooks/positioned_scroll/use_scroll_offset_controller.dart';
-import 'package:revelationsai/src/hooks/positioned_scroll/use_scroll_offset_listener.dart';
 import 'package:revelationsai/src/hooks/use_chat.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/models/chat.dart';
@@ -25,7 +21,6 @@ import 'package:revelationsai/src/utils/in_app_review.dart';
 import 'package:revelationsai/src/widgets/chat/action_menu_button.dart';
 import 'package:revelationsai/src/widgets/chat/chat_suggestions.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatScreen extends HookConsumerWidget {
@@ -50,10 +45,7 @@ class ChatScreen extends HookConsumerWidget {
     final alert = useState<Alert?>(null);
     final input = useState("");
 
-    final itemScrollController = useItemScrollController();
-    final itemPositionsListener = useItemPositionsListener();
-    final scrollOffsetController = useScrollOffsetController();
-    final scrollOffsetListener = useScrollOffsetListener();
+    final scrollController = useScrollController();
 
     final chat = useState<Chat?>(null);
     final chatHook = useChat(
@@ -71,23 +63,16 @@ class ChatScreen extends HookConsumerWidget {
       ),
     );
 
-    final messagesReversed = useRef(chatHook.messages.value.reversed.toList());
-    useEffect(() {
-      messagesReversed.value = chatHook.messages.value.reversed.toList();
-      return () {};
-    }, [chatHook.messages.value]);
-
     final scrollToEnd = useCallback(() {
-      if (itemScrollController.isAttached) {
-        itemScrollController.scrollTo(
-          index: 0,
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          0,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
       }
     }, [
-      itemScrollController,
-      itemScrollController.isAttached,
+      scrollController.hasClients,
     ]);
 
     final submit = useCallback(() {
@@ -108,7 +93,7 @@ class ChatScreen extends HookConsumerWidget {
       }
       scrollToEnd();
       chatHook.handleSubmit();
-    }, [context, currentUser, chatHook.handleSubmit]);
+    }, [context, currentUser, chatHook.handleSubmit, scrollToEnd]);
 
     final reload = useCallback(() {
       if (currentUser.remainingQueries < 1) {
@@ -128,7 +113,7 @@ class ChatScreen extends HookConsumerWidget {
       }
       scrollToEnd();
       chatHook.reload();
-    }, [context, currentUser, chatHook.reload]);
+    }, [context, currentUser, chatHook.reload, scrollToEnd]);
 
     final refreshChatData = useCallback(() async {
       await Future.wait([
@@ -249,39 +234,24 @@ class ChatScreen extends HookConsumerWidget {
     }, [alert.value]);
 
     useEffect(() {
-      closure() {
-        if (isMounted()) {
-          final itemPositions = itemPositionsListener.itemPositions.value;
-          if (itemPositions.isNotEmpty) {
-            if (itemPositions.where((element) => element.index == 0).isNotEmpty) {
-              scrollableEndIsInView.value = true;
-            } else {
-              scrollableEndIsInView.value = false;
-            }
-          } else {
-            scrollableEndIsInView.value = false;
+      debugPrint("ChatScreen: scrollController.hasClients: ${scrollController.hasClients}");
+      if (scrollController.hasClients) {
+        scrollController.addListener(() {
+          if (scrollController.position.outOfRange) {
+            return;
           }
-        }
-      }
 
-      debugPrint("ChatScreen: scrollEvent");
-      if (itemScrollController.isAttached) {
-        itemPositionsListener.itemPositions.addListener(closure);
+          if (scrollController.offset <= scrollController.position.minScrollExtent) {
+            if (isMounted()) scrollableEndIsInView.value = true;
+          } else {
+            if (isMounted()) scrollableEndIsInView.value = false;
+          }
+        });
       } else {
-        if (isMounted()) {
-          scrollableEndIsInView.value = true;
-        }
+        if (isMounted()) scrollableEndIsInView.value = true;
       }
-      return () {
-        if (itemScrollController.isAttached) {
-          itemPositionsListener.itemPositions.removeListener(closure);
-        }
-      };
-    }, [
-      itemScrollController.isAttached,
-      itemPositionsListener.itemPositions,
-      isMounted,
-    ]);
+      return () {};
+    }, [scrollController.hasClients]);
 
     useEffect(() {
       chatHook.inputController.addListener(() {
@@ -310,45 +280,35 @@ class ChatScreen extends HookConsumerWidget {
               )
             : Stack(
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: ScrollablePositionedList.builder(
-                          itemPositionsListener: itemPositionsListener,
-                          scrollOffsetListener: scrollOffsetListener,
-                          scrollOffsetController: scrollOffsetController,
-                          itemScrollController: itemScrollController,
-                          reverse: true,
-                          physics: const RangeMaintainingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: chatHook.messages.value.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return const SizedBox(
-                                height: 65,
-                              );
-                            }
-
-                            ChatMessage message = messagesReversed.value[index - 1];
-                            ChatMessage? previousMessage =
-                                index < messagesReversed.value.length - 1 ? messagesReversed.value[index] : null;
-
-                            return Message(
-                              key: ValueKey(message.id),
-                              chatId: chatHook.chatId.value,
-                              message: message,
-                              previousMessage: previousMessage,
-                              isCurrentResponse: chatHook.currentResponseId.value == message.id,
-                              isLoading: chatHook.loading.value,
-                              isLastMessage: index == 1,
-                            );
-                          },
-                        ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ListView.builder(
+                      controller: scrollController,
+                      physics: const RangeMaintainingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
                       ),
-                    ],
+                      shrinkWrap: true,
+                      reverse: true,
+                      itemCount: chatHook.messages.value.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return const SizedBox(
+                            height: 65,
+                          );
+                        }
+
+                        final messagesReversed = chatHook.messages.value.reversed.toList();
+                        ChatMessage message = messagesReversed[index - 1];
+
+                        return Message(
+                          chatId: chatHook.chatId.value,
+                          message: message,
+                          isCurrentResponse: chatHook.currentResponseId.value == message.id,
+                          isLoading: chatHook.loading.value,
+                          isLastMessage: index == chatHook.messages.value.length - 1,
+                        );
+                      },
+                    ),
                   ),
                   if (chatHook.messages.value.isEmpty && currentUserPreferences.chatSuggestions) ...[
                     Center(
