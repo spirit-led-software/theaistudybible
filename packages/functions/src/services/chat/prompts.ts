@@ -81,7 +81,7 @@ Here are some important rules for you to follow:
 - Your title must be descriptive.
 - Your title must be concise.
 - Your title must have proper capitalization.
-- Your title must be a maximum of 50 characters.
+- Your title must be a maximum of 32 characters.
 
 Here is the chat history, within <chat_history></chat_history> XML tags. Each message within the chat history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the chat history carefully, you will need to use it to come up with a title.
 <chat_history>
