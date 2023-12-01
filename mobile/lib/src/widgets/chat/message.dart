@@ -45,6 +45,8 @@ class Message extends HookConsumerWidget {
           ref.read(aiResponseReactionsProvider(message.uuid).notifier).refresh();
         }
         showDialog(
+          barrierColor:
+              context.brightness == Brightness.dark ? Colors.black.withOpacity(0.9) : Colors.black.withOpacity(0.8),
           context: context,
           builder: (context) {
             return MessageActionsDialog(

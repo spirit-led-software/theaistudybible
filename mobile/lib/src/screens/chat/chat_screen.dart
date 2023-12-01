@@ -284,8 +284,10 @@ class ChatScreen extends HookConsumerWidget {
                     alignment: Alignment.bottomCenter,
                     child: ListView.builder(
                       controller: scrollController,
-                      physics: const RangeMaintainingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(
+                          parent: RangeMaintainingScrollPhysics(),
+                        ),
                       ),
                       shrinkWrap: true,
                       reverse: true,

@@ -34,17 +34,18 @@ class MessageActionsDialog extends HookConsumerWidget {
 
     return Dialog(
       backgroundColor: context.colorScheme.background,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: 20,
-          horizontal: 10,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ConstrainedBox(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 10,
+              left: 10,
+              right: 5,
+            ),
+            child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: context.height * 0.4,
               ),
@@ -61,115 +62,118 @@ class MessageActionsDialog extends HookConsumerWidget {
                 ),
               ),
             ),
-            Divider(
-              color: context.colorScheme.onBackground.withOpacity(0.4),
+          ),
+          Divider(
+            color: context.colorScheme.onBackground.withOpacity(0.4),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
             ),
-            Container(
-              margin: const EdgeInsets.only(
-                right: 10,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      visualDensity: RAIVisualDensity.tightest,
+                      iconSize: 18,
+                      icon: FaIcon(
+                        copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
+                      ),
+                      color: copied.value ? Colors.green : context.colorScheme.onBackground,
+                      onPressed: () {
+                        if (hapticFeedback) HapticFeedback.mediumImpact();
+                        copied.value = true;
+                        Clipboard.setData(
+                          ClipboardData(text: message.content),
+                        );
+                        Future.delayed(const Duration(seconds: 3), () {
+                          if (isMounted()) copied.value = false;
+                        });
+                      },
+                    ),
+                    if (message.role == Role.assistant) ...[
                       IconButton(
                         visualDensity: RAIVisualDensity.tightest,
-                        iconSize: 18,
-                        icon: FaIcon(
-                          copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
+                        iconSize: 20,
+                        icon: Icon(
+                          reactions?.where((element) => element.reaction == AiResponseReactionType.LIKE).isNotEmpty ??
+                                  false
+                              ? CupertinoIcons.hand_thumbsup_fill
+                              : CupertinoIcons.hand_thumbsup,
                         ),
-                        color: copied.value ? Colors.green : context.colorScheme.onBackground,
-                        onPressed: () {
-                          if (hapticFeedback) HapticFeedback.mediumImpact();
-                          copied.value = true;
-                          Clipboard.setData(
-                            ClipboardData(text: message.content),
-                          );
-                          Future.delayed(const Duration(seconds: 3), () {
-                            if (isMounted()) copied.value = false;
-                          });
-                        },
-                      ),
-                      if (message.role == Role.assistant) ...[
-                        IconButton(
-                          visualDensity: RAIVisualDensity.tightest,
-                          iconSize: 20,
-                          icon: Icon(
+                        color:
                             reactions?.where((element) => element.reaction == AiResponseReactionType.LIKE).isNotEmpty ??
                                     false
-                                ? CupertinoIcons.hand_thumbsup_fill
-                                : CupertinoIcons.hand_thumbsup,
-                          ),
-                          color: reactions
-                                      ?.where((element) => element.reaction == AiResponseReactionType.LIKE)
-                                      .isNotEmpty ??
-                                  false
-                              ? Colors.green
-                              : context.colorScheme.onBackground,
-                          onPressed: () {
-                            if (hapticFeedback) HapticFeedback.mediumImpact();
-                            reactionsNotifier!.createReaction(
-                              reactionType: AiResponseReactionType.LIKE,
-                            );
-                          },
-                        ),
-                        IconButton(
-                          visualDensity: RAIVisualDensity.tightest,
-                          iconSize: 20,
-                          icon: Icon(
-                            reactions
-                                        ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
-                                        .isNotEmpty ??
-                                    false
-                                ? CupertinoIcons.hand_thumbsdown_fill
-                                : CupertinoIcons.hand_thumbsdown,
-                          ),
-                          color: reactions
+                                ? Colors.green
+                                : context.colorScheme.onBackground,
+                        onPressed: () {
+                          if (hapticFeedback) HapticFeedback.mediumImpact();
+                          reactionsNotifier!.createReaction(
+                            reactionType: AiResponseReactionType.LIKE,
+                          );
+                        },
+                      ),
+                      IconButton(
+                        visualDensity: RAIVisualDensity.tightest,
+                        iconSize: 20,
+                        icon: Icon(
+                          reactions
                                       ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
                                       .isNotEmpty ??
                                   false
-                              ? Colors.red
-                              : context.colorScheme.onBackground,
-                          onPressed: () {
-                            if (hapticFeedback) HapticFeedback.mediumImpact();
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return ResponseReactionCommentDialog(
-                                  aiResponseId: message.uuid,
-                                  reactionType: AiResponseReactionType.DISLIKE,
-                                );
-                              },
-                            );
-                          },
+                              ? CupertinoIcons.hand_thumbsdown_fill
+                              : CupertinoIcons.hand_thumbsdown,
                         ),
-                      ],
+                        color: reactions
+                                    ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
+                                    .isNotEmpty ??
+                                false
+                            ? Colors.red
+                            : context.colorScheme.onBackground,
+                        onPressed: () {
+                          if (hapticFeedback) HapticFeedback.mediumImpact();
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return ResponseReactionCommentDialog(
+                                aiResponseId: message.uuid,
+                                reactionType: AiResponseReactionType.DISLIKE,
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ],
-                  ),
-                  Text(
-                    DateFormat()
-                        .add_yMd()
-                        .addPattern(DateFormat.HOUR_MINUTE)
-                        .format((message.createdAt ?? DateTime.now()).toLocal()),
-                  ),
-                ],
-              ),
-            ),
-            if (message.role == Role.assistant) ...[
-              Container(
-                padding: const EdgeInsets.only(
-                  top: 5,
-                  left: 10,
-                  right: 10,
+                  ],
                 ),
-                child: Sources(message: message),
-              ),
-            ],
+                Text(
+                  DateFormat()
+                      .add_yMd()
+                      .addPattern(DateFormat.HOUR_MINUTE)
+                      .format((message.createdAt ?? DateTime.now()).toLocal()),
+                ),
+              ],
+            ),
+          ),
+          if (message.role == Role.assistant) ...[
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Sources",
+                  style: context.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 5),
+                Sources(message: message),
+              ],
+            ),
           ],
-        ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }

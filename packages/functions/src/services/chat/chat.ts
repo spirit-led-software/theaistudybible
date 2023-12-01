@@ -2,7 +2,7 @@ import type { CreateChatData, UpdateChatData } from '@core/model';
 import { chats } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import type { Message } from 'ai';
-import { SQL, desc, eq } from 'drizzle-orm';
+import { SQL, desc, eq, sql } from 'drizzle-orm';
 import { LLMChain } from 'langchain/chains';
 import { PromptTemplate } from 'langchain/prompts';
 import { getLargeContextModel } from '../llm';
@@ -57,7 +57,9 @@ export async function updateChat(id: string, data: UpdateChatData) {
     await readWriteDatabase
       .update(chats)
       .set({
-        customName: data.name && data.name != 'New Chat' ? true : false,
+        customName: sql`${chats.customName} OR ${
+          data.name && data.name != 'New Chat' ? true : false
+        }`,
         ...data,
         createdAt: undefined,
         updatedAt: new Date()

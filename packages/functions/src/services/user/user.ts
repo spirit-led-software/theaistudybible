@@ -1,7 +1,7 @@
 import type { CreateUserData, UpdateUserData, UserWithRoles } from '@core/model';
 import { roles, users, usersToRoles } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
-import { SQL, desc, eq } from 'drizzle-orm';
+import { SQL, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUsers(
   options: {
@@ -83,7 +83,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
     await readWriteDatabase
       .update(users)
       .set({
-        customImage: data.image ? true : false,
+        customImage: sql`${users.customImage} OR ${data.image ? true : false}`,
         ...data,
         createdAt: undefined,
         updatedAt: new Date()
