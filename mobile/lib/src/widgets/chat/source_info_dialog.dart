@@ -1,11 +1,18 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:revelationsai/src/constants/visual_density.dart';
 import 'package:revelationsai/src/models/source_document.dart';
+import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/utils/capitalization.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/link.dart';
 
 class SourceInfoPreview extends HookConsumerWidget {
@@ -18,9 +25,14 @@ class SourceInfoPreview extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final hapticFeedback = ref.watch(
+      currentUserPreferencesProvider.select((value) => value.value?.hapticFeedback ?? true),
+    );
+
     final isMounted = useIsMounted();
     final loading = useState(false);
     final error = useState(false);
+    final copied = useState(false);
 
     return Container(
       decoration: BoxDecoration(
@@ -164,7 +176,7 @@ class SourceInfoPreview extends HookConsumerWidget {
                               ),
                               initialOptions: InAppWebViewGroupOptions(
                                 crossPlatform: InAppWebViewOptions(
-                            disableVerticalScroll: true,
+                                  disableVerticalScroll: true,
                                   disableHorizontalScroll: true,
                                   javaScriptCanOpenWindowsAutomatically: false,
                                   supportZoom: false,
@@ -203,6 +215,64 @@ class SourceInfoPreview extends HookConsumerWidget {
                               ),
                             ),
                           ],
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            sourceDocument.type.toTitleCase(),
+                            style: context.textTheme.labelLarge,
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  if (hapticFeedback) HapticFeedback.mediumImpact();
+                                  if (copied.value) return;
+                                  Clipboard.setData(
+                                    ClipboardData(
+                                      text: sourceDocument.url,
+                                    ),
+                                  ).then((value) {
+                                    if (isMounted()) {
+                                      if (hapticFeedback) HapticFeedback.mediumImpact();
+                                      copied.value = true;
+                                    }
+                                  });
+                                  Future.delayed(const Duration(seconds: 3), () {
+                                    if (isMounted()) copied.value = false;
+                                  });
+                                },
+                                visualDensity: RAIVisualDensity.tightest,
+                                iconSize: 18,
+                                icon: AnimatedCrossFade(
+                                  duration: const Duration(milliseconds: 200),
+                                  crossFadeState: copied.value ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                                  firstChild: const FaIcon(
+                                    FontAwesomeIcons.check,
+                                    color: Colors.green,
+                                  ),
+                                  secondChild: const FaIcon(
+                                    FontAwesomeIcons.copy,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  if (hapticFeedback) HapticFeedback.mediumImpact();
+                                  Share.shareUri(
+                                    Uri.parse(sourceDocument.url),
+                                  );
+                                },
+                                visualDensity: RAIVisualDensity.tightest,
+                                iconSize: 20,
+                                icon: const Icon(
+                                  CupertinoIcons.share_up,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       const SizedBox(height: 30),

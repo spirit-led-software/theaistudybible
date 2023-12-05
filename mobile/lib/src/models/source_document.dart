@@ -29,6 +29,8 @@ class SourceDocument with _$SourceDocument {
 
   String get url => metadata['url'] ?? '';
 
+  String get type => metadata['type'] ?? '';
+
   bool get isFile => metadata['type'].toString().toLowerCase() == 'file';
   bool get isWebpage => metadata['type'].toString().toLowerCase() == 'webpage';
   bool get isYoutube => metadata['type'].toString().toLowerCase() == 'youtube';

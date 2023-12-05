@@ -9,25 +9,30 @@ class CircularLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: radius,
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.primaryColor,
-          borderRadius: BorderRadius.circular(100),
-          boxShadow: [
-            if (!noShadow) ...[
-              BoxShadow(
-                color: context.theme.shadowColor.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        color: context.primaryColor,
+        borderRadius: BorderRadius.circular(500),
+        boxShadow: [
+          if (!noShadow) ...[
+            BoxShadow(
+              color: context.theme.shadowColor.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
           ],
-        ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: radius,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(100),
-          child: Image.asset("assets/icons/ios-icon.png"),
+          borderRadius: BorderRadius.circular(500),
+          child: Image.asset(
+            "assets/icons/ios-icon.png",
+            height: radius * 1.95,
+            width: radius * 1.95,
+            fit: BoxFit.fill,
+          ),
         ),
       ),
     );

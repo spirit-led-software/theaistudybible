@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:revelationsai/src/constants/colors.dart';
-import 'package:revelationsai/src/utils/build_context_extensions.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/branding/logo.dart';
 import 'package:url_launcher/link.dart';
@@ -26,7 +25,9 @@ class AboutScreen extends HookWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: const Text("About RevelationsAI"),
+        title: const Logo(
+          colorScheme: RAIColorScheme.light,
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -43,14 +44,10 @@ class AboutScreen extends HookWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularLogo(
-              radius: 50,
+              radius: 80,
             ),
             const SizedBox(
               height: 10,
-            ),
-            Logo(
-              colorScheme: context.brightness == Brightness.dark ? RAIColorScheme.light : RAIColorScheme.dark,
-              fontSize: 32,
             ),
             Text("Version ${version.data!.version}"),
             const SizedBox(

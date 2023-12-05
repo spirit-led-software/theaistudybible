@@ -11,14 +11,18 @@ import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/ai_response/reaction.dart';
 import 'package:revelationsai/src/providers/user/preferences.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
+import 'package:revelationsai/src/utils/markdown.dart';
 import 'package:revelationsai/src/widgets/chat/markdown.dart';
 import 'package:revelationsai/src/widgets/chat/reaction_comment_dialog.dart';
 import 'package:revelationsai/src/widgets/chat/sources.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MessageActionsDialog extends HookConsumerWidget {
   final ChatMessage message;
+  final ScreenshotController? screenshotController;
 
-  const MessageActionsDialog({super.key, required this.message});
+  const MessageActionsDialog({super.key, required this.message, this.screenshotController});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -78,62 +82,90 @@ class MessageActionsDialog extends HookConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      visualDensity: RAIVisualDensity.tightest,
-                      iconSize: 18,
-                      icon: FaIcon(
-                        copied.value ? FontAwesomeIcons.check : FontAwesomeIcons.copy,
-                      ),
-                      color: copied.value ? Colors.green : context.colorScheme.onBackground,
                       onPressed: () {
                         if (hapticFeedback) HapticFeedback.mediumImpact();
-                        copied.value = true;
                         Clipboard.setData(
-                          ClipboardData(text: message.content),
-                        );
+                          ClipboardData(
+                            text: markdownToText(message.content),
+                          ),
+                        ).then((value) {
+                          if (isMounted()) {
+                            if (hapticFeedback) HapticFeedback.mediumImpact();
+                            copied.value = true;
+                          }
+                        });
                         Future.delayed(const Duration(seconds: 3), () {
                           if (isMounted()) copied.value = false;
                         });
                       },
+                      visualDensity: RAIVisualDensity.tightest,
+                      iconSize: 18,
+                      icon: AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 200),
+                        crossFadeState: copied.value ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                        firstChild: const FaIcon(
+                          FontAwesomeIcons.check,
+                          color: Colors.green,
+                        ),
+                        secondChild: const FaIcon(
+                          FontAwesomeIcons.copy,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        if (screenshotController == null) {
+                          return;
+                        }
+                        if (hapticFeedback) HapticFeedback.mediumImpact();
+                        final image = await screenshotController!.capture();
+                        if (image == null) {
+                          return;
+                        }
+                        await Share.shareXFiles(
+                          [
+                            XFile.fromData(
+                              image,
+                              mimeType: "image/png",
+                              name: "screenshot.png",
+                            ),
+                          ],
+                          subject: "Message from RevelationsAI",
+                          text: "Check out this message from RevelationsAI!",
+                        );
+                      },
+                      visualDensity: RAIVisualDensity.tightest,
+                      iconSize: 20,
+                      icon: const Icon(CupertinoIcons.share_up),
                     ),
                     if (message.role == Role.assistant) ...[
                       IconButton(
-                        visualDensity: RAIVisualDensity.tightest,
-                        iconSize: 20,
-                        icon: Icon(
-                          reactions?.where((element) => element.reaction == AiResponseReactionType.LIKE).isNotEmpty ??
-                                  false
-                              ? CupertinoIcons.hand_thumbsup_fill
-                              : CupertinoIcons.hand_thumbsup,
-                        ),
-                        color:
-                            reactions?.where((element) => element.reaction == AiResponseReactionType.LIKE).isNotEmpty ??
-                                    false
-                                ? Colors.green
-                                : context.colorScheme.onBackground,
                         onPressed: () {
                           if (hapticFeedback) HapticFeedback.mediumImpact();
                           reactionsNotifier!.createReaction(
                             reactionType: AiResponseReactionType.LIKE,
                           );
                         },
-                      ),
-                      IconButton(
                         visualDensity: RAIVisualDensity.tightest,
                         iconSize: 20,
-                        icon: Icon(
-                          reactions
-                                      ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
+                        icon: AnimatedCrossFade(
+                          duration: const Duration(milliseconds: 200),
+                          crossFadeState: reactions
+                                      ?.where((element) => element.reaction == AiResponseReactionType.LIKE)
                                       .isNotEmpty ??
                                   false
-                              ? CupertinoIcons.hand_thumbsdown_fill
-                              : CupertinoIcons.hand_thumbsdown,
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          firstChild: const Icon(
+                            CupertinoIcons.hand_thumbsup_fill,
+                            color: Colors.green,
+                          ),
+                          secondChild: const Icon(
+                            CupertinoIcons.hand_thumbsup,
+                          ),
                         ),
-                        color: reactions
-                                    ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
-                                    .isNotEmpty ??
-                                false
-                            ? Colors.red
-                            : context.colorScheme.onBackground,
+                      ),
+                      IconButton(
                         onPressed: () {
                           if (hapticFeedback) HapticFeedback.mediumImpact();
                           showDialog(
@@ -146,6 +178,24 @@ class MessageActionsDialog extends HookConsumerWidget {
                             },
                           );
                         },
+                        visualDensity: RAIVisualDensity.tightest,
+                        iconSize: 20,
+                        icon: AnimatedCrossFade(
+                          duration: const Duration(milliseconds: 200),
+                          crossFadeState: reactions
+                                      ?.where((element) => element.reaction == AiResponseReactionType.DISLIKE)
+                                      .isNotEmpty ??
+                                  false
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          firstChild: const Icon(
+                            CupertinoIcons.hand_thumbsdown_fill,
+                            color: Colors.red,
+                          ),
+                          secondChild: const Icon(
+                            CupertinoIcons.hand_thumbsdown,
+                          ),
+                        ),
                       ),
                     ],
                   ],

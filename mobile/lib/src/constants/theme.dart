@@ -3,7 +3,6 @@ import 'package:revelationsai/src/constants/colors.dart';
 
 class RAITheme {
   static final ThemeData light = ThemeData(
-    fontFamily: "Catamaran",
     colorScheme: ColorScheme(
       brightness: Brightness.light,
       primary: RAIColors.primary,
@@ -72,11 +71,11 @@ class RAITheme {
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: Colors.white,
     ),
+    fontFamily: "DMSans",
     useMaterial3: true,
   );
 
   static final ThemeData dark = ThemeData(
-    fontFamily: "Catamaran",
     colorScheme: ColorScheme(
       brightness: Brightness.dark,
       primary: RAIColors.darkPrimary,
@@ -144,6 +143,7 @@ class RAITheme {
       selectionColor: RAIColors.secondary.withOpacity(0.4),
       selectionHandleColor: RAIColors.secondary,
     ),
+    fontFamily: "DMSans",
     useMaterial3: true,
   );
 }

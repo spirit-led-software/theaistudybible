@@ -121,7 +121,7 @@ class UpgradeScreen extends HookConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 20,
+                      vertical: 8,
                     ),
                     child: ListTile(
                       dense: true,
@@ -192,15 +192,37 @@ class UpgradeScreen extends HookConsumerWidget {
                           : null,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Text(
-                      'Upgrades',
-                      style: context.textTheme.headlineSmall,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: context.colorScheme.secondary,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                        ),
+                        child: Text(
+                          "Upgrades",
+                          style: context.textTheme.titleMedium,
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: context.colorScheme.secondary,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      )
+                    ],
                   ),
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),

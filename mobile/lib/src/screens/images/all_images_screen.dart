@@ -29,7 +29,7 @@ class AllImagesScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("AI-Generated Images"),
+        title: const Text("Generated Images"),
         actions: [
           IconButton(
             visualDensity: VisualDensity.compact,

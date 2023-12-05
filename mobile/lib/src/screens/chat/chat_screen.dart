@@ -281,7 +281,6 @@ class ChatScreen extends HookConsumerWidget {
             : Stack(
                 children: [
                   Align(
-                    alignment: Alignment.bottomCenter,
                     child: ListView.builder(
                       controller: scrollController,
                       physics: const AlwaysScrollableScrollPhysics(

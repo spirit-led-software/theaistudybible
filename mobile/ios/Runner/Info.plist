@@ -3,13 +3,13 @@
 <plist version="1.0">
 	<dict>
 		<key>ITSAppUsesNonExemptEncryption</key>
-		<false />
+		<false/>
 		<key>BGTaskSchedulerPermittedIdentifiers</key>
 		<array>
 			<string>daily-devo</string>
 		</array>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true />
+		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
@@ -44,13 +44,13 @@
 		<key>CFBundleVersion</key>
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>FlutterDeepLinkingEnabled</key>
-		<true />
+		<true/>
 		<key>ITSAppUsesNonExemptEncryption</key>
-		<false />
+		<false/>
 		<key>LSRequiresIPhoneOS</key>
-		<true />
+		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
-		<true />
+		<true/>
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>fetch</string>
@@ -61,9 +61,9 @@
 		<key>UIMainStoryboardFile</key>
 		<string>Main</string>
 		<key>UIRequiresFullScreen</key>
-		<true />
+		<true/>
 		<key>UIStatusBarHidden</key>
-		<false />
+		<false/>
 		<key>UISupportedInterfaceOrientations</key>
 		<array>
 			<string>UIInterfaceOrientationPortrait</string>
@@ -74,8 +74,7 @@
 			<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		</array>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>RevelationsAI uses your photo library to upload profile pictures for your account and
-			download AI generated images.</string>
+		<string>RevelationsAI uses your photo library to upload profile pictures for your account and download AI generated images.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>RevelationsAI uses your camera to take profile pictures for your account.</string>
 		<key>NSMicrophoneUsageDescription</key>

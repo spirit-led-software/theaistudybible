@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:revelationsai/src/models/alert.dart';
 import 'package:revelationsai/src/providers/user/current.dart';
 import 'package:revelationsai/src/utils/build_context_extensions.dart';
-import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
+import 'package:revelationsai/src/widgets/branding/logo.dart';
 
 class ForgotPasswordScreen extends HookConsumerWidget {
   final String? token;
@@ -126,171 +126,194 @@ class ForgotPasswordScreen extends HookConsumerWidget {
     );
 
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Card(
-            elevation: 3,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(0),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Expanded(
+            child: Center(
+              child: Logo(
+                width: 300,
               ),
             ),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  alert.value != null
-                      ? Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
-                          ),
-                          child: Text(
-                            alert.value!.message,
-                            style: TextStyle(
-                              color: context.colorScheme.onError,
-                            ),
-                          ),
-                        )
-                      : (isLoading)
-                          ? SpinKitSpinningLines(
-                              color: context.colorScheme.secondary,
-                              size: 32,
-                            )
-                          : const CircularLogo(radius: 30),
-                  const SizedBox(
-                    height: 30,
+          ),
+          Card(
+            elevation: 3,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(25),
+                topRight: Radius.circular(25),
+              ),
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    bottom: 40,
                   ),
-                  if (token == null) ...[
-                    AutofillGroup(
-                      child: TextField(
-                        autofillHints: const [AutofillHints.email],
-                        autocorrect: false,
-                        keyboardType: TextInputType.emailAddress,
-                        controller: emailTextController,
-                        focusNode: emailFocusNode,
-                        onTapOutside: (event) {
-                          emailFocusNode.unfocus();
-                        },
-                        onSubmitted: (value) {
-                          emailFocusNode.unfocus();
-                        },
-                        decoration: const InputDecoration(
-                          hintText: "Email",
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (token != null) ...[
-                    AutofillGroup(
-                      child: Column(
-                        children: [
-                          TextField(
-                            autofillHints: const [AutofillHints.newPassword],
-                            autocorrect: false,
-                            obscureText: !showPassword.value,
-                            keyboardType: TextInputType.visiblePassword,
-                            controller: passwordTextController,
-                            focusNode: passwordFocusNode,
-                            onTapOutside: (event) {
-                              passwordFocusNode.unfocus();
-                            },
-                            onSubmitted: (value) {
-                              passwordFocusNode.unfocus();
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Password",
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  showPassword.value = !showPassword.value;
-                                },
-                                icon: FaIcon(
-                                  showPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
-                                  size: 18,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      alert.value != null
+                          ? Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: alert.value!.type == AlertType.error ? Colors.red : Colors.green,
+                              ),
+                              child: Text(
+                                alert.value!.message,
+                                style: TextStyle(
+                                  color: context.colorScheme.onError,
                                 ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          TextField(
-                            autofillHints: const [AutofillHints.newPassword],
+                            )
+                          : (isLoading)
+                              ? Container(
+                                  height: 32,
+                                  width: 32,
+                                  padding: const EdgeInsets.all(10),
+                                  child: SpinKitSpinningLines(
+                                    color: context.colorScheme.secondary,
+                                    size: 32,
+                                  ),
+                                )
+                              : const SizedBox(),
+                      if (token == null) ...[
+                        AutofillGroup(
+                          child: TextField(
+                            autofillHints: const [AutofillHints.email],
                             autocorrect: false,
-                            obscureText: !showConfirmPassword.value,
-                            keyboardType: TextInputType.visiblePassword,
-                            controller: confirmPasswordTextController,
-                            focusNode: confirmPasswordFocusNode,
+                            keyboardType: TextInputType.emailAddress,
+                            controller: emailTextController,
+                            focusNode: emailFocusNode,
                             onTapOutside: (event) {
-                              confirmPasswordFocusNode.unfocus();
+                              emailFocusNode.unfocus();
                             },
                             onSubmitted: (value) {
-                              confirmPasswordFocusNode.unfocus();
+                              emailFocusNode.unfocus();
                             },
-                            decoration: InputDecoration(
-                              hintText: "Confirm Password",
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  showConfirmPassword.value = !showConfirmPassword.value;
+                            decoration: const InputDecoration(
+                              hintText: "Email",
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (token != null) ...[
+                        AutofillGroup(
+                          child: Column(
+                            children: [
+                              TextField(
+                                autofillHints: const [AutofillHints.newPassword],
+                                autocorrect: false,
+                                obscureText: !showPassword.value,
+                                keyboardType: TextInputType.visiblePassword,
+                                controller: passwordTextController,
+                                focusNode: passwordFocusNode,
+                                onTapOutside: (event) {
+                                  passwordFocusNode.unfocus();
                                 },
-                                icon: FaIcon(
-                                  showConfirmPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
-                                  size: 18,
+                                onSubmitted: (value) {
+                                  passwordFocusNode.unfocus();
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "Password",
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      showPassword.value = !showPassword.value;
+                                    },
+                                    icon: FaIcon(
+                                      showPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
+                                      size: 18,
+                                    ),
+                                  ),
                                 ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              TextField(
+                                autofillHints: const [AutofillHints.newPassword],
+                                autocorrect: false,
+                                obscureText: !showConfirmPassword.value,
+                                keyboardType: TextInputType.visiblePassword,
+                                controller: confirmPasswordTextController,
+                                focusNode: confirmPasswordFocusNode,
+                                onTapOutside: (event) {
+                                  confirmPasswordFocusNode.unfocus();
+                                },
+                                onSubmitted: (value) {
+                                  confirmPasswordFocusNode.unfocus();
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "Confirm Password",
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      showConfirmPassword.value = !showConfirmPassword.value;
+                                    },
+                                    icon: FaIcon(
+                                      showConfirmPassword.value ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                padding: const EdgeInsets.only(
+                                  top: 15,
+                                  bottom: 15,
+                                ),
+                              ),
+                              onPressed: () async {
+                                handleSubmit();
+                              },
+                              child: const Text(
+                                "Submit",
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            padding: const EdgeInsets.only(
-                              top: 15,
-                              bottom: 15,
-                            ),
-                          ),
-                          onPressed: () async {
-                            handleSubmit();
-                          },
-                          child: const Text(
-                            "Submit",
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          context.go('/auth/login');
+                        },
+                        child: Text(
+                          "Know your password?",
+                          style: TextStyle(
+                            color: context.brightness == Brightness.light
+                                ? context.primaryColor.withOpacity(0.6)
+                                : context.secondaryColor,
                           ),
                         ),
-                      ),
+                      )
                     ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/auth/login');
-                    },
-                    child: const Text(
-                      "Know your password?",
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

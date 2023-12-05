@@ -5,6 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:revelationsai/src/constants/visual_density.dart';
+import 'package:revelationsai/src/hooks/use_screenshot_controller.dart';
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/providers/ai_response/reaction.dart';
 import 'package:revelationsai/src/providers/ai_response/source_document.dart';
@@ -14,6 +15,7 @@ import 'package:revelationsai/src/widgets/account/user_avatar.dart';
 import 'package:revelationsai/src/widgets/branding/circular_logo.dart';
 import 'package:revelationsai/src/widgets/chat/markdown.dart';
 import 'package:revelationsai/src/widgets/chat/message_actions_dialog.dart';
+import 'package:screenshot/screenshot.dart';
 
 class Message extends HookConsumerWidget {
   final String? chatId;
@@ -37,6 +39,8 @@ class Message extends HookConsumerWidget {
       currentUserPreferencesProvider.select((value) => value.value?.hapticFeedback ?? true),
     );
 
+    final screenshotController = useScreenshotController();
+
     final showMessageDialog = useCallback(() {
       if (!isLoading) {
         if (hapticFeedback) HapticFeedback.mediumImpact();
@@ -51,11 +55,12 @@ class Message extends HookConsumerWidget {
           builder: (context) {
             return MessageActionsDialog(
               message: message,
+              screenshotController: screenshotController,
             );
           },
         );
       }
-    }, [context, hapticFeedback, isLoading, message]);
+    }, [context, hapticFeedback, isLoading, message, screenshotController]);
 
     return Dismissible(
       key: ValueKey(message.uuid),
@@ -87,116 +92,119 @@ class Message extends HookConsumerWidget {
           ),
         ),
       ),
-      child: ListTile(
-        visualDensity: RAIVisualDensity.tightest,
-        dense: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 10,
-        ),
-        title: Row(
-          mainAxisAlignment: message.role == Role.user ? MainAxisAlignment.end : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (message.role == Role.assistant) ...[
-              const CircularLogo(
-                radius: 15,
-              ),
-              const SizedBox(width: 5),
-            ],
-            Flexible(
-              child: GestureDetector(
-                onDoubleTap: () {
-                  showMessageDialog();
-                },
-                onLongPress: () {
-                  showMessageDialog();
-                },
-                child: Card(
-                  color: message.role == Role.user
-                      ? context.colorScheme.primary
-                      : context.brightness == Brightness.light
-                          ? Colors.grey.shade100
-                          : Colors.grey.shade900,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(30),
-                      topRight: const Radius.circular(30),
-                      bottomLeft: message.role == Role.user ? const Radius.circular(30) : const Radius.circular(0),
-                      bottomRight: message.role == Role.user ? const Radius.circular(0) : const Radius.circular(30),
+      child: Screenshot(
+        controller: screenshotController,
+        child: ListTile(
+          visualDensity: RAIVisualDensity.tightest,
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+          ),
+          title: Row(
+            mainAxisAlignment: message.role == Role.user ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (message.role == Role.assistant) ...[
+                const CircularLogo(
+                  radius: 15,
+                ),
+                const SizedBox(width: 5),
+              ],
+              Flexible(
+                child: GestureDetector(
+                  onDoubleTap: () {
+                    showMessageDialog();
+                  },
+                  onLongPress: () {
+                    showMessageDialog();
+                  },
+                  child: Card(
+                    color: message.role == Role.user
+                        ? context.colorScheme.primary
+                        : context.brightness == Brightness.light
+                            ? Colors.grey.shade100
+                            : Colors.grey.shade900,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(30),
+                        topRight: const Radius.circular(30),
+                        bottomLeft: message.role == Role.user ? const Radius.circular(30) : const Radius.circular(0),
+                        bottomRight: message.role == Role.user ? const Radius.circular(0) : const Radius.circular(30),
+                      ),
                     ),
-                  ),
-                  elevation: 2,
-                  margin: EdgeInsets.only(
-                    bottom: 8,
-                    left: message.role == Role.user ? 35 : 0,
-                    right: message.role == Role.user ? 0 : 35,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
+                    elevation: 2,
+                    margin: EdgeInsets.only(
+                      bottom: 8,
+                      left: message.role == Role.user ? 35 : 0,
+                      right: message.role == Role.user ? 0 : 35,
                     ),
-                    child: Column(
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: <InlineSpan>[
-                              if (message.role == Role.assistant && message.content.isNotEmpty) ...[
-                                WidgetSpan(
-                                  child: ChatMessageMarkdown(
-                                    data: message.content.trim(),
-                                  ),
-                                )
-                              ],
-                              if (message.role == Role.user) ...[
-                                TextSpan(
-                                  text: message.content.trim(),
-                                  style: context.textTheme.bodyMedium?.copyWith(
-                                    color: message.role == Role.user
-                                        ? context.colorScheme.onPrimary
-                                        : context.colorScheme.onBackground,
-                                  ),
-                                ),
-                              ],
-                              if (isCurrentResponse) ...[
-                                WidgetSpan(
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: SpinKitSpinningLines(
-                                      color: context.colorScheme.onBackground,
-                                      size: 20,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 20,
+                      ),
+                      child: Column(
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: <InlineSpan>[
+                                if (message.role == Role.assistant && message.content.isNotEmpty) ...[
+                                  WidgetSpan(
+                                    child: ChatMessageMarkdown(
+                                      data: message.content.trim(),
+                                    ),
+                                  )
+                                ],
+                                if (message.role == Role.user) ...[
+                                  TextSpan(
+                                    text: message.content.trim(),
+                                    style: context.textTheme.bodyMedium?.copyWith(
+                                      color: message.role == Role.user
+                                          ? context.colorScheme.onPrimary
+                                          : context.colorScheme.onBackground,
                                     ),
                                   ),
-                                ),
-                              ]
-                            ],
-                          ),
-                          textAlign: TextAlign.start,
-                          style: context.textTheme.bodyMedium,
-                        ),
-                        if (isLastMessage && !isCurrentResponse && !isLoading) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            "Double tap or hold to see options",
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: context.colorScheme.onBackground.withOpacity(0.5),
+                                ],
+                                if (isCurrentResponse) ...[
+                                  WidgetSpan(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: SpinKitSpinningLines(
+                                        color: context.colorScheme.onBackground,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ]
+                              ],
                             ),
+                            textAlign: TextAlign.start,
+                            style: context.textTheme.bodyMedium,
                           ),
+                          if (isLastMessage && !isCurrentResponse && !isLoading) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              "Double tap or hold to see options",
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: context.colorScheme.onBackground.withOpacity(0.5),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            if (message.role == Role.user) ...[
-              const SizedBox(width: 5),
-              const UserAvatar(
-                radius: 15,
-              ),
+              if (message.role == Role.user) ...[
+                const SizedBox(width: 5),
+                const UserAvatar(
+                  radius: 15,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

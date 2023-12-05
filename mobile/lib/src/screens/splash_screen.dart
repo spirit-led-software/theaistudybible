@@ -28,7 +28,6 @@ class SplashScreen extends HookConsumerWidget {
       backgroundColor: context.colorScheme.background,
       body: Center(
         child: Logo(
-          fontSize: 32,
           colorScheme: context.brightness == Brightness.light ? RAIColorScheme.dark : RAIColorScheme.light,
         ),
       ),

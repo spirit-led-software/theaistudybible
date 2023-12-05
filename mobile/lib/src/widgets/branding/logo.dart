@@ -1,40 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:revelationsai/src/constants/colors.dart';
+import 'package:revelationsai/src/utils/build_context_extensions.dart';
 
 class Logo extends StatelessWidget {
-  final double fontSize;
-
-  final RAIColorScheme colorScheme;
+  final RAIColorScheme? colorScheme;
+  final double width;
 
   const Logo({
     super.key,
-    this.fontSize = 24,
-    this.colorScheme = RAIColorScheme.dark,
+    this.colorScheme,
+    this.width = 200,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color fontColor =
-        colorScheme == RAIColorScheme.dark ? RAIColors.primary : Colors.white;
+    final colorScheme =
+        this.colorScheme ?? (context.brightness == Brightness.dark ? RAIColorScheme.light : RAIColorScheme.dark);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "revelations",
-          style: TextStyle(
-            color: fontColor,
-            fontSize: fontSize,
-          ),
+    return SizedBox(
+      width: width,
+      child: ClipRRect(
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset(
+          'assets/logo/logo-${colorScheme == RAIColorScheme.dark ? 'dark' : 'light'}.png',
+          width: width,
         ),
-        Text(
-          "AI",
-          style: TextStyle(
-            color: RAIColors.secondary,
-            fontSize: fontSize,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
