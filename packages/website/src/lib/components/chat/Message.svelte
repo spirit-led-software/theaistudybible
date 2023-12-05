@@ -3,12 +3,10 @@
 	import { Email, Facebook, X } from 'svelte-share-buttons-component';
 
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
-	import { cn } from '$lib/utils/class-names';
-	import { squareDimensionClasses } from '$lib/utils/sizing';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
 	import Moment from 'moment';
-	import CompactLogo from '../branding/CompactLogo.svelte';
+	import LogoIcon from '../branding/LogoIcon.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
 	import MessageMarkdown from './MessageMarkdown.svelte';
@@ -47,16 +45,7 @@
 		{#if role === 'user'}
 			<Avatar size="lg" class="border shadow-xl border-slate-100" />
 		{:else}
-			<div
-				class={cn(
-					squareDimensionClasses['lg'],
-					'overflow-hidden p-1 rounded-full bg-slate-700 shadow-xl border border-slate-100'
-				)}
-			>
-				<div class="flex justify-center w-full h-full place-items-center">
-					<CompactLogo colorscheme="light" size="xl" />
-				</div>
-			</div>
+			<LogoIcon size="sm" class="w-12 rounded-full shadow-xl" />
 		{/if}
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">

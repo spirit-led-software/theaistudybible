@@ -4,7 +4,7 @@
 
 @layer base {
 	body {
-		@apply font-catamaran font-extralight text-slate-800;
+		@apply font-dm-sans text-slate-800;
 	}
 }
 

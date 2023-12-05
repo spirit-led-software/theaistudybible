@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AskQuestionsBar from '$lib/components/AskQuestionsBar.svelte';
-	import CompactLogo from '$lib/components/branding/CompactLogo.svelte';
 	import Logo from '$lib/components/branding/Logo.svelte';
+	import LogoIcon from '$lib/components/branding/LogoIcon.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -12,16 +12,20 @@
 </svelte:head>
 
 <div
-	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-slate-900 to-slate-700"
+	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-slate-900 to-slate-600"
 >
 	<div class="flex flex-col w-full space-y-2 place-items-center">
-		<div class="flex justify-center w-3/4 -mb-5 place-items-center lg:w-1/2">
-			<CompactLogo size={'7xl'} colorscheme={'light'} />
+		<div class="flex justify-center w-3/4 mb-2 place-items-center lg:w-1/2">
+			<LogoIcon size={'2xl'} class="rounded-full shadow-lg" />
 		</div>
 		<div class="flex justify-center w-1/2 xl:w-1/3">
-			<h2 class="p-2 text-xl text-center text-white lg:text-2xl">
+			<h2 class="p-2 text-lg text-center text-white lg:text-xl">
 				An all new way to discover Jesus Christ with the power of{' '}
-				<span class="text-blue-300">Artificial Intelligence</span>
+				<span
+					class="inline-block font-bold text-transparent bg-gradient-to-t from-blue-50 to-blue-400 bg-clip-text"
+				>
+					Artificial Intelligence
+				</span>
 			</h2>
 		</div>
 
@@ -57,8 +61,8 @@
 			</div>
 		</div>
 		<a href="/privacy-policy" class="text-sm text-gray-200 hover:underline">Privacy Policy</a>
-		<h1 class="pt-5 font-medium text-white">
-			<Logo colorscheme="light" class="font-light" /> is even better on mobile.
+		<h1 class="flex justify-center pt-5 text-white place-items-end">
+			<Logo colorscheme="light" /> is even better on mobile.
 		</h1>
 		<div class="flex items-center justify-center w-1/3 text-white">
 			<a href="https://apps.apple.com/us/app/revelationsai/id6463644660" target="_blank">

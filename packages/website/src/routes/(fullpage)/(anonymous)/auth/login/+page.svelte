@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
-	import CompactLogo from '$lib/components/branding/CompactLogo.svelte';
+	import LogoIcon from '$lib/components/branding/LogoIcon.svelte';
 	import { SolidLineSpinner } from '$lib/components/loading';
 	import Icon from '@iconify/svelte';
 	import type { ActionData, SubmitFunction } from './$types';
@@ -82,9 +82,7 @@
 		</div>
 	{/if}
 	<div class="flex flex-col">
-		<div class="items-center p-1 mx-auto my-8 text-center rounded-full shadow-lg bg-slate-700">
-			<CompactLogo size="2xl" colorscheme={'light'} />
-		</div>
+		<LogoIcon class="mx-auto my-8 rounded-full shadow-xl" />
 		<div class="divide-y divide-gray-600">
 			<div class="flex flex-col w-full pb-4 space-y-3 text-center">
 				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
@@ -97,17 +95,6 @@
 						Login with Google
 					</button>
 				</form>
-				<!-- Removing facebook login for now due to problems with business verification
-					<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
-					<input type="hidden" name="provider" value="facebook" />
-					<button
-						type="submit"
-						class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
-					>
-						<Icon icon="fa6-brands:facebook-f" class="inline-block mr-2 text-white" />
-						Login with Facebook
-					</button>
-				</form> -->
 				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
 					<input type="hidden" name="provider" value="apple" />
 					<button

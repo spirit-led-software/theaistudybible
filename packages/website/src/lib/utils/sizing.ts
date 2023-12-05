@@ -14,7 +14,9 @@ export type ComponentSize =
 	| '7xl'
 	| '8xl';
 
-export const textSizeClasses = {
+export const textSizeClasses: {
+	[key in ComponentSize]: string;
+} = {
 	'3xs': 'text-3xs',
 	'2xs': 'text-2xs',
 	xs: 'text-xs',
@@ -31,7 +33,9 @@ export const textSizeClasses = {
 	'8xl': 'text-8xl'
 };
 
-export const squareDimensions = {
+export const squareDimensions: {
+	[key in ComponentSize]: number;
+} = {
 	'3xs': 2,
 	'2xs': 3,
 	xs: 4,
@@ -48,7 +52,9 @@ export const squareDimensions = {
 	'8xl': 72
 };
 
-export const squareDimensionClasses = {
+export const squareDimensionClasses: {
+	[key in ComponentSize]: string;
+} = {
 	'3xs': 'w-2 h-2',
 	'2xs': 'w-3 h-3',
 	xs: 'w-4 h-4',

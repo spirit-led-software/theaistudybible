@@ -9,7 +9,8 @@ export default {
 	darkMode: 'class',
 	theme: {
 		fontFamily: {
-			catamaran: ['Catamaran']
+			catamaran: ['Catamaran'],
+			'dm-sans': ['DM Sans']
 		},
 		extend: {
 			colors: {

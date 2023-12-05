@@ -56,10 +56,10 @@
 >
 	<nav class="relative flex items-center justify-between h-16 px-4 py-4 bg-slate-700">
 		<a href="/" class="lg:hidden">
-			<CompactLogo size="4xl" colorscheme="light" />
+			<CompactLogo colorscheme="light" />
 		</a>
 		<a href="/" class="hidden lg:block">
-			<Logo size="2xl" colorscheme="light" />
+			<Logo size="lg" colorscheme="light" />
 		</a>
 		<div class="flex space-x-1 place-items-center lg:hidden">
 			<div>

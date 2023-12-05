@@ -3,7 +3,6 @@
 	import type { ComponentSize } from '$lib/utils/sizing';
 
 	export let size: ComponentSize = 'md';
-	export let colorscheme: 'light' | 'dark' = 'light';
 
 	let className: string | undefined = undefined;
 	export { className as class };
@@ -14,53 +13,48 @@
 		};
 	} = {
 		'3xs': {
-			width: 10
+			width: 20
 		},
 		'2xs': {
 			width: 40
 		},
 		xs: {
-			width: 80
+			width: 60
 		},
 		sm: {
-			width: 120
+			width: 80
 		},
 		md: {
-			width: 160
+			width: 100
 		},
 		lg: {
-			width: 200
+			width: 120
 		},
 		xl: {
-			width: 240
+			width: 140
 		},
 		'2xl': {
-			width: 280
+			width: 160
 		},
 		'3xl': {
-			width: 320
+			width: 180
 		},
 		'4xl': {
-			width: 360
+			width: 200
 		},
 		'5xl': {
-			width: 400
+			width: 220
 		},
 		'6xl': {
-			width: 440
+			width: 240
 		},
 		'7xl': {
-			width: 480
+			width: 260
 		},
 		'8xl': {
-			width: 520
+			width: 280
 		}
 	};
 </script>
 
-<img
-	alt="Logo"
-	src={`/logo-${colorscheme}.png`}
-	width={dimensions[size].width}
-	class={cn(className)}
-/>
+<img alt="Icon" src={`/icon.png`} width={dimensions[size].width} class={cn(className)} />

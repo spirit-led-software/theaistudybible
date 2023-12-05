@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
-	import CompactLogo from '$lib/components/branding/CompactLogo.svelte';
+	import LogoIcon from '$lib/components/branding/LogoIcon.svelte';
 	import { SolidLineSpinner } from '$lib/components/loading';
 	import Icon from '@iconify/svelte';
 	import type { ActionData, SubmitFunction } from './$types';
@@ -78,9 +78,7 @@
 		</div>
 	{/if}
 	<div class="flex flex-col">
-		<div class="items-center p-1 mx-auto my-8 text-center rounded-full shadow-lg bg-slate-700">
-			<CompactLogo size="2xl" colorscheme={'light'} />
-		</div>
+		<LogoIcon class="mx-auto my-8 rounded-full shadow-xl" />
 		<div class="divide-y divide-gray-600">
 			<div class="flex flex-col w-full pb-4 space-y-3 text-center">
 				<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>

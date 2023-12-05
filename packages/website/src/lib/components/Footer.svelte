@@ -15,8 +15,8 @@
 		>
 	</div>
 	<div class="flex flex-col justify-center place-items-center">
-		<h1 class="mb-2 text-lg font-medium lg:mb-0">
-			<Logo colorscheme="dark" class="font-light" /> is even better on mobile.
+		<h1 class="flex justify-center mb-2 text-lg font-medium lg:mb-0 place-items-end">
+			<Logo colorscheme="dark" /> is even better on mobile.
 		</h1>
 		<div class="flex flex-col justify-center place-items-center lg:flex-row">
 			<a href="https://apps.apple.com/us/app/revelationsai/id6463644660" target="_blank">
