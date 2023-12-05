@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:revelationsai/src/hooks/use_chat.dart' show nanoid;
 import 'package:revelationsai/src/models/chat/message.dart';
 import 'package:revelationsai/src/models/pagination.dart';
 import 'package:revelationsai/src/models/search.dart';
@@ -171,11 +172,14 @@ class ChatService {
                 role: Role.assistant,
               ),
             );
+
         return [
           replies.firstOrNull ??
               ChatMessage(
-                id: const Uuid().v4(),
+                id: nanoid(),
+                uuid: const Uuid().v4(),
                 content: "Failed message",
+                createdAt: DateTime.now(),
                 role: Role.assistant,
               ),
           message

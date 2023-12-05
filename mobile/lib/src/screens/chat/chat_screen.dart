@@ -21,7 +21,6 @@ import 'package:revelationsai/src/utils/in_app_review.dart';
 import 'package:revelationsai/src/widgets/chat/action_menu_button.dart';
 import 'package:revelationsai/src/widgets/chat/chat_suggestions.dart';
 import 'package:revelationsai/src/widgets/chat/message.dart';
-import 'package:uuid/uuid.dart';
 
 class ChatScreen extends HookConsumerWidget {
   final String? initChatId;
@@ -223,7 +222,7 @@ class ChatScreen extends HookConsumerWidget {
             flushbarPosition: FlushbarPosition.TOP,
             flushbarStyle: FlushbarStyle.GROUNDED,
             padding: const EdgeInsets.all(30),
-            dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+            dismissDirection: FlushbarDismissDirection.VERTICAL,
             animationDuration: const Duration(milliseconds: 200),
           ).show(context);
         }).whenComplete(() {
@@ -281,36 +280,34 @@ class ChatScreen extends HookConsumerWidget {
             : Stack(
                 children: [
                   Positioned.fill(
-                    child: Expanded(
-                      child: ListView.builder(
-                        controller: scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(
-                          parent: BouncingScrollPhysics(
-                            parent: RangeMaintainingScrollPhysics(),
-                          ),
+                    child: ListView.builder(
+                      controller: scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(
+                          parent: RangeMaintainingScrollPhysics(),
                         ),
-                        shrinkWrap: true,
-                        reverse: true,
-                        itemCount: chatHook.messages.value.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            return const SizedBox(
-                              height: 65,
-                            );
-                          }
-
-                          final messagesReversed = chatHook.messages.value.reversed.toList();
-                          ChatMessage message = messagesReversed[index - 1];
-
-                          return Message(
-                            chatId: chatHook.chatId.value,
-                            message: message,
-                            isCurrentResponse: chatHook.currentResponseId.value == message.id,
-                            isLoading: chatHook.loading.value,
-                            isLastMessage: index == chatHook.messages.value.length - 1,
-                          );
-                        },
                       ),
+                      shrinkWrap: true,
+                      reverse: true,
+                      itemCount: chatHook.messages.value.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return const SizedBox(
+                            height: 65,
+                          );
+                        }
+
+                        final messagesReversed = chatHook.messages.value.reversed.toList();
+                        ChatMessage message = messagesReversed[index - 1];
+
+                        return Message(
+                          chatId: chatHook.chatId.value,
+                          message: message,
+                          isCurrentResponse: chatHook.currentResponseId.value == message.id,
+                          isLoading: chatHook.loading.value,
+                          isLastMessage: index == chatHook.messages.value.length - 1,
+                        );
+                      },
                     ),
                   ),
                   if (chatHook.messages.value.isEmpty && currentUserPreferences.chatSuggestions) ...[
@@ -321,8 +318,9 @@ class ChatScreen extends HookConsumerWidget {
 
                           chatHook.append(
                             ChatMessage(
-                              id: const Uuid().v4(),
+                              id: nanoid(),
                               content: suggestionString,
+                              createdAt: DateTime.now(),
                               role: Role.user,
                             ),
                           );
