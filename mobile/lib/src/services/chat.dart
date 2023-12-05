@@ -14,8 +14,7 @@ import '../models/chat.dart';
 
 class ChatService {
   static Future<PaginatedEntitiesResponseData<Chat>> getChats({
-    PaginatedEntitiesRequestOptions paginationOptions =
-        const PaginatedEntitiesRequestOptions(),
+    PaginatedEntitiesRequestOptions paginationOptions = const PaginatedEntitiesRequestOptions(),
     required String session,
   }) async {
     Response res = await get(
@@ -163,9 +162,7 @@ class ChatService {
           session: session,
         );
 
-        final replies = responsesPage.entities
-            .where((element) => !element.failed && !element.regenerated)
-            .map(
+        final replies = responsesPage.entities.where((element) => !element.failed && !element.regenerated).map(
               (aiResponse) => ChatMessage(
                 id: aiResponse.aiId ?? aiResponse.id,
                 uuid: aiResponse.id,

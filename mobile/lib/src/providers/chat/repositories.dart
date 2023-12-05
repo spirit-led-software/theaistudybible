@@ -166,7 +166,7 @@ class ChatMessagesRepository {
   }
 
   Future<List<ChatMessage>> _getLocalByChatId(String chatId) async {
-    return await _isar.chatMessages.where().chatIdEqualTo(chatId).sortByCreatedAtDesc().findAll();
+    return await _isar.chatMessages.where().chatIdEqualTo(chatId).sortByCreatedAt().findAll();
   }
 
   Future<List<ChatMessage>> _fetchByChatId(String chatId) async {

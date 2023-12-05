@@ -280,35 +280,37 @@ class ChatScreen extends HookConsumerWidget {
               )
             : Stack(
                 children: [
-                  Align(
-                    child: ListView.builder(
-                      controller: scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(
-                          parent: RangeMaintainingScrollPhysics(),
+                  Positioned.fill(
+                    child: Expanded(
+                      child: ListView.builder(
+                        controller: scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(
+                            parent: RangeMaintainingScrollPhysics(),
+                          ),
                         ),
-                      ),
-                      shrinkWrap: true,
-                      reverse: true,
-                      itemCount: chatHook.messages.value.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return const SizedBox(
-                            height: 65,
+                        shrinkWrap: true,
+                        reverse: true,
+                        itemCount: chatHook.messages.value.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return const SizedBox(
+                              height: 65,
+                            );
+                          }
+
+                          final messagesReversed = chatHook.messages.value.reversed.toList();
+                          ChatMessage message = messagesReversed[index - 1];
+
+                          return Message(
+                            chatId: chatHook.chatId.value,
+                            message: message,
+                            isCurrentResponse: chatHook.currentResponseId.value == message.id,
+                            isLoading: chatHook.loading.value,
+                            isLastMessage: index == chatHook.messages.value.length - 1,
                           );
-                        }
-
-                        final messagesReversed = chatHook.messages.value.reversed.toList();
-                        ChatMessage message = messagesReversed[index - 1];
-
-                        return Message(
-                          chatId: chatHook.chatId.value,
-                          message: message,
-                          isCurrentResponse: chatHook.currentResponseId.value == message.id,
-                          isLoading: chatHook.loading.value,
-                          isLastMessage: index == chatHook.messages.value.length - 1,
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                   if (chatHook.messages.value.isEmpty && currentUserPreferences.chatSuggestions) ...[
