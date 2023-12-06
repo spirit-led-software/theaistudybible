@@ -1,4 +1,4 @@
-import { API, ChatAPI, Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from '@stacks';
+import { API, Auth, ChatAPI, Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from '@stacks';
 import { StackContext, SvelteKitSite, dependsOn, use } from 'sst/constructs';
 
 export function Website({ stack }: StackContext) {
@@ -7,6 +7,7 @@ export function Website({ stack }: StackContext) {
   const { indexFileBucket } = use(S3);
   const { api, apiUrl } = use(API);
   const { chatApiUrl } = use(ChatAPI);
+  const { authUiUrl } = use(Auth);
   const { hostedZone, domainName, websiteUrl } = use(Constants);
 
   const website = new SvelteKitSite(stack, 'website', {
@@ -17,7 +18,8 @@ export function Website({ stack }: StackContext) {
       ...STATIC_ENV_VARS,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
-      PUBLIC_CHAT_API_URL: chatApiUrl
+      PUBLIC_CHAT_API_URL: chatApiUrl,
+      PUBLIC_AUTH_URL: authUiUrl
     },
     customDomain: {
       domainName: domainName,

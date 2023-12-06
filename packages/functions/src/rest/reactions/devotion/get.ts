@@ -31,14 +31,15 @@ export const handler = ApiHandler(async (event) => {
     });
 
     return OkResponse({
-      entities: reactions.map(
-        (reaction) =>
-          ({
-            ...reaction.devotion_reactions,
-            user: reaction.users,
-            devotion: reaction.devotions
-          }) satisfies DevotionReactionInfo
-      ),
+      entities: reactions.map((reaction) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { passwordHash, ...user } = reaction.users;
+        return {
+          ...reaction.devotion_reactions,
+          user,
+          devotion: reaction.devotions
+        } satisfies DevotionReactionInfo;
+      }),
       page,
       perPage: limit
     });

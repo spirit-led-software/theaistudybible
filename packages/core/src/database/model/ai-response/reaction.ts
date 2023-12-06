@@ -10,6 +10,6 @@ export type CreateAiResponseReactionData = PgInsertValue<typeof aiResponseReacti
 export type UpdateAiResponseReactionData = PgUpdateSetSource<typeof aiResponseReactions>;
 
 export type AiResponseReactionInfo = AiResponseReaction & {
-  user: User;
+  user: Omit<User, 'passwordHash'>;
   response: AiResponse;
 };

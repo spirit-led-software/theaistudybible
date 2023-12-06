@@ -10,6 +10,6 @@ export type CreateDevotionReactionData = PgInsertValue<typeof devotionReactions>
 export type UpdateDevotionReactionData = PgUpdateSetSource<typeof devotionReactions>;
 
 export type DevotionReactionInfo = DevotionReaction & {
-  user: User;
+  user: Omit<User, 'passwordHash'>;
   devotion: Devotion;
 };

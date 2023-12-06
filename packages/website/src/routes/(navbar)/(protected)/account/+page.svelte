@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { PUBLIC_AUTH_URL } from '$env/static/public';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { deleteUser } from '$lib/services/user';
 	import Icon from '@iconify/svelte';
@@ -28,7 +29,7 @@
 			>
 			<a
 				class="text-white btn bg-slate-700 hover:bg-slate-900 active:bg-slate-900"
-				href="/auth/logout">Logout</a
+				href={`${PUBLIC_AUTH_URL}/logout`}>Logout</a
 			>
 			<div class="flex flex-col px-10 py-5 space-y-1 text-center bg-red-100 rounded-xl">
 				<h2 class="text-red-700">Danger Zone</h2>
@@ -44,7 +45,7 @@
 								// @ts-expect-error Can't use a bang here
 								session: session
 							});
-							await goto('/auth/logout');
+							await goto(`${PUBLIC_AUTH_URL}/logout`);
 						}
 					}}>Delete Account</button
 				>

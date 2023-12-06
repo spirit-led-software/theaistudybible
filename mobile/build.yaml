@@ -1,7 +1,0 @@
-global_options:
-  freezed:freezed:
-    runs_before:
-      - isar_generator:isar_generator
-  isar_generator:isar_generator:
-    runs_before:
-      - json_serializable:json_serializable

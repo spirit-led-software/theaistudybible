@@ -31,7 +31,9 @@ export const handler = ApiHandler(async (event) => {
 
     user = await updateUser(user.id, data);
 
-    return OkResponse(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- passwordHash is removed
+    const { passwordHash, ...rest } = user;
+    return OkResponse(rest);
   } catch (error) {
     console.error(`Error updating user '${id}':`, error);
     if (error instanceof Error) {
