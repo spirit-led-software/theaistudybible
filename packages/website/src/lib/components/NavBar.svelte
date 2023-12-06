@@ -66,12 +66,13 @@
 			<div>
 				{#if user}
 					<div class="flex flex-col justify-center space-y-1 place-items-center">
-						<a href="/account">
+						<a
+							href={`${PUBLIC_AUTH_URL}/account?returnPath=${encodeURIComponent(
+								$page.url.pathname
+							)}`}
+						>
 							<Avatar size="sm" />
 						</a>
-						<div class="text-xs text-white">
-							{user.remainingQueries}/{user.maxQueries}
-						</div>
 					</div>
 				{/if}
 			</div>
@@ -115,11 +116,10 @@
 		</ul>
 		{#if user}
 			<div class="hidden space-x-2 lg:flex place-items-center">
-				<div class="text-xs text-white">
-					Remaining: {user.remainingQueries}
-				</div>
 				<div class="inline-flex items-center justify-center space-x-1">
-					<a href="/account">
+					<a
+						href={`${PUBLIC_AUTH_URL}/account?returnPath=${encodeURIComponent($page.url.pathname)}`}
+					>
 						<Avatar size="md" />
 					</a>
 				</div>

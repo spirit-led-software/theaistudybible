@@ -1,15 +1,12 @@
 import { API, Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
 import { Auth as AuthConstruct, StackContext, SvelteKitSite, dependsOn, use } from 'sst/constructs';
 
-export function Auth({ stack, app }: StackContext) {
+export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { api, apiUrl } = use(API);
-  const { domainName, websiteUrl, hostedZone } = use(Constants);
+  const { domainName, websiteUrl, hostedZone, authUiUrl } = use(Constants);
   const { dbReadOnlyUrl, dbReadWriteUrl } = use(DatabaseScripts);
-
-  const authUiDomain = `auth.${domainName}`;
-  const authUiUrl = app.mode === 'dev' ? `http://localhost:8910` : `https://${authUiDomain}`;
 
   const auth = new AuthConstruct(stack, 'auth', {
     authenticator: {
@@ -35,7 +32,6 @@ export function Auth({ stack, app }: StackContext) {
       memorySize: '512 MB'
     }
   });
-
   auth.attach(stack, {
     api
   });
@@ -63,8 +59,6 @@ export function Auth({ stack, app }: StackContext) {
 
   return {
     auth,
-    authUi,
-    authUiUrl,
-    authUiDomain
+    authUi
   };
 }

@@ -12,7 +12,7 @@
     "@opensearch-project/opensearch": "^2.4.0",
     "@types/email-templates": "^10.0.4",
     "@types/node": "^20.10.3",
-    "sst": "2.37.0",
+    "sst": "2.37.1",
     "vitest": "^1.0.1"
   },
   "dependencies": {

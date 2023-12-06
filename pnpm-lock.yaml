@@ -76,8 +76,8 @@ importers:
         specifier: ^8.10.9
         version: 8.10.9
       aws-cdk-lib:
-        specifier: 2.114.1
-        version: 2.114.1(constructs@10.3.0)
+        specifier: 2.110.1
+        version: 2.110.1(constructs@10.3.0)
       constructs:
         specifier: 10.3.0
         version: 10.3.0
@@ -91,8 +91,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
       sst:
-        specifier: 2.37.0
-        version: 2.37.0(pg@8.11.3)
+        specifier: 2.37.1
+        version: 2.37.1(pg@8.11.3)
       typescript:
         specifier: ^5.3.2
         version: 5.3.2
@@ -185,8 +185,8 @@ importers:
         specifier: ^0.10.1
         version: 0.10.1
       svelte-kit-sst:
-        specifier: 2.37.0
-        version: 2.37.0
+        specifier: 2.37.1
+        version: 2.37.1
       svelte-share-buttons-component:
         specifier: ^2.0.0
         version: 2.0.0
@@ -234,8 +234,8 @@ importers:
         specifier: ^20.10.3
         version: 20.10.3
       sst:
-        specifier: 2.37.0
-        version: 2.37.0(pg@8.11.3)
+        specifier: 2.37.1
+        version: 2.37.1(pg@8.11.3)
       vitest:
         specifier: ^1.0.1
         version: 1.0.1(@types/node@20.10.3)
@@ -325,8 +325,8 @@ importers:
         specifier: ^6.4.14
         version: 6.4.14
       sst:
-        specifier: 2.37.0
-        version: 2.37.0(pg@8.11.3)
+        specifier: 2.37.1
+        version: 2.37.1(pg@8.11.3)
       vitest:
         specifier: ^1.0.1
         version: 1.0.1(@types/node@20.10.3)
@@ -425,8 +425,8 @@ importers:
         specifier: ^0.10.1
         version: 0.10.1
       svelte-kit-sst:
-        specifier: 2.37.0
-        version: 2.37.0
+        specifier: 2.37.1
+        version: 2.37.1
       svelte-share-buttons-component:
         specifier: ^2.0.0
         version: 2.0.0
@@ -5355,29 +5355,6 @@ packages:
       - table
       - yaml
 
-  /aws-cdk-lib@2.114.1(constructs@10.3.0):
-    resolution: {integrity: sha512-pJy+Sa3+s6K9I0CXYGU8J5jumw9uQEbl8zPK8EMA+A6hP9qb1JN+a8ohyw6a1O1cb4D5S6gwH+hE7Fq7hGPY3A==}
-    engines: {node: '>= 14.15.0'}
-    peerDependencies:
-      constructs: ^10.0.0
-    dependencies:
-      '@aws-cdk/asset-awscli-v1': 2.2.201
-      '@aws-cdk/asset-kubectl-v20': 2.1.2
-      '@aws-cdk/asset-node-proxy-agent-v6': 2.0.1
-      constructs: 10.3.0
-    dev: true
-    bundledDependencies:
-      - '@balena/dockerignore'
-      - case
-      - fs-extra
-      - ignore
-      - jsonschema
-      - minimatch
-      - punycode
-      - semver
-      - table
-      - yaml
-
   /aws-crt@1.19.0:
     resolution: {integrity: sha512-pBRSpy4TsL/fxW7Lp1xpN1FhnxvtBXFYx3Njo/j/m8GSV3Ytq/mBetYq7vhDb7CJQmFJCWod9I0yShqjiSUuyQ==}
     requiresBuild: true
@@ -5607,7 +5584,7 @@ packages:
     resolution: {integrity: sha512-xq+q3SRMOxGivLhBNaUdC64hDTQwejJ+H0T/NB1XMtTVEwNTrfFF3gAxiyW0Bu/xWEGhjVKgUcMhCrUy2+uCWg==}
     dependencies:
       base64-js: 1.5.1
-      ieee754: 1.1.13
+      ieee754: 1.2.1
       isarray: 1.0.0
     dev: true
 
@@ -5957,7 +5934,7 @@ packages:
     resolution: {integrity: sha512-rraC8NXWOEjhADbZe9QBNzLAN5Q3fsTPQtBV+fEVj6xKIgDgNiEVE6ZNfHpZOqfQ21YUzfVNUXLOEZquYvQPPg==}
     dependencies:
       leven: 2.1.0
-      minimist: 1.2.6
+      minimist: 1.2.8
 
   /compress-commons@4.1.2:
     resolution: {integrity: sha512-D3uMHtGc/fcO1Gt1/L7i1e33VOvD4A9hfQLP+6ewd+BvG/gQ84Yh4oftEhAdjSMgBgwGL+jsppT7JYNpo6MHHg==}
@@ -9316,6 +9293,7 @@ packages:
 
   /minimist@1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
+    dev: true
 
   /minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
@@ -9417,7 +9395,7 @@ packages:
       duplexify: 4.1.2
       help-me: 3.0.0
       inherits: 2.0.4
-      minimist: 1.2.6
+      minimist: 1.2.8
       mqtt-packet: 6.10.0
       pump: 3.0.0
       readable-stream: 3.6.2
@@ -11073,8 +11051,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /sst@2.37.0(pg@8.11.3):
-    resolution: {integrity: sha512-dAR2vum4T+tRqkSxRqKkEAelp7vOef4+YZABTCQbYymJ2KROxjq/X9L/RF1FEGFB8cWwnK3ZXhsHba1xReDO+A==}
+  /sst@2.37.1(pg@8.11.3):
+    resolution: {integrity: sha512-pn1cfMeHQzefc6E2xv0ExKdgIpSHvxk9WIjK0AU2j3p5pWnt94lkjuxufGSlwnPEuCBXEm2wekxjzf7KsnLHqg==}
     hasBin: true
     peerDependencies:
       '@sls-next/lambda-at-edge': ^3.7.0
@@ -11415,8 +11393,8 @@ packages:
     resolution: {integrity: sha512-hvWZwd0S8t0osA0ChJ4uJDsLvZlULyE3roDEc8mWyeiLT9y25NKT/CKfncsDyS7EGq3B9zb4ZxsH2uNaaXWP4A==}
     dev: true
 
-  /svelte-kit-sst@2.37.0:
-    resolution: {integrity: sha512-sqLpsgqaWpmIS2FUAmSqXN8i7APQJuxjJEylkqzY2tS4unLd9TRZ89adYm4sSFwX6lgaNNNSsnsu+e3XDWZ3HQ==}
+  /svelte-kit-sst@2.37.1:
+    resolution: {integrity: sha512-UBfE1WuhxVYkQmvVu3VPa0GXBJYiQwyKgz3edgYbT6f63+RighyjhHxibcgAde8ty9Az7tPvgVy/Ta0fIm1bgg==}
     dev: true
 
   /svelte-preprocess@5.1.1(@babel/core@7.23.5)(postcss@8.4.32)(svelte@4.2.8)(typescript@5.3.2):
