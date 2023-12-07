@@ -11,6 +11,9 @@ export function Auth({ stack }: StackContext) {
   const auth = new AuthConstruct(stack, 'auth', {
     authenticator: {
       handler: 'packages/functions/src/auth/auth.handler',
+      nodejs: {
+        install: ['argon2'] // Install argon2 package because it needs to be compiled
+      },
       copyFiles: [
         {
           from: 'emails',

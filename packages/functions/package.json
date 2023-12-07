@@ -26,7 +26,7 @@
     "@revelationsai/core": "workspace:*",
     "@upstash/redis": "^1.25.1",
     "ai": "^2.2.27",
-    "bcryptjs": "^2.4.3",
+    "argon2": "^0.31.2",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.3.2",

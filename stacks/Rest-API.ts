@@ -149,7 +149,14 @@ export function RestAPI({ stack }: StackContext) {
       'packages/functions/src/rest/users/[id]/query-counts/get.handler',
 
     // Change user password endpoint
-    'POST /users/change-password': 'packages/functions/src/rest/users/change-password/post.handler',
+    'POST /users/change-password': {
+      function: {
+        handler: 'packages/functions/src/rest/users/change-password/post.handler',
+        nodejs: {
+          install: ['argon2'] // Install argon2 package because it needs to be compiled
+        }
+      }
+    },
 
     // Generate presigned url for user profile picture upload
     'POST /users/profile-pictures/presigned-url': {

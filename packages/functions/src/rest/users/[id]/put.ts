@@ -1,6 +1,5 @@
 import type { UpdateUserData } from '@core/model';
 import {
-  BadRequestResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
@@ -25,15 +24,8 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You are not authorized to update this user');
     }
 
-    if (data.passwordHash) {
-      return BadRequestResponse('You cannot change your password here.');
-    }
-
     user = await updateUser(user.id, data);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- passwordHash is removed
-    const { passwordHash, ...rest } = user;
-    return OkResponse(rest);
+    return OkResponse(user);
   } catch (error) {
     console.error(`Error updating user '${id}':`, error);
     if (error instanceof Error) {

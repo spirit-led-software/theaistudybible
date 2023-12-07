@@ -19,11 +19,7 @@ export const handler = ApiHandler(async (event) => {
     });
 
     return OkResponse({
-      entities: users.map((user) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- passwordHash is removed
-        const { passwordHash, ...rest } = user;
-        return rest;
-      }),
+      entities: users,
       page,
       perPage: limit
     });

@@ -13,10 +13,7 @@ export const handler = ApiHandler(async (event) => {
     if (!user) {
       return ObjectNotFoundResponse(id);
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- passwordHash is removed
-    const { passwordHash, ...rest } = user;
-    return OkResponse(rest);
+    return OkResponse(user);
   } catch (error) {
     console.error(`Error getting user '${id}':`, error);
     if (error instanceof Error) {

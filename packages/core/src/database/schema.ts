@@ -125,7 +125,6 @@ export const users = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     name: text('name'),
     email: text('email').notNull(),
-    passwordHash: text('password_hash'),
     stripeCustomerId: text('stripe_customer_id'),
     image: text('image'),
     customImage: boolean('custom_image').notNull().default(false),
@@ -146,6 +145,7 @@ export const users = pgTable(
 export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
+    userPasswords: many(userPasswords),
     userQueryCounts: many(userQueryCounts),
     userGeneratedImages: many(userGeneratedImages),
     userGeneratedImageCounts: many(userGeneratedImageCounts),
@@ -153,6 +153,34 @@ export const usersRelations = relations(users, ({ many }) => {
     aiResponses: many(aiResponses),
     devotionReactions: many(devotionReactions),
     aiResponseReactions: many(aiResponseReactions)
+  };
+});
+
+export const userPasswords = pgTable(
+  'user_passwords',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    passwordHash: text('password_hash').notNull(),
+    salt: text('salt').notNull().default(''),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
+  },
+  (table) => {
+    return {
+      userIdIdx: index('user_passwords_user_id').on(table.userId)
+    };
+  }
+);
+
+export const userPasswordsRelations = relations(userPasswords, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [userPasswords.userId],
+      references: [users.id]
+    })
   };
 });
 

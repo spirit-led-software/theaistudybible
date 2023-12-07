@@ -11,7 +11,8 @@ import {
   getRoleByName,
   updateRole
 } from '@services/role';
-import { createUser, getUserByEmail, isAdmin, updateUser } from '@services/user';
+import { createUser, getUserByEmail, isAdmin } from '@services/user';
+import { createUserPassword, updateUserPasswordByUserId } from '@services/user/password';
 import { getDocumentVectorStore } from '@services/vector-db';
 import type { Handler } from 'aws-lambda';
 import * as bcrypt from 'bcryptjs';
@@ -22,13 +23,16 @@ async function createInitialAdminUser() {
   let adminUser: User | undefined = await getUserByEmail(authConfig.adminUser.email);
   if (!adminUser) {
     adminUser = await createUser({
-      email: authConfig.adminUser.email,
+      email: authConfig.adminUser.email
+    });
+    await createUserPassword({
+      userId: adminUser.id,
       passwordHash: bcrypt.hashSync(authConfig.adminUser.password, authConfig.bcrypt.saltRounds)
     });
     console.log('Initial admin user created');
   } else {
     console.log('Admin user already existed, updating password.');
-    adminUser = await updateUser(adminUser.id, {
+    await updateUserPasswordByUserId(adminUser.id, {
       passwordHash: bcrypt.hashSync(authConfig.adminUser.password, authConfig.bcrypt.saltRounds)
     });
   }

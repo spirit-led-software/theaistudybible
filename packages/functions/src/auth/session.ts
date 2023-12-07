@@ -20,10 +20,8 @@ export const handler = ApiHandler(async (event) => {
     console.debug('Invalid session token: ', sessionToken);
     return UnauthorizedResponse('Invalid session token');
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { passwordHash, ...user } = userWithRoles;
   return OkResponse({
-    ...user,
+    ...userWithRoles,
     maxQueries,
     remainingQueries,
     maxGeneratedImages,

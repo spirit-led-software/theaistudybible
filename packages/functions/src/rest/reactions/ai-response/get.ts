@@ -32,11 +32,9 @@ export const handler = ApiHandler(async (event) => {
 
     return OkResponse({
       entities: reactions.map((reaction) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { passwordHash, ...user } = reaction.users;
         return {
           ...reaction.ai_response_reactions,
-          user,
+          user: reaction.users,
           response: reaction.ai_responses
         } satisfies AiResponseReactionInfo;
       }),

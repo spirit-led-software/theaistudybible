@@ -1,4 +1,4 @@
-import { authConfig, emailConfig, websiteConfig } from '@core/configs';
+import { emailConfig, websiteConfig } from '@core/configs';
 import { emailTransport } from '@core/configs/email';
 import type { User } from '@core/model';
 import {
@@ -9,7 +9,13 @@ import {
 } from '@lib/api-responses';
 import { addRoleToUser, doesUserHaveRole } from '@services/role';
 import { createUser, getUserByEmail, updateUser } from '@services/user';
-import * as bcrypt from 'bcryptjs';
+import {
+  createUserPassword,
+  getUserPasswordByUserId,
+  updateUserPassword
+} from '@services/user/password';
+import argon from 'argon2';
+import { randomBytes } from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import type { TokenSet } from 'openid-client';
@@ -24,7 +30,7 @@ const SessionParameter = (user: User, url?: string) =>
   Session.parameter({
     type: 'user',
     options: {
-      expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
+      expiresIn: 1000 * 60 * 60 * 24 * 7, // = 7 days = MS * S * M * H * D
       sub: user.id
     },
     redirect: url || `${websiteConfig.authUrl}/callback`,
@@ -167,9 +173,16 @@ const createCredentialsAdapter = (callbackUrlBase: string = websiteConfig.authUr
       let user: User | undefined = await getUserByEmail(email);
       if (!user) {
         user = await createUser({
-          email: email,
-          passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
+          email: email
         });
+
+        const salt = randomBytes(16).toString('hex');
+        await createUserPassword({
+          userId: user.id,
+          passwordHash: await argon.hash(`${password}${salt}`),
+          salt: Buffer.from(salt, 'hex').toString('base64')
+        });
+
         await addRoleToUser('user', user.id);
         await createStripeCustomer(user);
       } else {
@@ -182,20 +195,30 @@ const createCredentialsAdapter = (callbackUrlBase: string = websiteConfig.authUr
       if (!user) {
         return InternalServerErrorResponse('User not found');
       }
-      if (!user.passwordHash) {
+
+      const password = await getUserPasswordByUserId(user.id);
+      if (!password) {
         return BadRequestResponse(
           'You may have signed up with a different provider. Try using facebook or google to login.'
         );
       }
-      if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
+
+      const decodedSalt = Buffer.from(password.salt, 'base64').toString('hex');
+      const validPassword = await argon.verify(
+        password.passwordHash,
+        `${claims.password}${decodedSalt}`
+      );
+      if (!validPassword) {
         return BadRequestResponse('Incorrect password');
       }
+
       await doesUserHaveRole('user', user.id).then(async (hasRole) => {
         if (!hasRole) await addRoleToUser('user', user!.id);
       });
       if (!user.stripeCustomerId) {
         user = await createStripeCustomer(user);
       }
+
       return SessionParameter(user, `${callbackUrlBase}/callback`);
     },
     onForgotPassword: async (link, claims) => {
@@ -227,13 +250,28 @@ const createCredentialsAdapter = (callbackUrlBase: string = websiteConfig.authUr
         return InternalServerErrorResponse('User not found');
       }
 
-      if (user.passwordHash && bcrypt.compareSync(password, user.passwordHash)) {
+      const userPassword = await getUserPasswordByUserId(user.id);
+      if (!userPassword) {
+        return BadRequestResponse(
+          'User does not have a password, you may have signed up with a different provider. Try using facebook or google to login.'
+        );
+      }
+
+      const decodedSalt = Buffer.from(userPassword.salt, 'base64').toString('hex');
+      const validPassword = await argon.verify(
+        userPassword.passwordHash,
+        `${password}${decodedSalt}`
+      );
+      if (validPassword) {
         return BadRequestResponse('Password cannot be the same as the old password');
       }
 
-      await updateUser(user.id, {
-        passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
+      const salt = randomBytes(16).toString('hex');
+      await updateUserPassword(userPassword.id, {
+        passwordHash: await argon.hash(`${password}${salt}`),
+        salt: Buffer.from(salt, 'hex').toString('base64')
       });
+
       return OkResponse('Password reset successfully');
     },
     onError: async (error) => {

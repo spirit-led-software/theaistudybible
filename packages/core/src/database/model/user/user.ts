@@ -12,7 +12,7 @@ export type UserWithRoles = User & {
   roles: Role[];
 };
 
-export type UserInfo = Omit<UserWithRoles, 'passwordHash'> & {
+export type UserInfo = UserWithRoles & {
   remainingQueries: number;
   maxQueries: number;
   maxGeneratedImages: number;
