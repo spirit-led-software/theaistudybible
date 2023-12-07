@@ -70,18 +70,6 @@ export function API({ stack }: StackContext) {
           }
         }
       },
-      'GET /session': {
-        function: {
-          handler: 'packages/functions/src/auth/session.handler',
-          memorySize: '512 MB'
-        }
-      },
-      'GET /refresh-session': {
-        function: {
-          handler: 'packages/functions/src/auth/refresh-session.handler',
-          memorySize: '512 MB'
-        }
-      },
 
       // Webhooks
       'POST /notifications/stripe': 'packages/functions/src/webhooks/stripe.handler',

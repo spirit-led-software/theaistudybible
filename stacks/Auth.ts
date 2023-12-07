@@ -39,6 +39,40 @@ export function Auth({ stack }: StackContext) {
       memorySize: '512 MB'
     }
   });
+
+  api.addRoutes(stack, {
+    // Legacy endpoints
+    // TODO: remove these
+    'GET /session': {
+      function: {
+        handler: 'packages/functions/src/auth/session.handler',
+        memorySize: '512 MB'
+      }
+    },
+    'GET /refresh-session': {
+      function: {
+        handler: 'packages/functions/src/auth/refresh-session.handler',
+        bind: [auth],
+        memorySize: '512 MB'
+      }
+    },
+
+    // New endpoints that will replace the above
+    'GET /auth/user-info': {
+      function: {
+        handler: 'packages/functions/src/auth/session.handler',
+        memorySize: '512 MB'
+      }
+    },
+    'GET /auth/refresh-token': {
+      function: {
+        handler: 'packages/functions/src/auth/refresh-session.handler',
+        bind: [auth],
+        memorySize: '512 MB'
+      }
+    }
+  });
+
   auth.attach(stack, {
     api
   });
@@ -51,6 +85,7 @@ export function Auth({ stack }: StackContext) {
       ...STATIC_ENV_VARS,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
+      PUBLIC_AUTH_URL: authUiUrl,
       DATABASE_READWRITE_URL: dbReadWriteUrl,
       DATABASE_READONLY_URL: dbReadOnlyUrl
     },
