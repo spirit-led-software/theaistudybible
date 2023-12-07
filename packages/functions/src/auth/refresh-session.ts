@@ -4,7 +4,7 @@ import { ApiHandler } from 'sst/node/api';
 import { Session } from 'sst/node/auth';
 
 export const handler = ApiHandler(async (event) => {
-  console.debug('Received session validation event: ', event);
+  console.debug('Received session refresh event: ', event);
 
   const { isValid, sessionToken, userWithRoles } = await validApiHandlerSession();
 

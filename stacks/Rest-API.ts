@@ -1,4 +1,4 @@
-import { API, Constants, DatabaseScripts, Queues, S3, STATIC_ENV_VARS } from '@stacks';
+import { API, Constants, DatabaseScripts, Layers, Queues, S3, STATIC_ENV_VARS } from '@stacks';
 import { StackContext, dependsOn, use } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
@@ -15,6 +15,7 @@ export function RestAPI({ stack }: StackContext) {
   } = use(S3);
   const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
     use(DatabaseScripts);
+  const { argonLayer } = use(Layers);
 
   const lambdaEnv: Record<string, string> = {
     ...STATIC_ENV_VARS,
@@ -152,8 +153,11 @@ export function RestAPI({ stack }: StackContext) {
     'POST /users/change-password': {
       function: {
         handler: 'packages/functions/src/rest/users/change-password/post.handler',
+        layers: [argonLayer],
         nodejs: {
-          install: ['argon2'] // Install argon2 package because it needs to be compiled
+          esbuild: {
+            external: ['argon2']
+          }
         }
       }
     },

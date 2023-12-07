@@ -26,6 +26,23 @@ import Stripe from 'stripe';
 import { stripeConfig } from '../configs';
 import { AppleAdapter, CredentialsAdapter } from './providers';
 
+const SessionResponse = (user: User) => {
+  const session = Session.create({
+    type: 'user',
+    options: {
+      expiresIn: 1000 * 60 * 60 * 24 * 7, // = 7 days = MS * S * M * H * D
+      sub: user.id
+    },
+    properties: {
+      id: user.id
+    }
+  });
+
+  return OkResponse({
+    session
+  });
+};
+
 const SessionParameter = (user: User, url?: string) =>
   Session.parameter({
     type: 'user',
@@ -146,7 +163,10 @@ const createAppleAdapter = (callbackUrl?: string) =>
     }
   });
 
-const createCredentialsAdapter = (callbackUrlBase: string = websiteConfig.authUrl) =>
+const createCredentialsAdapter = (
+  callbackUrlBase: string = websiteConfig.authUrl,
+  isMobile = false
+) =>
   CredentialsAdapter({
     onRegister: async (link, claims) => {
       const htmlCompileFunction = pug.compileFile('emails/verify-email/html.pug');
@@ -219,6 +239,9 @@ const createCredentialsAdapter = (callbackUrlBase: string = websiteConfig.authUr
         user = await createStripeCustomer(user);
       }
 
+      if (isMobile) {
+        return SessionResponse(user);
+      }
       return SessionParameter(user, `${callbackUrlBase}/callback`);
     },
     onForgotPassword: async (link, claims) => {
@@ -291,6 +314,6 @@ export const handler = AuthHandler({
     apple: createAppleAdapter(),
     'apple-mobile': createAppleAdapter('revelationsai://revelationsai/auth/callback'),
     credentials: createCredentialsAdapter(),
-    'credentials-mobile': createCredentialsAdapter('revelationsai://revelationsai/auth')
+    'credentials-mobile': createCredentialsAdapter('revelationsai://revelationsai/auth', true)
   }
 });

@@ -1,9 +1,10 @@
-import { API, Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { API, Constants, DatabaseScripts, Layers, STATIC_ENV_VARS } from '@stacks';
 import { Auth as AuthConstruct, StackContext, SvelteKitSite, dependsOn, use } from 'sst/constructs';
 
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { argonLayer } = use(Layers);
   const { api, apiUrl } = use(API);
   const { domainName, websiteUrl, hostedZone, authUiUrl } = use(Constants);
   const { dbReadOnlyUrl, dbReadWriteUrl } = use(DatabaseScripts);
@@ -11,8 +12,11 @@ export function Auth({ stack }: StackContext) {
   const auth = new AuthConstruct(stack, 'auth', {
     authenticator: {
       handler: 'packages/functions/src/auth/auth.handler',
+      layers: [argonLayer],
       nodejs: {
-        install: ['argon2'] // Install argon2 package because it needs to be compiled
+        esbuild: {
+          external: ['argon2']
+        }
       },
       copyFiles: [
         {
@@ -58,6 +62,10 @@ export function Auth({ stack }: StackContext) {
       url: authUiUrl
     },
     memorySize: '1 GB'
+  });
+
+  stack.addOutputs({
+    AuthUrl: authUi.url
   });
 
   return {

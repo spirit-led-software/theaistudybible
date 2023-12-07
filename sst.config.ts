@@ -5,6 +5,7 @@ import {
   Constants,
   Crons,
   DatabaseScripts,
+  Layers,
   Queues,
   S3,
   Website
@@ -22,6 +23,7 @@ export default {
   async stacks(app) {
     app
       .stack(Constants)
+      .stack(Layers)
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(Queues)

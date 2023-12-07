@@ -13,6 +13,7 @@ INSERT INTO "user_passwords" (
 		"created_at",
 		"updated_at",
 		"password_hash",
+		"salt",
 		"user_id"
 	)
 SELECT gen_random_uuid(),
