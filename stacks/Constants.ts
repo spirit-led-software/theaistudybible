@@ -42,8 +42,7 @@ export function Constants({ stack, app }: StackContext) {
         treeShaking: stack.stage === 'prod'
       }
     },
-    architecture: 'x86_64',
-    logRetention: stack.stage === 'prod' ? 'one_week' : 'one_day'
+    architecture: 'x86_64'
   });
 
   const invokeBedrockPolicy = new PolicyStatement({
