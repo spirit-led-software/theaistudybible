@@ -3,7 +3,7 @@ import type { UpdateUserData, UserInfo, UserWithRoles } from '@core/model';
 import type { ProtectedApiOptions } from '../types';
 
 export async function getUserInfo(session: string) {
-	const response = await fetch(`${PUBLIC_API_URL}/session`, {
+	const response = await fetch(`${PUBLIC_API_URL}/auth/user-info`, {
 		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${session}`
