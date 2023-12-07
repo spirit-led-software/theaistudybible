@@ -27,10 +27,10 @@ export default {
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(Queues)
+      .stack(Auth)
       .stack(ChatAPI)
       .stack(API)
       .stack(RestAPI)
-      .stack(Auth)
       .stack(Website)
       .stack(Crons);
 
