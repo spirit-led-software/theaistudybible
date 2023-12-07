@@ -5,7 +5,7 @@ export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
-  const { hostedZone, domainName, websiteUrl, invokeBedrockPolicy } = use(Constants);
+  const { hostedZone, domainName, websiteUrl, invokeBedrockPolicy, authUiUrl } = use(Constants);
   const { indexFileBucket } = use(S3);
   const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
     use(DatabaseScripts);
@@ -70,12 +70,6 @@ export function API({ stack }: StackContext) {
           }
         }
       },
-      'GET /session': {
-        function: {
-          handler: 'packages/functions/src/session.handler',
-          memorySize: '512 MB'
-        }
-      },
 
       // Webhooks
       'POST /notifications/stripe': 'packages/functions/src/webhooks/stripe.handler',
@@ -102,7 +96,7 @@ export function API({ stack }: StackContext) {
     },
     cors: {
       allowCredentials: true,
-      allowOrigins: [websiteUrl],
+      allowOrigins: [websiteUrl, authUiUrl],
       allowHeaders: ['Authorization', 'Content-Type'],
       allowMethods: ['ANY'],
       exposeHeaders: ['*']

@@ -21,6 +21,9 @@ export function Constants({ stack, app }: StackContext) {
         : 'https://localhost:3000'
       : `https://${domainName}`;
 
+  const authUiDomainName = `auth.${domainName}`;
+  const authUiUrl = app.mode === 'dev' ? `http://localhost:8910` : `https://${authUiDomainName}`;
+
   if (app.stage !== 'prod') {
     app.setDefaultRemovalPolicy('destroy');
   }
@@ -28,7 +31,8 @@ export function Constants({ stack, app }: StackContext) {
   app.setDefaultFunctionProps({
     environment: {
       ...STATIC_ENV_VARS,
-      WEBSITE_URL: websiteUrl
+      WEBSITE_URL: websiteUrl,
+      AUTH_URL: authUiUrl
     },
     timeout: '60 seconds',
     runtime: 'nodejs20.x',
@@ -53,6 +57,8 @@ export function Constants({ stack, app }: StackContext) {
     domainName,
     domainNamePrefix,
     websiteUrl,
+    authUiDomainName,
+    authUiUrl,
     invokeBedrockPolicy
   };
 }

@@ -1,10 +1,10 @@
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
-import type { UserInfo } from '@core/model';
+import type { User } from '@core/model';
 import type { Metadata } from '@core/types/metadata';
 import type { Message } from 'ai';
 import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
-import { JsonMarkdownStructuredOutputParser, RouterOutputParser } from 'langchain/output_parsers';
+import { RouterOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { AIMessage, HumanMessage, type PartialValues } from 'langchain/schema';
 import { StringOutputParser } from 'langchain/schema/output_parser';
@@ -18,12 +18,11 @@ import {
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE,
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
 export const getRAIChatChain = async (
-  user: UserInfo,
+  user: User,
   messages: Message[]
 ): Promise<
   Runnable<
@@ -96,19 +95,6 @@ export const getRAIChatChain = async (
     }
   ]);
 
-  // const bibleQuoteChain = await getDocumentQaChain({
-  //   prompt: CHAT_BIBLE_QUOTE_CHAIN_PROMPT_TEMPLATE,
-  //   extraPromptVars: {
-  //     translation: user.translation
-  //   },
-  //   filters: [
-  //     {
-  //       category: 'bible',
-  //       translation: user.translation
-  //     }
-  //   ]
-  // });
-
   const bibleQaChain = await getDocumentQaChain({
     prompt: CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
     extraPromptVars: {
@@ -125,27 +111,6 @@ export const getRAIChatChain = async (
     ]
   });
 
-  // const sermonQaChain = await getDocumentQaChain({
-  //   prompt: CHAT_SERMON_QA_CHAIN_PROMPT_TEMPLATE,
-  //   filters: [
-  //     {
-  //       category: 'sermons'
-  //     }
-  //   ]
-  // });
-
-  // const theologyQaChain = await getDocumentQaChain({
-  //   prompt: CHAT_THEOLOGY_QA_CHAIN_PROMPT_TEMPLATE,
-  //   filters: [
-  //     {
-  //       category: 'theology'
-  //     },
-  //     {
-  //       category: 'commentary'
-  //     }
-  //   ]
-  // });
-
   const faithQaChain = await getDocumentQaChain({
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE
   });
@@ -154,10 +119,7 @@ export const getRAIChatChain = async (
     [(x) => x.routingInstructions.destination === 'irrelevant-query', irrelevantQueryChain],
     [(x) => x.routingInstructions.destination === 'identity', identityChain],
     [(x) => x.routingInstructions.destination === 'chat-history', chatHistoryChain],
-    // [(x) => x.routingInstructions.destination === 'bible-quote', bibleQuoteChain],
     [(x) => x.routingInstructions.destination === 'bible-qa', bibleQaChain],
-    // [(x) => x.routingInstructions.destination === 'sermon-qa', sermonQaChain],
-    // [(x) => x.routingInstructions.destination === 'theology-qa', theologyQaChain],
     [(x) => x.routingInstructions.destination === 'faith-qa', faithQaChain],
     faithQaChain
   ]);
@@ -187,10 +149,7 @@ export const getRAIChatChain = async (
           'irrelevant-query: For responding to queries that are inappropriate and/or irrelevant to the Christian faith.',
           'identity: For greetings, introducing yourself, or talking about yourself.',
           'chat-history: For retrieving information about the current chat conversation.',
-          // 'bible-quote: For retrieving verses and passages from the Bible.',
           'bible-qa: For answering queries about the Bible, its interpretation, and its history.',
-          // 'sermon-qa: For recommending and answering queries about previously recorded sermons.',
-          // 'theology-qa: For answering queries about Christian theology.',
           'faith-qa: For answering general queries about Christian faith.'
         ].join('\n'),
         history: (await history.getMessages())
@@ -224,19 +183,12 @@ export async function getDocumentQaChain(options: {
   extraPromptVars?: PartialValues<string>;
 }) {
   const { prompt, filters, extraPromptVars } = options;
-  const numSearchTerms = 3;
-  const queryInterpreterOutputParser = JsonMarkdownStructuredOutputParser.fromZodSchema(
-    z
-      .array(z.string())
-      .length(numSearchTerms)
-      .describe('Search terms or phrases that you would use to find relevant documents.')
-  );
   const qaRetriever = await getDocumentVectorStore({
     filters,
     verbose: true
   }).then((store) =>
     store.asRetriever({
-      k: 5,
+      k: 20,
       verbose: true
     })
   );
@@ -245,32 +197,7 @@ export async function getDocumentQaChain(options: {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      generatedSearchQueries: PromptTemplate.fromTemplate(CHAT_QUERY_INTERPRETER_PROMPT_TEMPLATE, {
-        partialVariables: {
-          numSearchTerms: numSearchTerms.toString(),
-          formatInstructions: queryInterpreterOutputParser.getFormatInstructions()
-        }
-      })
-        .pipe(
-          getLargeContextModel({
-            stream: false,
-            promptSuffix: '<output>',
-            stopSequences: ['</output>'],
-            cache: llmCache
-          })
-        )
-        .pipe(queryInterpreterOutputParser),
-      query: (previousStepResult) => previousStepResult.query
-    },
-    {
-      sourceDocuments: async (previousStepResult): Promise<Document[]> => {
-        const sourceDocs = await Promise.all(
-          previousStepResult.generatedSearchQueries.map(async (q: string) => {
-            return await qaRetriever.getRelevantDocuments(q);
-          })
-        );
-        return sourceDocs.flat();
-      },
+      sourceDocuments: RunnableSequence.from([(input) => input.query, qaRetriever]),
       query: (previousStepResult) => previousStepResult.query
     },
     {

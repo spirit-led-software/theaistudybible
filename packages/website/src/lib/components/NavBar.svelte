@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { PUBLIC_AUTH_URL } from '$env/static/public';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { isAdmin } from '$lib/services/user';
 	import type { UserInfo } from '@core/model';
@@ -65,12 +66,13 @@
 			<div>
 				{#if user}
 					<div class="flex flex-col justify-center space-y-1 place-items-center">
-						<a href="/account">
+						<a
+							href={`${PUBLIC_AUTH_URL}/account?returnPath=${encodeURIComponent(
+								$page.url.pathname
+							)}`}
+						>
 							<Avatar size="sm" />
 						</a>
-						<div class="text-xs text-white">
-							{user.remainingQueries}/{user.maxQueries}
-						</div>
 					</div>
 				{/if}
 			</div>
@@ -114,16 +116,15 @@
 		</ul>
 		{#if user}
 			<div class="hidden space-x-2 lg:flex place-items-center">
-				<div class="text-xs text-white">
-					Remaining: {user.remainingQueries}
-				</div>
 				<div class="inline-flex items-center justify-center space-x-1">
-					<a href="/account">
+					<a
+						href={`${PUBLIC_AUTH_URL}/account?returnPath=${encodeURIComponent($page.url.pathname)}`}
+					>
 						<Avatar size="md" />
 					</a>
 				</div>
 				<a
-					href="/auth/logout"
+					href={`${PUBLIC_AUTH_URL}/logout`}
 					class="hidden px-6 py-2 text-sm font-medium text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
 				>
 					Log Out
@@ -132,7 +133,7 @@
 		{:else}
 			<a
 				class="hidden px-6 py-2 text-sm font-medium text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
-				href="/auth/login"
+				href={`${PUBLIC_AUTH_URL}/sign-in`}
 			>
 				Log In
 			</a>
@@ -185,7 +186,7 @@
 								</span>
 							</div>
 							<a
-								href="/auth/logout"
+								href={`${PUBLIC_AUTH_URL}/logout`}
 								class="block px-10 py-3 mb-3 text-xs font-semibold leading-none text-center bg-gray-50 hover:bg-gray-100 rounded-xl"
 							>
 								Log out
@@ -194,7 +195,7 @@
 					{:else}
 						<a
 							class="block px-4 py-3 mb-3 text-xs font-semibold leading-none text-center bg-gray-50 hover:bg-gray-100 rounded-xl"
-							href="/auth/login"
+							href={`${PUBLIC_AUTH_URL}/sign-in`}
 						>
 							Log in
 						</a>

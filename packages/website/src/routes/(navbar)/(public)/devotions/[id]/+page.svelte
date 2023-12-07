@@ -60,7 +60,7 @@
 	$: sourceDocuments = sourceDocs?.filter((sourceDoc: NeonVectorStoreDocument, index: number) => {
 		const firstIndex = sourceDocs.findIndex(
 			(otherSourceDoc: NeonVectorStoreDocument) =>
-				sourceDoc.metadata.name === otherSourceDoc.metadata.name
+				sourceDoc.metadata.url === otherSourceDoc.metadata.url
 		);
 		return firstIndex === index;
 	});
@@ -220,7 +220,10 @@
 								rel="noopener noreferrer"
 								class="hover:text-slate-500 hover:underline"
 							>
-								{sourceDoc.metadata.name}
+								<span>{sourceDoc.metadata.title ?? sourceDoc.metadata.name}</span>
+								{#if sourceDoc.metadata.author}
+									<span class="ml-1 text-slate-500">by {sourceDoc.metadata.author}</span>
+								{/if}
 							</a>
 						</li>
 					{/each}

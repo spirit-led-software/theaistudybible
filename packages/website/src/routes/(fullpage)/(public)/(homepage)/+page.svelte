@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PUBLIC_AUTH_URL } from '$env/static/public';
 	import AskQuestionsBar from '$lib/components/AskQuestionsBar.svelte';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import LogoIcon from '$lib/components/branding/LogoIcon.svelte';
@@ -12,7 +13,7 @@
 </svelte:head>
 
 <div
-	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-slate-900 to-slate-600"
+	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-slate-950 to-slate-600"
 >
 	<div class="flex flex-col w-full space-y-2 place-items-center">
 		<div class="flex justify-center w-3/4 mb-2 place-items-center lg:w-1/2">
@@ -49,7 +50,7 @@
 					See Devotions
 				</a>
 				<a
-					href={data.user ? '/auth/logout' : '/auth/login'}
+					href={data.user ? `${PUBLIC_AUTH_URL}/logout` : `${PUBLIC_AUTH_URL}/sign-in`}
 					class="flex w-full p-2 text-center bg-blue-300 rounded-md hover:text-white place-content-center hover:bg-blue-400 active:bg-blue-400 hover:shadow-lg"
 				>
 					{#if data.user}

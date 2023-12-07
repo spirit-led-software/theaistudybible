@@ -1,8 +1,10 @@
-import { STATIC_ENV_VARS } from '@stacks';
-import { Function, Script, StackContext } from 'sst/constructs';
+import { Layers, STATIC_ENV_VARS } from '@stacks';
+import { Function, Script, StackContext, use } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 
 export function DatabaseScripts({ stack, app }: StackContext) {
+  const { argonLayer } = use(Layers);
+
   const neonBranch = new NeonBranch(stack, 'neonBranch', {
     projectName: app.name,
     branchName: stack.stage === 'prod' ? 'main' : stack.stage,
@@ -40,6 +42,12 @@ export function DatabaseScripts({ stack, app }: StackContext) {
 
   const dbSeedFunction = new Function(stack, 'dbSeedFunction', {
     handler: 'packages/functions/src/database/seed.handler',
+    layers: [argonLayer],
+    nodejs: {
+      esbuild: {
+        external: ['argon2']
+      }
+    },
     enableLiveDev: false,
     environment: dbScriptEnv,
     timeout: '15 minutes',

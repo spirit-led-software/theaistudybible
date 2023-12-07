@@ -1,4 +1,3 @@
-import { authConfig } from '@core/configs';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
@@ -7,8 +6,9 @@ import {
 } from '@lib/api-responses';
 import { verifyPassword } from '@lib/util/password';
 import { validApiHandlerSession } from '@services/session';
-import { updateUser } from '@services/user';
-import * as bcrypt from 'bcryptjs';
+import { getUserPasswordByUserId, updateUserPassword } from '@services/user/password';
+import argon from 'argon2';
+import { randomBytes } from 'crypto';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
@@ -26,7 +26,14 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse();
     }
 
-    if (!bcrypt.compareSync(currentPassword, userWithRoles.passwordHash!)) {
+    const userPassword = await getUserPasswordByUserId(userWithRoles.id);
+
+    const decodedSalt = Buffer.from(userPassword.salt, 'base64').toString('hex');
+    const validPassword = await argon.verify(
+      userPassword.passwordHash,
+      `${currentPassword}${decodedSalt}`
+    );
+    if (!validPassword) {
       return UnauthorizedResponse('Previous password is incorrect.');
     }
 
@@ -40,8 +47,10 @@ export const handler = ApiHandler(async (event) => {
       );
     }
 
-    await updateUser(userWithRoles.id, {
-      passwordHash: bcrypt.hashSync(newPassword, authConfig.bcrypt.saltRounds)
+    const salt = randomBytes(16).toString('hex');
+    await updateUserPassword(userPassword.id, {
+      passwordHash: await argon.hash(`${newPassword}${salt}`),
+      salt: Buffer.from(salt, 'hex').toString('base64')
     });
 
     return OkResponse({

@@ -12,7 +12,6 @@ export async function getUsers(
   } = {}
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(users.createdAt) } = options;
-
   return await readOnlyDatabase
     .select()
     .from(users)

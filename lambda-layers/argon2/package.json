@@ -1,0 +1,13 @@
+{
+  "name": "argon-layer",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "install": "npm install argon2 --save --target=12.2.0 --target_arch=x64 --target_platform=linux --target_libc=glibc"
+  },
+  "keywords": [],
+  "author": "Ian Pascoe",
+  "dependencies": {
+    "argon2": "^0.31.2"
+  }
+}

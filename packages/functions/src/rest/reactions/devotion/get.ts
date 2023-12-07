@@ -31,14 +31,13 @@ export const handler = ApiHandler(async (event) => {
     });
 
     return OkResponse({
-      entities: reactions.map(
-        (reaction) =>
-          ({
-            ...reaction.devotion_reactions,
-            user: reaction.users,
-            devotion: reaction.devotions
-          }) satisfies DevotionReactionInfo
-      ),
+      entities: reactions.map((reaction) => {
+        return {
+          ...reaction.devotion_reactions,
+          user: reaction.users,
+          devotion: reaction.devotions
+        } satisfies DevotionReactionInfo;
+      }),
       page,
       perPage: limit
     });

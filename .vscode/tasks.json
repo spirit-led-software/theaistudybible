@@ -3,38 +3,10 @@
   "tasks": [
     {
       "type": "shell",
-      "label": "mobile-codegen",
-      "detail": "Generate mobile code",
-      "command": "cd mobile && dart run build_runner build -d",
+      "label": "pnpm-install",
+      "detail": "Install packages",
+      "command": "pnpm install",
       "problemMatcher": []
     },
-    {
-      "type": "shell",
-      "label": "prep-flutter-dev",
-      "detail": "Prep Flutter for Dev",
-      "command": "cd mobile && flutter pub get && dart run build_runner build && sleep 2",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "prep-flutter-release",
-      "detail": "Prep Flutter for Release",
-      "command": "cd mobile && flutter clean && flutter pub get && dart run build_runner build -d && sleep 2",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "npm-install",
-      "detail": "Install NPM packages",
-      "command": "npm install",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "npm-clean-install",
-      "detail": "Clean Install NPM packages",
-      "command": "npm ci",
-      "problemMatcher": []
-    }
   ]
 }

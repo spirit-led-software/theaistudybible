@@ -1,4 +1,4 @@
-import { authConfig, emailConfig, websiteConfig } from '@core/configs';
+import { emailConfig, websiteConfig } from '@core/configs';
 import { emailTransport } from '@core/configs/email';
 import type { User } from '@core/model';
 import {
@@ -9,7 +9,13 @@ import {
 } from '@lib/api-responses';
 import { addRoleToUser, doesUserHaveRole } from '@services/role';
 import { createUser, getUserByEmail, updateUser } from '@services/user';
-import * as bcrypt from 'bcryptjs';
+import {
+  createUserPassword,
+  getUserPasswordByUserId,
+  updateUserPassword
+} from '@services/user/password';
+import argon from 'argon2';
+import { randomBytes } from 'crypto';
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import type { TokenSet } from 'openid-client';
@@ -24,7 +30,7 @@ const SessionResponse = (user: User) => {
   const session = Session.create({
     type: 'user',
     options: {
-      expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
+      expiresIn: 1000 * 60 * 60 * 24 * 7, // = 7 days = MS * S * M * H * D
       sub: user.id
     },
     properties: {
@@ -41,10 +47,10 @@ const SessionParameter = (user: User, url?: string) =>
   Session.parameter({
     type: 'user',
     options: {
-      expiresIn: 1000 * 60 * 60 * 24 * 30, // = 30 days = MS * S * M * H * D
+      expiresIn: 1000 * 60 * 60 * 24 * 7, // = 7 days = MS * S * M * H * D
       sub: user.id
     },
-    redirect: url || `${websiteConfig.url}/auth/callback`,
+    redirect: url || `${websiteConfig.authUrl}/callback`,
     properties: {
       id: user.id
     }
@@ -136,277 +142,178 @@ async function createStripeCustomer(user: User) {
   return user;
 }
 
+const createGoogleAdapter = (callbackUrl?: string) =>
+  GoogleAdapter({
+    mode: 'oidc',
+    clientID: process.env.GOOGLE_CLIENT_ID!,
+    onSuccess: async (tokenSet) => {
+      const user = await checkForUserOrCreateFromTokenSet(tokenSet);
+      return SessionParameter(user, callbackUrl);
+    }
+  });
+
+const createAppleAdapter = (callbackUrl?: string) =>
+  AppleAdapter({
+    clientID: process.env.APPLE_CLIENT_ID!,
+    clientSecret: appleClientSecret,
+    scope: 'openid name email',
+    onSuccess: async (tokenSet) => {
+      const user = await checkForUserOrCreateFromTokenSet(tokenSet);
+      return SessionParameter(user, callbackUrl);
+    }
+  });
+
+const createCredentialsAdapter = (
+  callbackUrlBase: string = websiteConfig.authUrl,
+  isMobile = false
+) =>
+  CredentialsAdapter({
+    onRegister: async (link, claims) => {
+      const htmlCompileFunction = pug.compileFile('emails/verify-email/html.pug');
+      const html = htmlCompileFunction({
+        link
+      });
+      const sendEmailResponse = await emailTransport.sendMail({
+        from: emailConfig.from,
+        replyTo: emailConfig.replyTo,
+        to: claims.email,
+        subject: 'Verify your email',
+        html
+      });
+
+      if (sendEmailResponse.rejected.length > 0) {
+        return InternalServerErrorResponse('Failed to send verification email');
+      }
+
+      return OkResponse({
+        message: 'Verify email sent'
+      });
+    },
+    onRegisterCallback: async (email, password) => {
+      let user: User | undefined = await getUserByEmail(email);
+      if (!user) {
+        user = await createUser({
+          email: email
+        });
+
+        const salt = randomBytes(16).toString('hex');
+        await createUserPassword({
+          userId: user.id,
+          passwordHash: await argon.hash(`${password}${salt}`),
+          salt: Buffer.from(salt, 'hex').toString('base64')
+        });
+
+        await addRoleToUser('user', user.id);
+        await createStripeCustomer(user);
+      } else {
+        return BadRequestResponse('A user already exists with this email');
+      }
+      return SessionParameter(user, `${callbackUrlBase}/callback`);
+    },
+    onLogin: async (claims) => {
+      let user: User | undefined = await getUserByEmail(claims.email);
+      if (!user) {
+        return InternalServerErrorResponse('User not found');
+      }
+
+      const password = await getUserPasswordByUserId(user.id);
+      if (!password) {
+        return BadRequestResponse(
+          'You may have signed up with a different provider. Try using facebook or google to login.'
+        );
+      }
+
+      const decodedSalt = Buffer.from(password.salt, 'base64').toString('hex');
+      const validPassword = await argon.verify(
+        password.passwordHash,
+        `${claims.password}${decodedSalt}`
+      );
+      if (!validPassword) {
+        return BadRequestResponse('Incorrect password');
+      }
+
+      await doesUserHaveRole('user', user.id).then(async (hasRole) => {
+        if (!hasRole) await addRoleToUser('user', user!.id);
+      });
+      if (!user.stripeCustomerId) {
+        user = await createStripeCustomer(user);
+      }
+
+      if (isMobile) {
+        return SessionResponse(user);
+      }
+      return SessionParameter(user, `${callbackUrlBase}/callback`);
+    },
+    onForgotPassword: async (link, claims) => {
+      const htmlCompileFunction = pug.compileFile('emails/reset-password/html.pug');
+      const html = htmlCompileFunction({
+        link
+      });
+      const sendEmailResponse = await emailTransport.sendMail({
+        from: emailConfig.from,
+        replyTo: emailConfig.replyTo,
+        to: claims.email,
+        subject: 'Reset Your Password',
+        html
+      });
+
+      if (sendEmailResponse.rejected.length > 0) {
+        return InternalServerErrorResponse('Failed to send password reset email');
+      }
+      return OkResponse({
+        message: 'Password reset email sent'
+      });
+    },
+    onForgotPasswordCallback: async (token) => {
+      return RedirectResponse(`${callbackUrlBase}/forgot-password?token=${token}`);
+    },
+    onResetPassword: async (email, password) => {
+      const user = await getUserByEmail(email);
+      if (!user) {
+        return InternalServerErrorResponse('User not found');
+      }
+
+      const userPassword = await getUserPasswordByUserId(user.id);
+      if (!userPassword) {
+        return BadRequestResponse(
+          'User does not have a password, you may have signed up with a different provider. Try using facebook or google to login.'
+        );
+      }
+
+      const decodedSalt = Buffer.from(userPassword.salt, 'base64').toString('hex');
+      const validPassword = await argon.verify(
+        userPassword.passwordHash,
+        `${password}${decodedSalt}`
+      );
+      if (validPassword) {
+        return BadRequestResponse('Password cannot be the same as the old password');
+      }
+
+      const salt = randomBytes(16).toString('hex');
+      await updateUserPassword(userPassword.id, {
+        passwordHash: await argon.hash(`${password}${salt}`),
+        salt: Buffer.from(salt, 'hex').toString('base64')
+      });
+
+      return OkResponse('Password reset successfully');
+    },
+    onError: async (error) => {
+      console.error(JSON.stringify(error));
+      if (error instanceof Error) {
+        return InternalServerErrorResponse(error.stack || error.message || 'Something went wrong');
+      } else {
+        return InternalServerErrorResponse(`Something went wrong: ${JSON.stringify(error)}`);
+      }
+    }
+  });
+
 export const handler = AuthHandler({
   providers: {
-    /* Removing facebook login for now due to problems with business verification 
-    facebook: FacebookAdapter({
-      clientID: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-      scope: "openid email",
-      onSuccess: async (tokenSet) => {
-        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user);
-      },
-    }),
-    "facebook-mobile": FacebookAdapter({
-      clientID: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-      scope: "openid email",
-      onSuccess: async (tokenSet) => {
-        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(
-          user,
-          "revelationsai://revelationsai/auth/callback"
-        );
-      },
-    }), */
-    google: GoogleAdapter({
-      mode: 'oidc',
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      onSuccess: async (tokenSet) => {
-        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user);
-      }
-    }),
-    'google-mobile': GoogleAdapter({
-      mode: 'oidc',
-      clientID: process.env.GOOGLE_CLIENT_ID!,
-      onSuccess: async (tokenSet) => {
-        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user, 'revelationsai://revelationsai/auth/callback');
-      }
-    }),
-    apple: AppleAdapter({
-      clientID: process.env.APPLE_CLIENT_ID!,
-      clientSecret: appleClientSecret,
-      scope: 'openid name email',
-      onSuccess: async (tokenSet) => {
-        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user);
-      }
-    }),
-    'apple-mobile': AppleAdapter({
-      clientID: process.env.APPLE_CLIENT_ID!,
-      clientSecret: appleClientSecret,
-      scope: 'openid name email',
-      onSuccess: async (tokenSet) => {
-        const user = await checkForUserOrCreateFromTokenSet(tokenSet);
-        return SessionParameter(user, 'revelationsai://revelationsai/auth/callback');
-      }
-    }),
-    credentials: CredentialsAdapter({
-      onRegister: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile('emails/verify-email/html.pug');
-        const html = htmlCompileFunction({
-          link
-        });
-        const sendEmailResponse = await emailTransport.sendMail({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: claims.email,
-          subject: 'Verify your email',
-          html
-        });
-
-        if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse('Failed to send verification email');
-        }
-
-        return OkResponse({
-          message: 'Verify email sent'
-        });
-      },
-      onRegisterCallback: async (email, password) => {
-        let user: User | undefined = await getUserByEmail(email);
-        if (!user) {
-          user = await createUser({
-            email: email,
-            passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
-          });
-          await addRoleToUser('user', user.id);
-          await createStripeCustomer(user);
-        } else {
-          return BadRequestResponse('A user already exists with this email');
-        }
-        return SessionParameter(user);
-      },
-      onLogin: async (claims) => {
-        let user: User | undefined = await getUserByEmail(claims.email);
-        if (!user) {
-          return InternalServerErrorResponse('User not found');
-        }
-        if (!user.passwordHash) {
-          return BadRequestResponse(
-            'You may have signed up with a different provider. Try using facebook or google to login.'
-          );
-        }
-        if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
-          return BadRequestResponse('Incorrect password');
-        }
-        await doesUserHaveRole('user', user.id).then(async (hasRole) => {
-          if (!hasRole) await addRoleToUser('user', user!.id);
-        });
-        if (!user.stripeCustomerId) {
-          user = await createStripeCustomer(user);
-        }
-        return SessionResponse(user);
-      },
-      onForgotPassword: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile('emails/reset-password/html.pug');
-        const html = htmlCompileFunction({
-          link
-        });
-        const sendEmailResponse = await emailTransport.sendMail({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: claims.email,
-          subject: 'Reset Your Password',
-          html
-        });
-
-        if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse('Failed to send password reset email');
-        }
-        return OkResponse({
-          message: 'Password reset email sent'
-        });
-      },
-      onForgotPasswordCallback: async (token) => {
-        return RedirectResponse(`${websiteConfig.url}/auth/forgot-password?token=${token}`);
-      },
-      onResetPassword: async (email, password) => {
-        const user = await getUserByEmail(email);
-        if (!user) {
-          return InternalServerErrorResponse('User not found');
-        }
-
-        if (user.passwordHash && bcrypt.compareSync(password, user.passwordHash)) {
-          return BadRequestResponse('Password cannot be the same as the old password');
-        }
-
-        await updateUser(user.id, {
-          passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
-        });
-        return OkResponse('Password reset successfully');
-      },
-      onError: async (error) => {
-        console.error(JSON.stringify(error));
-        if (error instanceof Error) {
-          return InternalServerErrorResponse(
-            error.stack || error.message || 'Something went wrong'
-          );
-        } else {
-          return InternalServerErrorResponse(`Something went wrong: ${JSON.stringify(error)}`);
-        }
-      }
-    }),
-    'credentials-mobile': CredentialsAdapter({
-      onRegister: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile('emails/verify-email/html.pug');
-        const html = htmlCompileFunction({
-          link
-        });
-        const sendEmailResponse = await emailTransport.sendMail({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: claims.email,
-          subject: 'Verify your email',
-          html
-        });
-
-        if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse('Failed to send verification email');
-        }
-
-        return OkResponse({
-          message: 'Verify email sent'
-        });
-      },
-      onRegisterCallback: async (email, password) => {
-        let user: User | undefined = await getUserByEmail(email);
-        if (!user) {
-          user = await createUser({
-            email: email,
-            passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
-          });
-          await addRoleToUser('user', user.id);
-          await createStripeCustomer(user);
-        } else {
-          return BadRequestResponse('A user already exists with this email');
-        }
-        return SessionParameter(user, 'revelationsai://revelationsai/auth/callback');
-      },
-      onLogin: async (claims) => {
-        let user: User | undefined = await getUserByEmail(claims.email);
-        if (!user) {
-          return InternalServerErrorResponse('User not found');
-        }
-        if (!user.passwordHash) {
-          return BadRequestResponse(
-            'You may have signed up with a different provider. Try using facebook or google to login.'
-          );
-        }
-        if (!bcrypt.compareSync(claims.password, user.passwordHash)) {
-          return BadRequestResponse('Incorrect password');
-        }
-        await doesUserHaveRole('user', user.id).then(async (hasRole) => {
-          if (!hasRole) await addRoleToUser('user', user!.id);
-        });
-        if (!user.stripeCustomerId) {
-          user = await createStripeCustomer(user);
-        }
-        return SessionResponse(user);
-      },
-      onForgotPassword: async (link, claims) => {
-        const htmlCompileFunction = pug.compileFile('emails/reset-password/html.pug');
-        const html = htmlCompileFunction({
-          link
-        });
-        const sendEmailResponse = await emailTransport.sendMail({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: claims.email,
-          subject: 'Reset Your Password',
-          html
-        });
-
-        if (sendEmailResponse.rejected.length > 0) {
-          return InternalServerErrorResponse('Failed to send password reset email');
-        }
-        return OkResponse({
-          message: 'Password reset email sent'
-        });
-      },
-      onForgotPasswordCallback: async (token) => {
-        return RedirectResponse(
-          `revelationsai://revelationsai/auth/forgot-password?token=${token}`
-        );
-      },
-      onResetPassword: async (email, password) => {
-        const user = await getUserByEmail(email);
-        if (!user) {
-          return InternalServerErrorResponse('User not found');
-        }
-
-        if (user.passwordHash && bcrypt.compareSync(password, user.passwordHash)) {
-          return BadRequestResponse('Password cannot be the same as the old password');
-        }
-
-        await updateUser(user.id, {
-          passwordHash: await bcrypt.hash(password, authConfig.bcrypt.saltRounds)
-        });
-        return OkResponse('Password reset successfully');
-      },
-      onError: async (error) => {
-        console.error(JSON.stringify(error));
-        if (error instanceof Error) {
-          return InternalServerErrorResponse(
-            error.stack || error.message || 'Something went wrong'
-          );
-        } else {
-          return InternalServerErrorResponse(`Something went wrong: ${JSON.stringify(error)}`);
-        }
-      }
-    })
+    google: createGoogleAdapter(),
+    'google-mobile': createGoogleAdapter('revelationsai://revelationsai/auth/callback'),
+    apple: createAppleAdapter(),
+    'apple-mobile': createAppleAdapter('revelationsai://revelationsai/auth/callback'),
+    credentials: createCredentialsAdapter(),
+    'credentials-mobile': createCredentialsAdapter('revelationsai://revelationsai/auth', true)
   }
 });

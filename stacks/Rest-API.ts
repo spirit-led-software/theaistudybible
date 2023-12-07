@@ -1,4 +1,4 @@
-import { API, Constants, DatabaseScripts, Queues, S3, STATIC_ENV_VARS } from '@stacks';
+import { API, Constants, DatabaseScripts, Layers, Queues, S3, STATIC_ENV_VARS } from '@stacks';
 import { StackContext, dependsOn, use } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
@@ -15,6 +15,7 @@ export function RestAPI({ stack }: StackContext) {
   } = use(S3);
   const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
     use(DatabaseScripts);
+  const { argonLayer } = use(Layers);
 
   const lambdaEnv: Record<string, string> = {
     ...STATIC_ENV_VARS,
@@ -149,7 +150,17 @@ export function RestAPI({ stack }: StackContext) {
       'packages/functions/src/rest/users/[id]/query-counts/get.handler',
 
     // Change user password endpoint
-    'POST /users/change-password': 'packages/functions/src/rest/users/change-password/post.handler',
+    'POST /users/change-password': {
+      function: {
+        handler: 'packages/functions/src/rest/users/change-password/post.handler',
+        layers: [argonLayer],
+        nodejs: {
+          esbuild: {
+            external: ['argon2']
+          }
+        }
+      }
+    },
 
     // Generate presigned url for user profile picture upload
     'POST /users/profile-pictures/presigned-url': {

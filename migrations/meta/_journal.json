@@ -190,6 +190,13 @@
       "when": 1701360614010,
       "tag": "0026_cold_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1701954885470,
+      "tag": "0027_bizarre_bloodstrike",
+      "breakpoints": true
     }
   ]
 }

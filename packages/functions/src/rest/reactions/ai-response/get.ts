@@ -31,14 +31,13 @@ export const handler = ApiHandler(async (event) => {
     });
 
     return OkResponse({
-      entities: reactions.map(
-        (reaction) =>
-          ({
-            ...reaction.ai_response_reactions,
-            user: reaction.users,
-            response: reaction.ai_responses
-          }) satisfies AiResponseReactionInfo
-      ),
+      entities: reactions.map((reaction) => {
+        return {
+          ...reaction.ai_response_reactions,
+          user: reaction.users,
+          response: reaction.ai_responses
+        } satisfies AiResponseReactionInfo;
+      }),
       page,
       perPage: limit
     });

@@ -11,22 +11,21 @@
   "devDependencies": {
     "@sparticuz/chromium": "^119.0.0",
     "@types/aws-lambda": "^8.10.130",
-    "@types/bcryptjs": "^2.4.6",
     "@types/busboy": "^1.5.3",
-    "@types/node": "^20.10.1",
+    "@types/node": "^20.10.4",
     "@types/nodemailer": "^6.4.14",
-    "sst": "2.36.7",
-    "vitest": "^0.34.6"
+    "sst": "2.37.1",
+    "vitest": "^1.0.2"
   },
   "dependencies": {
     "@apple/app-store-server-library": "^0.2.0",
-    "@middy/core": "^5.0.3",
-    "@middy/http-cors": "^5.0.3",
-    "@middy/http-error-handler": "^5.0.3",
+    "@middy/core": "^5.1.0",
+    "@middy/http-cors": "^5.1.0",
+    "@middy/http-error-handler": "^5.1.0",
     "@revelationsai/core": "workspace:*",
     "@upstash/redis": "^1.25.1",
-    "ai": "^2.2.27",
-    "bcryptjs": "^2.4.3",
+    "ai": "^2.2.28",
+    "argon2": "^0.31.2",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.3.2",
@@ -36,8 +35,8 @@
     "openai": "^4.20.1",
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
-    "puppeteer-core": "^21.5.2",
-    "stripe": "^14.5.0",
+    "puppeteer-core": "^21.6.0",
+    "stripe": "^14.7.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0"
   }

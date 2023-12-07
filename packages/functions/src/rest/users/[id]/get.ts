@@ -13,7 +13,6 @@ export const handler = ApiHandler(async (event) => {
     if (!user) {
       return ObjectNotFoundResponse(id);
     }
-
     return OkResponse(user);
   } catch (error) {
     console.error(`Error getting user '${id}':`, error);

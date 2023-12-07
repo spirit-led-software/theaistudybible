@@ -9,26 +9,27 @@
       "runtimeArgs": ["dev"],
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],
-      "preLaunchTask": "npm-install"
+      "preLaunchTask": "pnpm-install"
     },
     {
       "name": "Website Dev",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "dev"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/packages/website",
-      "preLaunchTask": "npm-install"
+      "preLaunchTask": "pnpm-install"
     },
     {
-      "name": "Mobile Dev",
-      "type": "dart",
+      "name": "Auth Dev",
+      "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/mobile/lib/main.dart",
-      "args": ["--dart-define-from-file=.env"],
-      "console": "debugConsole",
-      "preLaunchTask": "prep-flutter-dev"
-    }
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/packages/auth-ui",
+      "preLaunchTask": "pnpm-install"
+    },
   ]
 }

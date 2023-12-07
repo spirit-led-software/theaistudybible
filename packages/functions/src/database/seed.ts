@@ -11,10 +11,12 @@ import {
   getRoleByName,
   updateRole
 } from '@services/role';
-import { createUser, getUserByEmail, isAdmin, updateUser } from '@services/user';
+import { createUser, getUserByEmail, isAdmin } from '@services/user';
+import { createUserPassword, updateUserPasswordByUserId } from '@services/user/password';
 import { getDocumentVectorStore } from '@services/vector-db';
+import argon from 'argon2';
 import type { Handler } from 'aws-lambda';
-import * as bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { revenueCatConfig } from '../configs';
 
 async function createInitialAdminUser() {
@@ -22,14 +24,23 @@ async function createInitialAdminUser() {
   let adminUser: User | undefined = await getUserByEmail(authConfig.adminUser.email);
   if (!adminUser) {
     adminUser = await createUser({
-      email: authConfig.adminUser.email,
-      passwordHash: bcrypt.hashSync(authConfig.adminUser.password, authConfig.bcrypt.saltRounds)
+      email: authConfig.adminUser.email
     });
+
+    const salt = randomBytes(16).toString('hex');
+    await createUserPassword({
+      userId: adminUser.id,
+      passwordHash: await argon.hash(`${authConfig.adminUser.password}${salt}`),
+      salt: Buffer.from(salt, 'hex').toString('base64')
+    });
+
     console.log('Initial admin user created');
   } else {
     console.log('Admin user already existed, updating password.');
-    adminUser = await updateUser(adminUser.id, {
-      passwordHash: bcrypt.hashSync(authConfig.adminUser.password, authConfig.bcrypt.saltRounds)
+    const salt = randomBytes(16).toString('hex');
+    await updateUserPasswordByUserId(adminUser.id, {
+      passwordHash: await argon.hash(`${authConfig.adminUser.password}${salt}`),
+      salt: Buffer.from(salt, 'hex').toString('base64')
     });
   }
 

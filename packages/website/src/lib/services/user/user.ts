@@ -1,9 +1,9 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { UserInfo, UserWithRoles } from '@core/model';
+import type { UserInfo } from '@core/model';
 import type { ProtectedApiOptions } from '../types';
 
 export async function getUserInfo(session: string) {
-	const response = await fetch(`${PUBLIC_API_URL}/session`, {
+	const response = await fetch(`${PUBLIC_API_URL}/auth/user-info`, {
 		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${session}`
@@ -44,11 +44,11 @@ export function isObjectOwner(object: { userId: string }, userId: string) {
 	return object.userId === userId;
 }
 
-export function isAdmin(userInfo: UserWithRoles) {
+export function isAdmin(userInfo: UserInfo) {
 	return userInfo.roles.some((role) => role.name === 'admin');
 }
 
-export function getUserMaxQueries(userInfo: UserWithRoles) {
+export function getUserMaxQueries(userInfo: UserInfo) {
 	const queryPermissions: string[] = [];
 	userInfo.roles.forEach((role) => {
 		const queryPermission = role.permissions.find((permission) => {
