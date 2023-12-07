@@ -114,7 +114,10 @@
 						rel="noopener noreferrer"
 						class="hover:underline"
 					>
-						{sourceDoc.metadata.name}
+						<span>{sourceDoc.metadata.title ?? sourceDoc.metadata.name}</span>
+						{#if sourceDoc.metadata.author}
+							<span class="ml-1 text-slate-500">by {sourceDoc.metadata.author}</span>
+						{/if}
 					</a>
 				</li>
 			{/each}
