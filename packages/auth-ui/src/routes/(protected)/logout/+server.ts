@@ -5,6 +5,7 @@ import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ cookies }) => {
 	cookies.delete(commonCookies.session, {
+		domain: new URL(PUBLIC_WEBSITE_URL).hostname,
 		path: '/'
 	});
 	throw redirect(307, PUBLIC_WEBSITE_URL);
