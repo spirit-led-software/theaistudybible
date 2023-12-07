@@ -60,9 +60,9 @@
 				session: $session!
 			});
 			sources = foundSourceDocuments.filter((sourceDoc, index) => {
-				const firstIndex = foundSourceDocuments.findIndex(
-					(otherSourceDoc) => sourceDoc.metadata.name === otherSourceDoc.metadata.name
-				);
+				const firstIndex = foundSourceDocuments.findIndex((otherSourceDoc) => {
+					return sourceDoc.metadata.url === otherSourceDoc.metadata.url;
+				});
 				return firstIndex === index;
 			});
 			hasLoaded = true;
