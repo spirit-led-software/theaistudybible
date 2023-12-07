@@ -104,7 +104,7 @@ export async function validSessionFromEvent(event: APIGatewayProxyEventV2): Prom
       userInfo: UserInfo;
     }
 > {
-  const response = await fetch(`${apiConfig.url}/session`, {
+  const response = await fetch(`${apiConfig.url}/auth/user-info`, {
     method: 'GET',
     headers: {
       Authorization: event.headers.authorization || ''

@@ -1,4 +1,4 @@
-import { Auth, Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
 import { Fn } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import {
@@ -23,14 +23,12 @@ export function ChatAPI({ stack, app }: StackContext) {
     use(Constants);
   const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
     use(DatabaseScripts);
-  const { auth } = use(Auth);
 
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
 
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
     handler: 'packages/functions/src/chat.handler',
-    bind: [auth],
     environment: {
       ...STATIC_ENV_VARS,
       WEBSITE_URL: websiteUrl,
