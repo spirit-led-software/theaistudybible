@@ -133,7 +133,7 @@
 		{:else}
 			<a
 				class="hidden px-6 py-2 text-sm font-medium text-gray-900 transition duration-200 lg:inline-block lg:ml-auto lg:mr-3 bg-gray-50 hover:bg-gray-200 rounded-xl"
-				href={`${PUBLIC_AUTH_URL}/login`}
+				href={`${PUBLIC_AUTH_URL}/sign-in`}
 			>
 				Log In
 			</a>
@@ -195,7 +195,7 @@
 					{:else}
 						<a
 							class="block px-4 py-3 mb-3 text-xs font-semibold leading-none text-center bg-gray-50 hover:bg-gray-100 rounded-xl"
-							href={`${PUBLIC_AUTH_URL}/login`}
+							href={`${PUBLIC_AUTH_URL}/sign-in`}
 						>
 							Log in
 						</a>

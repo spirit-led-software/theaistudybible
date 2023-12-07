@@ -36,7 +36,7 @@ export const actions: Actions = {
 			});
 		}
 
-		throw redirect(307, `/login?resetPassword=${encodeURIComponent('success')}`);
+		throw redirect(307, `/sign-in?resetPassword=${encodeURIComponent('success')}`);
 	},
 	forgot: async ({ request }) => {
 		const formData = await request.formData();

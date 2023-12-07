@@ -7,7 +7,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 	const { searchParams } = url;
 	const token = searchParams.get('token');
 	if (!token) {
-		throw redirect(307, '/login');
+		throw redirect(307, '/sign-in');
 	}
 	cookies.set(commonCookies.session, token, {
 		domain: new URL(PUBLIC_WEBSITE_URL).hostname,

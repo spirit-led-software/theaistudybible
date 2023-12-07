@@ -50,7 +50,7 @@
 					See Devotions
 				</a>
 				<a
-					href={data.user ? `${PUBLIC_AUTH_URL}/logout` : `${PUBLIC_AUTH_URL}/login`}
+					href={data.user ? `${PUBLIC_AUTH_URL}/logout` : `${PUBLIC_AUTH_URL}/sign-in`}
 					class="flex w-full p-2 text-center bg-blue-300 rounded-md hover:text-white place-content-center hover:bg-blue-400 active:bg-blue-400 hover:shadow-lg"
 				>
 					{#if data.user}

@@ -129,7 +129,7 @@
 						Enter your email
 					</button>
 					<div class="flex justify-between text-sm text-gray-500">
-						<a href="/login" class="hover:underline">Know your password? Login here.</a>
+						<a href="/sign-in" class="hover:underline">Know your password? Login here.</a>
 					</div>
 				</form>
 			{/if}

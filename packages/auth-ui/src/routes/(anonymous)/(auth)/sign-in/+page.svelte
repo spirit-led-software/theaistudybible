@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
@@ -12,7 +13,7 @@
 
 	let isMobile = false;
 	let isLoading = false;
-	let alertMessage:
+	let alert:
 		| {
 				type: 'error' | 'success';
 				text: string;
@@ -27,14 +28,20 @@
 		};
 	};
 
+	$: if ($page.url.searchParams.get('resetPassword') === 'success') {
+		alert = {
+			type: 'success',
+			text: 'Your password has been reset. Please login with your new password.'
+		};
+	}
 	$: if ($page.url.searchParams.get('error')) {
-		alertMessage = {
+		alert = {
 			type: 'error',
 			text: $page.url.searchParams.get('error')!
 		};
 	}
 	$: if ($page.url.searchParams.get('success')) {
-		alertMessage = {
+		alert = {
 			type: 'success',
 			text: $page.url.searchParams.get('success')!
 		};
@@ -43,24 +50,22 @@
 		isMobile = true;
 	}
 
+	$: if (form?.success) {
+		goto(form.success.redirect);
+	}
+
 	$: if (form?.errors?.banner) {
-		alertMessage = {
+		alert = {
 			type: 'error',
 			text: form.errors.banner
 		};
 	}
-	$: if (form?.success?.banner) {
-		alertMessage = {
-			type: 'success',
-			text: form.success.banner
-		};
-	}
 
-	$: alertMessage && setTimeout(() => (alertMessage = undefined), 8000);
+	$: alert && setTimeout(() => (alert = undefined), 10000);
 </script>
 
 <svelte:head>
-	<title>Signup for RevelationsAI</title>
+	<title>Sign In to RevelationsAI</title>
 </svelte:head>
 
 <div
@@ -71,14 +76,14 @@
 			<SolidLineSpinner size="md" colorscheme={'dark'} />
 		</div>
 	{/if}
-	{#if alertMessage}
+	{#if alert}
 		<div class="absolute left-0 right-0 flex justify-center place-items-center -top-20 lg:top-20">
 			<div
-				class={`w-5/6 px-4 py-2 text-center text-white mx-auto rounded-xl lg:text-xl ${
-					alertMessage.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+				class={`w-5/6 px-4 py-2 mx-auto text-center text-white rounded-xl lg:text-xl ${
+					alert.type === 'error' ? 'bg-red-500' : 'bg-green-500'
 				}`}
 			>
-				{alertMessage.text}
+				{alert.text}
 			</div>
 		</div>
 	{/if}
@@ -93,22 +98,23 @@
 					class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 				>
 					<Icon icon="fa6-brands:google" class="inline-block mr-2 text-white" />
-					Register with Google
+					Continue with Google
 				</button>
 			</form>
 			<form class="flex flex-col w-full" method="POST" action="?/social" use:enhance={submit}>
+				<input type="hidden" name="mobile" value={isMobile} />
 				<input type="hidden" name="provider" value="apple" />
 				<button
 					type="submit"
 					class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900"
 				>
 					<Icon icon="fa6-brands:apple" class="inline-block mr-2 text-white" />
-					Register with Apple
+					Continue with Apple
 				</button>
 			</form>
 		</div>
 		<div class="divider">OR</div>
-		<form class="flex flex-col w-full" method="POST" action="?/email" use:enhance={submit}>
+		<form class="flex flex-col w-full" method="POST" action="?/credentials" use:enhance={submit}>
 			<input type="hidden" name="mobile" value={isMobile} />
 			<input
 				id="email"
@@ -117,21 +123,16 @@
 				class="w-full px-2 py-2 mb-3 border shadow-xl outline-none focus:outline-none"
 				placeholder="Email address"
 			/>
-			<PasswordInput id="password" name="password" class="w-full shadow-xl mb-3" />
-			<PasswordInput
-				id="confirmPassword"
-				name="confirmPassword"
-				placeholder="Confirm Password"
-				class="w-full shadow-xl mb-3"
-			/>
+			<PasswordInput class="w-full shadow-xl mb-3" />
 			<button
 				type="submit"
 				class="w-full px-4 py-2 font-medium text-white rounded bg-slate-700 hover:shadow-xl hover:bg-slate-900 mb-3"
 			>
-				Register with Email
+				Continue with Email
 			</button>
 			<div class="flex flex-col space-y-1 text-sm text-center text-gray-500">
-				<a href="/login" class="hover:underline">Already have an account? Login here.</a>
+				<a href="/sign-up" class="hover:underline"> Don't have an account? Register here. </a>
+				<a href="/forgot-password" class="hover:underline">Forgot your password?</a>
 				<a href={`${PUBLIC_WEBSITE_URL}/privacy-policy`} class="hover:underline">Privacy Policy</a>
 			</div>
 		</form>
