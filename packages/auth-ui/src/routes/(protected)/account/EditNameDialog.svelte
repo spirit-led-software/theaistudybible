@@ -54,9 +54,9 @@
 				message: 'Name updated successfully.'
 			};
 
+			event.currentTarget.reset();
 			setTimeout(() => {
 				dialog?.close();
-				event.currentTarget.reset();
 			}, 1000);
 		} catch (error) {
 			console.error("Couldn't update user", error);
