@@ -21,7 +21,9 @@
 
 	const handleSubmit: EventHandler<SubmitEvent, HTMLFormElement> = async (event) => {
 		const formData = new FormData(event.currentTarget);
-		const data = Object.fromEntries(formData.entries());
+		const data: {
+			name?: string;
+		} = Object.fromEntries(formData.entries());
 		console.log(data);
 
 		isLoading = true;
@@ -31,13 +33,15 @@
 				errors.push({
 					name: 'Name is required.'
 				});
+			}
+			if (errors.length > 0) {
 				return;
 			}
 
 			await updateUser(
 				$user!.id,
 				{
-					name: data.name as string
+					name: data.name
 				},
 				{
 					session: $session!
@@ -52,6 +56,7 @@
 
 			setTimeout(() => {
 				dialog?.close();
+				event.currentTarget.reset();
 			}, 1000);
 		} catch (error) {
 			console.error("Couldn't update user", error);

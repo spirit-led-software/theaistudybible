@@ -22,7 +22,11 @@
 
 	const handleSubmit: EventHandler<SubmitEvent, HTMLFormElement> = async (event) => {
 		const formData = new FormData(event.currentTarget);
-		const data = Object.fromEntries(formData.entries());
+		const data: {
+			currentPassword?: string;
+			newPassword?: string;
+			confirmPassword?: string;
+		} = Object.fromEntries(formData.entries());
 		console.log(data);
 
 		isLoading = true;
@@ -43,7 +47,7 @@
 					confirmPassword: 'Confirm Password is required.'
 				});
 			}
-			if (data.password !== data.confirmPassword) {
+			if (data.newPassword !== data.confirmPassword) {
 				alert = {
 					type: 'error',
 					message: 'Passwords do not match.'
@@ -54,8 +58,8 @@
 			}
 
 			await updatePassword($session!, {
-				currentPassword: data.currentPassword as string,
-				newPassword: data.newPassword as string
+				currentPassword: data.currentPassword!,
+				newPassword: data.newPassword!
 			});
 			await invalidateAll();
 
@@ -66,6 +70,7 @@
 
 			setTimeout(() => {
 				dialog?.close();
+				event.currentTarget.reset();
 			}, 1000);
 		} catch (error) {
 			console.error("Couldn't update user", error);
