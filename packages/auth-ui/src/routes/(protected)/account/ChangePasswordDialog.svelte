@@ -52,6 +52,7 @@
 					type: 'error',
 					message: 'Passwords do not match.'
 				};
+				return;
 			}
 			if (errors.length > 0) {
 				return;
