@@ -108,6 +108,10 @@ export async function updatePassword(
 }
 
 export async function uploadProfilePicture(file: File, session: string): Promise<string> {
+	if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+		throw new Error('Invalid file type.');
+	}
+
 	const urlRequest = await fetch(`${PUBLIC_API_URL}/users/profile-pictures/presigned-url`, {
 		method: 'POST',
 		headers: {
