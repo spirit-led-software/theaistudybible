@@ -1,5 +1,5 @@
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
-import type { UserInfo } from '@core/model';
+import type { UserWithRoles } from '@core/model';
 import type { Metadata } from '@core/types/metadata';
 import type { Message } from 'ai';
 import type { Document } from 'langchain/document';
@@ -22,7 +22,7 @@ import {
 } from './prompts';
 
 export const getRAIChatChain = async (
-  user: UserInfo,
+  user: UserWithRoles,
   messages: Message[]
 ): Promise<
   Runnable<

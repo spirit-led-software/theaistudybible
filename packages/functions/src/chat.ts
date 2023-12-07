@@ -11,7 +11,7 @@ import {
 } from '@services/ai-response/ai-response';
 import { aiRenameChat, createChat, getChat, updateChat } from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
-import { validSessionFromEvent } from '@services/session';
+import { validApiHandlerSession } from '@services/session';
 import { decrementUserQueryCount, incrementUserQueryCount, isObjectOwner } from '@services/user';
 import {
   createUserMessage,
@@ -98,7 +98,7 @@ const lambdaHandler = async (
     }
 
     console.time('Validating session token');
-    const { isValid, userInfo } = await validSessionFromEvent(event);
+    const { isValid, userWithRoles, remainingQueries, maxQueries } = await validApiHandlerSession();
     if (!isValid) {
       console.log('Invalid session token');
       return {
@@ -111,8 +111,8 @@ const lambdaHandler = async (
     }
     console.timeEnd('Validating session token');
 
-    if (userInfo.remainingQueries <= 0) {
-      console.log(`Max daily query count of ${userInfo.maxQueries} reached`);
+    if (remainingQueries <= 0) {
+      console.log(`Max daily query count of ${maxQueries} reached`);
       return {
         statusCode: 429,
         headers: {
@@ -120,12 +120,12 @@ const lambdaHandler = async (
         },
         body: Readable.from([
           JSON.stringify({
-            error: `Max daily query count of ${userInfo.maxQueries} reached`
+            error: `Max daily query count of ${maxQueries} reached`
           })
         ])
       };
     }
-    const incrementQueryCountPromise = incrementUserQueryCount(userInfo.id);
+    const incrementQueryCountPromise = incrementUserQueryCount(userWithRoles.id);
     pendingPromises.push(incrementQueryCountPromise);
 
     console.time('Validating chat');
@@ -135,11 +135,11 @@ const lambdaHandler = async (
       if (!foundChat) {
         return await createChat({
           id: newChatId,
-          userId: userInfo.id
+          userId: userWithRoles.id
         });
-      } else if (!isObjectOwner(foundChat, userInfo.id)) {
+      } else if (!isObjectOwner(foundChat, userWithRoles.id)) {
         return await createChat({
-          userId: userInfo.id
+          userId: userWithRoles.id
         });
       }
       return foundChat;
@@ -159,7 +159,7 @@ const lambdaHandler = async (
     const userMessageId = uuidV4();
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
-    const chain = await getRAIChatChain(userInfo, messages);
+    const chain = await getRAIChatChain(userWithRoles, messages);
     const inputs = {
       query: lastMessage.content
     };
@@ -178,7 +178,7 @@ const lambdaHandler = async (
           chat,
           userMessageId,
           aiResponseId,
-          userId: userInfo.id,
+          userId: userWithRoles.id,
           lastMessage,
           response: result.text,
           sourceDocuments
@@ -189,7 +189,7 @@ const lambdaHandler = async (
         console.error(`Error: ${err.stack}`);
         await Promise.all([
           incrementQueryCountPromise.then(() => {
-            decrementUserQueryCount(userInfo.id);
+            decrementUserQueryCount(userWithRoles.id);
           }),
           getAiResponse(aiResponseId).then(async (aiResponse) => {
             if (aiResponse) {

@@ -11,9 +11,9 @@
   "devDependencies": {
     "@opensearch-project/opensearch": "^2.4.0",
     "@types/email-templates": "^10.0.4",
-    "@types/node": "^20.10.3",
+    "@types/node": "^20.10.4",
     "sst": "2.37.1",
-    "vitest": "^1.0.1"
+    "vitest": "^1.0.2"
   },
   "dependencies": {
     "axios": "^1.6.2",
