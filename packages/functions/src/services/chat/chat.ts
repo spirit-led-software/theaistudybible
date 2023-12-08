@@ -1,5 +1,5 @@
 import type { CreateChatData, UpdateChatData } from '@core/model';
-import { chats } from '@core/schema';
+import { chats, devotions } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { getDevotions } from '@services/devotion';
 import type { Message } from 'ai';
@@ -124,9 +124,18 @@ export async function getDailyQuery() {
 
   return await queryChain.invoke({
     devotion: await getDevotions({
-      limit: 1
+      limit: 1,
+      orderBy: desc(devotions.createdAt)
     })
       .then((devotions) => devotions[0])
-      .then((devotion) => devotion?.bibleReading)
+      .then((devotion) => {
+        return [
+          `<topic>${devotion.topic}</topic>`,
+          `<bible_reading>${devotion.bibleReading}</bible_reading>`,
+          `<summary>${devotion.summary}</summary>`,
+          `<reflection>${devotion.reflection}</reflection>`,
+          `<prayer>${devotion.prayer}</prayer>`
+        ].join('\n');
+      })
   });
 }

@@ -1,7 +1,8 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
-export const CHAT_MARKDOWN_FORMATTING_INSTRUCTIONS = `You must format your response in markdown language (md). Your goal is to make your response as readable and pretty as possible. Put quotes in blockquotes, use headings, use lists, etc. You can use the following markdown syntax:
+export const CHAT_MARKDOWN_FORMATTING_INSTRUCTIONS = `You must format your response in markdown language (md). Your goal is to make your response as readable and pretty as possible. Put quotes in blockquotes, use headings, use lists, etc. You are not allowed to use any other markdown syntax other than what is listed below.
 
+Here is the markdown syntax that you must use:
 - You must use the following markdown syntax for bold text:
 **bold text**
 
@@ -420,7 +421,7 @@ Here is an example query, within <example></example> XML tags.
 What were Jesus' thoughts on predestination?
 </example>
 
-Here is the devotion that you need to generate a query for, within <devotion></devotion> XML tags.
+Here is the devotion that you need to generate a query for, within <devotion></devotion> XML tags. The topic is within <topic></topic> XML tags. The Bible reading is within <bible_reading></bible_reading> XML tags. The summary is within <summary></summary> XML tags. The reflection is within <reflection></reflection> XML tags. The prayer is within <prayer></prayer> XML tags.
 <devotion>
 {devotion}
 </devotion>
