@@ -406,14 +406,17 @@ Think about your answer first before you respond. Here are the formatting instru
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
 
-export const CHAT_DAILY_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate a query for. Your goal is to generate a query that helps the user dive deeper into the topic of the devotion. This query will be fed back into a query answering system.
+export const CHAT_DAILY_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate a query for. Your goal is to generate a query that helps the user dive deeper into the topic of the devotion. This query will be fed back into a query answering system, so make sure the query is not a personal question about the user.
 
 Here are some important rules for you to follow:
-- Your query must be thought-provoking.
 - Your query must be related to the Christian faith.
-- Your query must be a question that can be answered.
+- Your query must be a question that can be answered by a question answering system.
 - Your query must be a maximum of 256 characters.
-- Your query must be unique.
+
+Here is an example query, within <example></example> XML tags.
+<example>
+What were Jesus' thoughts on predestination?
+</example>
 
 Here is the devotion that you need to generate a query for, within <devotion></devotion> XML tags.
 <devotion>
