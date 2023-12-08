@@ -52,7 +52,11 @@ export function Crons({ stack, app }: StackContext) {
             }
           ],
           environment: {
-            ...STATIC_ENV_VARS
+            ...STATIC_ENV_VARS,
+            DATABASE_READWRITE_URL: dbReadWriteUrl,
+            DATABASE_READONLY_URL: dbReadOnlyUrl,
+            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
           },
           timeout: '5 minutes',
           memorySize: '1 GB',
