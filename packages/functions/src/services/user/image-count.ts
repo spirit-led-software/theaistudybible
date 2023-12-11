@@ -4,7 +4,7 @@ import type {
 } from '@core/model/user/image-count';
 import { userGeneratedImageCounts } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
-import { SQL, and, desc, eq } from 'drizzle-orm';
+import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUserGeneratedImageCounts(
   options: {
@@ -61,7 +61,10 @@ export async function getUserGeneratedImageCountByUserIdAndDate(userId: string, 
       .select()
       .from(userGeneratedImageCounts)
       .where(
-        and(eq(userGeneratedImageCounts.userId, userId), eq(userGeneratedImageCounts.date, date))
+        and(
+          eq(userGeneratedImageCounts.userId, userId),
+          sql`${userGeneratedImageCounts.createdAt}::date = ${date}::date`
+        )
       )
   ).at(0);
 }
@@ -108,8 +111,7 @@ export async function incrementUserGeneratedImageCount(userId: string) {
   } else {
     return await createUserGeneratedImageCount({
       userId,
-      count: 1,
-      date: new Date()
+      count: 1
     });
   }
 }
@@ -126,8 +128,7 @@ export async function decrementUserGeneratedImageCount(userId: string) {
   } else {
     return await createUserGeneratedImageCount({
       userId,
-      count: 0,
-      date: new Date()
+      count: 0
     });
   }
 }

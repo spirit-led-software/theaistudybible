@@ -1,7 +1,6 @@
 import { relations } from 'drizzle-orm';
 import {
   boolean,
-  date,
   doublePrecision,
   index,
   integer,
@@ -127,7 +126,7 @@ export const users = pgTable(
     email: text('email').notNull(),
     stripeCustomerId: text('stripe_customer_id'),
     image: text('image'),
-    customImage: boolean('custom_image').notNull().default(false),
+    hasCustomImage: boolean('has_custom_image').notNull().default(false),
     translation: text('translation', {
       enum: ['NIV', 'ESV', 'NKJV', 'NLT']
     })
@@ -190,7 +189,6 @@ export const userQueryCounts = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    date: date('date', { mode: 'date' }).notNull().defaultNow(),
     count: integer('count').notNull().default(0),
     userId: uuid('user_id')
       .notNull()
@@ -198,7 +196,6 @@ export const userQueryCounts = pgTable(
   },
   (table) => {
     return {
-      dateIdx: index('user_query_counts_date').on(table.date),
       userIdIdx: index('user_query_counts_user_id').on(table.userId)
     };
   }
@@ -523,7 +520,6 @@ export const userGeneratedImageCounts = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    date: date('date', { mode: 'date' }).notNull().defaultNow(),
     count: integer('count').notNull().default(0),
     userId: uuid('user_id')
       .notNull()
@@ -531,7 +527,6 @@ export const userGeneratedImageCounts = pgTable(
   },
   (table) => {
     return {
-      dateIdx: index('user_generated_images_counts_date').on(table.date),
       userIdIdx: index('user_generated_images_counts_user_id').on(table.userId)
     };
   }

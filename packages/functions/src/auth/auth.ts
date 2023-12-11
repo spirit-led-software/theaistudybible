@@ -94,7 +94,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
       email: tokenSet.claims().email!,
       name: tokenSet.claims().name!,
       image: tokenSet.claims().picture!,
-      customImage: false
+      hasCustomImage: false
     });
   } else {
     if (tokenSet.claims().name && user.name !== tokenSet.claims().name) {
@@ -105,11 +105,11 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
     if (
       tokenSet.claims().picture &&
       user.image !== tokenSet.claims().picture &&
-      !user.customImage
+      !user.hasCustomImage
     ) {
       user = await updateUser(user.id, {
         image: tokenSet.claims().picture!,
-        customImage: false
+        hasCustomImage: false
       });
     }
   }

@@ -68,7 +68,7 @@ export async function createUser(data: CreateUserData) {
     await readWriteDatabase
       .insert(users)
       .values({
-        customImage: data.image ? true : false,
+        hasCustomImage: data.image ? true : false,
         ...data,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -82,7 +82,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
     await readWriteDatabase
       .update(users)
       .set({
-        customImage: sql`${users.customImage} OR ${data.image ? true : false}`,
+        hasCustomImage: sql`${users.hasCustomImage} OR ${data.image ? true : false}`,
         ...data,
         createdAt: undefined,
         updatedAt: new Date()

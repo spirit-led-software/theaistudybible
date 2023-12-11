@@ -1,7 +1,7 @@
 import type { CreateUserQueryCountData, UpdateUserQueryCountData } from '@core/model';
 import { userQueryCounts } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
-import { SQL, and, desc, eq } from 'drizzle-orm';
+import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUserQueryCounts(
   options: {
@@ -47,7 +47,12 @@ export async function getUserQueryCountByUserIdAndDate(userId: string, date: Dat
     await readOnlyDatabase
       .select()
       .from(userQueryCounts)
-      .where(and(eq(userQueryCounts.userId, userId), eq(userQueryCounts.date, date)))
+      .where(
+        and(
+          eq(userQueryCounts.userId, userId),
+          sql`${userQueryCounts.createdAt}::date = ${date}::date`
+        )
+      )
   ).at(0);
 }
 
@@ -90,8 +95,7 @@ export async function incrementUserQueryCount(userId: string) {
   } else {
     return await createUserQueryCount({
       userId,
-      count: 1,
-      date: new Date()
+      count: 1
     });
   }
 }
@@ -108,8 +112,7 @@ export async function decrementUserQueryCount(userId: string) {
   } else {
     return await createUserQueryCount({
       userId,
-      count: 0,
-      date: new Date()
+      count: 0
     });
   }
 }

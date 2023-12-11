@@ -1,7 +1,7 @@
 import type { CreateUserMessageData, UpdateUserMessageData } from '@core/model';
 import { userMessages } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
-import { SQL, and, desc, eq } from 'drizzle-orm';
+import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUserMessages(
   options: {
@@ -81,4 +81,16 @@ export async function deleteUserMessage(id: string) {
   return (
     await readWriteDatabase.delete(userMessages).where(eq(userMessages.id, id)).returning()
   )[0];
+}
+
+export async function getMostAskedUserMessages(count: number) {
+  return await readOnlyDatabase
+    .select({
+      text: userMessages.text,
+      count: sql`COUNT(*)`
+    })
+    .from(userMessages)
+    .groupBy(userMessages.text)
+    .orderBy(sql`COUNT(*) DESC`)
+    .limit(count);
 }

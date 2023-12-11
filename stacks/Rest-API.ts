@@ -138,6 +138,8 @@ export function RestAPI({ stack }: StackContext) {
     'GET /user-messages/{id}': 'packages/functions/src/rest/user-messages/[id]/get.handler',
     'PUT /user-messages/{id}': 'packages/functions/src/rest/user-messages/[id]/put.handler',
     'DELETE /user-messages/{id}': 'packages/functions/src/rest/user-messages/[id]/delete.handler',
+    'GET /user-messages/most-asked':
+      'packages/functions/src/rest/user-messages/most-asked/get.handler',
 
     // Users
     'GET /users': 'packages/functions/src/rest/users/get.handler',
