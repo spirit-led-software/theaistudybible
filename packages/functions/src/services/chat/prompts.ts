@@ -412,7 +412,7 @@ export const CHAT_DAILY_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denomin
 Here are some important rules for you to follow:
 - Your query must be related to the Christian faith.
 - Your query must be a question that can be answered by a question answering system.
-- Your query must be a maximum of 256 characters.
+- Your query must be a maximum of 150 characters.
 - The user and question answering system will not have access to the devotion, so make sure the query includes enough context.
 - If you reference the Bible reading, make sure you include the book, chapter number, and verse range.
 
