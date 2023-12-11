@@ -168,11 +168,11 @@
 												u(t)
 													? (e.mask_selector = t + ',[data-nr-mask]')
 													: null === t
-													  ? (e.mask_selector = t)
-													  : (0, l.Z)(
+														? (e.mask_selector = t)
+														: (0, l.Z)(
 																'An invalid session_replay.mask_selector was provided and will not be used',
 																t
-													    );
+															);
 											},
 											get block_class() {
 												return 'nr-block';
@@ -190,10 +190,10 @@
 												u(t)
 													? (e.block_selector += ','.concat(t))
 													: '' !== t &&
-													  (0, l.Z)(
+														(0, l.Z)(
 															'An invalid session_replay.block_selector was provided and will not be used',
 															t
-													  );
+														);
 											},
 											get mask_input_options() {
 												return e.mask_input_options;
@@ -204,7 +204,7 @@
 													: (0, l.Z)(
 															'An invalid session_replay.mask_input_option was provided and will not be used',
 															t
-													  );
+														);
 											}
 										},
 										spa: { enabled: !0, harvestTimeSeconds: 10, autoStart: !0 }
@@ -318,8 +318,8 @@
 												Array.isArray(e[a]) && Array.isArray(t[a])
 													? (r[a] = Array.from(new Set([...e[a], ...t[a]])))
 													: 'object' == typeof e[a] && 'object' == typeof t[a]
-													  ? (r[a] = i(e[a], t[a]))
-													  : (r[a] = e[a]);
+														? (r[a] = i(e[a], t[a]))
+														: (r[a] = e[a]);
 											} catch (e) {
 												(0, n.Z)('An error occurred while setting a property of a Configurable', e);
 											}
@@ -362,7 +362,7 @@
 								o = n
 									? window
 									: 'undefined' != typeof WorkerGlobalScope &&
-									  (('undefined' != typeof self && self instanceof WorkerGlobalScope && self) ||
+										(('undefined' != typeof self && self instanceof WorkerGlobalScope && self) ||
 											('undefined' != typeof globalThis &&
 												globalThis instanceof WorkerGlobalScope &&
 												globalThis)),
@@ -617,8 +617,8 @@
 											'x' === e
 												? o(t, ++r).toString(16)
 												: 'y' === e
-												  ? ((3 & o()) | 8).toString(16)
-												  : e
+													? ((3 & o()) | 8).toString(16)
+													: e
 										)
 										.join('')
 								);
@@ -714,7 +714,7 @@
 															? (0, i.p)('feat-' + t, [], void 0, e, r)
 															: (0, i.p)('block-' + t, [], void 0, e, r),
 															(0, i.p)('rumresp-' + t, [Boolean(n)], void 0, e, r);
-												  })
+													})
 												: n && (0, i.p)('feat-' + t, [], void 0, void 0, r),
 												(u[t] = Boolean(n));
 										}),
@@ -913,8 +913,8 @@
 									return d(t)
 										? t
 										: (r || (r = ''),
-										  (nrWrapper[o] = t),
-										  (function (e, t, r) {
+											(nrWrapper[o] = t),
+											(function (e, t, r) {
 												if (Object.defineProperty && Object.keys)
 													try {
 														return (
@@ -934,8 +934,8 @@
 														u([e], r);
 													}
 												for (var n in e) a.call(e, n) && (t[n] = e[n]);
-										  })(t, nrWrapper, e),
-										  nrWrapper);
+											})(t, nrWrapper, e),
+											nrWrapper);
 									function nrWrapper() {
 										var o, a, d, l;
 										try {
@@ -2068,7 +2068,7 @@
 																(t.c += e.c),
 																t
 															);
-													  })(i, a[e]));
+														})(i, a[e]));
 											}
 										});
 								} else o.metrics = r;
@@ -2103,16 +2103,16 @@
 								? (function (e) {
 										e ? e.c++ : (e = { c: 1 });
 										return e;
-								  })(t)
+									})(t)
 								: t
-								  ? (t.c || (t = y(t.t)),
-								    (t.c += 1),
-								    (t.t += e),
-								    (t.sos += e * e),
-								    e > t.max && (t.max = e),
-								    e < t.min && (t.min = e),
-								    t)
-								  : { t: e };
+									? (t.c || (t = y(t.t)),
+										(t.c += 1),
+										(t.t += e),
+										(t.sos += e * e),
+										e > t.max && (t.max = e),
+										e < t.min && (t.min = e),
+										t)
+									: { t: e };
 						}
 						function y(e) {
 							return { t: e, min: e, max: e, sos: e * e, c: 1 };
@@ -2207,7 +2207,7 @@
 															void 0,
 															r.D.jserrors,
 															this.ee
-													  ));
+														));
 										},
 										(0, D.m$)(!1, this.removeOnAbort?.signal)
 									),
@@ -2221,13 +2221,13 @@
 								return e instanceof Error
 									? e
 									: void 0 !== e?.message
-									  ? new I(
+										? new I(
 												e.message,
 												e.filename || e.sourceURL,
 												e.lineno || e.line,
 												e.colno || e.col
-									    )
-									  : new I('string' == typeof e ? e : (0, _.P)(e));
+											)
+										: new I('string' == typeof e ? e : (0, _.P)(e));
 							}
 							#r(e) {
 								let t = 'Unhandled Promise Rejection: ';
@@ -2255,10 +2255,10 @@
 							return !e || ('object' !== t && 'function' !== t)
 								? -1
 								: e === l._A
-								  ? 0
-								  : (0, H.X)(e, L, function () {
+									? 0
+									: (0, H.X)(e, L, function () {
 											return z++;
-								    });
+										});
 						}
 						function F(e) {
 							if ('string' == typeof e && e.length) return e.length;
@@ -2524,10 +2524,10 @@
 													('string' == typeof e[0]
 														? 0 === (t = e[0]).length && l.il && (t = '' + l._A.location.href)
 														: e[0] && e[0].url
-														  ? (t = e[0].url)
-														  : l._A?.URL && e[0] && e[0] instanceof URL
-														    ? (t = e[0].href)
-														    : 'function' == typeof e[0].toString && (t = e[0].toString()),
+															? (t = e[0].url)
+															: l._A?.URL && e[0] && e[0] instanceof URL
+																? (t = e[0].href)
+																: 'function' == typeof e[0].toString && (t = e[0].toString()),
 													'string' == typeof t && 0 !== t.length)
 												) {
 													t &&
@@ -2570,8 +2570,8 @@
 												'string' == typeof i
 													? (r = i)
 													: 'object' == typeof i && i instanceof W
-													  ? (r = i.url)
-													  : l._A?.URL && 'object' == typeof i && i instanceof URL && (r = i.href),
+														? (r = i.url)
+														: l._A?.URL && 'object' == typeof i && i instanceof URL && (r = i.href),
 													K(this, r);
 												var o = (
 													'' + ((i && i instanceof W && i.method) || n.method || 'GET')
@@ -2623,10 +2623,10 @@
 													return 'json' === r && null !== t
 														? t
 														: 'arraybuffer' === r || 'blob' === r || 'json' === r
-														  ? F(e.response)
-														  : 'text' === r || '' === r || void 0 === r
-														    ? F(e.responseText)
-														    : void 0;
+															? F(e.response)
+															: 'text' === r || '' === r || void 0 === r
+																? F(e.responseText)
+																: void 0;
 												})(t, e.lastSize);
 												if ((r && (e.metrics.rxSize = r), e.sameOrigin)) {
 													var n = t.getResponseHeader('X-NewRelic-App-Data');
@@ -2712,18 +2712,18 @@
 								super(),
 									l._A
 										? ((this.agentIdentifier = r),
-										  (this.sharedAggregator = new v({ agentIdentifier: this.agentIdentifier })),
-										  (this.features = {}),
-										  (this.desiredFeatures = new Set(t.features || [])),
-										  this.desiredFeatures.add(p),
-										  Object.assign(
+											(this.sharedAggregator = new v({ agentIdentifier: this.agentIdentifier })),
+											(this.features = {}),
+											(this.desiredFeatures = new Set(t.features || [])),
+											this.desiredFeatures.add(p),
+											Object.assign(
 												this,
 												(0, s.j)(this.agentIdentifier, t, t.loaderType || 'agent')
-										  ),
-										  this.run())
+											),
+											this.run())
 										: (0, e.Z)(
 												'Failed to initial the agent. Could not determine the runtime environment.'
-										  );
+											);
 							}
 							get config() {
 								return {

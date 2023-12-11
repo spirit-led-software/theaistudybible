@@ -95,8 +95,8 @@
 								indexOp.status === 'FAILED'
 									? 'text-red-500'
 									: indexOp.status === 'SUCCEEDED'
-									  ? 'text-green-500'
-									  : 'text-yellow-500'
+										? 'text-green-500'
+										: 'text-yellow-500'
 							}`}
 						>
 							<select on:change={(event) => handleUpdateStatus(event, indexOp.id)}>
