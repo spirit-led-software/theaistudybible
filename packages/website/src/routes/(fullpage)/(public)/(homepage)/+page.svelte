@@ -13,14 +13,14 @@
 </svelte:head>
 
 <div
-	class="flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-slate-950 to-slate-600"
+	class="flex flex-col items-center justify-center w-full min-h-full bg-gradient-to-b from-slate-950 to-slate-600"
 >
 	<div class="flex flex-col w-full space-y-2 place-items-center">
 		<div class="flex justify-center w-3/4 mb-2 place-items-center lg:w-1/2">
 			<LogoIcon size={'2xl'} class="rounded-full shadow-lg" />
 		</div>
 		<div class="flex justify-center w-1/2 xl:w-1/3">
-			<h2 class="p-2 text-lg text-center text-white lg:text-xl">
+			<h2 class="p-2 text-md text-center text-white lg:text-xl">
 				An all new way to discover Jesus Christ with the power of{' '}
 				<span
 					class="inline-block font-bold text-transparent bg-gradient-to-t from-blue-50 to-blue-400 bg-clip-text"
