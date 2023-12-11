@@ -90,7 +90,7 @@ export async function getMostAskedUserMessages(count: number) {
       count: sql`COUNT(*)`
     })
     .from(userMessages)
-    .groupBy(userMessages.text)
+    .groupBy(sql`LOWER(${userMessages.text})`)
     .orderBy(sql`COUNT(*) DESC`)
     .limit(count);
 }
