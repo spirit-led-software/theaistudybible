@@ -62,7 +62,6 @@ export const getRAIChatChain = async (
       text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE)
         .pipe(
           getLargeContextModel({
-            modelId: 'anthropic.claude-v2',
             stream: true,
             promptSuffix: '<answer>',
             stopSequences: ['</answer>']
@@ -87,7 +86,6 @@ export const getRAIChatChain = async (
       text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE)
         .pipe(
           getLargeContextModel({
-            modelId: 'anthropic.claude-v2',
             stream: true,
             promptSuffix: '<answer>',
             stopSequences: ['</answer>']
@@ -216,7 +214,6 @@ export async function getDocumentQaChain(options: {
       })
         .pipe(
           getLargeContextModel({
-            modelId: 'anthropic.claude-v2',
             stream: true,
             promptSuffix: '<answer>',
             stopSequences: ['</answer>']
