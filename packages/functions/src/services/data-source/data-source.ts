@@ -2,7 +2,7 @@ import type { CreateDataSourceData, DataSource, UpdateDataSourceData } from '@co
 import { dataSources, indexOperations } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { getDocumentVectorStore } from '@services/vector-db';
-import { SQL, and, desc, eq, inArray } from 'drizzle-orm';
+import { SQL, and, desc, eq } from 'drizzle-orm';
 import {
   getIndexOperations,
   indexRemoteFile,
@@ -112,7 +112,7 @@ export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {
 export async function syncDataSource(id: string, manual: boolean = false): Promise<DataSource> {
   let dataSource = await getDataSourceOrThrow(id);
 
-  let runningIndexOps = await getIndexOperations({
+  const runningIndexOps = await getIndexOperations({
     where: and(
       eq(indexOperations.dataSourceId, dataSource.id),
       eq(indexOperations.status, 'RUNNING')
