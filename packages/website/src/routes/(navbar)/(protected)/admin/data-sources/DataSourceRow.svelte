@@ -12,16 +12,16 @@
 
 	const client = useQueryClient();
 
-	const getLastSyncDate = (dataSource: DataSource): string => {
+	const getLastSyncDate = (dataSource: DataSource) => {
 		if (!dataSource.lastAutomaticSync && !dataSource.lastManualSync) {
-			return 'N/A';
+			return null;
 		}
 		if (dataSource.lastAutomaticSync && dataSource.lastManualSync) {
 			return Moment(dataSource.lastAutomaticSync).isAfter(dataSource.lastManualSync)
-				? Moment(dataSource.lastAutomaticSync).format('M/D/YY h:mma')
-				: Moment(dataSource.lastManualSync).format('M/D/YY h:mma');
+				? dataSource.lastAutomaticSync
+				: dataSource.lastManualSync;
 		}
-		return Moment(dataSource.lastAutomaticSync || dataSource.lastManualSync).format('M/D/YY h:mma');
+		return dataSource.lastAutomaticSync || dataSource.lastManualSync;
 	};
 
 	const handleDelete = async (id: string) => {
@@ -56,7 +56,7 @@
 
 	let editDialog: SvelteComponent | undefined = undefined;
 	let isSyncing = false;
-	let lastSyncDate: string = getLastSyncDate(dataSource);
+	let lastSyncDate = getLastSyncDate(dataSource);
 
 	$: lastSyncDate = getLastSyncDate(dataSource);
 </script>
@@ -99,7 +99,7 @@
 				? 'text-warning'
 				: 'text-success'}
 	>
-		{lastSyncDate}
+		{Moment(lastSyncDate).format('MM/DD/YY H:mma')}
 	</td>
 	<td>{dataSource.numberOfDocuments}</td>
 	<td class="w-10 py-3 space-y-2">
