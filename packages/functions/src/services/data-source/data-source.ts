@@ -123,27 +123,6 @@ export async function syncDataSource(id: string, manual: boolean = false): Promi
     throw new Error(`Cannot sync data source ${dataSource.id} because it is already being indexed`);
   }
 
-  if (dataSource.type === 'WEB_CRAWL') {
-    const webCrawlDataSources = await getDataSources({
-      where: and(eq(dataSources.type, 'WEB_CRAWL'))
-    });
-    runningIndexOps = await getIndexOperations({
-      where: and(
-        inArray(
-          indexOperations.dataSourceId,
-          webCrawlDataSources.map((ds) => ds.id)
-        ),
-        eq(indexOperations.status, 'RUNNING')
-      ),
-      limit: 1
-    });
-    if (runningIndexOps.length > 0) {
-      throw new Error(
-        `Cannot sync data source ${dataSource.id} because another web crawl is already running`
-      );
-    }
-  }
-
   dataSource = await updateDataSource(dataSource.id, {
     numberOfDocuments: 0
   });
