@@ -65,7 +65,7 @@ export async function generatePageContentEmbeddings(
         return doc;
       });
       console.log('Docs ready. Adding them to the vector store.');
-      const vectorStore = await getDocumentVectorStore();
+      const vectorStore = await getDocumentVectorStore({ write: true });
       await vectorStore.addDocuments(docs);
 
       await updateDataSource(dataSourceId, {

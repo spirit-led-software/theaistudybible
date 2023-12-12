@@ -131,7 +131,7 @@ export const handler: S3Handler = async (event) => {
       return doc;
     });
     console.log('Adding documents to vector store');
-    const vectorStore = await getDocumentVectorStore();
+    const vectorStore = await getDocumentVectorStore({ write: true });
     await vectorStore.addDocuments(docs);
     [indexOp, dataSource] = await Promise.all([
       updateIndexOperation(indexOp!.id, {

@@ -1,5 +1,11 @@
 import { envConfig, upstashRedisConfig } from '@core/configs';
-import { RAIBedrockEmbeddings } from '@core/langchain/embeddings/bedrock';
+import {
+  RAIBedrockEmbeddings,
+  type AmazonEmbeddingModel,
+  type CohereEmbeddingInputType,
+  type CohereEmbeddingModel,
+  type CohereEmbeddingTruncateSetting
+} from '@core/langchain/embeddings/bedrock';
 import { RAIBedrock } from '@core/langchain/llms/bedrock';
 import type { AnthropicModelId, CohereModelId } from '@core/langchain/types/bedrock-types';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
@@ -27,10 +33,20 @@ export const llmCache =
       })
     : undefined;
 
-export const getEmbeddingsModel = () =>
-  new RAIBedrockEmbeddings({
-    model: 'cohere.embed-english-v3'
-  });
+export const getEmbeddingsModel = (
+  options?: { verbose?: boolean } & (
+    | {
+        model: AmazonEmbeddingModel;
+      }
+    | {
+        model: CohereEmbeddingModel;
+        inputType?: CohereEmbeddingInputType;
+        truncate?: CohereEmbeddingTruncateSetting;
+      }
+  )
+) => {
+  return new RAIBedrockEmbeddings(options);
+};
 
 export const getSmallContextModel = ({
   modelId = 'cohere.command-text-v14',

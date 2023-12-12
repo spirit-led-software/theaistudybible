@@ -10,19 +10,20 @@ export type CohereEmbeddingModel = 'cohere.embed-english-v3' | 'cohere.embed-mul
 
 export type BedrockEmbeddingModel = AmazonEmbeddingModel | CohereEmbeddingModel;
 
-type CohereEmbeddingInputType =
+export type CohereEmbeddingInputType =
   | 'search_document'
   | 'search_query'
   | 'classification'
   | 'clustering';
 
-type CohereEmbeddingTruncateSetting = 'NONE' | 'LEFT' | 'RIGHT';
+export type CohereEmbeddingTruncateSetting = 'NONE' | 'LEFT' | 'RIGHT';
 
 /**
  * Interface that extends EmbeddingsParams and defines additional
  * parameters specific to the BedrockEmbeddings class.
  */
 export type RAIBedrockEmbeddingsParams = EmbeddingsParams & {
+  verbose?: boolean;
   /**
    * A client provided by the user that allows them to customze any
    * SDK configuration options.
@@ -58,10 +59,12 @@ export class RAIBedrockEmbeddings extends Embeddings {
 
   client: BedrockRuntimeClient;
 
+  verbose: boolean;
+
   constructor(fields?: RAIBedrockEmbeddingsParams) {
     super(fields ?? {});
 
-    this.model = fields?.model ?? 'amazon.titan-embed-text-v1';
+    this.model = fields?.model ?? 'cohere.embed-english-v3';
     this.provider = this.model.split('.')[0] as BedrockEmbeddingProvider;
 
     // @ts-expect-error Explicitly checking for CohereEmbeddingModel
@@ -76,18 +79,29 @@ export class RAIBedrockEmbeddings extends Embeddings {
         region: fields?.region,
         credentials: fields?.credentials
       });
+
+    this.verbose = fields?.verbose ?? false;
+  }
+
+  private _log(message: string, ...args: unknown[]): void {
+    if (this.verbose) {
+      console.log(`[RAIBedrockEmbeddings] ${message}`, ...args);
+    }
   }
 
   protected _createBody(texts: string[]): string {
+    this._log('Creating body for texts:', texts);
     // replace newlines, which can negatively affect performance.
     const cleanedTexts = texts.map((text) => text.replace(/\n/g, ' '));
     if (this.provider === 'cohere') {
+      this._log('Creating body for Cohere');
       return JSON.stringify({
         texts: cleanedTexts,
         input_type: this.inputType ?? 'search_query',
         truncate: this.truncate ?? 'NONE'
       });
     } else if (this.provider === 'amazon') {
+      this._log('Creating body for Amazon');
       if (cleanedTexts.length > 1) {
         throw new Error('Amazon embeddings only supports one text at a time');
       }
@@ -119,8 +133,10 @@ export class RAIBedrockEmbeddings extends Embeddings {
    * @returns Promise that resolves to the response from the API.
    */
   protected async _embedTexts(text: string[]): Promise<number[][]> {
+    this._log('Embedding texts:', text);
     return this.caller.call(async () => {
       try {
+        this._log('Sending request to Bedrock API');
         const res = await this.client.send(
           new InvokeModelCommand({
             modelId: this.model,
@@ -129,8 +145,8 @@ export class RAIBedrockEmbeddings extends Embeddings {
             accept: 'application/json'
           })
         );
-
         const body = new TextDecoder().decode(res.body);
+        this._log('Response body:', body);
         return this._getEmbeddingsFromResponseBody(body);
       } catch (e) {
         console.error({
@@ -139,7 +155,6 @@ export class RAIBedrockEmbeddings extends Embeddings {
         if (e instanceof Error) {
           throw new Error(`An error occurred while embedding documents with Bedrock: ${e.message}`);
         }
-
         throw new Error('An error occurred while embedding documents with Bedrock');
       }
     });
@@ -153,9 +168,11 @@ export class RAIBedrockEmbeddings extends Embeddings {
    * @returns Promise that resolves to an embedding for the input document.
    */
   async embedQuery(document: string): Promise<number[]> {
+    this._log('Embedding document:', document);
     const embeddings = await this.caller.callWithOptions({}, this._embedTexts.bind(this), [
       document
     ]);
+    this._log('Embeddings generated:', embeddings);
     return embeddings[0];
   }
 
@@ -166,17 +183,21 @@ export class RAIBedrockEmbeddings extends Embeddings {
    * @returns Promise that resolves to a 2D array of embeddings for each input document.
    */
   async embedDocuments(documents: string[]): Promise<number[][]> {
+    this._log('Embedding documents:', documents);
     if (this.provider === 'amazon') {
+      this._log('Embedding documents with Amazon');
       return Promise.all(
         documents.map(async (document) => {
           return await this.embedQuery(document);
         })
       );
     } else if (this.provider === 'cohere') {
+      this._log('Embedding documents with Cohere');
       const chunkSize = 96; // max documents allowed by cohere API
       const chunks: Promise<number[][]>[] = [];
       for (let i = 0; i < documents.length; i += chunkSize) {
         const chunk = documents.slice(i, i + chunkSize);
+        this._log('Embedding chunk of length:', chunk.length);
         chunks.push(this.caller.callWithOptions({}, this._embedTexts.bind(this), chunk));
       }
       return (await Promise.all(chunks)).flat();

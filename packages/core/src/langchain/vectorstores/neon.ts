@@ -134,7 +134,6 @@ export class NeonVectorStore extends VectorStore {
       this._log(`No documents to add to vector store`);
       return;
     }
-
     await this.addVectors(
       await this.embeddings.embedDocuments(documents.map(({ pageContent }) => pageContent)),
       documents
