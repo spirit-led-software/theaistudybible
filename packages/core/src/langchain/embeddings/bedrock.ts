@@ -187,20 +187,17 @@ export class RAIBedrockEmbeddings extends Embeddings {
     this._log('Embedding documents:', documents);
     if (this.provider === 'amazon') {
       this._log('Embedding documents with Amazon');
-      const chunkSize = 50;
+      const chunkSize = 25;
       const chunks: number[][][] = [];
       for (let i = 0; i < documents.length; i += chunkSize) {
         const chunk = documents.slice(i, i + chunkSize);
         this._log('Embedding chunk of length:', chunk.length);
-        chunks.push(
-          (
-            await Promise.all(
-              chunk.map(async (document) => {
-                return await this._embedTexts([document]);
-              })
-            )
-          ).flat()
+        const embeddings = await Promise.all(
+          chunk.map(async (document) => {
+            return await this._embedTexts([document]);
+          })
         );
+        chunks.push(embeddings.flat());
       }
       return chunks.flat();
     } else if (this.provider === 'cohere') {

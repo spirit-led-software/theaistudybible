@@ -152,7 +152,7 @@ export class NeonVectorStore extends VectorStore {
     });
 
     const errors: unknown[] = [];
-    const chunkSize = 50;
+    const chunkSize = 25;
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       this._log(`Inserting ${chunk.length} rows into vector store ${i} to ${i + chunk.length}`);
