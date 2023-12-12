@@ -3,29 +3,72 @@
 
 	import { marked } from 'marked';
 
+	marked.use({
+		renderer: {
+			heading(text, level) {
+				switch (level) {
+					case 1:
+						return `<h1 class="mb-4 text-xl font-bold">${text}</h1>`;
+					case 2:
+						return `<h2 class="mb-2 text-lg font-bold">${text}</h2>`;
+					case 3:
+						return `<h3 class="mb-2 text-lg font-medium">${text}</h3>`;
+					case 4:
+						return `<h4 class="mb-2 font-medium">${text}</h4>`;
+					default:
+						return `<h${level}>${text}</h${level}>`;
+				}
+			},
+			list(body, ordered) {
+				if (ordered) {
+					return `<ol class="mb-2 text-xs list-decimal list-outside">${body}</ol>`;
+				}
+				return `<ul class="mb-2 text-xs list-disc list-outside">${body}</ul>`;
+			},
+			listitem(text, task, checked) {
+				if (task) {
+					return `<li class="flex items-center mb-2 text-sm"><input type="checkbox" class="mr-2" ${
+						checked ? 'checked' : ''
+					} disabled>${text}</li>`;
+				}
+				return `<li class="mb-2 text-sm">${text}</li>`;
+			},
+			link(href, title, text) {
+				return `<a class="text-blue-400 link" target="_blank" href="${href}" title="${title}">${text}</a>`;
+			},
+			image(href, title, text) {
+				return `<img src="${href}" alt="${text}" title="${title}" class="w-full"`;
+			},
+			table(header, body) {
+				return `<table class="table whitespace-normal table-xs"><thead>${header}</thead><tbody>${body}</tbody></table>`;
+			},
+			blockquote(quote) {
+				return `<blockquote class="mb-2 text-sm">${quote}</blockquote>`;
+			},
+			checkbox(checked) {
+				return `<input type="checkbox" class="mr-2" ${checked ? 'checked' : ''} disabled>`;
+			},
+			paragraph(text) {
+				return `<p class="mb-2 text-sm">${text}</p>`;
+			},
+			strong(text) {
+				return `<strong class="font-bold">${text}</strong>`;
+			},
+			code(code, infostring, escaped) {
+				if (infostring) {
+					const lang = infostring.split(/\s+/g)[0];
+					return `<pre class="mb-2 text-sm"><code class="language-${lang}">${
+						escaped ? code : escape(code)
+					}</code></pre>`;
+				}
+				return `<pre class="mb-2 text-sm"><code>${escaped ? code : escape(code)}</code></pre>`;
+			}
+		}
+	});
+
 	export let content: string;
 </script>
 
 <div class="flex flex-col w-full">
-	{@html marked(content.trim(), {
-		hooks: {
-			preprocess: (src) => {
-				src = src.replace(/<a href=/g, '<a target="_blank" href=');
-				return src;
-			},
-			postprocess: (src) => {
-				src = src.replace(/<h1/g, '<h1 class="mb-4 text-xl font-bold"');
-				src = src.replace(/<h2/g, '<h2 class="mb-2 text-lg font-bold"');
-				src = src.replace(/<h3/g, '<h3 class="mb-2 text-lg font-medium"');
-				src = src.replace(/<h4/g, '<h4 class="mb-2 font-medium"');
-				src = src.replace(/<ol/g, '<ol class="mb-2 text-xs list-decimal list-outside"');
-				src = src.replace(/<ul/g, '<ul class="mb-2 text-xs list-disc list-outside"');
-				src = src.replace(/<a/g, '<a class="text-blue-400 link"');
-				src = src.replace(/<p/g, '<p class="mb-2 text-sm"');
-				src = src.replace(/<img/g, '<img class="w-full"');
-				src = src.replace(/<table/g, '<table class="table whitespace-normal table-xs"');
-				return src;
-			}
-		}
-	})}
+	{@html marked.parse(content.trim())}
 </div>
