@@ -187,11 +187,22 @@ export class RAIBedrockEmbeddings extends Embeddings {
     this._log('Embedding documents:', documents);
     if (this.provider === 'amazon') {
       this._log('Embedding documents with Amazon');
-      return Promise.all(
-        documents.map(async (document) => {
-          return await this.embedQuery(document);
-        })
-      );
+      const chunkSize = 50;
+      const chunks: number[][][] = [];
+      for (let i = 0; i < documents.length; i += chunkSize) {
+        const chunk = documents.slice(i, i + chunkSize);
+        this._log('Embedding chunk of length:', chunk.length);
+        chunks.push(
+          (
+            await Promise.all(
+              chunk.map(async (document) => {
+                return await this._embedTexts([document]);
+              })
+            )
+          ).flat()
+        );
+      }
+      return chunks.flat();
     } else if (this.provider === 'cohere') {
       this._log('Embedding documents with Cohere');
       const chunkSize = 96; // max documents allowed by cohere API
