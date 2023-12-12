@@ -1,4 +1,4 @@
-import { Client, neon, neonConfig, type NeonQueryFunction } from '@neondatabase/serverless';
+import { Client, neonConfig } from '@neondatabase/serverless';
 import { Document } from 'langchain/document';
 import type { Embeddings } from 'langchain/embeddings/base';
 import { VectorStore } from 'langchain/vectorstores/base';
@@ -65,10 +65,7 @@ export class NeonVectorStore extends VectorStore {
   readonly hnswIdxEfSearch: number;
 
   private readonly readOnlyUrl: string;
-  private readonly readOnlyQueryFn: NeonQueryFunction<false, false>;
-
   private readonly readWriteUrl: string;
-  private readonly readWriteQueryFn: NeonQueryFunction<false, false>;
 
   _vectorstoreType(): string {
     return 'neon';
@@ -89,14 +86,8 @@ export class NeonVectorStore extends VectorStore {
 
     this.readOnlyUrl =
       fields.connectionOptions.readOnlyUrl || fields.connectionOptions.readWriteUrl;
-    this.readOnlyQueryFn = neon(this.readOnlyUrl, {
-      readOnly: true
-    });
 
     this.readWriteUrl = fields.connectionOptions.readWriteUrl;
-    this.readWriteQueryFn = neon(this.readWriteUrl, {
-      readOnly: false
-    });
   }
 
   _log(message: unknown, ...optionalParams: unknown[]): void {
@@ -156,20 +147,20 @@ export class NeonVectorStore extends VectorStore {
     for (let i = 0; i < rows.length; i += chunkSize) {
       const chunk = rows.slice(i, i + chunkSize);
       this._log(`Inserting ${chunk.length} rows into vector store ${i} to ${i + chunk.length}`);
-
       try {
-        await this.readWriteQueryFn(
-          `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
-          SELECT * FROM jsonb_to_recordset($1::jsonb)
-          AS x(page_content text, embedding vector(${this.dimensions}), metadata jsonb);`,
-          [JSON.stringify(chunk)]
-        );
+        await this.transaction(async (client) => {
+          await client.query(
+            `INSERT INTO ${this.tableName} (page_content, embedding, metadata)
+            SELECT * FROM jsonb_to_recordset($1::jsonb)
+            AS x(page_content text, embedding vector(${this.dimensions}), metadata jsonb);`,
+            [JSON.stringify(chunk)]
+          );
+        });
       } catch (e) {
         this._log(`Error inserting chunk: ${e}`);
         errors.push(e);
       }
     }
-
     if (errors.length > 0) {
       throw new Error(`Error inserting chunks into vector store: ${errors}`);
     }
@@ -414,7 +405,9 @@ export class NeonVectorStore extends VectorStore {
 
   async deleteTableInDatabase(): Promise<void> {
     this._log(`Dropping table ${this.tableName}`);
-    await this.readWriteQueryFn(`DROP TABLE IF EXISTS ${this.tableName} CASCADE;`);
+    await this.transaction(async (client) => {
+      await client.query(`DROP TABLE IF EXISTS ${this.tableName} CASCADE;`);
+    });
   }
 
   async dropHnswIndex(): Promise<void> {
@@ -445,26 +438,29 @@ export class NeonVectorStore extends VectorStore {
   async deleteDocumentsByIds(ids: string[], filter?: this['FilterType']): Promise<void> {
     const _filter = this._generateFiltersString(filter);
     this._log(`Deleting documents\nids=${ids}\nfilter='${_filter}'`);
-    await this.readWriteQueryFn(
-      `DELETE FROM ${this.tableName}
-      WHERE (
-        id = ANY($1)
-        ${_filter ? `AND (${_filter})` : ''}
-      );`,
-      [ids]
-    );
+    await this.transaction(async (client) => {
+      await client.query(
+        `DELETE FROM ${this.tableName}
+        WHERE (
+          id = ANY($1)
+          ${_filter ? `AND (${_filter})` : ''}
+        );`,
+        [ids]
+      );
+    });
   }
 
   async deleteDocumentsByFilter(filter: this['FilterType']): Promise<void> {
     const _filter = this._generateFiltersString(filter);
     this._log(`Deleting documents\nfilter='${_filter}'`);
-
-    await this.readWriteQueryFn(
-      `DELETE FROM ${this.tableName}
-      WHERE (
-        ${_filter}
-      );`
-    );
+    await this.transaction(async (client) => {
+      await client.query(
+        `DELETE FROM ${this.tableName}
+        WHERE (
+          ${_filter}
+        );`
+      );
+    });
   }
 
   async transaction<T>(fn: (client: Client) => Promise<T>): Promise<T> {
