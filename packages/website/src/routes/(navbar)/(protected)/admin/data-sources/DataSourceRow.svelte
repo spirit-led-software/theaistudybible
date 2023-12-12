@@ -99,7 +99,7 @@
 				? 'text-warning'
 				: 'text-success'}
 	>
-		{Moment(lastSyncDate).format('MM/DD/YY H:mma')}
+		{Moment(lastSyncDate).format('M/D/YY h:mma')}
 	</td>
 	<td>{dataSource.numberOfDocuments}</td>
 	<td class="w-10 py-3 space-y-2">
