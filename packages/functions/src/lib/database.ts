@@ -31,12 +31,12 @@ export async function neonFetchFn(input: RequestInfo | URL, init?: RequestInit):
     } catch (error) {
       if (tryCount < retries) {
         console.log(
-          '[Neon Fetch] Retrying neon fetch after ${tryCount} attempt(s) with error:',
+          `[Neon Fetch] Retrying neon fetch after ${tryCount} attempt(s) with error:`,
           error instanceof Error
             ? `${error.message}\n${error.stack}`
             : `Error: ${JSON.stringify(error)}`
         );
-        console.log(`[Neon Fetch] Waiting ${tryCount * 1000} seconds before retrying`);
+        console.log(`[Neon Fetch] Waiting ${tryCount * 1000} milliseconds before retrying`);
         await new Promise((resolve) => setTimeout(resolve, 1000 * tryCount));
         tryCount++;
         continue;
