@@ -23,10 +23,9 @@ export async function neonFetchFn(input: RequestInfo | URL, init?: RequestInit):
         throw new Error(
           `Failed to fetch url=${input}\nrequest=${JSON.stringify(init)}\nresponseStatus=${
             response.status
-          }\nresponseStatusText=${response.statusText}`
+          }\nresponseStatusText=${response.statusText}\nresponseBody=${await response.text()}`
         );
       }
-
       return response;
     } catch (error) {
       if (tryCount < retries) {
