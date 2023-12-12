@@ -64,7 +64,7 @@ export class RAIBedrockEmbeddings extends Embeddings {
   constructor(fields?: RAIBedrockEmbeddingsParams) {
     super(fields ?? {});
 
-    this.model = fields?.model ?? 'cohere.embed-english-v3';
+    this.model = fields?.model ?? 'amazon.titan-embed-text-v1';
     this.provider = this.model.split('.')[0] as BedrockEmbeddingProvider;
 
     // @ts-expect-error Explicitly checking for CohereEmbeddingModel
@@ -145,7 +145,8 @@ export class RAIBedrockEmbeddings extends Embeddings {
             accept: 'application/json'
           })
         );
-        const body = new TextDecoder().decode(res.body);
+        this._log('Received response from Bedrock API:', res);
+        const body = res.body.transformToString();
         this._log('Response body:', body);
         return this._getEmbeddingsFromResponseBody(body);
       } catch (e) {

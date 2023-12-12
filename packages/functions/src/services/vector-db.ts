@@ -8,11 +8,11 @@ export async function getDocumentVectorStore(options?: {
   filters?: Metadata[];
   write?: boolean;
 }) {
-  const { verbose, filters, write = false } = options ?? {};
+  const { verbose, filters /* write = false */ } = options ?? {};
   const vectorStore = await NeonVectorStore.fromConnectionString(
     getEmbeddingsModel({
-      model: 'cohere.embed-english-v3',
-      inputType: write ? 'search_document' : 'search_query',
+      model: 'amazon.titan-embed-text-v1',
+      // inputType: write ? 'search_document' : 'search_query',
       verbose: envConfig.isLocal ? true : verbose
     }),
     {
@@ -21,7 +21,7 @@ export async function getDocumentVectorStore(options?: {
         readWriteUrl: vectorDBConfig.writeUrl,
         readOnlyUrl: vectorDBConfig.readUrl
       },
-      dimensions: 1024, //! Must match embedding model output size. See ./llm.ts
+      dimensions: 1536, //! Must match embedding model (above) output size.
       distance: 'cosine',
       hnswIdxM: 16,
       hnswIdxEfConstruction: 64,

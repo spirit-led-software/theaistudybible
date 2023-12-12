@@ -1,10 +1,7 @@
 import { envConfig, upstashRedisConfig } from '@core/configs';
 import {
   RAIBedrockEmbeddings,
-  type AmazonEmbeddingModel,
-  type CohereEmbeddingInputType,
-  type CohereEmbeddingModel,
-  type CohereEmbeddingTruncateSetting
+  type RAIBedrockEmbeddingsParams
 } from '@core/langchain/embeddings/bedrock';
 import { RAIBedrock } from '@core/langchain/llms/bedrock';
 import type { AnthropicModelId, CohereModelId } from '@core/langchain/types/bedrock-types';
@@ -33,18 +30,7 @@ export const llmCache =
       })
     : undefined;
 
-export const getEmbeddingsModel = (
-  options?: { verbose?: boolean } & (
-    | {
-        model: AmazonEmbeddingModel;
-      }
-    | {
-        model: CohereEmbeddingModel;
-        inputType?: CohereEmbeddingInputType;
-        truncate?: CohereEmbeddingTruncateSetting;
-      }
-  )
-) => {
+export const getEmbeddingsModel = (options?: RAIBedrockEmbeddingsParams) => {
   return new RAIBedrockEmbeddings(options);
 };
 
