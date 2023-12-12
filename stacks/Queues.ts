@@ -32,9 +32,9 @@ export function Queues({ stack }: StackContext) {
         },
         permissions: [invokeBedrockPolicy],
         nodejs: {
-          install: ['@sparticuz/chromium'],
+          install: ['@sparticuz/chromium@latest'],
           esbuild: {
-            external: ['@sparticuz/chromium']
+            external: ['@sparticuz/chromium@latest']
           }
         },
         reservedConcurrentExecutions: stack.stage !== 'prod' ? 2 : 50,
