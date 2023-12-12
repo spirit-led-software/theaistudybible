@@ -209,7 +209,8 @@ export class RAIBedrockEmbeddings extends Embeddings {
         this._log('Embedding chunk of length:', chunk.length);
         chunks.push(this.caller.callWithOptions({}, this._embedTexts.bind(this), chunk));
       }
-      return (await Promise.all(chunks)).flat();
+      const embeddings = await Promise.all(chunks);
+      return embeddings.flat();
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);
     }
