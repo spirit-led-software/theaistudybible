@@ -31,8 +31,9 @@ export function Queues({ stack }: StackContext) {
           VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
         },
         permissions: [invokeBedrockPolicy],
+        runtime: 'nodejs18.x',
         nodejs: {
-          install: ['@sparticuz/chromium@latest'],
+          install: ['@sparticuz/chromium'],
           esbuild: {
             external: ['@sparticuz/chromium']
           }
