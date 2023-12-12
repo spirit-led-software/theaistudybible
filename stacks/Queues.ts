@@ -12,13 +12,15 @@ export function Queues({ stack }: StackContext) {
   const webpageIndexQueue = new Queue(stack, 'webpageIndexQueue', {
     cdk: {
       queue: {
+        retentionPeriod: Duration.days(1),
         visibilityTimeout: Duration.minutes(15)
       }
     },
     consumer: {
       cdk: {
         eventSource: {
-          batchSize: 1
+          batchSize: 1,
+          maxConcurrency: stack.stage !== 'prod' ? 2 : 25
         }
       },
       function: {
@@ -38,7 +40,6 @@ export function Queues({ stack }: StackContext) {
             external: ['@sparticuz/chromium']
           }
         },
-        reservedConcurrentExecutions: stack.stage !== 'prod' ? 2 : 25,
         timeout: '15 minutes',
         memorySize: '1 GB'
       }
