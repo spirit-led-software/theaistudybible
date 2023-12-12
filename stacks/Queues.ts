@@ -34,7 +34,7 @@ export function Queues({ stack }: StackContext) {
         nodejs: {
           install: ['@sparticuz/chromium@latest'],
           esbuild: {
-            external: ['@sparticuz/chromium@latest']
+            external: ['@sparticuz/chromium']
           }
         },
         reservedConcurrentExecutions: stack.stage !== 'prod' ? 2 : 50,
