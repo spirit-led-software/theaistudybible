@@ -10,9 +10,6 @@
 
 	export let dataSource: DataSource;
 
-	let editDialog: SvelteComponent | undefined = undefined;
-	let isSyncing = false;
-
 	const client = useQueryClient();
 
 	const getLastSyncDate = (dataSource: DataSource): string => {
@@ -56,6 +53,12 @@
 			$deleteDataSourceMutation.mutate(id);
 		}
 	};
+
+	let editDialog: SvelteComponent | undefined = undefined;
+	let isSyncing = false;
+	let lastSyncDate: string = getLastSyncDate(dataSource);
+
+	$: lastSyncDate = getLastSyncDate(dataSource);
 </script>
 
 <tr>
@@ -89,7 +92,15 @@
 	<td>{dataSource.name}</td>
 	<td>{dataSource.type}</td>
 	<td>{dataSource.syncSchedule}</td>
-	<td>{getLastSyncDate(dataSource)}</td>
+	<td
+		class={Moment(lastSyncDate).isBefore(Moment().subtract(10, 'days'))
+			? 'text-error'
+			: Moment(lastSyncDate).isBefore(Moment().subtract(3, 'days'))
+				? 'text-warning'
+				: 'text-success'}
+	>
+		{lastSyncDate}
+	</td>
 	<td>{dataSource.numberOfDocuments}</td>
 	<td class="w-10 py-3 space-y-2">
 		<button
