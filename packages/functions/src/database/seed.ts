@@ -210,16 +210,6 @@ const getPartialHnswIndexInfos = () => {
             category: 'commentary'
           }
         ]
-      },
-      {
-        name: `${translation.toLowerCase()}_faith_qa`,
-        filters: [
-          {
-            category: 'bible',
-            translation
-          },
-          "metadata->>'category' != 'bible'"
-        ]
       }
     );
   }
@@ -264,7 +254,9 @@ export const handler: Handler = async () => {
 
     console.log('Creating partial HNSW indexes');
     for (const { name, filters } of getPartialHnswIndexInfos()) {
-      console.log(`Creating partial HNSW index on documents: ${name} with filters: ${filters}`);
+      console.log(
+        `Creating partial HNSW index on documents: ${name} with filters: ${JSON.stringify(filters)}`
+      );
       const filteredVectorDb = await getDocumentVectorStore({
         filters
       });
