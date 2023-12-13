@@ -16,7 +16,6 @@ import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE,
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
@@ -39,17 +38,6 @@ export const getRAIChatChain = async (
         : new AIMessage(message.content);
     })
   );
-
-  const irrelevantQueryChain = await getDocumentQaChain({
-    prompt: CHAT_IRRELEVANT_QUERY_CHAIN_PROMPT_TEMPLATE,
-    filters: [
-      {
-        category: 'bible',
-        translation: user.translation
-      },
-      "metadata->>'category'!= 'bible'"
-    ]
-  });
 
   const identityChain = RunnableSequence.from([
     {
@@ -104,7 +92,6 @@ export const getRAIChatChain = async (
   });
 
   const branch = RunnableBranch.from([
-    [(x) => x.routingInstructions.destination === 'irrelevant-query', irrelevantQueryChain],
     [(x) => x.routingInstructions.destination === 'identity', identityChain],
     [(x) => x.routingInstructions.destination === 'chat-history', chatHistoryChain],
     [(x) => x.routingInstructions.destination === 'faith-qa', faithQaChain],
@@ -133,7 +120,6 @@ export const getRAIChatChain = async (
       partialVariables: {
         formatInstructions: routerChainOutputParser.getFormatInstructions(),
         destinations: [
-          'irrelevant-query: For responding to queries that are inappropriate and/or irrelevant to the Christian faith.',
           'identity: For greetings, introducing yourself, or talking about yourself.',
           'chat-history: For retrieving information about the current chat conversation.',
           'faith-qa: For answering general queries about Christian faith.'
