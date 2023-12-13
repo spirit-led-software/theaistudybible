@@ -263,16 +263,14 @@ export const handler: Handler = async () => {
     await vectorDb.ensureTableInDatabase();
 
     console.log('Creating partial HNSW indexes');
-    await Promise.all(
-      getPartialHnswIndexInfos().map(async ({ name, filters }) => {
-        console.log(`Creating partial HNSW index on documents: ${name}`);
-        const filteredVectorDb = await getDocumentVectorStore({
-          filters
-        });
-        await filteredVectorDb.createPartialHnswIndex(name);
-      })
-    );
-
+    for (const { name, filters } of getPartialHnswIndexInfos()) {
+      console.log(`Creating partial HNSW index on documents: ${name} with filters: ${filters}`);
+      const filteredVectorDb = await getDocumentVectorStore({
+        filters
+      });
+      await filteredVectorDb.createPartialHnswIndex(name);
+    }
+    
     console.log('Database seeding complete');
   } catch (e) {
     console.log(e);
