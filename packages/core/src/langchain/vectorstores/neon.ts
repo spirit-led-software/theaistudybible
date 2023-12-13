@@ -14,7 +14,7 @@ export interface NeonVectorStoreArgs {
   };
   tableName?: string;
   dimensions: number;
-  filters?: Metadata[];
+  filters?: (Metadata | string)[];
   verbose?: boolean;
   distance?: DistanceMetric;
   hnswIdxM?: number;
@@ -53,9 +53,9 @@ const distanceOperators = {
 };
 
 export class NeonVectorStore extends VectorStore {
-  declare FilterType: Metadata;
+  declare FilterType: Metadata | string;
   readonly tableName: string;
-  readonly filters: Metadata[];
+  readonly filters: (Metadata | string)[];
   readonly dimensions: number;
   readonly verbose: boolean;
   readonly distance: DistanceMetric;
@@ -107,14 +107,28 @@ export class NeonVectorStore extends VectorStore {
   _generateFiltersString(filter?: this['FilterType']): string {
     let filterString = '';
     if (filter) {
-      filterString = `(metadata @> '${JSON.stringify(filter)}'::jsonb)`;
+      if (typeof filter === 'string') {
+        filterString = filter;
+      } else if (typeof filter === 'object') {
+        filterString = `(metadata @> '${JSON.stringify(filter)}'::jsonb)`;
+      } else {
+        throw new Error(`Invalid filter type ${typeof filter}`);
+      }
     }
     if (this.filters.length > 0) {
       if (filterString.length > 0) {
         filterString += ' AND ';
       }
       filterString += `(${this.filters
-        .map((value) => `(metadata @> '${JSON.stringify(value)}')`)
+        .map((value) => {
+          if (typeof value === 'string') {
+            return value;
+          } else if (typeof value === 'object') {
+            return `(metadata @> '${JSON.stringify(value)}')`;
+          } else {
+            throw new Error(`Invalid filter type ${typeof value}`);
+          }
+        })
         .join(' OR ')})`;
     }
     return filterString;

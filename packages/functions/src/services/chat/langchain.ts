@@ -13,7 +13,6 @@ import { z } from 'zod';
 import { getLargeContextModel, llmCache } from '../llm';
 import { getDocumentVectorStore } from '../vector-db';
 import {
-  CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
@@ -48,9 +47,7 @@ export const getRAIChatChain = async (
         category: 'bible',
         translation: user.translation
       },
-      {
-        category: 'commentary'
-      }
+      "metadata->>'category'!= 'bible'"
     ]
   });
 
@@ -95,31 +92,21 @@ export const getRAIChatChain = async (
     }
   ]);
 
-  const bibleQaChain = await getDocumentQaChain({
-    prompt: CHAT_BIBLE_QA_CHAIN_PROMPT_TEMPLATE,
-    extraPromptVars: {
-      translation: user.translation
-    },
+  const faithQaChain = await getDocumentQaChain({
+    prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
       {
         category: 'bible',
         translation: user.translation
       },
-      {
-        category: 'commentary'
-      }
+      "metadata->>'category'!= 'bible'"
     ]
-  });
-
-  const faithQaChain = await getDocumentQaChain({
-    prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE
   });
 
   const branch = RunnableBranch.from([
     [(x) => x.routingInstructions.destination === 'irrelevant-query', irrelevantQueryChain],
     [(x) => x.routingInstructions.destination === 'identity', identityChain],
     [(x) => x.routingInstructions.destination === 'chat-history', chatHistoryChain],
-    [(x) => x.routingInstructions.destination === 'bible-qa', bibleQaChain],
     [(x) => x.routingInstructions.destination === 'faith-qa', faithQaChain],
     faithQaChain
   ]);
@@ -149,7 +136,6 @@ export const getRAIChatChain = async (
           'irrelevant-query: For responding to queries that are inappropriate and/or irrelevant to the Christian faith.',
           'identity: For greetings, introducing yourself, or talking about yourself.',
           'chat-history: For retrieving information about the current chat conversation.',
-          'bible-qa: For answering queries about the Bible, its interpretation, and its history.',
           'faith-qa: For answering general queries about Christian faith.'
         ].join('\n'),
         history: (await history.getMessages())
@@ -179,7 +165,7 @@ export const getRAIChatChain = async (
 
 export async function getDocumentQaChain(options: {
   prompt: string;
-  filters?: Metadata[];
+  filters?: (Metadata | string)[];
   extraPromptVars?: PartialValues<string>;
 }) {
   const { prompt, filters, extraPromptVars } = options;

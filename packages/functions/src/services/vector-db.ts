@@ -5,7 +5,7 @@ import { getEmbeddingsModel } from './llm';
 
 export async function getDocumentVectorStore(options?: {
   verbose?: boolean;
-  filters?: Metadata[];
+  filters?: (Metadata | string)[];
   write?: boolean;
 }) {
   const { verbose, filters /* write = false */ } = options ?? {};
