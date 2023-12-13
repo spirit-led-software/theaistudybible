@@ -93,13 +93,15 @@
 	<td>{dataSource.type}</td>
 	<td>{dataSource.syncSchedule}</td>
 	<td
-		class={Moment(lastSyncDate).isBefore(Moment().subtract(10, 'days'))
-			? 'text-error'
-			: Moment(lastSyncDate).isBefore(Moment().subtract(3, 'days'))
-				? 'text-warning'
-				: 'text-success'}
+		class={lastSyncDate
+			? Moment(lastSyncDate).isBefore(Moment().subtract(10, 'days'))
+				? 'text-error'
+				: Moment(lastSyncDate).isBefore(Moment().subtract(3, 'days'))
+					? 'text-warning'
+					: 'text-success'
+			: ''}
 	>
-		{Moment(lastSyncDate).format('M/D/YY h:mma')}
+		{lastSyncDate ? Moment(lastSyncDate).format('M/D/YY h:mma') : 'N/A'}
 	</td>
 	<td>{dataSource.numberOfDocuments}</td>
 	<td class="w-10 py-3 space-y-2">
