@@ -187,7 +187,7 @@ export class RAIBedrockEmbeddings extends Embeddings {
     this._log('Embedding documents:', documents);
     if (this.provider === 'amazon') {
       this._log('Embedding documents with Amazon');
-      const chunkSize = 25;
+      const chunkSize = 10;
       const chunks: number[][][] = [];
       for (let i = 0; i < documents.length; i += chunkSize) {
         const chunk = documents.slice(i, i + chunkSize);
