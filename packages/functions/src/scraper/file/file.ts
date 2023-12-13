@@ -2,6 +2,7 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { unstructuredConfig, vectorDBConfig } from '@core/configs';
 import type { IndexOperation } from '@core/model';
 import { indexOperations } from '@core/schema';
+import type { Metadata } from '@core/types/metadata';
 import { getDataSourceOrThrow, updateDataSource } from '@services/data-source';
 import { createIndexOperation, updateIndexOperation } from '@services/data-source/index-op';
 import { getDocumentVectorStore } from '@services/vector-db';
@@ -58,7 +59,7 @@ export const handler: S3Handler = async (event) => {
       throw new Error('Missing required metadata');
     }
 
-    let indexOpMetadata: unknown = {
+    let indexOpMetadata: Metadata = {
       ...metadata,
       name,
       url,
@@ -69,18 +70,23 @@ export const handler: S3Handler = async (event) => {
 
     let loader: BaseDocumentLoader;
     if (fileType === 'application/pdf') {
+      console.log('Using PDF loader');
       loader = new PDFLoader(blob, {
         splitPages: false
       });
     } else if (fileType === 'text/plain') {
+      console.log('Using plain text loader');
       loader = new TextLoader(blob);
     } else if (fileType === 'application/json' || fileType === 'text/json') {
+      console.log('Using JSON loader');
       loader = new JSONLoader(blob);
     } else if (
       fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
+      console.log('Using DOCX loader');
       loader = new DocxLoader(blob);
     } else {
+      console.log('Using unstructured loader');
       const tmpDir = mkdtempSync(join(tmpdir(), 'langchain-'));
       const filePath = join(tmpDir, fileName);
       writeFileSync(filePath, Buffer.from(await blob.arrayBuffer()));
@@ -88,7 +94,7 @@ export const handler: S3Handler = async (event) => {
         apiKey: unstructuredConfig.apiKey
       });
       indexOpMetadata = {
-        ...(indexOpMetadata as object),
+        ...indexOpMetadata,
         tempFilePath: filePath
       };
     }
@@ -116,16 +122,16 @@ export const handler: S3Handler = async (event) => {
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
       doc.metadata = {
-        ...(dataSource.metadata as object),
-        ...(indexOpMetadata as object),
+        ...dataSource.metadata,
+        ...indexOpMetadata,
         ...doc.metadata,
         indexDate: new Date().toISOString(),
         type: 'file',
         dataSourceId
       };
-      let newPageContent = `TITLE: ${doc.metadata.name}\n---\n${doc.pageContent}`;
+      let newPageContent = `TITLE: ${doc.metadata.name}\n-----\nCONTENT: ${doc.pageContent}`;
       if (doc.metadata.title && doc.metadata.author) {
-        newPageContent = `TITLE: "${doc.metadata.title}" by ${doc.metadata.author}\n---\n${doc.pageContent}`;
+        newPageContent = `TITLE: "${doc.metadata.title}" by ${doc.metadata.author}\n-----\nCONTENT: ${doc.pageContent}`;
       }
       doc.pageContent = newPageContent;
       return doc;

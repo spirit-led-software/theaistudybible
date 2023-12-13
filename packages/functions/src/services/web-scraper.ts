@@ -56,9 +56,9 @@ export async function generatePageContentEmbeddings(
             name,
             url
           };
-          let newPageContent = `TITLE: ${name}\n---\n${doc.pageContent}`;
+          let newPageContent = `TITLE: ${name}\n-----\nCONTENT: ${doc.pageContent}`;
           if (doc.metadata.title) {
-            newPageContent = `TITLE: ${doc.metadata.title}\n---\n${doc.pageContent}`;
+            newPageContent = `TITLE: ${doc.metadata.title}\n-----\nCONTENT: ${doc.pageContent}`;
           }
           doc.pageContent = newPageContent;
           return doc;
