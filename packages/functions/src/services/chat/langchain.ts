@@ -87,7 +87,7 @@ export const getRAIChatChain = async (
         category: 'bible',
         translation: user.translation
       },
-      "metadata->>'category'!= 'bible'"
+      "metadata->>'category' != 'bible'"
     ]
   });
 
