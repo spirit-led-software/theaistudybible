@@ -270,7 +270,7 @@ export const handler: Handler = async () => {
       });
       await filteredVectorDb.createPartialHnswIndex(name);
     }
-    
+
     console.log('Database seeding complete');
   } catch (e) {
     console.log(e);
