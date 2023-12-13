@@ -15,7 +15,7 @@ export const handler: Handler = async (event) => {
       credential: firebase.credential.cert(serviceAccount)
     });
   }
-  await firebase.messaging().sendToTopic('chat-query', {
+  await firebase.messaging().sendToTopic('daily-query', {
     notification: {
       title: `Dive Deeper`,
       body: query
