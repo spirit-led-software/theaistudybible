@@ -317,7 +317,7 @@ export class NeonVectorStore extends VectorStore {
           this._log(`Creating L2 HNSW index on ${this.tableName}.`);
           const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
           await client.query(
-            `CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
+            `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
               USING hnsw (embedding vector_l2_ops)
               WITH (
                 m = ${this.hnswIdxM}, 
@@ -328,7 +328,7 @@ export class NeonVectorStore extends VectorStore {
           this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
           const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
           await client.query(
-            `CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
+            `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
               USING hnsw (embedding vector_cosine_ops)
               WITH (
                 m = ${this.hnswIdxM}, 
@@ -339,7 +339,7 @@ export class NeonVectorStore extends VectorStore {
           this._log(`Creating inner product HNSW index on ${this.tableName}.`);
           const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
           await client.query(
-            `CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
+            `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
               USING hnsw (embedding vector_ip_ops)
               WITH (
                 m = ${this.hnswIdxM}, 
@@ -352,7 +352,7 @@ export class NeonVectorStore extends VectorStore {
 
         this._log(`Creating GIN index of metadata on ${this.tableName}.`);
         await client.query(
-          `CREATE INDEX IF NOT EXISTS ${this.tableName}_gin_metadata_idx
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${this.tableName}_gin_metadata_idx
             ON ${this.tableName}
             USING GIN (metadata);`
         );
@@ -374,7 +374,7 @@ export class NeonVectorStore extends VectorStore {
         if (this.distance === 'l2') {
           this._log(`Creating L2 HNSW index on ${this.tableName}.`);
           await client.query(
-            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_l2_idx
+            `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${this.tableName}_${indexName}_l2_idx
               ON ${this.tableName}
               USING hnsw (embedding vector_l2_ops)
               WITH (
@@ -386,7 +386,7 @@ export class NeonVectorStore extends VectorStore {
         } else if (this.distance === 'cosine') {
           this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
           await client.query(
-            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_cosine_idx 
+            `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${this.tableName}_${indexName}_cosine_idx 
               ON ${this.tableName}
               USING hnsw (embedding vector_cosine_ops)
               WITH (
@@ -398,7 +398,7 @@ export class NeonVectorStore extends VectorStore {
         } else if (this.distance === 'innerProduct') {
           this._log(`Creating inner product HNSW index on ${this.tableName}.`);
           await client.query(
-            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_ip_idx 
+            `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${this.tableName}_${indexName}_ip_idx 
               ON ${this.tableName}
               USING hnsw (embedding vector_ip_ops)
               WITH (
