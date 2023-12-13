@@ -1,3 +1,4 @@
+import { envConfig } from '@core/configs';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 import type { User } from '@core/model';
 import type { Metadata } from '@core/types/metadata';
@@ -157,11 +158,11 @@ export async function getDocumentQaChain(options: {
   const { prompt, filters, extraPromptVars } = options;
   const qaRetriever = await getDocumentVectorStore({
     filters,
-    verbose: true
+    verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
       k: 20,
-      verbose: true
+      verbose: envConfig.isLocal
     })
   );
   const qaChain = RunnableSequence.from([

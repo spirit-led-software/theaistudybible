@@ -1,3 +1,4 @@
+import { envConfig } from '@core/configs';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 import { devotions } from '@core/schema';
 import { getLargeContextModel } from '@services/llm';
@@ -63,11 +64,11 @@ export const getDevotionGeneratorChain = async (): Promise<
   >
 > => {
   const retriever = await getDocumentVectorStore({
-    verbose: true
+    verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
       k: 25,
-      verbose: true
+      verbose: envConfig.isLocal
     })
   );
   const chain = RunnableSequence.from([
@@ -147,11 +148,11 @@ export const getBibleReadingChain = async (topic: string) => {
         translation: 'ESV'
       }
     ],
-    verbose: true
+    verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
       k: 30,
-      verbose: true
+      verbose: envConfig.isLocal
     })
   );
   const chain = RunnableSequence.from([
