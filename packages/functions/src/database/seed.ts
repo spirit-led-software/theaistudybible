@@ -185,7 +185,7 @@ async function createRcEntitlementRoles() {
 const getPartialHnswIndexInfos = () => {
   const infos: {
     name: string;
-    filters: Metadata[];
+    filters: (Metadata | string)[];
   }[] = [];
 
   for (const translation of users.translation.enumValues) {
@@ -209,6 +209,16 @@ const getPartialHnswIndexInfos = () => {
           {
             category: 'commentary'
           }
+        ]
+      },
+      {
+        name: `${translation.toLowerCase()}_faith_qa`,
+        filters: [
+          {
+            category: 'bible',
+            translation
+          },
+          "metadata->>'category' != 'bible'"
         ]
       }
     );
@@ -262,23 +272,6 @@ export const handler: Handler = async () => {
         await filteredVectorDb.createPartialHnswIndex(name);
       })
     );
-
-    // This code below should only be a one-off thing. Leaving it here just in case.
-    // console.log("Creating chat memory vector stores and HNSW indexes");
-    // const allChats = await getChats({
-    //   limit: Number.MAX_SAFE_INTEGER,
-    // });
-    // const sliceSize = 50;
-    // for (let i = 0; i < allChats.length; i + sliceSize) {
-    //   const chatsSlice = allChats.slice(i, i + sliceSize);
-    //   await Promise.all(
-    //     chatsSlice.map(async (chat) => {
-    //       const chatVectorDb = await getChatMemoryVectorStore(chat.id);
-    //       await chatVectorDb.dropHnswIndex();
-    //       await chatVectorDb.ensureTableInDatabase();
-    //     })
-    //   );
-    // }
 
     console.log('Database seeding complete');
   } catch (e) {
