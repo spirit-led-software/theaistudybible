@@ -1,6 +1,6 @@
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model';
-import { aiResponsesToSourceDocuments } from '@core/schema';
+import { aiResponsesToSourceDocuments, chats, userMessages } from '@core/schema';
 import { readWriteDatabase } from '@lib/database';
 import middy from '@middy/core';
 import {
@@ -9,17 +9,14 @@ import {
   getAiResponsesByUserMessageId,
   updateAiResponse
 } from '@services/ai-response/ai-response';
-import { aiRenameChat, createChat, getChat, updateChat } from '@services/chat';
+import { aiRenameChat, createChat, getChat, updateChat, type RAIChatMessage } from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
 import { validSessionFromEvent } from '@services/session';
 import { decrementUserQueryCount, incrementUserQueryCount, isObjectOwner } from '@services/user';
-import {
-  createUserMessage,
-  getUserMessagesByChatIdAndText,
-  updateUserMessage
-} from '@services/user/message';
-import { LangChainStream, type Message } from 'ai';
+import { createUserMessage, getUserMessages } from '@services/user/message';
+import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { and, eq, or } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
@@ -80,7 +77,7 @@ const lambdaHandler = async (
     };
   }
 
-  const { messages = [], chatId }: { messages: Message[]; chatId?: string } = JSON.parse(
+  const { messages = [], chatId }: { messages: RAIChatMessage[]; chatId?: string } = JSON.parse(
     event.body
   );
 
@@ -129,21 +126,19 @@ const lambdaHandler = async (
     pendingPromises.push(incrementQueryCountPromise);
 
     console.time('Validating chat');
+    const chat = chatId
+      ? await getChat(chatId).then(async (foundChat) => {
+          if (!foundChat || !isObjectOwner(foundChat, userInfo.id)) {
+            return await createChat({
+              userId: userInfo.id
+            });
+          }
+          return foundChat;
+        })
+      : await createChat({
+          userId: userInfo.id
+        });
 
-    const newChatId = chatId ?? uuidV4();
-    const chat = await getChat(newChatId).then(async (foundChat) => {
-      if (!foundChat) {
-        return await createChat({
-          id: newChatId,
-          userId: userInfo.id
-        });
-      } else if (!isObjectOwner(foundChat, userInfo.id)) {
-        return await createChat({
-          userId: userInfo.id
-        });
-      }
-      return foundChat;
-    });
     console.timeEnd('Validating chat');
 
     if (!chat.customName) {
@@ -156,7 +151,39 @@ const lambdaHandler = async (
       );
     }
 
-    const userMessageId = uuidV4();
+    console.time('Validating user message');
+    const userMessage = await getUserMessages({
+      where: and(
+        eq(chats.id, chat.id),
+        lastMessage.uuid
+          ? eq(userMessages.id, lastMessage.uuid)
+          : or(eq(userMessages.text, lastMessage.content), eq(userMessages.aiId, lastMessage.id))
+      )
+    }).then(async (userMessages) => {
+      const userMessage = userMessages.at(0);
+      if (userMessage) {
+        pendingPromises.push(
+          getAiResponsesByUserMessageId(userMessage.id).then(async (aiResponses) => {
+            await Promise.all(
+              aiResponses.map(async (aiResponse) => {
+                await updateAiResponse(aiResponse.id, {
+                  regenerated: true
+                });
+              })
+            );
+          })
+        );
+        return userMessage;
+      }
+      return await createUserMessage({
+        aiId: lastMessage.id,
+        text: lastMessage.content,
+        chatId: chat.id,
+        userId: userInfo.id
+      });
+    });
+    console.timeEnd('Validating user message');
+
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain(userInfo, messages);
@@ -176,7 +203,7 @@ const lambdaHandler = async (
           }) ?? [];
         await postResponseValidationLogic({
           chat,
-          userMessageId,
+          userMessageId: userMessage.id,
           aiResponseId,
           userId: userInfo.id,
           lastMessage,
@@ -209,7 +236,7 @@ const lambdaHandler = async (
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'x-chat-id': chat.id,
-        'x-user-message-id': userMessageId,
+        'x-user-message-id': userMessage.id,
         'x-ai-response-id': aiResponseId
       },
       body: new Readable({
@@ -264,7 +291,6 @@ const postResponseValidationLogic = async ({
   userMessageId,
   aiResponseId,
   userId,
-  lastMessage,
   response,
   sourceDocuments
 }: {
@@ -272,42 +298,14 @@ const postResponseValidationLogic = async ({
   userMessageId: string;
   aiResponseId: string;
   userId: string;
-  lastMessage: Message;
+  lastMessage: RAIChatMessage;
   response: string;
   sourceDocuments: NeonVectorStoreDocument[];
 }): Promise<void> => {
-  const userMessage = await getUserMessagesByChatIdAndText(chat.id, lastMessage.content).then(
-    async (userMessages) => {
-      let userMessage = userMessages.at(0);
-      if (userMessage) {
-        userMessage = await updateUserMessage(userMessage.id, {
-          id: userMessageId
-        });
-        await getAiResponsesByUserMessageId(userMessage.id).then(async (aiResponses) => {
-          await Promise.all(
-            aiResponses.map(async (aiResponse) => {
-              await updateAiResponse(aiResponse.id, {
-                regenerated: true
-              });
-            })
-          );
-        });
-        return userMessage;
-      }
-      return await createUserMessage({
-        id: userMessageId,
-        aiId: lastMessage.id,
-        text: lastMessage.content,
-        chatId: chat.id,
-        userId: userId
-      });
-    }
-  );
-
   const aiResponse = await createAiResponse({
     id: aiResponseId,
     chatId: chat.id,
-    userMessageId: userMessage.id,
+    userMessageId: userMessageId,
     userId,
     text: response
   });

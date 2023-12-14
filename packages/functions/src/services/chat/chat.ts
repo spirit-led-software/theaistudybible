@@ -12,6 +12,10 @@ import {
   CHAT_RENAME_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
+export type RAIChatMessage = Message & {
+  uuid: string;
+};
+
 export async function getChats(
   options: {
     where?: SQL<unknown>;

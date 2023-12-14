@@ -2,7 +2,6 @@ import { envConfig } from '@core/configs';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 import type { User } from '@core/model';
 import type { Metadata } from '@core/types/metadata';
-import type { Message } from 'ai';
 import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
 import { RouterOutputParser } from 'langchain/output_parsers';
@@ -13,6 +12,7 @@ import { Runnable, RunnableBranch, RunnableSequence } from 'langchain/schema/run
 import { z } from 'zod';
 import { getLargeContextModel, llmCache } from '../llm';
 import { getDocumentVectorStore } from '../vector-db';
+import type { RAIChatMessage } from './chat';
 import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
@@ -22,7 +22,7 @@ import {
 
 export const getRAIChatChain = async (
   user: User,
-  messages: Message[]
+  messages: RAIChatMessage[]
 ): Promise<
   Runnable<
     { query: string },
@@ -45,7 +45,16 @@ export const getRAIChatChain = async (
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE)
+      text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE, {
+        partialVariables: {
+          history: (await history.getMessages())
+            .map(
+              (message) =>
+                `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+            )
+            .join('\n')
+        }
+      })
         .pipe(
           getLargeContextModel({
             stream: true,
@@ -59,17 +68,19 @@ export const getRAIChatChain = async (
 
   const chatHistoryChain = RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query,
-      history: () =>
-        messages
-          ?.map(
-            (message) =>
-              `<message>\n<sender>${message.role}</sender><text>${message.content}</text>\n</message>`
-          )
-          .join('\n')
+      query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE)
+      text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE, {
+        partialVariables: {
+          history: (await history.getMessages())
+            .map(
+              (message) =>
+                `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+            )
+            .join('\n')
+        }
+      })
         .pipe(
           getLargeContextModel({
             stream: true,
@@ -89,7 +100,12 @@ export const getRAIChatChain = async (
         translation: user.translation
       },
       "metadata->>'category' != 'bible'"
-    ]
+    ],
+    extraPromptVars: {
+      history: (await history.getMessages())
+        .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
+        .join('\n')
+    }
   });
 
   const branch = RunnableBranch.from([
