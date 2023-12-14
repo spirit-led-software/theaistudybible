@@ -54,14 +54,17 @@ export function DatabaseScripts({ stack, app }: StackContext) {
           }
         },
         enableLiveDev: false,
+        environment: dbScriptEnv,
         permissions: [hnswIndexJob],
         bind: [hnswIndexJob],
-        environment: dbScriptEnv,
         timeout: '15 minutes',
         memorySize: '256 MB'
       }
     }
   });
+  // Need to add this because SST seems to be missing the bind and permissions methods on the Script construct
+  dbSeedScript.bind([hnswIndexJob]);
+  dbSeedScript.attachPermissions([hnswIndexJob]);
 
   stack.addOutputs({
     DatabaseReadOnlyUrl: neonBranch.urls.dbReadOnlyUrl,
