@@ -21,9 +21,9 @@ export async function neonFetchFn(input: RequestInfo | URL, init?: RequestInit):
       const response = await fetch(input, init);
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch url=${input}\nrequest=${JSON.stringify(init)}\nresponseStatus=${
-            response.status
-          }\nresponseStatusText=${response.statusText}\nresponseBody=${await response.text()}`
+          `Failed to fetch url=${input}\nresponseStatus=${response.status}\nresponseStatusText=${
+            response.statusText
+          }\nresponseBody=${await response.text()}`
         );
       }
       return response;

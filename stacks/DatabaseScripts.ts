@@ -32,8 +32,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     enableLiveDev: false,
     environment: dbScriptEnv,
     timeout: '15 minutes',
-    memorySize: '256 MB',
-    retryAttempts: 0
+    memorySize: '256 MB'
   });
   dbMigrationsFunction.node.addDependency(neonBranch);
   const dbMigrationsScript = new Script(stack, 'dbMigrationsScript', {
@@ -52,8 +51,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     enableLiveDev: false,
     environment: dbScriptEnv,
     timeout: '15 minutes',
-    memorySize: '256 MB',
-    retryAttempts: 0
+    memorySize: '256 MB'
   });
   dbSeedFunction.node.addDependency(neonBranch);
   dbSeedFunction.node.addDependency(dbMigrationsScript);

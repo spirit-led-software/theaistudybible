@@ -33,8 +33,7 @@ export function Crons({ stack, app }: StackContext) {
             VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
           },
           timeout: '5 minutes',
-          memorySize: '1 GB',
-          retryAttempts: 2
+          memorySize: '1 GB'
         }
       }
     });
@@ -59,8 +58,7 @@ export function Crons({ stack, app }: StackContext) {
             VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
           },
           timeout: '5 minutes',
-          memorySize: '1 GB',
-          retryAttempts: 2
+          memorySize: '1 GB'
         }
       }
     });
@@ -79,8 +77,7 @@ export function Crons({ stack, app }: StackContext) {
             VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
           },
           timeout: '15 minutes',
-          memorySize: '1 GB',
-          retryAttempts: 0
+          memorySize: '1 GB'
         }
       }
     });
@@ -98,8 +95,7 @@ export function Crons({ stack, app }: StackContext) {
             VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
           },
           timeout: '15 minutes',
-          memorySize: '1 GB',
-          retryAttempts: 1
+          memorySize: '1 GB'
         }
       }
     });
@@ -120,8 +116,7 @@ export function Crons({ stack, app }: StackContext) {
             INDEX_FILE_BUCKET: indexFileBucket.bucketName
           },
           timeout: '15 minutes',
-          memorySize: '2 GB',
-          retryAttempts: 1
+          memorySize: '2 GB'
         }
       }
     });
