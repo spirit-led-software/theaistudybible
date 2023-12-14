@@ -195,7 +195,7 @@ Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - You must select the system that is best suited for the input.
 - If you do not know which system is best, your can use "default" as the system name.
-- You are not allowed to change the query in any way.
+- You **must** rephrase the query so that it can be answered without needing the conversation history.
 
 Here are the candidate systems that you can choose from. It is within <candidates></candidates> XML tags. Each individual candidate system is encapsulated within <candidate></candidate> XML tags. **IMPORTANT:** The candidates are in the format of "[name]: [description]" where [name] is the name of the query answering system and [description] is a description of what queries the system is best suited for. Only the name of the system should be returned.
 <candidates>
