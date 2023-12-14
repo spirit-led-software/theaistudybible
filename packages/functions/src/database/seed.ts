@@ -186,23 +186,39 @@ export const handler: Handler = async () => {
     await createInitialRoles();
     await createRcEntitlementRoles();
     await deleteStripeRoles();
-
     await createInitialAdminUser();
 
-    console.log('Creating HNSW index');
-    const vectorDb = await getDocumentVectorStore();
-    await vectorDb.ensureTableInDatabase();
-    vectorDb.createHnswIndex();
+    const errors: unknown[] = [];
+    try {
+      console.log('Creating HNSW index');
+      const vectorDb = await getDocumentVectorStore();
+      await vectorDb.ensureTableInDatabase();
+      await vectorDb.createHnswIndex();
+    } catch (e) {
+      console.log('Error creating HNSW index:', e);
+      errors.push(e);
+    }
 
     console.log('Creating partial HNSW indexes');
     for (const { name, filters } of getPartialHnswIndexInfos()) {
-      console.log(
-        `Creating partial HNSW index on documents: ${name} with filters: ${JSON.stringify(filters)}`
-      );
-      const filteredVectorDb = await getDocumentVectorStore({
-        filters
-      });
-      filteredVectorDb.createPartialHnswIndex(name);
+      try {
+        console.log(
+          `Creating partial HNSW index on documents: ${name} with filters: ${JSON.stringify(
+            filters
+          )}`
+        );
+        const filteredVectorDb = await getDocumentVectorStore({
+          filters
+        });
+        await filteredVectorDb.createPartialHnswIndex(name);
+      } catch (e) {
+        console.log('Error creating partial HNSW index:', e);
+        errors.push(e);
+      }
+    }
+
+    if (errors.length) {
+      throw new Error(`Database seeding failed: ${errors.join(', ')}`);
     }
 
     console.log('Database seeding complete');
