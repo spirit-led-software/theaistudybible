@@ -23,9 +23,10 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   };
 
   const dbMigrationsScript = new Script(stack, 'dbMigrationsScript', {
+    onCreate: 'packages/functions/src/database/migrations.handler',
+    onUpdate: 'packages/functions/src/database/migrations.handler',
     defaults: {
       function: {
-        handler: 'packages/functions/src/database/migrations.handler',
         copyFiles: [
           {
             from: 'migrations',
@@ -42,9 +43,10 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   
   const dbSeedScript = new Script(stack, 'dbSeedScript', {
     version: process.env.DATABASE_SEED === 'false' ? '1' : undefined, // only run seed script on first deploy if DATABASE_SEED is false
+    onCreate: 'packages/functions/src/database/seed.handler',
+    onUpdate: 'packages/functions/src/database/seed.handler',
     defaults: {
       function: {
-        handler: 'packages/functions/src/database/seed.handler',
         layers: [argonLayer],
         nodejs: {
           esbuild: {
