@@ -1,9 +1,11 @@
 import { Constants, DatabaseScripts, Queues, S3, STATIC_ENV_VARS } from '@stacks';
 import { Cron, StackContext, dependsOn, use } from 'sst/constructs';
+import { Jobs } from './Jobs';
 
 export function Crons({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { hnswIndexJob } = use(Jobs);
   const { invokeBedrockPolicy } = use(Constants);
   const { devotionImageBucket, indexFileBucket } = use(S3);
   const { webpageIndexQueue } = use(Queues);
@@ -69,6 +71,8 @@ export function Crons({ stack, app }: StackContext) {
       job: {
         function: {
           handler: 'packages/functions/src/crons/recreate-indexes.handler',
+          bind: [hnswIndexJob],
+          permissions: [hnswIndexJob],
           environment: {
             ...STATIC_ENV_VARS,
             DATABASE_READWRITE_URL: dbReadWriteUrl,

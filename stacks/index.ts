@@ -4,6 +4,7 @@ export * from './Chat-API';
 export * from './Constants';
 export * from './Crons';
 export * from './DatabaseScripts';
+export * from './Jobs';
 export * from './Layers';
 export * from './Queues';
 export * from './Rest-API';

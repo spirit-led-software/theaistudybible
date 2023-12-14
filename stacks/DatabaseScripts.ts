@@ -1,9 +1,10 @@
-import { Layers, STATIC_ENV_VARS } from '@stacks';
+import { Jobs, Layers, STATIC_ENV_VARS } from '@stacks';
 import { Function, Script, StackContext, use } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 
 export function DatabaseScripts({ stack, app }: StackContext) {
   const { argonLayer } = use(Layers);
+  const { hnswIndexJob } = use(Jobs);
 
   const neonBranch = new NeonBranch(stack, 'neonBranch', {
     projectName: app.name,
@@ -42,6 +43,8 @@ export function DatabaseScripts({ stack, app }: StackContext) {
 
   const dbSeedFunction = new Function(stack, 'dbSeedFunction', {
     handler: 'packages/functions/src/database/seed.handler',
+    bind: [hnswIndexJob],
+    permissions: [hnswIndexJob],
     layers: [argonLayer],
     nodejs: {
       esbuild: {
