@@ -1,5 +1,5 @@
 import { Jobs, Layers, STATIC_ENV_VARS } from '@stacks';
-import { Function, Script, StackContext, use } from 'sst/constructs';
+import { Script, StackContext, use } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 
 export function DatabaseScripts({ stack, app }: StackContext) {
@@ -40,7 +40,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
       }
     }
   });
-  
+
   const dbSeedScript = new Script(stack, 'dbSeedScript', {
     version: process.env.DATABASE_SEED === 'false' ? '1' : undefined, // only run seed script on first deploy if DATABASE_SEED is false
     onCreate: 'packages/functions/src/database/seed.handler',

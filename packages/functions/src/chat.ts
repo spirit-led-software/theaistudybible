@@ -1,6 +1,6 @@
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model';
-import { aiResponsesToSourceDocuments, chats, userMessages } from '@core/schema';
+import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
 import { readWriteDatabase } from '@lib/database';
 import middy from '@middy/core';
 import {
