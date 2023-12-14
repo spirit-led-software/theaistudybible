@@ -337,7 +337,7 @@ export class NeonVectorStore extends VectorStore {
         this._log(`Creating L2 HNSW index on ${this.tableName}.`);
         const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
         await this.readWriteQueryFn(
-          `${options?.recreate && `DROP INDEX CONCURRENTLY IF EXISTS ${l2IndexName};`}
+          `${options?.recreate ? `DROP INDEX CONCURRENTLY IF EXISTS ${l2IndexName};` : ''}
           CREATE INDEX CONCURRENTLY IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
               USING hnsw (embedding vector_l2_ops)
               WITH (
@@ -349,7 +349,7 @@ export class NeonVectorStore extends VectorStore {
         this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
         const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
         await this.readWriteQueryFn(
-          `${options?.recreate && `DROP INDEX CONCURRENTLY IF EXISTS ${cosineIndexName};`}
+          `${options?.recreate ? `DROP INDEX CONCURRENTLY IF EXISTS ${cosineIndexName};` : ''}
           CREATE INDEX CONCURRENTLY IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
               USING hnsw (embedding vector_cosine_ops)
               WITH (
@@ -361,7 +361,7 @@ export class NeonVectorStore extends VectorStore {
         this._log(`Creating inner product HNSW index on ${this.tableName}.`);
         const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
         await this.readWriteQueryFn(
-          `${options?.recreate && `DROP INDEX CONCURRENTLY IF EXISTS ${ipIndexName};`}
+          `${options?.recreate ? `DROP INDEX CONCURRENTLY IF EXISTS ${ipIndexName};` : ''}
           CREATE INDEX CONCURRENTLY IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
               USING hnsw (embedding vector_ip_ops)
               WITH (
@@ -395,7 +395,7 @@ export class NeonVectorStore extends VectorStore {
         this._log(`Creating L2 HNSW index on ${this.tableName}.`);
         const fullIndexName = `${this.tableName}_${indexName}_l2_idx`;
         await this.readWriteQueryFn(
-          `${options?.recreate && `DROP INDEX CONCURRENTLY IF EXISTS ${fullIndexName};`}
+          `${options?.recreate ? `DROP INDEX CONCURRENTLY IF EXISTS ${fullIndexName};` : ''}
           CREATE INDEX CONCURRENTLY IF NOT EXISTS ${fullIndexName}
               ON ${this.tableName}
               USING hnsw (embedding vector_l2_ops)
@@ -409,7 +409,7 @@ export class NeonVectorStore extends VectorStore {
         this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
         const fullIndexName = `${this.tableName}_${indexName}_cosine_idx`;
         await this.readWriteQueryFn(
-          `${options?.recreate && `DROP INDEX CONCURRENTLY IF EXISTS ${fullIndexName};`}
+          `${options?.recreate ? `DROP INDEX CONCURRENTLY IF EXISTS ${fullIndexName};` : ''}
           CREATE INDEX CONCURRENTLY IF NOT EXISTS ${fullIndexName}
               ON ${this.tableName}
               USING hnsw (embedding vector_cosine_ops)
@@ -423,7 +423,7 @@ export class NeonVectorStore extends VectorStore {
         this._log(`Creating inner product HNSW index on ${this.tableName}.`);
         const fullIndexName = `${this.tableName}_${indexName}_ip_idx`;
         await this.readWriteQueryFn(
-          `${options?.recreate && `DROP INDEX CONCURRENTLY IF EXISTS ${fullIndexName};`}
+          `${options?.recreate ? `DROP INDEX CONCURRENTLY IF EXISTS ${fullIndexName};` : ''}
           CREATE INDEX CONCURRENTLY IF NOT EXISTS ${fullIndexName}
               ON ${this.tableName}
               USING hnsw (embedding vector_ip_ops)
