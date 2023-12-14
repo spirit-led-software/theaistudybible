@@ -65,6 +65,26 @@ export function Crons({ stack, app }: StackContext) {
       }
     });
 
+    new Cron(stack, 'recreateHnswIndexesCron', {
+      // once a week
+      schedule: 'cron(0 4 ? * 7 *)',
+      job: {
+        function: {
+          handler: 'packages/functions/src/crons/recreate-indexes.handler',
+          environment: {
+            ...STATIC_ENV_VARS,
+            DATABASE_READWRITE_URL: dbReadWriteUrl,
+            DATABASE_READONLY_URL: dbReadOnlyUrl,
+            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
+            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
+          },
+          timeout: '15 minutes',
+          memorySize: '1 GB',
+          retryAttempts: 0
+        }
+      }
+    });
+
     new Cron(stack, 'indexOpCleanupCron', {
       schedule: 'cron(0 1 * * ? *)',
       job: {

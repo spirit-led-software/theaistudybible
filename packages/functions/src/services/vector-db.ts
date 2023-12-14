@@ -1,5 +1,6 @@
 import { envConfig, vectorDBConfig } from '@core/configs';
 import { NeonVectorStore } from '@core/langchain/vectorstores/neon';
+import { users } from '@core/schema';
 import type { Metadata } from '@core/types/metadata';
 import { getEmbeddingsModel } from './llm';
 
@@ -32,3 +33,70 @@ export async function getDocumentVectorStore(options?: {
   );
   return vectorStore;
 }
+
+export const getPartialHnswIndexInfos = () => {
+  const infos: {
+    name: string;
+    filters: (Metadata | string)[];
+  }[] = [];
+
+  for (const translation of users.translation.enumValues) {
+    infos.push(
+      {
+        name: `${translation.toLowerCase()}_bible`,
+        filters: [
+          {
+            category: 'bible',
+            translation
+          }
+        ]
+      },
+      {
+        name: `${translation.toLowerCase()}_bible_qa`,
+        filters: [
+          {
+            category: 'bible',
+            translation
+          },
+          {
+            category: 'commentary'
+          }
+        ]
+      },
+      {
+        name: `${translation.toLowerCase()}_faith_qa`,
+        filters: [
+          {
+            category: 'bible',
+            translation
+          },
+          "metadata->>'category' != 'bible'"
+        ]
+      }
+    );
+  }
+
+  infos.push(
+    {
+      name: 'theology_qa',
+      filters: [
+        {
+          category: 'theology'
+        },
+        {
+          category: 'commentary'
+        }
+      ]
+    },
+    {
+      name: 'sermon_qa',
+      filters: [
+        {
+          category: 'sermons'
+        }
+      ]
+    }
+  );
+
+  return infos;
+};

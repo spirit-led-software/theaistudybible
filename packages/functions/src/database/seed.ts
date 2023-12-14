@@ -1,7 +1,5 @@
 import { authConfig } from '@core/configs';
 import type { User } from '@core/model';
-import { users } from '@core/schema';
-import type { Metadata } from '@core/types/metadata';
 import {
   addRoleToUser,
   createRole,
@@ -13,7 +11,7 @@ import {
 } from '@services/role';
 import { createUser, getUserByEmail, isAdmin } from '@services/user';
 import { createUserPassword, updateUserPasswordByUserId } from '@services/user/password';
-import { getDocumentVectorStore } from '@services/vector-db';
+import { getDocumentVectorStore, getPartialHnswIndexInfos } from '@services/vector-db';
 import argon from 'argon2';
 import type { Handler } from 'aws-lambda';
 import { randomBytes } from 'crypto';
@@ -182,63 +180,6 @@ async function createRcEntitlementRoles() {
   }
 }
 
-const getPartialHnswIndexInfos = () => {
-  const infos: {
-    name: string;
-    filters: (Metadata | string)[];
-  }[] = [];
-
-  for (const translation of users.translation.enumValues) {
-    infos.push(
-      {
-        name: `${translation.toLowerCase()}_bible`,
-        filters: [
-          {
-            category: 'bible',
-            translation
-          }
-        ]
-      },
-      {
-        name: `${translation.toLowerCase()}_bible_qa`,
-        filters: [
-          {
-            category: 'bible',
-            translation
-          },
-          {
-            category: 'commentary'
-          }
-        ]
-      }
-    );
-  }
-
-  infos.push(
-    {
-      name: 'theology_qa',
-      filters: [
-        {
-          category: 'theology'
-        },
-        {
-          category: 'commentary'
-        }
-      ]
-    },
-    {
-      name: 'sermon_qa',
-      filters: [
-        {
-          category: 'sermons'
-        }
-      ]
-    }
-  );
-
-  return infos;
-};
-
 export const handler: Handler = async () => {
   try {
     console.log('Creating initial roles and users');
@@ -248,9 +189,10 @@ export const handler: Handler = async () => {
 
     await createInitialAdminUser();
 
-    console.log('Creating vector store and (re)creating HNSW index');
+    console.log('Creating HNSW index');
     const vectorDb = await getDocumentVectorStore();
     await vectorDb.ensureTableInDatabase();
+    vectorDb.createHnswIndex();
 
     console.log('Creating partial HNSW indexes');
     for (const { name, filters } of getPartialHnswIndexInfos()) {
@@ -260,12 +202,12 @@ export const handler: Handler = async () => {
       const filteredVectorDb = await getDocumentVectorStore({
         filters
       });
-      await filteredVectorDb.createPartialHnswIndex(name);
+      filteredVectorDb.createPartialHnswIndex(name);
     }
 
     console.log('Database seeding complete');
   } catch (e) {
-    console.log(e);
+    console.error('Database seeding failed:', e);
     throw e;
   }
 };

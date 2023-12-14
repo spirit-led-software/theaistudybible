@@ -1,4 +1,4 @@
-import { Client, neonConfig } from '@neondatabase/serverless';
+import { Client, neon, neonConfig, type NeonQueryFunction } from '@neondatabase/serverless';
 import { Document } from 'langchain/document';
 import type { Embeddings } from 'langchain/embeddings/base';
 import { VectorStore } from 'langchain/vectorstores/base';
@@ -65,7 +65,10 @@ export class NeonVectorStore extends VectorStore {
   readonly hnswIdxEfSearch: number;
 
   private readonly readOnlyUrl: string;
+  private readonly readOnlyQueryFn: NeonQueryFunction<false, false>;
+
   private readonly readWriteUrl: string;
+  private readonly readWriteQueryFn: NeonQueryFunction<false, false>;
 
   _vectorstoreType(): string {
     return 'neon';
@@ -86,8 +89,10 @@ export class NeonVectorStore extends VectorStore {
 
     this.readOnlyUrl =
       fields.connectionOptions.readOnlyUrl || fields.connectionOptions.readWriteUrl;
+    this.readOnlyQueryFn = neon(this.readOnlyUrl, { readOnly: true });
 
     this.readWriteUrl = fields.connectionOptions.readWriteUrl;
+    this.readWriteQueryFn = neon(this.readWriteUrl, { readOnly: false });
   }
 
   _log(message: unknown, ...optionalParams: unknown[]): void {
@@ -313,43 +318,6 @@ export class NeonVectorStore extends VectorStore {
           );
         `);
 
-        if (this.distance === 'l2') {
-          this._log(`Creating L2 HNSW index on ${this.tableName}.`);
-          const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
-          await client.query(
-            `CREATE INDEX IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
-              USING hnsw (embedding vector_l2_ops)
-              WITH (
-                m = ${this.hnswIdxM}, 
-                ef_construction = ${this.hnswIdxEfConstruction}
-              );`
-          );
-        } else if (this.distance === 'cosine') {
-          this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
-          const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
-          await client.query(
-            `CREATE INDEX IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
-              USING hnsw (embedding vector_cosine_ops)
-              WITH (
-                m = ${this.hnswIdxM}, 
-                ef_construction = ${this.hnswIdxEfConstruction}
-              );`
-          );
-        } else if (this.distance === 'innerProduct') {
-          this._log(`Creating inner product HNSW index on ${this.tableName}.`);
-          const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
-          await client.query(
-            `CREATE INDEX IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
-              USING hnsw (embedding vector_ip_ops)
-              WITH (
-                m = ${this.hnswIdxM}, 
-                ef_construction = ${this.hnswIdxEfConstruction}
-              );`
-          );
-        } else {
-          throw new Error(`Unknown distance metric ${this.distance}`);
-        }
-
         this._log(`Creating GIN index of metadata on ${this.tableName}.`);
         await client.query(
           `CREATE INDEX IF NOT EXISTS ${this.tableName}_gin_metadata_idx
@@ -363,18 +331,86 @@ export class NeonVectorStore extends VectorStore {
     }
   }
 
-  async createPartialHnswIndex(indexName: string, filter?: this['FilterType']): Promise<void> {
-    const _filter = this._generateFiltersString(filter);
+  async createHnswIndex(options?: { recreate?: boolean }): Promise<void> {
+    try {
+      if (this.distance === 'l2') {
+        this._log(`Creating L2 HNSW index on ${this.tableName}.`);
+        const l2IndexName = `${this.tableName}_l2_hnsw_idx`;
+        if (options?.recreate) {
+          this._log(`Dropping existing L2 HNSW index ${l2IndexName} on ${this.tableName}.`);
+          await this.readWriteQueryFn(`DROP INDEX IF EXISTS ${l2IndexName};`);
+        }
+        await this.readWriteQueryFn(
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${l2IndexName} ON ${this.tableName}
+              USING hnsw (embedding vector_l2_ops)
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              );`
+        );
+      } else if (this.distance === 'cosine') {
+        this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
+        const cosineIndexName = `${this.tableName}_cosine_hnsw_idx`;
+        if (options?.recreate) {
+          this._log(`Dropping existing Cosine HNSW index ${cosineIndexName} on ${this.tableName}.`);
+          await this.readWriteQueryFn(`DROP INDEX IF EXISTS ${cosineIndexName};`);
+        }
+        await this.readWriteQueryFn(
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${cosineIndexName} ON ${this.tableName}
+              USING hnsw (embedding vector_cosine_ops)
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              );`
+        );
+      } else if (this.distance === 'innerProduct') {
+        this._log(`Creating inner product HNSW index on ${this.tableName}.`);
+        const ipIndexName = `${this.tableName}_ip_hnsw_idx`;
+        if (options?.recreate) {
+          this._log(
+            `Dropping existing inner product HNSW index ${ipIndexName} on ${this.tableName}.`
+          );
+          await this.readWriteQueryFn(`DROP INDEX IF EXISTS ${ipIndexName};`);
+        }
+        await this.readWriteQueryFn(
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${ipIndexName} ON ${this.tableName}
+              USING hnsw (embedding vector_ip_ops)
+              WITH (
+                m = ${this.hnswIdxM}, 
+                ef_construction = ${this.hnswIdxEfConstruction}
+              );`
+        );
+      } else {
+        throw new Error(`Unknown distance metric ${this.distance}`);
+      }
+    } catch (e) {
+      this._log('Error creating HNSW index:', e);
+      throw e;
+    }
+  }
+
+  async createPartialHnswIndex(
+    indexName: string,
+    options?: {
+      filter?: NeonVectorStore['FilterType'];
+      recreate?: boolean;
+    }
+  ): Promise<void> {
+    const _filter = this._generateFiltersString(options?.filter);
     if (_filter.length === 0) {
       throw new Error(`Cannot create a partial HNSW index without filter`);
     }
 
     try {
-      await this.transaction(async (client) => {
-        if (this.distance === 'l2') {
-          this._log(`Creating L2 HNSW index on ${this.tableName}.`);
-          await client.query(
-            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_l2_idx
+      if (this.distance === 'l2') {
+        this._log(`Creating L2 HNSW index on ${this.tableName}.`);
+        const fullIndexName = `${this.tableName}_${indexName}_l2_idx`;
+        if (options?.recreate) {
+          this._log(`Dropping existing L2 HNSW index ${fullIndexName} on ${this.tableName}.`);
+          await this.readWriteQueryFn(`DROP INDEX IF EXISTS ${fullIndexName};`);
+        }
+        await this.readWriteQueryFn(
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${fullIndexName}
               ON ${this.tableName}
               USING hnsw (embedding vector_l2_ops)
               WITH (
@@ -382,11 +418,16 @@ export class NeonVectorStore extends VectorStore {
                 ef_construction = ${this.hnswIdxEfConstruction}
               )
               WHERE (${_filter});`
-          );
-        } else if (this.distance === 'cosine') {
-          this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
-          await client.query(
-            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_cosine_idx 
+        );
+      } else if (this.distance === 'cosine') {
+        this._log(`Creating Cosine HNSW index on ${this.tableName}.`);
+        const fullIndexName = `${this.tableName}_${indexName}_cosine_idx`;
+        if (options?.recreate) {
+          this._log(`Dropping existing Cosine HNSW index ${fullIndexName} on ${this.tableName}.`);
+          await this.readWriteQueryFn(`DROP INDEX IF EXISTS ${fullIndexName};`);
+        }
+        await this.readWriteQueryFn(
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${fullIndexName}
               ON ${this.tableName}
               USING hnsw (embedding vector_cosine_ops)
               WITH (
@@ -394,11 +435,18 @@ export class NeonVectorStore extends VectorStore {
                 ef_construction = ${this.hnswIdxEfConstruction}
               )
               WHERE (${_filter});`
+        );
+      } else if (this.distance === 'innerProduct') {
+        this._log(`Creating inner product HNSW index on ${this.tableName}.`);
+        const fullIndexName = `${this.tableName}_${indexName}_ip_idx`;
+        if (options?.recreate) {
+          this._log(
+            `Dropping existing inner product HNSW index ${fullIndexName} on ${this.tableName}.`
           );
-        } else if (this.distance === 'innerProduct') {
-          this._log(`Creating inner product HNSW index on ${this.tableName}.`);
-          await client.query(
-            `CREATE INDEX IF NOT EXISTS ${this.tableName}_${indexName}_ip_idx 
+          await this.readWriteQueryFn(`DROP INDEX IF EXISTS ${fullIndexName};`);
+        }
+        await this.readWriteQueryFn(
+          `CREATE INDEX CONCURRENTLY IF NOT EXISTS ${fullIndexName}
               ON ${this.tableName}
               USING hnsw (embedding vector_ip_ops)
               WITH (
@@ -406,11 +454,10 @@ export class NeonVectorStore extends VectorStore {
                 ef_construction = ${this.hnswIdxEfConstruction}
               )
               WHERE (${_filter});`
-          );
-        } else {
-          throw new Error(`Unknown distance metric ${this.distance}`);
-        }
-      });
+        );
+      } else {
+        throw new Error(`Unknown distance metric ${this.distance}`);
+      }
     } catch (e) {
       this._log('Error creating partial HNSW index:', e);
       throw e;
