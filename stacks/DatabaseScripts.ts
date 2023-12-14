@@ -43,8 +43,6 @@ export function DatabaseScripts({ stack, app }: StackContext) {
 
   const dbSeedFunction = new Function(stack, 'dbSeedFunction', {
     handler: 'packages/functions/src/database/seed.handler',
-    bind: [hnswIndexJob],
-    permissions: [hnswIndexJob],
     layers: [argonLayer],
     nodejs: {
       esbuild: {
@@ -61,7 +59,13 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   const dbSeedScript = new Script(stack, 'dbSeedScript', {
     version: process.env.DATABASE_SEED === 'false' ? '1' : undefined, // only run seed script on first deploy if DATABASE_SEED is false
     onCreate: dbSeedFunction,
-    onUpdate: dbSeedFunction
+    onUpdate: dbSeedFunction,
+    defaults: {
+      function: {
+        permissions: [hnswIndexJob],
+        bind: [hnswIndexJob]
+      }
+    }
   });
 
   stack.addOutputs({
