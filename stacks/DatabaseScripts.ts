@@ -22,48 +22,41 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl
   };
 
-  const dbMigrationsFunction = new Function(stack, 'dbMigrationsFunction', {
-    handler: 'packages/functions/src/database/migrations.handler',
-    copyFiles: [
-      {
-        from: 'migrations',
-        to: 'migrations'
-      }
-    ],
-    enableLiveDev: false,
-    environment: dbScriptEnv,
-    timeout: '15 minutes',
-    memorySize: '256 MB'
-  });
-  dbMigrationsFunction.node.addDependency(neonBranch);
   const dbMigrationsScript = new Script(stack, 'dbMigrationsScript', {
-    onCreate: dbMigrationsFunction,
-    onUpdate: dbMigrationsFunction
-  });
-
-  const dbSeedFunction = new Function(stack, 'dbSeedFunction', {
-    handler: 'packages/functions/src/database/seed.handler',
-    layers: [argonLayer],
-    nodejs: {
-      esbuild: {
-        external: ['argon2']
-      }
-    },
-    enableLiveDev: false,
-    environment: dbScriptEnv,
-    timeout: '15 minutes',
-    memorySize: '256 MB'
-  });
-  dbSeedFunction.node.addDependency(neonBranch);
-  dbSeedFunction.node.addDependency(dbMigrationsScript);
-  const dbSeedScript = new Script(stack, 'dbSeedScript', {
-    version: process.env.DATABASE_SEED === 'false' ? '1' : undefined, // only run seed script on first deploy if DATABASE_SEED is false
-    onCreate: dbSeedFunction,
-    onUpdate: dbSeedFunction,
     defaults: {
       function: {
+        handler: 'packages/functions/src/database/migrations.handler',
+        copyFiles: [
+          {
+            from: 'migrations',
+            to: 'migrations'
+          }
+        ],
+        enableLiveDev: false,
+        environment: dbScriptEnv,
+        timeout: '15 minutes',
+        memorySize: '256 MB'
+      }
+    }
+  });
+  
+  const dbSeedScript = new Script(stack, 'dbSeedScript', {
+    version: process.env.DATABASE_SEED === 'false' ? '1' : undefined, // only run seed script on first deploy if DATABASE_SEED is false
+    defaults: {
+      function: {
+        handler: 'packages/functions/src/database/seed.handler',
+        layers: [argonLayer],
+        nodejs: {
+          esbuild: {
+            external: ['argon2']
+          }
+        },
+        enableLiveDev: false,
         permissions: [hnswIndexJob],
-        bind: [hnswIndexJob]
+        bind: [hnswIndexJob],
+        environment: dbScriptEnv,
+        timeout: '15 minutes',
+        memorySize: '256 MB'
       }
     }
   });
