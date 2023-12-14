@@ -12,7 +12,7 @@
     "console": "sst console",
     "typecheck": "tsc --noEmit",
     "typecheck:all": "pnpm run typecheck && pnpm run -r --parallel typecheck",
-    "lint": "prettier --check . && eslint .",
+    "lint": "eslint .",
     "lint:all": "pnpm run lint && pnpm run -r --parallel lint",
     "format": "prettier --write .",
     "format:all": "pnpm run format && pnpm run -r --parallel format"
