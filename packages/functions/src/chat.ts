@@ -154,7 +154,7 @@ const lambdaHandler = async (
     console.time('Validating user message');
     const userMessage = await getUserMessages({
       where: and(
-        eq(chats.id, chat.id),
+        eq(userMessages.chatId, chat.id),
         lastMessage.uuid
           ? eq(userMessages.id, lastMessage.uuid)
           : or(eq(userMessages.text, lastMessage.content), eq(userMessages.aiId, lastMessage.id))
