@@ -9,6 +9,7 @@ import type { Document } from 'langchain/document';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Queue } from 'sst/node/queue';
 import { v4 as uuidV4 } from 'uuid';
+import { gunzipSync } from 'zlib';
 import { updateDataSource } from './data-source';
 
 export async function generatePageContentEmbeddings(
@@ -106,16 +107,13 @@ export async function getSitemaps(url: string): Promise<string[]> {
 }
 
 export async function navigateSitemap(
-  url: string,
+  sitemapXml: string,
   urlRegex: RegExp,
   name: string,
   indexOpId: string
 ): Promise<number> {
   let urlCount = 0;
   try {
-    // Fetch the sitemap XML content
-    const { data: sitemapXml } = await axios.get(url!);
-
     // Parse the XML string to an XML Object
     const parser = new XMLParser({});
     const sitemapXmlObj = parser.parse(sitemapXml);
@@ -154,7 +152,11 @@ export async function navigateSitemap(
           await sendUrlsToQueue(name, indexableUrlsSlice, indexOpId);
           urlCount += indexableUrlsSlice.length;
         } catch (err: unknown) {
-          console.error(`Error sending index url message to queue: ${(err as Error).stack}`);
+          console.error(
+            `Error sending urls to queue: ${
+              err instanceof Error ? `${err.message}\n${err.stack}` : JSON.stringify(err)
+            }`
+          );
           failed.push(indexableUrlsSlice);
         }
       }
@@ -164,11 +166,36 @@ export async function navigateSitemap(
     try {
       for (const additionalSitemap of additionalSitemaps) {
         console.log(`Found additional sitemap: ${additionalSitemap}`);
-        urlCount += await navigateSitemap(additionalSitemap, urlRegex, name, indexOpId);
+        const { data: sitemapXml } = await axios.get(additionalSitemap);
+        urlCount += await navigateSitemap(sitemapXml, urlRegex, name, indexOpId);
       }
     } catch (err: unknown) {
-      console.error(`Error navigating additional sitemaps: ${(err as Error).stack}`);
+      console.error(
+        `Error navigating additional sitemaps: ${
+          err instanceof Error ? `${err.message}\n${err.stack}` : JSON.stringify(err)
+        }`
+      );
       failed.push(additionalSitemaps);
+    }
+
+    const gZippedSitemaps = foundUrls.filter((url) => url.endsWith('.xml.gz'));
+    try {
+      for (const gZippedSitemap of gZippedSitemaps) {
+        console.log(`Found gzipped sitemap: ${gZippedSitemap}`);
+        const { data: gZippedSitmapData } = await axios.get(gZippedSitemap, {
+          responseType: 'arraybuffer'
+        });
+        const unZippedSitemapData = gunzipSync(Buffer.from(gZippedSitmapData));
+        const sitemapXml = unZippedSitemapData.toString();
+        urlCount += await navigateSitemap(sitemapXml, urlRegex, name, indexOpId);
+      }
+    } catch (err: unknown) {
+      console.error(
+        `Error navigating gzipped sitemaps: ${
+          err instanceof Error ? `${err.message}\n${err.stack}` : JSON.stringify(err)
+        }`
+      );
+      failed.push(gZippedSitemaps);
     }
 
     if (failed.length > 0) {

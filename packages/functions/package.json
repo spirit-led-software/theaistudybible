@@ -38,6 +38,7 @@
     "puppeteer-core": "^21.6.0",
     "stripe": "^14.8.0",
     "uuid": "^9.0.1",
-    "validator": "^13.11.0"
+    "validator": "^13.11.0",
+    "zlib": "^1.0.5"
   }
 }

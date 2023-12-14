@@ -194,7 +194,8 @@ export async function indexWebCrawl({
     console.debug(`sitemapUrls: ${sitemapUrls}`);
 
     for (const sitemapUrl of sitemapUrls) {
-      urlCount += await navigateSitemap(sitemapUrl, urlRegex, name, indexOp!.id);
+      const { data: sitemapXml } = await axios.get(sitemapUrl);
+      urlCount += await navigateSitemap(sitemapXml, urlRegex, name, indexOp!.id);
     }
 
     console.log(`Successfully crawled ${urlCount} urls. Updating index op status.`);
