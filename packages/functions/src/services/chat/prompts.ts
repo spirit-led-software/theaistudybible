@@ -64,27 +64,6 @@ This is a code block
 - You must use the following markdown syntax for a strikethrough:
 ~~strikethrough~~
 
-- You must use the following markdown syntax for a superscript:
-<sup>superscript</sup>
-
-- You must use the following markdown syntax for a subscript:
-<sub>subscript</sub>
-
-- You must use the following markdown syntax for a footnote:
-Here is a footnote reference,[^1] and another.[^longnote]
-
-[^1]: Here is the footnote.
-
-[^longnote]: Here's one with multiple blocks.
-
-    Subsequent paragraphs are indented to show that they belong to the previous footnote.
-    
-    > This is a blockquote.
-    
-    > This is the second paragraph of the blockquote.
-    
-    Finally, here is some example text to show the footnote format.
-
 - You must use the following markdown syntax for a definition list:
 term
 : definition
