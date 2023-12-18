@@ -2,6 +2,7 @@ import { envConfig } from '@core/configs';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
 import type { User } from '@core/model';
 import type { Metadata } from '@core/types/metadata';
+import type { CallbackManager } from 'langchain/callbacks';
 import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
 import { RouterOutputParser } from 'langchain/output_parsers';
@@ -20,10 +21,11 @@ import {
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
-export const getRAIChatChain = async (
-  user: User,
-  messages: RAIChatMessage[]
-): Promise<
+export const getRAIChatChain = async (options: {
+  user: User;
+  messages: RAIChatMessage[];
+  callbacks: CallbackManager;
+}): Promise<
   Runnable<
     { query: string },
     {
@@ -33,7 +35,7 @@ export const getRAIChatChain = async (
   >
 > => {
   const history = new ChatMessageHistory(
-    messages.slice(-21, -1).map((message) => {
+    options.messages.slice(-21, -1).map((message) => {
       return message.role === 'user'
         ? new HumanMessage(message.content)
         : new AIMessage(message.content);
@@ -64,7 +66,9 @@ export const getRAIChatChain = async (
         )
         .pipe(new StringOutputParser())
     }
-  ]);
+  ]).withConfig({
+    callbacks: options.callbacks
+  });
 
   const chatHistoryChain = RunnableSequence.from([
     {
@@ -90,14 +94,16 @@ export const getRAIChatChain = async (
         )
         .pipe(new StringOutputParser())
     }
-  ]);
+  ]).withConfig({
+    callbacks: options.callbacks
+  });
 
   const faithQaChain = await getDocumentQaChain({
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
       {
         category: 'bible',
-        translation: user.translation
+        translation: options.user.translation
       },
       "metadata->>'category' != 'bible'"
     ],
@@ -105,7 +111,8 @@ export const getRAIChatChain = async (
       history: (await history.getMessages())
         .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
         .join('\n')
-    }
+    },
+    callbacks: options.callbacks
   });
 
   const branch = RunnableBranch.from([
@@ -170,6 +177,7 @@ export async function getDocumentQaChain(options: {
   prompt: string;
   filters?: (Metadata | string)[];
   extraPromptVars?: PartialValues<string>;
+  callbacks: CallbackManager;
 }) {
   const { prompt, filters, extraPromptVars } = options;
   const qaRetriever = await getDocumentVectorStore({
@@ -211,7 +219,9 @@ export async function getDocumentQaChain(options: {
         .pipe(new StringOutputParser()),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments
     }
-  ]);
+  ]).withConfig({
+    callbacks: options.callbacks
+  });
 
   return qaChain;
 }

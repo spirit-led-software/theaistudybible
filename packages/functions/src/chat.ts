@@ -186,15 +186,15 @@ const lambdaHandler = async (
 
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
-    const chain = await getRAIChatChain(userInfo, messages);
-    const inputs = {
-      query: lastMessage.content
-    };
+    const chain = await getRAIChatChain({
+      user: userInfo,
+      messages,
+      callbacks: CallbackManager.fromHandlers(handlers)
+    });
     const langChainResponsePromise = chain
-      .withConfig({
-        callbacks: CallbackManager.fromHandlers(handlers)
+      .invoke({
+        query: lastMessage.content
       })
-      .invoke(inputs)
       .then(async (result) => {
         console.log(`LangChain result: ${JSON.stringify(result)}`);
         const sourceDocuments =
