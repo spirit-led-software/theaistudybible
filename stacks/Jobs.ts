@@ -7,7 +7,10 @@ export function Jobs({ stack }: StackContext) {
     memorySize: '3 GB',
     timeout: '4 hours',
     nodejs: {
-      install: ['web-streams-polyfill']
+      install: ['web-streams-polyfill'],
+      esbuild: {
+        external: ['web-streams-polyfill']
+      }
     }
   });
 
