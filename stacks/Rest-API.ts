@@ -1,5 +1,5 @@
 import { API, Constants, DatabaseScripts, Layers, Queues, S3, STATIC_ENV_VARS } from '@stacks';
-import { StackContext, dependsOn, use } from 'sst/constructs';
+import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);

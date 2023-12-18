@@ -11,7 +11,7 @@ import {
   S3,
   Website
 } from '@stacks';
-import { SSTConfig } from 'sst';
+import type { SSTConfig } from 'sst';
 import { RestAPI } from './stacks/Rest-API';
 
 export default {

@@ -1,5 +1,5 @@
 import { Constants, DatabaseScripts, Jobs, Queues, S3, STATIC_ENV_VARS } from '@stacks';
-import { Cron, StackContext, dependsOn, use } from 'sst/constructs';
+import { Cron, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Crons({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);

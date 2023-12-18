@@ -12,7 +12,7 @@ import {
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { CfnFunction, FunctionUrlAuthType, HttpMethod, InvokeMode } from 'aws-cdk-lib/aws-lambda';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { Function, StackContext, dependsOn, use } from 'sst/constructs';
+import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 

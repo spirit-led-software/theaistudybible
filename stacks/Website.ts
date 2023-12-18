@@ -1,5 +1,5 @@
 import { API, ChatAPI, Constants, DatabaseScripts, S3, STATIC_ENV_VARS } from '@stacks';
-import { StackContext, SvelteKitSite, dependsOn, use } from 'sst/constructs';
+import { SvelteKitSite, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Website({ stack }: StackContext) {
   dependsOn(DatabaseScripts);

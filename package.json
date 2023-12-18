@@ -18,7 +18,6 @@
     "format:all": "pnpm run format && pnpm run -r --parallel format"
   },
   "devDependencies": {
-    "@tsconfig/node18": "^18.2.2",
     "@tsconfig/node20": "^20.1.2",
     "@types/cfn-response": "^1.0.8",
     "@types/in-app-purchase": "^1.11.4",

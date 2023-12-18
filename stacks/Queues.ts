@@ -1,6 +1,6 @@
 import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
 import { Duration } from 'aws-cdk-lib/core';
-import { Queue, StackContext, dependsOn, use } from 'sst/constructs';
+import { Queue, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);

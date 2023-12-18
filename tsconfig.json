@@ -2,8 +2,14 @@
   "extends": "@tsconfig/node20/tsconfig.json",
   "exclude": ["packages", "node_modules"],
   "compilerOptions": {
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "preserveValueImports": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "moduleResolution": "node",
     "module": "esnext",
-    "moduleResolution": "Node",
+    "target": "esnext",
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@stacks/*": ["./stacks/*"],
       "@stacks": ["./stacks"]

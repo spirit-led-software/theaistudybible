@@ -1,7 +1,7 @@
 import { STATIC_ENV_VARS } from '@stacks';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
-import { StackContext } from 'sst/constructs';
+import type { StackContext } from 'sst/constructs';
 
 export function Constants({ stack, app }: StackContext) {
   const hostedZone = HostedZone.fromLookup(stack, 'hostedZone', {

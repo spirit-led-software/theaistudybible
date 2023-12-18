@@ -57,9 +57,6 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
-      '@tsconfig/node18':
-        specifier: ^18.2.2
-        version: 18.2.2
       '@tsconfig/node20':
         specifier: ^20.1.2
         version: 20.1.2
@@ -4696,10 +4693,6 @@ packages:
     resolution: {integrity: sha512-IENsJs41ZR4oeFUJhsNNTSgEOtuRN0m9u7ec4u3eG/qOc7bIoo1nDoYtx4bl6OJJSQYEytG9tlcVz9G8OAaHbg==}
     dependencies:
       tslib: 2.6.2
-    dev: true
-
-  /@tsconfig/node18@18.2.2:
-    resolution: {integrity: sha512-d6McJeGsuoRlwWZmVIeE8CUA27lu6jLjvv1JzqmpsytOYYbVi1tHZEnwCNVOXnj4pyLvneZlFlpXUK+X9wBWyw==}
     dev: true
 
   /@tsconfig/node20@20.1.2:

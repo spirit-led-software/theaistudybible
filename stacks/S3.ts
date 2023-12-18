@@ -1,6 +1,6 @@
 import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
-import { Bucket, StackContext, dependsOn, use } from 'sst/constructs';
+import { Bucket, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function S3({ stack }: StackContext) {
   dependsOn(DatabaseScripts);

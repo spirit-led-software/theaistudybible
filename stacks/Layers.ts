@@ -1,5 +1,5 @@
 import { LayerVersion } from 'aws-cdk-lib/aws-lambda';
-import { StackContext } from 'sst/constructs';
+import type { StackContext } from 'sst/constructs';
 
 export function Layers({ stack }: StackContext) {
   const argonLayer = LayerVersion.fromLayerVersionArn(

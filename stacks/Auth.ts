@@ -1,5 +1,11 @@
 import { API, Constants, DatabaseScripts, Layers, STATIC_ENV_VARS } from '@stacks';
-import { Auth as AuthConstruct, StackContext, SvelteKitSite, dependsOn, use } from 'sst/constructs';
+import {
+  Auth as AuthConstruct,
+  SvelteKitSite,
+  dependsOn,
+  use,
+  type StackContext
+} from 'sst/constructs';
 
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);

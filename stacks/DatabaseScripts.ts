@@ -1,5 +1,5 @@
 import { Jobs, Layers, STATIC_ENV_VARS } from '@stacks';
-import { Script, StackContext, use } from 'sst/constructs';
+import { Script, use, type StackContext } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 
 export function DatabaseScripts({ stack, app }: StackContext) {

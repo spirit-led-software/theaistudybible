@@ -1,4 +1,4 @@
-import { Job, StackContext } from 'sst/constructs';
+import { Job, type StackContext } from 'sst/constructs';
 
 export function Jobs({ stack }: StackContext) {
   const hnswIndexJob = new Job(stack, 'hnswIndexJob', {
