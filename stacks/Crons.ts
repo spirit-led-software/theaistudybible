@@ -65,8 +65,8 @@ export function Crons({ stack, app }: StackContext) {
     });
 
     new Cron(stack, 'recreateHnswIndexesCron', {
-      // once a week
-      schedule: 'cron(0 4 ? * 7 *)',
+      // once every month
+      schedule: 'cron(0 0 1 * ? *)',
       job: {
         function: {
           handler: 'packages/functions/src/crons/recreate-indexes.handler',
