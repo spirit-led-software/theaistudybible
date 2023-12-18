@@ -305,6 +305,9 @@ importers:
       validator:
         specifier: ^13.11.0
         version: 13.11.0
+      web-streams-polyfill:
+        specifier: ^3.2.1
+        version: 3.2.1
       zlib:
         specifier: ^1.0.5
         version: 1.0.5

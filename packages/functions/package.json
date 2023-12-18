@@ -39,6 +39,7 @@
     "stripe": "^14.9.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
+    "web-streams-polyfill": "^3.2.1",
     "zlib": "^1.0.5"
   }
 }
