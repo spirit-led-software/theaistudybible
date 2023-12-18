@@ -62,16 +62,6 @@ export const getPartialHnswIndexInfos = () => {
             category: 'commentary'
           }
         ]
-      },
-      {
-        name: `${translation.toLowerCase()}_faith_qa`,
-        filters: [
-          {
-            category: 'bible',
-            translation
-          },
-          "metadata->>'category' != 'bible'"
-        ]
       }
     );
   }

@@ -7,7 +7,7 @@ export const handler: Handler = async (event) => {
 
   try {
     console.log('Starting hnsw index job');
-    const jobId = await Job.hnsw_index.run({
+    const jobId = await Job.hnswIndexJob.run({
       payload: {
         dbOptions: {
           readOnlyUrl: databaseConfig.readOnlyUrl,

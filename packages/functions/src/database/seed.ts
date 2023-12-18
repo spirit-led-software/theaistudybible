@@ -1,4 +1,4 @@
-import { authConfig } from '@core/configs';
+import { authConfig, databaseConfig, vectorDBConfig } from '@core/configs';
 import type { User } from '@core/model';
 import {
   addRoleToUser,
@@ -14,6 +14,7 @@ import { createUserPassword, updateUserPasswordByUserId } from '@services/user/p
 import argon from 'argon2';
 import type { Handler } from 'aws-lambda';
 import { randomBytes } from 'crypto';
+import { Job } from 'sst/node/job';
 import { revenueCatConfig } from '../configs';
 
 async function createInitialAdminUser() {
@@ -186,6 +187,21 @@ export const handler: Handler = async () => {
     await createRcEntitlementRoles();
     await deleteStripeRoles();
     await createInitialAdminUser();
+
+    await Job.hnswIndexJob.run({
+      payload: {
+        dbOptions: {
+          readOnlyUrl: databaseConfig.readOnlyUrl,
+          readWriteUrl: databaseConfig.readWriteUrl
+        },
+        vectorDbOptions: {
+          readOnlyUrl: vectorDBConfig.readUrl,
+          readWriteUrl: vectorDBConfig.writeUrl,
+          recreateIndexes: false
+        }
+      }
+    });
+
     console.log('Database seeding complete');
   } catch (e) {
     console.error('Database seeding failed:', e);

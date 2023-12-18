@@ -1,9 +1,10 @@
-import { Layers, STATIC_ENV_VARS } from '@stacks';
+import { Jobs, Layers, STATIC_ENV_VARS } from '@stacks';
 import { Script, StackContext, use } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 
 export function DatabaseScripts({ stack, app }: StackContext) {
   const { argonLayer } = use(Layers);
+  const { hnswIndexJob } = use(Jobs);
 
   const neonBranch = new NeonBranch(stack, 'neonBranch', {
     projectName: app.name,
@@ -54,6 +55,8 @@ export function DatabaseScripts({ stack, app }: StackContext) {
         },
         enableLiveDev: false,
         environment: dbScriptEnv,
+        permissions: [hnswIndexJob],
+        bind: [hnswIndexJob],
         timeout: '15 minutes',
         memorySize: '256 MB'
       }

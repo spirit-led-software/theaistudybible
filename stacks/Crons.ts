@@ -1,6 +1,5 @@
-import { Constants, DatabaseScripts, Queues, S3, STATIC_ENV_VARS } from '@stacks';
+import { Constants, DatabaseScripts, Jobs, Queues, S3, STATIC_ENV_VARS } from '@stacks';
 import { Cron, StackContext, dependsOn, use } from 'sst/constructs';
-import { Jobs } from './Jobs';
 
 export function Crons({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -71,8 +70,6 @@ export function Crons({ stack, app }: StackContext) {
       job: {
         function: {
           handler: 'packages/functions/src/crons/recreate-indexes.handler',
-          bind: [hnswIndexJob],
-          permissions: [hnswIndexJob],
           environment: {
             ...STATIC_ENV_VARS,
             DATABASE_READWRITE_URL: dbReadWriteUrl,
@@ -80,6 +77,8 @@ export function Crons({ stack, app }: StackContext) {
             VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
             VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
           },
+          permissions: [hnswIndexJob],
+          bind: [hnswIndexJob],
           timeout: '15 minutes',
           memorySize: '1 GB'
         }

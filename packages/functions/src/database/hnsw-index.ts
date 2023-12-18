@@ -4,7 +4,7 @@ import { JobHandler } from 'sst/node/job';
 
 declare module 'sst/node/job' {
   export interface JobTypes {
-    hnsw_index: {
+    hnswIndexJob: {
       dbOptions: {
         readWriteUrl: string;
         readOnlyUrl: string;
@@ -18,7 +18,7 @@ declare module 'sst/node/job' {
   }
 }
 
-export const handler = JobHandler('hnsw_index', async (payload) => {
+export const handler = JobHandler('hnswIndexJob', async (payload) => {
   console.log('Received HNSW index event: ', payload);
   const { dbOptions, vectorDbOptions } = payload;
 
