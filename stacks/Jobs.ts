@@ -4,10 +4,11 @@ export function Jobs({ stack }: StackContext) {
   const hnswIndexJob = new Job(stack, 'hnswIndexJob', {
     handler: 'packages/functions/src/database/hnsw-index.handler',
     runtime: 'nodejs',
-    architecture: 'x86_64',
-    enableLiveDev: false,
     memorySize: '3 GB',
-    timeout: '4 hours'
+    timeout: '4 hours',
+    nodejs: {
+      install: ['web-streams-polyfill']
+    }
   });
 
   return {

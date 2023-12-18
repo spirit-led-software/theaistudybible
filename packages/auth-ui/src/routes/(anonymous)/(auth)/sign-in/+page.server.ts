@@ -67,6 +67,6 @@ export const actions: Actions = {
 		if (!provider) return fail(400, { errors: { banner: 'Provider is required.' } as ActionData });
 
 		const authPath = isMobile ? `auth/${provider}-mobile/authorize` : `auth/${provider}/authorize`;
-		throw redirect(302, `${PUBLIC_API_URL}/${authPath}`);
+		redirect(302, `${PUBLIC_API_URL}/${authPath}`);
 	}
 };

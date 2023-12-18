@@ -8,5 +8,5 @@ export const GET: RequestHandler = async ({ cookies }) => {
 		domain: new URL(PUBLIC_WEBSITE_URL).hostname,
 		path: '/'
 	});
-	throw redirect(307, PUBLIC_WEBSITE_URL);
+	redirect(307, PUBLIC_WEBSITE_URL);
 };

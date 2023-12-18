@@ -80,7 +80,7 @@ export const load: PageServerLoad = async ({ params, locals: { user, session } }
 			session: session!,
 			limit: 1
 		});
-		throw redirect(307, `/chat/${chatsResponse.chats[0].id}`);
+		redirect(307, `/chat/${chatsResponse.chats[0].id}`);
 	}
 
 	const [chat, messages] = await Promise.all([

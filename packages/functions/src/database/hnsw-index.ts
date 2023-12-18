@@ -2,6 +2,9 @@ import { databaseConfig, vectorDBConfig } from '@core/configs';
 import { getDocumentVectorStore, getPartialHnswIndexInfos } from '@services/vector-db';
 import { JobHandler } from 'sst/node/job';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+global.ReadableStream = require('web-streams-polyfill').ReadableStream;
+
 declare module 'sst/node/job' {
   export interface JobTypes {
     hnswIndexJob: {

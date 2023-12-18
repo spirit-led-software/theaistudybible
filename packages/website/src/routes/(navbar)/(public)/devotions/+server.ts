@@ -5,5 +5,5 @@ export const GET: RequestHandler = async () => {
 	const { devotions } = await getDevotions({
 		limit: 1
 	});
-	throw redirect(307, `/devotions/${devotions[0].id}`);
+	redirect(307, `/devotions/${devotions[0].id}`);
 };

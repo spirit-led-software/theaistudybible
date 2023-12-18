@@ -61,6 +61,6 @@ export const actions: Actions = {
 		if (!provider) return fail(400, { errors: { banner: 'Provider is required.' } as ActionData });
 
 		const authPath = isMobile ? `auth/${provider}-mobile/register` : `auth/${provider}/register`;
-		throw redirect(302, `${PUBLIC_API_URL}/${authPath}`);
+		redirect(302, `${PUBLIC_API_URL}/${authPath}`);
 	}
 };
