@@ -9,21 +9,21 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@sparticuz/chromium": "^119.0.0",
+    "@sparticuz/chromium": "^119.0.2",
     "@types/aws-lambda": "^8.10.130",
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.10.5",
     "@types/nodemailer": "^6.4.14",
     "sst": "2.38.7",
-    "vitest": "^1.0.4"
+    "vitest": "^1.1.0"
   },
   "dependencies": {
-    "@apple/app-store-server-library": "^0.2.0",
+    "@apple/app-store-server-library": "^1.0.0",
     "@middy/core": "^5.1.0",
     "@middy/http-cors": "^5.1.0",
     "@middy/http-error-handler": "^5.1.0",
     "@revelationsai/core": "workspace:*",
-    "@upstash/redis": "^1.25.2",
+    "@upstash/redis": "^1.27.1",
     "ai": "^2.2.29",
     "argon2": "^0.31.2",
     "busboy": "^1.6.0",
