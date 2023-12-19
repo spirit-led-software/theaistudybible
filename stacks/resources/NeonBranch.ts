@@ -1,14 +1,16 @@
 import { CustomResource } from 'aws-cdk-lib';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
+import type { BranchCreateRequestEndpointOptions } from 'neon-sdk';
 import { Function } from 'sst/constructs';
 
 export type NeonBranchProps = {
-  isProd: boolean;
+  apiKey: string;
   projectName: string;
   branchName: string;
   roleName: string;
-  apiKey: string;
+  endpointOptions?: BranchCreateRequestEndpointOptions[];
+  retainOnDelete?: boolean;
 };
 
 export type NeonDatabases = {
@@ -28,9 +30,6 @@ export class NeonBranch extends Construct {
 
     const neonBranchFunction = new Function(this, 'neonBranchFunction', {
       handler: 'packages/functions/src/database/branch.handler',
-      environment: {
-        DEPLOY_DATE_TIME: Date.now().toString() // Force update on every deploy
-      },
       enableLiveDev: false // No live dev on custom resources
     });
 
@@ -42,12 +41,12 @@ export class NeonBranch extends Construct {
       resourceType: 'Custom::NeonBranch',
       serviceToken: neonBranchProvider.serviceToken,
       properties: {
-        isProd: props.isProd,
+        apiKey: props.apiKey,
         projectName: props.projectName,
         branchName: props.branchName,
         roleName: props.roleName,
-        apiKey: props.apiKey,
-        deployDateTime: Date.now().toString() // Force update on every deploy
+        endpointOptions: JSON.stringify(props.endpointOptions ?? []),
+        retainOnDelete: props.retainOnDelete ?? true
       }
     });
 

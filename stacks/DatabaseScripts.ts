@@ -11,11 +11,20 @@ export function DatabaseScripts({ stack, app }: StackContext) {
   const { hnswIndexJob } = use(Jobs);
 
   const neonBranch = new NeonBranch(stack, 'neonBranch', {
+    apiKey: STATIC_ENV_VARS.NEON_API_KEY,
     projectName: app.name,
     branchName: stack.stage === 'prod' ? 'main' : stack.stage,
     roleName: app.name,
-    isProd: stack.stage === 'prod',
-    apiKey: STATIC_ENV_VARS.NEON_API_KEY
+    endpointOptions: [
+      {
+        type: 'read_write',
+        provisioner: 'k8s-neonvm',
+        autoscaling_limit_min_cu: stack.stage === 'prod' ? 0.5 : 0.25,
+        autoscaling_limit_max_cu: stack.stage === 'prod' ? 7 : 1,
+        suspend_timeout_seconds: 0
+      }
+    ],
+    retainOnDelete: stack.stage === 'prod'
   });
 
   const dbScriptEnv = {

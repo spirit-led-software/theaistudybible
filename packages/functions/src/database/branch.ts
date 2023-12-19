@@ -44,11 +44,16 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     const projectName = event.ResourceProperties.projectName as string;
     const branchName = event.ResourceProperties.branchName as string;
     const roleName = event.ResourceProperties.roleName as string;
-    const isProd = event.ResourceProperties.isProd === 'true';
     const apiKey = event.ResourceProperties.apiKey as string;
+    const endpointOptions = JSON.parse(
+      event.ResourceProperties.endpointOptions
+    ) as BranchCreateRequestEndpointOptions[];
+    const retainOnDelete = event.ResourceProperties.retainOnDelete as boolean;
 
     console.log(
-      `Neon branch inputs: projectName=${projectName}, branchName=${branchName}, roleName=${roleName}, isProd=${isProd}`
+      `Neon branch inputs: projectName=${projectName}, branchName=${branchName}, roleName=${roleName}, endpointOptions=${JSON.stringify(
+        endpointOptions
+      )}`
     );
 
     const project = await getProjectByName(apiKey, projectName);
@@ -60,7 +65,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
 
     switch (event.RequestType) {
       case 'Delete': {
-        if (!isProd) {
+        if (!retainOnDelete) {
           const branch = await getBranchByName(apiKey, project.id, branchName);
           if (!branch) {
             response.Status = 'FAILED';
@@ -75,9 +80,9 @@ export const handler: CdkCustomResourceHandler = async (event) => {
       default: {
         let branch = await getBranchByName(apiKey, project.id, branchName);
         if (!branch) {
-          branch = await createBranch(apiKey, project.id, branchName, isProd);
+          branch = await createBranch(apiKey, project.id, branchName, endpointOptions);
         } else {
-          branch = await updateBranch(apiKey, project.id, branch.id, isProd);
+          branch = await updateBranch(apiKey, project.id, branch.id, endpointOptions);
         }
         const connectionUrls = await getAllNeonConnectionUrls(
           apiKey,
@@ -139,33 +144,14 @@ export async function createBranch(
   apiKey: string,
   projectId: string,
   branchName: string,
-  isProd: boolean
+  endpointOptions: BranchCreateRequestEndpointOptions[]
 ) {
   const neonClient = Neon(apiKey);
-  const endpoints: BranchCreateRequestEndpointOptions[] = [
-    {
-      type: 'read_write',
-      provisioner: 'k8s-neonvm',
-      autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
-      autoscaling_limit_max_cu: isProd ? 7 : 1,
-      suspend_timeout_seconds: 0
-    }
-  ];
-
-  if (isProd) {
-    endpoints.push({
-      type: 'read_only',
-      provisioner: 'k8s-neonvm',
-      autoscaling_limit_min_cu: 0.5,
-      autoscaling_limit_max_cu: 7,
-      suspend_timeout_seconds: 0
-    });
-  }
   const createBranchResponse = (await neonClient.branch.createProjectBranch(projectId, {
     branch: {
       name: branchName
     },
-    endpoints
+    endpoints: endpointOptions
   })) as BranchResponse;
   return createBranchResponse.branch;
 }
@@ -174,7 +160,7 @@ export async function updateBranch(
   apiKey: string,
   projectId: string,
   branchId: string,
-  isProd: boolean
+  endpointOptions: BranchCreateRequestEndpointOptions[]
 ) {
   const neonClient = Neon(apiKey);
   const endpointsResponse = (await neonClient.branch.listProjectBranchEndpoints(
@@ -185,22 +171,27 @@ export async function updateBranch(
 
   for (const endpoint of endpoints) {
     if (endpoint.type === 'read_write') {
+      const readWriteOption = endpointOptions.find((option) => option.type === 'read_write');
+      if (!readWriteOption) {
+        throw new Error('No read_write endpoint option found');
+      }
       await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
         endpoint: {
-          provisioner: 'k8s-neonvm',
-          autoscaling_limit_min_cu: isProd ? 0.5 : 0.25,
-          autoscaling_limit_max_cu: isProd ? 7 : 1,
-          suspend_timeout_seconds: 0
+          provisioner: readWriteOption.provisioner || 'k8s-neonvm',
+          autoscaling_limit_min_cu: readWriteOption.autoscaling_limit_min_cu || 0.25,
+          autoscaling_limit_max_cu: readWriteOption.autoscaling_limit_max_cu || 1,
+          suspend_timeout_seconds: readWriteOption.suspend_timeout_seconds || 0
         }
       });
     } else if (endpoint.type === 'read_only') {
-      if (isProd) {
+      const readOnlyOption = endpointOptions.find((option) => option.type === 'read_only');
+      if (readOnlyOption) {
         await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
           endpoint: {
-            provisioner: 'k8s-neonvm',
-            autoscaling_limit_min_cu: 0.5,
-            autoscaling_limit_max_cu: 7,
-            suspend_timeout_seconds: 0
+            provisioner: readOnlyOption.provisioner || 'k8s-neonvm',
+            autoscaling_limit_min_cu: readOnlyOption.autoscaling_limit_min_cu || 0.25,
+            autoscaling_limit_max_cu: readOnlyOption.autoscaling_limit_max_cu || 1,
+            suspend_timeout_seconds: readOnlyOption.suspend_timeout_seconds || 0
           }
         });
       } else {
@@ -287,13 +278,13 @@ function formConnectionUrls(databases: Database[], endpoints: Endpoint[], role: 
   const connectionUrls: NeonConnectionUrl[] = [];
   for (const database of databases) {
     for (const endpoint of endpoints) {
-      // // Below is implementation for pgbouncer.
-      // const hostPieces = endpoint.host.split(".");
-      // const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join(".")}`;
+      // Below is implementation for pgbouncer.
+      const hostPieces = endpoint.host.split('.');
+      const host = `${hostPieces[0]}-pooler.${hostPieces.slice(1).join('.')}`;
 
       connectionUrls.push({
         type: determineDbType(database.name, endpoint.type),
-        url: `postgres://${role.name}:${role.password}@${endpoint.host}/${database.name}`
+        url: `postgres://${role.name}:${role.password}@${host}/${database.name}?sslmode=require`
       });
     }
   }

@@ -98,7 +98,7 @@ export function Auth({ stack }: StackContext) {
   });
 
   stack.addOutputs({
-    AuthUrl: authUi.url
+    AuthUrl: authUiUrl
   });
 
   return {
