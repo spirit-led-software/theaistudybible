@@ -39,8 +39,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
         ],
         enableLiveDev: false,
         environment: dbScriptEnv,
-        timeout: '15 minutes',
-        memorySize: '256 MB'
+        timeout: '15 minutes'
       }
     }
   });
@@ -56,8 +55,7 @@ export function DatabaseScripts({ stack, app }: StackContext) {
         environment: dbScriptEnv,
         permissions: [hnswIndexJob],
         bind: [hnswIndexJob],
-        timeout: '15 minutes',
-        memorySize: '256 MB'
+        timeout: '15 minutes'
       }
     }
   });

@@ -47,14 +47,14 @@ export function Auth({ stack }: StackContext) {
     'GET /session': {
       function: {
         handler: 'packages/functions/src/auth/session.handler',
-        memorySize: '512 MB'
+        memorySize: '1536 MB'
       }
     },
     'GET /refresh-session': {
       function: {
         handler: 'packages/functions/src/auth/refresh-session.handler',
         bind: [auth],
-        memorySize: '512 MB'
+        memorySize: '1536 MB'
       }
     },
 
@@ -62,14 +62,14 @@ export function Auth({ stack }: StackContext) {
     'GET /auth/user-info': {
       function: {
         handler: 'packages/functions/src/auth/session.handler',
-        memorySize: '512 MB'
+        memorySize: '1536 MB'
       }
     },
     'GET /auth/refresh-token': {
       function: {
         handler: 'packages/functions/src/auth/refresh-session.handler',
         bind: [auth],
-        memorySize: '512 MB'
+        memorySize: '1536 MB'
       }
     }
   });
@@ -94,8 +94,7 @@ export function Auth({ stack }: StackContext) {
     },
     dev: {
       url: authUiUrl
-    },
-    memorySize: '1 GB'
+    }
   });
 
   stack.addOutputs({

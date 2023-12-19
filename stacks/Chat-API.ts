@@ -10,7 +10,7 @@ import {
   ViewerProtocolPolicy
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { CfnFunction, FunctionUrlAuthType, HttpMethod, InvokeMode } from 'aws-cdk-lib/aws-lambda';
+import { FunctionUrlAuthType, HttpMethod, InvokeMode } from 'aws-cdk-lib/aws-lambda';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -40,10 +40,9 @@ export function ChatAPI({ stack, app }: StackContext) {
     },
     timeout: '2 minutes',
     enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: '1 GB',
+    memorySize: '1536 MB',
     permissions: [invokeBedrockPolicy]
   });
-  (chatApiFunction.node.defaultChild as CfnFunction).tags.setTag('newrelic-ignore', 'true');
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,
     authType: FunctionUrlAuthType.NONE,

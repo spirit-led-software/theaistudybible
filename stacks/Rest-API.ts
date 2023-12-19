@@ -95,8 +95,7 @@ export function RestAPI({ stack }: StackContext) {
           ...lambdaEnv,
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
         },
-        timeout: '5 minutes',
-        memorySize: '1 GB'
+        timeout: '5 minutes'
       }
     },
     'GET /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/get.handler',
@@ -179,7 +178,6 @@ export function RestAPI({ stack }: StackContext) {
         handler: 'packages/functions/src/rest/generated-images/post.handler',
         bind: [userGeneratedImageBucket],
         permissions: [userGeneratedImageBucket, invokeBedrockPolicy],
-        memorySize: '1 GB',
         timeout: '10 minutes',
         environment: {
           ...lambdaEnv,

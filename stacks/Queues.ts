@@ -38,7 +38,7 @@ export function Queues({ stack }: StackContext) {
           install: ['@sparticuz/chromium']
         },
         timeout: '15 minutes',
-        memorySize: '1 GB'
+        memorySize: '2 GB'
       }
     }
   });
