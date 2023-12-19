@@ -167,26 +167,33 @@ export async function updateBranch(
     projectId,
     branchId
   )) as EndpointsResponse;
-  const endpoints = endpointsResponse.endpoints;
+  const existingEndpoints = endpointsResponse.endpoints;
 
-  for (const endpoint of endpoints) {
-    if (endpoint.type === 'read_write') {
-      const readWriteOption = endpointOptions.find((option) => option.type === 'read_write');
-      if (!readWriteOption) {
-        throw new Error('No read_write endpoint option found');
+  for (const existingEndpoint of existingEndpoints) {
+    if (existingEndpoint.type === 'read_write') {
+      const readWriteOptionIndex = endpointOptions.findIndex(
+        (option) => option.type === 'read_write'
+      );
+      const readWriteOption = endpointOptions[readWriteOptionIndex];
+      if (readWriteOption) {
+        endpointOptions = endpointOptions.filter((_, index) => index !== readWriteOptionIndex);
+        await neonClient.endpoint.updateProjectEndpoint(projectId, existingEndpoint.id, {
+          endpoint: {
+            provisioner: readWriteOption.provisioner || 'k8s-neonvm',
+            autoscaling_limit_min_cu: readWriteOption.autoscaling_limit_min_cu || 0.25,
+            autoscaling_limit_max_cu: readWriteOption.autoscaling_limit_max_cu || 1,
+            suspend_timeout_seconds: readWriteOption.suspend_timeout_seconds || 0
+          }
+        });
       }
-      await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
-        endpoint: {
-          provisioner: readWriteOption.provisioner || 'k8s-neonvm',
-          autoscaling_limit_min_cu: readWriteOption.autoscaling_limit_min_cu || 0.25,
-          autoscaling_limit_max_cu: readWriteOption.autoscaling_limit_max_cu || 1,
-          suspend_timeout_seconds: readWriteOption.suspend_timeout_seconds || 0
-        }
-      });
-    } else if (endpoint.type === 'read_only') {
-      const readOnlyOption = endpointOptions.find((option) => option.type === 'read_only');
+    } else if (existingEndpoint.type === 'read_only') {
+      const readOnlyOptionIndex = endpointOptions.findIndex(
+        (option) => option.type === 'read_only'
+      );
+      const readOnlyOption = endpointOptions[readOnlyOptionIndex];
       if (readOnlyOption) {
-        await neonClient.endpoint.updateProjectEndpoint(projectId, endpoint.id, {
+        endpointOptions = endpointOptions.filter((_, index) => index !== readOnlyOptionIndex);
+        await neonClient.endpoint.updateProjectEndpoint(projectId, existingEndpoint.id, {
           endpoint: {
             provisioner: readOnlyOption.provisioner || 'k8s-neonvm',
             autoscaling_limit_min_cu: readOnlyOption.autoscaling_limit_min_cu || 0.25,
@@ -195,12 +202,27 @@ export async function updateBranch(
           }
         });
       } else {
-        await neonClient.endpoint.deleteProjectEndpoint(projectId, endpoint.id);
+        await neonClient.endpoint.deleteProjectEndpoint(projectId, existingEndpoint.id);
       }
     } else {
-      throw new Error(`Unknown endpoint type ${endpoint.type}`);
+      throw new Error(`Unknown endpoint type ${existingEndpoint.type}`);
     }
   }
+
+  // Create any new endpoints
+  for (const endpointOption of endpointOptions) {
+    await neonClient.endpoint.createProjectEndpoint(projectId, {
+      endpoint: {
+        branch_id: branchId,
+        type: endpointOption.type,
+        provisioner: endpointOption.provisioner || 'k8s-neonvm',
+        autoscaling_limit_min_cu: endpointOption.autoscaling_limit_min_cu || 0.25,
+        autoscaling_limit_max_cu: endpointOption.autoscaling_limit_max_cu || 1,
+        suspend_timeout_seconds: endpointOption.suspend_timeout_seconds || 0
+      }
+    });
+  }
+
   return await getBranch(apiKey, projectId, branchId);
 }
 
