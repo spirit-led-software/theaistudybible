@@ -35,10 +35,7 @@ export function Queues({ stack }: StackContext) {
         permissions: [invokeBedrockPolicy],
         runtime: 'nodejs18.x',
         nodejs: {
-          install: ['@sparticuz/chromium'],
-          esbuild: {
-            external: ['@sparticuz/chromium']
-          }
+          install: ['@sparticuz/chromium']
         },
         timeout: '15 minutes',
         memorySize: '1 GB'

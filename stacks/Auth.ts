@@ -19,11 +19,6 @@ export function Auth({ stack }: StackContext) {
     authenticator: {
       handler: 'packages/functions/src/auth/auth.handler',
       layers: [argonLayer],
-      nodejs: {
-        esbuild: {
-          external: ['argon2']
-        }
-      },
       copyFiles: [
         {
           from: 'emails',
@@ -36,10 +31,10 @@ export function Auth({ stack }: StackContext) {
       ],
       environment: {
         ...STATIC_ENV_VARS,
-        WEBSITE_URL: websiteUrl,
-        AUTH_URL: authUiUrl,
         DATABASE_READWRITE_URL: dbReadWriteUrl,
-        DATABASE_READONLY_URL: dbReadOnlyUrl
+        DATABASE_READONLY_URL: dbReadOnlyUrl,
+        WEBSITE_URL: websiteUrl,
+        AUTH_URL: authUiUrl
       },
       timeout: '30 seconds',
       memorySize: '512 MB'
@@ -91,9 +86,7 @@ export function Auth({ stack }: StackContext) {
       ...STATIC_ENV_VARS,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
-      PUBLIC_AUTH_URL: authUiUrl,
-      DATABASE_READWRITE_URL: dbReadWriteUrl,
-      DATABASE_READONLY_URL: dbReadOnlyUrl
+      PUBLIC_AUTH_URL: authUiUrl
     },
     customDomain: {
       domainName: `auth.${domainName}`,

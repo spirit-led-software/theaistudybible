@@ -38,10 +38,7 @@ export function API({ stack }: StackContext) {
         function: {
           handler: 'packages/functions/src/scraper/webpage/webpage.handler',
           nodejs: {
-            install: ['@sparticuz/chromium'],
-            esbuild: {
-              external: ['@sparticuz/chromium']
-            }
+            install: ['@sparticuz/chromium']
           },
           permissions: [invokeBedrockPolicy],
           timeout: '15 minutes',

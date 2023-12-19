@@ -155,12 +155,7 @@ export function RestAPI({ stack }: StackContext) {
     'POST /users/change-password': {
       function: {
         handler: 'packages/functions/src/rest/users/change-password/post.handler',
-        layers: [argonLayer],
-        nodejs: {
-          esbuild: {
-            external: ['argon2']
-          }
-        }
+        layers: [argonLayer]
       }
     },
 

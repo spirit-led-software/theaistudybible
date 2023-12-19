@@ -1,8 +1,12 @@
-import { Jobs, Layers, STATIC_ENV_VARS } from '@stacks';
-import { Script, use, type StackContext } from 'sst/constructs';
+import { Constants, Jobs, Layers, STATIC_ENV_VARS } from '@stacks';
+import { Script, dependsOn, use, type StackContext } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 
 export function DatabaseScripts({ stack, app }: StackContext) {
+  dependsOn(Constants);
+  dependsOn(Layers);
+  dependsOn(Jobs);
+
   const { argonLayer } = use(Layers);
   const { hnswIndexJob } = use(Jobs);
 
@@ -48,11 +52,6 @@ export function DatabaseScripts({ stack, app }: StackContext) {
     defaults: {
       function: {
         layers: [argonLayer],
-        nodejs: {
-          esbuild: {
-            external: ['argon2']
-          }
-        },
         enableLiveDev: false,
         environment: dbScriptEnv,
         permissions: [hnswIndexJob],

@@ -46,10 +46,6 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   REVENUECAT_STRIPE_API_KEY: process.env.REVENUECAT_STRIPE_API_KEY!,
   REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET!,
 
-  // Google APIs
-  GOOGLE_API_KEY: process.env.GOOGLE_API_KEY!,
-  GOOGLE_CSE_ID: process.env.GOOGLE_CSE_ID!,
-
   // Apple Auth
   APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID!,
   APPLE_TEAM_ID: process.env.APPLE_TEAM_ID!,
@@ -57,12 +53,6 @@ export const STATIC_ENV_VARS: Record<string, string> = {
 
   // Google Auth
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
-
-  /* Removing facebook login for now due to problems with business verification
-  // Facebook Auth
-  FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID!,
-  FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET!, 
-  */
 
   // Email Auth
   EMAIL_FROM: process.env.EMAIL_FROM!,
@@ -81,6 +71,7 @@ export const STATIC_ENV_VARS: Record<string, string> = {
   STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
 
+  // Upstash
   UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL!,
   UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN!
 };
