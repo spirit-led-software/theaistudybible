@@ -1,6 +1,6 @@
-import { emailConfig, websiteConfig } from '@core/configs';
-import { emailTransport } from '@core/configs/email';
-import type { User } from '@core/model';
+import { config as emailConfig, emailTransport } from '@core/configs/email';
+import { config as websiteConfig } from '@core/configs/website';
+import type { User } from '@core/model/user';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
@@ -23,8 +23,9 @@ import path from 'path';
 import pug from 'pug';
 import { AuthHandler, GoogleAdapter, Session } from 'sst/node/auth';
 import Stripe from 'stripe';
-import { stripeConfig } from '../configs';
-import { AppleAdapter, CredentialsAdapter } from './providers';
+import { config as stripeConfig } from '../configs/stripe';
+import { AppleAdapter } from './providers/apple';
+import { CredentialsAdapter } from './providers/credentials';
 
 const SessionResponse = (user: User) => {
   const session = Session.create({

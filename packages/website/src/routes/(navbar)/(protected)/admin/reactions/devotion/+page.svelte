@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { getDevotionReactions } from '$lib/services/devotion';
+	import { getDevotionReactions } from '$lib/services/devotion/reaction';
 	import { session } from '$lib/stores/user';
-	import type { DevotionReactionInfo } from '@core/model';
+	import type { DevotionReactionInfo } from '@core/model/devotion/reaction';
 	import Icon from '@iconify/svelte';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import moment from 'moment';

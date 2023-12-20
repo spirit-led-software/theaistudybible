@@ -1,8 +1,8 @@
-import type { CreateDevotionData, Devotion, UpdateDevotionData } from '@core/model';
+import type { CreateDevotionData, Devotion, UpdateDevotionData } from '@core/model/devotion';
 import { devotions, devotionsToSourceDocuments } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { getDocumentVectorStore } from '@services/vector-db';
 import { SQL, asc, desc, eq, sql } from 'drizzle-orm';
-import { getDocumentVectorStore } from '../vector-db';
 import { generateDevotionImages } from './image';
 import { getBibleReadingChain, getDevotionGeneratorChain } from './langchain';
 

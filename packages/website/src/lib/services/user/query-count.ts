@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { UserQueryCount } from '@core/model';
+import type { UserQueryCount } from '@core/model/user/query-count';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

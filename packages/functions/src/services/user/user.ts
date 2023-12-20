@@ -1,4 +1,4 @@
-import type { CreateUserData, UpdateUserData, UserWithRoles } from '@core/model';
+import type { CreateUserData, UpdateUserData, UserWithRoles } from '@core/model/user';
 import { roles, users, usersToRoles } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, desc, eq, sql } from 'drizzle-orm';

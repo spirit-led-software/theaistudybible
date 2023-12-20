@@ -3,7 +3,7 @@
 	import { page } from '$app/stores';
 	import { createChat, deleteChat, getChats, updateChat } from '$lib/services/chat';
 	import { session } from '$lib/stores/user';
-	import type { Chat } from '@core/model';
+	import type { Chat } from '@core/model/chat';
 	import Icon from '@iconify/svelte';
 	import {
 		createInfiniteQuery,

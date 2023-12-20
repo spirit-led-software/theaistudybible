@@ -1,4 +1,4 @@
-import { databaseConfig, envConfig } from '@core/configs';
+import databaseConfig from '@core/configs/database';
 import * as schema from '@core/database/schema';
 import { Client, neon, neonConfig, type NeonQueryFunction } from '@neondatabase/serverless';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
@@ -6,6 +6,7 @@ import { drizzle as drizzleHttp, type NeonHttpDatabase } from 'drizzle-orm/neon-
 import { drizzle as drizzleWs, type NeonQueryResultHKT } from 'drizzle-orm/neon-serverless';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
 import ws from 'ws';
+import envConfig from '@core/configs/env';
 
 export type RAIDatabaseConfigInput = {
   connectionString: string;

@@ -1,6 +1,6 @@
 import { searchForAiResponses } from '$lib/services/ai-response';
 import { getChat, getChats } from '$lib/services/chat';
-import { searchForUserMessages } from '$lib/services/user';
+import { searchForUserMessages } from '$lib/services/user/message';
 import { aiResponses, userMessages } from '@core/schema';
 import { getPropertyName } from '@core/util/object';
 import { redirect } from '@sveltejs/kit';

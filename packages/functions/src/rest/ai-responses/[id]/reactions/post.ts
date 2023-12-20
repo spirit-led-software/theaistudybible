@@ -7,12 +7,12 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
+import { getAiResponse } from '@services/ai-response';
 import {
   createAiResponseReaction,
-  getAiResponse,
   getAiResponseReactions,
   updateAiResponseReaction
-} from '@services/ai-response';
+} from '@services/ai-response/reaction';
 import { validApiHandlerSession } from '@services/session';
 import { isObjectOwner } from '@services/user';
 import { and, eq } from 'drizzle-orm';

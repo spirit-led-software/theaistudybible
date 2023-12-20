@@ -1,10 +1,10 @@
-import type { IndexOperation } from '@core/model';
+import type { IndexOperation } from '@core/model/data-source/index-op';
 import { indexOperations } from '@core/schema';
 import { getDataSourceOrThrow } from '@services/data-source';
 import { getIndexOperationOrThrow, updateIndexOperation } from '@services/data-source/index-op';
 import type { SQSHandler } from 'aws-lambda';
 import { sql } from 'drizzle-orm';
-import { generatePageContentEmbeddings } from '../../services/web-scraper';
+import { generatePageContentEmbeddings } from '../../services/scraper/webpage';
 
 export const consumer: SQSHandler = async (event) => {
   console.log('Received event: ', JSON.stringify(event));

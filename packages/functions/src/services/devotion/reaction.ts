@@ -1,4 +1,7 @@
-import type { CreateDevotionReactionData, UpdateDevotionReactionData } from '@core/model';
+import type {
+  CreateDevotionReactionData,
+  UpdateDevotionReactionData
+} from '@core/model/devotion/reaction';
 import { devotionReactions, devotions, users } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, and, desc, eq } from 'drizzle-orm';

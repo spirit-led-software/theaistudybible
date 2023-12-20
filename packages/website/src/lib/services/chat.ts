@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { Chat, CreateChatData, UpdateChatData } from '@core/model';
+import type { Chat, CreateChatData, UpdateChatData } from '@core/model/chat';
 import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

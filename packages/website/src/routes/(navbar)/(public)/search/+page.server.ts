@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
+import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 

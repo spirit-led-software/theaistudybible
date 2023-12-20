@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { IndexOperation, UpdateIndexOperationData } from '@core/model';
+import type { IndexOperation, UpdateIndexOperationData } from '@core/model/data-source/index-op';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

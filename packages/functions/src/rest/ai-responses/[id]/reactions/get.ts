@@ -6,7 +6,8 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { getAiResponse, getAiResponseReactions } from '@services/ai-response';
+import { getAiResponse } from '@services/ai-response';
+import { getAiResponseReactions } from '@services/ai-response/reaction';
 import { validApiHandlerSession } from '@services/session';
 import { isObjectOwner } from '@services/user';
 import { eq } from 'drizzle-orm';

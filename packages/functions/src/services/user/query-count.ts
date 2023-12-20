@@ -1,4 +1,7 @@
-import type { CreateUserQueryCountData, UpdateUserQueryCountData } from '@core/model';
+import type {
+  CreateUserQueryCountData,
+  UpdateUserQueryCountData
+} from '@core/model/user/query-count';
 import { userQueryCounts } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';

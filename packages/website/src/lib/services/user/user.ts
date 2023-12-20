@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { UserInfo } from '@core/model';
+import type { UserInfo } from '@core/model/user';
 import type { ProtectedApiOptions } from '../types';
 
 export async function getUserInfo(session: string) {

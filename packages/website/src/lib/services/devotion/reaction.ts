@@ -1,6 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { DevotionReaction, DevotionReactionInfo } from '@core/model';
-import type { devotionReactions } from '../../../../../core/src/database/schema';
+import type { devotionReactions } from '@core/database/schema';
+import type { DevotionReaction, DevotionReactionInfo } from '@core/model/devotion/reaction';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

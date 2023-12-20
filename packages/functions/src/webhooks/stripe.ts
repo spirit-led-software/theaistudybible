@@ -2,7 +2,7 @@ import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
 import { getUserByStripeCustomerId } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
-import { stripeConfig } from '../configs';
+import stripeConfig from '../configs/stripe';
 
 const stripe = new Stripe(stripeConfig.apiKey, {
   apiVersion: '2023-10-16'

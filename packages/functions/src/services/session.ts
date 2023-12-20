@@ -1,15 +1,15 @@
-import { apiConfig } from '@core/configs';
-import type { UserInfo, UserWithRoles } from '@core/model';
+import apiConfig from '@core/configs/api';
+import type { UserInfo, UserWithRoles } from '@core/model/user';
 import {
   getUser,
   getUserMaxGeneratedImages,
   getUserMaxQueries,
-  getUserQueryCountByUserIdAndDate,
   getUserRoles
 } from '@services/user';
+import { getUserGeneratedImageCountByUserIdAndDate } from '@services/user/image-count';
+import { getUserQueryCountByUserIdAndDate } from '@services/user/query-count';
 import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { useSession, type SessionValue } from 'sst/node/auth';
-import { getUserGeneratedImageCountByUserIdAndDate } from './user/image-count';
 
 export async function validApiHandlerSession(): Promise<
   | {

@@ -1,4 +1,5 @@
-import { envConfig, upstashRedisConfig } from '@core/configs';
+import envConfig from '@core/configs/env';
+import upstashRedisConfig from '@core/configs/upstash-redis';
 import {
   RAIBedrockEmbeddings,
   type RAIBedrockEmbeddingsParams

@@ -7,12 +7,12 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
+import { getDevotion } from '@services/devotion';
 import {
   createDevotionReaction,
-  getDevotion,
   getDevotionReactions,
   updateDevotionReaction
-} from '@services/devotion';
+} from '@services/devotion/reaction';
 import { validApiHandlerSession } from '@services/session';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';

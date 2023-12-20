@@ -1,4 +1,4 @@
-import type { CreateChatData, UpdateChatData } from '@core/model';
+import type { CreateChatData, UpdateChatData } from '@core/model/chat';
 import { chats, devotions } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { getDevotions } from '@services/devotion';

@@ -1,4 +1,8 @@
-import type { AiResponse, CreateAiResponseData, UpdateAiResponseData } from '@core/model';
+import type {
+  AiResponse,
+  CreateAiResponseData,
+  UpdateAiResponseData
+} from '@core/model/ai-response';
 import { aiResponses, aiResponsesToSourceDocuments } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, asc, desc, eq } from 'drizzle-orm';

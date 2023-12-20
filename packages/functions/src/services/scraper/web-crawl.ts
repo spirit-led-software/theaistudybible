@@ -1,91 +1,105 @@
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { axios, vectorDBConfig } from '@core/configs';
-import { PuppeteerCoreWebBaseLoader } from '@core/langchain/document_loaders/puppeteer-core';
-import { dataSources } from '@core/schema';
-import { getDocumentVectorStore } from '@services/vector-db';
+import axios from '@core/configs/axios';
+import type { IndexOperation } from '@core/model/data-source/index-op';
+import { indexOperations } from '@core/schema';
+import { createIndexOperation, updateIndexOperation } from '@services/data-source/index-op';
 import { sql } from 'drizzle-orm';
+import escapeStringRegexp from 'escape-string-regexp';
 import { XMLParser } from 'fast-xml-parser';
-import type { Document } from 'langchain/document';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Queue } from 'sst/node/queue';
 import { v4 as uuidV4 } from 'uuid';
 import { gunzipSync } from 'zlib';
-import { updateDataSource } from './data-source';
 
-export async function generatePageContentEmbeddings(
-  name: string,
-  url: string,
-  dataSourceId: string,
-  metadata: object
-): Promise<void> {
-  console.log(`Generating page content embeddings for url '${url}'`);
-  let error: unknown | undefined = undefined;
-  let docs: Document<Record<string, unknown>>[] | undefined = undefined;
-  for (let retries = 0; retries < 5; retries++) {
-    console.log(`Attempt ${retries + 1} of 5`);
-    try {
-      if (!docs) {
-        const loader = new PuppeteerCoreWebBaseLoader(url, {
-          evaluate: async (page) => {
-            await page.waitForNetworkIdle();
-            await page.waitForSelector('body');
-            return await page.evaluate(() => {
-              return document.querySelector('main')?.innerText ?? document.body.innerText;
-            });
-          }
-        });
-        console.log(`Loading documents from url '${url}'`);
-        docs = await loader.load();
-        console.log(`Loaded ${docs.length} documents from url '${url}'.`);
+export async function indexWebCrawl({
+  dataSourceId,
+  url,
+  pathRegex: pathRegexString,
+  name,
+  metadata = {}
+}: {
+  dataSourceId: string;
+  url: string;
+  pathRegex?: string;
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: any;
+}): Promise<IndexOperation> {
+  let indexOp: IndexOperation | undefined;
+  let urlCount = 0;
+  try {
+    let baseUrl = url;
+    let urlRegex: RegExp | undefined = undefined;
+    let sitemapUrls: string[] | undefined = undefined;
 
-        const splitter = new RecursiveCharacterTextSplitter({
-          chunkSize: vectorDBConfig.docEmbeddingContentLength,
-          chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
-        });
-        console.log('Splitting documents.');
-        docs = await splitter.invoke(docs, {});
-        console.log(`Split into ${docs.length} documents from url '${url}'.`);
+    // if sitemap was provided, use that
+    if (url.endsWith('.xml')) {
+      sitemapUrls = [url];
 
-        console.log('Adding metadata to documents.');
-        docs = docs.map((doc) => {
-          doc.metadata = {
-            ...metadata,
-            ...doc.metadata,
-            indexDate: new Date().toISOString(),
-            type: 'webpage',
-            dataSourceId,
-            name,
-            url
-          };
-          let newPageContent = `TITLE: ${name}\n-----\nCONTENT: ${doc.pageContent}`;
-          if (doc.metadata.title) {
-            newPageContent = `TITLE: ${doc.metadata.title}\n-----\nCONTENT: ${doc.pageContent}`;
-          }
-          doc.pageContent = newPageContent;
-          return doc;
-        });
-        console.log('Docs ready. Adding them to the vector store.');
-      } else {
-        console.log('Docs already loaded. Adding them to the vector store.');
-      }
-      const vectorStore = await getDocumentVectorStore({ write: true });
-      await vectorStore.addDocuments(docs);
-
-      await updateDataSource(dataSourceId, {
-        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`
-      });
-
-      error = undefined;
-      break;
-    } catch (err: unknown) {
-      console.error('Failed attempt:', err);
-      error = err;
+      const urlObject = new URL(baseUrl);
+      baseUrl = urlObject.origin;
     }
-  }
-  if (error) {
-    throw new Error(
-      `Failed to generate page content embeddings for url '${url}'\n${(error as Error).stack}`
-    );
+    // remove trailing slash
+    if (baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.substring(0, baseUrl.length - 1);
+    }
+
+    const baseUrlRegex = escapeStringRegexp(baseUrl);
+    let regexString: string = `${baseUrlRegex}\\/.*`;
+    if (pathRegexString) {
+      regexString = `${baseUrlRegex}\\/${pathRegexString}`;
+    }
+    urlRegex = new RegExp(regexString);
+
+    indexOp = await createIndexOperation({
+      status: 'RUNNING',
+      metadata: {
+        ...metadata,
+        succeededUrls: [],
+        failedUrls: [],
+        totalUrls: 0,
+        name,
+        baseUrl,
+        urlRegex: urlRegex.source
+      },
+      dataSourceId
+    });
+
+    if (!sitemapUrls) {
+      sitemapUrls = await getSitemaps(baseUrl);
+    }
+    console.debug(`sitemapUrls: ${sitemapUrls}`);
+
+    for (const sitemapUrl of sitemapUrls) {
+      const { data: sitemapXml } = await axios.get(sitemapUrl);
+      urlCount += await navigateSitemap(sitemapXml, urlRegex, name, indexOp!.id);
+    }
+
+    console.log(`Successfully crawled ${urlCount} urls. Updating index op status.`);
+    indexOp = await updateIndexOperation(indexOp!.id, {
+      metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
+        totalUrls: urlCount
+      })}`
+    });
+
+    return indexOp;
+  } catch (err) {
+    console.error(`Error crawling url '${url}':`, err);
+    if (indexOp) {
+      indexOp = await updateIndexOperation(indexOp.id, {
+        status: 'FAILED',
+        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+        )}')`
+      });
+      if (urlCount > 0) {
+        indexOp = await updateIndexOperation(indexOp.id, {
+          metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
+            totalUrls: urlCount
+          })}`
+        });
+      }
+    }
+    throw err;
   }
 }
 
@@ -235,10 +249,4 @@ async function sendUrlsToQueue(name: string, urls: string[], indexOpId: string) 
     console.error('Failed to send message to SQS:', JSON.stringify(sendMessageResponse));
     throw new Error(`Failed to send message to SQS: ${JSON.stringify(sendMessageResponse)}`);
   }
-}
-
-export function getFileNameFromUrl(url: string) {
-  const parts = url.split('/');
-  const filename = parts[parts.length - 1];
-  return filename;
 }

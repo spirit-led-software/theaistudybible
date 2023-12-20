@@ -1,4 +1,4 @@
-import type { Devotion } from '@core/model';
+import type { Devotion } from '@core/model/devotion';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,

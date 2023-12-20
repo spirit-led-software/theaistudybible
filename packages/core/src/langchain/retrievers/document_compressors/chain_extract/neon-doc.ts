@@ -3,7 +3,7 @@ import { LLMChain } from 'langchain/chains';
 import { PromptTemplate } from 'langchain/prompts';
 import { LLMChainExtractor } from 'langchain/retrievers/document_compressors/chain_extract';
 import { BaseOutputParser } from 'langchain/schema/output_parser';
-import { envConfig } from '../../../../configs';
+import envConfig from '../../../../configs/env';
 import { NeonVectorStoreDocument } from '../../../vectorstores/neon';
 
 export const PROMPT_TEMPLATE = (

@@ -1,6 +1,7 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { unstructuredConfig, vectorDBConfig } from '@core/configs';
-import type { IndexOperation } from '@core/model';
+import unstructuredConfig from '@core/configs/unstructured';
+import vectorDBConfig from '@core/configs/vector-db';
+import type { IndexOperation } from '@core/model/data-source/index-op';
 import { indexOperations } from '@core/schema';
 import type { Metadata } from '@core/types/metadata';
 import { getDataSourceOrThrow, updateDataSource } from '@services/data-source';

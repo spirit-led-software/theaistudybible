@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { deleteDataSource, syncDataSource } from '$lib/services/data-source';
 	import { session } from '$lib/stores/user';
-	import type { DataSource } from '@core/model';
+	import type { DataSource } from '@core/model/data-source';
 	import Icon from '@iconify/svelte';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
 	import Moment from 'moment';

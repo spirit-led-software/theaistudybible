@@ -7,7 +7,8 @@ import {
   UnauthorizedResponse
 } from '@lib/api-responses';
 import { validApiHandlerSession } from '@services/session';
-import { getUser, getUserQueryCountsByUserId } from '@services/user';
+import { getUser } from '@services/user';
+import { getUserQueryCountsByUserId } from '@services/user/query-count';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {

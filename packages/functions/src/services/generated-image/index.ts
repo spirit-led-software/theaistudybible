@@ -1,7 +1,10 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { axios, replicateConfig, s3Config } from '@core/configs';
-import type { UserGeneratedImage, UserWithRoles } from '@core/model';
+import axios from '@core/configs/axios';
+import replicateConfig from '@core/configs/replicate';
+import s3Config from '@core/configs/s3';
+import type { UserWithRoles } from '@core/model/user';
+import type { UserGeneratedImage } from '@core/model/user/generated-image';
 import {
   createUserGeneratedImage,
   updateUserGeneratedImage

@@ -1,6 +1,10 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
-import type { AiResponse, CreateAiResponseData, UpdateAiResponseData } from '@core/model';
+import type {
+	AiResponse,
+	CreateAiResponseData,
+	UpdateAiResponseData
+} from '@core/model/ai-response';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

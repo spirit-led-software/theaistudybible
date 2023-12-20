@@ -1,9 +1,6 @@
-import {
-	getDevotion,
-	getDevotionImages,
-	getDevotionReactionCounts,
-	getDevotionSourceDocuments
-} from '$lib/services/devotion';
+import { getDevotion, getDevotionSourceDocuments } from '$lib/services/devotion';
+import { getDevotionImages } from '$lib/services/devotion/image';
+import { getDevotionReactionCounts } from '$lib/services/devotion/reaction';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {

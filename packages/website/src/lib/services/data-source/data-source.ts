@@ -1,5 +1,9 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { CreateDataSourceData, DataSource, UpdateDataSourceData } from '@core/model';
+import type {
+	CreateDataSourceData,
+	DataSource,
+	UpdateDataSourceData
+} from '@core/model/data-source';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

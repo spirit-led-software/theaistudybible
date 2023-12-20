@@ -1,4 +1,4 @@
-import { envConfig } from '@core/configs';
+import envConfig from '@core/configs/env';
 import { getLargeContextModel } from '@services/llm';
 import { getDocumentVectorStore } from '@services/vector-db';
 import type { Document } from 'langchain/document';

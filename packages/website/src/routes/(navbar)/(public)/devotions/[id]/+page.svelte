@@ -5,7 +5,7 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session } from '$lib/stores/user';
-	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
+	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 	import type { devotionReactions } from '@core/schema';
 	import { default as Icon, default as Iconify } from '@iconify/svelte';
 	import Moment from 'moment';

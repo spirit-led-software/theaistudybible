@@ -1,5 +1,5 @@
 import { indexOperations } from '@core/schema';
-import { getIndexOperations, updateIndexOperation } from '@services/data-source';
+import { getIndexOperations, updateIndexOperation } from '@services/data-source/index-op';
 import type { Handler } from 'aws-lambda';
 import { and, eq, lt } from 'drizzle-orm';
 

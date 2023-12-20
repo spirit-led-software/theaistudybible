@@ -1,5 +1,7 @@
-import { authConfig, databaseConfig, vectorDBConfig } from '@core/configs';
-import type { User } from '@core/model';
+import authConfig from '@core/configs/auth';
+import databaseConfig from '@core/configs/database';
+import vectorDBConfig from '@core/configs/vector-db';
+import type { User } from '@core/model/user';
 import {
   addRoleToUser,
   createRole,
@@ -15,7 +17,7 @@ import argon from 'argon2';
 import type { Handler } from 'aws-lambda';
 import { randomBytes } from 'crypto';
 import { Job } from 'sst/node/job';
-import { revenueCatConfig } from '../configs';
+import revenueCatConfig from '../configs/revenue-cat';
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');

@@ -1,6 +1,6 @@
-import { envConfig } from '@core/configs';
-import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
-import type { User } from '@core/model';
+import envConfig from '@core/configs/env';
+import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
+import type { User } from '@core/model/user';
 import type { Metadata } from '@core/types/metadata';
 import type { CallbackManager } from 'langchain/callbacks';
 import type { Document } from 'langchain/document';

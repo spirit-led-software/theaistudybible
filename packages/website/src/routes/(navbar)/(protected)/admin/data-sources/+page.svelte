@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getDataSources } from '$lib/services/data-source';
 	import { session } from '$lib/stores/user';
-	import type { DataSource } from '@core/model';
+	import type { DataSource } from '@core/model/data-source';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import type { SvelteComponent } from 'svelte';
 	import type { PageData } from './$types';

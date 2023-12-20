@@ -1,15 +1,17 @@
-import type { CreateDataSourceData, DataSource, UpdateDataSourceData } from '@core/model';
+import type {
+  CreateDataSourceData,
+  DataSource,
+  UpdateDataSourceData
+} from '@core/model/data-source';
 import { dataSources, indexOperations } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { indexRemoteFile } from '@services/scraper/file';
+import { indexWebCrawl } from '@services/scraper/web-crawl';
+import { indexWebPage } from '@services/scraper/webpage';
+import { indexYoutubeVideo } from '@services/scraper/youtube';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { SQL, and, desc, eq } from 'drizzle-orm';
-import {
-  getIndexOperations,
-  indexRemoteFile,
-  indexWebCrawl,
-  indexWebPage,
-  indexYoutubeVideo
-} from './index-op';
+import { getIndexOperations } from './index-op';
 
 export async function getDataSources(
   options: {

@@ -5,7 +5,8 @@ import {
   ObjectNotFoundResponse,
   OkResponse
 } from '@lib/api-responses';
-import { getDevotion, getDevotionImages } from '@services/devotion';
+import { getDevotion } from '@services/devotion';
+import { getDevotionImages } from '@services/devotion/image';
 import { eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
 

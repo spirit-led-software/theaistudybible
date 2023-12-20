@@ -1,8 +1,8 @@
 import { buildOrderBy } from '@core/database/helpers';
-import type { DevotionReactionInfo } from '@core/model';
+import type { DevotionReactionInfo } from '@core/model/devotion/reaction';
 import { devotionReactions } from '@core/schema';
 import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getDevotionReactionsWithInfo } from '@services/devotion';
+import { getDevotionReactionsWithInfo } from '@services/devotion/reaction';
 import { validApiHandlerSession } from '@services/session';
 import { isAdminSync } from '@services/user';
 import { ApiHandler } from 'sst/node/api';

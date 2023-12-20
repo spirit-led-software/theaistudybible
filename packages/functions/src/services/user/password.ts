@@ -1,4 +1,4 @@
-import type { CreateUserPasswordData, UpdateUserPasswordData } from '@core/model';
+import type { CreateUserPasswordData, UpdateUserPasswordData } from '@core/model/user/password';
 import { userPasswords } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, desc, eq } from 'drizzle-orm';

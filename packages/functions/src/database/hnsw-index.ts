@@ -1,4 +1,5 @@
-import { databaseConfig, vectorDBConfig } from '@core/configs';
+import databaseConfig from '@core/configs/database';
+import vectorDBConfig from '@core/configs/vector-db';
 import { getDocumentVectorStore, getPartialHnswIndexInfos } from '@services/vector-db';
 import { JobHandler } from 'sst/node/job';
 import 'web-streams-polyfill/dist/polyfill.es2018.js';

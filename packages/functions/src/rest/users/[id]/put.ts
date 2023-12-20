@@ -1,4 +1,4 @@
-import type { UpdateUserData } from '@core/model';
+import type { UpdateUserData } from '@core/model/user';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,

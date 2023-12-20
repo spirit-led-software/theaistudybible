@@ -3,7 +3,8 @@ import {
   ObjectNotFoundResponse,
   OkResponse
 } from '@lib/api-responses';
-import { getDevotion, getDevotionReactionCounts } from '@services/devotion';
+import { getDevotion } from '@services/devotion';
+import { getDevotionReactionCounts } from '@services/devotion/reaction';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {

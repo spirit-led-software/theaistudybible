@@ -1,8 +1,8 @@
 import { buildOrderBy } from '@core/database/helpers';
-import type { AiResponseReactionInfo } from '@core/model';
+import type { AiResponseReactionInfo } from '@core/model/ai-response/reaction';
 import { aiResponseReactions } from '@core/schema';
 import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getAiResponseReactionsWithInfo } from '@services/ai-response';
+import { getAiResponseReactionsWithInfo } from '@services/ai-response/reaction';
 import { validApiHandlerSession } from '@services/session';
 import { isAdminSync } from '@services/user';
 import { ApiHandler } from 'sst/node/api';

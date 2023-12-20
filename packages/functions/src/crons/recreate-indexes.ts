@@ -1,4 +1,5 @@
-import { databaseConfig, vectorDBConfig } from '@core/configs';
+import databaseConfig from '@core/configs/database';
+import vectorDBConfig from '@core/configs/vector-db';
 import type { Handler } from 'aws-lambda';
 import { Job } from 'sst/node/job';
 

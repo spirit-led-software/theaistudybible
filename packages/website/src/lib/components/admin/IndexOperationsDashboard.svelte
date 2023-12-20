@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getIndexOperations, updateIndexOperation } from '$lib/services/data-source/index-op';
 	import { session } from '$lib/stores/user';
-	import type { IndexOperation } from '@core/model';
+	import type { IndexOperation } from '@core/model/data-source/index-op';
 	import { indexOperations as indexOperationsTable } from '@core/schema';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';

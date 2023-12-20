@@ -1,4 +1,4 @@
-import { getAiResponseReactions } from '$lib/services/ai-response';
+import { getAiResponseReactions } from '$lib/services/ai-response/reaction';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {

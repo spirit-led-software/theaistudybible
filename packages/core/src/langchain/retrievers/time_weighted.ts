@@ -6,7 +6,7 @@ import {
   type VectorStoreRetrieverInput,
   type VectorStoreRetrieverMMRSearchKwargs
 } from 'langchain/vectorstores/base';
-import type { NeonVectorStore } from '../vectorstores';
+import type { NeonVectorStore } from '../vectorstores/neon';
 
 /**
  * Interface for the fields required to initialize a

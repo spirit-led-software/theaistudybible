@@ -13,13 +13,7 @@ export function Constants({ stack, app }: StackContext) {
     hostedZone.zoneName
   }`;
 
-  const providedDevWebsiteUrl = process.env.WEBSITE_URL;
-  const websiteUrl =
-    app.mode === 'dev'
-      ? providedDevWebsiteUrl
-        ? providedDevWebsiteUrl
-        : 'https://localhost:3000'
-      : `https://${domainName}`;
+  const websiteUrl = app.mode === 'dev' ? 'http://localhost:3000' : `https://${domainName}`;
 
   const authUiDomainName = `auth.${domainName}`;
   const authUiUrl = app.mode === 'dev' ? `http://localhost:8910` : `https://${authUiDomainName}`;
@@ -28,22 +22,24 @@ export function Constants({ stack, app }: StackContext) {
     app.setDefaultRemovalPolicy('destroy');
   }
 
+  app.addDefaultFunctionEnv({
+    ...STATIC_ENV_VARS,
+    WEBSITE_URL: websiteUrl,
+    AUTH_URL: authUiUrl
+  });
+
   app.setDefaultFunctionProps({
-    environment: {
-      ...STATIC_ENV_VARS,
-      WEBSITE_URL: websiteUrl,
-      AUTH_URL: authUiUrl
-    },
     timeout: '60 seconds',
-    runtime: 'nodejs20.x',
+    runtime: 'nodejs18.x',
     nodejs: {
       esbuild: {
         external: ['argon2', '@sparticuz/chromium', 'web-streams-polyfill'],
         minify: stack.stage === 'prod',
-        treeShaking: stack.stage === 'prod'
+        treeShaking: stack.stage === 'prod',
+        format: 'esm'
       }
     },
-    architecture: 'x86_64',
+    architecture: 'arm_64',
     logRetention: stack.stage === 'prod' ? 'one_week' : 'one_day',
     tracing: app.mode === 'dev' ? 'active' : 'pass_through'
   });

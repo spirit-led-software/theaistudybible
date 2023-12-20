@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getDevotions } from '$lib/services/devotion';
-	import type { Devotion } from '@core/model';
+	import type { Devotion } from '@core/model/devotion';
 	import Icon from '@iconify/svelte';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Moment from 'moment';

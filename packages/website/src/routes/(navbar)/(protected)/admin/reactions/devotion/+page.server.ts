@@ -1,4 +1,4 @@
-import { getDevotionReactions } from '$lib/services/devotion';
+import { getDevotionReactions } from '$lib/services/devotion/reaction';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {

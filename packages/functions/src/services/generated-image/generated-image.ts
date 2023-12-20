@@ -1,4 +1,7 @@
-import type { CreateUserGeneratedImageData, UpdateUserGeneratedImageData } from '@core/model';
+import type {
+  CreateUserGeneratedImageData,
+  UpdateUserGeneratedImageData
+} from '@core/model/user/generated-image';
 import { userGeneratedImages } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, desc, eq } from 'drizzle-orm';

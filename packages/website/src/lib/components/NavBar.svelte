@@ -4,7 +4,7 @@
 	import { PUBLIC_AUTH_URL } from '$env/static/public';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { isAdmin } from '$lib/services/user';
-	import type { UserInfo } from '@core/model';
+	import type { UserInfo } from '@core/model/user';
 	import Icon from '@iconify/svelte';
 	import CompactLogo from './branding/CompactLogo.svelte';
 	import Logo from './branding/Logo.svelte';

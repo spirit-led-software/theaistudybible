@@ -1,7 +1,7 @@
 import type {
   CreateAiResponseReactionData,
   UpdateAiResponseReactionData
-} from '@core/model/ai-response';
+} from '@core/model/ai-response/reaction';
 import { aiResponseReactions, aiResponses, users } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, and, desc, eq } from 'drizzle-orm';

@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { DevotionImage } from '@core/model';
+import type { DevotionImage } from '@core/model/devotion/image';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
 

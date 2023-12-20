@@ -2,7 +2,7 @@
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { createDataSource } from '$lib/services/data-source';
 	import { session } from '$lib/stores/user';
-	import type { DataSource } from '@core/model';
+	import type { DataSource } from '@core/model/data-source';
 	import { dataSources as dataSourcesTable } from '@core/schema';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
 	import type { EventHandler } from 'svelte/elements';

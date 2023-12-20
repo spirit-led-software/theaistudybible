@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { AiResponseReaction, AiResponseReactionInfo } from '@core/model';
+import type { AiResponseReaction, AiResponseReactionInfo } from '@core/model/ai-response/reaction';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

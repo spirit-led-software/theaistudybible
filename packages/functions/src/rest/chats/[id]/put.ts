@@ -1,4 +1,4 @@
-import type { Chat } from '@core/model';
+import type { Chat } from '@core/model/chat';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,

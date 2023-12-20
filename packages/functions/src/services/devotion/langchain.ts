@@ -1,5 +1,5 @@
-import { envConfig } from '@core/configs';
-import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores';
+import envConfig from '@core/configs/env';
+import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import { devotions } from '@core/schema';
 import { getLargeContextModel } from '@services/llm';
 import { getDocumentVectorStore } from '@services/vector-db';

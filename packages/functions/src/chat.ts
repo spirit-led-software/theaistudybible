@@ -1,5 +1,5 @@
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
-import type { Chat } from '@core/model';
+import type { Chat } from '@core/model/chat';
 import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
 import { readWriteDatabase } from '@lib/database';
 import middy from '@middy/core';
@@ -12,8 +12,9 @@ import {
 import { aiRenameChat, createChat, getChat, updateChat, type RAIChatMessage } from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
 import { validSessionFromEvent } from '@services/session';
-import { decrementUserQueryCount, incrementUserQueryCount, isObjectOwner } from '@services/user';
+import { isObjectOwner } from '@services/user';
 import { createUserMessage, getUserMessages } from '@services/user/message';
+import { decrementUserQueryCount, incrementUserQueryCount } from '@services/user/query-count';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq, or } from 'drizzle-orm';

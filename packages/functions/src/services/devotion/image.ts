@@ -1,7 +1,10 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { axios, replicateConfig, s3Config } from '@core/configs';
-import type { CreateDevotionImageData, Devotion, UpdateDevotionImageData } from '@core/model';
+import axios from '@core/configs/axios';
+import replicateConfig from '@core/configs/replicate';
+import s3Config from '@core/configs/s3';
+import type { Devotion } from '@core/model/devotion';
+import type { CreateDevotionImageData, UpdateDevotionImageData } from '@core/model/devotion/image';
 import { devotionImages } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
 import { SQL, desc, eq } from 'drizzle-orm';

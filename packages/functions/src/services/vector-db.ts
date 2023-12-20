@@ -1,4 +1,5 @@
-import { envConfig, vectorDBConfig } from '@core/configs';
+import envConfig from '@core/configs/env';
+import vectorDBConfig from '@core/configs/vector-db';
 import { NeonVectorStore } from '@core/langchain/vectorstores/neon';
 import { users } from '@core/schema';
 import type { Metadata } from '@core/types/metadata';
