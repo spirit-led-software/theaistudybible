@@ -9,16 +9,26 @@ import {
   getAiResponsesByUserMessageId,
   updateAiResponse
 } from '@services/ai-response/ai-response';
-import { aiRenameChat, createChat, getChat, updateChat, type RAIChatMessage } from '@services/chat';
+import {
+  createChat,
+  getChat,
+  getChatOrThrow,
+  updateChat,
+  type RAIChatMessage
+} from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
+import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from '@services/chat/prompts';
+import { getLargeContextModel } from '@services/llm';
 import { validSessionFromEvent } from '@services/session';
 import { isObjectOwner } from '@services/user';
 import { createUserMessage, getUserMessages } from '@services/user/message';
 import { decrementUserQueryCount, incrementUserQueryCount } from '@services/user/query-count';
-import { LangChainStream } from 'ai';
+import { LangChainStream, type Message } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq, or } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
+import { PromptTemplate } from 'langchain/prompts';
+import { StringOutputParser } from 'langchain/schema/output_parser';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
 
@@ -26,9 +36,9 @@ type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredR
   body: Readable;
 };
 
-const validateRequest = (
+function validateRequest(
   event: APIGatewayProxyEventV2
-): StreamedAPIGatewayProxyStructuredResultV2 | undefined => {
+): StreamedAPIGatewayProxyStructuredResultV2 | undefined {
   // Handle CORS preflight request
   if (event.requestContext.http.method === 'OPTIONS') {
     return {
@@ -53,11 +63,80 @@ const validateRequest = (
   }
 
   return undefined;
-};
+}
 
-const lambdaHandler = async (
+async function aiRenameChat(id: string, history: Message[]) {
+  const chat = await getChatOrThrow(id);
+  if (chat.customName) {
+    throw new Error('Chat has already been named by the user');
+  }
+
+  const renameChain = PromptTemplate.fromTemplate(CHAT_RENAME_CHAIN_PROMPT_TEMPLATE)
+    .pipe(
+      getLargeContextModel({
+        stream: false,
+        maxTokens: 256,
+        promptSuffix: '<title>',
+        stopSequences: ['</title>']
+      })
+    )
+    .pipe(new StringOutputParser());
+
+  const result = await renameChain.invoke({
+    history: history
+      .slice(-20)
+      .map(
+        (message) =>
+          `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`
+      )
+      .join('\n')
+  });
+
+  return await updateChat(id, {
+    name: result,
+    customName: false
+  });
+}
+
+async function postResponseValidationLogic({
+  chat,
+  userMessageId,
+  aiResponseId,
+  userId,
+  response,
+  sourceDocuments
+}: {
+  chat: Chat;
+  userMessageId: string;
+  aiResponseId: string;
+  userId: string;
+  lastMessage: RAIChatMessage;
+  response: string;
+  sourceDocuments: NeonVectorStoreDocument[];
+}): Promise<void> {
+  const aiResponse = await createAiResponse({
+    id: aiResponseId,
+    chatId: chat.id,
+    userMessageId: userMessageId,
+    userId,
+    text: response
+  });
+
+  await Promise.all([
+    ...sourceDocuments.map(async (sourceDoc) => {
+      await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
+        aiResponseId: aiResponse.id,
+        sourceDocumentId: sourceDoc.id,
+        distance: sourceDoc.distance,
+        distanceMetric: sourceDoc.distanceMetric
+      });
+    })
+  ]);
+}
+
+async function lambdaHandler(
   event: APIGatewayProxyEventV2
-): Promise<StreamedAPIGatewayProxyStructuredResultV2> => {
+): Promise<StreamedAPIGatewayProxyStructuredResultV2> {
   console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
 
   const validationResponse = validateRequest(event);
@@ -285,42 +364,6 @@ const lambdaHandler = async (
       ])
     };
   }
-};
-
-const postResponseValidationLogic = async ({
-  chat,
-  userMessageId,
-  aiResponseId,
-  userId,
-  response,
-  sourceDocuments
-}: {
-  chat: Chat;
-  userMessageId: string;
-  aiResponseId: string;
-  userId: string;
-  lastMessage: RAIChatMessage;
-  response: string;
-  sourceDocuments: NeonVectorStoreDocument[];
-}): Promise<void> => {
-  const aiResponse = await createAiResponse({
-    id: aiResponseId,
-    chatId: chat.id,
-    userMessageId: userMessageId,
-    userId,
-    text: response
-  });
-
-  await Promise.all([
-    ...sourceDocuments.map(async (sourceDoc) => {
-      await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
-        aiResponseId: aiResponse.id,
-        sourceDocumentId: sourceDoc.id,
-        distance: sourceDoc.distance,
-        distanceMetric: sourceDoc.distanceMetric
-      });
-    })
-  ]);
-};
+}
 
 export const handler = middy({ streamifyResponse: true }).handler(lambdaHandler);

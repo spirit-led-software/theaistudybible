@@ -4,7 +4,8 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { getDataSource, syncDataSource } from '@services/data-source';
+import { syncDataSource } from '@lib/data-source/sync';
+import { getDataSource } from '@services/data-source';
 import { validApiHandlerSession } from '@services/session';
 import { isAdmin } from '@services/user';
 import { ApiHandler } from 'sst/node/api';

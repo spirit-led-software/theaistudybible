@@ -75,6 +75,9 @@ export function RestAPI({ stack }: StackContext) {
         handler: 'packages/functions/src/rest/data-sources/[id]/sync/post.handler',
         permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
         bind: [indexFileBucket, webpageIndexQueue],
+        nodejs: {
+          install: ['@sparticuz/chromium']
+        },
         environment: {
           ...lambdaEnv,
           INDEX_FILE_BUCKET: indexFileBucket.bucketName

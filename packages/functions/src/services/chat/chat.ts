@@ -1,16 +1,8 @@
 import type { CreateChatData, UpdateChatData } from '@core/model/chat';
-import { chats, devotions } from '@core/schema';
+import { chats } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
-import { getDevotions } from '@services/devotion';
 import type { Message } from 'ai';
 import { SQL, desc, eq, sql } from 'drizzle-orm';
-import { PromptTemplate } from 'langchain/prompts';
-import { StringOutputParser } from 'langchain/schema/output_parser';
-import { getLargeContextModel } from '../llm';
-import {
-  CHAT_DAILY_QUERY_GENERATOR_PROMPT_TEMPLATE,
-  CHAT_RENAME_CHAIN_PROMPT_TEMPLATE
-} from './prompts';
 
 export type RAIChatMessage = Message & {
   uuid: string;
@@ -80,67 +72,4 @@ export async function updateChat(id: string, data: UpdateChatData) {
 
 export async function deleteChat(id: string) {
   return (await readWriteDatabase.delete(chats).where(eq(chats.id, id)).returning())[0];
-}
-
-export async function aiRenameChat(id: string, history: Message[]) {
-  const chat = await getChatOrThrow(id);
-  if (chat.customName) {
-    throw new Error('Chat has already been named by the user');
-  }
-
-  const renameChain = PromptTemplate.fromTemplate(CHAT_RENAME_CHAIN_PROMPT_TEMPLATE)
-    .pipe(
-      getLargeContextModel({
-        stream: false,
-        maxTokens: 256,
-        promptSuffix: '<title>',
-        stopSequences: ['</title>']
-      })
-    )
-    .pipe(new StringOutputParser());
-
-  const result = await renameChain.invoke({
-    history: history
-      .slice(-20)
-      .map(
-        (message) =>
-          `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`
-      )
-      .join('\n')
-  });
-
-  return await updateChat(id, {
-    name: result,
-    customName: false
-  });
-}
-
-export async function getDailyQuery() {
-  const queryChain = PromptTemplate.fromTemplate(CHAT_DAILY_QUERY_GENERATOR_PROMPT_TEMPLATE)
-    .pipe(
-      getLargeContextModel({
-        stream: false,
-        maxTokens: 256,
-        promptSuffix: '<query>',
-        stopSequences: ['</query>']
-      })
-    )
-    .pipe(new StringOutputParser());
-
-  return await queryChain.invoke({
-    devotion: await getDevotions({
-      limit: 1,
-      orderBy: desc(devotions.createdAt)
-    })
-      .then((devotions) => devotions[0])
-      .then((devotion) => {
-        return [
-          `<topic>${devotion.topic}</topic>`,
-          `<bible_reading>${devotion.bibleReading}</bible_reading>`,
-          `<summary>${devotion.summary}</summary>`,
-          `<reflection>${devotion.reflection}</reflection>`,
-          `<prayer>${devotion.prayer}</prayer>`
-        ].join('\n');
-      })
-  });
 }

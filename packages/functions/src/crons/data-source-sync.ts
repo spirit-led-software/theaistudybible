@@ -1,5 +1,6 @@
 import { dataSources } from '@core/schema';
-import { getDataSources, syncDataSource } from '@services/data-source';
+import { syncDataSource } from '@lib/data-source/sync';
+import { getDataSources } from '@services/data-source';
 import type { Handler } from 'aws-lambda';
 import { eq, not } from 'drizzle-orm';
 

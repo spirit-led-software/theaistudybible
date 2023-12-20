@@ -1,6 +1,7 @@
 import { toTitleCase } from '@core/util/string';
 import { getTodaysDateString } from '@lib/util/date';
-import { generateDevotion, getDevotionByCreatedDate } from '@services/devotion';
+import { generateDevotion } from '@lib/devotion/generate';
+import { getDevotionByCreatedDate } from '@services/devotion';
 import type { Handler } from 'aws-lambda';
 import firebase from 'firebase-admin';
 import path from 'path';
