@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, Jobs, Queues, S3, STATIC_ENV_VARS } from '@stacks';
+import { Constants, DatabaseScripts, Jobs, Queues, S3 } from '@stacks';
 import { Cron, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Crons({ stack, app }: StackContext) {
@@ -8,8 +8,6 @@ export function Crons({ stack, app }: StackContext) {
   const { invokeBedrockPolicy } = use(Constants);
   const { devotionImageBucket, indexFileBucket } = use(S3);
   const { webpageIndexQueue } = use(Queues);
-  const { dbReadWriteUrl, dbReadOnlyUrl, vectorDbReadWriteUrl, vectorDbReadOnlyUrl } =
-    use(DatabaseScripts);
 
   if (app.stage === 'prod') {
     new Cron(stack, 'dailyDevoCron', {
@@ -25,14 +23,6 @@ export function Crons({ stack, app }: StackContext) {
               to: 'firebase-service-account.json'
             }
           ],
-          environment: {
-            ...STATIC_ENV_VARS,
-            DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName,
-            DATABASE_READWRITE_URL: dbReadWriteUrl,
-            DATABASE_READONLY_URL: dbReadOnlyUrl,
-            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-          },
           timeout: '5 minutes',
           memorySize: '1 GB'
         }
@@ -51,13 +41,6 @@ export function Crons({ stack, app }: StackContext) {
               to: 'firebase-service-account.json'
             }
           ],
-          environment: {
-            ...STATIC_ENV_VARS,
-            DATABASE_READWRITE_URL: dbReadWriteUrl,
-            DATABASE_READONLY_URL: dbReadOnlyUrl,
-            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-          },
           timeout: '5 minutes',
           memorySize: '1 GB'
         }
@@ -70,13 +53,6 @@ export function Crons({ stack, app }: StackContext) {
       job: {
         function: {
           handler: 'packages/functions/src/crons/recreate-indexes.handler',
-          environment: {
-            ...STATIC_ENV_VARS,
-            DATABASE_READWRITE_URL: dbReadWriteUrl,
-            DATABASE_READONLY_URL: dbReadOnlyUrl,
-            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-          },
           permissions: [hnswIndexJob],
           bind: [hnswIndexJob],
           timeout: '15 minutes',
@@ -90,13 +66,6 @@ export function Crons({ stack, app }: StackContext) {
       job: {
         function: {
           handler: 'packages/functions/src/crons/index-op-cleanup.handler',
-          environment: {
-            ...STATIC_ENV_VARS,
-            DATABASE_READWRITE_URL: dbReadWriteUrl,
-            DATABASE_READONLY_URL: dbReadOnlyUrl,
-            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-          },
           timeout: '15 minutes',
           memorySize: '1 GB'
         }
@@ -111,11 +80,6 @@ export function Crons({ stack, app }: StackContext) {
           permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
           bind: [indexFileBucket, webpageIndexQueue],
           environment: {
-            ...STATIC_ENV_VARS,
-            DATABASE_READWRITE_URL: dbReadWriteUrl,
-            DATABASE_READONLY_URL: dbReadOnlyUrl,
-            VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-            VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl,
             INDEX_FILE_BUCKET: indexFileBucket.bucketName
           },
           timeout: '15 minutes',

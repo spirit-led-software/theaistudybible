@@ -5,8 +5,14 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { addRoleToUser, doesUserHaveRole, getRoleByName, removeRoleFromUser } from '@services/role';
-import { getUser, getUserRoles } from '@services/user';
+import {
+  addRoleToUser,
+  doesUserHaveRole,
+  getRoleByName,
+  getRolesByUserId,
+  removeRoleFromUser
+} from '@services/role';
+import { getUser } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
 // https://www.revenuecat.com/docs/event-types-and-fields
@@ -94,7 +100,7 @@ export const handler = ApiHandler(async (event) => {
       }
 
       // Remove all existing RC roles
-      await getUserRoles(user.id).then(async (roles) => {
+      await getRolesByUserId(user.id).then(async (roles) => {
         for (const role of roles) {
           if (role.name.startsWith('rc:')) {
             await removeRoleFromUser(role.name, user.id);
@@ -122,7 +128,7 @@ export const handler = ApiHandler(async (event) => {
       }
 
       // Remove all RC roles
-      await getUserRoles(user.id).then(async (roles) => {
+      await getRolesByUserId(user.id).then(async (roles) => {
         for (const role of roles) {
           if (role.name.startsWith('rc:')) {
             await removeRoleFromUser(role.name, user.id);

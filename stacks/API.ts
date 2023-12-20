@@ -1,27 +1,13 @@
-import { Constants, DatabaseScripts, Queues, S3, STATIC_ENV_VARS } from '@stacks';
+import { Constants, DatabaseScripts, Queues, S3 } from '@stacks';
 import { Api, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { webpageIndexQueue } = use(Queues);
-  const { hostedZone, domainName, websiteUrl, invokeBedrockPolicy, authUiUrl } = use(Constants);
+  const { hostedZone, apiUrl, apiDomainName, websiteUrl, invokeBedrockPolicy, authUiUrl } =
+    use(Constants);
   const { indexFileBucket } = use(S3);
-  const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
-    use(DatabaseScripts);
-
-  const apiDomainName = `api.${domainName}`;
-  const apiUrl = `https://${apiDomainName}`;
-
-  const lambdaEnv: Record<string, string> = {
-    ...STATIC_ENV_VARS,
-    WEBSITE_URL: websiteUrl,
-    API_URL: apiUrl,
-    DATABASE_READWRITE_URL: dbReadWriteUrl,
-    DATABASE_READONLY_URL: dbReadOnlyUrl,
-    VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-    VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-  };
 
   const api = new Api(stack, 'api', {
     routes: {
@@ -51,7 +37,6 @@ export function API({ stack }: StackContext) {
           bind: [indexFileBucket],
           permissions: [indexFileBucket],
           environment: {
-            ...lambdaEnv,
             INDEX_FILE_BUCKET: indexFileBucket.bucketName
           }
         }
@@ -62,7 +47,6 @@ export function API({ stack }: StackContext) {
           bind: [indexFileBucket],
           permissions: [indexFileBucket],
           environment: {
-            ...lambdaEnv,
             INDEX_FILE_BUCKET: indexFileBucket.bucketName
           }
         }
@@ -82,7 +66,6 @@ export function API({ stack }: StackContext) {
     },
     defaults: {
       function: {
-        environment: lambdaEnv,
         timeout: '60 seconds',
         memorySize: '1 GB'
       }
@@ -105,8 +88,6 @@ export function API({ stack }: StackContext) {
   });
 
   return {
-    api,
-    apiDomainName,
-    apiUrl
+    api
   };
 }

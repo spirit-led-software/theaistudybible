@@ -47,6 +47,16 @@ export async function getRoleByNameOrThrow(name: string) {
   return role;
 }
 
+export async function getRolesByUserId(userId: string) {
+  const userRolesRelation = await readOnlyDatabase
+    .select()
+    .from(usersToRoles)
+    .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
+    .where(eq(usersToRoles.userId, userId));
+
+  return userRolesRelation.map((userRoleRelation) => userRoleRelation.roles);
+}
+
 export async function createRole(data: CreateRoleData) {
   return (
     await readWriteDatabase

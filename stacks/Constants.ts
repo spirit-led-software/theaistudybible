@@ -1,4 +1,4 @@
-import { STATIC_ENV_VARS } from '@stacks';
+import { COMMON_ENV_VARS } from '@stacks';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import type { StackContext } from 'sst/constructs';
@@ -18,19 +18,23 @@ export function Constants({ stack, app }: StackContext) {
   const authUiDomainName = `auth.${domainName}`;
   const authUiUrl = app.mode === 'dev' ? `http://localhost:8910` : `https://${authUiDomainName}`;
 
+  const apiDomainName = `api.${domainName}`;
+  const apiUrl = `https://${apiDomainName}`;
+
   if (app.stage !== 'prod') {
     app.setDefaultRemovalPolicy('destroy');
   }
 
   app.addDefaultFunctionEnv({
-    ...STATIC_ENV_VARS,
-    WEBSITE_URL: websiteUrl,
-    AUTH_URL: authUiUrl
+    ...COMMON_ENV_VARS,
+    PUBLIC_WEBSITE_URL: websiteUrl,
+    PUBLIC_AUTH_URL: authUiUrl,
+    PUBLIC_API_URL: apiUrl
   });
 
   app.setDefaultFunctionProps({
     timeout: '60 seconds',
-    runtime: 'nodejs18.x',
+    runtime: 'nodejs20.x',
     nodejs: {
       esbuild: {
         external: ['argon2', '@sparticuz/chromium', 'web-streams-polyfill'],
@@ -56,6 +60,8 @@ export function Constants({ stack, app }: StackContext) {
     websiteUrl,
     authUiDomainName,
     authUiUrl,
+    apiDomainName,
+    apiUrl,
     invokeBedrockPolicy
   };
 }

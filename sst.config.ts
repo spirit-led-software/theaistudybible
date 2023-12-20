@@ -4,6 +4,7 @@ import {
   ChatAPI,
   Constants,
   Crons,
+  Database,
   DatabaseScripts,
   Jobs,
   Layers,
@@ -26,6 +27,7 @@ export default {
       .stack(Constants)
       .stack(Layers)
       .stack(Jobs)
+      .stack(Database)
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(Queues)

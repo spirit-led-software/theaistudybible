@@ -28,16 +28,16 @@ export class NeonBranch extends Construct {
   constructor(scope: Construct, id: string, props: NeonBranchProps) {
     super(scope, id);
 
-    const neonBranchFunction = new Function(this, 'neonBranchFunction', {
+    const neonBranchFunction = new Function(this, 'NeonBranchFunction', {
       handler: 'packages/functions/src/database/branch.handler',
       enableLiveDev: false // No live dev on custom resources
     });
 
-    const neonBranchProvider = new Provider(this, 'neonBranchProvider', {
+    const neonBranchProvider = new Provider(this, 'NeonBranchProvider', {
       onEventHandler: neonBranchFunction
     });
 
-    const neonBranchCustomResource = new CustomResource(this, 'neonBranchCustomResource', {
+    const neonBranchCustomResource = new CustomResource(this, 'NeonBranchCustomResource', {
       resourceType: 'Custom::NeonBranch',
       serviceToken: neonBranchProvider.serviceToken,
       properties: {

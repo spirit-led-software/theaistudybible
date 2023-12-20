@@ -33,18 +33,6 @@ export async function getUserOrThrow(id: string) {
   return user;
 }
 
-export async function getUserRoles(id: string) {
-  const user = await getUserOrThrow(id);
-
-  const userRolesRelation = await readOnlyDatabase
-    .select()
-    .from(usersToRoles)
-    .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
-    .where(eq(usersToRoles.userId, user.id));
-
-  return userRolesRelation.map((userRoleRelation) => userRoleRelation.roles);
-}
-
 export async function getUserByEmail(email: string) {
   return (await readOnlyDatabase.select().from(users).where(eq(users.email, email))).at(0);
 }

@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { Constants, DatabaseScripts } from '@stacks';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
 import { Bucket, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -6,19 +6,10 @@ export function S3({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
-  const { dbReadWriteUrl, dbReadOnlyUrl, vectorDbReadWriteUrl, vectorDbReadOnlyUrl } =
-    use(DatabaseScripts);
 
   const indexFileBucket = new Bucket(stack, 'indexFileBucket', {
     defaults: {
       function: {
-        environment: {
-          ...STATIC_ENV_VARS,
-          DATABASE_READWRITE_URL: dbReadWriteUrl,
-          DATABASE_READONLY_URL: dbReadOnlyUrl,
-          VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-        },
         permissions: ['s3', invokeBedrockPolicy],
         timeout: '15 minutes',
         memorySize: '2 GB'

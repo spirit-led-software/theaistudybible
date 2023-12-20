@@ -3,7 +3,8 @@ export * from './Auth';
 export * from './Chat-API';
 export * from './Constants';
 export * from './Crons';
-export * from './DatabaseScripts';
+export * from './Database';
+export * from './Database-Scripts';
 export * from './Jobs';
 export * from './Layers';
 export * from './Queues';
@@ -11,13 +12,10 @@ export * from './Rest-API';
 export * from './S3';
 export * from './Website';
 
-export const STATIC_ENV_VARS: Record<string, string> = {
+export const COMMON_ENV_VARS: Record<string, string> = {
   // Environment
   IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
-
-  // Neon Database
-  NEON_API_KEY: process.env.NEON_API_KEY!,
 
   // Vector DB Table
   VECTOR_DB_DOCS_TABLE: process.env.VECTOR_DB_DOCS_TABLE!,

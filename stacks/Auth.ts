@@ -1,4 +1,5 @@
-import { API, Constants, DatabaseScripts, Layers, STATIC_ENV_VARS } from '@stacks';
+import { API, COMMON_ENV_VARS, Constants, DatabaseScripts, Layers } from '@stacks';
+import { Architecture } from 'aws-cdk-lib/aws-lambda';
 import {
   Auth as AuthConstruct,
   SvelteKitSite,
@@ -10,10 +11,9 @@ import {
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { argonLayer } = use(Layers);
-  const { api, apiUrl } = use(API);
-  const { domainName, websiteUrl, hostedZone, authUiUrl } = use(Constants);
-  const { dbReadOnlyUrl, dbReadWriteUrl } = use(DatabaseScripts);
+  const { argonLayer, axiomLayer } = use(Layers);
+  const { api } = use(API);
+  const { domainName, apiUrl, websiteUrl, hostedZone, authUiUrl } = use(Constants);
 
   const auth = new AuthConstruct(stack, 'auth', {
     authenticator: {
@@ -29,13 +29,6 @@ export function Auth({ stack }: StackContext) {
           to: 'apple-auth-key.p8'
         }
       ],
-      environment: {
-        ...STATIC_ENV_VARS,
-        DATABASE_READWRITE_URL: dbReadWriteUrl,
-        DATABASE_READONLY_URL: dbReadOnlyUrl,
-        WEBSITE_URL: websiteUrl,
-        AUTH_URL: authUiUrl
-      },
       timeout: '30 seconds',
       memorySize: '512 MB'
     }
@@ -83,7 +76,7 @@ export function Auth({ stack }: StackContext) {
     bind: [api],
     permissions: [api],
     environment: {
-      ...STATIC_ENV_VARS,
+      ...COMMON_ENV_VARS,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
       PUBLIC_AUTH_URL: authUiUrl
@@ -94,6 +87,12 @@ export function Auth({ stack }: StackContext) {
     },
     dev: {
       url: authUiUrl
+    },
+    cdk: {
+      server: {
+        layers: [axiomLayer],
+        architecture: Architecture.X86_64
+      }
     }
   });
 

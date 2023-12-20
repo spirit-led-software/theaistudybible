@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { Constants, DatabaseScripts } from '@stacks';
 import { Duration } from 'aws-cdk-lib/core';
 import { Queue, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -6,8 +6,6 @@ export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
-  const { dbReadWriteUrl, dbReadOnlyUrl, vectorDbReadWriteUrl, vectorDbReadOnlyUrl } =
-    use(DatabaseScripts);
 
   const webpageIndexQueue = new Queue(stack, 'webpageIndexQueue', {
     cdk: {
@@ -25,13 +23,6 @@ export function Queues({ stack }: StackContext) {
       },
       function: {
         handler: 'packages/functions/src/scraper/webpage/queue.consumer',
-        environment: {
-          ...STATIC_ENV_VARS,
-          DATABASE_READWRITE_URL: dbReadWriteUrl,
-          DATABASE_READONLY_URL: dbReadOnlyUrl,
-          VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-          VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-        },
         permissions: [invokeBedrockPolicy],
         runtime: 'nodejs18.x',
         nodejs: {

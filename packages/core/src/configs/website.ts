@@ -4,8 +4,8 @@ interface WebsiteConfig {
 }
 
 export const config: WebsiteConfig = {
-  url: process.env.WEBSITE_URL!,
-  authUrl: process.env.AUTH_URL!
+  url: process.env.PUBLIC_WEBSITE_URL!,
+  authUrl: process.env.PUBLIC_AUTH_URL!
 };
 
 export default config;

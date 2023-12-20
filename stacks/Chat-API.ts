@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, STATIC_ENV_VARS } from '@stacks';
+import { Auth, Constants, DatabaseScripts } from '@stacks';
 import { Fn } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import {
@@ -19,29 +19,17 @@ const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 export function ChatAPI({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { hostedZone, domainName, domainNamePrefix, websiteUrl, invokeBedrockPolicy } =
+  const { hostedZone, apiDomainName, domainNamePrefix, websiteUrl, invokeBedrockPolicy } =
     use(Constants);
-  const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
-    use(DatabaseScripts);
-
-  const apiDomainName = `api.${domainName}`;
-  const apiUrl = `https://${apiDomainName}`;
+  const { auth } = use(Auth);
 
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
     handler: 'packages/functions/src/chat.handler',
-    environment: {
-      ...STATIC_ENV_VARS,
-      WEBSITE_URL: websiteUrl,
-      API_URL: apiUrl,
-      DATABASE_READWRITE_URL: dbReadWriteUrl,
-      DATABASE_READONLY_URL: dbReadOnlyUrl,
-      VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-      VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-    },
     timeout: '2 minutes',
     enableLiveDev: false, // Cannot live dev with response stream
     memorySize: '1536 MB',
-    permissions: [invokeBedrockPolicy]
+    permissions: [invokeBedrockPolicy],
+    bind: [auth]
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,

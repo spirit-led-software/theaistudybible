@@ -1,31 +1,19 @@
-import { API, Constants, DatabaseScripts, Layers, Queues, S3, STATIC_ENV_VARS } from '@stacks';
+import { API, Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
 import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { api, apiUrl } = use(API);
+  const { api } = use(API);
   const { webpageIndexQueue } = use(Queues);
-  const { websiteUrl, invokeBedrockPolicy } = use(Constants);
+  const { invokeBedrockPolicy } = use(Constants);
   const {
     indexFileBucket,
     devotionImageBucket,
     userProfilePictureBucket,
     userGeneratedImageBucket
   } = use(S3);
-  const { dbReadOnlyUrl, dbReadWriteUrl, vectorDbReadOnlyUrl, vectorDbReadWriteUrl } =
-    use(DatabaseScripts);
   const { argonLayer } = use(Layers);
-
-  const lambdaEnv: Record<string, string> = {
-    ...STATIC_ENV_VARS,
-    WEBSITE_URL: websiteUrl,
-    API_URL: apiUrl,
-    DATABASE_READWRITE_URL: dbReadWriteUrl,
-    DATABASE_READONLY_URL: dbReadOnlyUrl,
-    VECTOR_DB_READWRITE_URL: vectorDbReadWriteUrl,
-    VECTOR_DB_READONLY_URL: vectorDbReadOnlyUrl
-  };
 
   api.addRoutes(stack, {
     // AI Responses
@@ -79,7 +67,6 @@ export function RestAPI({ stack }: StackContext) {
           install: ['@sparticuz/chromium']
         },
         environment: {
-          ...lambdaEnv,
           INDEX_FILE_BUCKET: indexFileBucket.bucketName
         },
         memorySize: '2 GB',
@@ -95,7 +82,6 @@ export function RestAPI({ stack }: StackContext) {
         bind: [devotionImageBucket],
         permissions: [devotionImageBucket, invokeBedrockPolicy],
         environment: {
-          ...lambdaEnv,
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
         },
         timeout: '5 minutes'
@@ -168,7 +154,6 @@ export function RestAPI({ stack }: StackContext) {
         bind: [userProfilePictureBucket],
         permissions: [userProfilePictureBucket],
         environment: {
-          ...lambdaEnv,
           USER_PROFILE_PICTURE_BUCKET: userProfilePictureBucket.bucketName
         }
       }
@@ -183,7 +168,6 @@ export function RestAPI({ stack }: StackContext) {
         permissions: [userGeneratedImageBucket, invokeBedrockPolicy],
         timeout: '10 minutes',
         environment: {
-          ...lambdaEnv,
           USER_GENERATED_IMAGE_BUCKET: userGeneratedImageBucket.bucketName
         }
       }
