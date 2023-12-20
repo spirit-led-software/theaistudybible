@@ -5,7 +5,7 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { indexWebPage } from '@services/data-source/index-op';
+import { indexWebPage } from '@services/scraper/webpage';
 import { validApiHandlerSession } from '@services/session';
 import { isAdmin } from '@services/user';
 import { ApiHandler } from 'sst/node/api';

@@ -1,5 +1,5 @@
 import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { indexRemoteFile } from '@services/data-source/index-op';
+import { indexRemoteFile } from '@services/scraper/file';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
