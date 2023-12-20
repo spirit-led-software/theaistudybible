@@ -39,7 +39,7 @@ export function Constants({ stack, app }: StackContext) {
         format: 'esm'
       }
     },
-    architecture: 'arm_64',
+    architecture: 'x86_64',
     logRetention: stack.stage === 'prod' ? 'one_week' : 'one_day',
     tracing: app.mode === 'dev' ? 'active' : 'pass_through'
   });
