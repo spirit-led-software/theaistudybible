@@ -27,7 +27,7 @@ export async function getDocumentVectorStore(options?: {
       distance: 'cosine',
       hnswIdxM: 16,
       hnswIdxEfConstruction: 64,
-      hnswIdxEfSearch: 100,
+      hnswIdxEfSearch: 40,
       verbose: envConfig.isLocal ? true : verbose,
       filters
     }
