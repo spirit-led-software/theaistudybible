@@ -11,7 +11,7 @@ export function RestAPI({ stack }: StackContext) {
     userProfilePictureBucket,
     userGeneratedImageBucket
   } = use(S3);
-  const { argonLayer, chromiumLayer } = use(Layers);
+  const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);
   const { webpageIndexQueue } = use(Queues);
   const { api } = use(API);
 
@@ -61,9 +61,11 @@ export function RestAPI({ stack }: StackContext) {
     'POST /data-sources/{id}/sync': {
       function: {
         handler: 'packages/functions/src/rest/data-sources/[id]/sync/post.handler',
+        architecture: 'x86_64',
+        runtime: 'nodejs18.x',
+        layers: [chromiumLayer, axiomX86Layer],
         permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
         bind: [indexFileBucket, webpageIndexQueue],
-        layers: [chromiumLayer],
         environment: {
           INDEX_FILE_BUCKET: indexFileBucket.bucketName
         },

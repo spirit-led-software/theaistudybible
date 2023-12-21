@@ -7,7 +7,7 @@ export function API({ stack }: StackContext) {
   const { hostedZone, apiUrl, apiDomainName, websiteUrl, invokeBedrockPolicy, authUiUrl } =
     use(Constants);
   const { indexFileBucket } = use(S3);
-  const { chromiumLayer } = use(Layers);
+  const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { webpageIndexQueue } = use(Queues);
 
   const api = new Api(stack, 'api', {
@@ -24,7 +24,9 @@ export function API({ stack }: StackContext) {
       'POST /scraper/webpage': {
         function: {
           handler: 'packages/functions/src/scraper/webpage/webpage.handler',
-          layers: [chromiumLayer],
+          architecture: 'x86_64',
+          runtime: 'nodejs18.x',
+          layers: [chromiumLayer, axiomX86Layer],
           permissions: [invokeBedrockPolicy],
           timeout: '15 minutes',
           memorySize: '2 GB'

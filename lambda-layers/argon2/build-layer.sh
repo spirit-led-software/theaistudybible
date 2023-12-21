@@ -9,7 +9,6 @@ npm install argon2@latest --save --target_arch=arm64 --target_platform=linux --t
 mkdir -p nodejs
 cp -r node_modules nodejs/
 zip -r argon2-arm64.zip nodejs
-echo "Done!"
 
 echo "Cleaning up existing node_modules..."
 rm -rf node_modules
@@ -20,8 +19,13 @@ npm install argon2@latest --save --target_arch=x86_64 --target_platform=linux --
 mkdir -p nodejs
 cp -r node_modules nodejs/
 zip -r argon2-x86_64.zip nodejs
-echo "Done!"
 
 echo "Uploading layers to S3..."
 aws s3 cp argon2-arm64.zip s3://revelationsai-lambda-layer-zips/
 aws s3 cp argon2-x86_64.zip s3://revelationsai-lambda-layer-zips/
+
+echo "Publishing layers..."
+aws lambda publish-layer-version --layer-name argon2-arm64 --description "Argon2 for ARM64" --content "S3Bucket=revelationsai-lambda-layer-zips,S3Key=argon2-arm64.zip" --compatible-runtimes nodejs --compatible-architectures arm64 --no-paginate
+aws lambda publish-layer-version --layer-name argon2-x86_64 --description "Argon2 for x86_64" --content "S3Bucket=revelationsai-lambda-layer-zips,S3Key=argon2-x86_64.zip" --compatible-runtimes nodejs --compatible-architectures x86_64 --no-paginate
+
+echo "Done!"

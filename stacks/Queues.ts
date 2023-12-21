@@ -6,7 +6,7 @@ export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
-  const { chromiumLayer } = use(Layers);
+  const { chromiumLayer, axiomX86Layer } = use(Layers);
 
   const webpageIndexQueue = new Queue(stack, 'webpageIndexQueue', {
     cdk: {
@@ -25,8 +25,9 @@ export function Queues({ stack }: StackContext) {
       function: {
         handler: 'packages/functions/src/scraper/webpage/queue.consumer',
         permissions: [invokeBedrockPolicy],
+        architecture: 'x86_64',
         runtime: 'nodejs18.x',
-        layers: [chromiumLayer],
+        layers: [chromiumLayer, axiomX86Layer],
         timeout: '15 minutes',
         memorySize: '2 GB'
       }
