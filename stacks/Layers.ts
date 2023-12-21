@@ -5,7 +5,7 @@ export function Layers({ stack, app }: StackContext) {
   const argonLayer = LayerVersion.fromLayerVersionArn(
     stack,
     'Argon2Layer',
-    `arn:aws:lambda:${stack.region}:008193302444:layer:argon2-arm64:3`
+    `arn:aws:lambda:${stack.region}:008193302444:layer:argon2-arm64:4`
   );
 
   // See versions here: https://github.com/axiomhq/axiom-lambda-extension
@@ -29,7 +29,7 @@ export function Layers({ stack, app }: StackContext) {
   const chromiumLayer = LayerVersion.fromLayerVersionArn(
     stack,
     'ChromiumLayer',
-    `arn:aws:lambda:${stack.region}:008193302444:layer:chromium:2`
+    `arn:aws:lambda:${stack.region}:008193302444:layer:chromium:3`
   );
 
   return {
