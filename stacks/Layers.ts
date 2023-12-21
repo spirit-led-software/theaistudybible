@@ -11,7 +11,7 @@ export function Layers({ stack, app }: StackContext) {
   // See versions here: https://github.com/axiomhq/axiom-lambda-extension
   const axiomArm64Layer = LayerVersion.fromLayerVersionArn(
     stack,
-    'AxiomLayer',
+    'AxiomArm64Layer',
     `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-arm64:8`
   );
   app.addDefaultFunctionLayers([axiomArm64Layer]);
@@ -22,7 +22,7 @@ export function Layers({ stack, app }: StackContext) {
 
   const axiomX86Layer = LayerVersion.fromLayerVersionArn(
     stack,
-    'AxiomLayer',
+    'AxiomX86Layer',
     `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-x86_64:8`
   );
 
