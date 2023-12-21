@@ -59,6 +59,8 @@ export function RestAPI({ stack }: StackContext) {
     'GET /chats/{id}': 'packages/functions/src/rest/chats/[id]/get.handler',
     'PUT /chats/{id}': 'packages/functions/src/rest/chats/[id]/put.handler',
     'DELETE /chats/{id}': 'packages/functions/src/rest/chats/[id]/delete.handler',
+    // Chat Messages
+    'GET /chats/{id}/messages': 'packages/functions/src/rest/chats/[id]/messages/get.handler',
 
     // Data Sources
     'GET /data-sources': 'packages/functions/src/rest/data-sources/get.handler',
