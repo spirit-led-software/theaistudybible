@@ -1,6 +1,7 @@
 import { Constants, DatabaseScripts, Layers } from '@stacks';
+import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib/core';
-import { Queue, dependsOn, use, type StackContext } from 'sst/constructs';
+import { Function, Queue, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -8,6 +9,23 @@ export function Queues({ stack }: StackContext) {
   const { invokeBedrockPolicy } = use(Constants);
   const { chromiumLayer, axiomX86Layer } = use(Layers);
 
+  const webpageIndexQueueConsumerFunction = new Function(
+    stack,
+    'webpageIndexQueueConsumerFunction',
+    {
+      handler: 'packages/functions/src/scraper/webpage/queue.consumer',
+      permissions: [invokeBedrockPolicy],
+      architecture: 'x86_64',
+      runtime: 'nodejs18.x',
+      timeout: '15 minutes',
+      memorySize: '2 GB'
+    }
+  );
+  // add layers
+  (webpageIndexQueueConsumerFunction.node.defaultChild as CfnFunction).addPropertyOverride(
+    'Layers',
+    [chromiumLayer.layerVersionArn, axiomX86Layer.layerVersionArn]
+  );
   const webpageIndexQueue = new Queue(stack, 'webpageIndexQueue', {
     cdk: {
       queue: {
@@ -22,15 +40,7 @@ export function Queues({ stack }: StackContext) {
           maxConcurrency: stack.stage !== 'prod' ? 2 : 25
         }
       },
-      function: {
-        handler: 'packages/functions/src/scraper/webpage/queue.consumer',
-        permissions: [invokeBedrockPolicy],
-        architecture: 'x86_64',
-        runtime: 'nodejs18.x',
-        layers: [chromiumLayer, axiomX86Layer],
-        timeout: '15 minutes',
-        memorySize: '2 GB'
-      }
+      function: webpageIndexQueueConsumerFunction
     }
   });
   webpageIndexQueue.bind([webpageIndexQueue]);

@@ -1,5 +1,6 @@
 import { API, Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
-import { dependsOn, use, type StackContext } from 'sst/constructs';
+import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
+import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -14,6 +15,24 @@ export function RestAPI({ stack }: StackContext) {
   const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);
   const { webpageIndexQueue } = use(Queues);
   const { api } = use(API);
+
+  const dataSourceSyncFunction = new Function(stack, 'dataSourceSyncFunction', {
+    handler: 'packages/functions/src/rest/data-sources/[id]/sync/post.handler',
+    architecture: 'x86_64',
+    runtime: 'nodejs18.x',
+    permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
+    bind: [indexFileBucket, webpageIndexQueue],
+    environment: {
+      INDEX_FILE_BUCKET: indexFileBucket.bucketName
+    },
+    memorySize: '2 GB',
+    timeout: '15 minutes'
+  });
+  // add layers
+  (dataSourceSyncFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
+    chromiumLayer.layerVersionArn,
+    axiomX86Layer.layerVersionArn
+  ]);
 
   api.addRoutes(stack, {
     // AI Responses
@@ -58,21 +77,7 @@ export function RestAPI({ stack }: StackContext) {
         timeout: '15 minutes'
       }
     },
-    'POST /data-sources/{id}/sync': {
-      function: {
-        handler: 'packages/functions/src/rest/data-sources/[id]/sync/post.handler',
-        architecture: 'x86_64',
-        runtime: 'nodejs18.x',
-        layers: [chromiumLayer, axiomX86Layer],
-        permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
-        bind: [indexFileBucket, webpageIndexQueue],
-        environment: {
-          INDEX_FILE_BUCKET: indexFileBucket.bucketName
-        },
-        memorySize: '2 GB',
-        timeout: '15 minutes'
-      }
-    },
+    'POST /data-sources/{id}/sync': dataSourceSyncFunction,
 
     // Devotions
     'GET /devotions': 'packages/functions/src/rest/devotions/get.handler',

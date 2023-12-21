@@ -1,36 +1,32 @@
-import { LayerVersion } from 'aws-cdk-lib/aws-lambda';
+import { LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
 import type { StackContext } from 'sst/constructs';
 
 export function Layers({ stack, app }: StackContext) {
-  const argonLayer = LayerVersion.fromLayerVersionArn(
-    stack,
-    'Argon2Layer',
-    `arn:aws:lambda:${stack.region}:008193302444:layer:argon2-arm64:4`
-  );
+  const argonLayer = LayerVersion.fromLayerVersionAttributes(stack, 'Argon2Layer', {
+    layerVersionArn: `arn:aws:lambda:${stack.region}:008193302444:layer:argon2-arm64:4`,
+    compatibleRuntimes: [Runtime.NODEJS_20_X, Runtime.NODEJS_18_X]
+  });
 
   // See versions here: https://github.com/axiomhq/axiom-lambda-extension
-  const axiomArm64Layer = LayerVersion.fromLayerVersionArn(
-    stack,
-    'AxiomArm64Layer',
-    `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-arm64:8`
-  );
+  const axiomArm64Layer = LayerVersion.fromLayerVersionAttributes(stack, 'AxiomArm64Layer', {
+    layerVersionArn: `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-arm64:8`,
+    compatibleRuntimes: [Runtime.NODEJS_20_X, Runtime.NODEJS_18_X]
+  });
   app.addDefaultFunctionLayers([axiomArm64Layer]);
   app.addDefaultFunctionEnv({
     AXIOM_TOKEN: process.env.AXIOM_TOKEN!,
     AXIOM_DATASET: process.env.AXIOM_DATASET!
   });
 
-  const axiomX86Layer = LayerVersion.fromLayerVersionArn(
-    stack,
-    'AxiomX86Layer',
-    `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-x86_64:8`
-  );
+  const axiomX86Layer = LayerVersion.fromLayerVersionAttributes(stack, 'AxiomX86Layer', {
+    layerVersionArn: `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-x86_64:8`,
+    compatibleRuntimes: [Runtime.NODEJS_20_X, Runtime.NODEJS_18_X]
+  });
 
-  const chromiumLayer = LayerVersion.fromLayerVersionArn(
-    stack,
-    'ChromiumLayer',
-    `arn:aws:lambda:${stack.region}:008193302444:layer:chromium:3`
-  );
+  const chromiumLayer = LayerVersion.fromLayerVersionAttributes(stack, 'ChromiumLayer', {
+    layerVersionArn: `arn:aws:lambda:${stack.region}:008193302444:layer:chromium:3`,
+    compatibleRuntimes: [Runtime.NODEJS_18_X]
+  });
 
   return {
     argonLayer,

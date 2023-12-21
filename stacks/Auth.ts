@@ -11,7 +11,7 @@ import {
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { argonLayer, axiomLayer } = use(Layers);
+  const { argonLayer, axiomArm64Layer } = use(Layers);
   const { api } = use(API);
   const { domainName, apiUrl, websiteUrl, hostedZone, authUiUrl } = use(Constants);
 
@@ -92,7 +92,7 @@ export function Auth({ stack }: StackContext) {
     },
     cdk: {
       server: {
-        layers: [axiomLayer],
+        layers: [axiomArm64Layer],
         architecture: Architecture.ARM_64
       }
     }

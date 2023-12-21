@@ -1,5 +1,6 @@
 import { Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
-import { Api, dependsOn, use, type StackContext } from 'sst/constructs';
+import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
+import { Api, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
@@ -9,6 +10,21 @@ export function API({ stack }: StackContext) {
   const { indexFileBucket } = use(S3);
   const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { webpageIndexQueue } = use(Queues);
+
+  const webpageScraperFunction = new Function(stack, 'webpageScraperFunction', {
+    handler: 'packages/functions/src/scraper/webpage/webpage.handler',
+    architecture: 'x86_64',
+    runtime: 'nodejs18.x',
+    layers: [chromiumLayer, axiomX86Layer],
+    permissions: [invokeBedrockPolicy],
+    timeout: '15 minutes',
+    memorySize: '2 GB'
+  });
+  // add layers
+  (webpageScraperFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
+    chromiumLayer.layerVersionArn,
+    axiomX86Layer.layerVersionArn
+  ]);
 
   const api = new Api(stack, 'api', {
     routes: {
@@ -21,17 +37,7 @@ export function API({ stack }: StackContext) {
           memorySize: '2 GB'
         }
       },
-      'POST /scraper/webpage': {
-        function: {
-          handler: 'packages/functions/src/scraper/webpage/webpage.handler',
-          architecture: 'x86_64',
-          runtime: 'nodejs18.x',
-          layers: [chromiumLayer, axiomX86Layer],
-          permissions: [invokeBedrockPolicy],
-          timeout: '15 minutes',
-          memorySize: '2 GB'
-        }
-      },
+      'POST /scraper/webpage': webpageScraperFunction,
       'POST /scraper/file/presigned-url': {
         function: {
           handler: 'packages/functions/src/scraper/file/upload-url.handler',
@@ -63,12 +69,6 @@ export function API({ stack }: StackContext) {
           handler: 'packages/functions/src/rest/vector-search/post.handler',
           permissions: [invokeBedrockPolicy]
         }
-      }
-    },
-    defaults: {
-      function: {
-        timeout: '60 seconds',
-        memorySize: '1 GB'
       }
     },
     customDomain: {

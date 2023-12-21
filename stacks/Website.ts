@@ -5,7 +5,7 @@ import { SvelteKitSite, dependsOn, use, type StackContext } from 'sst/constructs
 export function Website({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { axiomLayer } = use(Layers);
+  const { axiomArm64Layer } = use(Layers);
   const { indexFileBucket } = use(S3);
   const { api } = use(API);
   const { chatApiUrl } = use(ChatAPI);
@@ -33,7 +33,7 @@ export function Website({ stack }: StackContext) {
     },
     cdk: {
       server: {
-        layers: [axiomLayer],
+        layers: [axiomArm64Layer],
         architecture: Architecture.ARM_64
       }
     }
