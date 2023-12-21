@@ -67,7 +67,7 @@
 
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 
-	$: cleanDate = Day(activeDevo.createdAt).format('MMMM Do YYYY');
+	$: cleanDate = Day(activeDevo.createdAt).format('MMMM D, YYYY');
 </script>
 
 <svelte:head>

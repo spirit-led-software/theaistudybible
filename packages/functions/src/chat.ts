@@ -1,6 +1,7 @@
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model/chat';
 import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
+import { aiRenameChat } from '@lib/util/chat';
 import { readWriteDatabase } from '@lib/database';
 import middy from '@middy/core';
 import {
@@ -9,26 +10,16 @@ import {
   getAiResponsesByUserMessageId,
   updateAiResponse
 } from '@services/ai-response/ai-response';
-import {
-  createChat,
-  getChat,
-  getChatOrThrow,
-  updateChat,
-  type RAIChatMessage
-} from '@services/chat';
+import { createChat, getChat, updateChat, type RAIChatMessage } from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
-import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from '@services/chat/prompts';
-import { getLargeContextModel } from '@services/llm';
 import { validNonApiHandlerSession } from '@services/session';
 import { isObjectOwner } from '@services/user';
 import { createUserMessage, getUserMessages } from '@services/user/message';
 import { decrementUserQueryCount, incrementUserQueryCount } from '@services/user/query-count';
-import { LangChainStream, type Message } from 'ai';
+import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq, or } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
-import { PromptTemplate } from 'langchain/prompts';
-import { StringOutputParser } from 'langchain/schema/output_parser';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
 
@@ -63,39 +54,6 @@ function validateRequest(
   }
 
   return undefined;
-}
-
-async function aiRenameChat(id: string, history: Message[]) {
-  const chat = await getChatOrThrow(id);
-  if (chat.customName) {
-    throw new Error('Chat has already been named by the user');
-  }
-
-  const renameChain = PromptTemplate.fromTemplate(CHAT_RENAME_CHAIN_PROMPT_TEMPLATE)
-    .pipe(
-      getLargeContextModel({
-        stream: false,
-        maxTokens: 256,
-        promptSuffix: '<title>',
-        stopSequences: ['</title>']
-      })
-    )
-    .pipe(new StringOutputParser());
-
-  const result = await renameChain.invoke({
-    history: history
-      .slice(-20)
-      .map(
-        (message) =>
-          `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`
-      )
-      .join('\n')
-  });
-
-  return await updateChat(id, {
-    name: result,
-    customName: false
-  });
 }
 
 async function postResponseValidationLogic({
@@ -223,7 +181,7 @@ async function lambdaHandler(
     console.timeEnd('Validating chat');
 
     if (!chat.customName) {
-      pendingPromises.push(aiRenameChat(chat.id, messages));
+      pendingPromises.push(aiRenameChat(chat, messages));
     } else {
       pendingPromises.push(
         updateChat(chat.id, {

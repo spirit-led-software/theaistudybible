@@ -51,7 +51,7 @@
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<MessageMarkdown {content} />
 		<div class="flex justify-end w-full mt-2 text-xs text-gray-400">
-			{Day(message.createdAt).format('MMMM Do YYYY h:mm a')}
+			{Day(message.createdAt).format('M/D/YY h:mm a')}
 		</div>
 		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">

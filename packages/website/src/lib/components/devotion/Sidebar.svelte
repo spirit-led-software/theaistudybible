@@ -70,7 +70,7 @@
 		>
 			<h1 class="px-2 mb-3 text-2xl font-medium">All Devotions</h1>
 			<div class="flex flex-col content-center w-full space-y-2">
-				{#if $query.isInitialLoading}
+				{#if $query.isLoading}
 					<div class="flex justify-center w-full">
 						<div class="flex items-center justify-center py-5">
 							<span class="loading loading-spinner loading-lg" />
@@ -95,7 +95,7 @@
 								}
 							}}
 						>
-							<div>{Day(devotion.createdAt).format('MMMM Do YYYY')}</div>
+							<div>{Day(devotion.createdAt).format('MMMM D, YYYY')}</div>
 							<div class="text-xs">
 								{devotion.bibleReading.split(' - ')[0]}
 							</div>

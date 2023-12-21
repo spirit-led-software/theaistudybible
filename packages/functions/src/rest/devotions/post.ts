@@ -3,7 +3,7 @@ import {
   InternalServerErrorResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { generateDevotion } from '@lib/devotion/generate';
+import { generateDevotion } from '@lib/util/devotion';
 import { validApiHandlerSession } from '@services/session';
 import { isAdmin } from '@services/user';
 import { ApiHandler } from 'sst/node/api';

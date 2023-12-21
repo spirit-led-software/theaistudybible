@@ -211,7 +211,7 @@
 						<Icon icon="ic:baseline-plus" class="text-xl" />
 					</button>
 				</div>
-				{#if $query.isInitialLoading}
+				{#if $query.isLoading}
 					<div class="flex justify-center w-full">
 						<div class="flex items-center justify-center py-5">
 							<span class="loading loading-spinner loading-lg" />
