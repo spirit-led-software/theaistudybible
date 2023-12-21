@@ -8,7 +8,7 @@
 	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 	import type { devotionReactions } from '@core/schema';
 	import { default as Icon, default as Iconify } from '@iconify/svelte';
-	import Moment from 'moment';
+	import Day from 'dayjs';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -67,7 +67,7 @@
 
 	$: if (alert) setTimeout(() => (alert = undefined), 8000);
 
-	$: cleanDate = Moment(activeDevo.createdAt).format('MMMM Do YYYY');
+	$: cleanDate = Day(activeDevo.createdAt).format('MMMM Do YYYY');
 </script>
 
 <svelte:head>

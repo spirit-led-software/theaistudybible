@@ -4,7 +4,7 @@
 	import type { DevotionReactionInfo } from '@core/model/devotion/reaction';
 	import Icon from '@iconify/svelte';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
-	import moment from 'moment';
+	import Day from 'dayjs';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -62,7 +62,7 @@
 						</td>
 						<td>{reactionInfo.user.name || reactionInfo.user.email}</td>
 						<td>{reactionInfo.comment || 'None'}</td>
-						<td>{moment(reactionInfo.devotion.createdAt).format('YYYY-MM-DD')}</td>
+						<td>{Day(reactionInfo.devotion.createdAt).format('YYYY-MM-DD')}</td>
 					</tr>
 				{/each}
 				{#if $query.hasNextPage}

@@ -5,7 +5,7 @@
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import Icon from '@iconify/svelte';
 	import type { Message } from 'ai';
-	import Moment from 'moment';
+	import Day from 'dayjs';
 	import LogoIcon from '../branding/LogoIcon.svelte';
 	import Avatar from '../user/Avatar.svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -51,7 +51,7 @@
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<MessageMarkdown {content} />
 		<div class="flex justify-end w-full mt-2 text-xs text-gray-400">
-			{Moment(message.createdAt).format('MMMM Do YYYY h:mm a')}
+			{Day(message.createdAt).format('MMMM Do YYYY h:mm a')}
 		</div>
 		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">

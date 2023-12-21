@@ -4,7 +4,7 @@
 	import type { IndexOperation } from '@core/model/data-source/index-op';
 	import { indexOperations as indexOperationsTable } from '@core/schema';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
-	import Moment from 'moment';
+	import Day from 'dayjs';
 	import { SolidLineSpinner } from '../loading';
 
 	export let initIndexOps: IndexOperation[] = [];
@@ -108,7 +108,7 @@
 							</select>
 						</td>
 						<td>
-							{Moment(indexOp.createdAt).format('M/d/Y h:mma')}
+							{Day(indexOp.createdAt).format('M/d/Y h:mma')}
 						</td>
 					</tr>
 				{/each}

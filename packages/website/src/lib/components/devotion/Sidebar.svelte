@@ -5,7 +5,7 @@
 	import type { Devotion } from '@core/model/devotion';
 	import Icon from '@iconify/svelte';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
-	import Moment from 'moment';
+	import Day from 'dayjs';
 
 	export let initDevos: Devotion[] = [];
 	export let activeDevoId: string;
@@ -95,7 +95,7 @@
 								}
 							}}
 						>
-							<div>{Moment(devotion.createdAt).format('MMMM Do YYYY')}</div>
+							<div>{Day(devotion.createdAt).format('MMMM Do YYYY')}</div>
 							<div class="text-xs">
 								{devotion.bibleReading.split(' - ')[0]}
 							</div>

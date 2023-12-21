@@ -4,7 +4,7 @@
 	import type { DataSource } from '@core/model/data-source';
 	import Icon from '@iconify/svelte';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
-	import Moment from 'moment';
+	import Day from 'dayjs';
 	import type { SvelteComponent } from 'svelte';
 	import EditDialog from './EditDialog.svelte';
 
@@ -17,7 +17,7 @@
 			return null;
 		}
 		if (dataSource.lastAutomaticSync && dataSource.lastManualSync) {
-			return Moment(dataSource.lastAutomaticSync).isAfter(dataSource.lastManualSync)
+			return Day(dataSource.lastAutomaticSync).isAfter(dataSource.lastManualSync)
 				? dataSource.lastAutomaticSync
 				: dataSource.lastManualSync;
 		}
@@ -94,14 +94,14 @@
 	<td>{dataSource.syncSchedule}</td>
 	<td
 		class={lastSyncDate
-			? Moment(lastSyncDate).isBefore(Moment().subtract(10, 'days'))
+			? Day(lastSyncDate).isBefore(Day().subtract(10, 'days'))
 				? 'text-error'
-				: Moment(lastSyncDate).isBefore(Moment().subtract(3, 'days'))
+				: Day(lastSyncDate).isBefore(Day().subtract(3, 'days'))
 					? 'text-warning'
 					: 'text-success'
 			: ''}
 	>
-		{lastSyncDate ? Moment(lastSyncDate).format('M/D/YY h:mma') : 'N/A'}
+		{lastSyncDate ? Day(lastSyncDate).format('M/D/YY h:mma') : 'N/A'}
 	</td>
 	<td>{dataSource.numberOfDocuments}</td>
 	<td class="w-10 py-3 space-y-2">

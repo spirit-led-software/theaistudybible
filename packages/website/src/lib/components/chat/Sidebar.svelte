@@ -11,7 +11,7 @@
 		useQueryClient,
 		type InfiniteData
 	} from '@tanstack/svelte-query';
-	import Moment from 'moment';
+	import Day from 'dayjs';
 
 	export let initChats: Chat[] = [];
 	export let activeChatId: string | undefined = undefined;
@@ -254,7 +254,7 @@
 								<div class="text-white truncate">{chat.name}</div>
 							{/if}
 							<div class="text-sm text-gray-400 truncate">
-								{Moment(chat.createdAt).format('M/D/YYYY h:mma')}
+								{Day(chat.createdAt).format('M/D/YYYY h:mma')}
 							</div>
 						</button>
 						<div class="flex justify-center space-x-1 place-items-center">
