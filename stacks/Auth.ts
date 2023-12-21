@@ -77,6 +77,8 @@ export function Auth({ stack }: StackContext) {
     permissions: [api],
     environment: {
       ...COMMON_ENV_VARS,
+      AXIOM_TOKEN: process.env.AXIOM_TOKEN!,
+      AXIOM_DATASET: process.env.AXIOM_DATASET!,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
       PUBLIC_AUTH_URL: authUiUrl
@@ -91,7 +93,7 @@ export function Auth({ stack }: StackContext) {
     cdk: {
       server: {
         layers: [axiomLayer],
-        architecture: Architecture.X86_64
+        architecture: Architecture.ARM_64
       }
     }
   });

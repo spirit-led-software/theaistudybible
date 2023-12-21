@@ -17,6 +17,8 @@ export function Website({ stack }: StackContext) {
     permissions: [api, indexFileBucket],
     environment: {
       ...COMMON_ENV_VARS,
+      AXIOM_TOKEN: process.env.AXIOM_TOKEN!,
+      AXIOM_DATASET: process.env.AXIOM_DATASET!,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
       PUBLIC_CHAT_API_URL: chatApiUrl,
@@ -32,7 +34,7 @@ export function Website({ stack }: StackContext) {
     cdk: {
       server: {
         layers: [axiomLayer],
-        architecture: Architecture.X86_64
+        architecture: Architecture.ARM_64
       }
     }
   });

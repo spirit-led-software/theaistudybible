@@ -94,6 +94,12 @@ importers:
         specifier: ^5.3.3
         version: 5.3.3
 
+  lambda-layers/argon2:
+    dependencies:
+      argon2:
+        specifier: ^0.31.2
+        version: 0.31.2
+
   packages/auth-ui:
     dependencies:
       '@revelationsai/core':

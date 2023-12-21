@@ -42,7 +42,7 @@ export function Constants({ stack, app }: StackContext) {
         treeShaking: stack.stage === 'prod'
       }
     },
-    architecture: 'x86_64',
+    architecture: 'arm_64',
     logRetention: stack.stage === 'prod' ? 'one_week' : 'one_day',
     tracing: app.mode === 'dev' ? 'active' : 'pass_through'
   });

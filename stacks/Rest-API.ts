@@ -4,8 +4,6 @@ import { dependsOn, use, type StackContext } from 'sst/constructs';
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { api } = use(API);
-  const { webpageIndexQueue } = use(Queues);
   const { invokeBedrockPolicy } = use(Constants);
   const {
     indexFileBucket,
@@ -13,7 +11,9 @@ export function RestAPI({ stack }: StackContext) {
     userProfilePictureBucket,
     userGeneratedImageBucket
   } = use(S3);
-  const { argonLayer } = use(Layers);
+  const { argonLayer, chromiumLayer } = use(Layers);
+  const { webpageIndexQueue } = use(Queues);
+  const { api } = use(API);
 
   api.addRoutes(stack, {
     // AI Responses
@@ -63,9 +63,7 @@ export function RestAPI({ stack }: StackContext) {
         handler: 'packages/functions/src/rest/data-sources/[id]/sync/post.handler',
         permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
         bind: [indexFileBucket, webpageIndexQueue],
-        nodejs: {
-          install: ['@sparticuz/chromium']
-        },
+        layers: [chromiumLayer],
         environment: {
           INDEX_FILE_BUCKET: indexFileBucket.bucketName
         },

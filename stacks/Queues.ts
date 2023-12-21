@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts } from '@stacks';
+import { Constants, DatabaseScripts, Layers } from '@stacks';
 import { Duration } from 'aws-cdk-lib/core';
 import { Queue, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -6,6 +6,7 @@ export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
+  const { chromiumLayer } = use(Layers);
 
   const webpageIndexQueue = new Queue(stack, 'webpageIndexQueue', {
     cdk: {
@@ -25,9 +26,7 @@ export function Queues({ stack }: StackContext) {
         handler: 'packages/functions/src/scraper/webpage/queue.consumer',
         permissions: [invokeBedrockPolicy],
         runtime: 'nodejs18.x',
-        nodejs: {
-          install: ['@sparticuz/chromium']
-        },
+        layers: [chromiumLayer],
         timeout: '15 minutes',
         memorySize: '2 GB'
       }

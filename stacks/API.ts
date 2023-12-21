@@ -1,13 +1,14 @@
-import { Constants, DatabaseScripts, Queues, S3 } from '@stacks';
+import { Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
 import { Api, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { webpageIndexQueue } = use(Queues);
   const { hostedZone, apiUrl, apiDomainName, websiteUrl, invokeBedrockPolicy, authUiUrl } =
     use(Constants);
   const { indexFileBucket } = use(S3);
+  const { chromiumLayer } = use(Layers);
+  const { webpageIndexQueue } = use(Queues);
 
   const api = new Api(stack, 'api', {
     routes: {
@@ -23,9 +24,7 @@ export function API({ stack }: StackContext) {
       'POST /scraper/webpage': {
         function: {
           handler: 'packages/functions/src/scraper/webpage/webpage.handler',
-          nodejs: {
-            install: ['@sparticuz/chromium']
-          },
+          layers: [chromiumLayer],
           permissions: [invokeBedrockPolicy],
           timeout: '15 minutes',
           memorySize: '2 GB'
