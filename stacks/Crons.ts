@@ -23,6 +23,9 @@ export function Crons({ stack, app }: StackContext) {
               to: 'firebase-service-account.json'
             }
           ],
+          environment: {
+            DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
+          },
           timeout: '5 minutes',
           memorySize: '1 GB'
         }
