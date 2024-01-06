@@ -52,7 +52,7 @@
 			type="submit"
 			class="px-2 py-1 font-medium bg-white border rounded-lg rounded-l-none border-slate-300 hover:bg-gray-200"
 		>
-			<Icon icon="formkit:arrowright" height={20} width={20} />
+			<Icon icon="formkit:arrowright" height={20} width={20} class="text-slate-800" />
 		</button>
 	</div>
 </form>
