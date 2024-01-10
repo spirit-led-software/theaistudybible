@@ -2,6 +2,7 @@ import envConfig from '@core/configs/env';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import { devotions } from '@core/schema';
 import { getLargeContextModel } from '@services/llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
@@ -15,8 +16,7 @@ import {
   DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
   DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
   DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE,
-  DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-  DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE
+  DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
 const devotionOutputParser = OutputFixingParser.fromLLM(
@@ -43,7 +43,7 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
     })
   ),
   {
-    prompt: PromptTemplate.fromTemplate(DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE)
+    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
 );
 
@@ -136,7 +136,7 @@ const bibleReadingOutputParser = OutputFixingParser.fromLLM(
     })
   ),
   {
-    prompt: PromptTemplate.fromTemplate(DEVO_OUTPUT_FIXER_PROMPT_TEMPLATE)
+    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
 );
 

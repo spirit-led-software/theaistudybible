@@ -2,10 +2,11 @@ import envConfig from '@core/configs/env';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { User } from '@core/model/user';
 import type { Metadata } from '@core/types/metadata';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
 import type { CallbackManager } from 'langchain/callbacks';
 import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
-import { RouterOutputParser } from 'langchain/output_parsers';
+import { OutputFixingParser, RouterOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { AIMessage, HumanMessage, type PartialValues } from 'langchain/schema';
 import { StringOutputParser } from 'langchain/schema/output_parser';
@@ -122,20 +123,32 @@ export const getRAIChatChain = async (options: {
     faithQaChain
   ]);
 
-  const routerChainOutputParser = RouterOutputParser.fromZodSchema(
-    z.object({
-      destination: z
-        .string()
-        .optional()
-        .describe(
-          'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
-        ),
-      next_inputs: z
-        .object({
-          query: z.string().describe('The query to be fed into the next model.')
-        })
-        .describe('The input to be fed into the next model.')
-    })
+  const routerChainOutputParser = OutputFixingParser.fromLLM(
+    getLargeContextModel({
+      promptSuffix: '<output>',
+      stopSequences: ['</output>'],
+      temperature: 0.1,
+      topK: 5,
+      topP: 0.1
+    }),
+    RouterOutputParser.fromZodSchema(
+      z.object({
+        destination: z
+          .string()
+          .optional()
+          .describe(
+            'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
+          ),
+        next_inputs: z
+          .object({
+            query: z.string().describe('The query to be fed into the next model.')
+          })
+          .describe('The input to be fed into the next model.')
+      })
+    ),
+    {
+      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+    }
   );
   const routerChain = RunnableSequence.from([
     new PromptTemplate({
