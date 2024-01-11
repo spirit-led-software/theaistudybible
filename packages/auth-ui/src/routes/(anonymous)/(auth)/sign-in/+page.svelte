@@ -65,7 +65,11 @@
 </script>
 
 <svelte:head>
-	<title>Sign In to RevelationsAI</title>
+	<title>RevelationsAI: Login</title>
+	<meta
+		name="description"
+		content="Sign in to RevelationsAI. Discover Jesus Christ with the power of AI. Uncover mysteries of the Bible and Christian faith."
+	/>
 </svelte:head>
 
 <div

@@ -9,6 +9,7 @@
 
 <svelte:head>
 	<title>Chat: {chat.name}</title>
+	<meta name="description" content="Chat: {chat.name}" />
 </svelte:head>
 
 <Window initChatId={chat.id} initMessages={messages} />

@@ -74,6 +74,10 @@
 	<title>
 		{cleanDate}: {activeDevo.bibleReading.substring(0, activeDevo.bibleReading.indexOf(' -'))}
 	</title>
+	<meta
+		name="description"
+		content={`Devotion for ${cleanDate}. Topic: ${activeDevo.topic}. Bible Reading: ${activeDevo.bibleReading}`}
+	/>
 </svelte:head>
 
 <div class="absolute flex flex-col w-full h-full overflow-y-scroll lg:static">

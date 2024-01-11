@@ -57,6 +57,7 @@
 
 <svelte:head>
 	<title>Forgot Password</title>
+	<meta name="description" content="RevelationsAI Forgot Password" />
 </svelte:head>
 
 <div

@@ -1,6 +1,11 @@
 <script lang="ts">
 </script>
 
+<svelte:head>
+	<title>RevelationsAI: Privacy Policy</title>
+	<meta name="description" content="RevelationsAI Privacy Policy" />
+</svelte:head>
+
 <h1>Privacy Policy</h1>
 <p>Last updated: September 27, 2023</p>
 <p>

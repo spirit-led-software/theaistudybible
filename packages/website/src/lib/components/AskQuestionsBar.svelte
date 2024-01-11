@@ -45,12 +45,12 @@
 			id="question-bar"
 			bind:value={input}
 			type="text"
-			class="w-full px-2 py-1 border rounded-lg rounded-r-none focus:outline-none focus:border-slate-800 border-slate-300"
+			class="w-full px-2 py-1 border rounded-lg rounded-r-none focus:outline-none focus:border-slate-800 border-slate-300 lg:px-4 lg:py-2 text-slate-900"
 			placeholder={potentialQuestions[Math.floor(Math.random() * potentialQuestions.length)]}
 		/>
 		<button
 			type="submit"
-			class="px-2 py-1 font-medium bg-white border rounded-lg rounded-l-none border-slate-300 hover:bg-gray-200"
+			class="px-2 py-1 font-medium bg-white border rounded-lg rounded-l-none border-slate-300 hover:bg-gray-200 lg:px-4 lg:py-2"
 		>
 			<Icon icon="formkit:arrowright" height={20} width={20} class="text-slate-800" />
 		</button>

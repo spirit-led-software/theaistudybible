@@ -50,7 +50,11 @@
 </script>
 
 <svelte:head>
-	<title>AI Vector Search</title>
+	<title>Resource Search</title>
+	<meta
+		name="description"
+		content="Search our database of trusted Christian resources using vector similarity search."
+	/>
 </svelte:head>
 
 <div class="flex flex-col flex-1">

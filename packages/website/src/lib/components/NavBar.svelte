@@ -150,7 +150,7 @@
 					{#each navItems as navItem}
 						<li>
 							<button
-								class={`flex w-full px-4 py-3 mb-3 text-md font-semibold leading-none rounded-xl text-slate-800 hover:bg-slate-200 active:bg-slate-200 ${
+								class={`flex w-full px-4 py-3 mb-3 text-base font-semibold leading-none rounded-xl text-slate-800 hover:bg-slate-200 active:bg-slate-200 ${
 									isActive(navItem.href) ? ' bg-slate-100' : ''
 								}`}
 								on:click={async () => {
@@ -164,7 +164,7 @@
 					{/each}
 					<li>
 						<button
-							class="flex w-full px-4 py-3 mb-3 font-medium leading-none bg-blue-300 hover:text-white rounded-xl text-md hover:bg-blue-400 active:bg-blue-400"
+							class="flex w-full px-4 py-3 mb-3 font-medium leading-none bg-blue-300 hover:text-white rounded-xl text-base hover:bg-blue-400 active:bg-blue-400"
 							on:click={async () => {
 								if (isActive('/upgrade')) isOpen = false;
 								else await goto('/upgrade');

@@ -3,7 +3,8 @@
 </script>
 
 <svelte:head>
-	<title>Chat</title>
+	<title>New Chat</title>
+	<meta name="description" content="Start a new chat with RevelationsAI" />
 </svelte:head>
 
 <Window />
