@@ -57,7 +57,7 @@
 							href={`${PUBLIC_AUTH_URL}/logout`}
 							class="flex text-blue-200 hover:underline place-items-center justify-center mx-2"
 						>
-							<Avatar size="xs" />
+							<Avatar size="xs" class="mr-1" />
 							Logout
 						</a>
 					{/if}
