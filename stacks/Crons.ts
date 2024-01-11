@@ -11,7 +11,7 @@ export function Crons({ stack, app }: StackContext) {
 
   if (app.stage === 'prod') {
     new Cron(stack, 'dailyDevoCron', {
-      schedule: 'cron(0 0 * * ? *)',
+      schedule: 'cron(0 13 * * ? *)',
       job: {
         function: {
           handler: 'packages/functions/src/crons/daily-devo.handler',
@@ -33,7 +33,7 @@ export function Crons({ stack, app }: StackContext) {
     });
 
     new Cron(stack, 'dailyQueryCron', {
-      schedule: 'cron(0 12 * * ? *)',
+      schedule: 'cron(0 23 * * ? *)',
       job: {
         function: {
           handler: 'packages/functions/src/crons/daily-query.handler',
