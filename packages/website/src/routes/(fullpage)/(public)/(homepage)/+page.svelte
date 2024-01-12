@@ -3,6 +3,7 @@
 	import AskQuestionsBar from '$lib/components/AskQuestionsBar.svelte';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Avatar from '$lib/components/user/Avatar.svelte';
+	import { isAdmin } from '$lib/services/user';
 	import Icon from '@iconify/svelte';
 	import type { PageData } from './$types';
 
@@ -60,6 +61,15 @@
 							<Avatar size="xs" class="mr-1" />
 							Logout
 						</a>
+						{#if isAdmin(data.user)}
+							<a
+								href="/admin"
+								class="flex text-blue-200 hover:underline place-items-center justify-center mx-2"
+							>
+								<Icon icon="mdi:account-cog" class="mr-1" />
+								Admin
+							</a>
+						{/if}
 					{/if}
 					<a
 						href="/chat"
