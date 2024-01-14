@@ -212,6 +212,24 @@
 				</div>
 			</div>
 		{/if}
+		{#if activeDevo.diveDeeperQueries && activeDevo.diveDeeperQueries.length > 0}
+			<div class="flex flex-col w-full mt-5">
+				<h2 class="mb-2 font-medium">Dive Deeper</h2>
+				<ul class="flex flex-col space-y-2 text-xs list-decimal list-inside">
+					{#each activeDevo.diveDeeperQueries as query}
+						<li>
+							<a
+								href={`/chat?query=${encodeURIComponent(query)}`}
+								rel="noopener noreferrer"
+								class="hover:text-slate-500 hover:underline"
+							>
+								{query}
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
 		{#if sourceDocuments && sourceDocuments.length > 0}
 			<div class="flex flex-col w-full mt-5">
 				<h2 class="mb-2 font-medium">Sources</h2>

@@ -15,10 +15,12 @@ import {
 } from '@services/devotion/langchain';
 import { DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE } from '@services/devotion/prompts';
 import { getLargeContextModel } from '@services/llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
+import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import { StringOutputParser } from 'langchain/schema/output_parser';
 import Replicate from 'replicate';
 import { Bucket } from 'sst/node/bucket';
+import { z } from 'zod';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [
@@ -208,6 +210,11 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
     );
 
     await generateDevotionImages(devo);
+
+    const diveDeeperQueries = await generateDiveDeeperQueries(devo);
+    devo = await updateDevotion(devo.id, {
+      diveDeeperQueries
+    });
   } catch (e) {
     console.error(e);
     if (devo) {
@@ -218,8 +225,42 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
   return devo;
 }
 
-export async function generateDiveDeeperQuery(devotion: Devotion) {
-  const queryChain = PromptTemplate.fromTemplate(DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE)
+const getDiveDeeperOutputParser = (numQueries: number) =>
+  OutputFixingParser.fromLLM(
+    getLargeContextModel({
+      promptSuffix: '<output>',
+      stopSequences: ['</output>'],
+      temperature: 0.1,
+      topK: 5,
+      topP: 0.1
+    }),
+    JsonMarkdownStructuredOutputParser.fromZodSchema(
+      z
+        .array(
+          z
+            .string()
+            .describe('A query that will help the user dive deeper into the topic of the devotion.')
+        )
+        .length(numQueries)
+        .describe(
+          'A list of queries that will help the user dive deeper into the topic of the devotion.'
+        )
+    ),
+    {
+      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+    }
+  );
+
+export async function generateDiveDeeperQueries(devotion: Devotion, numQueries = 4) {
+  const diveDeeperOutputParser = getDiveDeeperOutputParser(numQueries);
+
+  const queryChain = new PromptTemplate({
+    inputVariables: ['devotion', 'numQueries'],
+    template: DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE,
+    partialVariables: {
+      formatInstructions: diveDeeperOutputParser.getFormatInstructions()
+    }
+  })
     .pipe(
       getLargeContextModel({
         stream: false,
@@ -228,7 +269,7 @@ export async function generateDiveDeeperQuery(devotion: Devotion) {
         stopSequences: ['</query>']
       })
     )
-    .pipe(new StringOutputParser());
+    .pipe(diveDeeperOutputParser);
 
   return await queryChain
     .invoke({
@@ -238,7 +279,8 @@ export async function generateDiveDeeperQuery(devotion: Devotion) {
         `<summary>${devotion.summary}</summary>`,
         `<reflection>${devotion.reflection}</reflection>`,
         `<prayer>${devotion.prayer}</prayer>`
-      ].join('\n')
+      ].join('\n'),
+      numQueries: numQueries.toString()
     })
-    .then((result) => result.trim());
+    .then((result) => result.map((query) => query.trim()));
 }

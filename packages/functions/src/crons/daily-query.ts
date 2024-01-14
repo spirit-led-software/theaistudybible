@@ -1,5 +1,5 @@
 import { getTodaysDateString } from '@lib/util/date';
-import { generateDiveDeeperQuery } from '@lib/util/devotion';
+import { generateDiveDeeperQueries } from '@lib/util/devotion';
 import { getDevotionByCreatedDate, updateDevotion } from '@services/devotion';
 import type { Handler } from 'aws-lambda';
 import firebase from 'firebase-admin';
@@ -15,11 +15,11 @@ export const handler: Handler = async (event) => {
     throw new Error('No devotion found');
   }
 
-  let query = devotion.diveDeeperQueries[0];
-  if (!query) {
-    query = await generateDiveDeeperQuery(devotion);
+  let queries = devotion.diveDeeperQueries;
+  if (!queries || queries.length === 0) {
+    queries = await generateDiveDeeperQueries(devotion, 1);
     devotion = await updateDevotion(devotion.id, {
-      diveDeeperQueries: [query]
+      diveDeeperQueries: queries
     });
   }
 
@@ -32,12 +32,12 @@ export const handler: Handler = async (event) => {
   }
   await firebase.messaging().sendToTopic('daily-query', {
     notification: {
-      title: `Dive Deeper`,
-      body: query
+      title: 'Dive Deeper',
+      body: queries[0]
     },
     data: {
       task: 'chat-query',
-      query
+      query: queries[0]
     }
   });
 
