@@ -8,22 +8,22 @@
 			heading(text, level) {
 				switch (level) {
 					case 1:
-						return `<h1 class="mb-4 text-xl font-bold">${text}</h1>`;
+						return `<h1 class="mb-4 text-lg font-extrabold">${text}</h1>`;
 					case 2:
 						return `<h2 class="mb-2 text-lg font-bold">${text}</h2>`;
 					case 3:
 						return `<h3 class="mb-2 text-lg font-medium">${text}</h3>`;
 					case 4:
-						return `<h4 class="mb-2 font-medium">${text}</h4>`;
+						return `<h4 class="mb-2 text-base font-medium">${text}</h4>`;
 					default:
-						return `<h${level}>${text}</h${level}>`;
+						return `<h${level} class="mb-1 text-base font-medium">${text}</h${level}>`;
 				}
 			},
 			list(body, ordered) {
 				if (ordered) {
-					return `<ol class="mb-2 text-xs list-decimal list-outside">${body}</ol>`;
+					return `<ol class="mb-2 text-sm list-decimal list-outside">${body}</ol>`;
 				}
-				return `<ul class="mb-2 text-xs list-disc list-outside">${body}</ul>`;
+				return `<ul class="mb-2 text-sm list-disc list-outside">${body}</ul>`;
 			},
 			listitem(text, task, checked) {
 				if (task) {
@@ -69,6 +69,6 @@
 	export let content: string;
 </script>
 
-<div class="flex flex-col w-full">
+<div class="flex flex-col w-full pl-2">
 	{@html marked.parse(content.trim())}
 </div>

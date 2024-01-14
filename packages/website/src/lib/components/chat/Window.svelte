@@ -10,7 +10,6 @@
 	import { useChat } from 'ai/svelte';
 	import { onMount } from 'svelte';
 	import IntersectionObserver from 'svelte-intersection-observer';
-	import { LoadingDots } from '../loading';
 	import TextAreaAutosize from './TextAreaAutosize.svelte';
 
 	export let initChatId: string | undefined = undefined;
@@ -227,7 +226,7 @@
 					<div class="flex mr-2">
 						{#if $isLoading}
 							<div class="flex mr-1">
-								<LoadingDots size={'sm'} />
+								<span class="loading loading-spinner loading-sm text-slate-800" />
 							</div>
 						{:else}
 							<div class="flex space-x-1">

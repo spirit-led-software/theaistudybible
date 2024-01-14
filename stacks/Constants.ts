@@ -13,7 +13,7 @@ export function Constants({ stack, app }: StackContext) {
     hostedZone.zoneName
   }`;
 
-  const websiteUrl = app.mode === 'dev' ? 'http://localhost:3000' : `https://${domainName}`;
+  const websiteUrl = app.mode === 'dev' ? 'http://localhost:5173' : `https://${domainName}`;
 
   const authUiDomainName = `auth.${domainName}`;
   const authUiUrl = app.mode === 'dev' ? `http://localhost:8910` : `https://${authUiDomainName}`;

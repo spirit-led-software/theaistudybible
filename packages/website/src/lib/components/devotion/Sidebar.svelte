@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { getDevotions } from '$lib/services/devotion';
 	import type { Devotion } from '@core/model/devotion';
+	import { toTitleCase } from '@core/util/string';
 	import Icon from '@iconify/svelte';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Day from 'dayjs';
@@ -95,9 +96,11 @@
 								}
 							}}
 						>
-							<div>{Day(devotion.createdAt).format('MMMM D, YYYY')}</div>
+							<div>
+								{Day(devotion.createdAt).format('MMMM D, YYYY')}
+							</div>
 							<div class="text-xs">
-								{devotion.bibleReading.split(' - ')[0]}
+								{toTitleCase(devotion.topic)} - {devotion.bibleReading.split(' - ')[0]}
 							</div>
 						</button>
 						<div class="flex justify-center place-items-center">

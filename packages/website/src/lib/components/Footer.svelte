@@ -3,7 +3,7 @@
 </script>
 
 <footer
-	class="flex flex-col justify-center px-10 py-5 text-xs bg-gray-100 place-items-center lg:justify-around lg:flex-row"
+	class="flex flex-col justify-center px-10 py-5 text-xs bg-gray-100 place-items-center lg:justify-between lg:flex-row"
 >
 	<div class="flex flex-col mb-10 space-y-2 text-center lg:text-start lg:mb-0">
 		<a href="/privacy-policy" class="text-gray-400 hover:underline">Privacy Policy</a>
