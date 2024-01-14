@@ -1,4 +1,6 @@
-import { getDailyQuery } from '@lib/util/chat';
+import { getTodaysDateString } from '@lib/util/date';
+import { generateDiveDeeperQuery } from '@lib/util/devotion';
+import { getDevotionByCreatedDate, updateDevotion } from '@services/devotion';
 import type { Handler } from 'aws-lambda';
 import firebase from 'firebase-admin';
 import path from 'path';
@@ -6,7 +8,20 @@ import path from 'path';
 export const handler: Handler = async (event) => {
   console.log(event);
 
-  const query = await getDailyQuery();
+  const dateString = getTodaysDateString();
+  let devotion = await getDevotionByCreatedDate(dateString);
+
+  if (!devotion) {
+    throw new Error('No devotion found');
+  }
+
+  let query = devotion.diveDeeperQueries[0];
+  if (!query) {
+    query = await generateDiveDeeperQuery(devotion);
+    devotion = await updateDevotion(devotion.id, {
+      diveDeeperQueries: [query]
+    });
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const serviceAccount = require(path.resolve('firebase-service-account.json'));

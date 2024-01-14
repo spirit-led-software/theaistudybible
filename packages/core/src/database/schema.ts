@@ -221,6 +221,7 @@ export const devotions = pgTable(
     summary: text('summary').notNull(),
     reflection: text('reflection'),
     prayer: text('prayer'),
+    diveDeeperQueries: jsonb('dive_deeper_queries').notNull().default([]).$type<string[]>(),
     failed: boolean('failed').notNull().default(false)
   },
   (table) => {

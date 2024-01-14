@@ -219,28 +219,3 @@ What is the title that you would give to this chat?
 Think about your title first before you respond.
 
 Put the title that you come up with in <title></title> XML tags.`;
-
-export const CHAT_DAILY_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate a query for. Your goal is to generate a query that helps the user dive deeper into the topic of the devotion. This query will be fed back into a query answering system, so make sure the query is not a personal question about the user.
-
-Here are some important rules for you to follow:
-- Your query must be related to the Christian faith.
-- Your query must be a question that can be answered by a question answering system.
-- Your query must be a maximum of 150 characters.
-- The user and question answering system will not have access to the devotion, so make sure the query includes enough context.
-- If you reference the Bible reading, make sure you include the book, chapter number, and verse range.
-
-Here is an example query, within <example></example> XML tags.
-<example>
-What were Jesus' thoughts on predestination?
-</example>
-
-Here is the devotion that you need to generate a query for, within <devotion></devotion> XML tags. The topic is within <topic></topic> XML tags. The Bible reading is within <bible_reading></bible_reading> XML tags. The summary is within <summary></summary> XML tags. The reflection is within <reflection></reflection> XML tags. The prayer is within <prayer></prayer> XML tags.
-<devotion>
-{devotion}
-</devotion>
-
-What is the query that you would generate?
-
-Think carefully about your query first before you respond.
-
-Put your query within <query></query> XML tags.`;

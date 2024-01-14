@@ -4,17 +4,16 @@ import { XMLBuilder } from 'fast-xml-parser';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-	const devotions = await getDevotions({ limit: Number.MAX_SAFE_INTEGER });
+	const { devotions } = await getDevotions({ limit: Number.MAX_SAFE_INTEGER });
 
-	const sitemapXmlBuilder = new XMLBuilder({
+	const sitemapXml = new XMLBuilder({
 		ignoreAttributes: false
-	});
-	const sitemapXml = sitemapXmlBuilder.build({
+	}).build({
 		urlset: {
 			'@_xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9',
 			url: [
 				{
-					loc: `${PUBLIC_WEBSITE_URL}/`
+					loc: `${PUBLIC_WEBSITE_URL}`
 				},
 				{
 					loc: `${PUBLIC_WEBSITE_URL}/chat`
@@ -37,7 +36,7 @@ export const GET: RequestHandler = async () => {
 				{
 					loc: `${PUBLIC_AUTH_URL}/forgot-password`
 				},
-				...devotions.devotions.map((devotion) => ({
+				...devotions.map((devotion) => ({
 					loc: `${PUBLIC_WEBSITE_URL}/devotions/${devotion.id}`
 				}))
 			]

@@ -13,6 +13,10 @@ import {
   getImageCaptionChain,
   getImagePromptChain
 } from '@services/devotion/langchain';
+import { DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE } from '@services/devotion/prompts';
+import { getLargeContextModel } from '@services/llm';
+import { PromptTemplate } from 'langchain/prompts';
+import { StringOutputParser } from 'langchain/schema/output_parser';
 import Replicate from 'replicate';
 import { Bucket } from 'sst/node/bucket';
 
@@ -212,4 +216,29 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
   }
 
   return devo;
+}
+
+export async function generateDiveDeeperQuery(devotion: Devotion) {
+  const queryChain = PromptTemplate.fromTemplate(DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE)
+    .pipe(
+      getLargeContextModel({
+        stream: false,
+        maxTokens: 256,
+        promptSuffix: '<query>',
+        stopSequences: ['</query>']
+      })
+    )
+    .pipe(new StringOutputParser());
+
+  return await queryChain
+    .invoke({
+      devotion: [
+        `<topic>${devotion.topic}</topic>`,
+        `<bible_reading>${devotion.bibleReading}</bible_reading>`,
+        `<summary>${devotion.summary}</summary>`,
+        `<reflection>${devotion.reflection}</reflection>`,
+        `<prayer>${devotion.prayer}</prayer>`
+      ].join('\n')
+    })
+    .then((result) => result.trim());
 }
