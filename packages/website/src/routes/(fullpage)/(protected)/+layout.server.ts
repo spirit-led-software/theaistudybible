@@ -4,7 +4,7 @@ import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals: { user, session }, url }) => {
 	if (!user) {
-		redirect(307, `${PUBLIC_AUTH_URL}/sign-in?returnUrl=${encodeURIComponent(url.pathname)}`);
+		redirect(307, `${PUBLIC_AUTH_URL}/sign-in?returnUrl=${encodeURIComponent(url.toString())}`);
 	}
 
 	return {
