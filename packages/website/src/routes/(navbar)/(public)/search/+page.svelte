@@ -57,7 +57,7 @@
 	/>
 </svelte:head>
 
-<div class="flex flex-col flex-1">
+<div class="flex flex-col w-full h-full overflow-hidden">
 	<div class="flex flex-col w-full h-full p-3 space-y-2 overflow-hidden lg:px-16">
 		<form
 			use:enhance={submit}
@@ -115,13 +115,20 @@
 						class="flex flex-col w-full p-3 border"
 					>
 						<div class="flex flex-col w-full">
-							<div class="text-lg font-bold">{result.metadata.name.split(' - ')[0]}</div>
+							{#if result.metadata.title}
+								<div class="text-lg font-bold">{result.metadata.title}</div>
+								{#if result.metadata.author}
+									<div class="text-xs text-gray-500">by {result.metadata.author}</div>
+								{/if}
+							{:else}
+								<div class="text-lg font-bold">{result.metadata.name}</div>
+							{/if}
 							<div class="mt-2">
 								<h2 class="mb-1 text-sm font-medium">Snippet:</h2>
 								<div
 									class="w-full text-xs text-gray-500 break-words truncate whitespace-break-spaces max-h-16"
 								>
-									{result.pageContent.trim()}
+									{result.pageContent.split(/\n---\n/g)[1]?.trim()}
 								</div>
 							</div>
 							<div class="flex justify-center w-full mt-3 space-x-1">

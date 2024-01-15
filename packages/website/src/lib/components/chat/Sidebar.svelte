@@ -225,7 +225,7 @@
 						}`}
 					>
 						<button
-							class="flex flex-col w-full truncate"
+							class="flex flex-col flex-1 text-left truncate hover:text-pretty"
 							on:click|preventDefault={async () => {
 								if (editChatId === chat.id) {
 									editChatInput?.focus();
@@ -251,9 +251,9 @@
 									/>
 								</form>
 							{:else}
-								<div class="text-white truncate">{chat.name}</div>
+								<h2 class="text-base">{chat.name}</h2>
 							{/if}
-							<div class="text-sm text-gray-400 truncate">
+							<div class="text-sm text-gray-400">
 								{Day(chat.createdAt).format('M/D/YYYY h:mma')}
 							</div>
 						</button>
