@@ -1,19 +1,11 @@
-import { PUBLIC_API_URL, PUBLIC_WEBSITE_URL } from '$env/static/public';
-import { commonCookies } from '$lib/utils/cookies';
+import { PUBLIC_API_URL } from '$env/static/public';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 type ActionData = { banner?: string };
 
 export const actions: Actions = {
-	credentials: async ({ request, url, cookies }) => {
-		const returnUrl = url.searchParams.get('returnUrl') || PUBLIC_WEBSITE_URL;
-		cookies.set(commonCookies.returnUrl, returnUrl, {
-			domain: new URL(PUBLIC_WEBSITE_URL).hostname,
-			path: '/',
-			maxAge: 60 * 30 // 30 minutes
-		});
-
+	credentials: async ({ request }) => {
 		const formData = await request.formData();
 		const email = formData.get('email') as string | null;
 		const password = formData.get('password') as string | null;
@@ -52,14 +44,7 @@ export const actions: Actions = {
 			}
 		};
 	},
-	social: async ({ cookies, url, request }) => {
-		const returnUrl = url.searchParams.get('returnUrl') || PUBLIC_WEBSITE_URL;
-		cookies.set(commonCookies.returnUrl, returnUrl, {
-			domain: new URL(PUBLIC_WEBSITE_URL).hostname,
-			path: '/',
-			maxAge: 60 * 30 // 30 minutes
-		});
-
+	social: async ({ request }) => {
 		const formData = await request.formData();
 		const provider = formData.get('provider') as string;
 		const isMobile = formData.get('mobile') === 'true';

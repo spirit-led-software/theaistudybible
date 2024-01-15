@@ -6,7 +6,7 @@ import type { Actions } from './$types';
 type ActionData = { banner: string };
 
 export const actions: Actions = {
-	email: async ({ request, url, cookies }) => {
+	email: async ({ request }) => {
 		const formData = await request.formData();
 		const email = formData.get('email') as string | null;
 		const password = formData.get('password') as string | null;
@@ -34,13 +34,6 @@ export const actions: Actions = {
 				errors: { banner: data.error || 'Something went wrong. Please try again.' } as ActionData
 			});
 		}
-
-		const returnUrl = url.searchParams.get('returnUrl') || PUBLIC_WEBSITE_URL;
-		cookies.set(commonCookies.returnUrl, returnUrl, {
-			domain: new URL(PUBLIC_WEBSITE_URL).hostname,
-			path: '/',
-			maxAge: 60 * 30 // 30 minutes
-		});
 
 		return {
 			success: { banner: 'Check your email for a verification link.' } as ActionData
