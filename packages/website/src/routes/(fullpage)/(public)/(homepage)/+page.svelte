@@ -45,12 +45,12 @@
 			>
 				<AskQuestionsBar />
 				<div
-					class="flex flex-wrap place-items-center justify-center space-y-2 space-x-4 text-sm lg:text-base"
+					class="flex flex-wrap place-items-center justify-center space-x-4 text-sm lg:text-base"
 				>
 					{#if !data.user}
 						<a
 							href={`${PUBLIC_AUTH_URL}/sign-in`}
-							class="flex text-blue-200 hover:underline place-items-center justify-center"
+							class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 						>
 							<Icon icon="mdi:login" class="mr-1" />
 							Login
@@ -58,14 +58,14 @@
 					{:else}
 						<a
 							href={`${PUBLIC_AUTH_URL}/logout`}
-							class="flex text-blue-200 hover:underline place-items-center justify-center"
+							class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 						>
 							<Avatar size="xs" class="mr-1" />
 							Logout
 						</a>
 						<a
 							href="/upgrade"
-							class="flex text-blue-200 hover:underline place-items-center justify-center"
+							class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 						>
 							<Icon icon="mdi:account-credit-card" class="mr-1" />
 							Upgrade
@@ -73,7 +73,7 @@
 						{#if isAdmin(data.user)}
 							<a
 								href="/admin"
-								class="flex text-blue-200 hover:underline place-items-center justify-center"
+								class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 							>
 								<Icon icon="mdi:account-cog" class="mr-1" />
 								Admin
@@ -82,28 +82,28 @@
 					{/if}
 					<a
 						href="/chat"
-						class="flex text-blue-200 hover:underline place-items-center justify-center"
+						class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 					>
 						<Icon icon="mdi:chat" class="mr-1" />
 						Chat
 					</a>
 					<a
 						href="/devotions"
-						class="flex text-blue-200 hover:underline place-items-center justify-center"
+						class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 					>
 						<Icon icon="mdi:book-open-page-variant" class="mr-1" />
 						Devotions
 					</a>
 					<a
 						href="/search"
-						class="flex text-blue-200 hover:underline place-items-center justify-center"
+						class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 					>
 						<Icon icon="mdi:magnify" class="mr-1" />
 						Resource Search
 					</a>
 					<a
 						href="/privacy-policy"
-						class="flex text-blue-200 hover:underline place-items-center justify-center"
+						class="flex text-blue-200 hover:underline place-items-center justify-center py-1"
 					>
 						<Icon icon="mdi:shield-account" class="mr-1" />
 						Privacy Policy
