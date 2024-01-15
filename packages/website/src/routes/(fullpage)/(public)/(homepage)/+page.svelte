@@ -45,7 +45,7 @@
 			>
 				<AskQuestionsBar />
 				<div
-					class="flex flex-wrap place-items-center justify-center space-y-1 space-x-2 text-sm lg:text-base"
+					class="flex flex-wrap place-items-center justify-center space-y-2 space-x-4 text-sm lg:text-base"
 				>
 					{#if !data.user}
 						<a
