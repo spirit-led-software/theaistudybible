@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { PUBLIC_CHAT_API_URL } from '$env/static/public';
 	import Message from '$lib/components/chat/Message.svelte';
@@ -118,21 +119,13 @@
 		}
 	};
 
-	$: if (initChatId) {
-		chatId = initChatId;
-	}
-	$: if (initMessages) {
-		setMessages(initMessages);
-	}
-
-	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
-	$: if (alert) setTimeout(() => (alert = undefined), 8000);
-
-	$: if ($page.url.searchParams.get('query')) {
+	$: handleSearchParamQuery = async () => {
+		const query = $page.url.searchParams.get('query')!;
+		await goto($page.url.pathname, { replaceState: true, noScroll: true });
 		append(
 			{
 				id: nanoid(),
-				content: $page.url.searchParams.get('query')!,
+				content: query,
 				role: 'user'
 			},
 			{
@@ -146,6 +139,20 @@
 				}
 			}
 		);
+	};
+
+	$: if (initChatId) {
+		chatId = initChatId;
+	}
+	$: if (initMessages) {
+		setMessages(initMessages);
+	}
+
+	$: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);
+	$: if (alert) setTimeout(() => (alert = undefined), 8000);
+
+	$: if ($page.url.searchParams.get('query')) {
+		handleSearchParamQuery();
 	}
 </script>
 

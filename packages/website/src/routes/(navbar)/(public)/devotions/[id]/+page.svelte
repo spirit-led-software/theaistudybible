@@ -144,7 +144,11 @@
 			</div>
 		</div>
 		<h1 class="mb-2 text-2xl font-medium text-center lg:text-left">
-			{cleanDate} - {toTitleCase(activeDevo.topic)}
+			{cleanDate}
+			<br />
+			<span class="text-base font-normal text-center lg:text-left">
+				{toTitleCase(activeDevo.topic)}
+			</span>
 		</h1>
 		{#if !activeDevo.prayer || !activeDevo.reflection || images.length === 0}
 			<div
@@ -215,15 +219,16 @@
 		{/if}
 		{#if activeDevo.diveDeeperQueries && activeDevo.diveDeeperQueries.length > 0}
 			<div class="flex flex-col w-full mt-5">
-				<h2 class="mb-2 font-medium">Dive Deeper</h2>
-				<ul class="flex flex-col space-y-2 text-xs list-decimal list-inside">
+				<h2 class="mb-2 text-xl font-medium">Dive Deeper</h2>
+				<ul class="flex flex-col space-y-2 text-sm list-decimal list-inside">
 					{#each activeDevo.diveDeeperQueries as query}
-						<li>
+						<li class="flex place-items-center">
 							<a
 								href={`/chat?query=${encodeURIComponent(query)}`}
 								rel="noopener noreferrer"
-								class="hover:text-slate-500 hover:underline"
+								class="flex hover:text-slate-500 hover:underline"
 							>
+								<Icon icon="mdi:chat" class="mr-1 text-slate-500" />
 								{query}
 							</a>
 						</li>
