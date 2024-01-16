@@ -113,14 +113,26 @@
 						</div>
 					</div>
 				{:else}
-					<div class="flex flex-col w-full">
+					<div
+						class="flex justify-center place-items-center w-full px-2 py-1 bg-slate-800 rounded-lg"
+					>
+						<Icon icon="mdi:magnify" height={20} width={20} />
 						<input
+							id="search"
 							name="search"
-							class="w-full py-1 px-2 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
-							type="text"
+							class="flex-1 py-1 px-2 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
 							placeholder="Search devotions"
+							autocomplete="off"
 							bind:value={$queryString}
 						/>
+						{#if $queryString}
+							<button
+								class="hover:text-red-500"
+								on:click|preventDefault={() => ($queryString = '')}
+							>
+								<Icon icon="pajamas:clear" height={15} width={15} />
+							</button>
+						{/if}
 					</div>
 				{/if}
 				{#each devotions as devotion (devotion.id)}
