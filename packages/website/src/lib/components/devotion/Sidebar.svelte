@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { getDevotions } from '$lib/services/devotion';
+	import { searchForDevotions } from '$lib/services/devotion';
+	import type { Query } from '@core/database/helpers';
 	import type { Devotion } from '@core/model/devotion';
 	import { toTitleCase } from '@core/util/string';
 	import Icon from '@iconify/svelte';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Day from 'dayjs';
+	import { derived, writable } from 'svelte/store';
 
 	export let initDevos: Devotion[] = [];
 	export let activeDevoId: string;
@@ -15,26 +17,59 @@
 	let devotions = initDevos;
 	let loadingDevoId: string | undefined = undefined;
 
-	const fetchDevos = async ({ pageParam = 1 }) => {
-		return await getDevotions({
+	const queryString = writable('');
+
+	const fetchDevotions = async ({
+		pageParam = 1,
+		query = {}
+	}: {
+		pageParam: number;
+		query: Query;
+	}) => {
+		return await searchForDevotions({
 			limit: 7,
-			page: pageParam
+			page: pageParam,
+			query
 		}).then((r) => r.devotions);
 	};
 
-	let query = createInfiniteQuery({
-		queryKey: ['infinite-devotions'],
-		queryFn: fetchDevos,
-		getNextPageParam: (lastPage, pages) => {
-			if (lastPage.length < 7) return undefined;
-			return pages.length + 1;
-		},
-		initialPageParam: 1,
-		initialData: {
-			pages: [devotions],
-			pageParams: [1]
-		}
-	});
+	let query = createInfiniteQuery(
+		derived(queryString, ($queryString) => {
+			let searchQuery: Query = {};
+			if ($queryString) {
+				searchQuery = {
+					OR: [
+						{
+							iLike: {
+								column: 'topic',
+								placeholder: `%${$queryString}%`
+							}
+						},
+						{
+							iLike: {
+								column: 'bibleReading',
+								placeholder: `%${$queryString}%`
+							}
+						}
+					]
+				};
+			}
+			return {
+				queryKey: ['infinite-devotions', $queryString],
+				queryFn: ({ pageParam }: { pageParam: number }) =>
+					fetchDevotions({ pageParam, query: searchQuery }),
+				getNextPageParam: (lastPage: Devotion[], pages: Devotion[][]) => {
+					if (lastPage.length < 7) return undefined;
+					return pages.length + 1;
+				},
+				initialPageParam: 1,
+				initialData: {
+					pages: [devotions],
+					pageParams: [1]
+				}
+			};
+		})
+	);
 
 	query.subscribe(({ data, isSuccess }) => {
 		if (isSuccess) {
@@ -76,6 +111,16 @@
 						<div class="flex items-center justify-center py-5">
 							<span class="loading loading-spinner loading-lg" />
 						</div>
+					</div>
+				{:else}
+					<div class="flex flex-col w-full">
+						<input
+							name="search"
+							class="w-full py-1 px-2 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
+							type="text"
+							placeholder="Search for devotions"
+							bind:value={$queryString}
+						/>
 					</div>
 				{/if}
 				{#each devotions as devotion (devotion.id)}

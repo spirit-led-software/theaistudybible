@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { createChat, deleteChat, getChats, updateChat } from '$lib/services/chat';
+	import { createChat, deleteChat, searchForChats, updateChat } from '$lib/services/chat';
 	import { session } from '$lib/stores/user';
+	import type { Query } from '@core/database/helpers';
 	import type { Chat } from '@core/model/chat';
 	import Icon from '@iconify/svelte';
 	import {
@@ -12,6 +13,7 @@
 		type InfiniteData
 	} from '@tanstack/svelte-query';
 	import Day from 'dayjs';
+	import { derived, writable } from 'svelte/store';
 
 	export let initChats: Chat[] = [];
 	export let activeChatId: string | undefined = undefined;
@@ -22,6 +24,8 @@
 	let editChatInput: HTMLInputElement | undefined = undefined;
 	let editChatForm: HTMLFormElement | undefined = undefined;
 	let chats: Chat[] = initChats;
+
+	const queryString = writable('');
 
 	const client = useQueryClient();
 
@@ -36,36 +40,41 @@
 		);
 	};
 
-	const createChatMutation = createMutation({
-		mutationFn: handleCreate,
-		onMutate: async () => {
-			await client.cancelQueries({ queryKey: ['infinite-chats'] });
-			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
-			if (previousChats) {
-				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
-					pages: [
-						[
-							{
-								id: 'new',
-								name: 'New Chat',
-								createdAt: new Date(),
-								updatedAt: new Date(),
-								userId: $page.data.user.id,
-								customName: false
-							},
-							...previousChats.pages[0]
+	const createChatMutation = createMutation(
+		derived(queryString, ($queryString) => ({
+			mutationFn: handleCreate,
+			onMutate: async () => {
+				await client.cancelQueries({ queryKey: ['infinite-chats', $queryString] });
+				const previousChats = client.getQueryData<InfiniteData<Chat[]>>([
+					'infinite-chats',
+					$queryString
+				]);
+				if (previousChats) {
+					client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats', $queryString], {
+						pages: [
+							[
+								{
+									id: 'new',
+									name: 'New Chat',
+									createdAt: new Date(),
+									updatedAt: new Date(),
+									userId: $page.data.user.id,
+									customName: false
+								},
+								...previousChats.pages[0]
+							],
+							...previousChats.pages.slice(1)
 						],
-						...previousChats.pages.slice(1)
-					],
-					pageParams: previousChats.pageParams
-				});
+						pageParams: previousChats.pageParams
+					});
+				}
+				return { previousChats };
+			},
+			onSettled: () => {
+				client.invalidateQueries({ queryKey: ['infinite-chats', $queryString] });
 			}
-			return { previousChats };
-		},
-		onSettled: () => {
-			client.invalidateQueries({ queryKey: ['infinite-chats'] });
-		}
-	});
+		}))
+	);
 
 	const handleSubmitCreate = () => {
 		$createChatMutation.mutate();
@@ -83,25 +92,30 @@
 		);
 	};
 
-	const editChatMutation = createMutation({
-		mutationFn: handleUpdate,
-		onMutate: async ({ name, id }) => {
-			await client.cancelQueries({ queryKey: ['infinite-chats'] });
-			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
-			if (previousChats) {
-				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
-					pages: previousChats.pages.map((page) =>
-						page.map((c) => (c.id === id ? { ...c, name } : c))
-					),
-					pageParams: previousChats.pageParams
-				});
+	const editChatMutation = createMutation(
+		derived(queryString, ($queryString) => ({
+			mutationFn: handleUpdate,
+			onMutate: async ({ name, id }: { name: string; id: string }) => {
+				await client.cancelQueries({ queryKey: ['infinite-chats', $queryString] });
+				const previousChats = client.getQueryData<InfiniteData<Chat[]>>([
+					'infinite-chats',
+					$queryString
+				]);
+				if (previousChats) {
+					client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats', $queryString], {
+						pages: previousChats.pages.map((page) =>
+							page.map((c) => (c.id === id ? { ...c, name } : c))
+						),
+						pageParams: previousChats.pageParams
+					});
+				}
+				return { previousChats };
+			},
+			onSettled: () => {
+				client.invalidateQueries({ queryKey: ['infinite-chats'] });
 			}
-			return { previousChats };
-		},
-		onSettled: () => {
-			client.invalidateQueries({ queryKey: ['infinite-chats'] });
-		}
-	});
+		}))
+	);
 
 	const handleSubmitEdit = async (
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement },
@@ -122,23 +136,25 @@
 		});
 	};
 
-	const deleteChatMutation = createMutation({
-		mutationFn: handleDelete,
-		onMutate: async (id: string) => {
-			await client.cancelQueries({ queryKey: ['infinite-chats'] });
-			const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
-			if (previousChats) {
-				client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats'], {
-					pages: previousChats.pages.map((page) => page.filter((c) => c.id !== id)),
-					pageParams: previousChats.pageParams
-				});
+	const deleteChatMutation = createMutation(
+		derived(queryString, ($queryString) => ({
+			mutationFn: handleDelete,
+			onMutate: async (id: string) => {
+				await client.cancelQueries({ queryKey: ['infinite-chats', $queryString] });
+				const previousChats = client.getQueryData<InfiniteData<Chat[]>>(['infinite-chats']);
+				if (previousChats) {
+					client.setQueryData<InfiniteData<Chat[]>>(['infinite-chats', $queryString], {
+						pages: previousChats.pages.map((page) => page.filter((c) => c.id !== id)),
+						pageParams: previousChats.pageParams
+					});
+				}
+				return { previousChats };
+			},
+			onSettled: async () => {
+				client.invalidateQueries({ queryKey: ['infinite-chats', $queryString] });
 			}
-			return { previousChats };
-		},
-		onSettled: async () => {
-			client.invalidateQueries({ queryKey: ['infinite-chats'] });
-		}
-	});
+		}))
+	);
 
 	const handleSubmitDelete = async (id: string) => {
 		if (confirm('Are you sure you want to delete this chat?')) {
@@ -149,24 +165,39 @@
 		}
 	};
 
-	const fetchChats = async ({ pageParam = 1 }) => {
-		return await getChats({ limit: 7, page: pageParam, session: $session! }).then((r) => r.chats);
-	};
-
-	const query = createInfiniteQuery({
-		queryKey: ['infinite-chats'],
-		queryFn: fetchChats,
-		getNextPageParam: (lastPage, pages) => {
-			if (lastPage.length < 7) return undefined;
-			return pages.length + 1;
-		},
-		initialPageParam: 1,
-		initialData: {
-			pages: [chats],
-			pageParams: [1]
-		}
-	});
-
+	const query = createInfiniteQuery(
+		derived(queryString, ($queryString) => {
+			return {
+				queryKey: ['infinite-chats', $queryString],
+				queryFn: async ({ pageParam }: { pageParam: number }): Promise<Chat[]> => {
+					let searchQuery: Query = {};
+					if ($queryString) {
+						searchQuery = {
+							iLike: {
+								column: 'name',
+								placeholder: `%${$queryString}%`
+							}
+						};
+					}
+					return await searchForChats({
+						limit: 7,
+						page: pageParam,
+						query: searchQuery,
+						session: $session!
+					}).then((r) => r.chats);
+				},
+				getNextPageParam: (lastPage: Chat[], pages: Chat[][]) => {
+					if (lastPage.length < 7) return undefined;
+					return pages.length + 1;
+				},
+				initialPageParam: 1,
+				initialData: {
+					pages: [chats],
+					pageParams: [1]
+				}
+			};
+		})
+	);
 	query.subscribe(({ data, isSuccess }) => {
 		if (isSuccess) {
 			chats = data.pages.flat();
@@ -216,6 +247,16 @@
 						<div class="flex items-center justify-center py-5">
 							<span class="loading loading-spinner loading-lg" />
 						</div>
+					</div>
+				{:else}
+					<div class="flex justify-center w-full">
+						<input
+							name="search"
+							class="w-full py-1 px-2 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
+							placeholder="Search chats"
+							autocomplete="off"
+							bind:value={$queryString}
+						/>
 					</div>
 				{/if}
 				{#each chats as chat (chat.id)}

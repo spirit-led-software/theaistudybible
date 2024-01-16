@@ -4,7 +4,8 @@ import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
 	PaginatedEntitiesResponse,
-	ProtectedApiOptions
+	ProtectedApiOptions,
+	SearchForEntitiesOptions
 } from './types';
 
 export async function getChats(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
@@ -22,6 +23,35 @@ export async function getChats(options: PaginatedEntitiesOptions & ProtectedApiO
 		);
 		const data = await response.json();
 		throw new Error(data.error || 'Error retrieving chats.');
+	}
+
+	const { entities, page, perPage }: PaginatedEntitiesResponse<Chat> = await response.json();
+
+	return {
+		chats: entities,
+		page,
+		perPage
+	};
+}
+
+export async function searchForChats(
+	options: SearchForEntitiesOptions & PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+	const searchParams = GetEntitiesSearchParams(options);
+	const response = await fetch(`${PUBLIC_API_URL}/chats/search?${searchParams.toString()}`, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		},
+		body: JSON.stringify(options.query)
+	});
+
+	if (!response.ok) {
+		console.error(
+			`Error searching for chats. Received response: ${response.status} ${response.statusText}`
+		);
+		const data = await response.json();
+		throw new Error(data.error || 'Error searching for chats.');
 	}
 
 	const { entities, page, perPage }: PaginatedEntitiesResponse<Chat> = await response.json();

@@ -2,7 +2,7 @@ import { PUBLIC_API_URL } from '$env/static/public';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Devotion } from '@core/model/devotion';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
-import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
+import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse, SearchForEntitiesOptions } from '../types';
 
 export async function getDevotions(options: PaginatedEntitiesOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
@@ -14,6 +14,32 @@ export async function getDevotions(options: PaginatedEntitiesOptions) {
 		console.error('Error retrieving devotions. Received response:', JSON.stringify(response));
 		const data = await response.json();
 		throw new Error(data.error || 'Error retrieving devotions');
+	}
+
+	const { entities, page, perPage }: PaginatedEntitiesResponse<Devotion> = await response.json();
+
+	return {
+		devotions: entities,
+		page,
+		perPage
+	};
+}
+
+export async function searchForDevotions(
+	options: SearchForEntitiesOptions & PaginatedEntitiesOptions
+) {
+	const searchParams = GetEntitiesSearchParams(options);
+	const response = await fetch(`${PUBLIC_API_URL}/devotions/search?${searchParams.toString()}`, {
+		method: 'POST',
+		body: JSON.stringify(options.query)
+	});
+
+	if (!response.ok) {
+		console.error(
+			`Error searching for devotions. Received response: ${response.status} ${response.statusText}`
+		);
+		const data = await response.json();
+		throw new Error(data.error || 'Error searching for devotions.');
 	}
 
 	const { entities, page, perPage }: PaginatedEntitiesResponse<Devotion> = await response.json();

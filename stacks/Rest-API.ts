@@ -56,6 +56,7 @@ export function RestAPI({ stack }: StackContext) {
     // Chats
     'GET /chats': 'packages/functions/src/rest/chats/get.handler',
     'POST /chats': 'packages/functions/src/rest/chats/post.handler',
+    'POST /chats/search': 'packages/functions/src/rest/chats/search/post.handler',
     'GET /chats/{id}': 'packages/functions/src/rest/chats/[id]/get.handler',
     'PUT /chats/{id}': 'packages/functions/src/rest/chats/[id]/put.handler',
     'DELETE /chats/{id}': 'packages/functions/src/rest/chats/[id]/delete.handler',
@@ -94,6 +95,7 @@ export function RestAPI({ stack }: StackContext) {
         timeout: '5 minutes'
       }
     },
+    'POST /devotions/search': 'packages/functions/src/rest/devotions/search/post.handler',
     'GET /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/get.handler',
     'PUT /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/put.handler',
     'DELETE /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/delete.handler',

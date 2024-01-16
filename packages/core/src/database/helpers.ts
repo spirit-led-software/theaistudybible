@@ -1,4 +1,4 @@
-import { SQL, and, asc, desc, eq, gt, gte, like, lt, lte, not, or } from 'drizzle-orm';
+import { SQL, and, asc, desc, eq, gt, gte, ilike, like, lt, lte, not, or } from 'drizzle-orm';
 import type { PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 export interface ColumnValue {
@@ -74,7 +74,7 @@ export function buildQuery(
   }
 
   if (query.iLike) {
-    return like(table[query.iLike.column], query.iLike.placeholder);
+    return ilike(table[query.iLike.column], query.iLike.placeholder);
   }
 
   if (query.notLike) {
