@@ -118,7 +118,7 @@
 							name="search"
 							class="w-full py-1 px-2 bg-transparent rounded-lg focus:ring-0 focus:border-none focus:outline-none"
 							type="text"
-							placeholder="Search for devotions"
+							placeholder="Search devotions"
 							bind:value={$queryString}
 						/>
 					</div>
