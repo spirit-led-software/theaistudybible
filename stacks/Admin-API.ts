@@ -11,7 +11,7 @@ export function AdminAPI({ stack }: StackContext) {
   const { webpageIndexQueue } = use(Queues);
   const { api } = use(API);
 
-  const dataSourceSyncFunction = new Function(stack, 'dataSourceSyncFunction', {
+  const dataSourceSyncFunction = new Function(stack, 'DataSourceSyncFunction', {
     handler: 'packages/functions/src/rest/admin/data-sources/[id]/sync/post.handler',
     architecture: 'x86_64',
     runtime: 'nodejs18.x',
