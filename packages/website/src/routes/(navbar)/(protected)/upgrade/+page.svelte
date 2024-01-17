@@ -39,14 +39,18 @@
 		<PricingCard
 			title="Late to Sunday Service"
 			price="Free"
-			features={['10 Daily Queries']}
-			currentLevel={user.maxQueries >= 10}
+			features={['5 Daily Queries', '1 Daily Image (Mobile-Only)']}
+			currentLevel={user.maxQueries >= 5}
 		/>
 		{#each productInfos as productInfo}
 			<PricingCard
 				title={productInfo.product.name}
 				price={productInfo.product.default_price}
-				features={['Ad Free', `${productInfo.product.metadata.queryLimit} Daily Queries`]}
+				features={[
+					...(parseInt(productInfo.product.metadata.queryLimit) >= 25 ? ['Ad-Free'] : ['Less Ads']),
+					`${productInfo.product.metadata.queryLimit} Daily Queries`,
+					`${productInfo.product.metadata.imageLimit} Daily Images (Mobile-Only)`
+				]}
 				currentLevel={user.maxQueries >= parseInt(productInfo.product.metadata.queryLimit)}
 				purchaseLink={productInfo.paymentLink.url}
 			/>
