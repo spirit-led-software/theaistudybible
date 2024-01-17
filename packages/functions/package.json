@@ -12,10 +12,10 @@
     "@sparticuz/chromium": "^119.0.2",
     "@types/aws-lambda": "^8.10.131",
     "@types/busboy": "^1.5.3",
-    "@types/node": "^20.11.2",
+    "@types/node": "^20.11.5",
     "@types/nodemailer": "^6.4.14",
     "sst": "2.39.6",
-    "vitest": "^1.2.0"
+    "vitest": "^1.2.1"
   },
   "dependencies": {
     "@apple/app-store-server-library": "^1.0.0",
