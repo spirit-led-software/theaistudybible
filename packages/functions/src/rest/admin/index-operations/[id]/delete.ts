@@ -1,27 +1,33 @@
 import {
-  CreatedResponse,
+  DeletedResponse,
   InternalServerErrorResponse,
+  ObjectNotFoundResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { createDataSource } from '@services/data-source';
+import { deleteIndexOperation, getIndexOperation } from '@services/data-source/index-op';
 import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { isAdminSync } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
-  const data = JSON.parse(event.body ?? '{}');
+  const id = event.pathParameters!.id!;
+
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userWithRoles.id))) {
+    if (!isValid || !isAdminSync(userWithRoles)) {
       return UnauthorizedResponse();
     }
-    const dataSource = await createDataSource({
-      ...data,
-      userId: userWithRoles.id
-    });
-    return CreatedResponse(dataSource);
+
+    const indexOp = await getIndexOperation(id);
+    if (!indexOp) {
+      return ObjectNotFoundResponse(id);
+    }
+
+    await deleteIndexOperation(indexOp!.id);
+
+    return DeletedResponse();
   } catch (error) {
-    console.error('Error creating data source:', error);
+    console.error(`Error deleting index operation '${id}':`, error);
     if (error instanceof Error) {
       return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
     } else {

@@ -1,9 +1,8 @@
 import { buildOrderBy, buildQuery } from '@core/database/helpers';
-import { indexOperations } from '@core/schema';
+import { users } from '@core/schema';
 import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getIndexOperations } from '@services/data-source/index-op';
 import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { getUsers } from '@services/user';
 import { and } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
 
@@ -15,7 +14,7 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? 'desc';
   const query = JSON.parse(event.body ?? '{}');
 
-  console.log('Received index operations search request: ', {
+  console.log('Received user search request: ', {
     query: JSON.stringify(query),
     limit,
     page,
@@ -24,29 +23,25 @@ export const handler = ApiHandler(async (event) => {
   });
 
   try {
-    const { isValid, userWithRoles } = await validApiHandlerSession();
+    const { isValid } = await validApiHandlerSession();
     if (!isValid) {
       return UnauthorizedResponse('You must be logged in');
     }
 
-    if (!(await isAdmin(userWithRoles.id))) {
-      return UnauthorizedResponse('You must be an admin');
-    }
-
-    const indexOps = await getIndexOperations({
-      where: and(buildQuery(indexOperations, query)),
+    const foundUsers = await getUsers({
+      where: and(buildQuery(users, query)),
       limit,
       offset: (page - 1) * limit,
-      orderBy: buildOrderBy(indexOperations, orderBy, order)
+      orderBy: buildOrderBy(users, orderBy, order)
     });
 
     return OkResponse({
-      entities: indexOps,
+      entities: foundUsers,
       page,
       perPage: limit
     });
   } catch (error) {
-    console.error('Error searching index operations:', error);
+    console.error('Error searching users:', error);
     if (error instanceof Error) {
       return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
     } else {

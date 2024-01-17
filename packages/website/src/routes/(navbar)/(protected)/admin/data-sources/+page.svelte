@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { getDataSources } from '$lib/services/data-source';
-	import { session } from '$lib/stores/user';
 	import type { DataSource } from '@core/model/data-source';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import type { SvelteComponent } from 'svelte';
@@ -14,9 +13,7 @@
 	let dataSources: DataSource[] = [];
 
 	const fetchFn = async ({ pageParam = 1 }) => {
-		return await getDataSources({ limit: data.limit, page: pageParam, session: $session! }).then(
-			(r) => r.dataSources
-		);
+		return await getDataSources({ limit: data.limit, page: pageParam }).then((r) => r.dataSources);
 	};
 
 	const query = createInfiniteQuery({

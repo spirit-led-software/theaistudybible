@@ -1,16 +1,18 @@
 <script lang="ts">
-	import { user } from '$lib/stores/user';
+	import { user as userStore } from '$lib/stores/user';
 	import { cn } from '$lib/utils/class-names';
 	import { squareDimensionClasses, textSizeClasses, type ComponentSize } from '$lib/utils/sizing';
+	import type { User } from '@core/model/user';
 
 	export let size: ComponentSize = 'md';
+	export let user: User | undefined = undefined;
 
 	let sizeClasses = squareDimensionClasses[size];
 
 	let className: string = '';
 	export { className as class };
 
-	$: ({ image, name, email } = $user!);
+	$: ({ image, name, email } = user ?? $userStore!);
 </script>
 
 <div

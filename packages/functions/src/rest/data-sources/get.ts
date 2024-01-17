@@ -1,8 +1,7 @@
 import { buildOrderBy } from '@core/database/helpers';
 import { dataSources as dataSourcesTable } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
+import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
 import { getDataSources } from '@services/data-source';
-import { validApiHandlerSession } from '@services/session';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
@@ -13,11 +12,6 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? 'desc';
 
   try {
-    const { isValid } = await validApiHandlerSession();
-    if (!isValid) {
-      return UnauthorizedResponse();
-    }
-
     const dataSources = await getDataSources({
       offset: (page - 1) * limit,
       limit,

@@ -24,9 +24,9 @@
 	<div class="flex flex-col w-full mb-3 space-y-4">
 		<h1 class="text-lg italic font-kanit">{title}</h1>
 		<h2 class="text-slate-700 font-kanit">{priceString}</h2>
-		<ul>
+		<ul class="list-inside list-disc">
 			{#each features as feature}
-				<li>{feature}</li>
+				<li class="list-item">{feature}</li>
 			{/each}
 		</ul>
 	</div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getDevotionReactions } from '$lib/services/devotion/reaction';
+	import { getDevotionReactions } from '$lib/services/admin/reactions/devotion';
 	import { session } from '$lib/stores/user';
 	import type { DevotionReactionInfo } from '@core/model/devotion/reaction';
 	import Icon from '@iconify/svelte';

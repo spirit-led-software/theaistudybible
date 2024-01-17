@@ -1,6 +1,12 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { UserInfo } from '@core/model/user';
-import type { ProtectedApiOptions } from '../types';
+import type { User, UserInfo } from '@core/model/user';
+import { GetEntitiesSearchParams } from '../helpers/search-params';
+import type {
+	PaginatedEntitiesOptions,
+	PaginatedEntitiesResponse,
+	ProtectedApiOptions,
+	SearchForEntitiesOptions
+} from '../types';
 
 export async function getUserInfo(session: string) {
 	const response = await fetch(`${PUBLIC_API_URL}/auth/user-info`, {
@@ -23,9 +29,10 @@ export async function getUserInfo(session: string) {
 	return user;
 }
 
-export async function deleteUser(id: string, options: ProtectedApiOptions) {
-	const response = await fetch(`${PUBLIC_API_URL}/users/${id}`, {
-		method: 'DELETE',
+export async function getUsers(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
+	const searchParams = GetEntitiesSearchParams(options);
+	const response = await fetch(`${PUBLIC_API_URL}/users?${searchParams.toString()}`, {
+		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${options.session}`
 		}
@@ -33,11 +40,69 @@ export async function deleteUser(id: string, options: ProtectedApiOptions) {
 
 	if (!response.ok) {
 		console.error(
-			`Error deleting user. Received response: ${response.status} ${response.statusText}`
+			`Error retrieving users. Received response: ${response.status} ${response.statusText}`
 		);
 		const data = await response.json();
-		throw new Error(data.error || 'Error deleting user.');
+		throw new Error(data.error || 'Error retrieving users.');
 	}
+
+	const { entities, page, perPage }: PaginatedEntitiesResponse<User> = await response.json();
+
+	return {
+		users: entities,
+		page,
+		perPage
+	};
+}
+
+export async function searchForUsers(
+	options: SearchForEntitiesOptions & PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+	const searchParams = GetEntitiesSearchParams(options);
+	const response = await fetch(`${PUBLIC_API_URL}/users/search?${searchParams.toString()}`, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		},
+		body: JSON.stringify(options.query)
+	});
+
+	if (!response.ok) {
+		console.error(
+			`Error searching for users. Received response: ${response.status} ${response.statusText}`
+		);
+		const data = await response.json();
+		throw new Error(data.error || 'Error searching for users.');
+	}
+
+	const { entities, page, perPage }: PaginatedEntitiesResponse<User> = await response.json();
+
+	return {
+		users: entities,
+		page,
+		perPage
+	};
+}
+
+export async function getUser(id: string, options: ProtectedApiOptions) {
+	const response = await fetch(`${PUBLIC_API_URL}/users/${id}`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
+	});
+
+	if (!response.ok) {
+		console.error(
+			`Error retrieving user. Received response: ${response.status} ${response.statusText}`
+		);
+		const data = await response.json();
+		throw new Error(data.error || 'Error retrieving user.');
+	}
+
+	const user: User = await response.json();
+
+	return user;
 }
 
 export function isObjectOwner(object: { userId: string }, userId: string) {

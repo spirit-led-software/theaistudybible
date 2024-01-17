@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import { createDataSource } from '$lib/services/data-source';
+	import { createDataSource } from '$lib/services/admin/data-source';
 	import { session } from '$lib/stores/user';
 	import type { DataSource } from '@core/model/data-source';
 	import { dataSources as dataSourcesTable } from '@core/schema';
@@ -213,7 +213,7 @@
 </script>
 
 <dialog bind:this={createDialog} class="modal">
-	<form on:submit={handleSubmitCreate} class="p-10 space-y-2 modal-box">
+	<form on:submit|preventDefault={handleSubmitCreate} class="p-10 space-y-2 modal-box">
 		<select name="type" class="w-full select" bind:this={typeSelect} required>
 			<option disabled selected>Type *</option>
 			{#each dataSourcesTable.type.enumValues as type}

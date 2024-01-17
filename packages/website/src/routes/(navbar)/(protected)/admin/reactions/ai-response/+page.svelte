@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAiResponseReactions } from '$lib/services/ai-response/reaction';
+	import { getAiResponseReactions } from '$lib/services/admin/reactions/ai-response';
 	import { session } from '$lib/stores/user';
 	import type { AiResponseReactionInfo } from '@core/model/ai-response/reaction';
 	import Icon from '@iconify/svelte';

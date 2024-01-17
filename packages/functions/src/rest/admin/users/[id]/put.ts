@@ -1,39 +1,33 @@
+import type { UpdateUserData } from '@core/model/user';
 import {
-  DeletedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
+  OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import {
-  deleteDataSource,
-  deleteDataSourceRelatedDocuments,
-  getDataSource
-} from '@services/data-source';
 import { validApiHandlerSession } from '@services/session';
+import { getUser, isAdminSync, updateUser } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
+  const data: UpdateUserData = JSON.parse(event.body ?? '{}');
 
   try {
-    const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !userWithRoles.id) {
-      return UnauthorizedResponse();
-    }
-
-    const dataSource = await getDataSource(id);
-    if (!dataSource) {
+    let user = await getUser(id);
+    if (!user) {
       return ObjectNotFoundResponse(id);
     }
 
-    await Promise.all([
-      deleteDataSource(dataSource!.id),
-      deleteDataSourceRelatedDocuments(dataSource!.id)
-    ]);
+    const { isValid, userWithRoles } = await validApiHandlerSession();
+    if (!isValid || !isAdminSync(userWithRoles)) {
+      return UnauthorizedResponse();
+    }
 
-    return DeletedResponse();
+    user = await updateUser(user.id, data);
+    return OkResponse(user);
   } catch (error) {
-    console.error(`Error deleting data source '${id}':`, error);
+    console.error(`Error updating user '${id}':`, error);
     if (error instanceof Error) {
       return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
     } else {

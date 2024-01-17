@@ -142,8 +142,11 @@ export const handler = ApiHandler(async (event) => {
     }
 
     return OkResponse();
-  } catch (error: unknown) {
+  } catch (error) {
     console.error(error);
-    return InternalServerErrorResponse((error as Error).message);
+    if (error instanceof Error) {
+      return InternalServerErrorResponse(`Error: ${error.message}\n${error.stack}`);
+    }
+    return InternalServerErrorResponse(`Error: ${JSON.stringify(error)}`);
   }
 });

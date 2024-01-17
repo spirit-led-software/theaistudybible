@@ -10,7 +10,7 @@ import {
   updateDataSourceRelatedDocuments
 } from '@services/data-source';
 import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { isAdminSync } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
@@ -19,7 +19,7 @@ export const handler = ApiHandler(async (event) => {
 
   try {
     const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userWithRoles.id))) {
+    if (!isValid || !isAdminSync(userWithRoles)) {
       return UnauthorizedResponse();
     }
 

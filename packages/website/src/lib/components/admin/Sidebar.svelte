@@ -12,6 +12,11 @@
 		href: string;
 	}[] = [
 		{
+			name: 'Users',
+			icon: 'mdi:account',
+			href: '/admin/users'
+		},
+		{
 			name: 'Data Sources',
 			icon: 'mdi:database-search',
 			href: '/admin/data-sources'

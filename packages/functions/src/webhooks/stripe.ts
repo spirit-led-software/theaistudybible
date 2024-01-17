@@ -1,5 +1,5 @@
-import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { getUserByStripeCustomerId } from '@services/user';
+import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
+import { getUser, getUserByStripeCustomerId, updateUser } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
 import stripeConfig from '../configs/stripe';
@@ -9,7 +9,7 @@ const stripe = new Stripe(stripeConfig.apiKey, {
 });
 
 export const handler = ApiHandler(async (event) => {
-  console.log(`Stripe webhook received: ${JSON.stringify(event)}`);
+  console.log(`Stripe webhook event received: ${JSON.stringify(event)}`);
 
   const sig = event.headers['stripe-signature'];
   let stripeEvent;
@@ -19,15 +19,46 @@ export const handler = ApiHandler(async (event) => {
       sig!,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: unknown) {
+  } catch (err) {
     console.error(err);
-    return InternalServerErrorResponse((err as Error).message);
+    if (err instanceof Error) {
+      return BadRequestResponse(`Error: ${err.message}\n${err.stack}`);
+    }
+    return BadRequestResponse(`Error: ${JSON.stringify(err)}`);
   }
 
   try {
     switch (stripeEvent.type) {
+      case 'checkout.session.completed': {
+        const session = stripeEvent.data.object;
+        console.log('Checkout session completed: ', session);
+
+        const clientReferenceId = session.client_reference_id;
+        if (!clientReferenceId) {
+          return BadRequestResponse('Missing client reference ID');
+        }
+
+        const user = await getUser(clientReferenceId);
+        if (!user) {
+          console.error(`User not found for client reference ID: ${clientReferenceId}`);
+          return InternalServerErrorResponse(
+            `User not found for client reference ID: ${clientReferenceId}`
+          );
+        }
+
+        const stripeCustomerId = session.customer;
+        if (
+          stripeCustomerId &&
+          typeof stripeCustomerId === 'string' &&
+          user.stripeCustomerId !== stripeCustomerId
+        ) {
+          await updateUser(user.id, { stripeCustomerId });
+        }
+
+        return OkResponse();
+      }
       case 'customer.subscription.created': {
-        const subscription = stripeEvent.data.object as Stripe.Subscription;
+        const subscription = stripeEvent.data.object;
         console.log('Subscription created: ', subscription);
 
         const user = await getUserByStripeCustomerId(subscription.customer.toString());
@@ -68,8 +99,11 @@ export const handler = ApiHandler(async (event) => {
       }
     }
     return OkResponse();
-  } catch (err: unknown) {
+  } catch (err) {
     console.error(err);
-    return InternalServerErrorResponse((err as Error).message);
+    if (err instanceof Error) {
+      return InternalServerErrorResponse(`Error: ${err.message}\n${err.stack}`);
+    }
+    return InternalServerErrorResponse(`Error: ${JSON.stringify(err)}`);
   }
 });

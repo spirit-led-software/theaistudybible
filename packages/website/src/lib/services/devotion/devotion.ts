@@ -2,7 +2,11 @@ import { PUBLIC_API_URL } from '$env/static/public';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Devotion } from '@core/model/devotion';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
-import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse, SearchForEntitiesOptions } from '../types';
+import type {
+	PaginatedEntitiesOptions,
+	PaginatedEntitiesResponse,
+	SearchForEntitiesOptions
+} from '../types';
 
 export async function getDevotions(options: PaginatedEntitiesOptions) {
 	const searchParams = GetEntitiesSearchParams(options);

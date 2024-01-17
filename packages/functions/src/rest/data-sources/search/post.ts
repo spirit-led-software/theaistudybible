@@ -1,8 +1,7 @@
 import { buildOrderBy, buildQuery } from '@core/database/helpers';
 import { dataSources as dataSourcesTable } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
+import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
 import { getDataSources } from '@services/data-source';
-import { validApiHandlerSession } from '@services/session';
 import { and } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
 
@@ -23,11 +22,6 @@ export const handler = ApiHandler(async (event) => {
   });
 
   try {
-    const { isValid } = await validApiHandlerSession();
-    if (!isValid) {
-      return UnauthorizedResponse();
-    }
-
     const dataSources = await getDataSources({
       where: and(buildQuery(dataSourcesTable, query)),
       limit,

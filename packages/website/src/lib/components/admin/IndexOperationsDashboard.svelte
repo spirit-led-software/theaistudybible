@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { getIndexOperations, updateIndexOperation } from '$lib/services/data-source/index-op';
+	import {
+		getIndexOperations,
+		updateIndexOperation
+	} from '$lib/services/admin/data-source/index-op';
 	import { session } from '$lib/stores/user';
 	import type { IndexOperation } from '@core/model/data-source/index-op';
 	import { indexOperations as indexOperationsTable } from '@core/schema';

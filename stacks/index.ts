@@ -1,4 +1,5 @@
 export * from './API';
+export * from './Admin-API';
 export * from './Auth';
 export * from './Chat-API';
 export * from './Constants';

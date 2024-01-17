@@ -1,38 +1,13 @@
-import { API, Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
-import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
-import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
+import { API, Constants, DatabaseScripts, Layers, S3 } from '@stacks';
+import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { invokeBedrockPolicy } = use(Constants);
-  const {
-    indexFileBucket,
-    devotionImageBucket,
-    userProfilePictureBucket,
-    userGeneratedImageBucket
-  } = use(S3);
-  const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);
-  const { webpageIndexQueue } = use(Queues);
+  const { userProfilePictureBucket, userGeneratedImageBucket } = use(S3);
+  const { argonLayer } = use(Layers);
   const { api } = use(API);
-
-  const dataSourceSyncFunction = new Function(stack, 'dataSourceSyncFunction', {
-    handler: 'packages/functions/src/rest/data-sources/[id]/sync/post.handler',
-    architecture: 'x86_64',
-    runtime: 'nodejs18.x',
-    permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
-    bind: [indexFileBucket, webpageIndexQueue],
-    environment: {
-      INDEX_FILE_BUCKET: indexFileBucket.bucketName
-    },
-    memorySize: '2 GB',
-    timeout: '15 minutes'
-  });
-  // add layers
-  (dataSourceSyncFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
-    chromiumLayer.layerVersionArn,
-    axiomX86Layer.layerVersionArn
-  ]);
 
   api.addRoutes(stack, {
     // AI Responses
@@ -65,40 +40,13 @@ export function RestAPI({ stack }: StackContext) {
 
     // Data Sources
     'GET /data-sources': 'packages/functions/src/rest/data-sources/get.handler',
-    'POST /data-sources': 'packages/functions/src/rest/data-sources/post.handler',
     'POST /data-sources/search': 'packages/functions/src/rest/data-sources/search/post.handler',
     'GET /data-sources/{id}': 'packages/functions/src/rest/data-sources/[id]/get.handler',
-    'PUT /data-sources/{id}': {
-      function: {
-        handler: 'packages/functions/src/rest/data-sources/[id]/put.handler',
-        timeout: '15 minutes'
-      }
-    },
-    'DELETE /data-sources/{id}': {
-      function: {
-        handler: 'packages/functions/src/rest/data-sources/[id]/delete.handler',
-        timeout: '15 minutes'
-      }
-    },
-    'POST /data-sources/{id}/sync': dataSourceSyncFunction,
 
     // Devotions
     'GET /devotions': 'packages/functions/src/rest/devotions/get.handler',
-    'POST /devotions': {
-      function: {
-        handler: 'packages/functions/src/rest/devotions/post.handler',
-        bind: [devotionImageBucket],
-        permissions: [devotionImageBucket, invokeBedrockPolicy],
-        environment: {
-          DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
-        },
-        timeout: '5 minutes'
-      }
-    },
     'POST /devotions/search': 'packages/functions/src/rest/devotions/search/post.handler',
     'GET /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/get.handler',
-    'PUT /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/put.handler',
-    'DELETE /devotions/{id}': 'packages/functions/src/rest/devotions/[id]/delete.handler',
 
     // Devotion Source Documents
     'GET /devotions/{id}/source-documents':
@@ -115,19 +63,6 @@ export function RestAPI({ stack }: StackContext) {
     // Devotion Images
     'GET /devotions/{id}/images': 'packages/functions/src/rest/devotions/[id]/images/get.handler',
 
-    // Index Operations
-    'GET /index-operations': 'packages/functions/src/rest/index-operations/get.handler',
-    'POST /index-operations/search':
-      'packages/functions/src/rest/index-operations/search/post.handler',
-    'GET /index-operations/{id}': 'packages/functions/src/rest/index-operations/[id]/get.handler',
-    'PUT /index-operations/{id}': 'packages/functions/src/rest/index-operations/[id]/put.handler',
-    'DELETE /index-operations/{id}':
-      'packages/functions/src/rest/index-operations/[id]/delete.handler',
-
-    // Reactions
-    'GET /reactions/ai-response': 'packages/functions/src/rest/reactions/ai-response/get.handler',
-    'GET /reactions/devotion': 'packages/functions/src/rest/reactions/devotion/get.handler',
-
     // User Messages
     'GET /user-messages': 'packages/functions/src/rest/user-messages/get.handler',
     'POST /user-messages': 'packages/functions/src/rest/user-messages/post.handler',
@@ -140,6 +75,7 @@ export function RestAPI({ stack }: StackContext) {
 
     // Users
     'GET /users': 'packages/functions/src/rest/users/get.handler',
+    'POST /users/search': 'packages/functions/src/rest/users/search/post.handler',
     'GET /users/{id}': 'packages/functions/src/rest/users/[id]/get.handler',
     'PUT /users/{id}': 'packages/functions/src/rest/users/[id]/put.handler',
     'DELETE /users/{id}': 'packages/functions/src/rest/users/[id]/delete.handler',

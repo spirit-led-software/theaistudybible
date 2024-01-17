@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import { updateDataSource } from '$lib/services/data-source';
+	import { updateDataSource } from '$lib/services/admin/data-source';
 	import { session } from '$lib/stores/user';
 	import type { DataSource } from '@core/model/data-source';
 	import { dataSources as dataSourcesTable } from '@core/schema';
@@ -168,7 +168,7 @@
 </script>
 
 <dialog bind:this={editDialog} class="modal">
-	<form on:submit={handleSubmitEdit} class="p-10 space-y-2 modal-box">
+	<form on:submit|preventDefault={handleSubmitEdit} class="p-10 space-y-2 modal-box">
 		<h1 class="mb-2 text-2xl font-medium">Edit Data Source</h1>
 		<input
 			id="url"

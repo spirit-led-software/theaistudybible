@@ -29,10 +29,13 @@
 			</span>{' '}
 			of {user.maxQueries}
 		</h2>
-		<a href={'https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288'} target="_blank">
-			<button class="px-3 py-2 text-white rounded-lg bg-slate-700 hover:bg-slate-900"
-				>View Current Plan</button
-			>
+		<a
+			href={`https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288?prefilled_email=${encodeURIComponent(user.email)}`}
+			target="_blank"
+		>
+			<button class="px-3 py-2 text-white rounded-lg bg-slate-700 hover:bg-slate-900">
+				View Current Plan
+			</button>
 		</a>
 	</div>
 	<div class="grid grid-cols-2 md:grid-cols-3">
@@ -47,11 +50,15 @@
 				title={productInfo.product.name}
 				price={productInfo.product.default_price}
 				features={[
-					...(parseInt(productInfo.product.metadata.queryLimit) >= 25 ? ['Ad-Free'] : ['Less Ads']),
+					...(parseInt(productInfo.product.metadata.queryLimit) > 25 ||
+					productInfo.product.metadata.queryLimit === 'Infinite'
+						? ['Ad-Free']
+						: ['Less Ads']),
 					`${productInfo.product.metadata.queryLimit} Daily Queries`,
 					`${productInfo.product.metadata.imageLimit} Daily Images (Mobile-Only)`
 				]}
-				currentLevel={user.maxQueries >= parseInt(productInfo.product.metadata.queryLimit)}
+				currentLevel={user.maxQueries >= parseInt(productInfo.product.metadata.queryLimit) ||
+					(productInfo.product.metadata.queryLimit === 'Infinite' && user.maxQueries > 100)}
 				purchaseLink={productInfo.paymentLink.url}
 			/>
 		{/each}

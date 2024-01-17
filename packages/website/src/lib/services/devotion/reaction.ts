@@ -1,42 +1,8 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { devotionReactions } from '@core/database/schema';
-import type { DevotionReaction, DevotionReactionInfo } from '@core/model/devotion/reaction';
+import type { DevotionReaction } from '@core/model/devotion/reaction';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
-import type {
-	PaginatedEntitiesOptions,
-	PaginatedEntitiesResponse,
-	ProtectedApiOptions
-} from '../types';
-
-export async function getDevotionReactions(
-	options?: PaginatedEntitiesOptions & ProtectedApiOptions
-) {
-	const searchParams = GetEntitiesSearchParams(options);
-	const response = await fetch(`${PUBLIC_API_URL}/reactions/devotion?${searchParams.toString()}`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${options?.session}`
-		}
-	});
-
-	if (!response.ok) {
-		console.error(
-			`Error retrieving reactions for devotions. Received response:`,
-			JSON.stringify(response)
-		);
-		const data = await response.json();
-		throw new Error(data.error || `Error retrieving reactions for devotions`);
-	}
-
-	const { entities, page, perPage }: PaginatedEntitiesResponse<DevotionReactionInfo> =
-		await response.json();
-
-	return {
-		reactions: entities,
-		page,
-		perPage
-	};
-}
+import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
 
 export async function getDevotionReactionsById(id: string, options?: PaginatedEntitiesOptions) {
 	const searchParams = GetEntitiesSearchParams(options);

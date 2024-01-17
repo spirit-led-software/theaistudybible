@@ -1,35 +1,32 @@
-import type { Devotion } from '@core/model/devotion';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { getDevotion, updateDevotion } from '@services/devotion';
+import { getRolesByUserId } from '@services/role';
 import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { getUser, isAdminSync } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data = JSON.parse(event.body ?? '{}');
 
   try {
-    let devo: Devotion | undefined = await getDevotion(id);
-    if (!devo) {
+    const user = await getUser(id);
+    if (!user) {
       return ObjectNotFoundResponse(id);
     }
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userWithRoles.id))) {
+    if (!isValid || !isAdminSync(userWithRoles)) {
       return UnauthorizedResponse();
     }
 
-    devo = await updateDevotion(devo!.id, data);
-
-    return OkResponse(devo);
+    const roles = await getRolesByUserId(id);
+    return OkResponse(roles);
   } catch (error) {
-    console.error(`Error updating devotion '${id}':`, error);
+    console.error('Error getting user roles:', error);
     if (error instanceof Error) {
       return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
     } else {

@@ -1,32 +1,35 @@
+import type { Devotion } from '@core/model/devotion';
 import {
-  DeletedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
+  OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { deleteDevotion, getDevotion } from '@services/devotion';
+import { getDevotion, updateDevotion } from '@services/devotion';
 import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { isAdminSync } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
+  const data = JSON.parse(event.body ?? '{}');
 
   try {
-    const devo = await getDevotion(id);
+    let devo: Devotion | undefined = await getDevotion(id);
     if (!devo) {
       return ObjectNotFoundResponse(id);
     }
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userWithRoles.id))) {
+    if (!isValid || !isAdminSync(userWithRoles)) {
       return UnauthorizedResponse();
     }
 
-    await deleteDevotion(devo.id);
-    return DeletedResponse(devo.id);
+    devo = await updateDevotion(devo!.id, data);
+
+    return OkResponse(devo);
   } catch (error) {
-    console.error(`Error deleting devotion '${id}':`, error);
+    console.error(`Error updating devotion '${id}':`, error);
     if (error instanceof Error) {
       return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
     } else {

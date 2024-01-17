@@ -1,5 +1,6 @@
 import {
   API,
+  AdminAPI,
   Auth,
   ChatAPI,
   Constants,
@@ -35,6 +36,7 @@ export default {
       .stack(Auth)
       .stack(ChatAPI)
       .stack(RestAPI)
+      .stack(AdminAPI)
       .stack(Website)
       .stack(Crons);
   }

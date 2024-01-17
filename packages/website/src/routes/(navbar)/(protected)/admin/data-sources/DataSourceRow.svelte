@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { deleteDataSource, syncDataSource } from '$lib/services/data-source';
+	import { deleteDataSource, syncDataSource } from '$lib/services/admin/data-source';
 	import { session } from '$lib/stores/user';
 	import type { DataSource } from '@core/model/data-source';
 	import Icon from '@iconify/svelte';

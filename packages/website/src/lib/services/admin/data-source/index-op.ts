@@ -1,20 +1,23 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { IndexOperation, UpdateIndexOperationData } from '@core/model/data-source/index-op';
-import { GetEntitiesSearchParams } from '../helpers/search-params';
+import { GetEntitiesSearchParams } from '../../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
 	PaginatedEntitiesResponse,
 	ProtectedApiOptions
-} from '../types';
+} from '../../types';
 
 export async function getIndexOperations(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
-	const response = await fetch(`${PUBLIC_API_URL}/index-operations?${searchParams.toString()}`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${options.session}`
+	const response = await fetch(
+		`${PUBLIC_API_URL}/admin/index-operations?${searchParams.toString()}`,
+		{
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${options.session}`
+			}
 		}
-	});
+	);
 
 	if (!response.ok) {
 		console.error(
@@ -35,7 +38,7 @@ export async function getIndexOperations(options: PaginatedEntitiesOptions & Pro
 }
 
 export async function getIndexOperation(id: string, options: ProtectedApiOptions) {
-	const response = await fetch(`${PUBLIC_API_URL}/index-operations/${id}`, {
+	const response = await fetch(`${PUBLIC_API_URL}/admin/index-operations/${id}`, {
 		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${options.session}`
@@ -60,7 +63,7 @@ export async function updateIndexOperation(
 	data: UpdateIndexOperationData,
 	options: ProtectedApiOptions
 ) {
-	const response = await fetch(`${PUBLIC_API_URL}/index-operations/${id}`, {
+	const response = await fetch(`${PUBLIC_API_URL}/admin/index-operations/${id}`, {
 		method: 'PUT',
 		headers: {
 			Authorization: `Bearer ${options.session}`,

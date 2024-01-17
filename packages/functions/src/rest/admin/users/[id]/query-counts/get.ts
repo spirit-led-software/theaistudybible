@@ -1,12 +1,18 @@
 import { buildOrderBy } from '@core/database/helpers';
-import { indexOperations } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getIndexOperations } from '@services/data-source/index-op';
+import { userQueryCounts } from '@core/schema';
+import {
+  InternalServerErrorResponse,
+  ObjectNotFoundResponse,
+  OkResponse,
+  UnauthorizedResponse
+} from '@lib/api-responses';
 import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { getUser, isAdminSync } from '@services/user';
+import { getUserQueryCountsByUserId } from '@services/user/query-count';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
+  const id = event.pathParameters!.id!;
   const searchParams = event.queryStringParameters ?? {};
   const limit = parseInt(searchParams.limit ?? '25');
   const page = parseInt(searchParams.page ?? '1');
@@ -14,24 +20,29 @@ export const handler = ApiHandler(async (event) => {
   const order = searchParams.order ?? 'desc';
 
   try {
+    const user = await getUser(id);
+    if (!user) {
+      return ObjectNotFoundResponse(id);
+    }
+
     const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !(await isAdmin(userWithRoles.id))) {
+    if (!isValid || !isAdminSync(userWithRoles)) {
       return UnauthorizedResponse();
     }
 
-    const indexOps = await getIndexOperations({
-      offset: (page - 1) * limit,
+    const queryCounts = await getUserQueryCountsByUserId(id, {
       limit,
-      orderBy: buildOrderBy(indexOperations, orderBy, order)
+      offset: (page - 1) * limit,
+      orderBy: buildOrderBy(userQueryCounts, orderBy, order)
     });
 
     return OkResponse({
-      entities: indexOps,
+      entities: queryCounts,
       page,
       perPage: limit
     });
   } catch (error) {
-    console.error('Error searching data sources:', error);
+    console.error('Error getting user query counts:', error);
     if (error instanceof Error) {
       return InternalServerErrorResponse(`${error.message}\n${error.stack}`);
     } else {
