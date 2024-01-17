@@ -49,7 +49,7 @@ export function AdminAPI({ stack }: StackContext) {
     // Devotions
     'POST /admin/devotions': {
       function: {
-        handler: 'packages/functions/src/rest/devotions/post.handler',
+        handler: 'packages/functions/src/rest/admin/devotions/post.handler',
         bind: [devotionImageBucket],
         permissions: [devotionImageBucket, invokeBedrockPolicy],
         environment: {
@@ -65,7 +65,7 @@ export function AdminAPI({ stack }: StackContext) {
     // Index Operations
     'GET /admin/index-operations': 'packages/functions/src/rest/admin/index-operations/get.handler',
     'POST /admin/index-operations/search':
-      'packages/functions/src/rest/index-operations/search/post.handler',
+      'packages/functions/src/rest/admin/index-operations/search/post.handler',
     'GET /admin/index-operations/{id}':
       'packages/functions/src/rest/admin/index-operations/[id]/get.handler',
     'PUT /admin/index-operations/{id}':
