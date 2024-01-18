@@ -1,3 +1,4 @@
+import envConfig from '@core/configs/env';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model/chat';
 import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
@@ -226,7 +227,10 @@ async function lambdaHandler(
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain({
-      modelId: maxQueries > 5 ? 'anthropic.claude-v2:1' : 'anthropic.claude-instant-v1',
+      modelId:
+        maxQueries > 5 && !envConfig.isLocal
+          ? 'anthropic.claude-v2:1'
+          : 'anthropic.claude-instant-v1',
       user: userWithRoles,
       messages,
       callbacks: CallbackManager.fromHandlers(handlers)
