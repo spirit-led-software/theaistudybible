@@ -1,4 +1,5 @@
 import envConfig from '@core/configs/env';
+import type { AnthropicModelId } from '@core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { User } from '@core/model/user';
 import type { Metadata } from '@core/types/metadata';
@@ -23,6 +24,7 @@ import {
 } from './prompts';
 
 export const getRAIChatChain = async (options: {
+  modelId: AnthropicModelId;
   user: User;
   messages: RAIChatMessage[];
   callbacks: CallbackManager;
@@ -35,8 +37,10 @@ export const getRAIChatChain = async (options: {
     }
   >
 > => {
+  const { modelId, user, messages, callbacks } = options;
+
   const history = new ChatMessageHistory(
-    options.messages.slice(-21, -1).map((message) => {
+    messages.slice(-21, -1).map((message) => {
       return message.role === 'user'
         ? new HumanMessage(message.content)
         : new AIMessage(message.content);
@@ -60,6 +64,7 @@ export const getRAIChatChain = async (options: {
       })
         .pipe(
           getLargeContextModel({
+            modelId,
             stream: true,
             promptSuffix: '<answer>',
             stopSequences: ['</answer>']
@@ -68,7 +73,7 @@ export const getRAIChatChain = async (options: {
         .pipe(new StringOutputParser())
     }
   ]).withConfig({
-    callbacks: options.callbacks
+    callbacks
   });
 
   const chatHistoryChain = RunnableSequence.from([
@@ -88,6 +93,7 @@ export const getRAIChatChain = async (options: {
       })
         .pipe(
           getLargeContextModel({
+            modelId,
             stream: true,
             promptSuffix: '<answer>',
             stopSequences: ['</answer>']
@@ -96,24 +102,26 @@ export const getRAIChatChain = async (options: {
         .pipe(new StringOutputParser())
     }
   ]).withConfig({
-    callbacks: options.callbacks
+    callbacks
   });
 
   const faithQaChain = await getDocumentQaChain({
+    modelId,
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
       {
         category: 'bible',
-        translation: options.user.translation
+        translation: user.translation
       },
       "metadata->>'category' != 'bible'"
     ],
     extraPromptVars: {
       history: (await history.getMessages())
         .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
-        .join('\n')
+        .join('\n'),
+      bibleTranslation: user.translation
     },
-    callbacks: options.callbacks
+    callbacks
   });
 
   const branch = RunnableBranch.from([
@@ -187,10 +195,11 @@ export const getRAIChatChain = async (options: {
 };
 
 export async function getDocumentQaChain(options: {
+  modelId: AnthropicModelId;
   prompt: string;
+  callbacks: CallbackManager;
   filters?: (Metadata | string)[];
   extraPromptVars?: PartialValues<string>;
-  callbacks: CallbackManager;
 }) {
   const { prompt, filters, extraPromptVars } = options;
   const qaRetriever = await getDocumentVectorStore({
@@ -198,7 +207,7 @@ export async function getDocumentQaChain(options: {
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: 20,
+      k: 10,
       verbose: envConfig.isLocal
     })
   );
@@ -215,7 +224,10 @@ export async function getDocumentQaChain(options: {
       query: (previousStepResult) => previousStepResult.query,
       documents: (previousStepResult) =>
         previousStepResult.sourceDocuments
-          ?.map((sourceDoc: Document) => `<document>\n${sourceDoc.pageContent}\n</document>`)
+          ?.map(
+            (sourceDoc: Document) =>
+              `<document>\n<content>${sourceDoc.pageContent}</content>\n<url>${sourceDoc.metadata.url}</url>\n</document>`
+          )
           .join('\n')
     },
     {

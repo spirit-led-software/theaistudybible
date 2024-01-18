@@ -13,8 +13,9 @@ export type AmazonModelBody = {
 
 export type AnthropicModelId =
   | 'anthropic.claude-v1'
+  | 'anthropic.claude-instant-v1'
   | 'anthropic.claude-v2'
-  | 'anthropic.claude-instant-v1';
+  | 'anthropic.claude-v2:1';
 
 export type AnthropicModelBody = {
   temperature: number;
