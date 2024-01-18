@@ -226,7 +226,7 @@ export async function getDocumentQaChain(options: {
         previousStepResult.sourceDocuments
           ?.map(
             (sourceDoc: Document) =>
-              `<document>\n<content>${sourceDoc.pageContent}</content>\n<url>${sourceDoc.metadata.url}</url>\n</document>`
+              `<document>\n<document_content>${sourceDoc.pageContent}</document_content>\n<document_url>${sourceDoc.metadata.url}</document_url>\n</document>`
           )
           .join('\n')
     },
