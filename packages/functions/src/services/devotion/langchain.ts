@@ -64,17 +64,24 @@ export const getDevotionGeneratorChain = async (): Promise<
   >
 > => {
   const retriever = await getDocumentVectorStore({
-    verbose: envConfig.isLocal
+    verbose: envConfig.isLocal,
+    filters: [
+      {
+        category: 'bible',
+        translation: 'ESV'
+      },
+      "metadata->>'category' != 'bible'"
+    ]
   }).then((store) =>
     store.asRetriever({
-      k: 25,
+      k: 10,
       verbose: envConfig.isLocal
     })
   );
   const chain = RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
-        (input) => `${input.topic}\n${input.bibleReading}`,
+        (input) => `Additional information to support:\n${input.topic}\n${input.bibleReading}`,
         retriever
       ]),
       bibleReading: (input) => input.bibleReading,
@@ -152,7 +159,7 @@ export const getBibleReadingChain = async (topic: string) => {
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: 30,
+      k: 50,
       verbose: envConfig.isLocal
     })
   );
@@ -189,7 +196,6 @@ export const getBibleReadingChain = async (topic: string) => {
     })
       .pipe(
         getLargeContextModel({
-          modelId: 'anthropic.claude-v2:1',
           maxTokens: 2048,
           stopSequences: ['</output>'],
           promptSuffix: '<output>'
