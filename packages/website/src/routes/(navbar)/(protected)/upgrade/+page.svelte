@@ -42,7 +42,12 @@
 		<PricingCard
 			title="RevelationsAI Standard"
 			price="Free"
-			features={['5 Daily Queries', '1 Daily Image (Mobile-Only)']}
+			features={[
+				'Anthropic Claude v1 (AI model)',
+				'Send 5 messages',
+				'Generate 1 image (mobile only)',
+				'Standard ads'
+			]}
 			currentLevel={user.maxQueries <= 5}
 		/>
 		{#each productInfos as productInfo}
