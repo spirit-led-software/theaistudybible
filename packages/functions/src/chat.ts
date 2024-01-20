@@ -1,4 +1,5 @@
 import envConfig from '@core/configs/env';
+import type { AnthropicModelId } from '@core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model/chat';
 import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
@@ -116,11 +117,34 @@ async function lambdaHandler(
     };
   }
 
-  const { messages = [], chatId }: { messages: RAIChatMessage[]; chatId?: string } = JSON.parse(
-    event.body
-  );
+  const {
+    messages = [],
+    chatId,
+    modelId
+  }: {
+    messages: RAIChatMessage[];
+    chatId?: string;
+    modelId?: AnthropicModelId;
+  } = JSON.parse(event.body);
 
   try {
+    if (
+      modelId &&
+      modelId !== 'anthropic.claude-v2:1' &&
+      modelId !== 'anthropic.claude-v2' &&
+      modelId !== 'anthropic.claude-instant-v1' &&
+      modelId !== 'anthropic.claude-v1'
+    ) {
+      console.log('Invalid modelId provided');
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: Readable.from([JSON.stringify({ error: 'Invalid model ID provided' })])
+      };
+    }
+
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage || lastMessage.role !== 'user') {
       console.log('Invalid last message');
@@ -164,6 +188,20 @@ async function lambdaHandler(
     }
     const incrementQueryCountPromise = incrementUserQueryCount(userWithRoles.id);
     pendingPromises.push(incrementQueryCountPromise);
+
+    if (modelId && modelId !== 'anthropic.claude-instant-v1' && maxQueries <= 5) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: Readable.from([
+          JSON.stringify({
+            error: `Your plan does not support this model. Please upgrade to a plan that supports this model.`
+          })
+        ])
+      };
+    }
 
     console.time('Validating chat');
     const chat = chatId
@@ -227,8 +265,9 @@ async function lambdaHandler(
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain({
-      modelId:
-        maxQueries > 5 && !envConfig.isLocal
+      modelId: modelId
+        ? modelId
+        : maxQueries > 5 && !envConfig.isLocal
           ? 'anthropic.claude-v2:1'
           : 'anthropic.claude-instant-v1',
       user: userWithRoles,

@@ -18,16 +18,16 @@
 		<h2 class="text-base">
 			<span
 				class={`${
-					user.remainingQueries < 5
+					user.remainingQueries < 3
 						? 'text-red-500'
-						: user.remainingQueries < 10
+						: user.remainingQueries < 5
 							? 'text-yellow-500'
 							: 'text-green-500'
 				}`}
 			>
-				{user.remainingQueries}
+				{user.maxQueries > 5 ? 'Unlimited' : user.remainingQueries}
 			</span>{' '}
-			of {user.maxQueries}
+			of {user.maxQueries > 5 ? 'Unlimited' : user.maxQueries}
 		</h2>
 		<a
 			href={`https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288?prefilled_email=${encodeURIComponent(user.email)}`}
@@ -40,25 +40,19 @@
 	</div>
 	<div class="grid grid-cols-2 md:grid-cols-3">
 		<PricingCard
-			title="Late to Sunday Service"
+			title="RevelationsAI Standard"
 			price="Free"
 			features={['5 Daily Queries', '1 Daily Image (Mobile-Only)']}
-			currentLevel={user.maxQueries >= 5}
+			currentLevel={user.maxQueries <= 5}
 		/>
 		{#each productInfos as productInfo}
 			<PricingCard
 				title={productInfo.product.name}
 				price={productInfo.product.default_price}
-				features={[
-					...(parseInt(productInfo.product.metadata.queryLimit) > 25 ||
-					productInfo.product.metadata.queryLimit === 'Infinite'
-						? ['Ad-Free']
-						: ['Less Ads']),
-					`${productInfo.product.metadata.queryLimit} Daily Queries`,
-					`${productInfo.product.metadata.imageLimit} Daily Images (Mobile-Only)`
-				]}
-				currentLevel={user.maxQueries >= parseInt(productInfo.product.metadata.queryLimit) ||
-					(productInfo.product.metadata.queryLimit === 'Infinite' && user.maxQueries > 100)}
+				features={productInfo.product.features
+					.filter((feature) => feature.name)
+					.map((feature) => feature.name)}
+				currentLevel={user.maxQueries > 5}
 				purchaseLink={productInfo.paymentLink.url}
 			/>
 		{/each}

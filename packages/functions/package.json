@@ -14,7 +14,7 @@
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.11.5",
     "@types/nodemailer": "^6.4.14",
-    "sst": "2.39.6",
+    "sst": "2.39.7",
     "vitest": "^1.2.1"
   },
   "dependencies": {
@@ -36,7 +36,7 @@
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
     "puppeteer-core": "^21.7.0",
-    "stripe": "^14.12.0",
+    "stripe": "^14.13.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
     "web-streams-polyfill": "^3.3.2",

@@ -2,7 +2,7 @@
 	import { user } from '$lib/stores/user';
 	import type Stripe from 'stripe';
 
-	export let features: string[];
+	export let features: (string | undefined)[];
 	export let title: string;
 	export let price: string | Stripe.Price | null | undefined;
 	export let currentLevel: boolean = false;
@@ -26,7 +26,9 @@
 		<h2 class="text-slate-700 font-kanit">{priceString}</h2>
 		<ul class="list-inside list-disc">
 			{#each features as feature}
-				<li class="list-item">{feature}</li>
+				{#if feature}
+					<li class="list-item">{feature}</li>
+				{/if}
 			{/each}
 		</ul>
 	</div>

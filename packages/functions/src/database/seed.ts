@@ -135,6 +135,11 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
       queries: Number.MAX_SAFE_INTEGER,
       images: 50
     };
+  } else if (lookupKey === 'plus') {
+    return {
+      queries: Number.MAX_SAFE_INTEGER,
+      images: Number.MAX_SAFE_INTEGER
+    };
   } else {
     return { queries: 5, images: 1 };
   }
