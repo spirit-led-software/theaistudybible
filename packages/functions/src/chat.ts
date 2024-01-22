@@ -15,7 +15,7 @@ import {
 import { createChat, getChat, updateChat, type RAIChatMessage } from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
 import { validNonApiHandlerSession } from '@services/session';
-import { isObjectOwner } from '@services/user';
+import { hasPlusSync, isAdminSync, isObjectOwner } from '@services/user';
 import { createUserMessage, getUserMessages } from '@services/user/message';
 import { decrementUserQueryCount, incrementUserQueryCount } from '@services/user/query-count';
 import { LangChainStream } from 'ai';
@@ -189,7 +189,7 @@ async function lambdaHandler(
     const incrementQueryCountPromise = incrementUserQueryCount(userWithRoles.id);
     pendingPromises.push(incrementQueryCountPromise);
 
-    if (modelId && modelId !== 'anthropic.claude-instant-v1' && maxQueries <= 5) {
+    if (modelId && modelId !== 'anthropic.claude-instant-v1' && !hasPlusSync(userWithRoles)) {
       return {
         statusCode: 403,
         headers: {
@@ -267,7 +267,7 @@ async function lambdaHandler(
     const chain = await getRAIChatChain({
       modelId: modelId
         ? modelId
-        : maxQueries > 5 && !envConfig.isLocal
+        : (hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
           ? 'anthropic.claude-v2:1'
           : 'anthropic.claude-instant-v1',
       user: userWithRoles,

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PricingCard from '$lib/components/PricingCard.svelte';
+	import { hasPlus, isAdmin } from '$lib/services/user';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -25,9 +26,9 @@
 							: 'text-green-500'
 				}`}
 			>
-				{user.maxQueries > 5 ? 'Unlimited' : user.remainingQueries}
+				{hasPlus(user) || isAdmin(user) ? 'Unlimited' : user.remainingQueries}
 			</span>{' '}
-			of {user.maxQueries > 5 ? 'Unlimited' : user.maxQueries}
+			of {hasPlus(user) || isAdmin(user) ? 'Unlimited' : user.maxQueries}
 		</h2>
 		<a
 			href={`https://checkout.revelationsai.com/p/login/bIY5mO0MW95xgQ8288?prefilled_email=${encodeURIComponent(user.email)}`}
@@ -48,7 +49,7 @@
 				'Generate 1 image (mobile only)',
 				'Standard ads'
 			]}
-			currentLevel={user.maxQueries <= 5}
+			currentLevel={!hasPlus(user)}
 		/>
 		{#each productInfos as productInfo}
 			<PricingCard
@@ -57,7 +58,7 @@
 				features={productInfo.product.features
 					.filter((feature) => feature.name)
 					.map((feature) => feature.name)}
-				currentLevel={user.maxQueries > 5}
+				currentLevel={hasPlus(user)}
 				purchaseLink={productInfo.paymentLink.url}
 			/>
 		{/each}

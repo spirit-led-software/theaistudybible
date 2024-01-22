@@ -100,6 +100,22 @@ export function isAdminSync(userWithRoles: UserWithRoles) {
   return userWithRoles.roles.some((role) => role.name === 'admin');
 }
 
+export async function hasPlus(userId: string) {
+  const userRolesRelation = await readOnlyDatabase
+    .select()
+    .from(usersToRoles)
+    .where(eq(usersToRoles.userId, userId))
+    .rightJoin(roles, eq(roles.id, usersToRoles.roleId));
+
+  return userRolesRelation.some((userRoleRelation) => {
+    return userRoleRelation.roles.name === 'rc:plus';
+  });
+}
+
+export function hasPlusSync(userWithRoles: UserWithRoles) {
+  return userWithRoles.roles.some((role) => role.name === 'rc:plus');
+}
+
 export function isObjectOwner(object: { userId: string }, userId: string) {
   return object.userId === userId;
 }

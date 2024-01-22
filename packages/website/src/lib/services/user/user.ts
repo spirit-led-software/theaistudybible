@@ -113,6 +113,10 @@ export function isAdmin(userInfo: UserInfo) {
 	return userInfo.roles.some((role) => role.name === 'admin');
 }
 
+export function hasPlus(userInfo: UserInfo) {
+	return userInfo.roles.some((role) => role.name === 'rc:plus');
+}
+
 export function getUserMaxQueries(userInfo: UserInfo) {
 	const queryPermissions: string[] = [];
 	userInfo.roles.forEach((role) => {
