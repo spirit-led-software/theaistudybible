@@ -93,7 +93,7 @@ export async function getMostAskedUserMessages(count: number) {
     .from(userMessages)
     .innerJoin(users, eq(userMessages.userId, users.id))
     .where(not(like(users.email, '%@revelationsai.com'))) // Exclude internal accounts
-    .groupBy(sql`LOWER(${userMessages.text})`)
+    .groupBy(sql`LOWER(${userMessages.text})`, userMessages.text)
     .orderBy(sql`COUNT(*) DESC`)
     .limit(count);
 }
