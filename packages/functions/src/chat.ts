@@ -189,7 +189,12 @@ async function lambdaHandler(
     const incrementQueryCountPromise = incrementUserQueryCount(userWithRoles.id);
     pendingPromises.push(incrementQueryCountPromise);
 
-    if (modelId && modelId !== 'anthropic.claude-instant-v1' && !hasPlusSync(userWithRoles) && !isAdminSync(userWithRoles)) {
+    if (
+      modelId &&
+      modelId !== 'anthropic.claude-instant-v1' &&
+      !hasPlusSync(userWithRoles) &&
+      !isAdminSync(userWithRoles)
+    ) {
       return {
         statusCode: 403,
         headers: {
