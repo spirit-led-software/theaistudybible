@@ -23,7 +23,7 @@ How do you respond to the query?
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
-Be concise and to the point. You must format your output in valid markdown (md) format.
+Be concise and to the point. You must format your output using valid markdown syntax.
 </format_instructions>
 
 Put your answer to the query within <answer></answer> XML tags.`;
@@ -54,7 +54,7 @@ How do you respond to the query based on the conversation history?
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
-Be concise and to the point. You must format your output in valid markdown (md) format.
+Be concise and to the point. You must format your output using valid markdown syntax.
 </format_instructions>
 
 Put your answer to the query within <answer></answer> XML tags.`;
@@ -84,7 +84,7 @@ Here are some important rules for you to follow:
 - Do not repeat the query in your answer.
 - Quote or paraphrase the documents as much as possible to support your answer.
 - Refer to the documents provided as "the Bible" if the documents you are referring to are from the Bible, otherwise refer to them as "our sources".
-- When referring to, quoting, or paraphrasing a specific document, you must include a valid markdown (md) link to the document's URL.
+- When referring to, quoting, or paraphrasing a specific document, you must include a valid markdown link to the document's URL.
 - If you quote the Bible, you must use the "{bibleTranslation}" translation.
 
 Here is the query that you need to respond to, within <query></query> XML tags.
@@ -96,7 +96,7 @@ How do you respond to the query based on the documents and conversation history?
 
 Think about your answer first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
-Be concise and to the point. You must format your output in valid markdown (md) format.
+Be concise and to the point. You must format your output using valid markdown syntax.
 </format_instructions>
 
 Put your answer to the query within <answer></answer> XML tags.`;
