@@ -25,7 +25,7 @@ export async function aiRenameChat(chat: Chat, history: Message[]) {
   const result = await renameChain
     .invoke({
       history: history
-        .slice(-20)
+        .slice(-13)
         .map(
           (message) =>
             `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`

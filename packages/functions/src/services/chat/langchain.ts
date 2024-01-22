@@ -40,7 +40,7 @@ export const getRAIChatChain = async (options: {
   const { modelId, user, messages, callbacks } = options;
 
   const history = new ChatMessageHistory(
-    messages.slice(-21, -1).map((message) => {
+    messages.slice(-13, -1).map((message) => {
       return message.role === 'user'
         ? new HumanMessage(message.content)
         : new AIMessage(message.content);
