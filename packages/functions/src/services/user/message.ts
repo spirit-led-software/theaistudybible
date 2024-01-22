@@ -1,7 +1,7 @@
 import type { CreateUserMessageData, UpdateUserMessageData } from '@core/model/user/message';
-import { userMessages } from '@core/schema';
+import { userMessages, users } from '@core/schema';
 import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
-import { SQL, and, desc, eq, sql } from 'drizzle-orm';
+import { SQL, and, desc, eq, like, not, sql } from 'drizzle-orm';
 
 export async function getUserMessages(
   options: {
@@ -87,10 +87,13 @@ export async function getMostAskedUserMessages(count: number) {
   return await readOnlyDatabase
     .select({
       text: userMessages.text,
+      lowerCaseText: sql`LOWER(${userMessages.text})`,
       count: sql`COUNT(*)`
     })
     .from(userMessages)
-    .groupBy(userMessages.text)
+    .innerJoin(users, eq(userMessages.userId, users.id))
+    .where(not(like(users.email, '%@revelationsai.com'))) // Exclude internal accounts
+    .groupBy(sql`LOWER(${userMessages.text})`)
     .orderBy(sql`COUNT(*) DESC`)
     .limit(count);
 }
