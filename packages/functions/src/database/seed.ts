@@ -68,7 +68,7 @@ async function createInitialRoles() {
     console.log('Admin role created');
   } else {
     adminRole = await updateRole(adminRole.id, {
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:100`]
+      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
     });
     console.log('Admin role already exists');
   }
@@ -82,7 +82,7 @@ async function createInitialRoles() {
     console.log('Moderator role created');
   } else {
     moderatorRole = await updateRole(moderatorRole.id, {
-      permissions: ['query:100', 'image:25']
+      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
     });
     console.log('Moderator role already exists');
   }
@@ -124,18 +124,7 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
   queries: number;
   images: number;
 } {
-  if (lookupKey === 'church-member') {
-    return { queries: 10, images: 2 };
-  } else if (lookupKey === 'youth-pastor') {
-    return { queries: 25, images: 5 };
-  } else if (lookupKey === 'lead-pastor') {
-    return { queries: 50, images: 10 };
-  } else if (lookupKey === 'church-plant') {
-    return {
-      queries: Number.MAX_SAFE_INTEGER,
-      images: 50
-    };
-  } else if (lookupKey === 'plus') {
+  if (lookupKey === 'plus') {
     return {
       queries: Number.MAX_SAFE_INTEGER,
       images: Number.MAX_SAFE_INTEGER
