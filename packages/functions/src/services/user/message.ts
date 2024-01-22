@@ -87,13 +87,12 @@ export async function getMostAskedUserMessages(count: number) {
   return await readOnlyDatabase
     .select({
       text: userMessages.text,
-      lowerCaseText: sql`LOWER(${userMessages.text})`,
       count: sql`COUNT(*)`
     })
-    .from(sql`(SELECT ${userMessages.text} FROM ${userMessages}) AS sub_query`)
+    .from(sql`(${userMessages})`)
     .innerJoin(users, eq(userMessages.userId, users.id))
     .where(not(like(users.email, '%@revelationsai.com'))) // Exclude internal accounts
-    .groupBy(sql`LOWER(${userMessages.text})`)
+    .groupBy(userMessages.text)
     .orderBy(sql`COUNT(*) DESC`)
     .limit(count);
 }
