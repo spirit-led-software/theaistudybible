@@ -162,12 +162,16 @@ export async function getChatMessages(
 	chatId: string,
 	options: PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
-	const response = await fetch(`${PUBLIC_API_URL}/chats/${chatId}/messages`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${options.session}`
+	const searchParams = GetEntitiesSearchParams(options);
+	const response = await fetch(
+		`${PUBLIC_API_URL}/chats/${chatId}/messages?${searchParams.toString()}`,
+		{
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${options.session}`
+			}
 		}
-	});
+	);
 
 	if (!response.ok) {
 		console.error(
