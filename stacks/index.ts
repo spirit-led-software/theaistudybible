@@ -18,9 +18,6 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
 
-  // PolyScale
-  POLY_SCALE_APP_ID: process.env.POLY_SCALE_APP_ID!,
-
   // Vector DB Table
   VECTOR_DB_DOCS_TABLE: process.env.VECTOR_DB_DOCS_TABLE!,
   VECTOR_DB_DOCS_DIMENSIONS: process.env.VECTOR_DB_DOCS_DIMENSIONS!,

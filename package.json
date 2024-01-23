@@ -44,7 +44,6 @@
     "langchain": "^0.1.5",
     "neon-sdk": "^1.16.0",
     "pg": "^8.11.3",
-    "pg-promise": "^11.5.4",
     "pgvector": "^0.1.7",
     "replicate": "^0.25.2",
     "youtube-transcript": "^1.0.6",

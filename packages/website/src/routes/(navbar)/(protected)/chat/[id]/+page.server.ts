@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ params, locals: { session } }) => {
 		}),
 		getChatMessages(params.id, {
 			session: session!
-		}).then((response) => response.messages)
+		}).then((response) => response.messages.reverse())
 	]);
 
 	return {
