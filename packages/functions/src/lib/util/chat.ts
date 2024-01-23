@@ -1,10 +1,10 @@
 import type { Chat } from '@core/model/chat';
+import { StringOutputParser } from '@langchain/core/output_parsers';
 import { updateChat } from '@services/chat';
 import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from '@services/chat/prompts';
 import { getLargeContextModel } from '@services/llm';
 import type { Message } from 'ai';
 import { PromptTemplate } from 'langchain/prompts';
-import { StringOutputParser } from 'langchain/schema/output_parser';
 
 export async function aiRenameChat(chat: Chat, history: Message[]) {
   if (chat.customName) {

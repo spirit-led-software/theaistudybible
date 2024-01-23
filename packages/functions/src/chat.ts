@@ -3,7 +3,7 @@ import type { AnthropicModelId } from '@core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model/chat';
 import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
-import { readWriteDatabase } from '@lib/database';
+import db from '@lib/database/database';
 import { aiRenameChat } from '@lib/util/chat';
 import middy from '@middy/core';
 import {
@@ -84,7 +84,7 @@ async function postResponseValidationLogic({
 
   await Promise.all([
     ...sourceDocuments.map(async (sourceDoc) => {
-      await readWriteDatabase.insert(aiResponsesToSourceDocuments).values({
+      await db.insert(aiResponsesToSourceDocuments).values({
         aiResponseId: aiResponse.id,
         sourceDocumentId: sourceDoc.id,
         distance: sourceDoc.distance,

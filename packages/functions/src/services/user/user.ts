@@ -1,6 +1,6 @@
 import type { CreateUserData, UpdateUserData, UserWithRoles } from '@core/model/user';
 import { roles, users, usersToRoles } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUsers(
@@ -12,17 +12,11 @@ export async function getUsers(
   } = {}
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(users.createdAt) } = options;
-  return await readOnlyDatabase
-    .select()
-    .from(users)
-    .where(where)
-    .limit(limit)
-    .offset(offset)
-    .orderBy(orderBy);
+  return await db.select().from(users).where(where).limit(limit).offset(offset).orderBy(orderBy);
 }
 
 export async function getUser(id: string) {
-  return (await readOnlyDatabase.select().from(users).where(eq(users.id, id))).at(0);
+  return (await db.select().from(users).where(eq(users.id, id))).at(0);
 }
 
 export async function getUserOrThrow(id: string) {
@@ -34,7 +28,7 @@ export async function getUserOrThrow(id: string) {
 }
 
 export async function getUserByEmail(email: string) {
-  return (await readOnlyDatabase.select().from(users).where(eq(users.email, email))).at(0);
+  return (await db.select().from(users).where(eq(users.email, email))).at(0);
 }
 
 export async function getUserByEmailOrThrow(email: string) {
@@ -46,14 +40,12 @@ export async function getUserByEmailOrThrow(email: string) {
 }
 
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
-  return (
-    await readOnlyDatabase.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId))
-  ).at(0);
+  return (await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId))).at(0);
 }
 
 export async function createUser(data: CreateUserData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(users)
       .values({
         hasCustomImage: data.image ? true : false,
@@ -67,7 +59,7 @@ export async function createUser(data: CreateUserData) {
 
 export async function updateUser(id: string, data: UpdateUserData) {
   return (
-    await readWriteDatabase
+    await db
       .update(users)
       .set({
         hasCustomImage: sql`${users.hasCustomImage} OR ${data.image ? true : false}`,
@@ -81,11 +73,11 @@ export async function updateUser(id: string, data: UpdateUserData) {
 }
 
 export async function deleteUser(id: string) {
-  return (await readWriteDatabase.delete(users).where(eq(users.id, id)).returning())[0];
+  return (await db.delete(users).where(eq(users.id, id)).returning())[0];
 }
 
 export async function isAdmin(userId: string) {
-  const userRolesRelation = await readOnlyDatabase
+  const userRolesRelation = await db
     .select()
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId))
@@ -101,7 +93,7 @@ export function isAdminSync(userWithRoles: UserWithRoles) {
 }
 
 export async function hasPlus(userId: string) {
-  const userRolesRelation = await readOnlyDatabase
+  const userRolesRelation = await db
     .select()
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId))

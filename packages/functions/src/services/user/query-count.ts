@@ -3,7 +3,7 @@ import type {
   UpdateUserQueryCountData
 } from '@core/model/user/query-count';
 import { userQueryCounts } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUserQueryCounts(
@@ -16,7 +16,7 @@ export async function getUserQueryCounts(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(userQueryCounts.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userQueryCounts)
     .where(where)
@@ -36,7 +36,7 @@ export async function getUserQueryCountsByUserId(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(userQueryCounts.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userQueryCounts)
     .where(and(eq(userQueryCounts.userId, userId), where))
@@ -47,7 +47,7 @@ export async function getUserQueryCountsByUserId(
 
 export async function getUserQueryCountByUserIdAndDate(userId: string, date: Date) {
   return (
-    await readOnlyDatabase
+    await db
       .select()
       .from(userQueryCounts)
       .where(
@@ -61,7 +61,7 @@ export async function getUserQueryCountByUserIdAndDate(userId: string, date: Dat
 
 export async function createUserQueryCount(data: CreateUserQueryCountData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(userQueryCounts)
       .values({
         ...data,
@@ -74,7 +74,7 @@ export async function createUserQueryCount(data: CreateUserQueryCountData) {
 
 export async function updateUserQueryCount(id: string, data: UpdateUserQueryCountData) {
   return (
-    await readWriteDatabase
+    await db
       .update(userQueryCounts)
       .set({
         ...data,
@@ -121,7 +121,5 @@ export async function decrementUserQueryCount(userId: string) {
 }
 
 export async function deleteUserQueryCount(id: string) {
-  return (
-    await readWriteDatabase.delete(userQueryCounts).where(eq(userQueryCounts.id, id)).returning()
-  )[0];
+  return (await db.delete(userQueryCounts).where(eq(userQueryCounts.id, id)).returning())[0];
 }

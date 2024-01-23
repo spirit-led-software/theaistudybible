@@ -1,6 +1,6 @@
 import type { CreateUserPasswordData, UpdateUserPasswordData } from '@core/model/user/password';
 import { userPasswords } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, desc, eq } from 'drizzle-orm';
 
 export async function getUserPasswords(
@@ -13,7 +13,7 @@ export async function getUserPasswords(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(userPasswords.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userPasswords)
     .where(where)
@@ -23,14 +23,12 @@ export async function getUserPasswords(
 }
 
 export async function getUserPasswordByUserId(userId: string) {
-  return (
-    await readOnlyDatabase.select().from(userPasswords).where(eq(userPasswords.userId, userId))
-  )[0];
+  return (await db.select().from(userPasswords).where(eq(userPasswords.userId, userId)))[0];
 }
 
 export async function createUserPassword(data: CreateUserPasswordData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(userPasswords)
       .values({
         ...data,
@@ -43,7 +41,7 @@ export async function createUserPassword(data: CreateUserPasswordData) {
 
 export async function updateUserPassword(id: string, data: UpdateUserPasswordData) {
   return (
-    await readWriteDatabase
+    await db
       .update(userPasswords)
       .set({
         ...data,
@@ -57,7 +55,7 @@ export async function updateUserPassword(id: string, data: UpdateUserPasswordDat
 
 export async function updateUserPasswordByUserId(userId: string, data: UpdateUserPasswordData) {
   return (
-    await readWriteDatabase
+    await db
       .update(userPasswords)
       .set({
         ...data,

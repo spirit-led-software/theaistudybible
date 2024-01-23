@@ -3,7 +3,7 @@ import type {
   UpdateIndexOperationData
 } from '@core/model/data-source/index-op';
 import { indexOperations } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, desc, eq } from 'drizzle-orm';
 
 export async function getIndexOperations(
@@ -16,7 +16,7 @@ export async function getIndexOperations(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(indexOperations.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(indexOperations)
     .limit(limit)
@@ -26,9 +26,7 @@ export async function getIndexOperations(
 }
 
 export async function getIndexOperation(id: string) {
-  return (
-    await readOnlyDatabase.select().from(indexOperations).where(eq(indexOperations.id, id))
-  ).at(0);
+  return (await db.select().from(indexOperations).where(eq(indexOperations.id, id))).at(0);
 }
 
 export async function getIndexOperationOrThrow(id: string) {
@@ -41,7 +39,7 @@ export async function getIndexOperationOrThrow(id: string) {
 
 export async function createIndexOperation(data: CreateIndexOperationData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(indexOperations)
       .values({
         ...data,
@@ -54,7 +52,7 @@ export async function createIndexOperation(data: CreateIndexOperationData) {
 
 export async function updateIndexOperation(id: string, data: UpdateIndexOperationData) {
   return (
-    await readWriteDatabase
+    await db
       .update(indexOperations)
       .set({
         ...data,
@@ -67,7 +65,5 @@ export async function updateIndexOperation(id: string, data: UpdateIndexOperatio
 }
 
 export async function deleteIndexOperation(id: string) {
-  return (
-    await readWriteDatabase.delete(indexOperations).where(eq(indexOperations.id, id)).returning()
-  )[0];
+  return (await db.delete(indexOperations).where(eq(indexOperations.id, id)).returning())[0];
 }

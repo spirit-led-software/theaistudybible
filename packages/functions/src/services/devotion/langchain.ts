@@ -1,6 +1,8 @@
 import envConfig from '@core/configs/env';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import { devotions } from '@core/schema';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import { getLargeContextModel } from '@services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
 import { getDocumentVectorStore } from '@services/vector-db';
@@ -8,8 +10,6 @@ import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import { StringOutputParser } from 'langchain/schema/output_parser';
-import { Runnable, RunnableSequence } from 'langchain/schema/runnable';
 import { z } from 'zod';
 import { getDevotions } from './devotion';
 import {

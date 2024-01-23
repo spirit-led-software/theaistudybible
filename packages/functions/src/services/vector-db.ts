@@ -1,4 +1,5 @@
 import envConfig from '@core/configs/env';
+import polyScaleConfig from '@core/configs/poly-scale';
 import vectorDBConfig from '@core/configs/vector-db';
 import { NeonVectorStore } from '@core/langchain/vectorstores/neon';
 import { users } from '@core/schema';
@@ -21,7 +22,8 @@ export async function getDocumentVectorStore(options?: {
       tableName: `documents_${getEmbeddingsModel().model.replaceAll(/[^a-zA-Z0-9]/g, '_')}`,
       connectionOptions: {
         readWriteUrl: vectorDBConfig.writeUrl,
-        readOnlyUrl: vectorDBConfig.readUrl
+        readOnlyUrl: vectorDBConfig.readUrl,
+        polyScaleAppId: polyScaleConfig.appId
       },
       dimensions: 1536, //! Must match embedding model (above) output size.
       distance: 'cosine',

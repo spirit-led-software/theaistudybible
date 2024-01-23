@@ -1,6 +1,6 @@
 import type { CreateChatData, UpdateChatData } from '@core/model/chat';
 import { aiResponses, chats, userMessages } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import type { Message } from 'ai';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 import { v4 as uuidV4 } from 'uuid';
@@ -19,17 +19,11 @@ export async function getChats(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(chats.createdAt) } = options;
 
-  return await readOnlyDatabase
-    .select()
-    .from(chats)
-    .where(where)
-    .limit(limit)
-    .offset(offset)
-    .orderBy(orderBy);
+  return await db.select().from(chats).where(where).limit(limit).offset(offset).orderBy(orderBy);
 }
 
 export async function getChat(id: string) {
-  return (await readOnlyDatabase.select().from(chats).where(eq(chats.id, id))).at(0);
+  return (await db.select().from(chats).where(eq(chats.id, id))).at(0);
 }
 
 export async function getChatOrThrow(id: string) {
@@ -42,7 +36,7 @@ export async function getChatOrThrow(id: string) {
 
 export async function createChat(data: CreateChatData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(chats)
       .values({
         customName: data.name && data.name != 'New Chat' ? true : false,
@@ -56,7 +50,7 @@ export async function createChat(data: CreateChatData) {
 
 export async function updateChat(id: string, data: UpdateChatData) {
   return (
-    await readWriteDatabase
+    await db
       .update(chats)
       .set({
         customName: sql`${chats.customName} OR ${
@@ -72,7 +66,7 @@ export async function updateChat(id: string, data: UpdateChatData) {
 }
 
 export async function deleteChat(id: string) {
-  return (await readWriteDatabase.delete(chats).where(eq(chats.id, id)).returning())[0];
+  return (await db.delete(chats).where(eq(chats.id, id)).returning())[0];
 }
 
 export async function getChatMessages(
@@ -85,7 +79,7 @@ export async function getChatMessages(
 ) {
   const { limit = 25, offset = 0, orderBy = desc(aiResponses.createdAt) } = options;
 
-  const queryResult = await readOnlyDatabase
+  const queryResult = await db
     .select()
     .from(userMessages)
     .leftJoin(aiResponses, eq(userMessages.id, aiResponses.userMessageId))

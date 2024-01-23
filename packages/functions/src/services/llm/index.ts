@@ -6,8 +6,8 @@ import {
 } from '@core/langchain/embeddings/bedrock';
 import { RAIBedrock } from '@core/langchain/llms/bedrock';
 import type { AnthropicModelId, CohereModelId } from '@core/langchain/types/bedrock-types';
+import type { BaseCache } from '@langchain/core/caches';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
-import type { BaseCache } from 'langchain/schema';
 
 export type StandardModelInput = {
   stream?: boolean;

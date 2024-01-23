@@ -4,7 +4,7 @@ import type {
   UpdateDataSourceData
 } from '@core/model/data-source';
 import { dataSources } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { SQL, desc, eq } from 'drizzle-orm';
 
@@ -18,7 +18,7 @@ export async function getDataSources(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(dataSources.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(dataSources)
     .limit(limit)
@@ -28,7 +28,7 @@ export async function getDataSources(
 }
 
 export async function getDataSource(id: string) {
-  return (await readOnlyDatabase.select().from(dataSources).where(eq(dataSources.id, id))).at(0);
+  return (await db.select().from(dataSources).where(eq(dataSources.id, id))).at(0);
 }
 
 export async function getDataSourceOrThrow(id: string) {
@@ -41,7 +41,7 @@ export async function getDataSourceOrThrow(id: string) {
 
 export async function createDataSource(data: CreateDataSourceData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(dataSources)
       .values({
         ...data,
@@ -54,7 +54,7 @@ export async function createDataSource(data: CreateDataSourceData) {
 
 export async function updateDataSource(id: string, data: UpdateDataSourceData) {
   return (
-    await readWriteDatabase
+    await db
       .update(dataSources)
       .set({
         ...data,
@@ -90,7 +90,7 @@ export async function updateDataSourceRelatedDocuments(
 }
 
 export async function deleteDataSource(id: string) {
-  return (await readWriteDatabase.delete(dataSources).where(eq(dataSources.id, id)).returning())[0];
+  return (await db.delete(dataSources).where(eq(dataSources.id, id)).returning())[0];
 }
 
 export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {

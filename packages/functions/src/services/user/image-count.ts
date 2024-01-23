@@ -3,7 +3,7 @@ import type {
   UpdateUserGeneratedImageCountData
 } from '@core/model/user/image-count';
 import { userGeneratedImageCounts } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
 export async function getUserGeneratedImageCounts(
@@ -21,7 +21,7 @@ export async function getUserGeneratedImageCounts(
     orderBy = desc(userGeneratedImageCounts.createdAt)
   } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userGeneratedImageCounts)
     .where(where)
@@ -46,7 +46,7 @@ export async function getUserGeneratedImageCountsByUserId(
     orderBy = desc(userGeneratedImageCounts.createdAt)
   } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userGeneratedImageCounts)
     .where(and(eq(userGeneratedImageCounts.userId, userId), where))
@@ -57,7 +57,7 @@ export async function getUserGeneratedImageCountsByUserId(
 
 export async function getUserGeneratedImageCountByUserIdAndDate(userId: string, date: Date) {
   return (
-    await readOnlyDatabase
+    await db
       .select()
       .from(userGeneratedImageCounts)
       .where(
@@ -71,7 +71,7 @@ export async function getUserGeneratedImageCountByUserIdAndDate(userId: string, 
 
 export async function createUserGeneratedImageCount(data: CreateUserGeneratedImageCountData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(userGeneratedImageCounts)
       .values({
         ...data,
@@ -87,7 +87,7 @@ export async function updateUserGeneratedImageCount(
   data: UpdateUserGeneratedImageCountData
 ) {
   return (
-    await readWriteDatabase
+    await db
       .update(userGeneratedImageCounts)
       .set({
         ...data,
@@ -135,9 +135,6 @@ export async function decrementUserGeneratedImageCount(userId: string) {
 
 export async function deleteUserGeneratedImageCount(id: string) {
   return (
-    await readWriteDatabase
-      .delete(userGeneratedImageCounts)
-      .where(eq(userGeneratedImageCounts.id, id))
-      .returning()
+    await db.delete(userGeneratedImageCounts).where(eq(userGeneratedImageCounts.id, id)).returning()
   )[0];
 }

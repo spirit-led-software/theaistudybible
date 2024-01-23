@@ -3,7 +3,7 @@ import type {
   UpdateUserGeneratedImageData
 } from '@core/model/user/generated-image';
 import { userGeneratedImages } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, desc, eq } from 'drizzle-orm';
 
 export async function getUserGeneratedImages(
@@ -16,7 +16,7 @@ export async function getUserGeneratedImages(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(userGeneratedImages.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userGeneratedImages)
     .where(where)
@@ -26,9 +26,7 @@ export async function getUserGeneratedImages(
 }
 
 export async function getUserGeneratedImage(id: string) {
-  return (
-    await readOnlyDatabase.select().from(userGeneratedImages).where(eq(userGeneratedImages.id, id))
-  ).at(0);
+  return (await db.select().from(userGeneratedImages).where(eq(userGeneratedImages.id, id))).at(0);
 }
 
 export async function getUserGeneratedImageOrThrow(id: string) {
@@ -40,15 +38,12 @@ export async function getUserGeneratedImageOrThrow(id: string) {
 }
 
 export async function getUserGeneratedImagesByUserId(userId: string) {
-  return await readOnlyDatabase
-    .select()
-    .from(userGeneratedImages)
-    .where(eq(userGeneratedImages.userId, userId));
+  return await db.select().from(userGeneratedImages).where(eq(userGeneratedImages.userId, userId));
 }
 
 export async function createUserGeneratedImage(data: CreateUserGeneratedImageData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(userGeneratedImages)
       .values({
         ...data,
@@ -61,7 +56,7 @@ export async function createUserGeneratedImage(data: CreateUserGeneratedImageDat
 
 export async function updateUserGeneratedImage(id: string, data: UpdateUserGeneratedImageData) {
   return (
-    await readWriteDatabase
+    await db
       .update(userGeneratedImages)
       .set({
         ...data,
@@ -75,9 +70,6 @@ export async function updateUserGeneratedImage(id: string, data: UpdateUserGener
 
 export async function deleteUserGeneratedImage(id: string) {
   return (
-    await readWriteDatabase
-      .delete(userGeneratedImages)
-      .where(eq(userGeneratedImages.id, id))
-      .returning()
+    await db.delete(userGeneratedImages).where(eq(userGeneratedImages.id, id)).returning()
   )[0];
 }

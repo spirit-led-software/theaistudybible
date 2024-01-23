@@ -3,7 +3,7 @@ import type {
   UpdateAiResponseReactionData
 } from '@core/model/ai-response/reaction';
 import { aiResponseReactions, aiResponses, users } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, and, desc, eq } from 'drizzle-orm';
 
 export async function getAiResponseReactions(
@@ -16,7 +16,7 @@ export async function getAiResponseReactions(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(aiResponseReactions.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(aiResponseReactions)
     .where(where)
@@ -35,7 +35,7 @@ export async function getAiResponseReactionsWithInfo(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(aiResponseReactions.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(aiResponseReactions)
     .innerJoin(users, eq(aiResponseReactions.userId, users.id))
@@ -47,9 +47,7 @@ export async function getAiResponseReactionsWithInfo(
 }
 
 export async function getAiResponseReaction(id: string) {
-  return (
-    await readOnlyDatabase.select().from(aiResponseReactions).where(eq(aiResponseReactions.id, id))
-  ).at(0);
+  return (await db.select().from(aiResponseReactions).where(eq(aiResponseReactions.id, id))).at(0);
 }
 
 export async function getAiResponseReactionOrThrow(id: string) {
@@ -61,7 +59,7 @@ export async function getAiResponseReactionOrThrow(id: string) {
 }
 
 export async function getAiResponseReactionsByAiResponseId(aiResponseId: string) {
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(aiResponseReactions)
     .where(eq(aiResponseReactions.aiResponseId, aiResponseId));
@@ -72,7 +70,7 @@ export async function getAiResponseReactionCountByAiResponseIdAndReactionType(
   reactionType: (typeof aiResponseReactions.reaction.enumValues)[number]
 ) {
   return (
-    await readOnlyDatabase
+    await db
       .select()
       .from(aiResponseReactions)
       .where(
@@ -100,7 +98,7 @@ export async function getAiResponseReactionCounts(aiResponseId: string) {
 
 export async function createAiResponseReaction(data: CreateAiResponseReactionData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(aiResponseReactions)
       .values({
         ...data,
@@ -113,7 +111,7 @@ export async function createAiResponseReaction(data: CreateAiResponseReactionDat
 
 export async function updateAiResponseReaction(id: string, data: UpdateAiResponseReactionData) {
   return (
-    await readWriteDatabase
+    await db
       .update(aiResponseReactions)
       .set({
         ...data,
@@ -126,9 +124,6 @@ export async function updateAiResponseReaction(id: string, data: UpdateAiRespons
 
 export async function deleteAiResponseReaction(id: string) {
   return (
-    await readWriteDatabase
-      .delete(aiResponseReactions)
-      .where(eq(aiResponseReactions.id, id))
-      .returning()
+    await db.delete(aiResponseReactions).where(eq(aiResponseReactions.id, id)).returning()
   )[0];
 }

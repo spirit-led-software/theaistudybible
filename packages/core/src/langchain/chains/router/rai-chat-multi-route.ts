@@ -1,3 +1,4 @@
+import type { BaseChatMessageHistory } from '@langchain/core/chat_history';
 import type { BaseLanguageModel } from 'langchain/base_language';
 import {
   BaseChain,
@@ -8,7 +9,6 @@ import {
 } from 'langchain/chains';
 import { RouterOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import type { BaseChatMessageHistory } from 'langchain/schema';
 import { z } from 'zod';
 
 const ROUTER_TEMPLATE = (

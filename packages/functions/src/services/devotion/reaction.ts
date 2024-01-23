@@ -3,7 +3,7 @@ import type {
   UpdateDevotionReactionData
 } from '@core/model/devotion/reaction';
 import { devotionReactions, devotions, users } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, and, desc, eq } from 'drizzle-orm';
 
 export async function getDevotionReactions(
@@ -16,7 +16,7 @@ export async function getDevotionReactions(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(devotionReactions.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(devotionReactions)
     .where(where)
@@ -35,7 +35,7 @@ export async function getDevotionReactionsWithInfo(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(devotionReactions.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(devotionReactions)
     .innerJoin(users, eq(devotionReactions.userId, users.id))
@@ -47,9 +47,7 @@ export async function getDevotionReactionsWithInfo(
 }
 
 export async function getDevotionReaction(id: string) {
-  return (
-    await readOnlyDatabase.select().from(devotionReactions).where(eq(devotionReactions.id, id))
-  ).at(0);
+  return (await db.select().from(devotionReactions).where(eq(devotionReactions.id, id))).at(0);
 }
 
 export async function getDevotionReactionOrThrow(id: string) {
@@ -61,7 +59,7 @@ export async function getDevotionReactionOrThrow(id: string) {
 }
 
 export async function getDevotionReactionsByDevotionId(devotionId: string) {
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(devotionReactions)
     .where(eq(devotionReactions.devotionId, devotionId));
@@ -72,7 +70,7 @@ export async function getDevotionReactionCountByDevotionIdAndReactionType(
   reactionType: (typeof devotionReactions.reaction.enumValues)[number]
 ) {
   return (
-    await readOnlyDatabase
+    await db
       .select()
       .from(devotionReactions)
       .where(
@@ -100,7 +98,7 @@ export async function getDevotionReactionCounts(devotionId: string) {
 
 export async function createDevotionReaction(data: CreateDevotionReactionData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(devotionReactions)
       .values({
         ...data,
@@ -113,7 +111,7 @@ export async function createDevotionReaction(data: CreateDevotionReactionData) {
 
 export async function updateDevotionReaction(id: string, data: UpdateDevotionReactionData) {
   return (
-    await readWriteDatabase
+    await db
       .update(devotionReactions)
       .set({
         ...data,
@@ -126,10 +124,5 @@ export async function updateDevotionReaction(id: string, data: UpdateDevotionRea
 }
 
 export async function deleteDevotionReaction(id: string) {
-  return (
-    await readWriteDatabase
-      .delete(devotionReactions)
-      .where(eq(devotionReactions.id, id))
-      .returning()
-  )[0];
+  return (await db.delete(devotionReactions).where(eq(devotionReactions.id, id)).returning())[0];
 }

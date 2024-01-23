@@ -1,8 +1,7 @@
-import { Client, neonConfig } from '@neondatabase/serverless';
 import { Document } from 'langchain/document';
 import type { Embeddings } from 'langchain/embeddings/base';
 import { VectorStore } from 'langchain/vectorstores/base';
-import ws from 'ws';
+import { Client } from 'pg';
 import type { Metadata } from '../../types/metadata';
 
 export type DistanceMetric = 'l2' | 'cosine' | 'innerProduct';
@@ -11,6 +10,7 @@ export interface NeonVectorStoreArgs {
   connectionOptions: {
     readWriteUrl: string;
     readOnlyUrl?: string;
+    polyScaleAppId?: string;
   };
   tableName?: string;
   dimensions: number;
@@ -66,6 +66,7 @@ export class NeonVectorStore extends VectorStore {
 
   private readonly readOnlyUrl: string;
   private readonly readWriteUrl: string;
+  private readonly polyScaleAppId?: string;
 
   _vectorstoreType(): string {
     return 'neon';
@@ -81,8 +82,7 @@ export class NeonVectorStore extends VectorStore {
     this.hnswIdxM = fields.hnswIdxM ?? 16;
     this.hnswIdxEfConstruction = fields.hnswIdxEfConstruction ?? 64;
     this.hnswIdxEfSearch = fields.hnswIdxEfSearch ?? 40;
-
-    neonConfig.webSocketConstructor = ws;
+    this.polyScaleAppId = fields.connectionOptions.polyScaleAppId;
 
     this.readOnlyUrl =
       fields.connectionOptions.readOnlyUrl || fields.connectionOptions.readWriteUrl;
@@ -500,10 +500,21 @@ export class NeonVectorStore extends VectorStore {
     });
   }
 
+  createClient(connectionString: string): Client {
+    if (this.polyScaleAppId) {
+      const url = new URL(connectionString);
+      url.hostname = 'psedge.global';
+      url.port = '5432';
+      url.searchParams.set('application_name', this.polyScaleAppId);
+      connectionString = url.toString();
+    }
+    return new Client(connectionString);
+  }
+
   async transaction<T>(fn: (client: Client) => Promise<T>): Promise<T> {
     let client: Client | undefined;
     try {
-      client = new Client(this.readWriteUrl);
+      client = this.createClient(this.readWriteUrl);
       this._log('Connecting to database');
       await client.connect();
 
@@ -534,7 +545,7 @@ export class NeonVectorStore extends VectorStore {
   async writeOperation<T>(fn: (client: Client) => Promise<T>): Promise<T> {
     let client: Client | undefined;
     try {
-      client = new Client(this.readWriteUrl);
+      client = this.createClient(this.readWriteUrl);
 
       this._log('Connecting to database');
       await client.connect();
@@ -554,7 +565,7 @@ export class NeonVectorStore extends VectorStore {
   async readOperation<T>(fn: (client: Client) => Promise<T>): Promise<T> {
     let client: Client | undefined;
     try {
-      client = new Client(this.readOnlyUrl);
+      client = this.createClient(this.readOnlyUrl);
 
       this._log('Connecting to database');
       await client.connect();

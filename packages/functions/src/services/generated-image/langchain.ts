@@ -1,11 +1,11 @@
 import envConfig from '@core/configs/env';
+import { RunnableSequence } from '@langchain/core/runnables';
 import { getLargeContextModel } from '@services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
 import { getDocumentVectorStore } from '@services/vector-db';
 import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import { RunnableSequence } from 'langchain/schema/runnable';
 import { z } from 'zod';
 import {
   USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,

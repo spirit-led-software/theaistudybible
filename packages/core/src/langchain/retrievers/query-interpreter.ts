@@ -1,10 +1,10 @@
+import { BaseRetriever, type BaseRetrieverInput } from '@langchain/core/retrievers';
 import type { CallbackManagerForRetrieverRun } from 'langchain/callbacks';
 import { LLMChain } from 'langchain/chains';
 import type { Document } from 'langchain/document';
 import type { BaseLLMCallOptions, LLM } from 'langchain/llms/base';
 import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import { BaseRetriever, type BaseRetrieverInput } from 'langchain/schema/retriever';
 import { z } from 'zod';
 
 export const QUERY_INTERPRETER_DEFAULT_PROMPT_TEMPLATE = `Given the user query below, the you need to generate {numSearchTerms} unique search terms or phrases to effectively retrieve relevant documents. The objective is to capture the user's intent and provide accurate and diverse results. Please consider the following guidelines:

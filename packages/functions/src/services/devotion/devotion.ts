@@ -1,6 +1,6 @@
 import type { CreateDevotionData, Devotion, UpdateDevotionData } from '@core/model/devotion';
 import { devotions, devotionsToSourceDocuments } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { SQL, asc, desc, eq, sql } from 'drizzle-orm';
 
@@ -14,7 +14,7 @@ export async function getDevotions(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(devotions.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(devotions)
     .where(where)
@@ -24,7 +24,7 @@ export async function getDevotions(
 }
 
 export async function getDevotion(id: string) {
-  return (await readOnlyDatabase.select().from(devotions).where(eq(devotions.id, id))).at(0);
+  return (await db.select().from(devotions).where(eq(devotions.id, id))).at(0);
 }
 
 export async function getDevotionOrThrow(id: string) {
@@ -43,7 +43,7 @@ export async function getDevotionOrThrow(id: string) {
  */
 export async function getDevotionByCreatedDate(dateString: string) {
   return (
-    await readOnlyDatabase
+    await db
       .select()
       .from(devotions)
       .where(sql`${devotions.createdAt}::date = ${dateString}::date`)
@@ -51,7 +51,7 @@ export async function getDevotionByCreatedDate(dateString: string) {
 }
 
 export async function getDevotionSourceDocuments(devotion: Devotion) {
-  const sourceDocumentRelationships = await readOnlyDatabase
+  const sourceDocumentRelationships = await db
     .select()
     .from(devotionsToSourceDocuments)
     .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
@@ -74,7 +74,7 @@ export async function getDevotionSourceDocuments(devotion: Devotion) {
 
 export async function createDevotion(data: CreateDevotionData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(devotions)
       .values({
         ...data,
@@ -87,7 +87,7 @@ export async function createDevotion(data: CreateDevotionData) {
 
 export async function updateDevotion(id: string, data: UpdateDevotionData) {
   return (
-    await readWriteDatabase
+    await db
       .update(devotions)
       .set({
         ...data,
@@ -100,5 +100,5 @@ export async function updateDevotion(id: string, data: UpdateDevotionData) {
 }
 
 export async function deleteDevotion(id: string) {
-  return (await readWriteDatabase.delete(devotions).where(eq(devotions.id, id)).returning())[0];
+  return (await db.delete(devotions).where(eq(devotions.id, id)).returning())[0];
 }

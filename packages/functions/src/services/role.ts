@@ -1,6 +1,6 @@
 import type { CreateRoleData, Role, UpdateRoleData } from '@core/model/role';
 import { roles, usersToRoles } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, and, desc, eq, inArray, like } from 'drizzle-orm';
 import { getUserOrThrow } from './user/user';
 
@@ -14,17 +14,11 @@ export async function getRoles(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(roles.createdAt) } = options;
 
-  return await readOnlyDatabase
-    .select()
-    .from(roles)
-    .where(where)
-    .limit(limit)
-    .offset(offset)
-    .orderBy(orderBy);
+  return await db.select().from(roles).where(where).limit(limit).offset(offset).orderBy(orderBy);
 }
 
 export async function getRole(id: string) {
-  return (await readOnlyDatabase.select().from(roles).where(eq(roles.id, id))).at(0);
+  return (await db.select().from(roles).where(eq(roles.id, id))).at(0);
 }
 
 export async function getRoleOrThrow(id: string) {
@@ -36,7 +30,7 @@ export async function getRoleOrThrow(id: string) {
 }
 
 export async function getRoleByName(name: string) {
-  return (await readOnlyDatabase.select().from(roles).where(eq(roles.name, name))).at(0);
+  return (await db.select().from(roles).where(eq(roles.name, name))).at(0);
 }
 
 export async function getRoleByNameOrThrow(name: string) {
@@ -48,7 +42,7 @@ export async function getRoleByNameOrThrow(name: string) {
 }
 
 export async function getRolesByUserId(userId: string) {
-  const userRolesRelation = await readOnlyDatabase
+  const userRolesRelation = await db
     .select()
     .from(usersToRoles)
     .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
@@ -59,7 +53,7 @@ export async function getRolesByUserId(userId: string) {
 
 export async function createRole(data: CreateRoleData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(roles)
       .values({
         ...data,
@@ -72,7 +66,7 @@ export async function createRole(data: CreateRoleData) {
 
 export async function updateRole(id: string, data: UpdateRoleData) {
   return (
-    await readWriteDatabase
+    await db
       .update(roles)
       .set({
         ...data,
@@ -85,21 +79,21 @@ export async function updateRole(id: string, data: UpdateRoleData) {
 }
 
 export async function deleteRole(id: string) {
-  return (await readWriteDatabase.delete(roles).where(eq(roles.id, id)).returning())[0];
+  return (await db.delete(roles).where(eq(roles.id, id)).returning())[0];
 }
 
 export async function addRoleToUser(roleName: string, userId: string) {
   const role = await getRoleByNameOrThrow(roleName);
   const user = await getUserOrThrow(userId);
 
-  const userRolesRelation = await readOnlyDatabase
+  const userRolesRelation = await db
     .select()
     .from(usersToRoles)
     .where(eq(usersToRoles.userId, userId));
 
   let userRoles: Role[] = [];
   if (userRolesRelation.length > 0) {
-    userRoles = await readOnlyDatabase
+    userRoles = await db
       .select()
       .from(roles)
       .where(
@@ -114,7 +108,7 @@ export async function addRoleToUser(roleName: string, userId: string) {
     throw new Error(`User already has role ${roleName}`);
   }
 
-  await readWriteDatabase.insert(usersToRoles).values({
+  await db.insert(usersToRoles).values({
     userId: user.id,
     roleId: role.id
   });
@@ -130,7 +124,7 @@ export async function removeRoleFromUser(roleName: string, userId: string) {
   const user = await getUserOrThrow(userId);
 
   const userRoleRelation = (
-    await readOnlyDatabase
+    await db
       .select()
       .from(usersToRoles)
       .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)))
@@ -140,7 +134,7 @@ export async function removeRoleFromUser(roleName: string, userId: string) {
     throw new Error(`User does not have role ${roleName}`);
   }
 
-  await readWriteDatabase
+  await db
     .delete(usersToRoles)
     .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)));
 }
@@ -150,7 +144,7 @@ export async function doesUserHaveRole(roleName: string, userId: string) {
   const user = await getUserOrThrow(userId);
 
   const userRoleRelation = (
-    await readOnlyDatabase
+    await db
       .select()
       .from(usersToRoles)
       .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)))
@@ -166,10 +160,7 @@ export async function getStripeRoles() {
 }
 
 export async function deleteStripeRoles() {
-  return await readWriteDatabase
-    .delete(roles)
-    .where(like(roles.name, 'stripe:%'))
-    .returning({ id: roles.id });
+  return await db.delete(roles).where(like(roles.name, 'stripe:%')).returning();
 }
 
 export async function getRcRoles() {
@@ -179,8 +170,5 @@ export async function getRcRoles() {
 }
 
 export async function deleteRcRoles() {
-  return await readWriteDatabase
-    .delete(roles)
-    .where(like(roles.name, 'rc:%'))
-    .returning({ id: roles.id });
+  return await db.delete(roles).where(like(roles.name, 'rc:%')).returning();
 }

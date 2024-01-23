@@ -1,6 +1,6 @@
 import type { CreateUserMessageData, UpdateUserMessageData } from '@core/model/user/message';
 import { userMessages, users } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, and, desc, eq, like, not, sql } from 'drizzle-orm';
 
 export async function getUserMessages(
@@ -13,7 +13,7 @@ export async function getUserMessages(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(userMessages.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userMessages)
     .where(where)
@@ -23,7 +23,7 @@ export async function getUserMessages(
 }
 
 export async function getUserMessage(id: string) {
-  return (await readOnlyDatabase.select().from(userMessages).where(eq(userMessages.id, id))).at(0);
+  return (await db.select().from(userMessages).where(eq(userMessages.id, id))).at(0);
 }
 
 export async function getUserMessageOrThrow(id: string) {
@@ -35,7 +35,7 @@ export async function getUserMessageOrThrow(id: string) {
 }
 
 export async function getUserMessagesByChatId(chatId: string) {
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userMessages)
     .where(eq(userMessages.chatId, chatId))
@@ -43,7 +43,7 @@ export async function getUserMessagesByChatId(chatId: string) {
 }
 
 export async function getUserMessagesByChatIdAndText(chatId: string, text: string) {
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(userMessages)
     .where(and(eq(userMessages.chatId, chatId), eq(userMessages.text, text)))
@@ -52,7 +52,7 @@ export async function getUserMessagesByChatIdAndText(chatId: string, text: strin
 
 export async function createUserMessage(data: CreateUserMessageData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(userMessages)
       .values({
         ...data,
@@ -65,7 +65,7 @@ export async function createUserMessage(data: CreateUserMessageData) {
 
 export async function updateUserMessage(id: string, data: UpdateUserMessageData) {
   return (
-    await readWriteDatabase
+    await db
       .update(userMessages)
       .set({
         ...data,
@@ -78,13 +78,11 @@ export async function updateUserMessage(id: string, data: UpdateUserMessageData)
 }
 
 export async function deleteUserMessage(id: string) {
-  return (
-    await readWriteDatabase.delete(userMessages).where(eq(userMessages.id, id)).returning()
-  )[0];
+  return (await db.delete(userMessages).where(eq(userMessages.id, id)).returning())[0];
 }
 
 export async function getMostAskedUserMessages(count: number) {
-  return await readOnlyDatabase
+  return await db
     .select({
       text: userMessages.text,
       count: sql`COUNT(*)`

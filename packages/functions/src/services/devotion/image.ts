@@ -1,6 +1,6 @@
 import type { CreateDevotionImageData, UpdateDevotionImageData } from '@core/model/devotion/image';
 import { devotionImages } from '@core/schema';
-import { readOnlyDatabase, readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { SQL, desc, eq } from 'drizzle-orm';
 
 export async function getDevotionImages(
@@ -13,7 +13,7 @@ export async function getDevotionImages(
 ) {
   const { where, limit = 25, offset = 0, orderBy = desc(devotionImages.createdAt) } = options;
 
-  return await readOnlyDatabase
+  return await db
     .select()
     .from(devotionImages)
     .where(where)
@@ -23,9 +23,7 @@ export async function getDevotionImages(
 }
 
 export async function getDevotionImage(id: string) {
-  return (await readOnlyDatabase.select().from(devotionImages).where(eq(devotionImages.id, id))).at(
-    0
-  );
+  return (await db.select().from(devotionImages).where(eq(devotionImages.id, id))).at(0);
 }
 
 export async function getDevotionImageOrThrow(id: string) {
@@ -37,15 +35,12 @@ export async function getDevotionImageOrThrow(id: string) {
 }
 
 export async function getDevotionImagesByDevotionId(devotionId: string) {
-  return await readOnlyDatabase
-    .select()
-    .from(devotionImages)
-    .where(eq(devotionImages.devotionId, devotionId));
+  return await db.select().from(devotionImages).where(eq(devotionImages.devotionId, devotionId));
 }
 
 export async function createDevotionImage(data: CreateDevotionImageData) {
   return (
-    await readWriteDatabase
+    await db
       .insert(devotionImages)
       .values({
         ...data,
@@ -58,7 +53,7 @@ export async function createDevotionImage(data: CreateDevotionImageData) {
 
 export async function updateDevotionImage(id: string, data: UpdateDevotionImageData) {
   return (
-    await readWriteDatabase
+    await db
       .update(devotionImages)
       .set({
         ...data,
@@ -71,7 +66,5 @@ export async function updateDevotionImage(id: string, data: UpdateDevotionImageD
 }
 
 export async function deleteDevotionImage(id: string) {
-  return (
-    await readWriteDatabase.delete(devotionImages).where(eq(devotionImages.id, id)).returning()
-  )[0];
+  return (await db.delete(devotionImages).where(eq(devotionImages.id, id)).returning())[0];
 }

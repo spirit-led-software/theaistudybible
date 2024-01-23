@@ -67,10 +67,10 @@ async function createInitialRoles() {
     });
     console.log('Admin role created');
   } else {
+    console.log(`Admin role already exists, updating permissions. ${JSON.stringify(adminRole)}`);
     adminRole = await updateRole(adminRole.id, {
       permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
     });
-    console.log('Admin role already exists');
   }
 
   console.log('Creating moderator role');

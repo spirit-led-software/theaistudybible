@@ -4,7 +4,7 @@ import axios from '@core/configs/axios';
 import replicateConfig from '@core/configs/replicate';
 import type { Devotion } from '@core/model/devotion';
 import { devotionsToSourceDocuments } from '@core/schema';
-import { readWriteDatabase } from '@lib/database';
+import { db } from '@lib/database/database';
 import { createDevotion, updateDevotion } from '@services/devotion';
 import { createDevotionImage } from '@services/devotion/image';
 import {
@@ -200,7 +200,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
     await Promise.all(
       sourceDocuments.map(async (c) => {
-        await readWriteDatabase.insert(devotionsToSourceDocuments).values({
+        await db.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id,
           distance: c.distance,
