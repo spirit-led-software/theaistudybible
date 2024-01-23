@@ -1,5 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import type { Chat, CreateChatData, UpdateChatData } from '@core/model/chat';
+import type { Message } from 'ai';
 import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,
@@ -7,6 +8,10 @@ import type {
 	ProtectedApiOptions,
 	SearchForEntitiesOptions
 } from './types';
+
+export type RAIChatMessage = Message & {
+	uuid: string;
+};
 
 export async function getChats(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
 	const searchParams = GetEntitiesSearchParams(options);
@@ -151,4 +156,33 @@ export async function deleteChat(id: string, options: ProtectedApiOptions) {
 	}
 
 	return true;
+}
+
+export async function getChatMessages(
+	chatId: string,
+	options: PaginatedEntitiesOptions & ProtectedApiOptions
+) {
+	const response = await fetch(`${PUBLIC_API_URL}/chats/${chatId}/messages`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${options.session}`
+		}
+	});
+
+	if (!response.ok) {
+		console.error(
+			`Error retrieving chat messages. Received response: ${response.status} ${response.statusText}`
+		);
+		const data = await response.json();
+		throw new Error(data.error || 'Error retrieving chat messages.');
+	}
+
+	const { entities, page, perPage }: PaginatedEntitiesResponse<RAIChatMessage> =
+		await response.json();
+
+	return {
+		messages: entities,
+		page,
+		perPage
+	};
 }

@@ -182,6 +182,8 @@
 					return await searchForChats({
 						limit: 7,
 						page: pageParam,
+						orderBy: 'updatedAt',
+						order: 'desc',
 						query: searchQuery,
 						session: $session!
 					}).then((r) => r.chats);
