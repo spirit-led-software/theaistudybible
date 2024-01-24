@@ -60,9 +60,9 @@ export async function cacheGet<T>(options: {
   if (cachedValue) {
     console.log('CACHE HIT', cacheKey);
     if (typeof cachedValue === 'string') {
-      return JSON.parse(cachedValue);
+      return JSON.parse(cachedValue) as T;
     } else {
-      return cachedValue;
+      return cachedValue as T;
     }
   }
   console.log('CACHE MISS', cacheKey);
