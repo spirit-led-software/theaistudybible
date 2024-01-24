@@ -8,14 +8,14 @@ import { db } from '@lib/database/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
-export const USER_QUERY_COUNTS_CACHE_COLLECTION = userQueryCounts._.name;
+export const USER_QUERY_COUNTS_CACHE_COLLECTION = 'userQueryCounts';
 export const defaultCacheKeysFn: CacheKeysInput<UserQueryCount> = (queryCount) => [
-  { keyName: userQueryCounts.id._.name, keyValue: queryCount.id },
-  { keyName: userQueryCounts.userId._.name, keyValue: queryCount.userId },
-  { keyName: userQueryCounts.createdAt._.name, keyValue: queryCount.createdAt.toISOString() },
+  { keyName: 'id', keyValue: queryCount.id },
+  { keyName: 'userId', keyValue: queryCount.userId },
+  { keyName: 'createdAt', keyValue: queryCount.createdAt.toISOString() },
   {
-    keyName: `${userQueryCounts.userId._.name}_${userQueryCounts.createdAt._.name}`,
-    keyValue: `${queryCount.userId}_${queryCount.createdAt.toISOString()}`
+    keyName: 'userId:createdAt',
+    keyValue: `${queryCount.userId}:${queryCount.createdAt.toISOString()}`
   }
 ];
 
@@ -62,7 +62,7 @@ export async function getUserQueryCountByUserIdAndDate(userId: string, date: Dat
   return await cacheGet({
     collection: USER_QUERY_COUNTS_CACHE_COLLECTION,
     key: {
-      keyName: `${userQueryCounts.userId._.name}_${userQueryCounts.createdAt._.name}`,
+      keyName: `${'userId'}_${'createdAt'}`,
       keyValue: `${userId}_${date.toISOString()}`
     },
     fn: async () =>

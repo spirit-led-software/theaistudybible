@@ -8,16 +8,16 @@ import { db } from '@lib/database/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
-export const USER_IMAGE_COUNTS_CACHE_COLLECTION = userGeneratedImageCounts._.name;
+export const USER_IMAGE_COUNTS_CACHE_COLLECTION = 'userGeneratedImageCounts';
 export const defaultCacheKeysFn: CacheKeysInput<UserGeneratedImageCount> = (imageCount) => [
-  { keyName: userGeneratedImageCounts.id._.name, keyValue: imageCount.id },
-  { keyName: userGeneratedImageCounts.userId._.name, keyValue: imageCount.userId },
+  { keyName: 'id', keyValue: imageCount.id },
+  { keyName: 'userId', keyValue: imageCount.userId },
   {
-    keyName: userGeneratedImageCounts.createdAt._.name,
+    keyName: 'createdAt',
     keyValue: imageCount.createdAt.toISOString()
   },
   {
-    keyName: `${userGeneratedImageCounts.userId._.name}_${userGeneratedImageCounts.createdAt._.name}`,
+    keyName: 'userId_createdAt',
     keyValue: `${imageCount.userId}_${imageCount.createdAt.toISOString()}`
   }
 ];
@@ -75,7 +75,7 @@ export async function getUserGeneratedImageCountByUserIdAndDate(userId: string, 
   return await cacheGet({
     collection: USER_IMAGE_COUNTS_CACHE_COLLECTION,
     key: {
-      keyName: `${userGeneratedImageCounts.userId._.name}_${userGeneratedImageCounts.createdAt._.name}`,
+      keyName: `${'userId'}_${'createdAt'}`,
       keyValue: `${userId}_${date.toISOString()}`
     },
     fn: async () =>

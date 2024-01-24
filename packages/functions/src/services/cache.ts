@@ -56,15 +56,23 @@ export async function cacheGet<T>(options: {
   }
 
   const cacheKey = `${collection}:${key.keyName}:${key.keyValue}`;
-  const cachedValue: string | null = await cache.get(cacheKey);
+  const cachedValue = await cache.get(cacheKey);
   if (cachedValue) {
-    return JSON.parse(cachedValue) as Awaited<ReturnType<typeof fn>>;
+    console.log('CACHE HIT', cacheKey);
+    if (typeof cachedValue === 'string') {
+      return JSON.parse(cachedValue);
+    } else {
+      return cachedValue;
+    }
   }
+  console.log('CACHE MISS', cacheKey);
 
   const newValue = await fn();
-  await cache.set(cacheKey, JSON.stringify(newValue), {
-    ex: expireSeconds
-  });
+  if (newValue) {
+    await cache.set(cacheKey, JSON.stringify(newValue), {
+      ex: expireSeconds
+    });
+  }
   return newValue;
 }
 
@@ -141,9 +149,9 @@ export async function cacheDelete<T>(options: {
  */
 export async function clearCache() {
   if (!cache) {
-    return;
+    return 'SKIPPED';
   }
-  await cache.flushdb();
+  return await cache.flushdb();
 }
 
 /**
@@ -156,6 +164,6 @@ function filterKeys<T>(options: { obj: T; keys: CacheKeysInput<T> }) {
   if (Array.isArray(keys)) {
     return keys.filter((key) => key.keyValue) as CacheKey[];
   } else {
-    return keys(obj).filter((key) => key) as CacheKey[];
+    return keys(obj).filter((key) => key.keyValue) as CacheKey[];
   }
 }

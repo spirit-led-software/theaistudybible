@@ -5,10 +5,10 @@ import { SQL, and, desc, eq, like } from 'drizzle-orm';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from './cache';
 import { getUserOrThrow } from './user/user';
 
-export const ROLES_CACHE_COLLECTION = roles._.name;
+export const ROLES_CACHE_COLLECTION = 'roles';
 export const defaultCacheKeysFn: CacheKeysInput<Role> = (role) => [
-  { keyName: roles.id._.name, keyValue: role.id },
-  { keyName: roles.name._.name, keyValue: role.name }
+  { keyName: 'id', keyValue: role.id },
+  { keyName: 'name', keyValue: role.name }
 ];
 
 export async function getRoles(
@@ -27,7 +27,7 @@ export async function getRoles(
 export async function getRole(id: string) {
   return await cacheGet({
     collection: ROLES_CACHE_COLLECTION,
-    key: { keyName: roles.id._.name, keyValue: id },
+    key: { keyName: 'id', keyValue: id },
     fn: async () => (await db.select().from(roles).where(eq(roles.id, id))).at(0)
   });
 }
@@ -43,7 +43,7 @@ export async function getRoleOrThrow(id: string) {
 export async function getRoleByName(name: string) {
   return await cacheGet({
     collection: ROLES_CACHE_COLLECTION,
-    key: { keyName: roles.name._.name, keyValue: name },
+    key: { keyName: 'name', keyValue: name },
     fn: async () => (await db.select().from(roles).where(eq(roles.name, name))).at(0)
   });
 }
@@ -107,7 +107,7 @@ export async function deleteRole(id: string) {
 export async function getRolesByUserId(userId: string) {
   return await cacheGet({
     collection: ROLES_CACHE_COLLECTION,
-    key: { keyName: usersToRoles.userId._.name, keyValue: userId },
+    key: { keyName: 'userId', keyValue: userId },
     fn: async () => {
       const userRolesRelation = await db
         .select()
@@ -126,9 +126,7 @@ export async function addRoleToUser(roleName: string, userId: string) {
 
   await cacheDelete({
     collection: ROLES_CACHE_COLLECTION,
-    keys: (userRoleRelation) => [
-      { keyName: usersToRoles.userId._.name, keyValue: userRoleRelation.userId }
-    ],
+    keys: (userRoleRelation) => [{ keyName: 'userId', keyValue: userRoleRelation.userId }],
     fn: async () =>
       (
         await db
@@ -153,9 +151,7 @@ export async function removeRoleFromUser(roleName: string, userId: string) {
 
   await cacheDelete({
     collection: ROLES_CACHE_COLLECTION,
-    keys: (userRoleRelation) => [
-      { keyName: usersToRoles.userId._.name, keyValue: userRoleRelation.userId }
-    ],
+    keys: (userRoleRelation) => [{ keyName: 'userId', keyValue: userRoleRelation.userId }],
     fn: async () =>
       (
         await db
