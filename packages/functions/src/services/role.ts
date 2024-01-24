@@ -1,8 +1,15 @@
 import type { CreateRoleData, Role, UpdateRoleData } from '@core/model/role';
 import { roles, usersToRoles } from '@core/schema';
 import { db } from '@lib/database/database';
-import { SQL, and, desc, eq, inArray, like } from 'drizzle-orm';
+import { SQL, and, desc, eq, like } from 'drizzle-orm';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from './cache';
 import { getUserOrThrow } from './user/user';
+
+export const ROLES_CACHE_COLLECTION = roles._.name;
+export const defaultCacheKeysFn: CacheKeysInput<Role> = (role) => [
+  { keyName: roles.id._.name, keyValue: role.id },
+  { keyName: roles.name._.name, keyValue: role.name }
+];
 
 export async function getRoles(
   options: {
@@ -18,7 +25,11 @@ export async function getRoles(
 }
 
 export async function getRole(id: string) {
-  return (await db.select().from(roles).where(eq(roles.id, id))).at(0);
+  return await cacheGet({
+    collection: ROLES_CACHE_COLLECTION,
+    key: { keyName: roles.id._.name, keyValue: id },
+    fn: async () => (await db.select().from(roles).where(eq(roles.id, id))).at(0)
+  });
 }
 
 export async function getRoleOrThrow(id: string) {
@@ -30,7 +41,11 @@ export async function getRoleOrThrow(id: string) {
 }
 
 export async function getRoleByName(name: string) {
-  return (await db.select().from(roles).where(eq(roles.name, name))).at(0);
+  return await cacheGet({
+    collection: ROLES_CACHE_COLLECTION,
+    key: { keyName: roles.name._.name, keyValue: name },
+    fn: async () => (await db.select().from(roles).where(eq(roles.name, name))).at(0)
+  });
 }
 
 export async function getRoleByNameOrThrow(name: string) {
@@ -41,76 +56,89 @@ export async function getRoleByNameOrThrow(name: string) {
   return role;
 }
 
-export async function getRolesByUserId(userId: string) {
-  const userRolesRelation = await db
-    .select()
-    .from(usersToRoles)
-    .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
-    .where(eq(usersToRoles.userId, userId));
-
-  return userRolesRelation.map((userRoleRelation) => userRoleRelation.roles);
-}
-
 export async function createRole(data: CreateRoleData) {
-  return (
-    await db
-      .insert(roles)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: ROLES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(roles)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateRole(id: string, data: UpdateRoleData) {
-  return (
-    await db
-      .update(roles)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(roles.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: ROLES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => {
+      return (
+        await db
+          .update(roles)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(roles.id, id))
+          .returning()
+      )[0];
+    }
+  });
 }
 
 export async function deleteRole(id: string) {
-  return (await db.delete(roles).where(eq(roles.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: ROLES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => {
+      return (await db.delete(roles).where(eq(roles.id, id)).returning())[0];
+    }
+  });
+}
+
+export async function getRolesByUserId(userId: string) {
+  return await cacheGet({
+    collection: ROLES_CACHE_COLLECTION,
+    key: { keyName: usersToRoles.userId._.name, keyValue: userId },
+    fn: async () => {
+      const userRolesRelation = await db
+        .select()
+        .from(usersToRoles)
+        .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
+        .where(eq(usersToRoles.userId, userId));
+
+      return userRolesRelation.map((userRoleRelation) => userRoleRelation.roles);
+    }
+  });
 }
 
 export async function addRoleToUser(roleName: string, userId: string) {
   const role = await getRoleByNameOrThrow(roleName);
   const user = await getUserOrThrow(userId);
 
-  const userRolesRelation = await db
-    .select()
-    .from(usersToRoles)
-    .where(eq(usersToRoles.userId, userId));
-
-  let userRoles: Role[] = [];
-  if (userRolesRelation.length > 0) {
-    userRoles = await db
-      .select()
-      .from(roles)
-      .where(
-        inArray(
-          roles.id,
-          userRolesRelation.map((r) => r.roleId)
-        )
-      );
-  }
-
-  if (userRoles.some((r) => r.id === role.id)) {
-    throw new Error(`User already has role ${roleName}`);
-  }
-
-  await db.insert(usersToRoles).values({
-    userId: user.id,
-    roleId: role.id
+  await cacheDelete({
+    collection: ROLES_CACHE_COLLECTION,
+    keys: (userRoleRelation) => [
+      { keyName: usersToRoles.userId._.name, keyValue: userRoleRelation.userId }
+    ],
+    fn: async () =>
+      (
+        await db
+          .insert(usersToRoles)
+          .values({
+            userId: user.id,
+            roleId: role.id
+          })
+          .returning()
+      )[0]
   });
 
   return {
@@ -123,34 +151,24 @@ export async function removeRoleFromUser(roleName: string, userId: string) {
   const role = await getRoleByNameOrThrow(roleName);
   const user = await getUserOrThrow(userId);
 
-  const userRoleRelation = (
-    await db
-      .select()
-      .from(usersToRoles)
-      .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)))
-  )[0];
-
-  if (!userRoleRelation) {
-    throw new Error(`User does not have role ${roleName}`);
-  }
-
-  await db
-    .delete(usersToRoles)
-    .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)));
+  await cacheDelete({
+    collection: ROLES_CACHE_COLLECTION,
+    keys: (userRoleRelation) => [
+      { keyName: usersToRoles.userId._.name, keyValue: userRoleRelation.userId }
+    ],
+    fn: async () =>
+      (
+        await db
+          .delete(usersToRoles)
+          .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)))
+          .returning()
+      )[0]
+  });
 }
 
 export async function doesUserHaveRole(roleName: string, userId: string) {
-  const role = await getRoleByNameOrThrow(roleName);
-  const user = await getUserOrThrow(userId);
-
-  const userRoleRelation = (
-    await db
-      .select()
-      .from(usersToRoles)
-      .where(and(eq(usersToRoles.userId, user.id), eq(usersToRoles.roleId, role.id)))
-  )[0];
-
-  return !!userRoleRelation;
+  const roles = await getRolesByUserId(userId);
+  return roles.some((role) => role.name === roleName);
 }
 
 export async function getStripeRoles() {

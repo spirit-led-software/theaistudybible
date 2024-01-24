@@ -12,9 +12,9 @@
     "@sparticuz/chromium": "^119.0.2",
     "@types/aws-lambda": "^8.10.131",
     "@types/busboy": "^1.5.3",
-    "@types/node": "^20.11.5",
+    "@types/node": "^20.11.6",
     "@types/nodemailer": "^6.4.14",
-    "sst": "2.39.7",
+    "sst": "2.39.8",
     "vitest": "^1.2.1"
   },
   "dependencies": {
@@ -35,7 +35,7 @@
     "openai": "^4.25.0",
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
-    "puppeteer-core": "^21.7.0",
+    "puppeteer-core": "^21.9.0",
     "stripe": "^14.13.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",

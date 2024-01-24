@@ -1,10 +1,23 @@
 import type {
   CreateUserQueryCountData,
-  UpdateUserQueryCountData
+  UpdateUserQueryCountData,
+  UserQueryCount
 } from '@core/model/user/query-count';
 import { userQueryCounts } from '@core/schema';
 import { db } from '@lib/database/database';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
+
+export const USER_QUERY_COUNTS_CACHE_COLLECTION = userQueryCounts._.name;
+export const defaultCacheKeysFn: CacheKeysInput<UserQueryCount> = (queryCount) => [
+  { keyName: userQueryCounts.id._.name, keyValue: queryCount.id },
+  { keyName: userQueryCounts.userId._.name, keyValue: queryCount.userId },
+  { keyName: userQueryCounts.createdAt._.name, keyValue: queryCount.createdAt.toISOString() },
+  {
+    keyName: `${userQueryCounts.userId._.name}_${userQueryCounts.createdAt._.name}`,
+    keyValue: `${queryCount.userId}_${queryCount.createdAt.toISOString()}`
+  }
+];
 
 export async function getUserQueryCounts(
   options: {
@@ -46,44 +59,62 @@ export async function getUserQueryCountsByUserId(
 }
 
 export async function getUserQueryCountByUserIdAndDate(userId: string, date: Date) {
-  return (
-    await db
-      .select()
-      .from(userQueryCounts)
-      .where(
-        and(
-          eq(userQueryCounts.userId, userId),
-          sql`${userQueryCounts.createdAt}::date = ${date}::date`
-        )
-      )
-  ).at(0);
+  return await cacheGet({
+    collection: USER_QUERY_COUNTS_CACHE_COLLECTION,
+    key: {
+      keyName: `${userQueryCounts.userId._.name}_${userQueryCounts.createdAt._.name}`,
+      keyValue: `${userId}_${date.toISOString()}`
+    },
+    fn: async () =>
+      (
+        await db
+          .select()
+          .from(userQueryCounts)
+          .where(
+            and(
+              eq(userQueryCounts.userId, userId),
+              sql`${userQueryCounts.createdAt}::date = ${date}::date`
+            )
+          )
+      ).at(0)
+  });
 }
 
 export async function createUserQueryCount(data: CreateUserQueryCountData) {
-  return (
-    await db
-      .insert(userQueryCounts)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: USER_QUERY_COUNTS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(userQueryCounts)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateUserQueryCount(id: string, data: UpdateUserQueryCountData) {
-  return (
-    await db
-      .update(userQueryCounts)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(userQueryCounts.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: USER_QUERY_COUNTS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(userQueryCounts)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(userQueryCounts.id, id))
+          .returning()
+      )[0]
+  });
 }
 
 export async function incrementUserQueryCount(userId: string) {
@@ -121,5 +152,10 @@ export async function decrementUserQueryCount(userId: string) {
 }
 
 export async function deleteUserQueryCount(id: string) {
-  return (await db.delete(userQueryCounts).where(eq(userQueryCounts.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: USER_QUERY_COUNTS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (await db.delete(userQueryCounts).where(eq(userQueryCounts.id, id)).returning())[0]
+  });
 }

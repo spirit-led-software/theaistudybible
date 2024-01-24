@@ -1,7 +1,15 @@
-import type { CreateUserData, UpdateUserData, UserWithRoles } from '@core/model/user';
+import type { CreateUserData, UpdateUserData, User, UserWithRoles } from '@core/model/user';
 import { roles, users, usersToRoles } from '@core/schema';
 import { db } from '@lib/database/database';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { SQL, desc, eq, sql } from 'drizzle-orm';
+
+export const USERS_CACHE_COLLECTION = users._.name;
+export const defaultCacheKeysFn: CacheKeysInput<User> = (user) => [
+  { keyName: users.id._.name, keyValue: user.id },
+  { keyName: users.email._.name, keyValue: user.email },
+  { keyName: users.stripeCustomerId._.name, keyValue: user.stripeCustomerId }
+];
 
 export async function getUsers(
   options: {
@@ -16,7 +24,11 @@ export async function getUsers(
 }
 
 export async function getUser(id: string) {
-  return (await db.select().from(users).where(eq(users.id, id))).at(0);
+  return await cacheGet({
+    collection: USERS_CACHE_COLLECTION,
+    key: { keyName: users.id._.name, keyValue: id },
+    fn: async () => (await db.select().from(users).where(eq(users.id, id))).at(0)
+  });
 }
 
 export async function getUserOrThrow(id: string) {
@@ -28,7 +40,11 @@ export async function getUserOrThrow(id: string) {
 }
 
 export async function getUserByEmail(email: string) {
-  return (await db.select().from(users).where(eq(users.email, email))).at(0);
+  return await cacheGet({
+    collection: USERS_CACHE_COLLECTION,
+    key: { keyName: users.email._.name, keyValue: email },
+    fn: async () => (await db.select().from(users).where(eq(users.email, email))).at(0)
+  });
 }
 
 export async function getUserByEmailOrThrow(email: string) {
@@ -40,40 +56,62 @@ export async function getUserByEmailOrThrow(email: string) {
 }
 
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
-  return (await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId))).at(0);
+  return await cacheGet({
+    collection: USERS_CACHE_COLLECTION,
+    key: { keyName: users.stripeCustomerId._.name, keyValue: stripeCustomerId },
+    fn: async () =>
+      (await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId))).at(0)
+  });
 }
 
 export async function createUser(data: CreateUserData) {
-  return (
-    await db
-      .insert(users)
-      .values({
-        hasCustomImage: data.image ? true : false,
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert<User>({
+    collection: USERS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => {
+      return (
+        await db
+          .insert(users)
+          .values({
+            hasCustomImage: data.image ? true : false,
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0];
+    }
+  });
 }
 
 export async function updateUser(id: string, data: UpdateUserData) {
-  return (
-    await db
-      .update(users)
-      .set({
-        hasCustomImage: sql`${users.hasCustomImage} OR ${data.image ? true : false}`,
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert<User>({
+    collection: USERS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(users)
+          .set({
+            hasCustomImage: sql`${users.hasCustomImage} OR ${data.image ? true : false}`,
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(users.id, id))
+          .returning()
+      )[0]
+  });
 }
 
 export async function deleteUser(id: string) {
-  return (await db.delete(users).where(eq(users.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: USERS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => {
+      return (await db.delete(users).where(eq(users.id, id)).returning())[0];
+    }
+  });
 }
 
 export async function isAdmin(userId: string) {

@@ -1,10 +1,26 @@
 import type {
   CreateUserGeneratedImageCountData,
-  UpdateUserGeneratedImageCountData
+  UpdateUserGeneratedImageCountData,
+  UserGeneratedImageCount
 } from '@core/model/user/image-count';
 import { userGeneratedImageCounts } from '@core/schema';
 import { db } from '@lib/database/database';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { SQL, and, desc, eq, sql } from 'drizzle-orm';
+
+export const USER_IMAGE_COUNTS_CACHE_COLLECTION = userGeneratedImageCounts._.name;
+export const defaultCacheKeysFn: CacheKeysInput<UserGeneratedImageCount> = (imageCount) => [
+  { keyName: userGeneratedImageCounts.id._.name, keyValue: imageCount.id },
+  { keyName: userGeneratedImageCounts.userId._.name, keyValue: imageCount.userId },
+  {
+    keyName: userGeneratedImageCounts.createdAt._.name,
+    keyValue: imageCount.createdAt.toISOString()
+  },
+  {
+    keyName: `${userGeneratedImageCounts.userId._.name}_${userGeneratedImageCounts.createdAt._.name}`,
+    keyValue: `${imageCount.userId}_${imageCount.createdAt.toISOString()}`
+  }
+];
 
 export async function getUserGeneratedImageCounts(
   options: {
@@ -56,47 +72,65 @@ export async function getUserGeneratedImageCountsByUserId(
 }
 
 export async function getUserGeneratedImageCountByUserIdAndDate(userId: string, date: Date) {
-  return (
-    await db
-      .select()
-      .from(userGeneratedImageCounts)
-      .where(
-        and(
-          eq(userGeneratedImageCounts.userId, userId),
-          sql`${userGeneratedImageCounts.createdAt}::date = ${date}::date`
-        )
-      )
-  ).at(0);
+  return await cacheGet({
+    collection: USER_IMAGE_COUNTS_CACHE_COLLECTION,
+    key: {
+      keyName: `${userGeneratedImageCounts.userId._.name}_${userGeneratedImageCounts.createdAt._.name}`,
+      keyValue: `${userId}_${date.toISOString()}`
+    },
+    fn: async () =>
+      (
+        await db
+          .select()
+          .from(userGeneratedImageCounts)
+          .where(
+            and(
+              eq(userGeneratedImageCounts.userId, userId),
+              sql`${userGeneratedImageCounts.createdAt}::date = ${date}::date`
+            )
+          )
+      ).at(0)
+  });
 }
 
 export async function createUserGeneratedImageCount(data: CreateUserGeneratedImageCountData) {
-  return (
-    await db
-      .insert(userGeneratedImageCounts)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: USER_IMAGE_COUNTS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(userGeneratedImageCounts)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateUserGeneratedImageCount(
   id: string,
   data: UpdateUserGeneratedImageCountData
 ) {
-  return (
-    await db
-      .update(userGeneratedImageCounts)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(userGeneratedImageCounts.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: USER_IMAGE_COUNTS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(userGeneratedImageCounts)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(userGeneratedImageCounts.id, id))
+          .returning()
+      )[0]
+  });
 }
 
 export async function incrementUserGeneratedImageCount(userId: string) {
@@ -134,7 +168,15 @@ export async function decrementUserGeneratedImageCount(userId: string) {
 }
 
 export async function deleteUserGeneratedImageCount(id: string) {
-  return (
-    await db.delete(userGeneratedImageCounts).where(eq(userGeneratedImageCounts.id, id)).returning()
-  )[0];
+  return await cacheDelete({
+    collection: USER_IMAGE_COUNTS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .delete(userGeneratedImageCounts)
+          .where(eq(userGeneratedImageCounts.id, id))
+          .returning()
+      )[0]
+  });
 }
