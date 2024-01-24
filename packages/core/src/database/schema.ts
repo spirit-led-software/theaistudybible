@@ -21,6 +21,17 @@ export const aiResponses = pgTable('ai_responses', {
   text: text('text'),
   failed: boolean('failed').notNull().default(false),
   regenerated: boolean('regenerated').notNull().default(false),
+  modelId: text('model_id', {
+    enum: [
+      'anthropic.claude-instant-v1',
+      'anthropic.claude-v1',
+      'anthropic.claude-v2',
+      'anthropic.claude-v2:1',
+      'unknown'
+    ]
+  })
+    .notNull()
+    .default('unknown'),
   userMessageId: uuid('user_message_id')
     .notNull()
     .references(() => userMessages.id, {

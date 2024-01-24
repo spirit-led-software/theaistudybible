@@ -218,6 +218,13 @@
       "when": 1705264119119,
       "tag": "0030_abandoned_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1706126835875,
+      "tag": "0031_abandoned_zuras",
+      "breakpoints": true
     }
   ]
 }

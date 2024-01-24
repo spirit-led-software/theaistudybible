@@ -2,6 +2,7 @@ import envConfig from '@core/configs/env';
 import type { AnthropicModelId } from '@core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 import type { Chat } from '@core/model/chat';
+import type { UserWithRoles } from '@core/model/user';
 import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
 import db from '@lib/database/database';
 import { aiRenameChat } from '@lib/util/chat';
@@ -59,7 +60,47 @@ function validateRequest(
   return undefined;
 }
 
+function validateModelId(
+  providedModelId: string,
+  userWithRoles: UserWithRoles
+): StreamedAPIGatewayProxyStructuredResultV2 | undefined {
+  if (
+    providedModelId !== 'anthropic.claude-v2:1' &&
+    providedModelId !== 'anthropic.claude-v2' &&
+    providedModelId !== 'anthropic.claude-v1' &&
+    providedModelId !== 'anthropic.claude-instant-v1'
+  ) {
+    console.log('Invalid modelId provided');
+    return {
+      statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: Readable.from([JSON.stringify({ error: 'Invalid model ID provided' })])
+    };
+  }
+  if (
+    providedModelId !== 'anthropic.claude-instant-v1' &&
+    !hasPlusSync(userWithRoles) &&
+    !isAdminSync(userWithRoles)
+  ) {
+    return {
+      statusCode: 403,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: Readable.from([
+        JSON.stringify({
+          error: `Your plan does not support this model. Please upgrade to a plan that supports this model.`
+        })
+      ])
+    };
+  }
+  return undefined;
+}
+
 async function postResponseValidationLogic({
+  modelId,
   chat,
   userMessageId,
   aiResponseId,
@@ -67,6 +108,7 @@ async function postResponseValidationLogic({
   response,
   sourceDocuments
 }: {
+  modelId: AnthropicModelId;
   chat: Chat;
   userMessageId: string;
   aiResponseId: string;
@@ -80,7 +122,8 @@ async function postResponseValidationLogic({
     chatId: chat.id,
     userMessageId: userMessageId,
     userId,
-    text: response
+    text: response,
+    modelId
   });
 
   await Promise.all([
@@ -121,7 +164,7 @@ async function lambdaHandler(
   const {
     messages = [],
     chatId,
-    modelId
+    modelId: providedModelId
   }: {
     messages: RAIChatMessage[];
     chatId?: string;
@@ -129,23 +172,6 @@ async function lambdaHandler(
   } = JSON.parse(event.body);
 
   try {
-    if (
-      modelId &&
-      modelId !== 'anthropic.claude-v2:1' &&
-      modelId !== 'anthropic.claude-v2' &&
-      modelId !== 'anthropic.claude-instant-v1' &&
-      modelId !== 'anthropic.claude-v1'
-    ) {
-      console.log('Invalid modelId provided');
-      return {
-        statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: Readable.from([JSON.stringify({ error: 'Invalid model ID provided' })])
-      };
-    }
-
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage || lastMessage.role !== 'user') {
       console.log('Invalid last message');
@@ -190,24 +216,16 @@ async function lambdaHandler(
     const incrementQueryCountPromise = incrementUserQueryCount(userWithRoles.id);
     pendingPromises.push(incrementQueryCountPromise);
 
-    if (
-      modelId &&
-      modelId !== 'anthropic.claude-instant-v1' &&
-      !hasPlusSync(userWithRoles) &&
-      !isAdminSync(userWithRoles)
-    ) {
-      return {
-        statusCode: 403,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: Readable.from([
-          JSON.stringify({
-            error: `Your plan does not support this model. Please upgrade to a plan that supports this model.`
-          })
-        ])
-      };
+    if (providedModelId) {
+      const modelIdValidationResponse = validateModelId(providedModelId, userWithRoles);
+      if (modelIdValidationResponse) {
+        return modelIdValidationResponse;
+      }
     }
+    const modelId =
+      (hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
+        ? 'anthropic.claude-v2:1'
+        : 'anthropic.claude-instant-v1';
 
     console.time('Validating chat');
     const chat = chatId
@@ -271,11 +289,7 @@ async function lambdaHandler(
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain({
-      modelId: modelId
-        ? modelId
-        : (hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
-          ? 'anthropic.claude-v2:1'
-          : 'anthropic.claude-instant-v1',
+      modelId,
       user: userWithRoles,
       messages,
       callbacks: CallbackManager.fromHandlers(handlers)
@@ -291,6 +305,7 @@ async function lambdaHandler(
             return arr.findIndex((d2) => d2.id === d1.id) === i;
           }) ?? [];
         await postResponseValidationLogic({
+          modelId,
           chat,
           userMessageId: userMessage.id,
           aiResponseId,
