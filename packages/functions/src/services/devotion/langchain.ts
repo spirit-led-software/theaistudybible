@@ -3,7 +3,7 @@ import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon'
 import { devotions } from '@core/schema';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import { getLargeContextModel } from '@services/llm';
+import { getLargeContextModel, llmCache } from '@services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { desc, eq } from 'drizzle-orm';
@@ -25,7 +25,8 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
-    topP: 0.1
+    topP: 0.1,
+    cache: llmCache
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
@@ -126,7 +127,8 @@ const bibleReadingOutputParser = OutputFixingParser.fromLLM(
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
-    topP: 0.1
+    topP: 0.1,
+    cache: llmCache
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
@@ -213,7 +215,8 @@ const imagePromptOutputParser = OutputFixingParser.fromLLM(
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
-    topP: 0.1
+    topP: 0.1,
+    cache: llmCache
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z

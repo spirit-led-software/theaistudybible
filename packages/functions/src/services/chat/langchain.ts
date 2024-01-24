@@ -143,7 +143,8 @@ export const getRAIChatChain = async (options: {
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
-      topP: 0.1
+      topP: 0.1,
+      cache: llmCache
     }),
     RouterOutputParser.fromZodSchema(
       z.object({
@@ -226,7 +227,8 @@ export async function getDocumentQaChain(options: {
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
-      topP: 0.1
+      topP: 0.1,
+      cache: llmCache
     }),
     JsonMarkdownStructuredOutputParser.fromZodSchema(
       z
@@ -254,7 +256,8 @@ export async function getDocumentQaChain(options: {
         .pipe(
           getLargeContextModel({
             promptSuffix: '<output>',
-            stopSequences: ['</output>']
+            stopSequences: ['</output>'],
+            cache: llmCache
           })
         )
         .pipe(searchQueryOutputParser),
