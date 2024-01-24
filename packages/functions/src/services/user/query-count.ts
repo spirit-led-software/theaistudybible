@@ -10,12 +10,11 @@ import { SQL, and, desc, eq, sql } from 'drizzle-orm';
 
 export const USER_QUERY_COUNTS_CACHE_COLLECTION = 'userQueryCounts';
 export const defaultCacheKeysFn: CacheKeysInput<UserQueryCount> = (queryCount) => [
-  { keyName: 'id', keyValue: queryCount.id },
-  { keyName: 'userId', keyValue: queryCount.userId },
-  { keyName: 'createdAt', keyValue: queryCount.createdAt.toISOString() },
+  { name: 'id', value: queryCount.id },
+  { name: 'userId', value: queryCount.userId, type: 'set' },
   {
-    keyName: 'userId:createdAt',
-    keyValue: `${queryCount.userId}:${queryCount.createdAt.toISOString()}`
+    name: 'userId_date',
+    value: `${queryCount.userId}_${queryCount.createdAt.toISOString().split('T')[0]}`
   }
 ];
 
@@ -62,8 +61,8 @@ export async function getUserQueryCountByUserIdAndDate(userId: string, date: Dat
   return await cacheGet({
     collection: USER_QUERY_COUNTS_CACHE_COLLECTION,
     key: {
-      keyName: `${'userId'}_${'createdAt'}`,
-      keyValue: `${userId}_${date.toISOString()}`
+      name: `userId_date`,
+      value: `${userId}_${date.toISOString().split('T')[0]}`
     },
     fn: async () =>
       (
@@ -113,7 +112,8 @@ export async function updateUserQueryCount(id: string, data: UpdateUserQueryCoun
           })
           .where(eq(userQueryCounts.id, id))
           .returning()
-      )[0]
+      )[0],
+    invalidateIterables: true
   });
 }
 

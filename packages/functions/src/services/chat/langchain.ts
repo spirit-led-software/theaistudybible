@@ -10,18 +10,23 @@ import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '@services/llm/prompts';
 import type { CallbackManager } from 'langchain/callbacks';
 import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
-import { OutputFixingParser, RouterOutputParser } from 'langchain/output_parsers';
+import {
+  JsonMarkdownStructuredOutputParser,
+  OutputFixingParser,
+  RouterOutputParser
+} from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
 import { getLargeContextModel, llmCache } from '../llm';
 import { getDocumentVectorStore } from '../vector-db';
-import type { RAIChatMessage } from './chat';
+import type { RAIChatMessage } from './message';
 import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
   CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE
+  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
+  CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
 
 export const getRAIChatChain = async (options: {
@@ -116,10 +121,10 @@ export const getRAIChatChain = async (options: {
       },
       "metadata->>'category' != 'bible'"
     ],
+    history: (await history.getMessages())
+      .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
+      .join('\n'),
     extraPromptVars: {
-      history: (await history.getMessages())
-        .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
-        .join('\n'),
       bibleTranslation: user.translation
     },
     callbacks
@@ -200,6 +205,7 @@ export async function getDocumentQaChain(options: {
   prompt: string;
   callbacks: CallbackManager;
   filters?: (Metadata | string)[];
+  history: string;
   extraPromptVars?: PartialValues<string>;
 }) {
   const { prompt, filters, extraPromptVars } = options;
@@ -212,12 +218,61 @@ export async function getDocumentQaChain(options: {
       verbose: envConfig.isLocal
     })
   );
+
+  const numSearchQueries = 3;
+  const searchQueryOutputParser = OutputFixingParser.fromLLM(
+    getLargeContextModel({
+      promptSuffix: '<output>',
+      stopSequences: ['</output>'],
+      temperature: 0.1,
+      topK: 5,
+      topP: 0.1
+    }),
+    JsonMarkdownStructuredOutputParser.fromZodSchema(
+      z
+        .array(z.string().describe('A search query.'))
+        .length(numSearchQueries)
+        .describe('The search queries to be used.')
+    ),
+    {
+      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+    }
+  );
+
   const qaChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      sourceDocuments: RunnableSequence.from([(input) => input.query, qaRetriever]),
+      searchQueries: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
+        partialVariables: {
+          numSearchQueries: numSearchQueries.toString(),
+          history: options.history,
+          formatInstructions: searchQueryOutputParser.getFormatInstructions()
+        }
+      })
+        .pipe(
+          getLargeContextModel({
+            promptSuffix: '<output>',
+            stopSequences: ['</output>']
+          })
+        )
+        .pipe(searchQueryOutputParser),
+      query: (previousStepResult) => previousStepResult.query
+    },
+    {
+      sourceDocuments: async (previousStepResult: { searchQueries: string[] }) => {
+        const searchQueries = previousStepResult.searchQueries;
+        const sourceDocuments = await Promise.all(
+          searchQueries.map(async (query) => {
+            return (await qaRetriever.getRelevantDocuments(query)) as NeonVectorStoreDocument[];
+          })
+        );
+        // remove duplicates from flattened list using document id
+        return sourceDocuments
+          .flat()
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id));
+      },
       query: (previousStepResult) => previousStepResult.query
     },
     {
@@ -233,7 +288,10 @@ export async function getDocumentQaChain(options: {
     },
     {
       text: PromptTemplate.fromTemplate(prompt, {
-        partialVariables: extraPromptVars
+        partialVariables: {
+          history: options.history,
+          ...extraPromptVars
+        }
       })
         .pipe(
           getLargeContextModel({
@@ -242,12 +300,13 @@ export async function getDocumentQaChain(options: {
             stopSequences: ['</answer>']
           })
         )
-        .pipe(new StringOutputParser()),
+        .pipe(new StringOutputParser())
+        .withConfig({
+          callbacks: options.callbacks
+        }),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments
     }
-  ]).withConfig({
-    callbacks: options.callbacks
-  });
+  ]);
 
   return qaChain;
 }

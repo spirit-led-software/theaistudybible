@@ -33,6 +33,9 @@ export function Auth({ stack }: StackContext) {
       memorySize: '512 MB'
     }
   });
+  auth.attach(stack, {
+    api
+  });
 
   api.addRoutes(stack, {
     // Legacy endpoints
@@ -65,10 +68,6 @@ export function Auth({ stack }: StackContext) {
         memorySize: '1536 MB'
       }
     }
-  });
-
-  auth.attach(stack, {
-    api
   });
 
   const authUi = new SvelteKitSite(stack, 'auth-ui', {

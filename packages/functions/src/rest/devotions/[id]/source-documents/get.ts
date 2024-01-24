@@ -3,7 +3,8 @@ import {
   ObjectNotFoundResponse,
   OkResponse
 } from '@lib/api-responses';
-import { getDevotion, getDevotionSourceDocuments } from '@services/devotion';
+import { getDevotion } from '@services/devotion';
+import { getDevotionSourceDocuments } from '@services/source-document';
 import { ApiHandler } from 'sst/node/api';
 
 export const handler = ApiHandler(async (event) => {
@@ -15,7 +16,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const sourceDocuments = await getDevotionSourceDocuments(devotion);
+    const sourceDocuments = await getDevotionSourceDocuments(devotion.id);
 
     return OkResponse(
       sourceDocuments.map((sourceDocument) => {

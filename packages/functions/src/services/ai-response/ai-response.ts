@@ -3,10 +3,18 @@ import type {
   CreateAiResponseData,
   UpdateAiResponseData
 } from '@core/model/ai-response';
-import { aiResponses, aiResponsesToSourceDocuments } from '@core/schema';
+import { aiResponses } from '@core/schema';
 import { db } from '@lib/database/database';
-import { SQL, asc, desc, eq } from 'drizzle-orm';
-import { getDocumentVectorStore } from '../vector-db';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
+import { SQL, desc, eq } from 'drizzle-orm';
+
+export const AI_RESPONSES_CACHE_COLLECTION = 'aiResponses';
+export const defaultCacheKeysFn: CacheKeysInput<AiResponse> = (aiResponse) => [
+  { name: 'id', value: aiResponse.id },
+  { name: 'userId', value: aiResponse.userId, type: 'set' },
+  { name: 'chatId', value: aiResponse.chatId, type: 'set' },
+  { name: 'userMessageId', value: aiResponse.userMessageId, type: 'set' }
+];
 
 export async function getAiResponses(
   options: {
@@ -28,7 +36,11 @@ export async function getAiResponses(
 }
 
 export async function getAiResponse(id: string) {
-  return (await db.select().from(aiResponses).where(eq(aiResponses.id, id))).at(0);
+  return await cacheGet({
+    collection: AI_RESPONSES_CACHE_COLLECTION,
+    key: { name: 'id', value: id },
+    fn: async () => (await db.select().from(aiResponses).where(eq(aiResponses.id, id))).at(0)
+  });
 }
 
 export async function getAiResponseOrThrow(id: string) {
@@ -40,62 +52,60 @@ export async function getAiResponseOrThrow(id: string) {
 }
 
 export async function getAiResponsesByUserMessageId(userMessageId: string) {
-  return await db
-    .select()
-    .from(aiResponses)
-    .where(eq(aiResponses.userMessageId, userMessageId))
-    .orderBy(desc(aiResponses.createdAt));
-}
-
-export async function getAiResponseSourceDocuments(aiResponse: AiResponse) {
-  const sourceDocumentRelationships = await db
-    .select()
-    .from(aiResponsesToSourceDocuments)
-    .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponse.id))
-    .orderBy(asc(aiResponsesToSourceDocuments.distance));
-
-  const vectorStore = await getDocumentVectorStore();
-  const foundSourceDocuments = await vectorStore.getDocumentsByIds(
-    sourceDocumentRelationships.map((r) => r.sourceDocumentId)
-  );
-
-  return foundSourceDocuments.map((d) => {
-    const relationship = sourceDocumentRelationships.find((r) => r.sourceDocumentId === d.id);
-    return {
-      ...d,
-      distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? 'cosine'
-    };
+  return await cacheGet({
+    collection: AI_RESPONSES_CACHE_COLLECTION,
+    key: { name: 'userMessageId', value: userMessageId, type: 'set' },
+    fn: async () =>
+      await db
+        .select()
+        .from(aiResponses)
+        .where(eq(aiResponses.userMessageId, userMessageId))
+        .orderBy(desc(aiResponses.createdAt))
   });
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {
-  return (
-    await db
-      .insert(aiResponses)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: AI_RESPONSES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(aiResponses)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
-  return (
-    await db
-      .update(aiResponses)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(aiResponses.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: AI_RESPONSES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(aiResponses)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(aiResponses.id, id))
+          .returning()
+      )[0],
+    invalidateIterables: true
+  });
 }
 
 export async function deleteAiResponse(id: string) {
-  return (await db.delete(aiResponses).where(eq(aiResponses.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: AI_RESPONSES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => (await db.delete(aiResponses).where(eq(aiResponses.id, id)).returning())[0]
+  });
 }

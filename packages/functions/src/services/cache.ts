@@ -19,23 +19,27 @@ const DEFAULT_EXPIRE_SECONDS = 60 * 60;
  * Represents the input for a cache key.
  */
 export type CacheKeyInput = {
-  keyName: string;
-  keyValue: string | null | undefined;
+  name: string;
+  value: string | null | undefined;
+  type?: 'string' | 'list' | 'set';
 };
+
+export type CacheKeysInputFn<T> = (obj: T) => CacheKeyInput[];
 
 /**
  * Represents the input type for cache keys in the cache service.
  * It can be an array of CacheKeyInput objects or a function that returns an array of CacheKeyInput objects.
  * @template T The type of the object used to generate cache keys.
  */
-export type CacheKeysInput<T> = CacheKeyInput[] | ((obj: T) => CacheKeyInput[]);
+export type CacheKeysInput<T> = CacheKeyInput[] | CacheKeysInputFn<T>;
 
 /**
  * Represents a cache key.
  */
 export type CacheKey = {
-  keyName: string;
-  keyValue: string;
+  name: string;
+  value: string;
+  type?: 'string' | 'list' | 'set';
 };
 
 /**
@@ -55,24 +59,42 @@ export async function cacheGet<T>(options: {
     return fn();
   }
 
-  const cacheKey = `${collection}:${key.keyName}:${key.keyValue}`;
-  const cachedValue = await cache.get(cacheKey);
-  if (cachedValue) {
-    console.log('CACHE HIT', cacheKey);
-    if (typeof cachedValue === 'string') {
-      return JSON.parse(cachedValue) as T;
+  const cacheKey = `${collection}:${key.name}:${key.value}`;
+  try {
+    const cachedValue = await cache.get(cacheKey);
+    if (cachedValue) {
+      console.log('CACHE HIT', cacheKey);
+      if (typeof cachedValue === 'string') {
+        return JSON.parse(cachedValue) as T;
+      } else {
+        return cachedValue as T;
+      }
+    }
+    console.log('CACHE MISS', cacheKey);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error getting data from cache: ${error.message}\n${error.stack}`);
     } else {
-      return cachedValue as T;
+      console.error(`Error getting data from cache: ${JSON.stringify(error)}`);
     }
   }
-  console.log('CACHE MISS', cacheKey);
 
   const newValue = await fn();
+
   if (newValue) {
-    await cache.set(cacheKey, JSON.stringify(newValue), {
-      ex: expireSeconds
-    });
+    try {
+      await cache.set(cacheKey, JSON.stringify(newValue), {
+        ex: expireSeconds
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error caching data: ${error.message}\n${error.stack}`);
+      } else {
+        console.error(`Error caching data: ${JSON.stringify(error)}`);
+      }
+    }
   }
+
   return newValue;
 }
 
@@ -91,8 +113,15 @@ export async function cacheUpsert<T>(options: {
   keys: CacheKeysInput<T>;
   fn: () => Promise<T>;
   expireSeconds?: number;
+  invalidateIterables?: boolean;
 }) {
-  const { collection, keys, fn, expireSeconds = DEFAULT_EXPIRE_SECONDS } = options;
+  const {
+    collection,
+    keys,
+    fn,
+    expireSeconds = DEFAULT_EXPIRE_SECONDS,
+    invalidateIterables = false
+  } = options;
 
   if (!cache) {
     return fn();
@@ -100,14 +129,39 @@ export async function cacheUpsert<T>(options: {
 
   const obj = await fn();
 
-  await Promise.all(
-    filterKeys({ obj, keys }).map(async (key) => {
-      const cacheKey = `${collection}:${key.keyName}:${key.keyValue}`;
-      await cache.set(cacheKey, JSON.stringify(obj), {
-        ex: expireSeconds
-      });
-    })
-  );
+  try {
+    await Promise.all(
+      filterKeys({ obj, keys }).map(async (key) => {
+        const { name, value, type } = key;
+        const cacheKey = `${collection}:${name}:${value}`;
+        if (type === 'list') {
+          if (invalidateIterables) {
+            await cache.del(cacheKey);
+          } else {
+            await cache.lpush(cacheKey, JSON.stringify(obj));
+            await cache.expire(cacheKey, expireSeconds);
+          }
+        } else if (type === 'set') {
+          if (invalidateIterables) {
+            await cache.del(cacheKey);
+          } else {
+            await cache.sadd(cacheKey, JSON.stringify(obj));
+            await cache.expire(cacheKey, expireSeconds);
+          }
+        } else {
+          await cache.set(cacheKey, JSON.stringify(obj), {
+            ex: expireSeconds
+          });
+        }
+      })
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error caching data: ${error.message}\n${error.stack}`);
+    } else {
+      console.error(`Error caching data: ${JSON.stringify(error)}`);
+    }
+  }
 
   return obj;
 }
@@ -133,14 +187,42 @@ export async function cacheDelete<T>(options: {
   }
 
   const obj = await fn();
-  await Promise.all(
-    filterKeys({ obj, keys }).map(async (key) => {
-      const cacheKey = `${collection}:${key.keyName}:${key.keyValue}`;
-      await cache.del(cacheKey);
-    })
-  );
+
+  try {
+    await Promise.all(
+      filterKeys({ obj, keys }).map(async (key) => {
+        const cacheKey = `${collection}:${key.name}:${key.value}`;
+        await cache.del(cacheKey);
+      })
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error deleting data from cache: ${error.message}\n${error.stack}`);
+    } else {
+      console.error(`Error deleting data from cache: ${JSON.stringify(error)}`);
+    }
+  }
 
   return obj;
+}
+
+export async function cacheInvalidate(options: { collection: string; key: CacheKey }) {
+  const { collection, key } = options;
+
+  if (!cache) {
+    return;
+  }
+
+  try {
+    const cacheKey = `${collection}:${key.name}:${key.value}`;
+    await cache.del(cacheKey);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error invalidating cache: ${error.message}\n${error.stack}`);
+    } else {
+      console.error(`Error invalidating cache: ${JSON.stringify(error)}`);
+    }
+  }
 }
 
 /**
@@ -162,8 +244,8 @@ export async function clearCache() {
 function filterKeys<T>(options: { obj: T; keys: CacheKeysInput<T> }) {
   const { obj, keys } = options;
   if (Array.isArray(keys)) {
-    return keys.filter((key) => key.keyValue) as CacheKey[];
+    return keys.filter((key) => key.value) as CacheKey[];
   } else {
-    return keys(obj).filter((key) => key.keyValue) as CacheKey[];
+    return keys(obj).filter((key) => key.value) as CacheKey[];
   }
 }

@@ -1,10 +1,28 @@
 import type {
+  AiResponseReaction,
   CreateAiResponseReactionData,
   UpdateAiResponseReactionData
 } from '@core/model/ai-response/reaction';
 import { aiResponseReactions, aiResponses, users } from '@core/schema';
 import { db } from '@lib/database/database';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInputFn } from '@services/cache';
 import { SQL, and, desc, eq } from 'drizzle-orm';
+
+export const AI_RESPONSE_REACTIONS_CACHE_COLLECTION = 'aiResponseReactions';
+export const defaultCacheKeysFn: CacheKeysInputFn<AiResponseReaction> = (reaction) => [
+  { name: 'id', value: reaction.id },
+  { name: 'aiResponseId', value: reaction.aiResponseId, type: 'set' },
+  { name: 'aiResponseId_count', value: reaction.aiResponseId },
+  {
+    name: 'aiResponseId_reactionType',
+    value: `${reaction.aiResponseId}_${reaction.reaction}`,
+    type: 'set'
+  },
+  {
+    name: 'aiResponseId_reactionType_count',
+    value: `${reaction.aiResponseId}_${reaction.reaction}`
+  }
+];
 
 export async function getAiResponseReactions(
   options: {
@@ -47,7 +65,12 @@ export async function getAiResponseReactionsWithInfo(
 }
 
 export async function getAiResponseReaction(id: string) {
-  return (await db.select().from(aiResponseReactions).where(eq(aiResponseReactions.id, id))).at(0);
+  return await cacheGet({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    key: { name: 'id', value: id },
+    fn: async () =>
+      (await db.select().from(aiResponseReactions).where(eq(aiResponseReactions.id, id))).at(0)
+  });
 }
 
 export async function getAiResponseReactionOrThrow(id: string) {
@@ -59,71 +82,101 @@ export async function getAiResponseReactionOrThrow(id: string) {
 }
 
 export async function getAiResponseReactionsByAiResponseId(aiResponseId: string) {
-  return await db
-    .select()
-    .from(aiResponseReactions)
-    .where(eq(aiResponseReactions.aiResponseId, aiResponseId));
+  return await cacheGet({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    key: { name: 'aiResponseId', value: aiResponseId, type: 'set' },
+    fn: async () =>
+      await db
+        .select()
+        .from(aiResponseReactions)
+        .where(eq(aiResponseReactions.aiResponseId, aiResponseId))
+  });
 }
 
 export async function getAiResponseReactionCountByAiResponseIdAndReactionType(
   aiResponseId: string,
   reactionType: (typeof aiResponseReactions.reaction.enumValues)[number]
 ) {
-  return (
-    await db
-      .select()
-      .from(aiResponseReactions)
-      .where(
-        and(
-          eq(aiResponseReactions.aiResponseId, aiResponseId),
-          eq(aiResponseReactions.reaction, reactionType)
-        )
-      )
-  ).length;
+  return await cacheGet({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    key: { name: 'aiResponseId_reactionType_count', value: `${aiResponseId}_${reactionType}` },
+    fn: async () =>
+      (
+        await db
+          .select()
+          .from(aiResponseReactions)
+          .where(
+            and(
+              eq(aiResponseReactions.aiResponseId, aiResponseId),
+              eq(aiResponseReactions.reaction, reactionType)
+            )
+          )
+      ).length
+  });
 }
 
 export async function getAiResponseReactionCounts(aiResponseId: string) {
-  const devoReactionCounts: {
-    [key in (typeof aiResponseReactions.reaction.enumValues)[number]]?: number;
-  } = {};
-  for (const reactionType of aiResponseReactions.reaction.enumValues) {
-    const reactionCount = await getAiResponseReactionCountByAiResponseIdAndReactionType(
-      aiResponseId,
-      reactionType
-    );
-    devoReactionCounts[reactionType] = reactionCount;
-  }
-  return devoReactionCounts;
+  return await cacheGet({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    key: { name: 'aiResponseId_count', value: aiResponseId },
+    fn: async () => {
+      const devoReactionCounts: {
+        [key in (typeof aiResponseReactions.reaction.enumValues)[number]]?: number;
+      } = {};
+      for (const reactionType of aiResponseReactions.reaction.enumValues) {
+        const reactionCount = await getAiResponseReactionCountByAiResponseIdAndReactionType(
+          aiResponseId,
+          reactionType
+        );
+        devoReactionCounts[reactionType] = reactionCount;
+      }
+      return devoReactionCounts;
+    }
+  });
 }
 
 export async function createAiResponseReaction(data: CreateAiResponseReactionData) {
-  return (
-    await db
-      .insert(aiResponseReactions)
-      .values({
-        ...data,
-        createdAt: new Date(new Date().toUTCString()),
-        updatedAt: new Date(new Date().toUTCString())
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(aiResponseReactions)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateAiResponseReaction(id: string, data: UpdateAiResponseReactionData) {
-  return (
-    await db
-      .update(aiResponseReactions)
-      .set({
-        ...data,
-        updatedAt: new Date()
-      })
-      .where(eq(aiResponseReactions.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(aiResponseReactions)
+          .set({
+            ...data,
+            updatedAt: new Date()
+          })
+          .where(eq(aiResponseReactions.id, id))
+          .returning()
+      )[0],
+    invalidateIterables: true
+  });
 }
 
 export async function deleteAiResponseReaction(id: string) {
-  return (
-    await db.delete(aiResponseReactions).where(eq(aiResponseReactions.id, id)).returning()
-  )[0];
+  return await cacheDelete({
+    collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (await db.delete(aiResponseReactions).where(eq(aiResponseReactions.id, id)).returning())[0]
+  });
 }

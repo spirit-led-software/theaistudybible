@@ -5,8 +5,15 @@ import type {
 } from '@core/model/data-source';
 import { dataSources } from '@core/schema';
 import { db } from '@lib/database/database';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { getDocumentVectorStore } from '@services/vector-db';
 import { SQL, desc, eq } from 'drizzle-orm';
+
+export const DATA_SOURCE_CACHE_COLLECTION = 'dataSources';
+export const defaultCacheKeysFn: CacheKeysInput<DataSource> = (dataSource) => [
+  { name: 'id', value: dataSource.id }
+];
+export const DATA_SOURCES_CACHE_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 export async function getDataSources(
   options: {
@@ -28,7 +35,12 @@ export async function getDataSources(
 }
 
 export async function getDataSource(id: string) {
-  return (await db.select().from(dataSources).where(eq(dataSources.id, id))).at(0);
+  return await cacheGet({
+    collection: DATA_SOURCE_CACHE_COLLECTION,
+    key: { name: 'id', value: id },
+    fn: async () => (await db.select().from(dataSources).where(eq(dataSources.id, id))).at(0),
+    expireSeconds: DATA_SOURCES_CACHE_TTL_SECONDS
+  });
 }
 
 export async function getDataSourceOrThrow(id: string) {
@@ -40,30 +52,43 @@ export async function getDataSourceOrThrow(id: string) {
 }
 
 export async function createDataSource(data: CreateDataSourceData) {
-  return (
-    await db
-      .insert(dataSources)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: DATA_SOURCE_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(dataSources)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0],
+    expireSeconds: DATA_SOURCES_CACHE_TTL_SECONDS
+  });
 }
 
 export async function updateDataSource(id: string, data: UpdateDataSourceData) {
-  return (
-    await db
-      .update(dataSources)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(dataSources.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: DATA_SOURCE_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(dataSources)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(dataSources.id, id))
+          .returning()
+      )[0],
+    expireSeconds: DATA_SOURCES_CACHE_TTL_SECONDS,
+    invalidateIterables: true
+  });
 }
 
 export async function updateDataSourceRelatedDocuments(
@@ -90,7 +115,11 @@ export async function updateDataSourceRelatedDocuments(
 }
 
 export async function deleteDataSource(id: string) {
-  return (await db.delete(dataSources).where(eq(dataSources.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: DATA_SOURCE_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => (await db.delete(dataSources).where(eq(dataSources.id, id)).returning())[0]
+  });
 }
 
 export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {

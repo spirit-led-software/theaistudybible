@@ -101,6 +101,33 @@ Be concise and to the point. You must format your output using valid markdown sy
 
 Put your answer to the query within <answer></answer> XML tags.`;
 
+export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate {numSearchQueries} search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
+
+Here is the conversation history that you can use to help generate search queries. It is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the conversation history carefully, you will need to use it to generate your search queries. The conversation history **CAN** be empty.
+<conversation_history>
+{history}
+</conversation_history>
+
+Here are some important rules for you to follow:
+- Your output must match the formatting instructions exactly.
+- Search queries must be short and concise.
+- Search queries must accurately reflect the user's intent.
+- Search queries should be all lowercase, with no punctuation.
+
+Here is the query that you need to generate search queries, within <query></query> XML tags.
+<query>
+{query}
+</query>
+
+What are the search queries that you would use to find relevant documents in a vector database?
+
+Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
+<format_instructions>
+{formatInstructions}
+</format_instructions>
+
+Put your output matching the formatting instructions within <output></output> XML tags.`;
+
 export const CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what queries the system is best suited for.
 
 Here is the conversation history that you can use to help you decide on the system to use. It can also be used to form a standalone query for the query answering system. It is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the conversation history carefully, you will need to use it to determine which query answering system is best suited for the query. The conversation history **CAN** be empty.

@@ -6,9 +6,9 @@ import { SQL, desc, eq, sql } from 'drizzle-orm';
 
 export const USERS_CACHE_COLLECTION = 'users';
 export const defaultCacheKeysFn: CacheKeysInput<User> = (user) => [
-  { keyName: 'id', keyValue: user.id },
-  { keyName: 'email', keyValue: user.email },
-  { keyName: 'stripeCustomerId', keyValue: user.stripeCustomerId }
+  { name: 'id', value: user.id },
+  { name: 'email', value: user.email },
+  { name: 'stripeCustomerId', value: user.stripeCustomerId }
 ];
 
 export async function getUsers(
@@ -26,7 +26,7 @@ export async function getUsers(
 export async function getUser(id: string) {
   return await cacheGet({
     collection: USERS_CACHE_COLLECTION,
-    key: { keyName: 'id', keyValue: id },
+    key: { name: 'id', value: id },
     fn: async () => (await db.select().from(users).where(eq(users.id, id))).at(0)
   });
 }
@@ -42,7 +42,7 @@ export async function getUserOrThrow(id: string) {
 export async function getUserByEmail(email: string) {
   return await cacheGet({
     collection: USERS_CACHE_COLLECTION,
-    key: { keyName: 'email', keyValue: email },
+    key: { name: 'email', value: email },
     fn: async () => (await db.select().from(users).where(eq(users.email, email))).at(0)
   });
 }
@@ -58,7 +58,7 @@ export async function getUserByEmailOrThrow(email: string) {
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
   return await cacheGet({
     collection: USERS_CACHE_COLLECTION,
-    key: { keyName: 'stripeCustomerId', keyValue: stripeCustomerId },
+    key: { name: 'stripeCustomerId', value: stripeCustomerId },
     fn: async () =>
       (await db.select().from(users).where(eq(users.stripeCustomerId, stripeCustomerId))).at(0)
   });

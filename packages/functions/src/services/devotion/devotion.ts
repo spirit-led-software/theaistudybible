@@ -1,8 +1,15 @@
 import type { CreateDevotionData, Devotion, UpdateDevotionData } from '@core/model/devotion';
-import { devotions, devotionsToSourceDocuments } from '@core/schema';
+import { devotions } from '@core/schema';
 import { db } from '@lib/database/database';
-import { getDocumentVectorStore } from '@services/vector-db';
-import { SQL, asc, desc, eq, sql } from 'drizzle-orm';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
+import { SQL, desc, eq, sql } from 'drizzle-orm';
+
+export const DEVOTIONS_CACHE_COLLECTION = 'devotions';
+export const defaultCacheKeysFn: CacheKeysInput<Devotion> = (devotion) => [
+  { name: 'id', value: devotion.id },
+  { name: 'date', value: devotion.createdAt.toISOString().split('T')[0] }
+];
+export const DEVOTIONS_CACHE_TTL_SECONDS = 60 * 60 * 24; // 1 day
 
 export async function getDevotions(
   options: {
@@ -24,7 +31,12 @@ export async function getDevotions(
 }
 
 export async function getDevotion(id: string) {
-  return (await db.select().from(devotions).where(eq(devotions.id, id))).at(0);
+  return await cacheGet({
+    collection: DEVOTIONS_CACHE_COLLECTION,
+    key: { name: 'id', value: id },
+    fn: async () => (await db.select().from(devotions).where(eq(devotions.id, id))).at(0),
+    expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
+  });
 }
 
 export async function getDevotionOrThrow(id: string) {
@@ -42,63 +54,63 @@ export async function getDevotionOrThrow(id: string) {
  * @returns
  */
 export async function getDevotionByCreatedDate(dateString: string) {
-  return (
-    await db
-      .select()
-      .from(devotions)
-      .where(sql`${devotions.createdAt}::date = ${dateString}::date`)
-  ).at(0);
-}
-
-export async function getDevotionSourceDocuments(devotion: Devotion) {
-  const sourceDocumentRelationships = await db
-    .select()
-    .from(devotionsToSourceDocuments)
-    .where(eq(devotionsToSourceDocuments.devotionId, devotion.id))
-    .orderBy(asc(devotionsToSourceDocuments.distance));
-
-  const vectorStore = await getDocumentVectorStore();
-  const foundSourceDocuments = await vectorStore.getDocumentsByIds(
-    sourceDocumentRelationships.map((d) => d.sourceDocumentId)
-  );
-
-  return foundSourceDocuments.map((d) => {
-    const relationship = sourceDocumentRelationships.find((d2) => d2.devotionId === d.id);
-    return {
-      ...d,
-      distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? 'cosine'
-    };
+  return await cacheGet({
+    collection: DEVOTIONS_CACHE_COLLECTION,
+    key: { name: 'date', value: dateString },
+    fn: async () =>
+      (
+        await db
+          .select()
+          .from(devotions)
+          .where(sql`${devotions.createdAt}::date = ${dateString}::date`)
+      ).at(0),
+    expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
   });
 }
 
 export async function createDevotion(data: CreateDevotionData) {
-  return (
-    await db
-      .insert(devotions)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: DEVOTIONS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(devotions)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0],
+    expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
+  });
 }
 
 export async function updateDevotion(id: string, data: UpdateDevotionData) {
-  return (
-    await db
-      .update(devotions)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(devotions.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: DEVOTIONS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(devotions)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(devotions.id, id))
+          .returning()
+      )[0],
+    expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
+  });
 }
 
 export async function deleteDevotion(id: string) {
-  return (await db.delete(devotions).where(eq(devotions.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: DEVOTIONS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => (await db.delete(devotions).where(eq(devotions.id, id)).returning())[0]
+  });
 }

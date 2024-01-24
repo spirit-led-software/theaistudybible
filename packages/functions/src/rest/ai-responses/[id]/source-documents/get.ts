@@ -4,8 +4,9 @@ import {
   OkResponse,
   UnauthorizedResponse
 } from '@lib/api-responses';
-import { getAiResponse, getAiResponseSourceDocuments } from '@services/ai-response/ai-response';
+import { getAiResponse } from '@services/ai-response/ai-response';
 import { validApiHandlerSession } from '@services/session';
+import { getAiResponseSourceDocuments } from '@services/source-document';
 import { isObjectOwner } from '@services/user';
 import { ApiHandler } from 'sst/node/api';
 
@@ -19,10 +20,10 @@ export const handler = ApiHandler(async (event) => {
 
     const { isValid, userWithRoles } = await validApiHandlerSession();
     if (!isValid || !isObjectOwner(aiResponse, userWithRoles.id)) {
-      return UnauthorizedResponse('You are not authorized to see these source documents.');
+      return UnauthorizedResponse('You are not authorized to view these source documents.');
     }
 
-    const sourceDocuments = await getAiResponseSourceDocuments(aiResponse);
+    const sourceDocuments = await getAiResponseSourceDocuments(aiResponse.id);
 
     return OkResponse(
       sourceDocuments.map((sourceDocument) => {

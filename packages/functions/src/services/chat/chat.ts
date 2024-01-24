@@ -1,13 +1,14 @@
-import type { CreateChatData, UpdateChatData } from '@core/model/chat';
-import { aiResponses, chats, userMessages } from '@core/schema';
+import type { Chat, CreateChatData, UpdateChatData } from '@core/model/chat';
+import { chats } from '@core/schema';
 import { db } from '@lib/database/database';
-import type { Message } from 'ai';
-import { SQL, and, desc, eq, sql } from 'drizzle-orm';
-import { v4 as uuidV4 } from 'uuid';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
+import { SQL, desc, eq, sql } from 'drizzle-orm';
 
-export type RAIChatMessage = Message & {
-  uuid: string;
-};
+export const CHATS_CACHE_COLLECTION = 'chats';
+export const defaultCacheKeysFn: CacheKeysInput<Chat> = (chat) => [
+  { name: 'id', value: chat.id },
+  { name: 'userId', value: chat.userId }
+];
 
 export async function getChats(
   options: {
@@ -23,7 +24,11 @@ export async function getChats(
 }
 
 export async function getChat(id: string) {
-  return (await db.select().from(chats).where(eq(chats.id, id))).at(0);
+  return await cacheGet({
+    collection: CHATS_CACHE_COLLECTION,
+    key: { name: 'id', value: id },
+    fn: async () => (await db.select().from(chats).where(eq(chats.id, id))).at(0)
+  });
 }
 
 export async function getChatOrThrow(id: string) {
@@ -35,94 +40,51 @@ export async function getChatOrThrow(id: string) {
 }
 
 export async function createChat(data: CreateChatData) {
-  return (
-    await db
-      .insert(chats)
-      .values({
-        customName: data.name && data.name != 'New Chat' ? true : false,
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: CHATS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(chats)
+          .values({
+            customName: data.name && data.name != 'New Chat' ? true : false,
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateChat(id: string, data: UpdateChatData) {
-  return (
-    await db
-      .update(chats)
-      .set({
-        customName: sql`${chats.customName} OR ${
-          data.name && data.name != 'New Chat' ? true : false
-        }`,
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(chats.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: CHATS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(chats)
+          .set({
+            customName: sql`${chats.customName} OR ${
+              data.name && data.name != 'New Chat' ? true : false
+            }`,
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(chats.id, id))
+          .returning()
+      )[0],
+    invalidateIterables: true
+  });
 }
 
 export async function deleteChat(id: string) {
-  return (await db.delete(chats).where(eq(chats.id, id)).returning())[0];
-}
-
-export async function getChatMessages(
-  chatId: string,
-  options: {
-    limit?: number;
-    offset?: number;
-    orderBy?: SQL<unknown>;
-  } = {}
-) {
-  const { limit = 25, offset = 0, orderBy = desc(aiResponses.createdAt) } = options;
-
-  const queryResult = await db
-    .select()
-    .from(userMessages)
-    .leftJoin(aiResponses, eq(userMessages.id, aiResponses.userMessageId))
-    .where(
-      and(
-        eq(aiResponses.chatId, chatId),
-        eq(aiResponses.failed, false),
-        eq(aiResponses.regenerated, false)
-      )
-    )
-    .offset(offset)
-    .orderBy(orderBy)
-    .limit(limit);
-
-  const messages: RAIChatMessage[] = [];
-
-  for (const row of queryResult) {
-    if (row.ai_responses) {
-      messages.push({
-        role: 'assistant',
-        id: row.ai_responses.aiId ?? row.ai_responses.id,
-        uuid: row.ai_responses.id,
-        content: row.ai_responses.text!,
-        createdAt: row.ai_responses.createdAt
-      });
-    } else {
-      messages.push({
-        role: 'assistant',
-        id: uuidV4(),
-        uuid: uuidV4(),
-        content: 'Failed.',
-        createdAt: new Date()
-      });
-    }
-
-    messages.push({
-      role: 'user',
-      id: row.user_messages.id,
-      uuid: row.user_messages.id,
-      content: row.user_messages.text!,
-      createdAt: row.user_messages.createdAt
-    });
-  }
-
-  return messages;
+  return await cacheDelete({
+    collection: CHATS_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => (await db.delete(chats).where(eq(chats.id, id)).returning())[0]
+  });
 }

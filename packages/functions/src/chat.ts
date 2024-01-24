@@ -12,8 +12,9 @@ import {
   getAiResponsesByUserMessageId,
   updateAiResponse
 } from '@services/ai-response/ai-response';
-import { createChat, getChat, updateChat, type RAIChatMessage } from '@services/chat';
+import { createChat, getChat, updateChat } from '@services/chat';
 import { getRAIChatChain } from '@services/chat/langchain';
+import type { RAIChatMessage } from '@services/chat/message';
 import { validNonApiHandlerSession } from '@services/session';
 import { hasPlusSync, isAdminSync, isObjectOwner } from '@services/user';
 import { createUserMessage, getUserMessages } from '@services/user/message';

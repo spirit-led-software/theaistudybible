@@ -1,7 +1,20 @@
-import type { CreateUserMessageData, UpdateUserMessageData } from '@core/model/user/message';
+import type {
+  CreateUserMessageData,
+  UpdateUserMessageData,
+  UserMessage
+} from '@core/model/user/message';
 import { userMessages, users } from '@core/schema';
 import { db } from '@lib/database/database';
+import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '@services/cache';
 import { SQL, and, desc, eq, like, not, sql } from 'drizzle-orm';
+
+export const USER_MESSAGES_CACHE_COLLECTION = 'userMessages';
+export const defaultCacheKeysFn: CacheKeysInput<UserMessage> = (message) => [
+  { name: 'id', value: message.id },
+  { name: 'userId', value: message.userId, type: 'set' },
+  { name: 'chatId', value: message.chatId, type: 'set' },
+  { name: 'chatId_text', value: `${message.chatId}_${message.text}`, type: 'set' }
+];
 
 export async function getUserMessages(
   options: {
@@ -23,7 +36,11 @@ export async function getUserMessages(
 }
 
 export async function getUserMessage(id: string) {
-  return (await db.select().from(userMessages).where(eq(userMessages.id, id))).at(0);
+  return await cacheGet({
+    collection: USER_MESSAGES_CACHE_COLLECTION,
+    key: { name: 'id', value: id },
+    fn: async () => (await db.select().from(userMessages).where(eq(userMessages.id, id))).at(0)
+  });
 }
 
 export async function getUserMessageOrThrow(id: string) {
@@ -35,50 +52,75 @@ export async function getUserMessageOrThrow(id: string) {
 }
 
 export async function getUserMessagesByChatId(chatId: string) {
-  return await db
-    .select()
-    .from(userMessages)
-    .where(eq(userMessages.chatId, chatId))
-    .orderBy(desc(userMessages.createdAt));
+  return await cacheGet({
+    collection: USER_MESSAGES_CACHE_COLLECTION,
+    key: { name: 'chatId', value: chatId, type: 'set' },
+    fn: async () =>
+      await db
+        .select()
+        .from(userMessages)
+        .where(eq(userMessages.chatId, chatId))
+        .orderBy(desc(userMessages.createdAt))
+  });
 }
 
 export async function getUserMessagesByChatIdAndText(chatId: string, text: string) {
-  return await db
-    .select()
-    .from(userMessages)
-    .where(and(eq(userMessages.chatId, chatId), eq(userMessages.text, text)))
-    .orderBy(desc(userMessages.createdAt));
+  return await cacheGet({
+    collection: USER_MESSAGES_CACHE_COLLECTION,
+    key: { name: 'chatId_text', value: `${chatId}_${text}`, type: 'set' },
+    fn: async () =>
+      await db
+        .select()
+        .from(userMessages)
+        .where(and(eq(userMessages.chatId, chatId), eq(userMessages.text, text)))
+        .orderBy(desc(userMessages.createdAt))
+  });
 }
 
 export async function createUserMessage(data: CreateUserMessageData) {
-  return (
-    await db
-      .insert(userMessages)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: USER_MESSAGES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .insert(userMessages)
+          .values({
+            ...data,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning()
+      )[0]
+  });
 }
 
 export async function updateUserMessage(id: string, data: UpdateUserMessageData) {
-  return (
-    await db
-      .update(userMessages)
-      .set({
-        ...data,
-        createdAt: undefined,
-        updatedAt: new Date()
-      })
-      .where(eq(userMessages.id, id))
-      .returning()
-  )[0];
+  return await cacheUpsert({
+    collection: USER_MESSAGES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () =>
+      (
+        await db
+          .update(userMessages)
+          .set({
+            ...data,
+            createdAt: undefined,
+            updatedAt: new Date()
+          })
+          .where(eq(userMessages.id, id))
+          .returning()
+      )[0],
+    invalidateIterables: true
+  });
 }
 
 export async function deleteUserMessage(id: string) {
-  return (await db.delete(userMessages).where(eq(userMessages.id, id)).returning())[0];
+  return await cacheDelete({
+    collection: USER_MESSAGES_CACHE_COLLECTION,
+    keys: defaultCacheKeysFn,
+    fn: async () => (await db.delete(userMessages).where(eq(userMessages.id, id)).returning())[0]
+  });
 }
 
 export async function getMostAskedUserMessages(count: number) {
