@@ -77,7 +77,7 @@
 	</title>
 	<meta
 		name="description"
-		content={`Devotion for ${cleanDate}. Topic: ${activeDevo.topic}. Bible Reading: ${activeDevo.bibleReading}`}
+		content={`AI-Generated Daily Devotions by RevelationsAI. Devotion for ${cleanDate}. Topic: ${activeDevo.topic}. Bible Reading: ${activeDevo.bibleReading}`}
 	/>
 </svelte:head>
 
