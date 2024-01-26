@@ -4,7 +4,7 @@ import type {
   DevotionImage,
   UpdateDevotionImageData
 } from '@revelationsai/core/model/devotion/image';
-import { SQL, desc, eq } from 'drizzle-orm';
+import { desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInputFn } from '../../services/cache';
 

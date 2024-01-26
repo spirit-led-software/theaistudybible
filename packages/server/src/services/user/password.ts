@@ -3,7 +3,7 @@ import type {
   CreateUserPasswordData,
   UpdateUserPasswordData
 } from '@revelationsai/core/model/user/password';
-import { SQL, desc, eq } from 'drizzle-orm';
+import { desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 
 export async function getUserPasswords(

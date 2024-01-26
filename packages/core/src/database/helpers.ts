@@ -1,4 +1,4 @@
-import { SQL, and, asc, desc, eq, gt, gte, ilike, like, lt, lte, not, or } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, gte, ilike, like, lt, lte, not, or, type SQL } from 'drizzle-orm';
 import type { PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 export interface ColumnValue {

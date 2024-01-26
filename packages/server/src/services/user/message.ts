@@ -4,7 +4,7 @@ import type {
   UpdateUserMessageData,
   UserMessage
 } from '@revelationsai/core/model/user/message';
-import { SQL, and, desc, eq, like, not, sql } from 'drizzle-orm';
+import { and, desc, eq, like, not, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 

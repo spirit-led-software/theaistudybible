@@ -4,7 +4,7 @@ import type {
   UpdateUserGeneratedImageData,
   UserGeneratedImage
 } from '@revelationsai/core/model/user/generated-image';
-import { SQL, desc, eq } from 'drizzle-orm';
+import { desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 

@@ -5,7 +5,7 @@ import type {
   User,
   UserWithRoles
 } from '@revelationsai/core/model/user';
-import { SQL, desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 

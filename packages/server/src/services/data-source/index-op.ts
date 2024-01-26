@@ -3,7 +3,7 @@ import type {
   CreateIndexOperationData,
   UpdateIndexOperationData
 } from '@revelationsai/core/model/data-source/index-op';
-import { SQL, desc, eq } from 'drizzle-orm';
+import { desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 
 export async function getIndexOperations(

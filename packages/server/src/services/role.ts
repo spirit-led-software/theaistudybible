@@ -1,6 +1,6 @@
 import { roles, usersToRoles } from '@revelationsai/core/database/schema';
 import type { CreateRoleData, Role, UpdateRoleData } from '@revelationsai/core/model/role';
-import { SQL, and, desc, eq, like } from 'drizzle-orm';
+import { and, desc, eq, like, type SQL } from 'drizzle-orm';
 import { db } from '../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from './cache';
 import { getUserOrThrow } from './user/user';

@@ -1,5 +1,5 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import { Embeddings, type EmbeddingsParams } from 'langchain/embeddings/base';
+import { Embeddings, type EmbeddingsParams } from '@langchain/core/embeddings';
 import type { CredentialType } from '../util/bedrock';
 
 export type BedrockEmbeddingProvider = 'amazon' | 'cohere';

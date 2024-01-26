@@ -1,6 +1,6 @@
+import type { Embeddings } from '@langchain/core/embeddings';
 import { Client, neonConfig } from '@neondatabase/serverless';
 import { Document } from 'langchain/document';
-import type { Embeddings } from 'langchain/embeddings/base';
 import { VectorStore } from 'langchain/vectorstores/base';
 import ws from 'ws';
 import type { Metadata } from '../../types/metadata';

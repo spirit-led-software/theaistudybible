@@ -4,7 +4,7 @@ import type {
   DevotionReaction,
   UpdateDevotionReactionData
 } from '@revelationsai/core/model/devotion/reaction';
-import { SQL, and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInputFn } from '../../services/cache';
 

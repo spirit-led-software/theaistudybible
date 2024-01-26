@@ -4,7 +4,7 @@ import type {
   UpdateUserQueryCountData,
   UserQueryCount
 } from '@revelationsai/core/model/user/query-count';
-import { SQL, and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 

@@ -1,6 +1,6 @@
 import { chats } from '@revelationsai/core/database/schema';
 import type { Chat, CreateChatData, UpdateChatData } from '@revelationsai/core/model/chat';
-import { SQL, desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 
