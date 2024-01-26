@@ -83,9 +83,10 @@ export async function cacheGet<T>(options: {
 
   if (newValue) {
     try {
-      await cache.set(cacheKey, JSON.stringify(newValue), {
+      const result = await cache.set(cacheKey, JSON.stringify(newValue), {
         ex: expireSeconds
       });
+      console.log('CACHE SET', cacheKey, result);
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error caching data: ${error.message}\n${error.stack}`);
@@ -93,6 +94,8 @@ export async function cacheGet<T>(options: {
         console.error(`Error caching data: ${JSON.stringify(error)}`);
       }
     }
+  } else {
+    console.log('CACHE SKIP', cacheKey);
   }
 
   return newValue;
