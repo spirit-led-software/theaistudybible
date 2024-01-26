@@ -1,10 +1,10 @@
 import { PUBLIC_AUTH_URL, PUBLIC_WEBSITE_URL } from '$env/static/public';
-import { getDevotions } from '@revelationsai/client/services/devotion';
+import { getDevotions } from '@revelationsai/server/services/devotion';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async () => {
-	const { devotions } = await getDevotions({ limit: Number.MAX_SAFE_INTEGER });
+	const devotions = await getDevotions({ limit: Number.MAX_SAFE_INTEGER });
 
 	const sitemapXml = new XMLBuilder({
 		ignoreAttributes: false

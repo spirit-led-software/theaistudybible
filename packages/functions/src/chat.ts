@@ -192,7 +192,7 @@ async function lambdaHandler(
 
     console.time('Validating session token');
     const { isValid, userWithRoles, remainingQueries, maxQueries } =
-      await validNonApiHandlerSession(event);
+      await validNonApiHandlerSession(event.headers.authorization?.split(' ')[1]);
     if (!isValid) {
       console.log('Invalid session token');
       return {

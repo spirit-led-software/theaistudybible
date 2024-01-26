@@ -4,7 +4,11 @@ import { getChats } from '@revelationsai/server/services/chat';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
-import { UnauthorizedResponse, OkResponse, InternalServerErrorResponse } from '../../../lib/api-responses';
+import {
+  UnauthorizedResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

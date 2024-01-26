@@ -50,6 +50,8 @@
 	"type": "module",
 	"dependencies": {
 		"@revelationsai/core": "workspace:*",
+		"@revelationsai/server": "workspace:*",
+		"@revelationsai/client": "workspace:*",
 		"@tanstack/svelte-query": "^5.17.19",
 		"ai": "^2.2.31",
 		"autosize": "^6.0.1",

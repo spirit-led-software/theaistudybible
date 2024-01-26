@@ -3,8 +3,8 @@ import type {
   DataSource,
   UpdateDataSourceData
 } from '@revelationsai/core/model/data-source';
-import type { ProtectedApiOptions } from '../../../../../website/src/lib/services/types';
 import apiConfig from '../../../configs/api';
+import type { ProtectedApiOptions } from '../../types';
 
 export async function createDataSource(data: CreateDataSourceData, options: ProtectedApiOptions) {
   const response = await fetch(`${apiConfig.url}/admin/data-sources`, {

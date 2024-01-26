@@ -1,10 +1,10 @@
-import { getDevotionReactions } from '@revelationsai/client/services/admin/reactions/devotion';
+import { getDevotionReactionsWithInfo } from '@revelationsai/server/services/devotion/reaction';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async () => {
 	const limit = 10;
-	const reactionInfos = await getDevotionReactions({
-		session: locals.session!
+	const reactionInfos = await getDevotionReactionsWithInfo({
+		limit
 	});
 	return {
 		reactionInfos,

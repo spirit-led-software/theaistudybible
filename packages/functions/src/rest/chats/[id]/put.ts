@@ -3,7 +3,12 @@ import { getChat, updateChat } from '@revelationsai/server/services/chat/chat';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { isObjectOwner } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
-import { ObjectNotFoundResponse, UnauthorizedResponse, OkResponse, InternalServerErrorResponse } from '../../../lib/api-responses';
+import {
+  ObjectNotFoundResponse,
+  UnauthorizedResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

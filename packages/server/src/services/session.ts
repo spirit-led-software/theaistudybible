@@ -1,5 +1,4 @@
 import type { UserWithRoles } from '@revelationsai/core/model/user';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { createVerifier } from 'fast-jwt';
 import { getPublicKey, useSession, type SessionValue } from 'sst/node/auth';
 import { getUser, getUserMaxGeneratedImages, getUserMaxQueries } from '../services/user';
@@ -103,9 +102,8 @@ export async function validApiHandlerSession(): ReturnType {
  * @param event Event from API Gateway
  * @returns A promise that resolves to an object with the following properties:
  */
-export async function validNonApiHandlerSession(event: APIGatewayProxyEventV2): ReturnType {
+export async function validNonApiHandlerSession(token?: string): ReturnType {
   try {
-    const token = event.headers.authorization?.split(' ')[1];
     if (!token) {
       console.error('No token provided');
       return { isValid: false };

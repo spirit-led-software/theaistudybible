@@ -1,8 +1,4 @@
-export type ApiConfig = {
-  url: string;
-};
-
-export const config: ApiConfig = {
+export const config = {
   url: process.env.PUBLIC_API_URL!
 };
 
