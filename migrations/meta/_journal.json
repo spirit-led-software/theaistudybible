@@ -225,6 +225,13 @@
       "when": 1706126835875,
       "tag": "0031_abandoned_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1706264968467,
+      "tag": "0032_loose_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

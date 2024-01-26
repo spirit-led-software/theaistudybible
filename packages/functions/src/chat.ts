@@ -106,7 +106,8 @@ async function postResponseValidationLogic({
   aiResponseId,
   userId,
   response,
-  sourceDocuments
+  sourceDocuments,
+  searchQueries
 }: {
   modelId: AnthropicModelId;
   chat: Chat;
@@ -116,6 +117,7 @@ async function postResponseValidationLogic({
   lastMessage: RAIChatMessage;
   response: string;
   sourceDocuments: NeonVectorStoreDocument[];
+  searchQueries: string[];
 }): Promise<void> {
   const aiResponse = await createAiResponse({
     id: aiResponseId,
@@ -123,7 +125,8 @@ async function postResponseValidationLogic({
     userMessageId: userMessageId,
     userId,
     text: response,
-    modelId
+    modelId,
+    searchQueries
   });
 
   await Promise.all([
@@ -300,10 +303,8 @@ async function lambdaHandler(
       })
       .then(async (result) => {
         console.log(`LangChain result: ${JSON.stringify(result)}`);
-        const sourceDocuments =
-          result.sourceDocuments?.filter((d1, i, arr) => {
-            return arr.findIndex((d2) => d2.id === d1.id) === i;
-          }) ?? [];
+        const sourceDocuments = result.sourceDocuments ?? [];
+        const searchQueries = result.searchQueries ?? [];
         await postResponseValidationLogic({
           modelId,
           chat,
@@ -312,7 +313,8 @@ async function lambdaHandler(
           userId: userWithRoles.id,
           lastMessage,
           response: result.text,
-          sourceDocuments
+          sourceDocuments,
+          searchQueries
         });
         return result;
       })

@@ -1,0 +1,1 @@
+ALTER TABLE "ai_responses" ADD COLUMN "search_queries" jsonb DEFAULT '[]'::jsonb NOT NULL;

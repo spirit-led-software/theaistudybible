@@ -32,6 +32,7 @@ export const aiResponses = pgTable('ai_responses', {
   })
     .notNull()
     .default('unknown'),
+  searchQueries: jsonb('search_queries').notNull().default([]).$type<string[]>(),
   userMessageId: uuid('user_message_id')
     .notNull()
     .references(() => userMessages.id, {

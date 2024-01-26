@@ -40,6 +40,7 @@ export const getRAIChatChain = async (options: {
     {
       text: string;
       sourceDocuments?: NeonVectorStoreDocument[];
+      searchQueries?: string[];
     }
   >
 > => {
@@ -276,18 +277,20 @@ export async function getDocumentQaChain(options: {
           .flat()
           .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id));
       },
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
-      query: (previousStepResult) => previousStepResult.query,
       documents: (previousStepResult) =>
         previousStepResult.sourceDocuments
           ?.map(
             (sourceDoc: Document) =>
               `<document>\n<document_content>${sourceDoc.pageContent}</document_content>\n<document_url>${sourceDoc.metadata.url}</document_url>\n</document>`
           )
-          .join('\n')
+          .join('\n'),
+      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries,
+      query: (previousStepResult) => previousStepResult.query
     },
     {
       text: PromptTemplate.fromTemplate(prompt, {
@@ -307,7 +310,8 @@ export async function getDocumentQaChain(options: {
         .withConfig({
           callbacks: options.callbacks
         }),
-      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments
+      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries
     }
   ]);
 
