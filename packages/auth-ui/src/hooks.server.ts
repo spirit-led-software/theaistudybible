@@ -17,6 +17,10 @@ export const handle: Handle = async ({ resolve, event }) => {
 		}
 
 		const sessionInfo = await validNonApiHandlerSession(session);
+		if (!sessionInfo.isValid) {
+			throw new Error('Invalid session');
+		}
+
 		event.locals.user = {
 			...sessionInfo.userWithRoles,
 			maxQueries: sessionInfo.maxQueries,
