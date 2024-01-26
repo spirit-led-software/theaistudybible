@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { searchForUsers } from '$lib/services/user';
 	import { session } from '$lib/stores/user';
-	import type { Query } from '@core/database/helpers';
-	import type { User } from '@core/model/user';
+	import type { Query } from '@revelationsai/core/database/helpers';
+	import type { User } from '@revelationsai/core/model/user';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import type { SvelteComponent } from 'svelte';
 	import { derived, writable } from 'svelte/store';

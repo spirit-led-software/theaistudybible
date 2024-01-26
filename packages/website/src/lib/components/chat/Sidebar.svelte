@@ -3,9 +3,9 @@
 	import { page } from '$app/stores';
 	import { createChat, deleteChat, searchForChats, updateChat } from '$lib/services/chat';
 	import { session } from '$lib/stores/user';
-	import type { Query } from '@core/database/helpers';
-	import type { Chat } from '@core/model/chat';
 	import Icon from '@iconify/svelte';
+	import type { Query } from '@revelationsai/core/database/helpers';
+	import type { Chat } from '@revelationsai/core/model/chat';
 	import {
 		createInfiniteQuery,
 		createMutation,

@@ -1,4 +1,14 @@
-import { aiResponseReactions } from '@core/schema';
+import { aiResponseReactions } from '@revelationsai/core/database/schema';
+import { getAiResponse } from '@revelationsai/server/services/ai-response';
+import {
+  createAiResponseReaction,
+  getAiResponseReactions,
+  updateAiResponseReaction
+} from '@revelationsai/server/services/ai-response/reaction';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isObjectOwner } from '@revelationsai/server/services/user';
+import { and, eq } from 'drizzle-orm';
+import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
   CreatedResponse,
@@ -6,17 +16,7 @@ import {
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { getAiResponse } from '@services/ai-response';
-import {
-  createAiResponseReaction,
-  getAiResponseReactions,
-  updateAiResponseReaction
-} from '@services/ai-response/reaction';
-import { validApiHandlerSession } from '@services/session';
-import { isObjectOwner } from '@services/user';
-import { and, eq } from 'drizzle-orm';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

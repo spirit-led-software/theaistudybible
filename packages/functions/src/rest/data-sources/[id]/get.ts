@@ -1,10 +1,10 @@
+import { getDataSource } from '@revelationsai/server/services/data-source';
+import { ApiHandler } from 'sst/node/api';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse
-} from '@lib/api-responses';
-import { getDataSource } from '@services/data-source';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

@@ -1,13 +1,13 @@
-import {
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
-import { isObjectOwner } from '@services/user';
-import { getUserMessage } from '@services/user/message';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isObjectOwner } from '@revelationsai/server/services/user';
+import { getUserMessage } from '@revelationsai/server/services/user/message';
 import { ApiHandler } from 'sst/node/api';
+import {
+  ObjectNotFoundResponse,
+  UnauthorizedResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

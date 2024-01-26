@@ -1,7 +1,7 @@
-import type { UserInfo } from '@core/model/user';
-import { OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
+import type { UserInfo } from '@revelationsai/core/model/user';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { ApiHandler } from 'sst/node/api';
+import { OkResponse, UnauthorizedResponse } from '../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   console.debug('Received session validation event: ', event);

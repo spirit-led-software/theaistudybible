@@ -1,21 +1,21 @@
-import { devotionReactions } from '@core/schema';
-import {
-  BadRequestResponse,
-  CreatedResponse,
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { getDevotion } from '@services/devotion';
+import { devotionReactions } from '@revelationsai/core/database/schema';
+import { getDevotion } from '@revelationsai/server/services/devotion';
 import {
   createDevotionReaction,
   getDevotionReactions,
   updateDevotionReaction
-} from '@services/devotion/reaction';
-import { validApiHandlerSession } from '@services/session';
+} from '@revelationsai/server/services/devotion/reaction';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
+import {
+  BadRequestResponse,
+  ObjectNotFoundResponse,
+  UnauthorizedResponse,
+  OkResponse,
+  CreatedResponse,
+  InternalServerErrorResponse
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

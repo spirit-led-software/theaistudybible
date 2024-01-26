@@ -1,19 +1,19 @@
 import {
-  BadRequestResponse,
-  ForbiddenResponse,
-  InternalServerErrorResponse,
-  OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import {
   addRoleToUser,
   doesUserHaveRole,
   getRoleByName,
   getRolesByUserId,
   removeRoleFromUser
-} from '@services/role';
-import { getUser } from '@services/user';
+} from '@revelationsai/server/services/role';
+import { getUser } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import {
+  BadRequestResponse,
+  ForbiddenResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse
+} from '../lib/api-responses';
 
 // https://www.revenuecat.com/docs/event-types-and-fields
 type RootEventObject = {

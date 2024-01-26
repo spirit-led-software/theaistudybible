@@ -1,8 +1,8 @@
-import { buildOrderBy } from '@core/database/helpers';
-import { users as usersTable } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { getUsers } from '@services/user';
+import { buildOrderBy } from '@revelationsai/core/database/helpers';
+import { users as usersTable } from '@revelationsai/core/database/schema';
+import { getUsers } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import { InternalServerErrorResponse, OkResponse } from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

@@ -1,7 +1,7 @@
-import { toTitleCase } from '@core/util/string';
-import { getTodaysDateString } from '@lib/util/date';
-import { generateDevotion } from '@lib/util/devotion';
-import { getDevotionByCreatedDate } from '@services/devotion';
+import { getTodaysDateString } from '@revelationsai/core/util/date';
+import { toTitleCase } from '@revelationsai/core/util/string';
+import { generateDevotion } from '@revelationsai/server/lib/util/devotion';
+import { getDevotionByCreatedDate } from '@revelationsai/server/services/devotion';
 import type { Handler } from 'aws-lambda';
 import firebase from 'firebase-admin';
 import path from 'path';

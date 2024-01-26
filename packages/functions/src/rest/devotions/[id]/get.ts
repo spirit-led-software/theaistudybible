@@ -1,10 +1,10 @@
-import {
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse
-} from '@lib/api-responses';
-import { getDevotion } from '@services/devotion';
+import { getDevotion } from '@revelationsai/server/services/devotion';
 import { ApiHandler } from 'sst/node/api';
+import {
+  ObjectNotFoundResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

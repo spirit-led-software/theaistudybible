@@ -18,11 +18,11 @@
     "vitest": "^1.2.1"
   },
   "dependencies": {
-    "@apple/app-store-server-library": "^1.0.0",
+    "@revelationsai/core": "workspace:*",
+    "@revelationsai/server": "workspace:*",
     "@middy/core": "^5.2.3",
     "@middy/http-cors": "^5.2.3",
     "@middy/http-error-handler": "^5.2.3",
-    "@revelationsai/core": "workspace:*",
     "@upstash/redis": "^1.28.2",
     "ai": "^2.2.31",
     "argon2": "^0.31.2",

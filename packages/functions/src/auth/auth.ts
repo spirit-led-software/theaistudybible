@@ -1,19 +1,14 @@
-import { config as emailConfig, emailTransport } from '@core/configs/email';
-import { config as websiteConfig } from '@core/configs/website';
-import type { User } from '@core/model/user';
-import {
-  BadRequestResponse,
-  InternalServerErrorResponse,
-  OkResponse,
-  RedirectResponse
-} from '@lib/api-responses';
-import { addRoleToUser, doesUserHaveRole } from '@services/role';
-import { createUser, getUserByEmail, updateUser } from '@services/user';
+import { config as emailConfig, emailTransport } from '@revelationsai/core/configs/email';
+import { config as stripeConfig } from '@revelationsai/core/configs/stripe';
+import { config as websiteConfig } from '@revelationsai/core/configs/website';
+import type { User } from '@revelationsai/core/model/user';
+import { addRoleToUser, doesUserHaveRole } from '@revelationsai/server/services/role';
+import { createUser, getUserByEmail, updateUser } from '@revelationsai/server/services/user';
 import {
   createUserPassword,
   getUserPasswordByUserId,
   updateUserPassword
-} from '@services/user/password';
+} from '@revelationsai/server/services/user/password';
 import argon from 'argon2';
 import { randomBytes } from 'crypto';
 import fs from 'fs';
@@ -23,7 +18,12 @@ import path from 'path';
 import pug from 'pug';
 import { AuthHandler, GoogleAdapter, Session } from 'sst/node/auth';
 import Stripe from 'stripe';
-import { config as stripeConfig } from '../configs/stripe';
+import {
+  BadRequestResponse,
+  InternalServerErrorResponse,
+  OkResponse,
+  RedirectResponse
+} from '../lib/api-responses';
 import { AppleAdapter } from './providers/apple';
 import { CredentialsAdapter } from './providers/credentials';
 

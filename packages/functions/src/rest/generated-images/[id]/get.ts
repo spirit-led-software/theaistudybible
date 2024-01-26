@@ -1,13 +1,13 @@
-import {
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { getUserGeneratedImage } from '@services/generated-image/generated-image';
-import { validApiHandlerSession } from '@services/session';
-import { isObjectOwner } from '@services/user';
+import { getUserGeneratedImage } from '@revelationsai/server/services/generated-image/generated-image';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isObjectOwner } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import {
+  ObjectNotFoundResponse,
+  UnauthorizedResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

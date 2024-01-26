@@ -1,5 +1,5 @@
-import databaseConfig from '@core/configs/database';
-import vectorDBConfig from '@core/configs/vector-db';
+import databaseConfig from '@revelationsai/core/configs/database';
+import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import type { Handler } from 'aws-lambda';
 import { Job } from 'sst/node/job';
 

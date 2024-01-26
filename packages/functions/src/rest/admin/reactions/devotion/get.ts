@@ -1,11 +1,15 @@
-import { buildOrderBy } from '@core/database/helpers';
-import type { DevotionReactionInfo } from '@core/model/devotion/reaction';
-import { devotionReactions } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getDevotionReactionsWithInfo } from '@services/devotion/reaction';
-import { validApiHandlerSession } from '@services/session';
-import { isAdminSync } from '@services/user';
+import { buildOrderBy } from '@revelationsai/core/database/helpers';
+import { devotionReactions } from '@revelationsai/core/database/schema';
+import type { DevotionReactionInfo } from '@revelationsai/core/model/devotion/reaction';
+import { getDevotionReactionsWithInfo } from '@revelationsai/server/services/devotion/reaction';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isAdminSync } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import {
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

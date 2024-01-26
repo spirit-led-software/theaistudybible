@@ -2,9 +2,9 @@
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { deleteUser, getUserRoles } from '$lib/services/admin/user';
 	import { session } from '$lib/stores/user';
-	import type { DataSource } from '@core/model/data-source';
-	import type { User } from '@core/model/user';
 	import Icon from '@iconify/svelte';
+	import type { DataSource } from '@revelationsai/core/model/data-source';
+	import type { User } from '@revelationsai/core/model/user';
 	import {
 		createMutation,
 		createQuery,

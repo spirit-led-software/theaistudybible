@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
 	import Icon from '@iconify/svelte';
+	import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 	import type { ActionData, SubmitFunction } from './$types';
 
 	export let form: ActionData;

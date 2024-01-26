@@ -1,16 +1,16 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import s3Config from '@core/configs/s3';
+import s3Config from '@revelationsai/core/configs/s3';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getUser, isAdminSync } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
-import { getUser, isAdminSync } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../../../lib/api-responses';
 
 const s3Client = new S3Client({});
 

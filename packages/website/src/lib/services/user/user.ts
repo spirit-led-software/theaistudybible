@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { User, UserInfo } from '@core/model/user';
+import type { User, UserInfo } from '@revelationsai/core/model/user';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
 	PaginatedEntitiesOptions,

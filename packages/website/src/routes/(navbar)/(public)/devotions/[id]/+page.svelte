@@ -5,10 +5,10 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session } from '$lib/stores/user';
-	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
-	import type { devotionReactions } from '@core/schema';
-	import { toTitleCase } from '@core/util/string';
 	import { default as Icon, default as Iconify } from '@iconify/svelte';
+	import type { devotionReactions } from '@revelationsai/core/database/schema';
+	import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+	import { toTitleCase } from '@revelationsai/core/util/string';
 	import Day from 'dayjs';
 	import type { PageData } from './$types';
 

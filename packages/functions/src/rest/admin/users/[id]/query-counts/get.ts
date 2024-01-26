@@ -1,15 +1,15 @@
-import { buildOrderBy } from '@core/database/helpers';
-import { userQueryCounts } from '@core/schema';
+import { buildOrderBy } from '@revelationsai/core/database/helpers';
+import { userQueryCounts } from '@revelationsai/core/database/schema';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getUser, isAdminSync } from '@revelationsai/server/services/user';
+import { getUserQueryCountsByUserId } from '@revelationsai/server/services/user/query-count';
+import { ApiHandler } from 'sst/node/api';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
-import { getUser, isAdminSync } from '@services/user';
-import { getUserQueryCountsByUserId } from '@services/user/query-count';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

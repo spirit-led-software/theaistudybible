@@ -1,6 +1,10 @@
-import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { indexRemoteFile } from '@services/scraper/file';
+import { indexRemoteFile } from '@revelationsai/server/services/scraper/file';
 import { ApiHandler } from 'sst/node/api';
+import {
+  BadRequestResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   console.log('Received remote file download event:', event);

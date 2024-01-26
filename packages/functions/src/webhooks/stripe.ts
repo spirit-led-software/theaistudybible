@@ -1,8 +1,12 @@
-import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { getUser, getUserByStripeCustomerId, updateUser } from '@services/user';
+import stripeConfig from '@revelationsai/core/configs/stripe';
+import {
+  getUser,
+  getUserByStripeCustomerId,
+  updateUser
+} from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
-import stripeConfig from '../configs/stripe';
+import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '../lib/api-responses';
 
 const stripe = new Stripe(stripeConfig.apiKey, {
   apiVersion: '2023-10-16'

@@ -1,6 +1,6 @@
-import { dataSources } from '@core/schema';
-import { syncDataSource } from '@lib/util/data-source';
-import { getDataSources } from '@services/data-source';
+import { dataSources } from '@revelationsai/core/database/schema';
+import { syncDataSource } from '@revelationsai/server/lib/util/data-source';
+import { getDataSources } from '@revelationsai/server/services/data-source';
 import type { Handler } from 'aws-lambda';
 import { eq, not } from 'drizzle-orm';
 

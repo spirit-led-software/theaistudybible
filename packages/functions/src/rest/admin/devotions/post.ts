@@ -1,12 +1,12 @@
+import { generateDevotion } from '@revelationsai/server/lib/util/devotion';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isAdminSync } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   CreatedResponse,
   InternalServerErrorResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { generateDevotion } from '@lib/util/devotion';
-import { validApiHandlerSession } from '@services/session';
-import { isAdminSync } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   console.log('Received devotion create event:', event);
