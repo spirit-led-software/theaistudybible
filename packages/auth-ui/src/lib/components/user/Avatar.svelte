@@ -11,7 +11,7 @@
 
 	let sizeClasses = squareDimensionClasses[size];
 
-	let className: string = '';
+	let className: string | undefined = undefined;
 	export { className as class };
 
 	$: ({ image, name, email } = $user!);
@@ -25,8 +25,7 @@
 	</div>
 	<div
 		class={cn(
-			`flex justify-center place-items-center overflow-hidden rounded-full bg-gray-300`,
-			sizeClasses,
+			`flex justify-center place-items-center overflow-hidden rounded-full bg-gray-300 ${sizeClasses}`,
 			className
 		)}
 	>

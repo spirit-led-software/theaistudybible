@@ -4,7 +4,7 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll": "always",
-    "source.addMissingImports": "always",
+    // "source.addMissingImports": "always", // useful when doing a big refactor
     "source.organizeImports": "always",
   },
   "cSpell.words": [

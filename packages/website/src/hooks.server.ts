@@ -16,7 +16,14 @@ export const handle: Handle = async ({ resolve, event }) => {
 			return resolve(event);
 		}
 
-		event.locals.user = await validNonApiHandlerSession(session);
+		const sessionInfo = await validNonApiHandlerSession(session);
+		event.locals.user = {
+			...sessionInfo.userWithRoles,
+			maxQueries: sessionInfo.maxQueries,
+			remainingQueries: sessionInfo.remainingQueries,
+			maxGeneratedImages: sessionInfo.maxGeneratedImages,
+			remainingGeneratedImages: sessionInfo.remainingGeneratedImages
+		};
 		event.locals.session = session;
 	} catch (error) {
 		console.debug('Error authorizing user:', error);
