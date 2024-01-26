@@ -1,13 +1,13 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type {
   CreateDataSourceData,
   DataSource,
   UpdateDataSourceData
 } from '@revelationsai/core/model/data-source';
 import type { ProtectedApiOptions } from '../../../../../website/src/lib/services/types';
+import apiConfig from '../../../configs/api';
 
 export async function createDataSource(data: CreateDataSourceData, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/admin/data-sources`, {
+  const response = await fetch(`${apiConfig.url}/admin/data-sources`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export async function updateDataSource(
   data: Partial<UpdateDataSourceData>,
   options: ProtectedApiOptions
 ) {
-  const response = await fetch(`${PUBLIC_API_URL}/admin/data-sources/${id}`, {
+  const response = await fetch(`${apiConfig.url}/admin/data-sources/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ export async function updateDataSource(
 }
 
 export async function deleteDataSource(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/admin/data-sources/${id}`, {
+  const response = await fetch(`${apiConfig.url}/admin/data-sources/${id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -76,7 +76,7 @@ export async function deleteDataSource(id: string, options: ProtectedApiOptions)
 }
 
 export async function syncDataSource(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/admin/data-sources/${id}/sync`, {
+  const response = await fetch(`${apiConfig.url}/admin/data-sources/${id}/sync`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${options.session}`

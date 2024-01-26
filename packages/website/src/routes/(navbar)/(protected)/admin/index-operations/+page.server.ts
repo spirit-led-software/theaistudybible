@@ -1,4 +1,4 @@
-import { getIndexOperations } from '$lib/services/admin/data-source/index-op';
+import { getIndexOperations } from '@revelationsai/client/services/admin/data-source/index-op';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {

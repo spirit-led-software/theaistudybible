@@ -1,4 +1,3 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type { UpdateUserData, User, UserInfo, UserWithRoles } from '@revelationsai/core/model/user';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
@@ -7,9 +6,10 @@ import type {
   ProtectedApiOptions,
   SearchForEntitiesOptions
 } from '../types';
+import apiConfig from '../../configs/api';
 
 export async function getUserInfo(session: string) {
-  const response = await fetch(`${PUBLIC_API_URL}/auth/user-info`, {
+  const response = await fetch(`${apiConfig.url}/auth/user-info`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${session}`
@@ -30,7 +30,7 @@ export async function getUserInfo(session: string) {
 }
 
 export async function deleteUser(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/users/${id}`, {
+  const response = await fetch(`${apiConfig.url}/users/${id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -70,7 +70,7 @@ export async function updateUser(
   request: UpdateUserData,
   options: ProtectedApiOptions
 ) {
-  const response = await fetch(`${PUBLIC_API_URL}/users/${id}`, {
+  const response = await fetch(`${apiConfig.url}/users/${id}`, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${options.session}`,
@@ -95,7 +95,7 @@ export async function updatePassword(
   session: string,
   request: { currentPassword: string; newPassword: string }
 ) {
-  const response = await fetch(`${PUBLIC_API_URL}/users/change-password`, {
+  const response = await fetch(`${apiConfig.url}/users/change-password`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${session}`,
@@ -118,7 +118,7 @@ export async function uploadProfilePicture(file: File, session: string): Promise
     throw new Error('Invalid file type.');
   }
 
-  const urlRequest = await fetch(`${PUBLIC_API_URL}/users/profile-pictures/presigned-url`, {
+  const urlRequest = await fetch(`${apiConfig.url}/users/profile-pictures/presigned-url`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${session}`,
@@ -153,7 +153,7 @@ export async function uploadProfilePicture(file: File, session: string): Promise
 
 export async function getUsers(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/users?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/users?${searchParams.toString()}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -181,7 +181,7 @@ export async function searchForUsers(
   options: SearchForEntitiesOptions & PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/users/search?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/users/search?${searchParams.toString()}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -207,7 +207,7 @@ export async function searchForUsers(
 }
 
 export async function getUser(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/users/${id}`, {
+  const response = await fetch(`${apiConfig.url}/users/${id}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${options.session}`

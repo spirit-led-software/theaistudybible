@@ -1,7 +1,10 @@
 <script lang="ts">
-	import { getAiResponseSourceDocuments, searchForAiResponses } from '$lib/services/ai-response';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
+	import {
+		getAiResponseSourceDocuments,
+		searchForAiResponses
+	} from '@revelationsai/client/services/ai-response';
 	import type { Query } from '@revelationsai/core/database/helpers';
 	import { aiResponses } from '@revelationsai/core/database/schema';
 	import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';

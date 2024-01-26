@@ -1,11 +1,11 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type { AiResponseReaction } from '@revelationsai/core/model/ai-response/reaction';
-import { GetEntitiesSearchParams } from '../../../../website/src/lib/services/helpers/search-params';
+import apiConfig from '../../configs/api';
+import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
-  PaginatedEntitiesResponse,
-  ProtectedApiOptions
-} from '../../../../website/src/lib/services/types';
+  ProtectedApiOptions,
+  PaginatedEntitiesResponse
+} from '../types';
 
 export async function getAiResponseReactionsById(
   id: string,
@@ -13,7 +13,7 @@ export async function getAiResponseReactionsById(
 ) {
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
-    `${PUBLIC_API_URL}/ai-responses/${id}/reactions?${searchParams.toString()}`,
+    `${apiConfig.url}/ai-responses/${id}/reactions?${searchParams.toString()}`,
     {
       method: 'GET',
       headers: {

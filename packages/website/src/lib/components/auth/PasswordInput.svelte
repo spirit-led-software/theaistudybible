@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { cn } from '$lib/utils/class-names';
 	import Icon from '@iconify/svelte';
+	import { cn } from '@revelationsai/client/utils/class-names';
 
 	let className: string | undefined = undefined;
 	export { className as class };

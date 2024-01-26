@@ -1,16 +1,16 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { Devotion } from '@revelationsai/core/model/devotion';
-import { GetEntitiesSearchParams } from '../../../../website/src/lib/services/helpers/search-params';
+import apiConfig from '../../configs/api';
+import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
   PaginatedEntitiesResponse,
   SearchForEntitiesOptions
-} from '../../../../website/src/lib/services/types';
+} from '../types';
 
 export async function getDevotions(options: PaginatedEntitiesOptions) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/devotions?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/devotions?${searchParams.toString()}`, {
     method: 'GET'
   });
 
@@ -33,7 +33,7 @@ export async function searchForDevotions(
   options: SearchForEntitiesOptions & PaginatedEntitiesOptions
 ) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/devotions/search?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/devotions/search?${searchParams.toString()}`, {
     method: 'POST',
     body: JSON.stringify(options.query)
   });
@@ -56,7 +56,7 @@ export async function searchForDevotions(
 }
 
 export async function getDevotion(id: string) {
-  const response = await fetch(`${PUBLIC_API_URL}/devotions/${id}`, {
+  const response = await fetch(`${apiConfig.url}/devotions/${id}`, {
     method: 'GET'
   });
 
@@ -75,7 +75,7 @@ export async function getDevotion(id: string) {
 }
 
 export async function getDevotionSourceDocuments(id: string) {
-  const response = await fetch(`${PUBLIC_API_URL}/devotions/${id}/source-documents`, {
+  const response = await fetch(`${apiConfig.url}/devotions/${id}/source-documents`, {
     method: 'GET'
   });
 

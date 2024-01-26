@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { user } from '$lib/stores/user';
-	import { cn } from '$lib/utils/class-names';
-	import { squareDimensionClasses, textSizeClasses, type ComponentSize } from '$lib/utils/sizing';
+	import { cn } from '@revelationsai/client/utils/class-names';
+	import {
+		squareDimensionClasses,
+		textSizeClasses,
+		type ComponentSize
+	} from '@revelationsai/client/utils/sizing';
 
 	export let size: ComponentSize = 'md';
 

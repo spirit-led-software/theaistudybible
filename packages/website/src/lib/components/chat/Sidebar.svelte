@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { createChat, deleteChat, searchForChats, updateChat } from '$lib/services/chat';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
+	import {
+		createChat,
+		deleteChat,
+		searchForChats,
+		updateChat
+	} from '@revelationsai/client/services/chat';
 	import type { Query } from '@revelationsai/core/database/helpers';
 	import type { Chat } from '@revelationsai/core/model/chat';
 	import {

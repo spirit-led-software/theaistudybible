@@ -1,4 +1,4 @@
-import { isAdmin } from '$lib/services/user';
+import { isAdmin } from '@revelationsai/client/services/user';
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 

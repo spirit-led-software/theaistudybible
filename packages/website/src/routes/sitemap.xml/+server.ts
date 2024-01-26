@@ -1,5 +1,5 @@
 import { PUBLIC_AUTH_URL, PUBLIC_WEBSITE_URL } from '$env/static/public';
-import { getDevotions } from '$lib/services/devotion';
+import { getDevotions } from '@revelationsai/client/services/devotion';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { RequestHandler } from './$types';
 

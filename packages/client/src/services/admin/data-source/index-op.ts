@@ -1,4 +1,3 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type {
   IndexOperation,
   UpdateIndexOperationData
@@ -9,11 +8,12 @@ import type {
   PaginatedEntitiesResponse,
   ProtectedApiOptions
 } from '../../../../../website/src/lib/services/types';
+import apiConfig from '../../../configs/api';
 
 export async function getIndexOperations(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
-    `${PUBLIC_API_URL}/admin/index-operations?${searchParams.toString()}`,
+    `${apiConfig.url}/admin/index-operations?${searchParams.toString()}`,
     {
       method: 'GET',
       headers: {
@@ -41,7 +41,7 @@ export async function getIndexOperations(options: PaginatedEntitiesOptions & Pro
 }
 
 export async function getIndexOperation(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/admin/index-operations/${id}`, {
+  const response = await fetch(`${apiConfig.url}/admin/index-operations/${id}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -66,7 +66,7 @@ export async function updateIndexOperation(
   data: UpdateIndexOperationData,
   options: ProtectedApiOptions
 ) {
-  const response = await fetch(`${PUBLIC_API_URL}/admin/index-operations/${id}`, {
+  const response = await fetch(`${apiConfig.url}/admin/index-operations/${id}`, {
     method: 'PUT',
     headers: {
       Authorization: `Bearer ${options.session}`,

@@ -1,18 +1,18 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type { DevotionReactionInfo } from '@revelationsai/core/model/devotion/reaction';
-import { GetEntitiesSearchParams } from '../../../../../website/src/lib/services/helpers/search-params';
+import apiConfig from '../../../configs/api';
+import { GetEntitiesSearchParams } from '../../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
-  PaginatedEntitiesResponse,
-  ProtectedApiOptions
-} from '../../../../../website/src/lib/services/types';
+  ProtectedApiOptions,
+  PaginatedEntitiesResponse
+} from '../../types';
 
 export async function getDevotionReactions(
   options?: PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
   const searchParams = GetEntitiesSearchParams(options);
   const response = await fetch(
-    `${PUBLIC_API_URL}/admin/reactions/devotion?${searchParams.toString()}`,
+    `${apiConfig.url}/admin/reactions/devotion?${searchParams.toString()}`,
     {
       method: 'GET',
       headers: {

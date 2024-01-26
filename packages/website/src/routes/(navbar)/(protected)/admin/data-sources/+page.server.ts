@@ -1,4 +1,4 @@
-import { getDataSources } from '$lib/services/data-source';
+import { getDataSources } from '@revelationsai/client/services/data-source';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {

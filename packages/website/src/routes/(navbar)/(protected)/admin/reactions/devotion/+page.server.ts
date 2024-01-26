@@ -1,4 +1,4 @@
-import { getDevotionReactions } from '$lib/services/admin/reactions/devotion';
+import { getDevotionReactions } from '@revelationsai/client/services/admin/reactions/devotion';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {

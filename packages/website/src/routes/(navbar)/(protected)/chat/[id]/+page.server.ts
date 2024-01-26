@@ -1,4 +1,4 @@
-import { getChat, getChatMessages, getChats } from '$lib/services/chat';
+import { getChat, getChatMessages, getChats } from '@revelationsai/client/services/chat';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { getAiResponseReactions } from '$lib/services/admin/reactions/ai-response';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
+	import { getAiResponseReactions } from '@revelationsai/client/services/admin/reactions/ai-response';
 	import type { AiResponseReactionInfo } from '@revelationsai/core/model/ai-response/reaction';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import type { PageData } from './$types';

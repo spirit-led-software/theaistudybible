@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getDataSources } from '$lib/services/data-source';
+	import { getDataSources } from '@revelationsai/client/services/data-source';
 	import type { DataSource } from '@revelationsai/core/model/data-source';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import type { SvelteComponent } from 'svelte';

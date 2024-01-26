@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import { createDataSource } from '$lib/services/admin/data-source';
 	import { session } from '$lib/stores/user';
+	import { createDataSource } from '@revelationsai/client/services/admin/data-source';
 	import { dataSources as dataSourcesTable } from '@revelationsai/core/database/schema';
 	import type { DataSource } from '@revelationsai/core/model/data-source';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';

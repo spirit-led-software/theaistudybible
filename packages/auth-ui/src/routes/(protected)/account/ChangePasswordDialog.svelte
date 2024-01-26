@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
 	import PasswordInput from '$lib/components/auth/PasswordInput.svelte';
-	import { updatePassword } from '$lib/services/user';
 	import { session } from '$lib/stores/user';
+	import { updatePassword } from '@revelationsai/client/services/user';
 	import type { EventHandler } from 'svelte/elements';
 
 	export const show = () => {

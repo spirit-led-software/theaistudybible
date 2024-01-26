@@ -1,20 +1,21 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type {
   AiResponse,
   CreateAiResponseData,
   UpdateAiResponseData
 } from '@revelationsai/core/model/ai-response';
-import { GetEntitiesSearchParams } from '../../../../website/src/lib/services/helpers/search-params';
+import apiConfig from '../../configs/api';
+import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
   PaginatedEntitiesResponse,
   ProtectedApiOptions,
   SearchForEntitiesOptions
-} from '../../../../website/src/lib/services/types';
+} from '../types';
+
 export async function getAiResponses(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses?${searchParams.toString()}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -39,7 +40,7 @@ export async function getAiResponses(options: PaginatedEntitiesOptions & Protect
 }
 
 export async function getAiResponse(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses/${id}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -61,7 +62,7 @@ export async function searchForAiResponses(
   options: SearchForEntitiesOptions & PaginatedEntitiesOptions & ProtectedApiOptions
 ) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses/search?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses/search?${searchParams.toString()}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -87,7 +88,7 @@ export async function searchForAiResponses(
 }
 
 export async function getAiResponseSourceDocuments(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}/source-documents`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses/${id}/source-documents`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${options.session}`
@@ -113,7 +114,7 @@ export async function createAiResponse(
   data: Partial<CreateAiResponseData>,
   options: ProtectedApiOptions
 ) {
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -140,7 +141,7 @@ export async function updateAiResponse(
   data: Partial<UpdateAiResponseData>,
   options: ProtectedApiOptions
 ) {
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export async function updateAiResponse(
 }
 
 export async function deleteAiResponse(id: string, options: ProtectedApiOptions) {
-  const response = await fetch(`${PUBLIC_API_URL}/ai-responses/${id}`, {
+  const response = await fetch(`${apiConfig.url}/ai-responses/${id}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${options.session}`

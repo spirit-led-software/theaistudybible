@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { cn } from '$lib/utils/class-names';
 	import Icon from '@iconify/svelte';
+	import { cn } from '@revelationsai/client/utils/class-names';
 	import { copy } from 'svelte-copy';
 
 	/**

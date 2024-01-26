@@ -1,4 +1,4 @@
-import { getDevotions } from '$lib/services/devotion';
+import { getDevotions } from '@revelationsai/client/services/devotion';
 import { redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async () => {

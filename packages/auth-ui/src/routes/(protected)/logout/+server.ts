@@ -1,5 +1,5 @@
 import { PUBLIC_WEBSITE_URL } from '$env/static/public';
-import { commonCookies } from '$lib/utils/cookies';
+import { commonCookies } from '@revelationsai/client/utils/cookies';
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 

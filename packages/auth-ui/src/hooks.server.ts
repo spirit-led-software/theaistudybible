@@ -1,5 +1,5 @@
-import { getUserInfo } from '$lib/services/user';
-import { commonCookies } from '$lib/utils/cookies';
+import { getUserInfo } from '@revelationsai/client/services/user';
+import { commonCookies } from '@revelationsai/client/utils/cookies';
 import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ resolve, event }) => {

@@ -1,4 +1,4 @@
-import { getDevotions } from '$lib/services/devotion';
+import { getDevotions } from '@revelationsai/client/services/devotion';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async () => {

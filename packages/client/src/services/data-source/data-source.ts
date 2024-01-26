@@ -1,11 +1,11 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import type { DataSource } from '@revelationsai/core/model/data-source';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
+import apiConfig from '../../configs/api';
 
 export async function getDataSources(options: PaginatedEntitiesOptions) {
   const searchParams = GetEntitiesSearchParams(options);
-  const response = await fetch(`${PUBLIC_API_URL}/data-sources?${searchParams.toString()}`, {
+  const response = await fetch(`${apiConfig.url}/data-sources?${searchParams.toString()}`, {
     method: 'GET'
   });
 
@@ -27,7 +27,7 @@ export async function getDataSources(options: PaginatedEntitiesOptions) {
 }
 
 export async function getDataSource(id: string) {
-  const response = await fetch(`${PUBLIC_API_URL}/data-sources/${id}`, {
+  const response = await fetch(`${apiConfig.url}/data-sources/${id}`, {
     method: 'GET'
   });
 

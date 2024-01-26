@@ -1,4 +1,4 @@
-import { getAiResponseReactions } from '$lib/services/admin/reactions/ai-response';
+import { getAiResponseReactions } from '@revelationsai/client/services/admin/reactions/ai-response';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals }) => {
