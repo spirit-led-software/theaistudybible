@@ -28,7 +28,7 @@
 			return pages.length + 1;
 		},
 		initialData: {
-			pages: [data.reactionInfos.reactions],
+			pages: [data.reactionInfos],
 			pageParams: [1]
 		}
 	});
