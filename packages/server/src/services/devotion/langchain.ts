@@ -8,7 +8,7 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLargeContextModel, llmCache } from '../../services/llm';
+import { getLargeContextModel } from '../../services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { getDocumentVectorStore } from '../../services/vector-db';
 import { getDevotions } from './devotion';
@@ -25,8 +25,7 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
-    topP: 0.1,
-    cache: llmCache
+    topP: 0.1
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
@@ -127,8 +126,7 @@ const bibleReadingOutputParser = OutputFixingParser.fromLLM(
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
-    topP: 0.1,
-    cache: llmCache
+    topP: 0.1
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
@@ -215,8 +213,7 @@ const imagePromptOutputParser = OutputFixingParser.fromLLM(
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
-    topP: 0.1,
-    cache: llmCache
+    topP: 0.1
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z

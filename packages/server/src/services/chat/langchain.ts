@@ -144,8 +144,7 @@ export const getRAIChatChain = async (options: {
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
-      topP: 0.1,
-      cache: llmCache
+      topP: 0.1
     }),
     RouterOutputParser.fromZodSchema(
       z.object({
@@ -166,34 +165,34 @@ export const getRAIChatChain = async (options: {
       prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
     }
   );
-  const routerChain = RunnableSequence.from([
-    new PromptTemplate({
-      template: CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
-      inputVariables: ['query'],
-      partialVariables: {
-        formatInstructions: routerChainOutputParser.getFormatInstructions(),
-        destinations: [
-          'identity: For greetings, introducing yourself, or talking about yourself.',
-          'chat-history: For retrieving information about the current chat conversation.',
-          'faith-qa: For answering general queries about Christian faith.'
-        ].join('\n'),
-        history: (await history.getMessages())
-          .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
-          .join('\n')
-      }
-    }),
-    getLargeContextModel({
-      maxTokens: 4096,
-      promptSuffix: '<output>',
-      stopSequences: ['</output>'],
-      cache: llmCache
-    }),
-    routerChainOutputParser
-  ]);
-
   const multiRouteChain = RunnableSequence.from([
     {
-      routingInstructions: routerChain,
+      routingInstructions: RunnableSequence.from([
+        new PromptTemplate({
+          template: CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
+          inputVariables: ['query'],
+          partialVariables: {
+            formatInstructions: routerChainOutputParser.getFormatInstructions(),
+            destinations: [
+              'identity: For greetings, introducing yourself, or talking about yourself.',
+              'chat-history: For retrieving information about the current chat conversation.',
+              'faith-qa: For answering general queries about Christian faith.'
+            ].join('\n'),
+            history: (await history.getMessages())
+              .map(
+                (m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
+              )
+              .join('\n')
+          }
+        }),
+        getLargeContextModel({
+          maxTokens: 4096,
+          promptSuffix: '<output>',
+          stopSequences: ['</output>'],
+          cache: llmCache
+        }),
+        routerChainOutputParser
+      ]),
       input: (input) => input.query
     },
     branch
@@ -228,8 +227,7 @@ export async function getDocumentQaChain(options: {
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
-      topP: 0.1,
-      cache: llmCache
+      topP: 0.1
     }),
     JsonMarkdownStructuredOutputParser.fromZodSchema(
       z
