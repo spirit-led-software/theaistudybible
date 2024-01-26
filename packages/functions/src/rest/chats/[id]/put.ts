@@ -1,14 +1,14 @@
-import type { Chat } from '@core/model/chat';
-import {
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { getChat, updateChat } from '@services/chat/chat';
-import { validApiHandlerSession } from '@services/session';
-import { isObjectOwner } from '@services/user';
+import type { Chat } from '@revelationsai/core/model/chat';
+import { getChat, updateChat } from '@revelationsai/server/services/chat/chat';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isObjectOwner } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import {
+  ObjectNotFoundResponse,
+  UnauthorizedResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

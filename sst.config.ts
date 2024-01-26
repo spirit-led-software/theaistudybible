@@ -27,8 +27,8 @@ export default {
     app
       .stack(Constants)
       .stack(Layers)
-      .stack(Jobs)
       .stack(Database)
+      .stack(Jobs)
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(Queues)

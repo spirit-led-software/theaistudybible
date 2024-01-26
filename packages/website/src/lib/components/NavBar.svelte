@@ -3,9 +3,9 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_AUTH_URL } from '$env/static/public';
 	import Avatar from '$lib/components/user/Avatar.svelte';
-	import { isAdmin } from '$lib/services/user';
-	import type { UserInfo } from '@core/model/user';
 	import Icon from '@iconify/svelte';
+	import { isAdmin } from '@revelationsai/client/services/user';
+	import type { UserInfo } from '@revelationsai/core/model/user';
 	import CompactLogo from './branding/CompactLogo.svelte';
 	import Logo from './branding/Logo.svelte';
 

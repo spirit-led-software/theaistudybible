@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invalidateAll } from '$app/navigation';
-	import { updateUser } from '$lib/services/user';
 	import { session, user } from '$lib/stores/user';
+	import { updateUser } from '@revelationsai/client/services/user';
 	import type { EventHandler } from 'svelte/elements';
 
 	export const show = () => {

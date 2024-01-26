@@ -1,9 +1,9 @@
-import { buildOrderBy, buildQuery } from '@core/database/helpers';
-import { devotions } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { getDevotions } from '@services/devotion';
+import { buildOrderBy, buildQuery } from '@revelationsai/core/database/helpers';
+import { devotions } from '@revelationsai/core/database/schema';
+import { getDevotions } from '@revelationsai/server/services/devotion';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
+import { OkResponse, InternalServerErrorResponse } from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

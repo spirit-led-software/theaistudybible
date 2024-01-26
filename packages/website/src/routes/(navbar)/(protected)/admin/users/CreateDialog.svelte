@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { createUser } from '$lib/services/admin/user';
 	import { session } from '$lib/stores/user';
-	import type { User } from '@core/model/user';
+	import { createUser } from '@revelationsai/client/services/admin/user';
+	import type { User } from '@revelationsai/core/model/user';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
 	import type { EventHandler } from 'svelte/elements';
 	import { v4 as uuidV4 } from 'uuid';

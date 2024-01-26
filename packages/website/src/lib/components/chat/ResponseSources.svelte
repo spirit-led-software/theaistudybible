@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { getAiResponseSourceDocuments, searchForAiResponses } from '$lib/services/ai-response';
 	import { session } from '$lib/stores/user';
-	import type { Query } from '@core/database/helpers';
-	import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
-	import { aiResponses } from '@core/schema';
-	import { getPropertyName } from '@core/util/object';
 	import Icon from '@iconify/svelte';
+	import {
+		getAiResponseSourceDocuments,
+		searchForAiResponses
+	} from '@revelationsai/client/services/ai-response';
+	import type { Query } from '@revelationsai/core/database/helpers';
+	import { aiResponses } from '@revelationsai/core/database/schema';
+	import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+	import { getPropertyName } from '@revelationsai/core/util/object';
 	import { validate as uuidValidate } from 'uuid';
 
 	export let chatId: string | undefined;

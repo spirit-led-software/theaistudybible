@@ -10,19 +10,12 @@
     "preserveValueImports": true,
     "ignoreDeprecations": "5.0",
     "paths": {
-      "@core/configs": ["../core/src/configs"],
-      "@core/configs/*": ["../core/src/configs/*"],
-      "@core/model": ["../core/src/database/model"],
-      "@core/model/*": ["../core/src/database/model/*"],
-      "@core/schema": ["../core/src/database/schema"],
-      "@core/schema/*": ["../core/src/database/schema/*"],
-      "@core/*": ["../core/src/*"],
-      "@lib": ["./src/lib"],
-      "@lib/*": ["./src/lib/*"],
-      "@services": ["./src/services"],
-      "@services/*": ["./src/services/*"]
+      "@revelationsai/core": ["../core/src"],
+      "@revelationsai/core/*": ["../core/src/*"],
+      "@revelationsai/server": ["../server/src"],
+      "@revelationsai/server/*": ["../server/src/*"]
     }
   },
-  "include": ["**/*.ts", "../core/src/langchain/document_loaders/puppeteer-core.ts"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules"]
 }

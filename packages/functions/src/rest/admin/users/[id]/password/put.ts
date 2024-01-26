@@ -1,17 +1,20 @@
+import { verifyPassword } from '@revelationsai/core/util/password';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getUser, isAdminSync } from '@revelationsai/server/services/user';
+import {
+  getUserPasswordByUserId,
+  updateUserPassword
+} from '@revelationsai/server/services/user/password';
+import argon from 'argon2';
+import { randomBytes } from 'crypto';
+import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { verifyPassword } from '@lib/util/password';
-import { validApiHandlerSession } from '@services/session';
-import { getUser, isAdminSync } from '@services/user';
-import { getUserPasswordByUserId, updateUserPassword } from '@services/user/password';
-import argon from 'argon2';
-import { randomBytes } from 'crypto';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   console.log('Received change password event:', event);

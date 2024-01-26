@@ -1,7 +1,7 @@
-import { OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { ApiHandler } from 'sst/node/api';
 import { Session } from 'sst/node/auth';
+import { OkResponse, UnauthorizedResponse } from '../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   console.debug('Received session refresh event: ', event);

@@ -1,17 +1,17 @@
-import {
-  BadRequestResponse,
-  CreatedResponse,
-  InternalServerErrorResponse,
-  TooManyRequestsResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { generatedImage } from '@services/generated-image';
-import { validApiHandlerSession } from '@services/session';
+import { generatedImage } from '@revelationsai/server/services/generated-image';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import {
   decrementUserGeneratedImageCount,
   incrementUserGeneratedImageCount
-} from '@services/user/image-count';
+} from '@revelationsai/server/services/user/image-count';
 import { ApiHandler } from 'sst/node/api';
+import {
+  BadRequestResponse,
+  UnauthorizedResponse,
+  TooManyRequestsResponse,
+  CreatedResponse,
+  InternalServerErrorResponse
+} from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const payload = JSON.parse(event.body ?? '{}');

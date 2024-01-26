@@ -1,13 +1,13 @@
+import { getRolesByUserId } from '@revelationsai/server/services/role';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getUser, isAdminSync } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { getRolesByUserId } from '@services/role';
-import { validApiHandlerSession } from '@services/session';
-import { getUser, isAdminSync } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

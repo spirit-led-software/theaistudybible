@@ -1,13 +1,13 @@
-import type { UpdateUserData } from '@core/model/user';
+import type { UpdateUserData } from '@revelationsai/core/model/user';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getUser, isAdminSync, updateUser } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
-import { getUser, isAdminSync, updateUser } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

@@ -1,7 +1,6 @@
-import authConfig from '@core/configs/auth';
-import databaseConfig from '@core/configs/database';
-import vectorDBConfig from '@core/configs/vector-db';
-import type { User } from '@core/model/user';
+import authConfig from '@revelationsai/core/configs/auth';
+import revenueCatConfig from '@revelationsai/core/configs/revenue-cat';
+import type { User } from '@revelationsai/core/model/user';
 import {
   addRoleToUser,
   createRole,
@@ -10,14 +9,16 @@ import {
   getRcRoles,
   getRoleByName,
   updateRole
-} from '@services/role';
-import { createUser, getUserByEmail, isAdmin } from '@services/user';
-import { createUserPassword, updateUserPasswordByUserId } from '@services/user/password';
+} from '@revelationsai/server/services/role';
+import { createUser, getUserByEmail, isAdmin } from '@revelationsai/server/services/user';
+import {
+  createUserPassword,
+  updateUserPasswordByUserId
+} from '@revelationsai/server/services/user/password';
 import argon from 'argon2';
 import type { Handler } from 'aws-lambda';
 import { randomBytes } from 'crypto';
 import { Job } from 'sst/node/job';
-import revenueCatConfig from '../configs/revenue-cat';
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
@@ -186,13 +187,7 @@ export const handler: Handler = async () => {
 
     await Job.hnswIndexJob.run({
       payload: {
-        dbOptions: {
-          readOnlyUrl: databaseConfig.readOnlyUrl,
-          readWriteUrl: databaseConfig.readWriteUrl
-        },
         vectorDbOptions: {
-          readOnlyUrl: vectorDBConfig.readUrl,
-          readWriteUrl: vectorDBConfig.writeUrl,
           recreateIndexes: false
         }
       }

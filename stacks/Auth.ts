@@ -1,4 +1,4 @@
-import { API, COMMON_ENV_VARS, Constants, DatabaseScripts, Layers } from '@stacks';
+import { API, COMMON_ENV_VARS, Constants, Database, DatabaseScripts, Layers } from '@stacks';
 import { Architecture } from 'aws-cdk-lib/aws-lambda';
 import {
   Auth as AuthConstruct,
@@ -11,9 +11,10 @@ import {
 export function Auth({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { argonLayer, axiomArm64Layer } = use(Layers);
-  const { api } = use(API);
   const { domainName, apiUrl, websiteUrl, hostedZone, authUiUrl } = use(Constants);
+  const { argonLayer, axiomArm64Layer } = use(Layers);
+  const { neonBranch } = use(Database);
+  const { api } = use(API);
 
   const auth = new AuthConstruct(stack, 'auth', {
     authenticator: {
@@ -72,10 +73,14 @@ export function Auth({ stack }: StackContext) {
 
   const authUi = new SvelteKitSite(stack, 'auth-ui', {
     path: 'packages/auth-ui',
-    bind: [api],
     permissions: [api],
+    bind: [auth, api],
     environment: {
       ...COMMON_ENV_VARS,
+      DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
+      DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
+      VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
+      VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl,
       AXIOM_TOKEN: process.env.AXIOM_TOKEN!,
       AXIOM_DATASET: process.env.AXIOM_DATASET!,
       PUBLIC_WEBSITE_URL: websiteUrl,

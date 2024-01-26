@@ -1,0 +1,19 @@
+{
+  "extends": "@revelationsai/core/tsconfig.json",
+  "compilerOptions": {
+    "typeRoots": ["./src/types", "../core/src/types"],
+    "lib": ["dom", "dom.iterable", "ES2021"],
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "importsNotUsedAsValues": "error",
+    "isolatedModules": true,
+    "preserveValueImports": true,
+    "ignoreDeprecations": "5.0",
+    "paths": {
+      "@revelationsai/core": ["../core/src"],
+      "@revelationsai/core/*": ["../core/src/*"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

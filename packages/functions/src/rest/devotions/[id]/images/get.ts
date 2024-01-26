@@ -1,14 +1,14 @@
-import { buildOrderBy } from '@core/database/helpers';
-import { devotionImages } from '@core/schema';
-import {
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse
-} from '@lib/api-responses';
-import { getDevotion } from '@services/devotion';
-import { getDevotionImages } from '@services/devotion/image';
+import { buildOrderBy } from '@revelationsai/core/database/helpers';
+import { devotionImages } from '@revelationsai/core/database/schema';
+import { getDevotion } from '@revelationsai/server/services/devotion';
+import { getDevotionImages } from '@revelationsai/server/services/devotion/image';
 import { eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
+import {
+  ObjectNotFoundResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

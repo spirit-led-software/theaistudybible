@@ -1,6 +1,5 @@
-import { BadRequestResponse } from '@lib/api-responses';
-import { verifyPassword } from '@lib/util/password';
-import { getUserByEmail } from '@services/user';
+import { verifyPassword } from '@revelationsai/core/util/password';
+import { getUserByEmail } from '@revelationsai/server/services/user';
 import type {
   APIGatewayProxyEventQueryStringParameters,
   APIGatewayProxyStructuredResultV2
@@ -9,6 +8,7 @@ import { createSigner, createVerifier } from 'fast-jwt';
 import { useBody, useDomainName, usePath, useQueryParams } from 'sst/node/api';
 import { createAdapter, getPrivateKey, getPublicKey } from 'sst/node/auth';
 import isEmail from 'validator/lib/isEmail';
+import { BadRequestResponse } from '../../lib/api-responses';
 
 interface EmailPasswordConfig {
   onRegister: (

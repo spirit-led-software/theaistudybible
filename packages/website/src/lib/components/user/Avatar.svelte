@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { user as userStore } from '$lib/stores/user';
-	import { cn } from '$lib/utils/class-names';
-	import { squareDimensionClasses, textSizeClasses, type ComponentSize } from '$lib/utils/sizing';
-	import type { User } from '@core/model/user';
+	import { cn } from '@revelationsai/client/utils/class-names';
+	import {
+		squareDimensionClasses,
+		textSizeClasses,
+		type ComponentSize
+	} from '@revelationsai/client/utils/sizing';
+	import type { User } from '@revelationsai/core/model/user';
 
 	export let size: ComponentSize = 'md';
 	export let user: User | undefined = undefined;

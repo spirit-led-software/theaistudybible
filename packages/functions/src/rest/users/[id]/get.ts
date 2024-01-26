@@ -1,10 +1,10 @@
-import {
-  InternalServerErrorResponse,
-  ObjectNotFoundResponse,
-  OkResponse
-} from '@lib/api-responses';
-import { getUser } from '@services/user';
+import { getUser } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import {
+  ObjectNotFoundResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

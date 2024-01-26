@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { searchForDevotions } from '$lib/services/devotion';
-	import type { Query } from '@core/database/helpers';
-	import type { Devotion } from '@core/model/devotion';
-	import { toTitleCase } from '@core/util/string';
 	import Icon from '@iconify/svelte';
+	import { searchForDevotions } from '@revelationsai/client/services/devotion';
+	import type { Query } from '@revelationsai/core/database/helpers';
+	import type { Devotion } from '@revelationsai/core/model/devotion';
+	import { toTitleCase } from '@revelationsai/core/util/string';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Day from 'dayjs';
 	import { derived, writable } from 'svelte/store';

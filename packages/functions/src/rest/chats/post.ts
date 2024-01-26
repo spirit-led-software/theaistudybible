@@ -1,11 +1,11 @@
+import { createChat } from '@revelationsai/server/services/chat/chat';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { ApiHandler } from 'sst/node/api';
 import {
   CreatedResponse,
   InternalServerErrorResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { createChat } from '@services/chat/chat';
-import { validApiHandlerSession } from '@services/session';
-import { ApiHandler } from 'sst/node/api';
+} from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? '{}');

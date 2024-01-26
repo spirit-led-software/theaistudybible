@@ -1,14 +1,14 @@
+import { syncDataSource } from '@revelationsai/server/lib/util/data-source';
+import { getDataSource } from '@revelationsai/server/services/data-source';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isAdmin } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { syncDataSource } from '@lib/util/data-source';
-import { getDataSource } from '@services/data-source';
-import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

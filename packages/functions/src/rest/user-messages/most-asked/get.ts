@@ -1,6 +1,6 @@
-import { InternalServerErrorResponse, OkResponse } from '@lib/api-responses';
-import { getMostAskedUserMessages } from '@services/user/message';
+import { getMostAskedUserMessages } from '@revelationsai/server/services/user/message';
 import { ApiHandler } from 'sst/node/api';
+import { OkResponse, InternalServerErrorResponse } from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

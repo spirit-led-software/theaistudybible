@@ -3,8 +3,12 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import Avatar from '$lib/components/user/Avatar.svelte';
-	import { deleteUser, updateUser, uploadProfilePicture } from '$lib/services/user';
 	import Icon from '@iconify/svelte';
+	import {
+		deleteUser,
+		updateUser,
+		uploadProfilePicture
+	} from '@revelationsai/client/services/user';
 	import type { PageData } from './$types';
 	import ChangePasswordDialog from './ChangePasswordDialog.svelte';
 	import EditEmailDialog from './EditEmailDialog.svelte';

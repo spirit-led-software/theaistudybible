@@ -48,7 +48,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     const endpointOptions = JSON.parse(
       event.ResourceProperties.endpointOptions
     ) as BranchCreateRequestEndpointOptions[];
-    const retainOnDelete = event.ResourceProperties.retainOnDelete as boolean;
+    const retainOnDelete = event.ResourceProperties.retainOnDelete === 'true';
 
     console.log(
       `Neon branch inputs: projectName=${projectName}, branchName=${branchName}, roleName=${roleName}, endpointOptions=${JSON.stringify(

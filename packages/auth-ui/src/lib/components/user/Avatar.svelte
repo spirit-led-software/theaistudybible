@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { user } from '$lib/stores/user';
-	import { cn } from '$lib/utils/class-names';
-	import { squareDimensionClasses, textSizeClasses, type ComponentSize } from '$lib/utils/sizing';
+	import { cn } from '@revelationsai/client/utils/class-names';
+	import {
+		squareDimensionClasses,
+		textSizeClasses,
+		type ComponentSize
+	} from '@revelationsai/client/utils/sizing';
 
 	export let size: ComponentSize = 'md';
 
 	let sizeClasses = squareDimensionClasses[size];
 
-	let className: string = '';
+	let className: string | undefined = undefined;
 	export { className as class };
 
 	$: ({ image, name, email } = $user!);
@@ -21,8 +25,7 @@
 	</div>
 	<div
 		class={cn(
-			`flex justify-center place-items-center overflow-hidden rounded-full bg-gray-300`,
-			sizeClasses,
+			`flex justify-center place-items-center overflow-hidden rounded-full bg-gray-300 ${sizeClasses}`,
 			className
 		)}
 	>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn } from '$lib/utils/class-names';
+	import { cn } from '@revelationsai/client/utils/class-names';
 	import { cva, type VariantProps } from 'class-variance-authority';
 
 	const solidLineSpinnerVariants = cva('inline text-gray-200 animate-spin dark:text-gray-600', {

@@ -1,14 +1,14 @@
+import { indexWebPage } from '@revelationsai/server/services/scraper/webpage';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isAdmin } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
+  UnauthorizedResponse,
   ForbiddenResponse,
-  InternalServerErrorResponse,
   OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { indexWebPage } from '@services/scraper/webpage';
-import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+  InternalServerErrorResponse
+} from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const { dataSourceId, name, url, metadata = '{}' } = JSON.parse(event.body || '{}');

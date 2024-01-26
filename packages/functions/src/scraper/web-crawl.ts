@@ -1,14 +1,14 @@
-import {
-  BadRequestResponse,
-  ForbiddenResponse,
-  InternalServerErrorResponse,
-  OkResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { indexWebCrawl } from '@services/scraper/web-crawl';
-import { validApiHandlerSession } from '@services/session';
-import { isAdmin } from '@services/user';
+import { indexWebCrawl } from '@revelationsai/server/services/scraper/web-crawl';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isAdmin } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import {
+  UnauthorizedResponse,
+  ForbiddenResponse,
+  BadRequestResponse,
+  OkResponse,
+  InternalServerErrorResponse
+} from '../lib/api-responses';
 
 type RequestBody = {
   dataSourceId: string;

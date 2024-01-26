@@ -3,8 +3,8 @@
 	import AskQuestionsBar from '$lib/components/AskQuestionsBar.svelte';
 	import Logo from '$lib/components/branding/Logo.svelte';
 	import Avatar from '$lib/components/user/Avatar.svelte';
-	import { isAdmin } from '$lib/services/user';
 	import Icon from '@iconify/svelte';
+	import { isAdmin } from '@revelationsai/client/services/user';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

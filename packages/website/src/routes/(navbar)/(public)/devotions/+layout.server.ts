@@ -1,11 +1,11 @@
-import { getDevotions } from '$lib/services/devotion';
+import { getDevotions } from '@revelationsai/server/services/devotion';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async () => {
-	const devotionsData = await getDevotions({
+	const devotions = await getDevotions({
 		limit: 7
 	});
 	return {
-		devotions: devotionsData.devotions
+		devotions
 	};
 };

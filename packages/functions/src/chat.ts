@@ -1,25 +1,28 @@
-import envConfig from '@core/configs/env';
-import type { AnthropicModelId } from '@core/langchain/types/bedrock-types';
-import type { NeonVectorStoreDocument } from '@core/langchain/vectorstores/neon';
-import type { Chat } from '@core/model/chat';
-import type { UserWithRoles } from '@core/model/user';
-import { aiResponsesToSourceDocuments, userMessages } from '@core/schema';
-import db from '@lib/database/database';
-import { aiRenameChat } from '@lib/util/chat';
 import middy from '@middy/core';
+import envConfig from '@revelationsai/core/configs/env';
+import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
+import type { AnthropicModelId } from '@revelationsai/core/langchain/types/bedrock-types';
+import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { Chat } from '@revelationsai/core/model/chat';
+import type { UserWithRoles } from '@revelationsai/core/model/user';
+import db from '@revelationsai/server/lib/database/database';
+import { aiRenameChat } from '@revelationsai/server/lib/util/chat';
 import {
   createAiResponse,
   getAiResponse,
   getAiResponsesByUserMessageId,
   updateAiResponse
-} from '@services/ai-response/ai-response';
-import { createChat, getChat, updateChat } from '@services/chat';
-import { getRAIChatChain } from '@services/chat/langchain';
-import type { RAIChatMessage } from '@services/chat/message';
-import { validNonApiHandlerSession } from '@services/session';
-import { hasPlusSync, isAdminSync, isObjectOwner } from '@services/user';
-import { createUserMessage, getUserMessages } from '@services/user/message';
-import { decrementUserQueryCount, incrementUserQueryCount } from '@services/user/query-count';
+} from '@revelationsai/server/services/ai-response/ai-response';
+import { createChat, getChat, updateChat } from '@revelationsai/server/services/chat';
+import { getRAIChatChain } from '@revelationsai/server/services/chat/langchain';
+import type { RAIChatMessage } from '@revelationsai/server/services/chat/message';
+import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
+import { hasPlusSync, isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
+import { createUserMessage, getUserMessages } from '@revelationsai/server/services/user/message';
+import {
+  decrementUserQueryCount,
+  incrementUserQueryCount
+} from '@revelationsai/server/services/user/query-count';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq, or } from 'drizzle-orm';
@@ -189,7 +192,7 @@ async function lambdaHandler(
 
     console.time('Validating session token');
     const { isValid, userWithRoles, remainingQueries, maxQueries } =
-      await validNonApiHandlerSession(event);
+      await validNonApiHandlerSession(event.headers.authorization?.split(' ')[1]);
     if (!isValid) {
       console.log('Invalid session token');
       return {

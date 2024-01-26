@@ -1,14 +1,14 @@
+import { getAiResponse } from '@revelationsai/server/services/ai-response/ai-response';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getAiResponseSourceDocuments } from '@revelationsai/server/services/source-document';
+import { isObjectOwner } from '@revelationsai/server/services/user';
+import { ApiHandler } from 'sst/node/api';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { getAiResponse } from '@services/ai-response/ai-response';
-import { validApiHandlerSession } from '@services/session';
-import { getAiResponseSourceDocuments } from '@services/source-document';
-import { isObjectOwner } from '@services/user';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;

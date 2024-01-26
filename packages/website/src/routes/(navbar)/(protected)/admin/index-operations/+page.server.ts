@@ -1,11 +1,10 @@
-import { getIndexOperations } from '$lib/services/admin/data-source/index-op';
+import { getIndexOperations } from '@revelationsai/server/services/data-source/index-op';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async () => {
 	const limit = 50;
-	const { indexOperations } = await getIndexOperations({
-		limit,
-		session: locals.session!
+	const indexOperations = await getIndexOperations({
+		limit
 	});
 	return {
 		indexOperations,

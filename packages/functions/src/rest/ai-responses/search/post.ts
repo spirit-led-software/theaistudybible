@@ -1,10 +1,14 @@
-import { buildOrderBy, buildQuery } from '@core/database/helpers';
-import { aiResponses } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getAiResponses } from '@services/ai-response/ai-response';
-import { validApiHandlerSession } from '@services/session';
+import { buildOrderBy, buildQuery } from '@revelationsai/core/database/helpers';
+import { aiResponses } from '@revelationsai/core/database/schema';
+import { getAiResponses } from '@revelationsai/server/services/ai-response/ai-response';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
+import {
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

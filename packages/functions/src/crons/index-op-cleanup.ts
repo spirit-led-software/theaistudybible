@@ -1,5 +1,8 @@
-import { indexOperations } from '@core/schema';
-import { getIndexOperations, updateIndexOperation } from '@services/data-source/index-op';
+import { indexOperations } from '@revelationsai/core/database/schema';
+import {
+  getIndexOperations,
+  updateIndexOperation
+} from '@revelationsai/server/services/data-source/index-op';
 import type { Handler } from 'aws-lambda';
 import { and, eq, lt } from 'drizzle-orm';
 

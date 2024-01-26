@@ -1,6 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 
-import type { UserInfo } from '@core/model';
+import type { UserInfo } from '@revelationsai/core/model';
 
 // for information about these interfaces
 declare global {

@@ -1,0 +1,22 @@
+{
+  "name": "@revelationsai/client",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "sst bind vitest",
+    "typecheck": "tsc -noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.131",
+    "@types/busboy": "^1.5.3",
+    "@types/node": "^20.11.7",
+    "@types/nodemailer": "^6.4.14",
+    "sst": "2.39.11",
+    "vitest": "^1.2.1"
+  },
+  "dependencies": {
+    "@revelationsai/core": "workspace:*"
+  }
+}

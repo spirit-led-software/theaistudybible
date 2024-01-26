@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn } from '$lib/utils/class-names';
+	import { cn } from '@revelationsai/client/utils/class-names';
 	import { cva, type VariantProps } from 'class-variance-authority';
 
 	const dotsVariants = cva('rounded-full animate-pulse transition duration-700 ease-in-out', {

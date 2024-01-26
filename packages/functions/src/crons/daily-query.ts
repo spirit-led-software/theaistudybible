@@ -1,6 +1,6 @@
-import { getTodaysDateString } from '@lib/util/date';
-import { generateDiveDeeperQueries } from '@lib/util/devotion';
-import { getDevotionByCreatedDate, updateDevotion } from '@services/devotion';
+import { getTodaysDateString } from '@revelationsai/core/util/date';
+import { generateDiveDeeperQueries } from '@revelationsai/server/lib/util/devotion';
+import { getDevotionByCreatedDate, updateDevotion } from '@revelationsai/server/services/devotion';
 import type { Handler } from 'aws-lambda';
 import firebase from 'firebase-admin';
 import path from 'path';

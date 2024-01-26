@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { getDevotionReactions } from '$lib/services/admin/reactions/devotion';
 	import { session } from '$lib/stores/user';
-	import type { DevotionReactionInfo } from '@core/model/devotion/reaction';
 	import Icon from '@iconify/svelte';
+	import { getDevotionReactions } from '@revelationsai/client/services/admin/reactions/devotion';
+	import type { DevotionReactionInfo } from '@revelationsai/core/model/devotion/reaction';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Day from 'dayjs';
 	import type { PageData } from './$types';
@@ -28,7 +28,7 @@
 			return pages.length + 1;
 		},
 		initialData: {
-			pages: [data.reactionInfos.reactions],
+			pages: [data.reactionInfos],
 			pageParams: [1]
 		}
 	});

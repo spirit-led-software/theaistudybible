@@ -1,11 +1,15 @@
-import { buildOrderBy, buildQuery } from '@core/database/helpers';
-import { indexOperations } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getIndexOperations } from '@services/data-source/index-op';
-import { validApiHandlerSession } from '@services/session';
-import { isAdminSync } from '@services/user';
+import { buildOrderBy, buildQuery } from '@revelationsai/core/database/helpers';
+import { indexOperations } from '@revelationsai/core/database/schema';
+import { getIndexOperations } from '@revelationsai/server/services/data-source/index-op';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isAdminSync } from '@revelationsai/server/services/user';
 import { and } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
+import {
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse
+} from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};

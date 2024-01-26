@@ -1,11 +1,11 @@
-import {
-  CreatedResponse,
-  InternalServerErrorResponse,
-  UnauthorizedResponse
-} from '@lib/api-responses';
-import { validApiHandlerSession } from '@services/session';
-import { createUserMessage } from '@services/user/message';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { createUserMessage } from '@revelationsai/server/services/user/message';
 import { ApiHandler } from 'sst/node/api';
+import {
+  UnauthorizedResponse,
+  CreatedResponse,
+  InternalServerErrorResponse
+} from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? '{}');

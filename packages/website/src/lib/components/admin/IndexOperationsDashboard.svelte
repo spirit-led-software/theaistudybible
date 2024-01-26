@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { session } from '$lib/stores/user';
 	import {
 		getIndexOperations,
 		updateIndexOperation
-	} from '$lib/services/admin/data-source/index-op';
-	import { session } from '$lib/stores/user';
-	import type { IndexOperation } from '@core/model/data-source/index-op';
-	import { indexOperations as indexOperationsTable } from '@core/schema';
+	} from '@revelationsai/client/services/admin/data-source/index-op';
+	import { indexOperations as indexOperationsTable } from '@revelationsai/core/database/schema';
+	import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 	import { createInfiniteQuery } from '@tanstack/svelte-query';
 	import Day from 'dayjs';
 	import { SolidLineSpinner } from '../loading';

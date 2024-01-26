@@ -2,6 +2,11 @@
   "search.exclude": {
     "**/.sst": true
   },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    // "source.addMissingImports": "always", // useful when doing a big refactor
+    "source.organizeImports": "always",
+  },
   "cSpell.words": [
     "autocorrect",
     "autofocus",
@@ -15,7 +20,20 @@
     "unfocus",
     "upstash"
   ],
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "eslint.workingDirectories": [".", "packages/core", "packages/functions", "packages/website", "packages/auth-ui"],
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "svelte"]
+  "eslint.workingDirectories": [
+    ".",
+    "packages/core",
+    "packages/server",
+    "packages/client",
+    "packages/functions",
+    "packages/website",
+    "packages/auth-ui",
+  ],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "svelte"
+  ]
 }

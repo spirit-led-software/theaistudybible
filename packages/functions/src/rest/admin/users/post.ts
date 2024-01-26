@@ -1,17 +1,17 @@
+import { verifyPassword } from '@revelationsai/core/util/password';
+import { addRoleToUser } from '@revelationsai/server/services/role';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { createUser, isAdminSync } from '@revelationsai/server/services/user';
+import { createUserPassword } from '@revelationsai/server/services/user/password';
+import { hash } from 'argon2';
+import { randomBytes } from 'crypto';
+import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse
-} from '@lib/api-responses';
-import { verifyPassword } from '@lib/util/password';
-import { addRoleToUser } from '@services/role';
-import { validApiHandlerSession } from '@services/session';
-import { createUser, isAdminSync } from '@services/user';
-import { createUserPassword } from '@services/user/password';
-import { hash } from 'argon2';
-import { randomBytes } from 'crypto';
-import { ApiHandler } from 'sst/node/api';
+} from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const { password, ...data } = JSON.parse(event.body ?? '{}');

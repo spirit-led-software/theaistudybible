@@ -3,9 +3,9 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_CHAT_API_URL } from '$env/static/public';
 	import Message from '$lib/components/chat/Message.svelte';
-	import { updateAiResponse } from '$lib/services/ai-response';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
+	import { updateAiResponse } from '@revelationsai/client/services/ai-response';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { nanoid, type Message as ChatMessage } from 'ai';
 	import { useChat } from 'ai/svelte';

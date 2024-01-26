@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { deleteDataSource, syncDataSource } from '$lib/services/admin/data-source';
 	import { session } from '$lib/stores/user';
-	import type { DataSource } from '@core/model/data-source';
 	import Icon from '@iconify/svelte';
+	import {
+		deleteDataSource,
+		syncDataSource
+	} from '@revelationsai/client/services/admin/data-source';
+	import type { DataSource } from '@revelationsai/core/model/data-source';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
 	import Day from 'dayjs';
 	import type { SvelteComponent } from 'svelte';

@@ -1,10 +1,14 @@
-import { buildOrderBy } from '@core/database/helpers';
-import { chats as chatsTable } from '@core/schema';
-import { InternalServerErrorResponse, OkResponse, UnauthorizedResponse } from '@lib/api-responses';
-import { getChats } from '@services/chat/chat';
-import { validApiHandlerSession } from '@services/session';
+import { buildOrderBy } from '@revelationsai/core/database/helpers';
+import { chats as chatsTable } from '@revelationsai/core/database/schema';
+import { getChats } from '@revelationsai/server/services/chat/chat';
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
+import {
+  InternalServerErrorResponse,
+  OkResponse,
+  UnauthorizedResponse
+} from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
   const searchParams = event.queryStringParameters ?? {};
