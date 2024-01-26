@@ -228,7 +228,10 @@ const imagePromptOutputParser = OutputFixingParser.fromLLM(
       .describe(
         'An array of exactly four (4) phrases that will help generate a biblically accurate image.'
       )
-  )
+  ),
+  {
+    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+  }
 );
 
 export const getImagePromptChain = () => {

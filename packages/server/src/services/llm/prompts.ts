@@ -5,8 +5,12 @@ export const OUTPUT_FIXER_PROMPT_TEMPLATE = `You are an expert at fixing text co
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output must fix the error.
-- You are only allowed to change the formatting of the completion.
-- Pay attention to the placement of escaped and unescaped quotation marks, brackets, and parentheses.
+- Carefully examine the error and the completion to determine what is wrong with the completion.
+
+Here are some important things to consider:
+- The error may not accurately reflect the real error in the completion.
+- The error may not be the only error in the completion.
+- Errors most often occur when quotes in strings are not properly escaped, so be sure to carefully check all quotes in the completion.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
 <completion>
