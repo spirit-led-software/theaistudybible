@@ -1,4 +1,4 @@
-import { COMMON_ENV_VARS, Database } from '@stacks';
+import { Database } from '@stacks';
 import { Job, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Jobs({ stack }: StackContext) {
@@ -15,7 +15,6 @@ export function Jobs({ stack }: StackContext) {
       install: ['web-streams-polyfill']
     },
     environment: {
-      ...COMMON_ENV_VARS,
       DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
       DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
       VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
