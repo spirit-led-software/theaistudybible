@@ -23,10 +23,11 @@
   "eslint.workingDirectories": [
     ".",
     "packages/core",
+    "packages/server",
+    "packages/client",
     "packages/functions",
     "packages/website",
     "packages/auth-ui",
-    "packages/server"
   ],
   "eslint.validate": [
     "javascript",
