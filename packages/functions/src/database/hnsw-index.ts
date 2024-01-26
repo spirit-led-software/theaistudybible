@@ -1,5 +1,3 @@
-import databaseConfig from '@revelationsai/core/configs/database';
-import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import {
   getDocumentVectorStore,
   getPartialHnswIndexInfos
@@ -10,13 +8,7 @@ import 'web-streams-polyfill/dist/polyfill.es2018.js';
 declare module 'sst/node/job' {
   export interface JobTypes {
     hnswIndexJob: {
-      dbOptions: {
-        readWriteUrl: string;
-        readOnlyUrl: string;
-      };
       vectorDbOptions: {
-        readWriteUrl: string;
-        readOnlyUrl: string;
         recreateIndexes?: boolean;
       };
     };
@@ -25,13 +17,7 @@ declare module 'sst/node/job' {
 
 export const handler = JobHandler('hnswIndexJob', async (payload) => {
   console.log('Received HNSW index event: ', payload);
-  const { dbOptions, vectorDbOptions } = payload;
-
-  databaseConfig.readOnlyUrl = dbOptions.readOnlyUrl;
-  databaseConfig.readWriteUrl = dbOptions.readWriteUrl;
-
-  vectorDBConfig.readUrl = vectorDbOptions.readOnlyUrl;
-  vectorDBConfig.writeUrl = vectorDbOptions.readWriteUrl;
+  const { vectorDbOptions } = payload;
 
   const errors: unknown[] = [];
   try {
