@@ -96,9 +96,15 @@ importers:
 
   packages/auth-ui:
     dependencies:
+      '@revelationsai/client':
+        specifier: workspace:*
+        version: link:../client
       '@revelationsai/core':
         specifier: workspace:*
         version: link:../core
+      '@revelationsai/server':
+        specifier: workspace:*
+        version: link:../server
       '@tanstack/svelte-query':
         specifier: ^5.17.19
         version: 5.17.19(svelte@4.2.9)
@@ -218,9 +224,6 @@ importers:
         specifier: workspace:*
         version: link:../core
     devDependencies:
-      '@sparticuz/chromium':
-        specifier: ^119.0.2
-        version: 119.0.2
       '@types/aws-lambda':
         specifier: ^8.10.131
         version: 8.10.131
@@ -446,9 +449,15 @@ importers:
 
   packages/website:
     dependencies:
+      '@revelationsai/client':
+        specifier: workspace:*
+        version: link:../client
       '@revelationsai/core':
         specifier: workspace:*
         version: link:../core
+      '@revelationsai/server':
+        specifier: workspace:*
+        version: link:../server
       '@tanstack/svelte-query':
         specifier: ^5.17.19
         version: 5.17.19(svelte@4.2.9)
