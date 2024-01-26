@@ -189,12 +189,10 @@ export async function cacheDelete<T>(options: {
   const obj = await fn();
 
   try {
-    await Promise.all(
-      filterKeys({ obj, keys }).map(async (key) => {
-        const cacheKey = `${collection}:${key.name}:${key.value}`;
-        await cache.del(cacheKey);
-      })
-    );
+    const cacheKeysToDelete = filterKeys({ obj, keys }).map((key) => {
+      return `${collection}:${key.name}:${key.value}`;
+    });
+    await cache.del(...cacheKeysToDelete);
   } catch (error) {
     if (error instanceof Error) {
       console.error(`Error deleting data from cache: ${error.message}\n${error.stack}`);
