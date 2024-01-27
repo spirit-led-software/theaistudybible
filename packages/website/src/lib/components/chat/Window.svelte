@@ -251,18 +251,16 @@
 			</div>
 		{:else}
 			<div class="flex justify-center w-full h-full place-items-center justify-items-center">
-				<div
-					class="flex flex-col w-3/4 px-10 py-5 space-y-2 rounded-lg h-fit bg-slate-200 md:w-1/2"
-				>
-					<h1 class="self-center text-xl font-medium md:text-2xl">
+				<div class="flex flex-col w-5/6 px-10 py-5 space-y-2 rounded-lg h-fit lg:w-1/2">
+					<h1 class="self-center text-xl text-blue-300 font-medium md:text-2xl">
 						Don{`'`}t know where to start?
 					</h1>
-					<h2 class="self-center text-lg font-medium">Try these:</h2>
+					<h2 class="self-center text-lg">Try these:</h2>
 					<ul class="list-outside space-y-2">
 						{#each starterQueries as query}
 							<li>
 								<button
-									class="flex text-base text-left place-items-center p-2 rounded-xl hover:cursor-pointer hover:bg-slate-300"
+									class="flex w-full text-base text-left place-items-center justify-between p-2 rounded-xl hover:cursor-pointer hover:bg-slate-300"
 									on:click={async () => {
 										await append(
 											{
@@ -285,7 +283,10 @@
 									}}
 								>
 									{query}
-									<Icon icon="mdi:chevron-right" class="mr-2 text-slate-700 h-6 w-6" />
+									<Icon
+										icon="mdi:chevron-right"
+										class="flex-grow-0 flex-shrink-0 mr-2 text-slate-700 h-6 w-6"
+									/>
 								</button>
 							</li>
 						{/each}
@@ -333,7 +334,7 @@
 				</div>
 			</form>
 			<div class="flex w-full place-items-center">
-				<p class="flex-1 text-xs text-gray-400 text-center">
+				<p class="flex-1 text-[8px] text-gray-400 text-center md:text-xs text-nowrap truncate">
 					RevelationsAI can make mistakes. Validate all answers against the bible.
 				</p>
 			</div>
