@@ -1,12 +1,9 @@
 import { aiResponses, userMessages } from '@revelationsai/core/database/schema';
-import type { Message } from 'ai';
+import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import { nanoid } from 'ai';
 import { and, desc, eq, type SQL } from 'drizzle-orm';
 import { v4 as uuidV4 } from 'uuid';
 import { db } from '../../lib/database';
-
-export type RAIChatMessage = Message & {
-  uuid: string;
-};
 
 export async function getChatMessages(
   chatId: string,
@@ -42,12 +39,13 @@ export async function getChatMessages(
         id: row.ai_responses.aiId ?? row.ai_responses.id,
         uuid: row.ai_responses.id,
         content: row.ai_responses.text!,
-        createdAt: row.ai_responses.createdAt
+        createdAt: row.ai_responses.createdAt,
+        modelId: row.ai_responses.modelId
       });
     } else {
       messages.push({
         role: 'assistant',
-        id: uuidV4(),
+        id: nanoid(),
         uuid: uuidV4(),
         content: 'Failed.',
         createdAt: new Date()
@@ -56,7 +54,7 @@ export async function getChatMessages(
 
     messages.push({
       role: 'user',
-      id: row.user_messages.id,
+      id: row.user_messages.aiId ?? row.user_messages.id,
       uuid: row.user_messages.id,
       content: row.user_messages.text!,
       createdAt: row.user_messages.createdAt

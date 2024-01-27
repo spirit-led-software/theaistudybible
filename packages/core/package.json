@@ -9,15 +9,13 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@opensearch-project/opensearch": "^2.5.0",
-    "@types/email-templates": "^10.0.4",
     "@types/node": "^20.11.7",
-    "sst": "2.39.11",
-    "vitest": "^1.2.1"
+    "sst": "2.39.13",
+    "vitest": "^1.2.2"
   },
   "dependencies": {
+    "ai": "^2.2.31",
     "axios": "^1.6.7",
-    "axios-retry": "^4.0.0",
-    "nodemailer": "^6.9.8"
+    "axios-retry": "^4.0.0"
   }
 }

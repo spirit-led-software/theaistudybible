@@ -3,9 +3,11 @@
 	import { page } from '$app/stores';
 	import { PUBLIC_CHAT_API_URL } from '$env/static/public';
 	import Message from '$lib/components/chat/Message.svelte';
-	import { session } from '$lib/stores/user';
+	import { session, user } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
 	import { updateAiResponse } from '@revelationsai/client/services/ai-response';
+	import { hasPlus, isAdmin } from '@revelationsai/client/services/user';
+	import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { nanoid, type Message as ChatMessage } from 'ai';
 	import { useChat } from 'ai/svelte';
@@ -14,18 +16,28 @@
 	import TextAreaAutosize from './TextAreaAutosize.svelte';
 
 	export let initChatId: string | undefined = undefined;
-	export let initMessages: ChatMessage[] | undefined = undefined;
+	export let initMessages: RAIChatMessage[] | undefined = undefined;
 
 	let chatId: string | undefined = undefined;
+	let modelId: string | undefined = undefined;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	let lastUserMessageId: string | undefined = undefined;
 	let lastAiResponseId: string | undefined = undefined;
-	let lastChatMessage: ChatMessage | undefined = undefined;
+	let lastModelId: string | undefined = undefined;
+	let lastChatMessage: RAIChatMessage | undefined = undefined;
 	let alert: string | undefined = undefined;
 	let endOfMessagesRef: HTMLDivElement | undefined;
 	let isEndOfMessagesRefShowing = true;
 
 	const queryClient = useQueryClient();
+
+	const starterQueries = [
+		'Who is Jesus Christ?',
+		'How does Jesus dying on the cross mean that I can be saved?',
+		'What is the Trinity?',
+		'Can you find me a random Bible verse about grief?',
+		'What does the Bible say about marriage?'
+	];
 
 	const { input, handleSubmit, messages, setMessages, append, error, isLoading, reload } = useChat({
 		api: PUBLIC_CHAT_API_URL,
@@ -43,6 +55,7 @@
 				chatId = response.headers.get('x-chat-id') ?? undefined;
 				lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
 				lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
+				lastModelId = response.headers.get('x-model-id') ?? undefined;
 			}
 		},
 		onFinish: (message: ChatMessage) => {
@@ -79,7 +92,8 @@
 					authorization: `Bearer ${$session}`
 				},
 				body: {
-					chatId
+					chatId,
+					modelId
 				}
 			}
 		});
@@ -95,7 +109,8 @@
 					authorization: `Bearer ${$session}`
 				},
 				body: {
-					chatId
+					chatId,
+					modelId
 				}
 			}
 		});
@@ -104,6 +119,20 @@
 	$: handleAiResponse = async (chatMessage: ChatMessage) => {
 		if (lastAiResponseId) {
 			try {
+				$messages = [
+					...$messages.slice(0, -2),
+					{
+						...$messages[$messages.length - 2],
+						// @ts-expect-error adding our custom fields
+						uuid: lastUserMessageId
+					},
+					{
+						...chatMessage,
+						// @ts-expect-error adding our custom fields
+						uuid: lastAiResponseId,
+						modelId: lastModelId
+					}
+				];
 				await updateAiResponse(
 					lastAiResponseId,
 					{
@@ -134,7 +163,8 @@
 						authorization: `Bearer ${$session}`
 					},
 					body: {
-						chatId
+						chatId,
+						modelId
 					}
 				}
 			}
@@ -154,6 +184,8 @@
 	$: if ($page.url.searchParams.get('query')) {
 		handleSearchParamQuery();
 	}
+
+	$: userHasPlus = hasPlus($user!) || isAdmin($user!);
 </script>
 
 <div class="absolute w-full h-full overflow-hidden lg:static">
@@ -168,9 +200,30 @@
 				{alert}
 			</div>
 		</div>
+		<div class="absolute left-0 right-0 top-1 flex justify-center">
+			<div class="w-full py-2 overflow-hidden text-center">
+				<select
+					name="model"
+					id="model"
+					class="select select-sm bg-slate-700 text-white"
+					bind:value={modelId}
+					on:change={async (event) => {
+						const selectedModelId = event.currentTarget.value;
+						if (selectedModelId === 'anthropic.claude-v2:1' && !userHasPlus) {
+							await goto('/upgrade');
+						}
+					}}
+				>
+					<option disabled>Language Model</option>
+					<option value="anthropic.claude-instant-v1">Claude v1</option>
+					<option value="anthropic.claude-v2:1" selected={userHasPlus}>Claude v2.1</option>
+				</select>
+			</div>
+		</div>
 		{#if $messages && $messages.length > 0}
 			<div class="w-full h-full overflow-y-scroll">
 				<div class="flex flex-col flex-1 min-h-full place-content-end">
+					<div class="h-16 w-full" />
 					{#each $messages as message, index}
 						<div class="flex flex-col w-full">
 							<!-- TODO: Add ads when adsense is approved
@@ -202,15 +255,40 @@
 					class="flex flex-col w-3/4 px-10 py-5 space-y-2 rounded-lg h-fit bg-slate-200 md:w-1/2"
 				>
 					<h1 class="self-center text-xl font-medium md:text-2xl">
-						Don{`'`}t know what to say?
+						Don{`'`}t know where to start?
 					</h1>
-					<h2 class="text-lg font-medium">Try asking:</h2>
-					<ul class="space-y-1 list-disc list-inside">
-						<li>Who is Jesus Christ?</li>
-						<li>How does Jesus dying on the cross mean that I can be saved?</li>
-						<li>What is the Trinity?</li>
-						<li>Can you find me a random Bible verse about grief?</li>
-						<li>What does the Bible say about marriage?</li>
+					<h2 class="self-center text-lg font-medium">Try these:</h2>
+					<ul class="list-outside space-y-2">
+						{#each starterQueries as query}
+							<li>
+								<button
+									class="flex text-base text-left place-items-center p-2 rounded-xl hover:cursor-pointer hover:bg-slate-300"
+									on:click={async () => {
+										await append(
+											{
+												id: nanoid(),
+												content: query,
+												role: 'user'
+											},
+											{
+												options: {
+													headers: {
+														authorization: `Bearer ${$session}`
+													},
+													body: {
+														chatId,
+														modelId
+													}
+												}
+											}
+										);
+									}}
+								>
+									{query}
+									<Icon icon="mdi:chevron-right" class="mr-2 text-slate-700 h-6 w-6" />
+								</button>
+							</li>
+						{/each}
 					</ul>
 				</div>
 			</div>
@@ -223,10 +301,11 @@
 				<Icon icon="icon-park:down" class="text-2xl" />
 			</button>
 		{/if}
-		<div
-			class="absolute z-20 overflow-hidden bg-white border rounded-lg bottom-4 left-5 right-5 opacity-90"
-		>
-			<form class="flex flex-col w-full" on:submit|preventDefault={handleSubmitCustom}>
+		<div class="absolute z-20 overflow-hidden bottom-2 left-5 right-5 opacity-90">
+			<form
+				class="flex flex-col w-full bg-white border rounded-lg mb-1"
+				on:submit|preventDefault={handleSubmitCustom}
+			>
 				<div class="flex items-center w-full h-auto">
 					<Icon icon="icon-park:right" class="mx-1 text-2xl" />
 					<TextAreaAutosize {input} />
@@ -253,6 +332,11 @@
 					</div>
 				</div>
 			</form>
+			<div class="flex w-full place-items-center">
+				<p class="flex-1 text-xs text-gray-400 text-center">
+					RevelationsAI can make mistakes. Validate all answers against the bible.
+				</p>
+			</div>
 		</div>
 	</div>
 </div>

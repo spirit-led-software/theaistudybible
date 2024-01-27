@@ -4,6 +4,8 @@
 
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import Icon from '@iconify/svelte';
+	import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+	import { toCapitalizedCase } from '@revelationsai/core/util/string';
 	import type { Message } from 'ai';
 	import Day from 'dayjs';
 	import LogoIcon from '../branding/LogoIcon.svelte';
@@ -13,8 +15,8 @@
 	import ResponseSources from './ResponseSources.svelte';
 
 	export let chatId: string | undefined;
-	export let message: Message;
-	export let prevMessage: Message | undefined = undefined;
+	export let message: RAIChatMessage;
+	export let prevMessage: RAIChatMessage | undefined = undefined;
 	export let isChatLoading = false;
 	export let isLastMessage = false;
 
@@ -50,8 +52,24 @@
 	</div>
 	<div class="flex flex-col w-full px-3 overflow-x-clip">
 		<MessageMarkdown {content} />
-		<div class="flex justify-end w-full mt-2 text-xs text-gray-400">
-			{Day(message.createdAt).format('M/D/YY h:mm a')}
+		<div class="flex w-full justify-end place-items-center space-x-2">
+			{#if message.modelId}
+				<div class="flex justify-end mt-2 text-xs text-gray-400">
+					<span class="border px-2 py-1 rounded-xl">
+						{toCapitalizedCase(
+							message.modelId
+								.replaceAll(/anthropic\./g, '')
+								.replaceAll(/-instant/g, '')
+								.replaceAll(/-/g, ' ')
+								.replaceAll(/:/g, '.')
+								.replaceAll(/(v\d)(.\d)?/g, '$1$2')
+						)}
+					</span>
+				</div>
+			{/if}
+			<div class="flex justify-end mt-2 text-xs text-gray-400">
+				{Day(message.createdAt).format('M/D/YY h:mm a')}
+			</div>
 		</div>
 		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">

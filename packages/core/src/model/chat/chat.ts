@@ -1,5 +1,5 @@
 import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
-import type { chats } from '../database/schema';
+import type { chats } from '../../database/schema';
 
 export type Chat = typeof chats.$inferSelect;
 

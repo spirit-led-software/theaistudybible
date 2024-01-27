@@ -4,6 +4,7 @@ import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/
 import type { AnthropicModelId } from '@revelationsai/core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { Chat } from '@revelationsai/core/model/chat';
+import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import db from '@revelationsai/server/lib/database/database';
 import { aiRenameChat } from '@revelationsai/server/lib/util/chat';
@@ -15,7 +16,6 @@ import {
 } from '@revelationsai/server/services/ai-response/ai-response';
 import { createChat, getChat, updateChat } from '@revelationsai/server/services/chat';
 import { getRAIChatChain } from '@revelationsai/server/services/chat/langchain';
-import type { RAIChatMessage } from '@revelationsai/server/services/chat/message';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
 import { hasPlusSync, isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
 import { createUserMessage, getUserMessages } from '@revelationsai/server/services/user/message';
@@ -25,7 +25,7 @@ import {
 } from '@revelationsai/server/services/user/query-count';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
-import { and, eq, or } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
@@ -228,8 +228,9 @@ async function lambdaHandler(
         return modelIdValidationResponse;
       }
     }
-    const modelId =
-      (hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
+    const modelId = providedModelId
+      ? providedModelId
+      : (hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
         ? 'anthropic.claude-v2:1'
         : 'anthropic.claude-instant-v1';
 
@@ -265,7 +266,7 @@ async function lambdaHandler(
         eq(userMessages.chatId, chat.id),
         lastMessage.uuid
           ? eq(userMessages.id, lastMessage.uuid)
-          : or(eq(userMessages.text, lastMessage.content), eq(userMessages.aiId, lastMessage.id))
+          : and(eq(userMessages.text, lastMessage.content), eq(userMessages.aiId, lastMessage.id))
       )
     }).then(async (userMessages) => {
       const userMessage = userMessages.at(0);
@@ -346,7 +347,8 @@ async function lambdaHandler(
         'Content-Type': 'text/plain; charset=utf-8',
         'x-chat-id': chat.id,
         'x-user-message-id': userMessage.id,
-        'x-ai-response-id': aiResponseId
+        'x-ai-response-id': aiResponseId,
+        'x-model-id': modelId
       },
       body: new Readable({
         read() {

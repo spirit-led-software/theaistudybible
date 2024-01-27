@@ -4,6 +4,7 @@ import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runn
 import envConfig from '@revelationsai/core/configs/env';
 import type { AnthropicModelId } from '@revelationsai/core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import type { CallbackManager } from 'langchain/callbacks';
@@ -20,7 +21,6 @@ import { z } from 'zod';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { getLargeContextModel, llmCache } from '../llm';
 import { getDocumentVectorStore } from '../vector-db';
-import type { RAIChatMessage } from './message';
 import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,

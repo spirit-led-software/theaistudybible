@@ -11,7 +11,7 @@ export type RAIDatabaseConfigInput = {
 };
 
 export async function neonFetchFn(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  const retries = 5;
+  const retries = 3;
 
   let tryCount = 1;
   while (tryCount <= retries) {

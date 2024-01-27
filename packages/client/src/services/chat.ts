@@ -1,5 +1,6 @@
 import type { Chat, CreateChatData, UpdateChatData } from '@revelationsai/core/model/chat';
-import type { Message } from 'ai/svelte';
+import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import apiConfig from '../configs/api';
 import { GetEntitiesSearchParams } from './helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
@@ -7,7 +8,6 @@ import type {
   ProtectedApiOptions,
   SearchForEntitiesOptions
 } from './types';
-import apiConfig from '../configs/api';
 
 export async function getChats(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
   const searchParams = GetEntitiesSearchParams(options);
@@ -174,7 +174,8 @@ export async function getChatMessages(
     throw new Error(data.error || 'Error retrieving chat messages.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<Message> = await response.json();
+  const { entities, page, perPage }: PaginatedEntitiesResponse<RAIChatMessage> =
+    await response.json();
 
   return {
     messages: entities,

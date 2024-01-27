@@ -10,12 +10,12 @@
   },
   "devDependencies": {
     "@sparticuz/chromium": "^119.0.2",
-    "@types/aws-lambda": "^8.10.131",
+    "@types/aws-lambda": "^8.10.132",
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.11.7",
     "@types/nodemailer": "^6.4.14",
-    "sst": "2.39.11",
-    "vitest": "^1.2.1"
+    "sst": "2.39.13",
+    "vitest": "^1.2.2"
   },
   "dependencies": {
     "@revelationsai/core": "workspace:*",
