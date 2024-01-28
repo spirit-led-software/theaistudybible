@@ -8,7 +8,6 @@ import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import type { CallbackManager } from 'langchain/callbacks';
-import type { Document } from 'langchain/document';
 import { ChatMessageHistory } from 'langchain/memory';
 import {
   JsonMarkdownStructuredOutputParser,
@@ -271,19 +270,30 @@ export async function getDocumentQaChain(options: {
           })
         );
         // remove duplicates from flattened list using document id
+        // then merge documents with same url
         return sourceDocuments
           .flat()
-          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id));
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .reduce((acc, doc) => {
+            const existingDoc = acc.find((d) => d.metadata.url === doc.metadata.url);
+            if (existingDoc) {
+              existingDoc.pageContent += `\n${doc.pageContent}`;
+            } else {
+              acc.push(doc);
+            }
+            return acc;
+          }, [] as NeonVectorStoreDocument[])
+          .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0));
       },
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      documents: (previousStepResult) =>
+      sources: (previousStepResult: { sourceDocuments: NeonVectorStoreDocument[] }) =>
         previousStepResult.sourceDocuments
           ?.map(
-            (sourceDoc: Document) =>
-              `<document>\n<document_content>${sourceDoc.pageContent}</document_content>\n<document_url>${sourceDoc.metadata.url}</document_url>\n</document>`
+            (sourceDoc, index) =>
+              `<source>\n<source_number>${index + 1}</source_number>\n<source_title>${sourceDoc.metadata.title ? sourceDoc.metadata.title : sourceDoc.metadata.name}</source_title>\n${sourceDoc.metadata.author ? `<source_author>${sourceDoc.metadata.author}</source_author>\n` : ''}<source_content>${sourceDoc.pageContent}</source_content>\n<source_url>${sourceDoc.metadata.url}</source_url>\n</source>`
           )
           .join('\n'),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
