@@ -44,6 +44,7 @@ Here are some important rules for you to follow:
 - Refer to yourself (the assistant) as "I" or "me".
 - You can only use information from the conversation history to answer the query.
 - If you do not know the answer to the query, you must admit that you do not know the answer.
+- Skip the preamble and get straight to the point.
 
 Here is the query that you need to respond to, within <query></query> XML tags.
 <query>
