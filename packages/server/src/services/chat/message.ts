@@ -40,7 +40,8 @@ export async function getChatMessages(
         uuid: row.ai_responses.id,
         content: row.ai_responses.text!,
         createdAt: row.ai_responses.createdAt,
-        modelId: row.ai_responses.modelId
+        modelId: row.ai_responses.modelId,
+        searchQueries: row.ai_responses.searchQueries
       });
     } else {
       messages.push({
