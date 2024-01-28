@@ -296,7 +296,7 @@
 		{/if}
 		{#if !isEndOfMessagesRefShowing}
 			<button
-				class="absolute p-2 bg-white rounded-full shadow-lg bottom-16 right-5 text-slate-700 hover:text-slate-900 hover:shadow-xl hover:bg-slate-100"
+				class="absolute p-2 bg-white rounded-full shadow-lg bottom-20 right-5 text-slate-700 hover:text-slate-900 hover:shadow-xl hover:bg-slate-100"
 				on:click|preventDefault={scrollEndIntoView}
 			>
 				<Icon icon="icon-park:down" class="text-2xl" />
