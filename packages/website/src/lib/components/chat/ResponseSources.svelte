@@ -108,9 +108,11 @@
 		{/if}
 	</button>
 	{#if sources && sources.length > 0}
-		<ul class={`flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
+		<ol
+			class={`list-outside list-decimal flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}
+		>
 			{#each sources as sourceDoc (sourceDoc.id)}
-				<li class={`text-xs text-gray-400 truncate`}>
+				<li class={`list-item text-xs text-gray-400 truncate`}>
 					<a
 						href={sourceDoc.metadata.url ?? '#'}
 						target="_blank"
@@ -124,7 +126,7 @@
 					</a>
 				</li>
 			{/each}
-		</ul>
+		</ol>
 	{:else if hasLoaded}
 		<ul class={`flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
 			<li class={`text-xs text-gray-400 truncate`}>None</li>

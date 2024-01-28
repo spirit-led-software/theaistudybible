@@ -27,10 +27,11 @@
 	let shareModal: HTMLDialogElement | undefined = undefined;
 
 	let id: string;
+	let uuid: string | undefined;
 	let role: Message['role'];
 	let content: string;
 
-	$: ({ id, role, content } = message);
+	$: ({ id, uuid, role, content } = message);
 
 	$: if (includePreviousMessage && prevMessage) {
 		const { role: prevRole, content: prevContent } = prevMessage;
@@ -73,7 +74,7 @@
 		</div>
 		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
 			<div class="flex justify-between w-full place-items-end">
-				<ResponseSources aiResponseId={id} {chatId} {isChatLoading} />
+				<ResponseSources aiResponseId={uuid ?? id} {chatId} {isChatLoading} />
 				<div class="flex join">
 					<CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
 					<dialog bind:this={shareModal} class="modal">
