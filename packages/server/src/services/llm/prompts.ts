@@ -10,7 +10,7 @@ Here are some important rules for you to follow:
 Here are some important things to consider:
 - The error may not accurately reflect the real error in the completion.
 - The error may not be the only error in the completion.
-- Errors most often occur when quotes in strings are not properly escaped, so you must carefully check all quotes in the completion.
+- Improperly escaped quotation marks cause errors, so you must check for and fix any improperly escaped quotation marks.
 - Comments within code blocks cause errors, so you must remove all comments from the completion.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
