@@ -9,7 +9,7 @@ import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/c
 import {
   createUserGeneratedImage,
   updateUserGeneratedImage
-} from '../../services/generated-image/generated-image';
+} from '../../../services/user/generated-image';
 import { getImagePromptChain } from './langchain';
 
 export async function generatedImage(
@@ -28,7 +28,7 @@ export async function generatedImage(
       userPrompt
     });
 
-    const prompt = `${userPrompt}, ${chainResult.join(', ')}`;
+    const prompt = chainResult.join(', ');
 
     const client = new BedrockRuntimeClient();
     const invokeCommand = new InvokeModelCommand({
@@ -104,5 +104,3 @@ export async function generatedImage(
     throw error;
   }
 }
-
-export * from './generated-image';

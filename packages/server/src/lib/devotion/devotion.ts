@@ -11,16 +11,16 @@ import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
+import { getLargeContextModel } from '../../services/llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
+import { db } from '../database';
 import {
   getBibleReadingChain,
   getDevotionGeneratorChain,
   getImageCaptionChain,
   getImagePromptChain
-} from '../../services/devotion/langchain';
-import { DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE } from '../../services/devotion/prompts';
-import { getLargeContextModel } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
-import { db } from '../database';
+} from './langchain';
+import { DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE } from './prompts';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [

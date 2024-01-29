@@ -18,9 +18,9 @@ import {
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
+import { getLargeContextModel, llmCache } from '../../services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
-import { getLargeContextModel, llmCache } from '../llm';
-import { getDocumentVectorStore } from '../vector-db';
+import { getDocumentVectorStore } from '../../services/vector-db';
 import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,

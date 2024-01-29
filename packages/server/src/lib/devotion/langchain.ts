@@ -8,10 +8,10 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
+import { getDevotions } from '../../services/devotion/devotion';
 import { getLargeContextModel } from '../../services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { getDocumentVectorStore } from '../../services/vector-db';
-import { getDevotions } from './devotion';
 import {
   DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
   DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
@@ -215,20 +215,7 @@ const imagePromptOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(
-    z
-      .array(
-        z
-          .string()
-          .describe(
-            'A short, concise, yet descriptive phrase that will help generate a biblically accurate image.'
-          )
-      )
-      .length(4)
-      .describe(
-        'An array of exactly four (4) phrases that will help generate a biblically accurate image.'
-      )
-  ),
+  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string())),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
@@ -239,7 +226,6 @@ export const getImagePromptChain = () => {
     template: DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
     inputVariables: ['bibleReading', 'summary', 'reflection', 'prayer'],
     partialVariables: {
-      numPhrases: (4).toString(),
       formatInstructions: imagePromptOutputParser.getFormatInstructions()
     }
   })

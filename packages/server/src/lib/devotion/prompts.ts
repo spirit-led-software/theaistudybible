@@ -78,16 +78,16 @@ Prayer:\n{prayer}\n\n
 
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
-- Your phrases must not conflict with one another.
-- Each of your phrases must be able to be contained within a single image.
 - Your phrases must be short and concise, but also descriptive.
+- Your phrases must not conflict with one another.
+- All of your phrases must be able to be captured within a single image.
 
 Here is an example of an output that you could generate, within <example></example> XML tags.
 <example>
 \`\`\`json ["a man with long hair, a beard, and a crown of thorns on his head is nailed to a cross","women weeping and mourning at the foot of the cross","soldiers standing guard at the foot of the cross","a sign on the cross in a foreign language"]\`\`\`
 </example>
 
-What are {numPhrases} phrases that could generate a beautiful and accurate image based on the devotion?
+What are 1 to 4 phrases that could generate a beautiful and accurate image based on the devotion?
 
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>

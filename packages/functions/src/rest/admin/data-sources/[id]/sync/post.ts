@@ -1,4 +1,4 @@
-import { syncDataSource } from '@revelationsai/server/lib/util/data-source';
+import { syncDataSource } from '@revelationsai/server/lib/data-source';
 import { getDataSource } from '@revelationsai/server/services/data-source';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { isAdmin } from '@revelationsai/server/services/user';

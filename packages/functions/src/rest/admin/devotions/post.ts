@@ -1,4 +1,4 @@
-import { generateDevotion } from '@revelationsai/server/lib/util/devotion';
+import { generateDevotion } from '@revelationsai/server/lib/devotion';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { isAdminSync } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';

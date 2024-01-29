@@ -1,15 +1,15 @@
+import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isObjectOwner } from '@revelationsai/server/services/user';
 import {
   deleteUserGeneratedImage,
   getUserGeneratedImage
-} from '@revelationsai/server/services/generated-image/generated-image';
-import { validApiHandlerSession } from '@revelationsai/server/services/session';
-import { isObjectOwner } from '@revelationsai/server/services/user';
+} from '@revelationsai/server/services/user/generated-image';
 import { ApiHandler } from 'sst/node/api';
 import {
-  ObjectNotFoundResponse,
-  UnauthorizedResponse,
   DeletedResponse,
-  InternalServerErrorResponse
+  InternalServerErrorResponse,
+  ObjectNotFoundResponse,
+  UnauthorizedResponse
 } from '../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {

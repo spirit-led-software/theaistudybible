@@ -4,9 +4,9 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLargeContextModel } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
-import { getDocumentVectorStore } from '../../services/vector-db';
+import { getLargeContextModel } from '../../../services/llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../../services/llm/prompts';
+import { getDocumentVectorStore } from '../../../services/vector-db';
 import {
   USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
   USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE
@@ -38,7 +38,7 @@ const phraseOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string()).length(4)),
+  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string())),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
@@ -102,7 +102,6 @@ export const getImagePromptChain = async () => {
       template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
       inputVariables: ['userPrompt', 'documents'],
       partialVariables: {
-        numPhrases: (4).toString(),
         formatInstructions: phraseOutputParser.getFormatInstructions()
       }
     })

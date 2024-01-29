@@ -6,8 +6,9 @@ import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vect
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
+import { aiRenameChat } from '@revelationsai/server/lib/chat';
+import { getRAIChatChain } from '@revelationsai/server/lib/chat/langchain';
 import db from '@revelationsai/server/lib/database/database';
-import { aiRenameChat } from '@revelationsai/server/lib/util/chat';
 import {
   createAiResponse,
   getAiResponse,
@@ -15,7 +16,6 @@ import {
   updateAiResponse
 } from '@revelationsai/server/services/ai-response/ai-response';
 import { createChat, getChat, updateChat } from '@revelationsai/server/services/chat';
-import { getRAIChatChain } from '@revelationsai/server/services/chat/langchain';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
 import { hasPlusSync, isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
 import { createUserMessage, getUserMessages } from '@revelationsai/server/services/user/message';

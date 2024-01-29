@@ -1,13 +1,13 @@
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { DataSource } from '@revelationsai/core/model/data-source';
 import { and, eq } from 'drizzle-orm';
-import { getDataSourceOrThrow, updateDataSource } from '../../services/data-source';
-import { getIndexOperations } from '../../services/data-source/index-op';
-import { indexRemoteFile } from '../../services/scraper/file';
-import { indexWebCrawl } from '../../services/scraper/web-crawl';
-import { indexWebPage } from '../../services/scraper/webpage';
-import { indexYoutubeVideo } from '../../services/scraper/youtube';
-import { getDocumentVectorStore } from '../../services/vector-db';
+import { getDataSourceOrThrow, updateDataSource } from '../services/data-source';
+import { getIndexOperations } from '../services/data-source/index-op';
+import { indexRemoteFile } from '../services/scraper/file';
+import { indexWebCrawl } from '../services/scraper/web-crawl';
+import { indexWebPage } from '../services/scraper/webpage';
+import { indexYoutubeVideo } from '../services/scraper/youtube';
+import { getDocumentVectorStore } from '../services/vector-db';
 
 export async function syncDataSource(id: string, manual: boolean = false): Promise<DataSource> {
   let dataSource = await getDataSourceOrThrow(id);

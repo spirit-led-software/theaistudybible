@@ -3,8 +3,8 @@ import type { Chat } from '@revelationsai/core/model/chat';
 import type { Message } from 'ai';
 import { PromptTemplate } from 'langchain/prompts';
 import { updateChat } from '../../services/chat';
-import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from '../../services/chat/prompts';
 import { getLargeContextModel } from '../../services/llm';
+import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from './prompts';
 
 export async function aiRenameChat(chat: Chat, history: Message[]) {
   if (chat.customName) {

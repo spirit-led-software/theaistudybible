@@ -1,4 +1,4 @@
-import { generatedImage } from '@revelationsai/server/services/generated-image';
+import { generatedImage } from '@revelationsai/server/lib/user/generated-image';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import {
   decrementUserGeneratedImageCount,
@@ -7,10 +7,10 @@ import {
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
-  UnauthorizedResponse,
-  TooManyRequestsResponse,
   CreatedResponse,
-  InternalServerErrorResponse
+  InternalServerErrorResponse,
+  TooManyRequestsResponse,
+  UnauthorizedResponse
 } from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {

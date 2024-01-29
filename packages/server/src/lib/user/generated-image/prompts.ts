@@ -25,7 +25,7 @@ Think about your output first before you respond. Here are the formatting instru
 
 Place your output within <output></output> XML tags.`;
 
-export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating a stable diffusion model image.
+export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating a stable diffusion image.
 
 Here are some documents you can use to help you generate your phrases, within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags. **IMPORTANT:** The stable diffusion model knows nothing at all and does not have access to the documents provided to you or the Bible, so you must include as much detail as possible from the documents in your output to ensure a biblically accurate image is generated.
 <documents>
@@ -54,7 +54,7 @@ Here is the user's prompt, within <user_prompt></user_prompt> XML tags.
 {userPrompt}
 </user_prompt>
 
-What are {numPhrases} phrases that could help to aid the user's prompt when generating a stable diffusion model image?
+What are 1 to 4 phrases that could help to aid the user's prompt when generating a stable diffusion image?
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>

@@ -1,13 +1,13 @@
 import { buildOrderBy } from '@revelationsai/core/database/helpers';
 import { userGeneratedImages } from '@revelationsai/core/database/schema';
-import { getUserGeneratedImages } from '@revelationsai/server/services/generated-image/generated-image';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { getUserGeneratedImages } from '@revelationsai/server/services/user/generated-image';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
 import {
-  UnauthorizedResponse,
+  InternalServerErrorResponse,
   OkResponse,
-  InternalServerErrorResponse
+  UnauthorizedResponse
 } from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
