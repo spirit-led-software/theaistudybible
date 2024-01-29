@@ -69,7 +69,7 @@ Here is the conversation history, within <chat_history></chat_history> XML tags.
 {history}
 </chat_history>
 
-Here are the sources that you are to use to answer the query, within <sources></sources> XML tags. Each individual source is encapsulated within <source></source> XML tags. The sources are numbered within <source_number></source_number> XML tags. Each source's content is within <source_content></source_content> XML tags. Each source's URL is within <source_url></source_url> XML tags. Each source's title is within <source_title></source_title> XML tags. Each source's author is within <source_author></source_author> XML tags. Read these sources carefully, you will need to use them to answer the query.
+Here are the sources that you are to use to answer the query, within <sources></sources> XML tags. Each individual source is encapsulated within <source></source> XML tags. Each source's content is within <source_content></source_content> XML tags. Each source's URL is within <source_url></source_url> XML tags. Each source's title is within <source_title></source_title> XML tags. Each source's author is within <source_author></source_author> XML tags. Read these sources carefully, you will need to use them to answer the query.
 <sources>
 {sources}
 </sources>

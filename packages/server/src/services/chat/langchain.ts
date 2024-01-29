@@ -292,8 +292,8 @@ export async function getDocumentQaChain(options: {
       sources: (previousStepResult: { sourceDocuments: NeonVectorStoreDocument[] }) =>
         previousStepResult.sourceDocuments
           ?.map(
-            (sourceDoc, index) =>
-              `<source>\n<source_number>${index + 1}</source_number>\n<source_title>${sourceDoc.metadata.title ? sourceDoc.metadata.title : sourceDoc.metadata.name}</source_title>\n${sourceDoc.metadata.author ? `<source_author>${sourceDoc.metadata.author}</source_author>\n` : ''}<source_content>${sourceDoc.pageContent}</source_content>\n<source_url>${sourceDoc.metadata.url}</source_url>\n</source>`
+            (sourceDoc) =>
+              `<source>\n<source_title>${sourceDoc.metadata.title ? sourceDoc.metadata.title : sourceDoc.metadata.name}</source_title>\n${sourceDoc.metadata.author ? `<source_author>${sourceDoc.metadata.author}</source_author>\n` : ''}<source_content>${sourceDoc.pageContent}</source_content>\n<source_url>${sourceDoc.metadata.url}</source_url>\n</source>`
           )
           .join('\n'),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
