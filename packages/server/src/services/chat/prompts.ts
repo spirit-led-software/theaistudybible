@@ -92,7 +92,7 @@ Here is the query that you need to respond to, within <query></query> XML tags.
 {query}
 </query>
 
-How do you respond to the query based on the sources and conversation history?
+How do you respond to the query?
 
 Think about your answer first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
