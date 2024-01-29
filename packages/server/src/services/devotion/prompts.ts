@@ -11,19 +11,19 @@ Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your output must be a valid Bible reading in the ESV translation.
 - If you cannot find a Bible reading, you must respond with "No Bible reading found."
-- **IMPORTANT:** You cannot pick a Bible reading that matches one of the off limits Bible readings.
+- **IMPORTANT:** You must not return a Bible reading that is included in the off-limits Bible readings.
 
-Here are some off limits Bible readings that you **CANNOT** use, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <off_limits_bible_reading></off_limits_bible_reading> XML tags.
+Here are some off-limits Bible readings that you **CANNOT** use as your output, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <off_limits_bible_reading></off_limits_bible_reading> XML tags.
 <off_limits_bible_readings>
 {previousBibleReadings}
 </off_limits_bible_readings>
 
-Here is the topic that you are to generate a Bible reading for, within <topic></topic> XML tags.
+Here is the topic that you are to fetch a Bible reading for, within <topic></topic> XML tags.
 <topic>
 {topic}
 </topic>
 
-What Bible passage should be read based on the topic?
+What is the Bible reading that you would fetch for this topic? Remember, you must not return a Bible reading that is included in the off-limits Bible readings.
 
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
