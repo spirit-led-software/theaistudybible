@@ -101,7 +101,7 @@ Be concise and to the point. You must format your output using valid markdown sy
 
 Put your answer to the query within <answer></answer> XML tags.`;
 
-export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate {numSearchQueries} search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
+export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate 1 to 4 search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
 
 Here is the conversation history that you can use to help generate search queries. It is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the conversation history carefully, you will need to use it to generate your search queries. The conversation history **CAN** be empty.
 <conversation_history>
@@ -111,8 +111,9 @@ Here is the conversation history that you can use to help generate search querie
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Search queries must be short and concise.
-- Search queries must accurately reflect the user's intent.
 - Search queries should be all lowercase, with no punctuation.
+- Search queries must accurately reflect the user's intent.
+- Search queries must vary widely enough to cover all possible relevant documents.
 
 Here is the query that you need to generate search queries, within <query></query> XML tags.
 <query>

@@ -215,12 +215,11 @@ export async function getDocumentQaChain(options: {
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: 12,
+      k: 10,
       verbose: envConfig.isLocal
     })
   );
 
-  const numSearchQueries = 3;
   const searchQueryOutputParser = OutputFixingParser.fromLLM(
     getLargeContextModel({
       promptSuffix: '<output>',
@@ -230,10 +229,7 @@ export async function getDocumentQaChain(options: {
       topP: 0.1
     }),
     JsonMarkdownStructuredOutputParser.fromZodSchema(
-      z
-        .array(z.string().describe('A search query.'))
-        .length(numSearchQueries)
-        .describe('The search queries to be used.')
+      z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
     ),
     {
       prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
@@ -247,7 +243,6 @@ export async function getDocumentQaChain(options: {
     {
       searchQueries: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          numSearchQueries: numSearchQueries.toString(),
           history: options.history,
           formatInstructions: searchQueryOutputParser.getFormatInstructions()
         }
@@ -270,11 +265,14 @@ export async function getDocumentQaChain(options: {
             return (await qaRetriever.getRelevantDocuments(query)) as NeonVectorStoreDocument[];
           })
         );
-        // remove duplicates from flattened list using document id
-        // then merge documents with same url
         return sourceDocuments
           .flat()
-          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id));
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .map((doc) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { embedding, ...rest } = doc;
+            return rest;
+          });
       },
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       query: (previousStepResult) => previousStepResult.query
