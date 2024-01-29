@@ -33,3 +33,66 @@ Adjust the completion so that it fixes the error and follows the formatting inst
 Think carefully about your output first before you respond.
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
+
+export const MARKDOWN_FORMATTING_INSTRUCTIONS = `Your output must be formatted using Markdown syntax. You are only allowed to use the following markdown syntax in your output:
+
+- Headers should be formatted using the following syntax:
+# Header 1
+## Header 2
+### Header 3
+#### Header 4
+##### Header 5
+###### Header 6
+
+- Unordered lists should be formatted using the following syntax:
+- List item 1
+- List item 2
+- List item 3
+
+- Numbered lists should be formatted using the following syntax:
+1. List item 1
+2. List item 2
+3. List item 3
+
+- Links should be formatted using the [text](url) syntax. For example:
+[Google](https://www.google.com)
+
+- Images should be formatted using the ![alt text](url) syntax. For example:
+![Example image](https://www.example.com/image.jpg)
+
+- Bold text should be formatted using the **text** syntax. For example:
+**Bold text**
+
+- Italic text should be formatted using the *text* syntax. For example:
+*Italic text*
+
+- Inline code should be formatted using the \`text\` syntax. For example:
+\`Inline code\`
+
+- Code blocks should be formatted using the \`\`\` syntax. For example:
+\`\`\`
+Code block
+\`\`\`
+
+- Block quotes should be formatted using the > symbol. For example:
+> Block quote
+
+- Horizontal rules should be formatted using three or more hyphens, asterisks, or underscores. For example:
+---
+***
+___
+
+- Tables should be formatted using the following syntax:
+| Header 1 | Header 2 |
+| -------- | -------- |
+| Cell 1   | Cell 2   |
+| Cell 3   | Cell 4   |
+
+- Strikethrough text should be formatted using the ~~text~~ syntax. For example:
+~~Strikethrough text~~
+
+- Superscript text should be formatted using the ^ syntax. For example:
+Superscript^text
+
+- Subscript text should be formatted using the ~ syntax. For example:
+Subscript~text`;
