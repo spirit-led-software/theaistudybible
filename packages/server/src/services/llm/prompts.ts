@@ -10,8 +10,8 @@ Here are some important rules for you to follow:
 Here are some important things to consider:
 - The error may not accurately reflect the real error in the completion.
 - The error may not be the only error in the completion.
-- Errors most often occur when quotes in strings are not properly escaped, so be sure to carefully check all quotes in the completion.
-- If the completion is formatted in JSON and there are code comments, you should remove them, as that results in errors.
+- Errors most often occur when quotes in strings are not properly escaped, so you must carefully check all quotes in the completion.
+- Comments within code blocks cause errors, so you must remove all comments from the completion.
 
 Here is the completion that you are to fix, within <completion></completion> XML tags.
 <completion>

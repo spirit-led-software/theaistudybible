@@ -1,12 +1,12 @@
+import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
-import replicateConfig from '@revelationsai/core/configs/replicate';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { Devotion } from '@revelationsai/core/model/devotion';
+import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
-import Replicate from 'replicate';
 import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
 import { createDevotion, updateDevotion } from '../../services/devotion';
@@ -96,83 +96,74 @@ export async function generateDevotionImages(devo: Devotion) {
   });
   console.log('Image caption:', imageCaption);
 
-  const imagePrompt = `${imagePromptPhrases.join(
-    ', '
-  )}, christian, photo realistic, beautiful, stunning, 8k uhd, high quality, high definition, color, 3d, detailed hands, detailed fingers, detailed eyes, detailed feet`;
-  const negativeImagePrompt = `deformed iris, deformed pupils, semi-realistic, cgi, render, sketch, cartoon, drawing, anime, text, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, random floating objects, black and white`;
+  const imagePrompt = imagePromptPhrases.join(', ');
 
-  const replicate = new Replicate({
-    auth: replicateConfig.apiKey
-  });
-  const output = await replicate.run(replicateConfig.imageModel, {
-    input: {
-      prompt: imagePrompt,
-      negative_prompt: negativeImagePrompt,
-      width: 1024,
-      height: 1024,
-      num_outputs: 1,
-      scheduler: 'KarrasDPM',
-      refine: 'expert_ensemble_refiner',
-      num_inference_steps: 50,
-      guidance_scale: 14,
-      prompt_strength: 1.0,
-      high_noise_frac: 0.8
-    }
-  });
-  console.log('Output from replicate:', output);
-  if (!Array.isArray(output)) {
-    throw new Error('Replicate output not formatted as expected');
-  }
-
-  const urlArray = output as string[];
-
-  for (let i = 0; i < urlArray.length; i++) {
-    const url = urlArray[i];
-    try {
-      const image = await axios.get(url, {
-        responseType: 'arraybuffer'
-      });
-
-      const s3Client = new S3Client({});
-      const s3Url = await getSignedUrl(
-        s3Client,
-        new PutObjectCommand({
-          ACL: 'public-read',
-          ContentType: 'image/png',
-          Bucket: Bucket.devotionImageBucket.bucketName,
-          Key: `${devo.id}-${i}.png`
-        })
-      );
-
-      if (!s3Url) {
-        throw new Error('Failed to get presigned url for s3 upload');
-      }
-
-      const s3UploadResponse = await axios.put(s3Url, image.data, {
-        headers: {
-          'Content-Type': 'image/png',
-          'Content-Length': image.data.byteLength
+  const client = new BedrockRuntimeClient();
+  const invokeCommand = new InvokeModelCommand({
+    modelId: 'stability.stable-diffusion-xl-v1',
+    body: JSON.stringify({
+      text_prompts: [
+        {
+          text: imagePrompt,
+          weight: 1.0
         }
-      });
-
-      if (s3UploadResponse.status !== 200) {
-        throw new Error(
-          `Failed to upload image to s3: ${s3UploadResponse.status} ${s3UploadResponse.statusText}`
-        );
-      }
-
-      const imageUrl = s3Url.split('?')[0];
-      await createDevotionImage({
-        devotionId: devo.id,
-        url: imageUrl,
-        caption: imageCaption,
-        prompt: imagePrompt,
-        negativePrompt: negativeImagePrompt
-      });
-    } catch (e) {
-      console.error('Error saving devotion image', e);
-    }
+      ],
+      height: 1024,
+      width: 1024,
+      cfg_scale: 14.0,
+      style_preset: 'cinematic',
+      steps: 30
+    } satisfies StabilityModelInput),
+    contentType: 'application/json',
+    accept: 'application/json'
+  });
+  const result = await client.send(invokeCommand);
+  if (result.$metadata.httpStatusCode !== 200) {
+    throw new Error(`Failed to generate image: ${result.$metadata.httpStatusCode}`);
   }
+
+  // convert result.body into string
+  const body = new TextDecoder('utf-8').decode(result.body as Uint8Array);
+  const output = JSON.parse(body) as StabilityModelOutput;
+  if (output.result !== 'success') {
+    throw new Error(`Failed to generate image: ${output.result}`);
+  }
+
+  const s3Client = new S3Client({});
+  const s3Url = await getSignedUrl(
+    s3Client,
+    new PutObjectCommand({
+      ACL: 'public-read',
+      ContentType: 'image/png',
+      Bucket: Bucket.devotionImageBucket.bucketName,
+      Key: `${devo.id}.png`
+    })
+  );
+  if (!s3Url) {
+    throw new Error('Failed to get presigned url for s3 upload');
+  }
+
+  const image = Buffer.from(output.artifacts[0].base64, 'base64');
+  const s3UploadResponse = await axios.put(s3Url, image, {
+    headers: {
+      'Content-Type': 'image/png',
+      'Content-Length': image.length
+    }
+  });
+
+  if (s3UploadResponse.status !== 200) {
+    throw new Error(
+      `Failed to upload image to s3: ${s3UploadResponse.status} ${s3UploadResponse.statusText}`
+    );
+  }
+
+  const imageUrl = s3Url.split('?')[0];
+  await createDevotionImage({
+    devotionId: devo.id,
+    url: imageUrl,
+    caption: imageCaption,
+    prompt: imagePrompt
+  });
 }
 
 export async function generateDevotion(topic?: string, bibleReading?: string) {

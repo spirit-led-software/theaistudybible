@@ -34,7 +34,7 @@ importers:
         version: 0.5.1(drizzle-orm@0.29.3)(zod@3.22.4)
       langchain:
         specifier: ^0.1.9
-        version: 0.1.9(@aws-sdk/client-bedrock-runtime@3.501.0)(@aws-sdk/client-s3@3.501.0)(pg@8.11.3)(replicate@0.25.2)(ws@8.16.0)(youtube-transcript@1.0.6)(youtubei.js@9.0.1)
+        version: 0.1.9(@aws-sdk/client-bedrock-runtime@3.501.0)(@aws-sdk/client-s3@3.501.0)(pg@8.11.3)(ws@8.16.0)(youtube-transcript@1.0.6)(youtubei.js@9.0.1)
       neon-sdk:
         specifier: ^1.16.0
         version: 1.16.0
@@ -44,9 +44,6 @@ importers:
       pgvector:
         specifier: ^0.1.7
         version: 0.1.7
-      replicate:
-        specifier: ^0.25.2
-        version: 0.25.2
       youtube-transcript:
         specifier: ^1.0.6
         version: 1.0.6
@@ -3243,7 +3240,7 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  /@langchain/community@0.0.21(@aws-sdk/client-bedrock-runtime@3.501.0)(pg@8.11.3)(replicate@0.25.2)(ws@8.16.0):
+  /@langchain/community@0.0.21(@aws-sdk/client-bedrock-runtime@3.501.0)(pg@8.11.3)(ws@8.16.0):
     resolution: {integrity: sha512-2b3azTwY3i4hKeNpxXhZ34h9CQHvPu1kNTxAT8mSuOwkA0ZZ+DQ1niOT0Ai1K0ZrSyice5aivgvy6v7Jf0yFZw==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -3498,7 +3495,6 @@ packages:
       flat: 5.0.2
       langsmith: 0.0.63
       pg: 8.11.3
-      replicate: 0.25.2
       uuid: 9.0.1
       ws: 8.16.0
       zod: 3.22.4
@@ -8326,7 +8322,7 @@ packages:
     resolution: {integrity: sha512-AaMXqUM+GcJ2OpNF2LI78jzbZ84rSckH+uKfstMQFqXDn+ZBLIkJgkUk+L0fuCGzw+LP5VToUxJKDfAbtLXSGw==}
     dev: false
 
-  /langchain@0.1.9(@aws-sdk/client-bedrock-runtime@3.501.0)(@aws-sdk/client-s3@3.501.0)(pg@8.11.3)(replicate@0.25.2)(ws@8.16.0)(youtube-transcript@1.0.6)(youtubei.js@9.0.1):
+  /langchain@0.1.9(@aws-sdk/client-bedrock-runtime@3.501.0)(@aws-sdk/client-s3@3.501.0)(pg@8.11.3)(ws@8.16.0)(youtube-transcript@1.0.6)(youtubei.js@9.0.1):
     resolution: {integrity: sha512-4Gm2j8gsT43d4sgpjM7JMSoB83dwxbiLYdcPx23Xi6RfLQ60QB86bogPYqn84ZW9HjrW8IVMXvVyC6DAHNCyIg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -8490,7 +8486,7 @@ packages:
     dependencies:
       '@anthropic-ai/sdk': 0.9.1
       '@aws-sdk/client-s3': 3.501.0
-      '@langchain/community': 0.0.21(@aws-sdk/client-bedrock-runtime@3.501.0)(pg@8.11.3)(replicate@0.25.2)(ws@8.16.0)
+      '@langchain/community': 0.0.21(@aws-sdk/client-bedrock-runtime@3.501.0)(pg@8.11.3)(ws@8.16.0)
       '@langchain/core': 0.1.18
       '@langchain/openai': 0.0.13
       binary-extensions: 2.2.0
@@ -10238,13 +10234,6 @@ packages:
   /remeda@1.38.0:
     resolution: {integrity: sha512-5as2nVwzgeLLXMk1v9SLi8CeT+LUzM0202AFo13WRCupQjLlfiyN1fhlY3LO0jSzP6AtA2M2PbjTY4sQKrrBfg==}
     dev: true
-
-  /replicate@0.25.2:
-    resolution: {integrity: sha512-c5otBJ5E66XLS0X196pBCsyy85b03ZBLeV/lbKfU8cqfkt3Qd6NGEiPwTtxtsQ4AznggMJNn2Qq68t/bV85M2w==}
-    engines: {git: '>=2.11.0', node: '>=18.0.0', npm: '>=7.19.0', yarn: '>=1.7.0'}
-    optionalDependencies:
-      readable-stream: 4.5.2
-    dev: false
 
   /require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}

@@ -21,13 +21,9 @@ const validationOutputParser = OutputFixingParser.fromLLM(
     topP: 0.1
   }),
   JsonMarkdownStructuredOutputParser.fromZodSchema(
-    z
-      .object({
-        inappropriate: z
-          .boolean()
-          .describe('A boolean value that indicates whether the prompt is inappropriate.')
-      })
-      .describe('The output of the validation prompt.')
+    z.object({
+      inappropriate: z.boolean()
+    })
   ),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
@@ -42,20 +38,7 @@ const phraseOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(
-    z
-      .array(
-        z
-          .string()
-          .describe(
-            'A short, concise, yet descriptive phrase that will help generate a biblically accurate image.'
-          )
-      )
-      .length(4)
-      .describe(
-        'An array of exactly four (4) phrases that will help generate a biblically accurate image.'
-      )
-  ),
+  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string()).length(4)),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }

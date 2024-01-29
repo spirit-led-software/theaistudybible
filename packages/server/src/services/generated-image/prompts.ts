@@ -35,9 +35,9 @@ Here are some documents you can use to help you generate your phrases, within <d
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Your phrases must support the user's prompt.
-- Your phrases must not conflict with one another.
-- Each of your phrases must be able to be contained within a single image.
 - Your phrases must be short and concise, but also descriptive.
+- Your phrases must not conflict with one another.
+- All of the phrases must be able to be used together to generate a stable diffusion model image.
 
 Here is an example of an output that you could generate, within <example></example> XML tags. Within the example is an example user prompt within <example_user_prompt></example_user_prompt> XML tags. Also in the example is an example output within <example_output></example_output> XML tags.
 <example>

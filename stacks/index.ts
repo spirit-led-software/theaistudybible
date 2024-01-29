@@ -18,14 +18,6 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
 
-  // Vector DB Table
-  VECTOR_DB_DOCS_TABLE: process.env.VECTOR_DB_DOCS_TABLE!,
-  VECTOR_DB_DOCS_DIMENSIONS: process.env.VECTOR_DB_DOCS_DIMENSIONS!,
-
-  // Replicate
-  REPLICATE_API_KEY: process.env.REPLICATE_API_KEY!,
-  REPLICATE_IMAGE_MODEL: process.env.REPLICATE_IMAGE_MODEL!,
-
   // Unstructured
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
 

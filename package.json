@@ -44,7 +44,6 @@
     "neon-sdk": "^1.16.0",
     "pg": "^8.11.3",
     "pgvector": "^0.1.7",
-    "replicate": "^0.25.2",
     "youtube-transcript": "^1.0.6",
     "youtubei.js": "^9.0.1",
     "zod": "^3.22.4"
