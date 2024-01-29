@@ -103,7 +103,7 @@ ${MARKDOWN_FORMATTING_INSTRUCTIONS}
 
 Put your answer to the query within <answer></answer> XML tags.`;
 
-export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate 1 to 4 search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
+export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
 
 Here is the conversation history that you can use to help generate search queries. It is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the conversation history carefully, you will need to use it to generate your search queries. The conversation history **CAN** be empty.
 <conversation_history>
@@ -122,7 +122,7 @@ Here is the query that you need to generate search queries, within <query></quer
 {query}
 </query>
 
-What are the search queries that you would use to find relevant documents in a vector database?
+What are 1 to 4 search queries that you would use to find relevant documents in a vector database?
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
