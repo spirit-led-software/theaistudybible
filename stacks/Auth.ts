@@ -39,33 +39,9 @@ export function Auth({ stack }: StackContext) {
   });
 
   api.addRoutes(stack, {
-    // Legacy endpoints
-    // TODO: remove these
-    'GET /session': {
-      function: {
-        handler: 'packages/functions/src/auth/session.handler',
-        memorySize: '1536 MB'
-      }
-    },
-    'GET /refresh-session': {
-      function: {
-        handler: 'packages/functions/src/auth/refresh-session.handler',
-        bind: [auth],
-        memorySize: '1536 MB'
-      }
-    },
-
-    // New endpoints that will replace the above
     'GET /auth/user-info': {
       function: {
         handler: 'packages/functions/src/auth/session.handler',
-        memorySize: '1536 MB'
-      }
-    },
-    'GET /auth/refresh-token': {
-      function: {
-        handler: 'packages/functions/src/auth/refresh-session.handler',
-        bind: [auth],
         memorySize: '1536 MB'
       }
     }

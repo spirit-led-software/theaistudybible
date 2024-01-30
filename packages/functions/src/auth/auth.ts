@@ -3,6 +3,7 @@ import { config as stripeConfig } from '@revelationsai/core/configs/stripe';
 import { config as websiteConfig } from '@revelationsai/core/configs/website';
 import type { User } from '@revelationsai/core/model/user';
 import { addRoleToUser, doesUserHaveRole } from '@revelationsai/server/services/role';
+import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
 import { createUser, getUserByEmail, updateUser } from '@revelationsai/server/services/user';
 import {
   createUserPassword,
@@ -22,10 +23,12 @@ import {
   BadRequestResponse,
   InternalServerErrorResponse,
   OkResponse,
-  RedirectResponse
+  RedirectResponse,
+  UnauthorizedResponse
 } from '../lib/api-responses';
 import { AppleAdapter } from './providers/apple';
 import { CredentialsAdapter } from './providers/credentials';
+import { SessionAdapter } from './providers/session';
 
 const SessionResponse = (user: User) => {
   const session = Session.create({
@@ -315,6 +318,26 @@ export const handler = AuthHandler({
     apple: createAppleAdapter(),
     'apple-mobile': createAppleAdapter('revelationsai://revelationsai/auth/callback'),
     credentials: createCredentialsAdapter(),
-    'credentials-mobile': createCredentialsAdapter('revelationsai://revelationsai/auth', true)
+    'credentials-mobile': createCredentialsAdapter('revelationsai://revelationsai/auth', true),
+    session: SessionAdapter({
+      onError: async (error) => {
+        console.error(JSON.stringify(error));
+        if (error instanceof Error) {
+          return InternalServerErrorResponse(
+            error.stack || error.message || 'Something went wrong'
+          );
+        } else {
+          return InternalServerErrorResponse(`Something went wrong: ${JSON.stringify(error)}`);
+        }
+      },
+      onRefresh: async (token) => {
+        const { isValid, userWithRoles } = await validNonApiHandlerSession(token);
+        if (!isValid) {
+          return UnauthorizedResponse('Invalid session');
+        }
+
+        return SessionResponse(userWithRoles);
+      }
+    })
   }
 });
