@@ -28,7 +28,7 @@ import {
 } from '../lib/api-responses';
 import { AppleAdapter } from './providers/apple';
 import { CredentialsAdapter } from './providers/credentials';
-import { SessionAdapter } from './providers/session';
+import { SessionAdapter } from './providers/user-info';
 
 const SessionResponse = (user: User) => {
   const session = Session.create({

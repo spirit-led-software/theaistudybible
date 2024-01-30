@@ -41,7 +41,7 @@ export function Auth({ stack }: StackContext) {
   api.addRoutes(stack, {
     'GET /auth/user-info': {
       function: {
-        handler: 'packages/functions/src/auth/session.handler',
+        handler: 'packages/functions/src/auth/user-info.handler',
         memorySize: '1536 MB'
       }
     }

@@ -13,7 +13,7 @@ export const SessionAdapter = createAdapter((config: SessionConfig) => {
     const [step] = usePath().slice(-1);
     if (step === 'refresh') {
       try {
-        const token = useHeader('Authorization')?.split('Bearer ')[1];
+        const token = useHeader('authorization')?.split(' ')[1];
         if (!token) {
           return BadRequestResponse('Authorization token is required');
         }
