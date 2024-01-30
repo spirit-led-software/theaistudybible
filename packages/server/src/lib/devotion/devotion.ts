@@ -111,7 +111,7 @@ export async function generateDevotionImages(devo: Devotion) {
       width: 1024,
       cfg_scale: 30,
       style_preset: 'cinematic',
-      steps: 30
+      steps: 50
     } satisfies StabilityModelInput),
     contentType: 'application/json',
     accept: 'application/json'
