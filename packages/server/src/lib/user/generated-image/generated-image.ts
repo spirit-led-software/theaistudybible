@@ -42,7 +42,7 @@ export async function generatedImage(
         ],
         height: 1024,
         width: 1024,
-        cfg_scale: 14.0,
+        cfg_scale: 30,
         style_preset: 'cinematic',
         steps: 30
       } satisfies StabilityModelInput),
