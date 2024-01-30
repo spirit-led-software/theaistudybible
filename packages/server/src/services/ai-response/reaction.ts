@@ -128,7 +128,7 @@ export async function getAiResponseReactionCounts(aiResponseId: string) {
           aiResponseId,
           reactionType
         );
-        devoReactionCounts[reactionType] = reactionCount;
+        devoReactionCounts[reactionType] = reactionCount!;
       }
       return devoReactionCounts;
     }

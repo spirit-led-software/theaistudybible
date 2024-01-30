@@ -80,10 +80,6 @@ export function RestAPI({ stack }: StackContext) {
     'PUT /users/{id}': 'packages/functions/src/rest/users/[id]/put.handler',
     'DELETE /users/{id}': 'packages/functions/src/rest/users/[id]/delete.handler',
 
-    // User query counts
-    'GET /users/{id}/query-counts':
-      'packages/functions/src/rest/users/[id]/query-counts/get.handler',
-
     // Change user password endpoint
     'POST /users/change-password': {
       function: {

@@ -2,9 +2,9 @@ import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { createVerifier } from 'fast-jwt';
 import { getPublicKey, useSession, type SessionValue } from 'sst/node/auth';
 import { getUser, getUserMaxGeneratedImages, getUserMaxQueries } from '../services/user';
-import { getUserGeneratedImageCountByUserIdAndDate } from '../services/user/image-count';
-import { getUserQueryCountByUserIdAndDate } from '../services/user/query-count';
 import { getRolesByUserId } from './role';
+import { getUserGeneratedImageCount } from './user/image-count';
+import { getUserQueryCount } from './user/query-count';
 
 type ReturnType = Promise<
   | {
@@ -35,8 +35,8 @@ async function getUserAtts(sessionToken: SessionValue): ReturnType {
   const [user, roles, todaysQueryCount, todaysGeneratedImageCount] = await Promise.all([
     getUser(sessionToken.properties.id),
     getRolesByUserId(sessionToken.properties.id),
-    getUserQueryCountByUserIdAndDate(sessionToken.properties.id, new Date()),
-    getUserGeneratedImageCountByUserIdAndDate(sessionToken.properties.id, new Date())
+    getUserQueryCount(sessionToken.properties.id),
+    getUserGeneratedImageCount(sessionToken.properties.id)
   ]).catch((err) => {
     console.error('Error validating token:', err);
     return [null, null, null, null];
@@ -52,17 +52,17 @@ async function getUserAtts(sessionToken: SessionValue): ReturnType {
 
   let count = 0;
   if (todaysQueryCount) {
-    count = todaysQueryCount.count;
+    count = todaysQueryCount;
   }
   const maxQueries = getUserMaxQueries(userWithRoles);
 
   let imageCount = 0;
   if (todaysGeneratedImageCount) {
-    imageCount = todaysGeneratedImageCount.count;
+    imageCount = todaysGeneratedImageCount;
   }
   const maxImages = getUserMaxGeneratedImages(userWithRoles);
 
-  console.debug(
+  console.log(
     `Returning userWithRoles: ${JSON.stringify(
       userWithRoles
     )}, maxQueries: ${maxQueries}, remainingQueries: ${

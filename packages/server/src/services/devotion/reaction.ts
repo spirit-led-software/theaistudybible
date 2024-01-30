@@ -129,7 +129,7 @@ export async function getDevotionReactionCounts(devotionId: string) {
           devotionId,
           reactionType
         );
-        devoReactionCounts[reactionType] = reactionCount;
+        devoReactionCounts[reactionType] = reactionCount!;
       }
       return devoReactionCounts;
     },

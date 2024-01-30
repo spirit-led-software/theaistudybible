@@ -101,7 +101,7 @@ export const handler = ApiHandler(async (event) => {
 
       // Remove all existing RC roles
       await getRolesByUserId(user.id).then(async (roles) => {
-        for (const role of roles) {
+        for (const role of roles!) {
           if (role.name.startsWith('rc:')) {
             await removeRoleFromUser(role.name, user.id);
           }
@@ -129,7 +129,7 @@ export const handler = ApiHandler(async (event) => {
 
       // Remove all RC roles
       await getRolesByUserId(user.id).then(async (roles) => {
-        for (const role of roles) {
+        for (const role of roles!) {
           if (role.name.startsWith('rc:')) {
             await removeRoleFromUser(role.name, user.id);
           }

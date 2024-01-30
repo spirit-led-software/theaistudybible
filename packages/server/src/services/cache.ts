@@ -42,6 +42,19 @@ export type CacheKey = {
   type?: 'string' | 'list' | 'set';
 };
 
+export async function cacheGet<T>(options: {
+  collection: string;
+  key: CacheKey;
+  fn: () => T | Promise<T>;
+  expireSeconds?: number;
+}): Promise<T>;
+export async function cacheGet<T>(options: {
+  collection: string;
+  key: CacheKey;
+  fn?: never;
+  expireSeconds?: number;
+}): Promise<T | null>;
+
 /**
  * Retrieves a value from the cache or the database if not found in the cache.
  * @param options - The options for retrieving the value from the cache.
@@ -50,13 +63,13 @@ export type CacheKey = {
 export async function cacheGet<T>(options: {
   collection: string;
   key: CacheKey;
-  fn: () => Promise<T>;
+  fn?: () => T | Promise<T>;
   expireSeconds?: number;
-}) {
+}): Promise<T | null> {
   const { collection, key, fn, expireSeconds = DEFAULT_EXPIRE_SECONDS } = options;
 
   if (!cache) {
-    return fn();
+    return fn ? await fn() : null;
   }
 
   const cacheKey = `${collection}:${key.name}:${key.value}`;
@@ -79,7 +92,7 @@ export async function cacheGet<T>(options: {
     }
   }
 
-  const newValue = await fn();
+  const newValue = fn ? await fn() : null;
 
   if (newValue) {
     try {
@@ -114,7 +127,7 @@ export async function cacheGet<T>(options: {
 export async function cacheUpsert<T>(options: {
   collection: string;
   keys: CacheKeysInput<T>;
-  fn: () => Promise<T>;
+  fn: () => T | Promise<T>;
   expireSeconds?: number;
   invalidateIterables?: boolean;
 }) {
@@ -181,15 +194,15 @@ export async function cacheUpsert<T>(options: {
 export async function cacheDelete<T>(options: {
   collection: string;
   keys: CacheKeysInput<T>;
-  fn: () => Promise<T>;
+  fn?: () => T | Promise<T>;
 }) {
   const { collection, keys, fn } = options;
 
   if (!cache) {
-    return fn();
+    return fn ? await fn() : null;
   }
 
-  const obj = await fn();
+  const obj = fn ? await fn() : null;
 
   try {
     const cacheKeysToDelete = filterKeys({ obj, keys }).map((key) => {
@@ -226,6 +239,26 @@ export async function cacheInvalidate(options: { collection: string; key: CacheK
   }
 }
 
+export async function cacheGetTtl(options: { collection: string; key: CacheKey }) {
+  const { collection, key } = options;
+
+  if (!cache) {
+    return 0;
+  }
+
+  try {
+    const cacheKey = `${collection}:${key.name}:${key.value}`;
+    return await cache.ttl(cacheKey);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error getting TTL from cache: ${error.message}\n${error.stack}`);
+    } else {
+      console.error(`Error getting TTL from cache: ${JSON.stringify(error)}`);
+    }
+    return 0;
+  }
+}
+
 /**
  * Clears the cache.
  * @returns {Promise<void>} A promise that resolves when the cache is cleared.
@@ -242,11 +275,15 @@ export async function clearCache() {
  * @param options - The options for filtering the keys.
  * @returns An array of filtered cache keys.
  */
-function filterKeys<T>(options: { obj: T; keys: CacheKeysInput<T> }) {
+function filterKeys<T>(options: { obj: T | null; keys: CacheKeysInput<T> }) {
   const { obj, keys } = options;
   if (Array.isArray(keys)) {
     return keys.filter((key) => key.value) as CacheKey[];
   } else {
-    return keys(obj).filter((key) => key.value) as CacheKey[];
+    if (obj) {
+      return keys(obj).filter((key) => key.value) as CacheKey[];
+    } else {
+      return [] as CacheKey[];
+    }
   }
 }

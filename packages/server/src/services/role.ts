@@ -164,7 +164,7 @@ export async function removeRoleFromUser(roleName: string, userId: string) {
 
 export async function doesUserHaveRole(roleName: string, userId: string) {
   const roles = await getRolesByUserId(userId);
-  return roles.some((role) => role.name === roleName);
+  return roles!.some((role) => role.name === roleName);
 }
 
 export async function getStripeRoles() {

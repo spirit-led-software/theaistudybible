@@ -1,4 +1,3 @@
-import type { Devotion } from '@revelationsai/core/model/devotion';
 import { getDevotion, updateDevotion } from '@revelationsai/server/services/devotion';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { isAdminSync } from '@revelationsai/server/services/user';
@@ -15,7 +14,7 @@ export const handler = ApiHandler(async (event) => {
   const data = JSON.parse(event.body ?? '{}');
 
   try {
-    let devo: Devotion | undefined = await getDevotion(id);
+    let devo = await getDevotion(id);
     if (!devo) {
       return ObjectNotFoundResponse(id);
     }

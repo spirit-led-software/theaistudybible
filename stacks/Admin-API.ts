@@ -92,10 +92,6 @@ export function AdminAPI({ stack }: StackContext) {
     // User roles
     'GET /admin/users/{id}/roles': 'packages/functions/src/rest/admin/users/[id]/roles/get.handler',
 
-    // User query counts
-    'GET /admin/users/{id}/query-counts':
-      'packages/functions/src/rest/admin/users/[id]/query-counts/get.handler',
-
     // Change user password endpoint
     'PUT /admin/users/{id}/password': {
       function: {

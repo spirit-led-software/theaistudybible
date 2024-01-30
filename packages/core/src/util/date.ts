@@ -31,3 +31,21 @@ export function getTodaysDateString() {
 export function getUtcDate() {
   return new Date(new Date().toUTCString());
 }
+
+export function getTimeStringFromSeconds(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds - hours * 3600) / 60);
+  seconds = seconds - hours * 3600 - minutes * 60;
+
+  if (hours) {
+    if (minutes) {
+      return `${hours} hour${hours > 1 ? 's' : ''}, ${minutes} minute${minutes > 1 ? 's' : ''}, & ${seconds} second${seconds > 1 ? 's' : ''}`;
+    } else {
+      return `${hours} hour${hours > 1 ? 's' : ''} & ${seconds} second${seconds > 1 ? 's' : ''}`;
+    }
+  }
+  if (minutes) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} & ${seconds} second${seconds > 1 ? 's' : ''}`;
+  }
+  return `${seconds} second${seconds > 1 ? 's' : ''}`;
+}

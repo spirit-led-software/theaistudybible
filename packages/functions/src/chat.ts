@@ -6,6 +6,7 @@ import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vect
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
+import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
 import { getRAIChatChain } from '@revelationsai/server/lib/chat/langchain';
 import db from '@revelationsai/server/lib/database/database';
@@ -21,6 +22,7 @@ import { hasPlusSync, isAdminSync, isObjectOwner } from '@revelationsai/server/s
 import { createUserMessage, getUserMessages } from '@revelationsai/server/services/user/message';
 import {
   decrementUserQueryCount,
+  getUserQueryCountTtl,
   incrementUserQueryCount
 } from '@revelationsai/server/services/user/query-count';
 import { LangChainStream } from 'ai';
@@ -206,7 +208,10 @@ async function lambdaHandler(
     console.timeEnd('Validating session token');
 
     if (remainingQueries <= 0) {
-      console.log(`Max daily query count of ${maxQueries} reached`);
+      const ttl = await getUserQueryCountTtl(userWithRoles.id);
+      console.log(
+        `Max query count of ${maxQueries} reached. Resetting in ${getTimeStringFromSeconds(ttl)}.`
+      );
       return {
         statusCode: 429,
         headers: {
@@ -214,7 +219,9 @@ async function lambdaHandler(
         },
         body: Readable.from([
           JSON.stringify({
-            error: `Max daily query count of ${maxQueries} reached`
+            error: `You have issued too many requests. Please wait ${getTimeStringFromSeconds(
+              ttl
+            )} before trying again.`
           })
         ])
       };

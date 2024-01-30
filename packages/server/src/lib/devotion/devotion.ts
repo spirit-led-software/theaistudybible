@@ -84,19 +84,18 @@ export async function generateDevotionImages(devo: Devotion) {
     reflection: devo.reflection,
     prayer: devo.prayer
   });
-  console.log('Image prompt phrases:', imagePromptPhrases);
+  const imagePrompt = imagePromptPhrases.join(', ');
+  console.log('Image prompt:', imagePrompt);
 
   const imageCaptionChain = getImageCaptionChain();
   const imageCaption = await imageCaptionChain.invoke({
-    imagePrompt: imagePromptPhrases.join(', '),
+    imagePrompt,
     bibleReading: devo.bibleReading,
     summary: devo.summary,
     reflection: devo.reflection!,
     prayer: devo.prayer!
   });
   console.log('Image caption:', imageCaption);
-
-  const imagePrompt = imagePromptPhrases.join(', ');
 
   const client = new BedrockRuntimeClient();
   const invokeCommand = new InvokeModelCommand({

@@ -44,19 +44,20 @@
 		initialMessages: initMessages,
 		sendExtraMessageFields: true,
 		onError: (err) => {
+			console.error('On Chat Error:', err);
 			alert = err.message;
 		},
-		onResponse: (response) => {
-			if (response.status === 429) {
-				alert = 'You have reached your daily query limit. Upgrade for more!';
-			} else if (!response.ok) {
-				alert = 'Something went wrong. Please try again.';
-			} else {
-				chatId = response.headers.get('x-chat-id') ?? undefined;
-				lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
-				lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
-				lastModelId = response.headers.get('x-model-id') ?? undefined;
+		onResponse: async (response) => {
+			if (!response.ok) {
+				console.error("Couldn't send message", response.status, response.statusText);
+				const data = await response.json();
+				throw new Error(data.error ?? data.message ?? 'Something went wrong');
 			}
+
+			chatId = response.headers.get('x-chat-id') ?? undefined;
+			lastUserMessageId = response.headers.get('x-user-message-id') ?? undefined;
+			lastAiResponseId = response.headers.get('x-ai-response-id') ?? undefined;
+			lastModelId = response.headers.get('x-model-id') ?? undefined;
 		},
 		onFinish: (message: ChatMessage) => {
 			lastChatMessage = message;
@@ -192,11 +193,13 @@
 	<div class="relative w-full h-full">
 		<div
 			role="alert"
-			class={`absolute left-0 right-0 flex justify-center duration-300 ${
+			class={`absolute left-0 right-0 flex justify-center duration-300 z-30 ${
 				alert ? 'scale-100 top-1' : 'scale-0 -top-20'
 			}`}
 		>
-			<div class="w-2/3 py-2 overflow-hidden text-center text-white truncate bg-red-400 rounded-lg">
+			<div
+				class="w-2/3 py-2 overflow-hidden text-center text-wrap text-white truncate bg-red-400 rounded-lg max-h-32"
+			>
 				{alert}
 			</div>
 		</div>

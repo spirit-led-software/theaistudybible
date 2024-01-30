@@ -1,7 +1,9 @@
+import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
 import { generatedImage } from '@revelationsai/server/lib/user/generated-image';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import {
   decrementUserGeneratedImageCount,
+  getUserGeneratedImageCountTtl,
   incrementUserGeneratedImageCount
 } from '@revelationsai/server/services/user/image-count';
 import { ApiHandler } from 'sst/node/api';
@@ -28,9 +30,10 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You must be logged in');
     }
 
-    if (remainingGeneratedImages < 1) {
+    if (remainingGeneratedImages <= 0) {
+      const ttl = await getUserGeneratedImageCountTtl(userWithRoles.id);
       return TooManyRequestsResponse(
-        'You have exceeded your daily allowed images. Please upgrade for more!'
+        `You have issued too many requests. Please wait ${getTimeStringFromSeconds(ttl)} before trying again.`
       );
     }
 

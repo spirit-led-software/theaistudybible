@@ -157,9 +157,7 @@ export const usersRelations = relations(users, ({ many }) => {
   return {
     roles: many(roles),
     userPasswords: many(userPasswords),
-    userQueryCounts: many(userQueryCounts),
     userGeneratedImages: many(userGeneratedImages),
-    userGeneratedImageCounts: many(userGeneratedImageCounts),
     userMessages: many(userMessages),
     aiResponses: many(aiResponses),
     devotionReactions: many(devotionReactions),
@@ -190,33 +188,6 @@ export const userPasswordsRelations = relations(userPasswords, ({ one }) => {
   return {
     user: one(users, {
       fields: [userPasswords.userId],
-      references: [users.id]
-    })
-  };
-});
-
-export const userQueryCounts = pgTable(
-  'user_query_counts',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    count: integer('count').notNull().default(0),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
-  },
-  (table) => {
-    return {
-      userIdIdx: index('user_query_counts_user_id').on(table.userId)
-    };
-  }
-);
-
-export const userQueryCountsRelations = relations(userQueryCounts, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [userQueryCounts.userId],
       references: [users.id]
     })
   };
@@ -522,33 +493,6 @@ export const userGeneratedImagesRelations = relations(userGeneratedImages, ({ on
   return {
     user: one(users, {
       fields: [userGeneratedImages.userId],
-      references: [users.id]
-    })
-  };
-});
-
-export const userGeneratedImageCounts = pgTable(
-  'user_generated_image_counts',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    count: integer('count').notNull().default(0),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
-  },
-  (table) => {
-    return {
-      userIdIdx: index('user_generated_images_counts_user_id').on(table.userId)
-    };
-  }
-);
-
-export const userGeneratedImageCountsRelations = relations(userGeneratedImageCounts, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [userGeneratedImageCounts.userId],
       references: [users.id]
     })
   };

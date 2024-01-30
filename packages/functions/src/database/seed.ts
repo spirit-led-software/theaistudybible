@@ -1,6 +1,5 @@
 import authConfig from '@revelationsai/core/configs/auth';
 import revenueCatConfig from '@revelationsai/core/configs/revenue-cat';
-import type { User } from '@revelationsai/core/model/user';
 import {
   addRoleToUser,
   createRole,
@@ -22,7 +21,7 @@ import { Job } from 'sst/node/job';
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
-  let adminUser: User | undefined = await getUserByEmail(authConfig.adminUser.email);
+  let adminUser = await getUserByEmail(authConfig.adminUser.email);
   if (!adminUser) {
     adminUser = await createUser({
       email: authConfig.adminUser.email
