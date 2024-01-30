@@ -45,8 +45,8 @@
 			price="Free"
 			features={[
 				'Anthropic Claude v1 (AI model)',
-				'Send 5 messages',
-				'Generate 1 image (mobile only)',
+				'Send 5 messages every hour',
+				'Generate 1 image every 8 hours (mobile only)',
 				'Standard ads'
 			]}
 			currentLevel={!hasPlus(user)}
