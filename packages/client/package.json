@@ -9,11 +9,11 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.132",
+    "@types/aws-lambda": "^8.10.133",
     "@types/busboy": "^1.5.3",
-    "@types/node": "^20.11.10",
+    "@types/node": "^20.11.16",
     "@types/nodemailer": "^6.4.14",
-    "sst": "2.39.13",
+    "sst": "2.40.1",
     "vitest": "^1.2.2"
   },
   "dependencies": {
