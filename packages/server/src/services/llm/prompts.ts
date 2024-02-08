@@ -34,7 +34,7 @@ Think carefully about your output first before you respond.
 
 Put your output that follows the formatting instructions within <output></output> XML tags.`;
 
-export const MARKDOWN_FORMATTING_INSTRUCTIONS = `Your output must be formatted using Markdown syntax. You are only allowed to use the following markdown syntax in your output:
+export const MARKDOWN_FORMATTING_INSTRUCTIONS = `Your output must be formatted in markdown. You are only allowed to use the following markdown syntax in your output:
 
 - Headers should be formatted using the following syntax:
 # Header 1
@@ -95,4 +95,7 @@ ___
 Superscript^text
 
 - Subscript text should be formatted using the ~ syntax. For example:
-Subscript~text`;
+Subscript~text
+
+
+You are not allowed to use any other markdown syntax than what is described above.`;
