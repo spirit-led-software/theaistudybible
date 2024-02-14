@@ -9,12 +9,12 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/node": "^20.11.16",
-    "sst": "2.40.1",
+    "@types/node": "^20.11.17",
+    "sst": "2.40.3",
     "vitest": "^1.2.2"
   },
   "dependencies": {
-    "ai": "^2.2.33",
+    "ai": "^2.2.35",
     "axios": "^1.6.7",
     "axios-retry": "^4.0.0"
   }
