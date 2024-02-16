@@ -1,7 +1,6 @@
 import middy from '@middy/core';
 import envConfig from '@revelationsai/core/configs/env';
 import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
-import type { AnthropicModelId } from '@revelationsai/core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
@@ -31,6 +30,12 @@ import { and, eq } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
+import {
+  freeTierModelIds,
+  plusTierModelIds,
+  type FreeTierModelId,
+  type PlusTierModelId
+} from '../../core/src/util/model-info';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
   body: Readable;
@@ -70,10 +75,8 @@ function validateModelId(
   userWithRoles: UserWithRoles
 ): StreamedAPIGatewayProxyStructuredResultV2 | undefined {
   if (
-    providedModelId !== 'anthropic.claude-v2:1' &&
-    providedModelId !== 'anthropic.claude-v2' &&
-    providedModelId !== 'anthropic.claude-v1' &&
-    providedModelId !== 'anthropic.claude-instant-v1'
+    !freeTierModelIds.includes(providedModelId as FreeTierModelId) &&
+    !plusTierModelIds.includes(providedModelId as PlusTierModelId)
   ) {
     console.log('Invalid modelId provided');
     return {
@@ -85,7 +88,7 @@ function validateModelId(
     };
   }
   if (
-    providedModelId !== 'anthropic.claude-instant-v1' &&
+    freeTierModelIds.includes(providedModelId as FreeTierModelId) &&
     !hasPlusSync(userWithRoles) &&
     !isAdminSync(userWithRoles)
   ) {
@@ -114,7 +117,7 @@ async function postResponseValidationLogic({
   sourceDocuments,
   searchQueries
 }: {
-  modelId: AnthropicModelId;
+  modelId: FreeTierModelId | PlusTierModelId;
   chat: Chat;
   userMessageId: string;
   aiResponseId: string;
@@ -176,7 +179,7 @@ async function lambdaHandler(
   }: {
     messages: RAIChatMessage[];
     chatId?: string;
-    modelId?: AnthropicModelId;
+    modelId?: string;
   } = JSON.parse(event.body);
 
   try {
@@ -210,7 +213,7 @@ async function lambdaHandler(
     if (remainingQueries <= 0) {
       const ttl = await getUserQueryCountTtl(userWithRoles.id);
       console.log(
-        `Max query count of ${maxQueries} reached. Resetting in ${getTimeStringFromSeconds(ttl)}.`
+        `Max query count of ${maxQueries} reached. Try again in ${getTimeStringFromSeconds(ttl)}.`
       );
       return {
         statusCode: 429,
@@ -235,11 +238,11 @@ async function lambdaHandler(
         return modelIdValidationResponse;
       }
     }
-    const modelId = providedModelId
-      ? providedModelId
-      : (hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
-        ? 'anthropic.claude-v2:1'
-        : 'anthropic.claude-instant-v1';
+    const modelId =
+      providedModelId ??
+      ((hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
+        ? ('anthropic.claude-v2:1' satisfies PlusTierModelId)
+        : ('mistralai/Mixtral-8x7B-Instruct-v0.1' satisfies FreeTierModelId));
 
     console.time('Validating chat');
     const chat = chatId
@@ -303,7 +306,7 @@ async function lambdaHandler(
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
     const chain = await getRAIChatChain({
-      modelId,
+      modelId: modelId as FreeTierModelId | PlusTierModelId,
       user: userWithRoles,
       messages,
       callbacks: CallbackManager.fromHandlers(handlers)
@@ -317,7 +320,7 @@ async function lambdaHandler(
         const sourceDocuments = result.sourceDocuments ?? [];
         const searchQueries = result.searchQueries ?? [];
         await postResponseValidationLogic({
-          modelId,
+          modelId: modelId as FreeTierModelId | PlusTierModelId,
           chat,
           userMessageId: userMessage.id,
           aiResponseId,

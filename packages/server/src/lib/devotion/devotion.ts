@@ -11,7 +11,7 @@ import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
-import { getLargeContextModel } from '../../services/llm';
+import { getLanguageModel } from '../../services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { db } from '../database';
 import {
@@ -217,8 +217,8 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
 const getDiveDeeperOutputParser = (numQueries: number) =>
   OutputFixingParser.fromLLM(
-    getLargeContextModel({
-      promptSuffix: '<output>',
+    getLanguageModel({
+      promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
@@ -252,10 +252,10 @@ export async function generateDiveDeeperQueries(devotion: Devotion, numQueries =
     }
   })
     .pipe(
-      getLargeContextModel({
+      getLanguageModel({
         stream: false,
         maxTokens: 256,
-        promptSuffix: '<query>',
+        promptSuffix: '\nPlace your query within <query></query> XML tags.\n<query>',
         stopSequences: ['</query>']
       })
     )

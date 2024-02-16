@@ -26,9 +26,7 @@ How do you respond to the query?
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>
-
-Put your answer to the query within <answer></answer> XML tags.`;
+</format_instructions>`;
 
 export const CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history. You must use the conversation history to answer queries about the current conversation you are having with the user.
 
@@ -58,9 +56,7 @@ How do you respond to the query based on the conversation history?
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>
-
-Put your answer to the query within <answer></answer> XML tags.`;
+</format_instructions>`;
 
 export const CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE = `You are an expert on non-denominational Christian faith. You will be given a query to respond to, the conversation history, and sources to use to answer the query. Your goal is to be as credible as possible by using the sources to answer the query.
 
@@ -99,9 +95,7 @@ How do you respond to the query?
 Think about your answer first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>
-
-Put your answer to the query within <answer></answer> XML tags.`;
+</format_instructions>`;
 
 export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
 
@@ -127,9 +121,7 @@ What are 1 to 4 search queries that you would use to find relevant documents in 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your output matching the formatting instructions within <output></output> XML tags.`;
+</format_instructions>`;
 
 export const CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what queries the system is best suited for.
 
@@ -159,9 +151,7 @@ Which query answering system is best suited for the query?
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your output matching the formatting instructions within <output></output> XML tags.`;
+</format_instructions>`;
 
 export const CHAT_RENAME_CHAIN_PROMPT_TEMPLATE = `You will be given a chat history and you will need to come up with a title for the chat. Your goal is to come up with a title that is descriptive and concise.
 
@@ -179,6 +169,4 @@ Here is the chat history, within <chat_history></chat_history> XML tags. Each me
 
 What is the title that you would give to this chat?
 
-Think about your title first before you respond.
-
-Put the title that you come up with in <title></title> XML tags.`;
+Think about your title first before you respond.`;

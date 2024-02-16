@@ -4,7 +4,7 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLargeContextModel } from '../../../services/llm';
+import { getLanguageModel } from '../../../services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../../services/llm/prompts';
 import { getDocumentVectorStore } from '../../../services/vector-db';
 import {
@@ -13,8 +13,8 @@ import {
 } from './prompts';
 
 const validationOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
+  getLanguageModel({
+    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
@@ -31,8 +31,8 @@ const validationOutputParser = OutputFixingParser.fromLLM(
 );
 
 const phraseOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
+  getLanguageModel({
+    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
     stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
@@ -72,9 +72,9 @@ export const getImagePromptChain = async () => {
         }
       })
         .pipe(
-          getLargeContextModel({
-            stopSequences: ['</output>'],
-            promptSuffix: '<output>'
+          getLanguageModel({
+            promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
+            stopSequences: ['</output>']
           })
         )
         .pipe(validationOutputParser)
@@ -106,10 +106,10 @@ export const getImagePromptChain = async () => {
       }
     })
       .pipe(
-        getLargeContextModel({
+        getLanguageModel({
           maxTokens: 2048,
-          stopSequences: ['</output>'],
-          promptSuffix: '<output>'
+          promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
+          stopSequences: ['</output>']
         })
       )
       .pipe(phraseOutputParser)

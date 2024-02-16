@@ -2,11 +2,11 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
-import type { AnthropicModelId } from '@revelationsai/core/langchain/types/bedrock-types';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import type { FreeTierModelId, PlusTierModelId } from '@revelationsai/core/util/model-info';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
@@ -18,7 +18,7 @@ import {
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
-import { getLargeContextModel, llmCache } from '../../services/llm';
+import { getLanguageModel, llmCache } from '../../services/llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { getDocumentVectorStore } from '../../services/vector-db';
 import {
@@ -30,7 +30,7 @@ import {
 } from './prompts';
 
 export const getRAIChatChain = async (options: {
-  modelId: AnthropicModelId;
+  modelId: FreeTierModelId | PlusTierModelId;
   user: User;
   messages: RAIChatMessage[];
   callbacks: CallbackManager;
@@ -70,10 +70,10 @@ export const getRAIChatChain = async (options: {
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '<answer>',
+            promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
             stopSequences: ['</answer>']
           })
         )
@@ -99,10 +99,10 @@ export const getRAIChatChain = async (options: {
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '<answer>',
+            promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
             stopSequences: ['</answer>']
           })
         )
@@ -139,8 +139,8 @@ export const getRAIChatChain = async (options: {
   ]);
 
   const routerChainOutputParser = OutputFixingParser.fromLLM(
-    getLargeContextModel({
-      promptSuffix: '<output>',
+    getLanguageModel({
+      promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
@@ -185,9 +185,9 @@ export const getRAIChatChain = async (options: {
               .join('\n')
           }
         }),
-        getLargeContextModel({
+        getLanguageModel({
           maxTokens: 4096,
-          promptSuffix: '<output>',
+          promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
           stopSequences: ['</output>'],
           cache: llmCache
         }),
@@ -202,7 +202,7 @@ export const getRAIChatChain = async (options: {
 };
 
 export async function getDocumentQaChain(options: {
-  modelId: AnthropicModelId;
+  modelId: FreeTierModelId | PlusTierModelId;
   prompt: string;
   callbacks: CallbackManager;
   filters?: (Metadata | string)[];
@@ -221,8 +221,8 @@ export async function getDocumentQaChain(options: {
   );
 
   const searchQueryOutputParser = OutputFixingParser.fromLLM(
-    getLargeContextModel({
-      promptSuffix: '<output>',
+    getLanguageModel({
+      promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
       stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
@@ -248,8 +248,8 @@ export async function getDocumentQaChain(options: {
         }
       })
         .pipe(
-          getLargeContextModel({
-            promptSuffix: '<output>',
+          getLanguageModel({
+            promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
             stopSequences: ['</output>'],
             cache: llmCache
           })
@@ -313,9 +313,9 @@ export async function getDocumentQaChain(options: {
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
             stream: true,
-            promptSuffix: '<answer>',
+            promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
             stopSequences: ['</answer>']
           })
         )

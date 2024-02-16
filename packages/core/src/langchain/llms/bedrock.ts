@@ -9,7 +9,7 @@ import { GenerationChunk } from '@langchain/core/outputs';
 import type { BaseLanguageModelCallOptions } from 'langchain/base_language';
 import type { CallbackManagerForLLMRun } from 'langchain/callbacks';
 import { LLM, type BaseLLMParams } from 'langchain/llms/base';
-import type { BedrockInput } from '../types/bedrock-types';
+import type { BedrockInput } from '../types/bedrock';
 
 export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   static lc_name() {

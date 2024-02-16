@@ -21,6 +21,12 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   // Unstructured
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
 
+  // OpenAI
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
+
+  // TogetherAI
+  TOGETHERAI_API_KEY: process.env.TOGETHERAI_API_KEY!,
+
   // Revenue Cat
   REVENUECAT_PROJECT_ID: process.env.REVENUECAT_PROJECT_ID!,
   REVENUECAT_API_KEY: process.env.REVENUECAT_API_KEY!,

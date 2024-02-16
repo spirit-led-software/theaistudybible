@@ -28,9 +28,7 @@ What is the Bible reading that you would fetch for this topic? Remember, you mus
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your output that follows the formatting instructions within <output></output> XML tags.`;
+</format_instructions>`;
 
 export const DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE = `You are a gifted non-denominational Christian writer who is an expert at generating devotions based on a given topic and Bible reading. Your goal is to generate a devotion based on the topic and Bible reading provided to you.
 
@@ -62,9 +60,7 @@ Go ahead and write a devotion based on the topic and Bible reading provided.
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your output that follows the formatting instructions within <output></output> XML tags.`;
+</format_instructions>`;
 
 export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate short, concise, yet descriptive phrases that could generate a beautiful and accurate image based on the devotion provided to you.
 
@@ -92,9 +88,7 @@ What are 1 to 4 phrases that could generate a beautiful and accurate image based
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your output that follows the formatting instructions within <output></output> XML tags.`;
+</format_instructions>`;
 
 export const DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE = `You are an expert at generating captions for Christian images. You will be given a devotion that has an image to go along with it. Your goal is to generate a caption for the image based on the image prompt provided to you.
 
@@ -118,9 +112,7 @@ Here is the image prompt that was used to generate the image, within <image_prom
 
 What is the caption for the image?
 
-Think carefully about your output first before you respond.
-
-Put the caption you come up with within <output></output> XML tags.`;
+Think carefully about your output first before you respond.`;
 
 export const DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate {numQueries} queries for. Your goal is to generate queries that help the user dive deeper into the topic of the devotion. These queries will be fed back into a query answering system, so make sure the queries are not a personal question about the user.
 
