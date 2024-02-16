@@ -10,12 +10,16 @@ import {
   type RAIBedrockEmbeddingsParams
 } from '@revelationsai/core/langchain/embeddings/bedrock';
 import { RAIBedrock } from '@revelationsai/core/langchain/llms/bedrock';
-import { bedrockModelIds, type BedrockModelId } from '@revelationsai/core/langchain/types/bedrock';
+import {
+  anthropicModelIds,
+  type AnthropicModelId
+} from '@revelationsai/core/langchain/types/bedrock';
 import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/open-ai';
 import {
   togetherAiModelIds,
   type TogetherAIModelId
 } from '@revelationsai/core/langchain/types/together-ai';
+import type { FreeTierModelId, PlusTierModelId } from '@revelationsai/core/util/model-info';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
 
 export type StandardModelInput = {
@@ -55,14 +59,14 @@ export function getLanguageModel({
   promptPrefix,
   promptSuffix,
   cache
-}: StandardModelInput & { modelId?: BedrockModelId | TogetherAIModelId | OpenAiModelId } = {}) {
+}: StandardModelInput & { modelId?: FreeTierModelId | PlusTierModelId } = {}) {
   if (togetherAiModelIds.includes(modelId as TogetherAIModelId)) {
     return new TogetherAI({
       modelName: modelId,
       apiKey: togetherAiConfig.apiKey,
       streaming: stream,
-      temperature,
       maxTokens,
+      temperature,
       topP,
       topK,
       stop: stopSequences,
@@ -71,6 +75,7 @@ export function getLanguageModel({
     });
   } else if (openAiModelIds.includes(modelId as OpenAiModelId)) {
     return new OpenAI({
+      modelName: modelId as OpenAiModelId,
       openAIApiKey: openAiConfig.apiKey,
       streaming: stream,
       stop: stopSequences,
@@ -79,10 +84,9 @@ export function getLanguageModel({
       cache,
       verbose: envConfig.isLocal
     });
-  } else if (bedrockModelIds.includes(modelId as BedrockModelId)) {
-    // @ts-expect-error modelId is a BedrockModelId
+  } else if (anthropicModelIds.includes(modelId as AnthropicModelId)) {
     return new RAIBedrock({
-      modelId: modelId as BedrockModelId,
+      modelId: modelId as AnthropicModelId,
       stream: stream,
       body: {
         max_tokens_to_sample: maxTokens,
