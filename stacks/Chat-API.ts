@@ -29,7 +29,10 @@ export function ChatAPI({ stack, app }: StackContext) {
     enableLiveDev: false, // Cannot live dev with response stream
     memorySize: '1536 MB',
     permissions: [invokeBedrockPolicy],
-    bind: [auth]
+    bind: [auth],
+    nodejs: {
+      install: ['web-streams-polyfill']
+    }
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,

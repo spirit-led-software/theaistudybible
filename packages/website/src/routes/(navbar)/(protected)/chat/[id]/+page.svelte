@@ -4,7 +4,7 @@
 
 	export let data: PageData;
 
-	$: ({ chat, messages } = data);
+	$: ({ chat, messages, modelInfos } = data);
 </script>
 
 <svelte:head>
@@ -12,4 +12,4 @@
 	<meta name="description" content="Chat: {chat.name}" />
 </svelte:head>
 
-<Window initChatId={chat.id} initMessages={messages} />
+<Window initChatId={chat.id} initMessages={messages} {modelInfos} />

@@ -4,9 +4,13 @@ import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runn
 import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import {
+  allModels,
+  type FreeTierModelId,
+  type PlusTierModelId
+} from '@revelationsai/core/model/llm';
 import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
-import type { FreeTierModelId, PlusTierModelId } from '@revelationsai/core/util/model-info';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
@@ -46,8 +50,11 @@ export const getRAIChatChain = async (options: {
 > => {
   const { modelId, user, messages, callbacks } = options;
 
+  const { contextSize } = allModels[modelId];
+  const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
+
   const history = new ChatMessageHistory(
-    messages.slice(-13, -1).map((message) => {
+    messages.slice(contextSizeNum > 32 ? -21 : -11, -1).map((message) => {
       return message.role === 'user'
         ? new HumanMessage(message.content)
         : new AIMessage(message.content);
@@ -114,6 +121,7 @@ export const getRAIChatChain = async (options: {
 
   const faithQaChain = await getDocumentQaChain({
     modelId,
+    contextSize: contextSizeNum,
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
       {
@@ -203,19 +211,20 @@ export const getRAIChatChain = async (options: {
 
 export async function getDocumentQaChain(options: {
   modelId: FreeTierModelId | PlusTierModelId;
+  contextSize: number;
   prompt: string;
   callbacks: CallbackManager;
   filters?: (Metadata | string)[];
   history: string;
   extraPromptVars?: PartialValues<string>;
 }) {
-  const { prompt, filters, extraPromptVars } = options;
+  const { modelId, contextSize, prompt, filters, extraPromptVars } = options;
   const qaRetriever = await getDocumentVectorStore({
     filters,
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: 5,
+      k: contextSize > 32 ? 7 : 3,
       verbose: envConfig.isLocal
     })
   );
@@ -314,6 +323,7 @@ export async function getDocumentQaChain(options: {
       })
         .pipe(
           getLanguageModel({
+            modelId,
             stream: true,
             promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
             stopSequences: ['</answer>']

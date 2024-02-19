@@ -52,7 +52,7 @@
 		"@revelationsai/client": "workspace:*",
 		"@revelationsai/core": "workspace:*",
 		"@revelationsai/server": "workspace:*",
-		"@tanstack/svelte-query": "^5.20.5",
+		"@tanstack/svelte-query": "^5.22.2",
 		"ai": "^2.2.35",
 		"autosize": "^6.0.1",
 		"dayjs": "^1.11.10",

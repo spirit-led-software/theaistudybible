@@ -14,12 +14,12 @@ import {
   anthropicModelIds,
   type AnthropicModelId
 } from '@revelationsai/core/langchain/types/bedrock';
-import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/open-ai';
+import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/openai';
 import {
   togetherAiModelIds,
   type TogetherAIModelId
-} from '@revelationsai/core/langchain/types/together-ai';
-import type { FreeTierModelId, PlusTierModelId } from '@revelationsai/core/util/model-info';
+} from '@revelationsai/core/langchain/types/togetherai';
+import type { FreeTierModelId, PlusTierModelId } from '@revelationsai/core/model/llm';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
 
 export type StandardModelInput = {
@@ -49,7 +49,7 @@ export function getEmbeddingsModel(options?: RAIBedrockEmbeddingsParams) {
 }
 
 export function getLanguageModel({
-  modelId = 'anthropic.claude-instant-v1',
+  modelId = 'mistralai/Mixtral-8x7B-Instruct-v0.1',
   temperature = 0.5,
   maxTokens = 2048,
   stopSequences = [],
@@ -81,6 +81,7 @@ export function getLanguageModel({
       stop: stopSequences,
       temperature,
       topP,
+      maxTokens,
       cache,
       verbose: envConfig.isLocal
     });

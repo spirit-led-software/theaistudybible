@@ -63,6 +63,9 @@ export function RestAPI({ stack }: StackContext) {
     // Devotion Images
     'GET /devotions/{id}/images': 'packages/functions/src/rest/devotions/[id]/images/get.handler',
 
+    // LLMs
+    'GET /language-models': 'packages/functions/src/rest/language-models/get.handler',
+
     // User Messages
     'GET /user-messages': 'packages/functions/src/rest/user-messages/get.handler',
     'POST /user-messages': 'packages/functions/src/rest/user-messages/post.handler',

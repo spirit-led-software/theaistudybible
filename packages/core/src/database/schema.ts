@@ -12,7 +12,7 @@ import {
   uuid
 } from 'drizzle-orm/pg-core';
 import type { Metadata } from '../types/metadata';
-import { freeTierModelIds, plusTierModelIds } from '../util/model-info';
+import { freeTierModelIds, plusTierModelIds } from '../model/llm';
 
 export const aiResponses = pgTable('ai_responses', {
   id: uuid('id').primaryKey().defaultRandom(),

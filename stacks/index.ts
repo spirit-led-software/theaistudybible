@@ -24,6 +24,9 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   // OpenAI
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
 
+  // Google AI
+  GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY!,
+
   // TogetherAI
   TOGETHERAI_API_KEY: process.env.TOGETHERAI_API_KEY!,
 

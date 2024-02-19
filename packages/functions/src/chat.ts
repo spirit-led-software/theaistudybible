@@ -4,6 +4,12 @@ import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import {
+  freeTierModelIds,
+  plusTierModelIds,
+  type FreeTierModelId,
+  type PlusTierModelId
+} from '@revelationsai/core/model/llm';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
@@ -30,12 +36,7 @@ import { and, eq } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
-import {
-  freeTierModelIds,
-  plusTierModelIds,
-  type FreeTierModelId,
-  type PlusTierModelId
-} from '../../core/src/util/model-info';
+import 'web-streams-polyfill/dist/polyfill.es2018.js';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
   body: Readable;
@@ -88,7 +89,7 @@ function validateModelId(
     };
   }
   if (
-    freeTierModelIds.includes(providedModelId as FreeTierModelId) &&
+    plusTierModelIds.includes(providedModelId as PlusTierModelId) &&
     !hasPlusSync(userWithRoles) &&
     !isAdminSync(userWithRoles)
   ) {
@@ -305,12 +306,17 @@ async function lambdaHandler(
 
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
+
+    console.time('Creating chat chain');
     const chain = await getRAIChatChain({
       modelId: modelId as FreeTierModelId | PlusTierModelId,
       user: userWithRoles,
       messages,
       callbacks: CallbackManager.fromHandlers(handlers)
     });
+    console.timeEnd('Creating chat chain');
+    console.log(`Chat chain: ${JSON.stringify(chain)}`);
+
     const langChainResponsePromise = chain
       .invoke({
         query: lastMessage.content
