@@ -12,20 +12,13 @@ export async function aiRenameChat(chat: Chat, history: Message[]) {
   }
 
   const renameChain = PromptTemplate.fromTemplate(CHAT_RENAME_CHAIN_PROMPT_TEMPLATE)
-    .pipe(
-      getLanguageModel({
-        stream: false,
-        maxTokens: 256,
-        promptSuffix: '\nPlace your chat name within <title></title> XML tags.\n<title>',
-        stopSequences: ['</title>']
-      })
-    )
+    .pipe(getLanguageModel())
     .pipe(new StringOutputParser());
 
   const result = await renameChain
     .invoke({
       history: history
-        .slice(-13)
+        .slice(-21)
         .map(
           (message) =>
             `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`

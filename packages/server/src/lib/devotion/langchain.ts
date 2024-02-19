@@ -21,8 +21,6 @@ import {
 
 const devotionOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
-    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-    stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -108,8 +106,8 @@ export const getDevotionGeneratorChain = async (): Promise<
         .pipe(
           getLanguageModel({
             modelId: 'anthropic.claude-v2:1',
-            maxTokens: 4096,
-            promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
+            promptSuffix: '\nPlace your output within <output></output> XML tags.',
+            answerPrefix: '<output>',
             stopSequences: ['</output>']
           })
         )
@@ -122,8 +120,6 @@ export const getDevotionGeneratorChain = async (): Promise<
 
 const bibleReadingOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
-    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-    stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -196,8 +192,9 @@ export const getBibleReadingChain = async (topic: string) => {
     })
       .pipe(
         getLanguageModel({
-          maxTokens: 2048,
-          promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
+          modelId: 'anthropic.claude-instant-v1',
+          promptSuffix: '\nPlace your output within <output></output> XML tags.',
+          answerPrefix: '<output>',
           stopSequences: ['</output>']
         })
       )
@@ -209,8 +206,6 @@ export const getBibleReadingChain = async (topic: string) => {
 
 const imagePromptOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
-    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-    stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -229,14 +224,7 @@ export const getImagePromptChain = () => {
       formatInstructions: imagePromptOutputParser.getFormatInstructions()
     }
   })
-    .pipe(
-      getLanguageModel({
-        maxTokens: 1024,
-        stream: false,
-        promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-        stopSequences: ['</output>']
-      })
-    )
+    .pipe(getLanguageModel())
     .pipe(imagePromptOutputParser);
 };
 
@@ -245,9 +233,9 @@ export const getImageCaptionChain = () => {
     .pipe(
       getLanguageModel({
         modelId: 'anthropic.claude-v2:1',
-        maxTokens: 100,
         stream: false,
-        promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
+        promptSuffix: '\nPlace your output within <output></output> XML tags.',
+        answerPrefix: '<output>',
         stopSequences: ['</output>']
       })
     )

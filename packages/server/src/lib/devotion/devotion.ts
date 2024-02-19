@@ -218,8 +218,6 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 const getDiveDeeperOutputParser = (numQueries: number) =>
   OutputFixingParser.fromLLM(
     getLanguageModel({
-      promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-      stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
       topP: 0.1
@@ -253,10 +251,11 @@ export async function generateDiveDeeperQueries(devotion: Devotion, numQueries =
   })
     .pipe(
       getLanguageModel({
+        modelId: 'anthropic.claude-v2:1',
         stream: false,
-        maxTokens: 256,
-        promptSuffix: '\nPlace your query within <query></query> XML tags.\n<query>',
-        stopSequences: ['</query>']
+        promptSuffix: '\nPlace your queries within <queries></queries> XML tags.',
+        answerPrefix: '<queries>',
+        stopSequences: ['</queries>']
       })
     )
     .pipe(diveDeeperOutputParser);

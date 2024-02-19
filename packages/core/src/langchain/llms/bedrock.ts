@@ -47,6 +47,8 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
 
   promptSuffix: string;
 
+  answerPrefix: string;
+
   constructor(fields?: Partial<BedrockInput> & BaseLLMParams) {
     super(fields ?? {});
 
@@ -58,6 +60,7 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
     this.client = fields?.client ?? new BedrockRuntimeClient();
     this.promptPrefix = fields?.promptPrefix ?? '';
     this.promptSuffix = fields?.promptSuffix ?? '';
+    this.answerPrefix = fields?.answerPrefix ?? '';
   }
 
   _log(message: unknown, ...optionalParams: unknown[]) {
@@ -188,7 +191,7 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
       body = JSON.stringify({
         ...params.body,
         stop_sequences: [...(params.body.stop_sequences ?? []), '\n\nHuman:'],
-        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}\n\nAssistant: ${this.promptSuffix}`
+        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}${this.promptSuffix}\n\nAssistant:${this.answerPrefix}`
       });
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);

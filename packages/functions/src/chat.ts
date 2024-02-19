@@ -243,7 +243,7 @@ async function lambdaHandler(
       providedModelId ??
       ((hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
         ? ('anthropic.claude-v2:1' satisfies PlusTierModelId)
-        : ('mistralai/Mixtral-8x7B-Instruct-v0.1' satisfies FreeTierModelId));
+        : ('gpt-3.5-turbo' satisfies FreeTierModelId));
 
     console.time('Validating chat');
     const chat = chatId

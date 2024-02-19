@@ -25,10 +25,10 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
 
   // Google AI
-  GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY!,
+  GOOGLE_API_KEY: process.env.GOOGLE_API_KEY!,
 
-  // TogetherAI
-  TOGETHERAI_API_KEY: process.env.TOGETHERAI_API_KEY!,
+  // Fireworks AI
+  FIREWORKS_API_KEY: process.env.FIREWORKS_API_KEY!,
 
   // Revenue Cat
   REVENUECAT_PROJECT_ID: process.env.REVENUECAT_PROJECT_ID!,

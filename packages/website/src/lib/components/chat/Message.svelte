@@ -5,7 +5,7 @@
 	import { PUBLIC_WEBSITE_URL } from '$env/static/public';
 	import Icon from '@iconify/svelte';
 	import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
-	import { toCapitalizedCase } from '@revelationsai/core/util/string';
+	import type { ModelInfo } from '@revelationsai/core/model/llm';
 	import type { Message } from 'ai';
 	import Day from 'dayjs';
 	import LogoIcon from '../branding/LogoIcon.svelte';
@@ -19,6 +19,7 @@
 	export let prevMessage: RAIChatMessage | undefined = undefined;
 	export let isChatLoading = false;
 	export let isLastMessage = false;
+	export let modelInfos: { [k: string]: ModelInfo };
 
 	const url = `${PUBLIC_WEBSITE_URL}/chat`;
 
@@ -57,14 +58,7 @@
 			{#if message.modelId}
 				<div class="flex justify-end mt-2 text-xs text-gray-400">
 					<span class="border px-2 py-1 rounded-xl">
-						{toCapitalizedCase(
-							message.modelId
-								.replaceAll(/anthropic\./g, '')
-								.replaceAll(/-instant/g, '')
-								.replaceAll(/-/g, ' ')
-								.replaceAll(/:/g, '.')
-								.replaceAll(/(v\d)(.\d)?/g, '$1$2')
-						)}
+						{modelInfos[message.modelId]?.name ?? message.modelId}
 					</span>
 				</div>
 			{/if}

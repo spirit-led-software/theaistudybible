@@ -1,9 +1,7 @@
-import { TogetherAI } from '@langchain/community/llms/togetherai';
 import type { BaseCache } from '@langchain/core/caches';
 import { OpenAI } from '@langchain/openai';
 import envConfig from '@revelationsai/core/configs/env';
 import openAiConfig from '@revelationsai/core/configs/openai';
-import togetherAiConfig from '@revelationsai/core/configs/togetherai';
 import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import {
   RAIBedrockEmbeddings,
@@ -12,14 +10,11 @@ import {
 import { RAIBedrock } from '@revelationsai/core/langchain/llms/bedrock';
 import {
   anthropicModelIds,
-  type AnthropicModelId
+  bedrockModelIds,
+  type AnthropicModelId,
+  type BedrockModelId
 } from '@revelationsai/core/langchain/types/bedrock';
 import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/openai';
-import {
-  togetherAiModelIds,
-  type TogetherAIModelId
-} from '@revelationsai/core/langchain/types/togetherai';
-import type { FreeTierModelId, PlusTierModelId } from '@revelationsai/core/model/llm';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
 
 export type StandardModelInput = {
@@ -31,6 +26,7 @@ export type StandardModelInput = {
   stopSequences?: string[];
   promptPrefix?: string;
   promptSuffix?: string;
+  answerPrefix?: string;
   cache?: BaseCache;
 };
 
@@ -49,31 +45,26 @@ export function getEmbeddingsModel(options?: RAIBedrockEmbeddingsParams) {
 }
 
 export function getLanguageModel({
-  modelId = 'mistralai/Mixtral-8x7B-Instruct-v0.1',
-  temperature = 0.5,
-  maxTokens = 2048,
+  modelId = 'gpt-3.5-turbo',
+  temperature = 0.7,
+  maxTokens = 4096,
   stopSequences = [],
   stream = false,
-  topK = 20,
-  topP = 0.5,
+  topK = 50,
+  topP = 0.7,
   promptPrefix,
   promptSuffix,
+  answerPrefix,
   cache
-}: StandardModelInput & { modelId?: FreeTierModelId | PlusTierModelId } = {}) {
-  if (togetherAiModelIds.includes(modelId as TogetherAIModelId)) {
-    return new TogetherAI({
-      modelName: modelId,
-      apiKey: togetherAiConfig.apiKey,
-      streaming: stream,
-      maxTokens,
-      temperature,
-      topP,
-      topK,
-      stop: stopSequences,
-      cache,
-      verbose: envConfig.isLocal
-    });
-  } else if (openAiModelIds.includes(modelId as OpenAiModelId)) {
+}: StandardModelInput & { modelId?: OpenAiModelId | AnthropicModelId } = {}) {
+  if (
+    (promptPrefix || promptSuffix || answerPrefix) &&
+    !bedrockModelIds.includes(modelId as BedrockModelId)
+  ) {
+    throw new Error('Prompt prefix and suffix are only supported for Bedrock models');
+  }
+
+  if (openAiModelIds.includes(modelId as OpenAiModelId)) {
     return new OpenAI({
       modelName: modelId as OpenAiModelId,
       openAIApiKey: openAiConfig.apiKey,
@@ -85,7 +76,9 @@ export function getLanguageModel({
       cache,
       verbose: envConfig.isLocal
     });
-  } else if (anthropicModelIds.includes(modelId as AnthropicModelId)) {
+  }
+
+  if (anthropicModelIds.includes(modelId as AnthropicModelId)) {
     return new RAIBedrock({
       modelId: modelId as AnthropicModelId,
       stream: stream,
@@ -98,10 +91,11 @@ export function getLanguageModel({
       },
       promptPrefix,
       promptSuffix,
+      answerPrefix,
       cache,
       verbose: envConfig.isLocal
     });
-  } else {
-    throw new Error(`Invalid modelId: ${modelId}`);
   }
+
+  throw new Error(`Invalid modelId: ${modelId}`);
 }

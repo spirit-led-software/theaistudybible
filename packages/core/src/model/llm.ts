@@ -2,20 +2,12 @@ export type ModelInfo = {
   name: string;
   description: string;
   contextSize: `${number}k`;
-  provider: 'bedrock' | 'openai' | 'togetherai' | 'google';
+  provider: 'bedrock' | 'openai' | 'fireworks' | 'google';
   link: string;
   tier: 'free' | 'plus';
 };
 
 export const freeTierModels = {
-  'mistralai/Mixtral-8x7B-Instruct-v0.1': {
-    name: 'Mixtral-8x7B',
-    description: 'A mixture of experts language model trained by Mistral AI',
-    contextSize: '32k',
-    provider: 'togetherai',
-    link: 'https://huggingface.co/mistralai/Mixtral-8x7B-v0.1',
-    tier: 'free'
-  } satisfies ModelInfo,
   'gpt-3.5-turbo': {
     name: 'GPT-3.5',
     description: 'A large language model trained by OpenAI',

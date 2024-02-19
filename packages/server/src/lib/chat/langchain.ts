@@ -2,6 +2,10 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
+import {
+  anthropicModelIds,
+  type AnthropicModelId
+} from '@revelationsai/core/langchain/types/bedrock';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
@@ -80,15 +84,19 @@ export const getRAIChatChain = async (options: {
           getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
-            stopSequences: ['</answer>']
+            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
+              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
+              answerPrefix: '<answer>',
+              stopSequences: ['</answer>']
+            })
           })
         )
         .pipe(new StringOutputParser())
+        .withConfig({
+          callbacks
+        })
     }
-  ]).withConfig({
-    callbacks
-  });
+  ]);
 
   const chatHistoryChain = RunnableSequence.from([
     {
@@ -109,15 +117,19 @@ export const getRAIChatChain = async (options: {
           getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
-            stopSequences: ['</answer>']
+            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
+              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
+              answerPrefix: '<answer>',
+              stopSequences: ['</answer>']
+            })
           })
         )
         .pipe(new StringOutputParser())
+        .withConfig({
+          callbacks
+        })
     }
-  ]).withConfig({
-    callbacks
-  });
+  ]);
 
   const faithQaChain = await getDocumentQaChain({
     modelId,
@@ -148,8 +160,6 @@ export const getRAIChatChain = async (options: {
 
   const routerChainOutputParser = OutputFixingParser.fromLLM(
     getLanguageModel({
-      promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-      stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
       topP: 0.1
@@ -194,9 +204,6 @@ export const getRAIChatChain = async (options: {
           }
         }),
         getLanguageModel({
-          maxTokens: 4096,
-          promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-          stopSequences: ['</output>'],
           cache: llmCache
         }),
         routerChainOutputParser
@@ -231,8 +238,6 @@ export async function getDocumentQaChain(options: {
 
   const searchQueryOutputParser = OutputFixingParser.fromLLM(
     getLanguageModel({
-      promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-      stopSequences: ['</output>'],
       temperature: 0.1,
       topK: 5,
       topP: 0.1
@@ -258,8 +263,6 @@ export async function getDocumentQaChain(options: {
       })
         .pipe(
           getLanguageModel({
-            promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-            stopSequences: ['</output>'],
             cache: llmCache
           })
         )
@@ -325,8 +328,11 @@ export async function getDocumentQaChain(options: {
           getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '\nPlace your answer within <answer></answer> XML tags.\n<answer>',
-            stopSequences: ['</answer>']
+            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
+              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
+              answerPrefix: '<answer>',
+              stopSequences: ['</answer>']
+            })
           })
         )
         .pipe(new StringOutputParser())

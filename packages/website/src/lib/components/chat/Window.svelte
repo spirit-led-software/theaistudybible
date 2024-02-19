@@ -231,13 +231,8 @@
 					<div class="h-16 w-full" />
 					{#each $messages as message, index}
 						<div class="flex flex-col w-full">
-							<!-- TODO: Add ads when adsense is approved
-                  Randomly show an ad
-                  {index !== 0 &&
-                    index % Math.floor(Math.random() * 10) === 0 && (
-                      <AdMessage />
-                    )} -->
 							<Message
+								{modelInfos}
 								{chatId}
 								{message}
 								prevMessage={$messages[index - 1]}

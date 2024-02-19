@@ -14,8 +14,6 @@ import {
 
 const validationOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
-    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-    stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -32,8 +30,6 @@ const validationOutputParser = OutputFixingParser.fromLLM(
 
 const phraseOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
-    promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-    stopSequences: ['</output>'],
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -71,12 +67,7 @@ export const getImagePromptChain = async () => {
           formatInstructions: validationOutputParser.getFormatInstructions()
         }
       })
-        .pipe(
-          getLanguageModel({
-            promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-            stopSequences: ['</output>']
-          })
-        )
+        .pipe(getLanguageModel())
         .pipe(validationOutputParser)
     },
     {
@@ -105,13 +96,7 @@ export const getImagePromptChain = async () => {
         formatInstructions: phraseOutputParser.getFormatInstructions()
       }
     })
-      .pipe(
-        getLanguageModel({
-          maxTokens: 2048,
-          promptSuffix: '\nPlace your output within <output></output> XML tags.\n<output>',
-          stopSequences: ['</output>']
-        })
-      )
+      .pipe(getLanguageModel())
       .pipe(phraseOutputParser)
   ]);
 

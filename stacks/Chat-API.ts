@@ -25,7 +25,7 @@ export function ChatAPI({ stack, app }: StackContext) {
 
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
     handler: 'packages/functions/src/chat.handler',
-    timeout: '2 minutes',
+    timeout: '5 minutes',
     enableLiveDev: false, // Cannot live dev with response stream
     memorySize: '1536 MB',
     permissions: [invokeBedrockPolicy],
