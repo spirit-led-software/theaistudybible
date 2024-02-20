@@ -10,9 +10,7 @@ import {
 import { RAIBedrock } from '@revelationsai/core/langchain/llms/bedrock';
 import {
   anthropicModelIds,
-  bedrockModelIds,
-  type AnthropicModelId,
-  type BedrockModelId
+  type AnthropicModelId
 } from '@revelationsai/core/langchain/types/bedrock';
 import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/openai';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
@@ -57,14 +55,10 @@ export function getLanguageModel({
   completionPrefix,
   cache
 }: StandardModelInput & { modelId?: OpenAiModelId | AnthropicModelId } = {}) {
-  if (
-    (promptPrefix || promptSuffix || completionPrefix) &&
-    !bedrockModelIds.includes(modelId as BedrockModelId)
-  ) {
-    throw new Error('Prompt prefix and suffix are only supported for Bedrock models');
-  }
-
   if (openAiModelIds.includes(modelId as OpenAiModelId)) {
+    if (promptPrefix || promptSuffix || completionPrefix) {
+      throw new Error('Prompt/completion prefixes/suffixes are not supported for OpenAI models');
+    }
     return new OpenAI({
       modelName: modelId as OpenAiModelId,
       openAIApiKey: openAiConfig.apiKey,
@@ -82,16 +76,16 @@ export function getLanguageModel({
     return new RAIBedrock({
       modelId: modelId as AnthropicModelId,
       stream: stream,
+      promptPrefix,
+      promptSuffix: promptSuffix || '\nPut your output within <output></output> XML tags.',
+      completionPrefix: completionPrefix || '<output>',
       body: {
         max_tokens_to_sample: maxTokens,
         temperature: temperature,
         top_p: topP,
         top_k: topK,
-        stop_sequences: stopSequences
+        stop_sequences: stopSequences || ['</output>']
       },
-      promptPrefix,
-      promptSuffix,
-      completionPrefix: completionPrefix,
       cache,
       verbose: envConfig.isLocal
     });
