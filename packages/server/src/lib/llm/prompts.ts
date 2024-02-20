@@ -30,9 +30,7 @@ Here are the formatting instructions that you must follow exactly, within <forma
 
 Adjust the completion so that it fixes the error and follows the formatting instructions exactly.
 
-Think carefully about your output first before you respond.
-
-Put your output that follows the formatting instructions within <output></output> XML tags.`;
+Think carefully about your output first before you respond.`;
 
 export const MARKDOWN_FORMATTING_INSTRUCTIONS = `Your output must be formatted in markdown. You are only allowed to use the following markdown syntax in your output:
 

@@ -15,8 +15,13 @@
     "flushbar",
     "Hnsw",
     "langchain",
+    "mistralai",
+    "Mixtral",
+    "openai",
+    "revelationsai",
     "REVENUECAT",
     "Riverpod",
+    "togetherai",
     "unfocus",
     "upstash"
   ],

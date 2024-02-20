@@ -44,7 +44,7 @@
 			title="RevelationsAI Standard"
 			price="Free"
 			features={[
-				'Anthropic Claude v1 (AI model)',
+				'GPT-3.5',
 				'Send 5 messages every hour',
 				'Generate 1 image every 8 hours (mobile only)',
 				'Standard ads'

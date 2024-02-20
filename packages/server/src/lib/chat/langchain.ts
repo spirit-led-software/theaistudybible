@@ -2,9 +2,17 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
-import type { AnthropicModelId } from '@revelationsai/core/langchain/types/bedrock-types';
+import {
+  anthropicModelIds,
+  type AnthropicModelId
+} from '@revelationsai/core/langchain/types/bedrock';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import {
+  allModels,
+  type FreeTierModelId,
+  type PlusTierModelId
+} from '@revelationsai/core/model/llm';
 import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
@@ -18,9 +26,9 @@ import {
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
-import { getLargeContextModel, llmCache } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
-import { getDocumentVectorStore } from '../../services/vector-db';
+import { getLanguageModel, llmCache } from '../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
+import { getDocumentVectorStore } from '../vector-db';
 import {
   CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
   CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
@@ -30,7 +38,7 @@ import {
 } from './prompts';
 
 export const getRAIChatChain = async (options: {
-  modelId: AnthropicModelId;
+  modelId: FreeTierModelId | PlusTierModelId;
   user: User;
   messages: RAIChatMessage[];
   callbacks: CallbackManager;
@@ -46,8 +54,11 @@ export const getRAIChatChain = async (options: {
 > => {
   const { modelId, user, messages, callbacks } = options;
 
+  const { contextSize } = allModels[modelId];
+  const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
+
   const history = new ChatMessageHistory(
-    messages.slice(-13, -1).map((message) => {
+    messages.slice(contextSizeNum > 32 ? -21 : -11, -1).map((message) => {
       return message.role === 'user'
         ? new HumanMessage(message.content)
         : new AIMessage(message.content);
@@ -61,27 +72,35 @@ export const getRAIChatChain = async (options: {
     {
       text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: (await history.getMessages())
-            .map(
-              (message) =>
-                `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+          history: await history
+            .getMessages()
+            .then((messages) =>
+              messages
+                .map(
+                  (message) =>
+                    `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+                )
+                .join('\n')
             )
-            .join('\n')
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '<answer>',
-            stopSequences: ['</answer>']
+            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
+              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
+              completionPrefix: '<answer>',
+              stopSequences: ['</answer>']
+            })
           })
         )
         .pipe(new StringOutputParser())
+        .withConfig({
+          callbacks
+        })
     }
-  ]).withConfig({
-    callbacks
-  });
+  ]);
 
   const chatHistoryChain = RunnableSequence.from([
     {
@@ -90,30 +109,39 @@ export const getRAIChatChain = async (options: {
     {
       text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: (await history.getMessages())
-            .map(
-              (message) =>
-                `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+          history: await history
+            .getMessages()
+            .then((messages) =>
+              messages
+                .map(
+                  (message) =>
+                    `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+                )
+                .join('\n')
             )
-            .join('\n')
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
             modelId,
             stream: true,
-            promptSuffix: '<answer>',
-            stopSequences: ['</answer>']
+            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
+              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
+              completionPrefix: '<answer>',
+              stopSequences: ['</answer>']
+            })
           })
         )
         .pipe(new StringOutputParser())
+        .withConfig({
+          callbacks
+        })
     }
-  ]).withConfig({
-    callbacks
-  });
+  ]);
 
   const faithQaChain = await getDocumentQaChain({
     modelId,
+    contextSize: contextSizeNum,
     prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
     filters: [
       {
@@ -122,9 +150,13 @@ export const getRAIChatChain = async (options: {
       },
       "metadata->>'category' != 'bible'"
     ],
-    history: (await history.getMessages())
-      .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
-      .join('\n'),
+    history: await history
+      .getMessages()
+      .then((messages) =>
+        messages
+          .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
+          .join('\n')
+      ),
     extraPromptVars: {
       bibleTranslation: user.translation
     },
@@ -139,9 +171,7 @@ export const getRAIChatChain = async (options: {
   ]);
 
   const routerChainOutputParser = OutputFixingParser.fromLLM(
-    getLargeContextModel({
-      promptSuffix: '<output>',
-      stopSequences: ['</output>'],
+    getLanguageModel({
       temperature: 0.1,
       topK: 5,
       topP: 0.1
@@ -178,17 +208,18 @@ export const getRAIChatChain = async (options: {
               'chat-history: For retrieving information about the current chat conversation.',
               'faith-qa: For answering general queries about Christian faith.'
             ].join('\n'),
-            history: (await history.getMessages())
-              .map(
-                (m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
-              )
-              .join('\n')
+            history: await history.getMessages().then((messages) =>
+              messages
+                .slice(-10)
+                .map(
+                  (m) =>
+                    `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
+                )
+                .join('\n')
+            )
           }
         }),
-        getLargeContextModel({
-          maxTokens: 4096,
-          promptSuffix: '<output>',
-          stopSequences: ['</output>'],
+        getLanguageModel({
           cache: llmCache
         }),
         routerChainOutputParser
@@ -202,28 +233,27 @@ export const getRAIChatChain = async (options: {
 };
 
 export async function getDocumentQaChain(options: {
-  modelId: AnthropicModelId;
+  modelId: FreeTierModelId | PlusTierModelId;
+  contextSize: number;
   prompt: string;
   callbacks: CallbackManager;
   filters?: (Metadata | string)[];
   history: string;
   extraPromptVars?: PartialValues<string>;
 }) {
-  const { prompt, filters, extraPromptVars } = options;
+  const { modelId, contextSize, prompt, filters, extraPromptVars, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
     filters,
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: 5,
+      k: contextSize > 32 ? 7 : 3,
       verbose: envConfig.isLocal
     })
   );
 
   const searchQueryOutputParser = OutputFixingParser.fromLLM(
-    getLargeContextModel({
-      promptSuffix: '<output>',
-      stopSequences: ['</output>'],
+    getLanguageModel({
       temperature: 0.1,
       topK: 5,
       topP: 0.1
@@ -243,14 +273,12 @@ export async function getDocumentQaChain(options: {
     {
       searchQueries: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: options.history,
+          history,
           formatInstructions: searchQueryOutputParser.getFormatInstructions()
         }
       })
         .pipe(
-          getLargeContextModel({
-            promptSuffix: '<output>',
-            stopSequences: ['</output>'],
+          getLanguageModel({
             cache: llmCache
           })
         )
@@ -308,20 +336,24 @@ export async function getDocumentQaChain(options: {
     {
       text: PromptTemplate.fromTemplate(prompt, {
         partialVariables: {
-          history: options.history,
+          history,
           ...extraPromptVars
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
+            modelId,
             stream: true,
-            promptSuffix: '<answer>',
-            stopSequences: ['</answer>']
+            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
+              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
+              completionPrefix: '<answer>',
+              stopSequences: ['</answer>']
+            })
           })
         )
         .pipe(new StringOutputParser())
         .withConfig({
-          callbacks: options.callbacks
+          callbacks
         }),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
       searchQueries: (previousStepResult) => previousStepResult.searchQueries

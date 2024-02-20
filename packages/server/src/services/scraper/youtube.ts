@@ -6,9 +6,9 @@ import type { Metadata } from '@revelationsai/core/types/metadata';
 import { sql } from 'drizzle-orm';
 import { YoutubeLoader } from 'langchain/document_loaders/web/youtube';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { getDocumentVectorStore } from '../../lib/vector-db';
 import { getDataSourceOrThrow, updateDataSource } from '../../services/data-source';
 import { createIndexOperation, updateIndexOperation } from '../../services/data-source/index-op';
-import { getDocumentVectorStore } from '../../services/vector-db';
 
 export async function indexYoutubeVideo({
   dataSourceId,

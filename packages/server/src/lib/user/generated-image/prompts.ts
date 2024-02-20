@@ -21,9 +21,7 @@ Is the prompt inappropriate?
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Place your output within <output></output> XML tags.`;
+</format_instructions>`;
 
 export const USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate short, concise, yet descriptive phrases that help to aid the provided user's prompt when generating a stable diffusion image.
 
@@ -59,6 +57,4 @@ What are 1 to 4 phrases that could help to aid the user's prompt when generating
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your output that follows the formatting instructions within <output></output> XML tags.`;
+</format_instructions>`;

@@ -1,6 +1,10 @@
 import type { BedrockRuntimeClient } from '@aws-sdk/client-bedrock-runtime';
 
-export type AmazonModelId = 'amazon.titan-text-express-v1' | 'amazon.titan-text-lite-v1';
+export const amazonModelIds = [
+  'amazon.titan-text-express-v1',
+  'amazon.titan-text-lite-v1'
+] as const;
+export type AmazonModelId = (typeof amazonModelIds)[number];
 
 export type AmazonModelBody = {
   textGenerationConfig: {
@@ -11,11 +15,13 @@ export type AmazonModelBody = {
   };
 };
 
-export type AnthropicModelId =
-  | 'anthropic.claude-v1'
-  | 'anthropic.claude-instant-v1'
-  | 'anthropic.claude-v2'
-  | 'anthropic.claude-v2:1';
+export const anthropicModelIds = [
+  'anthropic.claude-v1',
+  'anthropic.claude-instant-v1',
+  'anthropic.claude-v2',
+  'anthropic.claude-v2:1'
+] as const;
+export type AnthropicModelId = (typeof anthropicModelIds)[number];
 
 export type AnthropicModelBody = {
   temperature: number;
@@ -25,7 +31,8 @@ export type AnthropicModelBody = {
   stop_sequences?: string[];
 };
 
-export type AI21ModelId = 'ai21.j2-ultra-v1' | 'ai21.j2-mid-v1';
+export const ai21ModelIds = ['ai21.j2-ultra-v1', 'ai21.j2-mid-v1'] as const;
+export type AI21ModelId = (typeof ai21ModelIds)[number];
 
 export type AI21ModelBody = {
   temperature: number;
@@ -43,7 +50,8 @@ export type AI21ModelBody = {
   };
 };
 
-export type CohereModelId = 'cohere.command-text-v14';
+export const cohereModelIds = ['cohere.command-text-v14', 'cohere.command-light-text-v14'] as const;
+export type CohereModelId = (typeof cohereModelIds)[number];
 
 export type CohereModelBody = {
   max_tokens: number;
@@ -55,7 +63,13 @@ export type CohereModelBody = {
   num_generations?: number;
 };
 
-export type BedrockModelId = AmazonModelId | AnthropicModelId | AI21ModelId | CohereModelId;
+export const bedrockModelIds = [
+  ...amazonModelIds,
+  ...anthropicModelIds,
+  ...ai21ModelIds,
+  ...cohereModelIds
+] as const;
+export type BedrockModelId = (typeof bedrockModelIds)[number];
 
 export type BedrockInput = {
   region: string;
@@ -63,6 +77,7 @@ export type BedrockInput = {
   client?: BedrockRuntimeClient;
   promptPrefix?: string;
   promptSuffix?: string;
+  completionPrefix?: string;
 } & (
   | {
       modelId: AmazonModelId;

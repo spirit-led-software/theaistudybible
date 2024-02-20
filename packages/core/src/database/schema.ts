@@ -12,6 +12,7 @@ import {
   uuid
 } from 'drizzle-orm/pg-core';
 import type { Metadata } from '../types/metadata';
+import { freeTierModelIds, plusTierModelIds } from '../model/llm';
 
 export const aiResponses = pgTable('ai_responses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -22,13 +23,7 @@ export const aiResponses = pgTable('ai_responses', {
   failed: boolean('failed').notNull().default(false),
   regenerated: boolean('regenerated').notNull().default(false),
   modelId: text('model_id', {
-    enum: [
-      'anthropic.claude-instant-v1',
-      'anthropic.claude-v1',
-      'anthropic.claude-v2',
-      'anthropic.claude-v2:1',
-      'unknown'
-    ]
+    enum: ['unknown', ...freeTierModelIds, ...plusTierModelIds]
   })
     .notNull()
     .default('unknown'),

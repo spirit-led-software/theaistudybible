@@ -3,7 +3,7 @@ import type { Chat } from '@revelationsai/core/model/chat';
 import type { Message } from 'ai';
 import { PromptTemplate } from 'langchain/prompts';
 import { updateChat } from '../../services/chat';
-import { getLargeContextModel } from '../../services/llm';
+import { getLanguageModel } from '../llm';
 import { CHAT_RENAME_CHAIN_PROMPT_TEMPLATE } from './prompts';
 
 export async function aiRenameChat(chat: Chat, history: Message[]) {
@@ -12,27 +12,20 @@ export async function aiRenameChat(chat: Chat, history: Message[]) {
   }
 
   const renameChain = PromptTemplate.fromTemplate(CHAT_RENAME_CHAIN_PROMPT_TEMPLATE)
-    .pipe(
-      getLargeContextModel({
-        stream: false,
-        maxTokens: 256,
-        promptSuffix: '<title>',
-        stopSequences: ['</title>']
-      })
-    )
+    .pipe(getLanguageModel())
     .pipe(new StringOutputParser());
 
   const result = await renameChain
     .invoke({
       history: history
-        .slice(-13)
+        .slice(-21)
         .map(
           (message) =>
             `<message>\n<sender>${message.role}</sender>\n<text>${message.content}</text>\n</message>`
         )
         .join('\n')
     })
-    .then((result) => result.trim());
+    .then((result) => result.trim().replace(/"/g, ''));
 
   return await updateChat(chat.id, {
     name: result,

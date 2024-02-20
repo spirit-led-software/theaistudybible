@@ -7,7 +7,7 @@ import { indexRemoteFile } from '../services/scraper/file';
 import { indexWebCrawl } from '../services/scraper/web-crawl';
 import { indexWebPage } from '../services/scraper/webpage';
 import { indexYoutubeVideo } from '../services/scraper/youtube';
-import { getDocumentVectorStore } from '../services/vector-db';
+import { getDocumentVectorStore } from './vector-db';
 
 export async function syncDataSource(id: string, manual: boolean = false): Promise<DataSource> {
   let dataSource = await getDataSourceOrThrow(id);

@@ -4,12 +4,12 @@ import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
 import { getDataSourceOrThrow, updateDataSource } from '@revelationsai/server/services/data-source';
 import {
   createIndexOperation,
   updateIndexOperation
 } from '@revelationsai/server/services/data-source/index-op';
-import { getDocumentVectorStore } from '@revelationsai/server/services/vector-db';
 import type { S3Handler } from 'aws-lambda';
 import { sql } from 'drizzle-orm';
 import { mkdtempSync, writeFileSync } from 'fs';

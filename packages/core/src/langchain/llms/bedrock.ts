@@ -9,7 +9,7 @@ import { GenerationChunk } from '@langchain/core/outputs';
 import type { BaseLanguageModelCallOptions } from 'langchain/base_language';
 import type { CallbackManagerForLLMRun } from 'langchain/callbacks';
 import { LLM, type BaseLLMParams } from 'langchain/llms/base';
-import type { BedrockInput } from '../types/bedrock-types';
+import type { BedrockInput } from '../types/bedrock';
 
 export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
   static lc_name() {
@@ -47,6 +47,8 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
 
   promptSuffix: string;
 
+  completionPrefix: string;
+
   constructor(fields?: Partial<BedrockInput> & BaseLLMParams) {
     super(fields ?? {});
 
@@ -58,6 +60,7 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
     this.client = fields?.client ?? new BedrockRuntimeClient();
     this.promptPrefix = fields?.promptPrefix ?? '';
     this.promptSuffix = fields?.promptSuffix ?? '';
+    this.completionPrefix = fields?.completionPrefix ?? '';
   }
 
   _log(message: unknown, ...optionalParams: unknown[]) {
@@ -188,7 +191,7 @@ export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {
       body = JSON.stringify({
         ...params.body,
         stop_sequences: [...(params.body.stop_sequences ?? []), '\n\nHuman:'],
-        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}\n\nAssistant: ${this.promptSuffix}`
+        prompt: `\n\nHuman: ${this.promptPrefix}${prompt}${this.promptSuffix}\n\nAssistant:${this.completionPrefix}`
       });
     } else {
       throw new Error(`Unknown provider: ${this.provider}`);

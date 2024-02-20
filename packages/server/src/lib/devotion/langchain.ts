@@ -9,9 +9,9 @@ import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchai
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getDevotions } from '../../services/devotion/devotion';
-import { getLargeContextModel } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
-import { getDocumentVectorStore } from '../../services/vector-db';
+import { getLanguageModel } from '../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
+import { getDocumentVectorStore } from '../vector-db';
 import {
   DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
   DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
@@ -20,9 +20,7 @@ import {
 } from './prompts';
 
 const devotionOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
-    stopSequences: ['</output>'],
+  getLanguageModel({
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -106,11 +104,11 @@ export const getDevotionGeneratorChain = async (): Promise<
         }
       })
         .pipe(
-          getLargeContextModel({
+          getLanguageModel({
             modelId: 'anthropic.claude-v2:1',
-            maxTokens: 4096,
-            stopSequences: ['</output>'],
-            promptSuffix: '<output>'
+            promptSuffix: '\nPlace your output within <output></output> XML tags.',
+            completionPrefix: '<output>',
+            stopSequences: ['</output>']
           })
         )
         .pipe(devotionOutputParser)
@@ -121,9 +119,7 @@ export const getDevotionGeneratorChain = async (): Promise<
 };
 
 const bibleReadingOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
-    stopSequences: ['</output>'],
+  getLanguageModel({
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -195,10 +191,11 @@ export const getBibleReadingChain = async (topic: string) => {
       }
     })
       .pipe(
-        getLargeContextModel({
-          maxTokens: 2048,
-          stopSequences: ['</output>'],
-          promptSuffix: '<output>'
+        getLanguageModel({
+          modelId: 'anthropic.claude-instant-v1',
+          promptSuffix: '\nPlace your output within <output></output> XML tags.',
+          completionPrefix: '<output>',
+          stopSequences: ['</output>']
         })
       )
       .pipe(bibleReadingOutputParser)
@@ -208,9 +205,7 @@ export const getBibleReadingChain = async (topic: string) => {
 };
 
 const imagePromptOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
-    stopSequences: ['</output>'],
+  getLanguageModel({
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -229,25 +224,18 @@ export const getImagePromptChain = () => {
       formatInstructions: imagePromptOutputParser.getFormatInstructions()
     }
   })
-    .pipe(
-      getLargeContextModel({
-        maxTokens: 1024,
-        stream: false,
-        promptSuffix: '<output>',
-        stopSequences: ['</output>']
-      })
-    )
+    .pipe(getLanguageModel())
     .pipe(imagePromptOutputParser);
 };
 
 export const getImageCaptionChain = () => {
   return PromptTemplate.fromTemplate(DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE)
     .pipe(
-      getLargeContextModel({
+      getLanguageModel({
         modelId: 'anthropic.claude-v2:1',
-        maxTokens: 100,
         stream: false,
-        promptSuffix: '<output>',
+        promptSuffix: '\nPlace your output within <output></output> XML tags.',
+        completionPrefix: '<output>',
         stopSequences: ['</output>']
       })
     )

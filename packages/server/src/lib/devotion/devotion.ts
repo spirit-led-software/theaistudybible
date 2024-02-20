@@ -11,9 +11,9 @@ import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
-import { getLargeContextModel } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { db } from '../database';
+import { getLanguageModel } from '../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
 import {
   getBibleReadingChain,
   getDevotionGeneratorChain,
@@ -217,9 +217,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
 
 const getDiveDeeperOutputParser = (numQueries: number) =>
   OutputFixingParser.fromLLM(
-    getLargeContextModel({
-      promptSuffix: '<output>',
-      stopSequences: ['</output>'],
+    getLanguageModel({
       temperature: 0.1,
       topK: 5,
       topP: 0.1
@@ -252,11 +250,12 @@ export async function generateDiveDeeperQueries(devotion: Devotion, numQueries =
     }
   })
     .pipe(
-      getLargeContextModel({
+      getLanguageModel({
+        modelId: 'anthropic.claude-v2:1',
         stream: false,
-        maxTokens: 256,
-        promptSuffix: '<query>',
-        stopSequences: ['</query>']
+        promptSuffix: '\nPlace your queries within <queries></queries> XML tags.',
+        completionPrefix: '<queries>',
+        stopSequences: ['</queries>']
       })
     )
     .pipe(diveDeeperOutputParser);

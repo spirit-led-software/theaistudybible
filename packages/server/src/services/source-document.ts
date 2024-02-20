@@ -4,7 +4,7 @@ import {
 } from '@revelationsai/core/database/schema';
 import { asc, eq } from 'drizzle-orm';
 import { db } from '../lib/database';
-import { getDocumentVectorStore } from './vector-db';
+import { getDocumentVectorStore } from '../lib/vector-db';
 
 export async function getDevotionSourceDocuments(devotionId: string) {
   const sourceDocumentRelationships = await db

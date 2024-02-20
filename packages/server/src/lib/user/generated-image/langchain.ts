@@ -4,18 +4,16 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLargeContextModel } from '../../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../../services/llm/prompts';
-import { getDocumentVectorStore } from '../../../services/vector-db';
+import { getLanguageModel } from '../../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../llm/prompts';
+import { getDocumentVectorStore } from '../../vector-db';
 import {
   USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
   USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE
 } from './prompts';
 
 const validationOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
-    stopSequences: ['</output>'],
+  getLanguageModel({
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -31,9 +29,7 @@ const validationOutputParser = OutputFixingParser.fromLLM(
 );
 
 const phraseOutputParser = OutputFixingParser.fromLLM(
-  getLargeContextModel({
-    promptSuffix: '<output>',
-    stopSequences: ['</output>'],
+  getLanguageModel({
     temperature: 0.1,
     topK: 5,
     topP: 0.1
@@ -71,12 +67,7 @@ export const getImagePromptChain = async () => {
           formatInstructions: validationOutputParser.getFormatInstructions()
         }
       })
-        .pipe(
-          getLargeContextModel({
-            stopSequences: ['</output>'],
-            promptSuffix: '<output>'
-          })
-        )
+        .pipe(getLanguageModel())
         .pipe(validationOutputParser)
     },
     {
@@ -105,13 +96,7 @@ export const getImagePromptChain = async () => {
         formatInstructions: phraseOutputParser.getFormatInstructions()
       }
     })
-      .pipe(
-        getLargeContextModel({
-          maxTokens: 2048,
-          stopSequences: ['</output>'],
-          promptSuffix: '<output>'
-        })
-      )
+      .pipe(getLanguageModel())
       .pipe(phraseOutputParser)
   ]);
 

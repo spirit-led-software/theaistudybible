@@ -8,6 +8,7 @@
 	import { updateAiResponse } from '@revelationsai/client/services/ai-response';
 	import { hasPlus, isAdmin } from '@revelationsai/client/services/user';
 	import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+	import type { ModelInfo } from '@revelationsai/core/model/llm';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { nanoid, type Message as ChatMessage } from 'ai';
 	import { useChat } from 'ai/svelte';
@@ -17,6 +18,7 @@
 
 	export let initChatId: string | undefined = undefined;
 	export let initMessages: RAIChatMessage[] | undefined = undefined;
+	export let modelInfos: { [key: string]: ModelInfo };
 
 	let chatId: string | undefined = undefined;
 	let modelId: string | undefined = undefined;
@@ -212,14 +214,14 @@
 					bind:value={modelId}
 					on:change={async (event) => {
 						const selectedModelId = event.currentTarget.value;
-						if (selectedModelId === 'anthropic.claude-v2:1' && !userHasPlus) {
+						if (modelInfos[selectedModelId].tier === 'plus' && !userHasPlus) {
 							await goto('/upgrade');
 						}
 					}}
 				>
-					<option disabled>Language Model</option>
-					<option value="anthropic.claude-instant-v1">Claude v1</option>
-					<option value="anthropic.claude-v2:1" selected={userHasPlus}>Claude v2.1</option>
+					{#each Object.keys(modelInfos) as modelId}
+						<option value={modelId}>{modelInfos[modelId].name}</option>
+					{/each}
 				</select>
 			</div>
 		</div>
@@ -229,13 +231,8 @@
 					<div class="h-16 w-full" />
 					{#each $messages as message, index}
 						<div class="flex flex-col w-full">
-							<!-- TODO: Add ads when adsense is approved
-                  Randomly show an ad
-                  {index !== 0 &&
-                    index % Math.floor(Math.random() * 10) === 0 && (
-                      <AdMessage />
-                    )} -->
 							<Message
+								{modelInfos}
 								{chatId}
 								{message}
 								prevMessage={$messages[index - 1]}
