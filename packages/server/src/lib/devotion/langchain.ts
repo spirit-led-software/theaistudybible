@@ -107,7 +107,7 @@ export const getDevotionGeneratorChain = async (): Promise<
           getLanguageModel({
             modelId: 'anthropic.claude-v2:1',
             promptSuffix: '\nPlace your output within <output></output> XML tags.',
-            answerPrefix: '<output>',
+            completionPrefix: '<output>',
             stopSequences: ['</output>']
           })
         )
@@ -194,7 +194,7 @@ export const getBibleReadingChain = async (topic: string) => {
         getLanguageModel({
           modelId: 'anthropic.claude-instant-v1',
           promptSuffix: '\nPlace your output within <output></output> XML tags.',
-          answerPrefix: '<output>',
+          completionPrefix: '<output>',
           stopSequences: ['</output>']
         })
       )
@@ -235,7 +235,7 @@ export const getImageCaptionChain = () => {
         modelId: 'anthropic.claude-v2:1',
         stream: false,
         promptSuffix: '\nPlace your output within <output></output> XML tags.',
-        answerPrefix: '<output>',
+        completionPrefix: '<output>',
         stopSequences: ['</output>']
       })
     )

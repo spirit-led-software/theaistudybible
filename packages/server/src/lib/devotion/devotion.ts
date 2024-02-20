@@ -254,7 +254,7 @@ export async function generateDiveDeeperQueries(devotion: Devotion, numQueries =
         modelId: 'anthropic.claude-v2:1',
         stream: false,
         promptSuffix: '\nPlace your queries within <queries></queries> XML tags.',
-        answerPrefix: '<queries>',
+        completionPrefix: '<queries>',
         stopSequences: ['</queries>']
       })
     )

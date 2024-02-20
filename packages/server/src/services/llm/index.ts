@@ -26,7 +26,7 @@ export type StandardModelInput = {
   stopSequences?: string[];
   promptPrefix?: string;
   promptSuffix?: string;
-  answerPrefix?: string;
+  completionPrefix?: string;
   cache?: BaseCache;
 };
 
@@ -54,11 +54,11 @@ export function getLanguageModel({
   topP = 0.7,
   promptPrefix,
   promptSuffix,
-  answerPrefix,
+  completionPrefix,
   cache
 }: StandardModelInput & { modelId?: OpenAiModelId | AnthropicModelId } = {}) {
   if (
-    (promptPrefix || promptSuffix || answerPrefix) &&
+    (promptPrefix || promptSuffix || completionPrefix) &&
     !bedrockModelIds.includes(modelId as BedrockModelId)
   ) {
     throw new Error('Prompt prefix and suffix are only supported for Bedrock models');
@@ -91,7 +91,7 @@ export function getLanguageModel({
       },
       promptPrefix,
       promptSuffix,
-      answerPrefix,
+      completionPrefix: completionPrefix,
       cache,
       verbose: envConfig.isLocal
     });

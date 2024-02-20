@@ -72,12 +72,16 @@ export const getRAIChatChain = async (options: {
     {
       text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: (await history.getMessages())
-            .map(
-              (message) =>
-                `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+          history: await history
+            .getMessages()
+            .then((messages) =>
+              messages
+                .map(
+                  (message) =>
+                    `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+                )
+                .join('\n')
             )
-            .join('\n')
         }
       })
         .pipe(
@@ -86,7 +90,7 @@ export const getRAIChatChain = async (options: {
             stream: true,
             ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
               promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
-              answerPrefix: '<answer>',
+              completionPrefix: '<answer>',
               stopSequences: ['</answer>']
             })
           })
@@ -105,12 +109,16 @@ export const getRAIChatChain = async (options: {
     {
       text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: (await history.getMessages())
-            .map(
-              (message) =>
-                `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+          history: await history
+            .getMessages()
+            .then((messages) =>
+              messages
+                .map(
+                  (message) =>
+                    `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
+                )
+                .join('\n')
             )
-            .join('\n')
         }
       })
         .pipe(
@@ -119,7 +127,7 @@ export const getRAIChatChain = async (options: {
             stream: true,
             ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
               promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
-              answerPrefix: '<answer>',
+              completionPrefix: '<answer>',
               stopSequences: ['</answer>']
             })
           })
@@ -142,9 +150,13 @@ export const getRAIChatChain = async (options: {
       },
       "metadata->>'category' != 'bible'"
     ],
-    history: (await history.getMessages())
-      .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
-      .join('\n'),
+    history: await history
+      .getMessages()
+      .then((messages) =>
+        messages
+          .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
+          .join('\n')
+      ),
     extraPromptVars: {
       bibleTranslation: user.translation
     },
@@ -196,11 +208,15 @@ export const getRAIChatChain = async (options: {
               'chat-history: For retrieving information about the current chat conversation.',
               'faith-qa: For answering general queries about Christian faith.'
             ].join('\n'),
-            history: (await history.getMessages())
-              .map(
-                (m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
-              )
-              .join('\n')
+            history: await history.getMessages().then((messages) =>
+              messages
+                .slice(-10)
+                .map(
+                  (m) =>
+                    `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
+                )
+                .join('\n')
+            )
           }
         }),
         getLanguageModel({
@@ -225,7 +241,7 @@ export async function getDocumentQaChain(options: {
   history: string;
   extraPromptVars?: PartialValues<string>;
 }) {
-  const { modelId, contextSize, prompt, filters, extraPromptVars } = options;
+  const { modelId, contextSize, prompt, filters, extraPromptVars, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
     filters,
     verbose: envConfig.isLocal
@@ -257,7 +273,7 @@ export async function getDocumentQaChain(options: {
     {
       searchQueries: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: options.history,
+          history,
           formatInstructions: searchQueryOutputParser.getFormatInstructions()
         }
       })
@@ -320,7 +336,7 @@ export async function getDocumentQaChain(options: {
     {
       text: PromptTemplate.fromTemplate(prompt, {
         partialVariables: {
-          history: options.history,
+          history,
           ...extraPromptVars
         }
       })
@@ -330,14 +346,14 @@ export async function getDocumentQaChain(options: {
             stream: true,
             ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
               promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
-              answerPrefix: '<answer>',
+              completionPrefix: '<answer>',
               stopSequences: ['</answer>']
             })
           })
         )
         .pipe(new StringOutputParser())
         .withConfig({
-          callbacks: options.callbacks
+          callbacks
         }),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
       searchQueries: (previousStepResult) => previousStepResult.searchQueries
