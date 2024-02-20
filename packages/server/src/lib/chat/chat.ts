@@ -25,7 +25,7 @@ export async function aiRenameChat(chat: Chat, history: Message[]) {
         )
         .join('\n')
     })
-    .then((result) => result.trim());
+    .then((result) => result.trim().replace(/"/g, ''));
 
   return await updateChat(chat.id, {
     name: result,
