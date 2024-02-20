@@ -84,7 +84,7 @@ export function getLanguageModel({
         temperature: temperature,
         top_p: topP,
         top_k: topK,
-        stop_sequences: stopSequences || ['</output>']
+        stop_sequences: stopSequences.length ? stopSequences : ['</output>']
       },
       cache,
       verbose: envConfig.isLocal
