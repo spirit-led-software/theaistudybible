@@ -9,9 +9,9 @@ import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchai
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getDevotions } from '../../services/devotion/devotion';
-import { getLanguageModel } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
-import { getDocumentVectorStore } from '../../services/vector-db';
+import { getLanguageModel } from '../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
+import { getDocumentVectorStore } from '../vector-db';
 import {
   DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
   DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,

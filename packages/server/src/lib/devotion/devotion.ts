@@ -11,9 +11,9 @@ import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
-import { getLanguageModel } from '../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../services/llm/prompts';
 import { db } from '../database';
+import { getLanguageModel } from '../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
 import {
   getBibleReadingChain,
   getDevotionGeneratorChain,

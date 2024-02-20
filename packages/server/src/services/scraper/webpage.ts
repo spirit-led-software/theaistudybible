@@ -6,8 +6,8 @@ import type { Metadata } from '@revelationsai/core/types/metadata';
 import { sql } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { getDocumentVectorStore } from '../../lib/vector-db';
 import { createIndexOperation, updateIndexOperation } from '../../services/data-source/index-op';
-import { getDocumentVectorStore } from '../../services/vector-db';
 import { updateDataSource } from '../data-source';
 
 export async function indexWebPage({

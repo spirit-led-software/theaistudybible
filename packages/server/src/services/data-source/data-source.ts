@@ -6,8 +6,8 @@ import type {
 } from '@revelationsai/core/model/data-source';
 import { desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
+import { getDocumentVectorStore } from '../../lib/vector-db';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
-import { getDocumentVectorStore } from '../../services/vector-db';
 
 export const DATA_SOURCE_CACHE_COLLECTION = 'dataSources';
 export const defaultCacheKeysFn: CacheKeysInput<DataSource> = (dataSource) => [

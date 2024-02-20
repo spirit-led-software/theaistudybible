@@ -1,6 +1,6 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
-import { MARKDOWN_FORMATTING_INSTRUCTIONS } from '../../services/llm/prompts';
+import { MARKDOWN_FORMATTING_INSTRUCTIONS } from '../llm/prompts';
 
 export const CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history.
 

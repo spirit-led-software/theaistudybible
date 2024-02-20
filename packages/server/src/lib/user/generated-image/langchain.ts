@@ -4,9 +4,9 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLanguageModel } from '../../../services/llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../../services/llm/prompts';
-import { getDocumentVectorStore } from '../../../services/vector-db';
+import { getLanguageModel } from '../../llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../llm/prompts';
+import { getDocumentVectorStore } from '../../vector-db';
 import {
   USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
   USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE

@@ -1,9 +1,9 @@
 import {
   getDocumentVectorStore,
   getPartialHnswIndexInfos
-} from '@revelationsai/server/services/vector-db';
+} from '@revelationsai/server/lib/vector-db';
 import { JobHandler } from 'sst/node/job';
-import 'web-streams-polyfill/dist/polyfill.es2018.js';
+import 'web-streams-polyfill/es2018';
 
 declare module 'sst/node/job' {
   export interface JobTypes {

@@ -1,5 +1,5 @@
-import { getEmbeddingsModel } from '@revelationsai/server/services/llm';
-import { getDocumentVectorStore } from '@revelationsai/server/services/vector-db';
+import { getEmbeddingsModel } from '@revelationsai/server/lib/llm';
+import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
