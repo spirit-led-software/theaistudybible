@@ -239,6 +239,13 @@
       "when": 1706622779351,
       "tag": "0033_calm_nightmare",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1708520896028,
+      "tag": "0034_damp_black_bolt",
+      "breakpoints": true
     }
   ]
 }

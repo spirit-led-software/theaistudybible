@@ -138,8 +138,8 @@ async function postResponseValidationLogic({
     searchQueries
   });
 
-  await Promise.all([
-    ...sourceDocuments.map(async (sourceDoc) => {
+  await Promise.all(
+    sourceDocuments.map(async (sourceDoc) => {
       await db.insert(aiResponsesToSourceDocuments).values({
         aiResponseId: aiResponse.id,
         sourceDocumentId: sourceDoc.id,
@@ -147,7 +147,7 @@ async function postResponseValidationLogic({
         distanceMetric: sourceDoc.distanceMetric
       });
     })
-  ]);
+  );
 }
 
 async function lambdaHandler(

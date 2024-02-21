@@ -3,6 +3,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
 import s3Config from '@revelationsai/core/configs/s3';
+import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
@@ -10,6 +11,7 @@ import {
   createUserGeneratedImage,
   updateUserGeneratedImage
 } from '../../../services/user/generated-image';
+import { db } from '../../database';
 import { getImagePromptChain } from './langchain';
 
 export async function generatedImage(
@@ -24,11 +26,22 @@ export async function generatedImage(
     });
 
     const chain = await getImagePromptChain();
-    const chainResult = await chain.invoke({
+    const { phrases, sourceDocuments, searchQueries } = await chain.invoke({
       userPrompt
     });
 
-    const prompt = chainResult.join(', ');
+    await Promise.all(
+      sourceDocuments.map(async (sourceDoc) => {
+        await db.insert(userGeneratedImagesToSourceDocuments).values({
+          userGeneratedImageId: userGeneratedImage!.id,
+          sourceDocumentId: sourceDoc.id,
+          distance: sourceDoc.distance,
+          distanceMetric: sourceDoc.distanceMetric
+        });
+      })
+    );
+
+    const prompt = phrases.join(', ');
 
     const client = new BedrockRuntimeClient();
     const invokeCommand = new InvokeModelCommand({
@@ -92,7 +105,8 @@ export async function generatedImage(
     const imageUrl = s3Url.split('?')[0];
     return await updateUserGeneratedImage(userGeneratedImage.id, {
       url: imageUrl,
-      prompt
+      prompt,
+      searchQueries
     });
   } catch (error) {
     console.error(error);

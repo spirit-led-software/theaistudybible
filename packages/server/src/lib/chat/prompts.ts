@@ -108,7 +108,7 @@ Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - Search queries must be short and concise.
 - Search queries should be all lowercase, with no punctuation.
-- Search queries must accurately reflect the user's intent.
+- Search queries must accurately reflect the query's intent.
 - Search queries must vary widely enough to cover all possible relevant documents.
 
 Here is the query that you need to generate search queries for, within <query></query> XML tags.

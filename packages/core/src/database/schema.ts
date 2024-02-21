@@ -11,8 +11,8 @@ import {
   uniqueIndex,
   uuid
 } from 'drizzle-orm/pg-core';
-import type { Metadata } from '../types/metadata';
 import { freeTierModelIds, plusTierModelIds } from '../model/llm';
+import type { Metadata } from '../types/metadata';
 
 export const aiResponses = pgTable('ai_responses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -475,11 +475,38 @@ export const userGeneratedImages = pgTable(
     userPrompt: text('user_prompt').notNull(),
     prompt: text('prompt'),
     negativePrompt: text('negative_prompt'),
+    searchQueries: jsonb('search_queries').notNull().default([]).$type<string[]>(),
     failed: boolean('failed').notNull().default(false)
   },
   (table) => {
     return {
       userIdIdx: index('user_generated_images_user_id').on(table.userId)
+    };
+  }
+);
+
+export const userGeneratedImagesToSourceDocuments = pgTable(
+  'user_generated_images_to_source_documents',
+  {
+    userGeneratedImageId: uuid('user_generated_image_id')
+      .notNull()
+      .references(() => userGeneratedImages.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    sourceDocumentId: uuid('source_document_id').notNull(),
+    distance: doublePrecision('distance').notNull().default(0),
+    distanceMetric: text('distance_metric', {
+      enum: ['cosine', 'l2', 'innerProduct']
+    })
+      .notNull()
+      .default('cosine')
+  },
+  (table) => {
+    return {
+      userGeneratedImageSourceDocumentKey: uniqueIndex(
+        'user_generated_image_source_document_key'
+      ).on(table.userGeneratedImageId, table.sourceDocumentId)
     };
   }
 );

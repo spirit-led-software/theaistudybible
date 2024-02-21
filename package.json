@@ -37,7 +37,7 @@
     "@aws-sdk/client-sqs": "^3.515.0",
     "@aws-sdk/credential-providers": "^3.515.0",
     "@aws-sdk/s3-request-presigner": "^3.515.0",
-    "@langchain/community": "^0.0.30",
+    "@langchain/community": "^0.0.31",
     "@langchain/google-genai": "^0.0.10",
     "@langchain/openai": "^0.0.14",
     "@neondatabase/serverless": "^0.8.1",

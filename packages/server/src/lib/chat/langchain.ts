@@ -2,6 +2,7 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
+import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 import {
   anthropicModelIds,
   type AnthropicModelId
@@ -32,7 +33,6 @@ import {
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
   CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
-import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 
 export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;

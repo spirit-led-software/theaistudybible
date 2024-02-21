@@ -1,17 +1,19 @@
-import { RunnableSequence } from '@langchain/core/runnables';
+import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
-import type { Document } from 'langchain/document';
+import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
+import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import { XMLBuilder } from 'fast-xml-parser';
 import { OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLanguageModel } from '../../llm';
+import { getLanguageModel, llmCache } from '../../llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../llm/prompts';
 import { getDocumentVectorStore } from '../../vector-db';
 import {
   USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-  USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE
+  USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
+  USER_GENERATED_IMAGE_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
-import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 
 const validationOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
@@ -41,23 +43,39 @@ const phraseOutputParser = OutputFixingParser.fromLLM(
   }
 );
 
-export const getImagePromptChain = async () => {
+export const getImagePromptChain = async (): Promise<
+  Runnable<
+    { userPrompt: string },
+    {
+      phrases: string[];
+      sourceDocuments: NeonVectorStoreDocument[];
+      searchQueries: string[];
+    }
+  >
+> => {
   const retriever = await getDocumentVectorStore({
-    filters: [
-      {
-        category: 'bible'
-      },
-      {
-        category: 'commentary'
-      }
-    ],
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: 20,
+      k: 3,
       verbose: envConfig.isLocal
     })
   );
+
+  const searchQueryOutputParser = OutputFixingParser.fromLLM(
+    getLanguageModel({
+      temperature: 0.1,
+      topK: 5,
+      topP: 0.1
+    }),
+    RAIStructuredOutputParser.fromZodSchema(
+      z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
+    ),
+    {
+      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+    }
+  );
+
   const chain = RunnableSequence.from([
     {
       userPrompt: (input) => input.userPrompt,
@@ -80,25 +98,82 @@ export const getImagePromptChain = async () => {
       userPrompt: (previousStepResult) => previousStepResult.userPrompt
     },
     {
-      sourceDocuments: RunnableSequence.from([(input) => input.userPrompt, retriever]),
+      searchQueries: PromptTemplate.fromTemplate(
+        USER_GENERATED_IMAGE_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE,
+        {
+          partialVariables: {
+            formatInstructions: searchQueryOutputParser.getFormatInstructions()
+          }
+        }
+      )
+        .pipe(
+          getLanguageModel({
+            cache: llmCache
+          })
+        )
+        .pipe(searchQueryOutputParser),
+      userPrompt: (previousStepResult) => previousStepResult.userPrompt
+    },
+    {
+      sourceDocuments: async (previousStepResult: { searchQueries: string[] }) => {
+        const searchQueries = previousStepResult.searchQueries;
+        const sourceDocuments = await Promise.all(
+          searchQueries.map(async (query) => {
+            return (await retriever.getRelevantDocuments(query)) as NeonVectorStoreDocument[];
+          })
+        );
+        return sourceDocuments
+          .flat()
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .map((doc) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { embedding, ...rest } = doc;
+            return rest;
+          });
+      },
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       userPrompt: (input) => input.userPrompt
     },
     {
-      documents: (previousStepResult) =>
+      sources: (previousStepResult: { sourceDocuments: NeonVectorStoreDocument[] }) =>
         previousStepResult.sourceDocuments
-          .map((d: Document) => `<document>\n${d.pageContent}\n</document>`)
+          .reduce((acc, doc) => {
+            const existingDoc = acc.find((d) => d.metadata.url === doc.metadata.url);
+            if (existingDoc) {
+              existingDoc.pageContent += `\n${doc.pageContent}`;
+            } else {
+              acc.push(doc);
+            }
+            return acc;
+          }, [] as NeonVectorStoreDocument[])
+          .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
+          .map((sourceDoc) =>
+            new XMLBuilder().build({
+              source: {
+                source_title: sourceDoc.metadata.title ?? sourceDoc.metadata.name,
+                source_author: sourceDoc.metadata.author,
+                source_content: sourceDoc.pageContent
+              }
+            })
+          )
           .join('\n'),
+      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       userPrompt: (previousStepResult) => previousStepResult.userPrompt
     },
-    new PromptTemplate({
-      template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-      inputVariables: ['userPrompt', 'documents'],
-      partialVariables: {
-        formatInstructions: phraseOutputParser.getFormatInstructions()
-      }
-    })
-      .pipe(getLanguageModel())
-      .pipe(phraseOutputParser)
+    {
+      phrases: new PromptTemplate({
+        template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
+        inputVariables: ['userPrompt', 'sources'],
+        partialVariables: {
+          formatInstructions: phraseOutputParser.getFormatInstructions()
+        }
+      })
+        .pipe(getLanguageModel())
+        .pipe(phraseOutputParser),
+      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries
+    }
   ]);
 
   return chain;
