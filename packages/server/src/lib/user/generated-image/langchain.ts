@@ -2,7 +2,11 @@ import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { XMLBuilder } from 'fast-xml-parser';
-import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
+import {
+  CommaSeparatedListOutputParser,
+  JsonMarkdownStructuredOutputParser,
+  OutputFixingParser
+} from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getLanguageModel, llmCache } from '../../llm';
@@ -36,7 +40,7 @@ const phraseOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string())),
+  new CommaSeparatedListOutputParser(),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
@@ -67,9 +71,7 @@ export const getImagePromptChain = async (): Promise<
       topK: 5,
       topP: 0.1
     }),
-    JsonMarkdownStructuredOutputParser.fromZodSchema(
-      z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
-    ),
+    new CommaSeparatedListOutputParser(),
     {
       prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
     }

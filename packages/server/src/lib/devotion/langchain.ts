@@ -5,7 +5,11 @@ import { devotions } from '@revelationsai/core/database/schema';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
-import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
+import {
+  CommaSeparatedListOutputParser,
+  JsonMarkdownStructuredOutputParser,
+  OutputFixingParser
+} from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getDevotions } from '../../services/devotion/devotion';
@@ -210,7 +214,7 @@ const imagePromptOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string())),
+  new CommaSeparatedListOutputParser(),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }

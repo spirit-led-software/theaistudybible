@@ -19,7 +19,7 @@ import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
 import {
-  JsonMarkdownStructuredOutputParser,
+  CommaSeparatedListOutputParser,
   OutputFixingParser,
   RouterOutputParser
 } from 'langchain/output_parsers';
@@ -258,9 +258,7 @@ export async function getDocumentQaChain(options: {
       topK: 5,
       topP: 0.1
     }),
-    JsonMarkdownStructuredOutputParser.fromZodSchema(
-      z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
-    ),
+    new CommaSeparatedListOutputParser(),
     {
       prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
     }
