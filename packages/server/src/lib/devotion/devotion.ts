@@ -5,7 +5,7 @@ import axios from '@revelationsai/core/configs/axios';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
-import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
+import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
@@ -222,7 +222,7 @@ const getDiveDeeperOutputParser = (numQueries: number) =>
       topK: 5,
       topP: 0.1
     }),
-    StructuredOutputParser.fromZodSchema(
+    JsonMarkdownStructuredOutputParser.fromZodSchema(
       z
         .array(
           z

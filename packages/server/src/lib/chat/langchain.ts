@@ -19,9 +19,9 @@ import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
 import {
+  JsonMarkdownStructuredOutputParser,
   OutputFixingParser,
-  RouterOutputParser,
-  StructuredOutputParser
+  RouterOutputParser
 } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
@@ -258,7 +258,7 @@ export async function getDocumentQaChain(options: {
       topK: 5,
       topP: 0.1
     }),
-    StructuredOutputParser.fromZodSchema(
+    JsonMarkdownStructuredOutputParser.fromZodSchema(
       z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
     ),
     {
