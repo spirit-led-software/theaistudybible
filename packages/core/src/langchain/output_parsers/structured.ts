@@ -53,6 +53,8 @@ Here is the JSON schema your output must adhere to, within <json_schema></json_s
 \`\`\`json
 ${JSON.stringify(zodToJsonSchema(this.schema))}
 \`\`\`
-</json_schema>`;
+</json_schema>
+
+Do not include the <json_schema></json_schema> tags in your output. They are only here to show you the schema your output must adhere to.`;
   }
 }
