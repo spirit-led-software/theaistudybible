@@ -55,7 +55,10 @@ export function AdminAPI({ stack }: StackContext) {
         environment: {
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
         },
-        timeout: '5 minutes'
+        timeout: '5 minutes',
+        nodejs: {
+          install: ['web-streams-polyfill']
+        }
       }
     },
     'PUT /admin/devotions/{id}': 'packages/functions/src/rest/admin/devotions/[id]/put.handler',
