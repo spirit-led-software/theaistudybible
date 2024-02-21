@@ -5,7 +5,7 @@ import axios from '@revelationsai/core/configs/axios';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
-import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
+import { OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { Bucket } from 'sst/node/bucket';
 import { z } from 'zod';
@@ -21,6 +21,7 @@ import {
   getImagePromptChain
 } from './langchain';
 import { DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE } from './prompts';
+import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [
@@ -222,7 +223,7 @@ const getDiveDeeperOutputParser = (numQueries: number) =>
       topK: 5,
       topP: 0.1
     }),
-    JsonMarkdownStructuredOutputParser.fromZodSchema(
+    RAIStructuredOutputParser.fromZodSchema(
       z
         .array(
           z

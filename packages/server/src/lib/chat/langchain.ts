@@ -18,11 +18,7 @@ import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
-import {
-  JsonMarkdownStructuredOutputParser,
-  OutputFixingParser,
-  RouterOutputParser
-} from 'langchain/output_parsers';
+import { OutputFixingParser, RouterOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
@@ -36,6 +32,7 @@ import {
   CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
   CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
+import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 
 export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;
@@ -258,7 +255,7 @@ export async function getDocumentQaChain(options: {
       topK: 5,
       topP: 0.1
     }),
-    JsonMarkdownStructuredOutputParser.fromZodSchema(
+    RAIStructuredOutputParser.fromZodSchema(
       z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
     ),
     {

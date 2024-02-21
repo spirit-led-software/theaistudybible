@@ -1,7 +1,7 @@
 import { RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
 import type { Document } from 'langchain/document';
-import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
+import { OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getLanguageModel } from '../../llm';
@@ -11,6 +11,7 @@ import {
   USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
   USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE
 } from './prompts';
+import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 
 const validationOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
@@ -18,7 +19,7 @@ const validationOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(
+  RAIStructuredOutputParser.fromZodSchema(
     z.object({
       inappropriate: z.boolean()
     })
@@ -34,7 +35,7 @@ const phraseOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(z.array(z.string())),
+  RAIStructuredOutputParser.fromZodSchema(z.array(z.string())),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
