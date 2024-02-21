@@ -121,7 +121,11 @@ export function RestAPI({ stack }: StackContext) {
     },
     'GET /generated-images/{id}': 'packages/functions/src/rest/generated-images/[id]/get.handler',
     'DELETE /generated-images/{id}':
-      'packages/functions/src/rest/generated-images/[id]/delete.handler'
+      'packages/functions/src/rest/generated-images/[id]/delete.handler',
+
+    // Generated Image Source Documents
+    'GET /generated-images/{id}/source-documents':
+      'packages/functions/src/rest/generated-images/[id]/source-documents/get.handler'
   });
 
   return {};
