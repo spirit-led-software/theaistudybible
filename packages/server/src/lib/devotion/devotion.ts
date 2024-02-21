@@ -5,10 +5,10 @@ import axios from '@revelationsai/core/configs/axios';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
-import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
+import { XMLBuilder } from 'fast-xml-parser';
+import { CustomListOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { Bucket } from 'sst/node/bucket';
-import { z } from 'zod';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
 import { db } from '../database';
@@ -78,13 +78,15 @@ export async function getBibleReading() {
 
 export async function generateDevotionImages(devo: Devotion) {
   const imagePromptChain = getImagePromptChain();
-  const imagePromptPhrases = await imagePromptChain.invoke({
-    bibleReading: devo.bibleReading,
-    summary: devo.summary,
-    reflection: devo.reflection,
-    prayer: devo.prayer
+  const imagePrompt = await imagePromptChain.invoke({
+    devotion: new XMLBuilder().build({
+      topic: devo.topic,
+      bibleReading: devo.bibleReading,
+      summary: devo.summary,
+      reflection: devo.reflection!,
+      prayer: devo.prayer!
+    })
   });
-  const imagePrompt = imagePromptPhrases.join(', ');
   console.log('Image prompt:', imagePrompt);
 
   const imageCaptionChain = getImageCaptionChain();
@@ -215,35 +217,24 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
   return devo;
 }
 
-const getDiveDeeperOutputParser = (numQueries: number) =>
+const getDiveDeeperOutputParser = () =>
   OutputFixingParser.fromLLM(
     getLanguageModel({
       temperature: 0.1,
       topK: 5,
       topP: 0.1
     }),
-    JsonMarkdownStructuredOutputParser.fromZodSchema(
-      z
-        .array(
-          z
-            .string()
-            .describe('A query that will help the user dive deeper into the topic of the devotion.')
-        )
-        .length(numQueries)
-        .describe(
-          'A list of queries that will help the user dive deeper into the topic of the devotion.'
-        )
-    ),
+    new CustomListOutputParser({ separator: '", "' }),
     {
       prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
     }
   );
 
-export async function generateDiveDeeperQueries(devotion: Devotion, numQueries = 4) {
-  const diveDeeperOutputParser = getDiveDeeperOutputParser(numQueries);
+export async function generateDiveDeeperQueries(devotion: Devotion) {
+  const diveDeeperOutputParser = getDiveDeeperOutputParser();
 
   const queryChain = new PromptTemplate({
-    inputVariables: ['devotion', 'numQueries'],
+    inputVariables: ['devotion'],
     template: DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE,
     partialVariables: {
       formatInstructions: diveDeeperOutputParser.getFormatInstructions()
@@ -262,14 +253,13 @@ export async function generateDiveDeeperQueries(devotion: Devotion, numQueries =
 
   return await queryChain
     .invoke({
-      devotion: [
-        `<topic>${devotion.topic}</topic>`,
-        `<bible_reading>${devotion.bibleReading}</bible_reading>`,
-        `<summary>${devotion.summary}</summary>`,
-        `<reflection>${devotion.reflection}</reflection>`,
-        `<prayer>${devotion.prayer}</prayer>`
-      ].join('\n'),
-      numQueries: numQueries.toString()
+      devotion: new XMLBuilder().build({
+        topic: devotion.topic,
+        bibleReading: devotion.bibleReading,
+        summary: devotion.summary,
+        reflection: devotion.reflection,
+        prayer: devotion.prayer
+      })
     })
     .then((result) => result.map((query) => query.trim()));
 }

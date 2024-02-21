@@ -26,7 +26,7 @@ export async function generatedImage(
     });
 
     const chain = await getImagePromptChain();
-    const { phrases, sourceDocuments, searchQueries } = await chain.invoke({
+    const { prompt, sourceDocuments, searchQueries } = await chain.invoke({
       userPrompt
     });
 
@@ -40,8 +40,6 @@ export async function generatedImage(
         });
       })
     );
-
-    const prompt = phrases.join(', ');
 
     const client = new BedrockRuntimeClient();
     const invokeCommand = new InvokeModelCommand({

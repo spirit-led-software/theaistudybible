@@ -62,33 +62,31 @@ Think carefully about your output first before you respond. Here are the formatt
 {formatInstructions}
 </format_instructions>`;
 
-export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate short, concise, yet descriptive phrases that could generate a beautiful and accurate image based on the devotion provided to you.
+export const DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE = `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate a prompt that will result in a high-quality image using the devotion provided to you as a starting point.
 
 Here is the devotion that you are to generate an image prompt for, within <devotion></devotion> XML tags.
 <devotion>
-Bible Reading:\n{bibleReading}\n\n
-Summary:\n{summary}\n\n
-Reflection:\n{reflection}\n\n
-Prayer:\n{prayer}\n\n
+{devotion}
 </devotion>
 
 Here are some important rules for you to follow:
-- Your output must match the formatting instructions exactly.
-- Your phrases must be short and concise, but also descriptive.
-- Your phrases must not conflict with one another.
-- All of your phrases must be able to be captured within a single image.
+- Your prompt must match the devotion's semantics.
+- Your prompt can only use information from the devotion provided.
+- Your prompt must be a single sentence.
 
-Here is an example of an output that you could generate, within <example></example> XML tags.
-<example>
-\`\`\`json ["a man with long hair, a beard, and a crown of thorns on his head is nailed to a cross","women weeping and mourning at the foot of the cross","soldiers standing guard at the foot of the cross","a sign on the cross in a foreign language"]\`\`\`
-</example>
+Here are some examples of prompts that you could generate, within <examples></examples> XML tags. Each individual example is encapsulated within <example_prompt></example_prompt> XML tags.
+<examples>
+<example_prompt>
+a man with a beard hanging on a cross with a crown of thorns, a bright light shining down on him, a crowd of people watching, a dark sky in the background
+</example_prompt>
+<example_prompt>
+a man preaching to a crowd of people in ancient Greece, a podium in front of him, his hands raised
+</example_prompt>
+</examples>
 
-What are 1 to 4 phrases that could generate a beautiful and accurate image based on the devotion?
+What is a prompt that you would use to generate a high-quality image?
 
-Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
-<format_instructions>
-{formatInstructions}
-</format_instructions>`;
+Think carefully about your output first before you respond.`;
 
 export const DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE = `You are an expert at generating captions for Christian images. You will be given a devotion that has an image to go along with it. Your goal is to generate a caption for the image based on the image prompt provided to you.
 
@@ -114,7 +112,7 @@ What is the caption for the image?
 
 Think carefully about your output first before you respond.`;
 
-export const DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate {numQueries} queries for. Your goal is to generate queries that help the user dive deeper into the topic of the devotion. These queries will be fed back into a query answering system, so make sure the queries are not a personal question about the user.
+export const DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate queries for. Your goal is to generate queries that help the user dive deeper into the topic of the devotion. These queries will be fed back into a query answering system, so make sure the queries are not a personal question about the user.
 
 Here are some important rules for you to follow:
 - Your queries must be related to the Christian faith.
@@ -123,7 +121,7 @@ Here are some important rules for you to follow:
 - The user and question answering system will not have access to the devotion, so make sure the queries include enough context.
 - If you reference the Bible reading, make sure you include the book, chapter number, and verse range so that the question answering system has enough context to answer the query.
 
-Here is an example, within <example></example> XML tags. An example devotion is provided within <example_devotion></example_devotion> XML tags. The topic is within <example_topic></example_topic> XML tags. The Bible reading is within <example_bible_reading></example_bible_reading> XML tags. The summary is within <example_summary></example_summary> XML tags. The reflection is within <example_reflection></example_reflection> XML tags. The prayer is within <example_prayer></example_prayer> XML tags. An example of your output is within <example_query></example_query> XML tags.
+Here is an example, within <example></example> XML tags. An example devotion is provided within <example_devotion></example_devotion> XML tags. The topic is within <example_topic></example_topic> XML tags. The Bible reading is within <example_bible_reading></example_bible_reading> XML tags. The summary is within <example_summary></example_summary> XML tags. The reflection is within <example_reflection></example_reflection> XML tags. The prayer is within <example_prayer></example_prayer> XML tags. An example of your output is within <example_queries></example_queries> XML tags.
 <example>
 <example_devotion>
 <example_topic>
@@ -142,11 +140,9 @@ It can be so easy to get angry or frustrated with others, especially when we see
 Lord, thank You for the reminder that gentleness and patience are so important in how we conduct ourselves as Your servants. It is all too easy for me to become quarrelsome or harsh with others. Please help me to fight that temptation and instead approach all people with kindness, seeking to understand rather than condemn. Give me wisdom to know when and how to gently correct others in love. And Lord, use my gentle words, however imperfect, to accomplish Your good purposes in the lives of those I encounter. May my interactions with others reflect Your loving character and draw them nearer to You. Amen.
 </example_prayer>
 </example_devotion>
-<example_query>
-json\`\`\`
-["What is the difference between gentleness and patience?", "How can I be more gentle and patient with others?", "How can I correct others with gentleness and patience?", "How can I be a servant of the Lord?"]
-\`\`\`
-</example_query>
+<example_queries>
+"What is the difference between gentleness and patience?", "How can I be more gentle and patient with others?", "How can I correct others with gentleness and patience?", "How can I be a servant of the Lord?"
+</example_queries>
 </example>
 
 Here is the devotion that you need to generate a query for, within <devotion></devotion> XML tags. The topic is within <topic></topic> XML tags. The Bible reading is within <bible_reading></bible_reading> XML tags. The summary is within <summary></summary> XML tags. The reflection is within <reflection></reflection> XML tags. The prayer is within <prayer></prayer> XML tags.
@@ -154,7 +150,7 @@ Here is the devotion that you need to generate a query for, within <devotion></d
 {devotion}
 </devotion>
 
-What is the query that you would generate?
+What are 1 to 4 queries that you would use to help the user dive deeper into the topic of the devotion?
 
 Think carefully about your query first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your query will be rejected.
 <format_instructions>

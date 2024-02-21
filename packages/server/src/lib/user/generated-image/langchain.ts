@@ -1,3 +1,4 @@
+import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
@@ -34,23 +35,11 @@ const validationOutputParser = OutputFixingParser.fromLLM(
   }
 );
 
-const phraseOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
-  new CommaSeparatedListOutputParser(),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
-);
-
 export const getImagePromptChain = async (): Promise<
   Runnable<
     { userPrompt: string },
     {
-      phrases: string[];
+      prompt: string;
       sourceDocuments: NeonVectorStoreDocument[];
       searchQueries: string[];
     }
@@ -163,15 +152,12 @@ export const getImagePromptChain = async (): Promise<
       userPrompt: (previousStepResult) => previousStepResult.userPrompt
     },
     {
-      phrases: new PromptTemplate({
+      prompt: new PromptTemplate({
         template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-        inputVariables: ['userPrompt', 'sources'],
-        partialVariables: {
-          formatInstructions: phraseOutputParser.getFormatInstructions()
-        }
+        inputVariables: ['userPrompt', 'sources']
       })
         .pipe(getLanguageModel())
-        .pipe(phraseOutputParser),
+        .pipe(new StringOutputParser()),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
       searchQueries: (previousStepResult) => previousStepResult.searchQueries
     }

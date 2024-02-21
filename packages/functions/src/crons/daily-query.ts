@@ -17,7 +17,7 @@ export const handler: Handler = async (event) => {
 
   let queries = devotion.diveDeeperQueries;
   if (!queries || queries.length === 0) {
-    queries = await generateDiveDeeperQueries(devotion, 1);
+    queries = await generateDiveDeeperQueries(devotion);
     devotion = await updateDevotion(devotion.id, {
       diveDeeperQueries: queries
     });

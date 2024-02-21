@@ -5,11 +5,7 @@ import { devotions } from '@revelationsai/core/database/schema';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
-import {
-  CommaSeparatedListOutputParser,
-  JsonMarkdownStructuredOutputParser,
-  OutputFixingParser
-} from 'langchain/output_parsers';
+import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getDevotions } from '../../services/devotion/devotion';
@@ -208,28 +204,13 @@ export const getBibleReadingChain = async (topic: string) => {
   return chain;
 };
 
-const imagePromptOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
-  new CommaSeparatedListOutputParser(),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
-);
-
 export const getImagePromptChain = () => {
   return new PromptTemplate({
     template: DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-    inputVariables: ['bibleReading', 'summary', 'reflection', 'prayer'],
-    partialVariables: {
-      formatInstructions: imagePromptOutputParser.getFormatInstructions()
-    }
+    inputVariables: ['devotion']
   })
     .pipe(getLanguageModel())
-    .pipe(imagePromptOutputParser);
+    .pipe(new StringOutputParser());
 };
 
 export const getImageCaptionChain = () => {
