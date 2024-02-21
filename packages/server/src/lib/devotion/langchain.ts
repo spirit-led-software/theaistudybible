@@ -5,7 +5,7 @@ import { devotions } from '@revelationsai/core/database/schema';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
-import { OutputFixingParser } from 'langchain/output_parsers';
+import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getDevotions } from '../../services/devotion/devotion';
@@ -18,7 +18,6 @@ import {
   DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE,
   DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE
 } from './prompts';
-import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 
 const devotionOutputParser = OutputFixingParser.fromLLM(
   getLanguageModel({
@@ -26,7 +25,7 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  RAIStructuredOutputParser.fromZodSchema(
+  StructuredOutputParser.fromZodSchema(
     z.object({
       summary: z
         .string()
@@ -125,7 +124,7 @@ const bibleReadingOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  RAIStructuredOutputParser.fromZodSchema(
+  StructuredOutputParser.fromZodSchema(
     z.object({
       book: z.string().describe('The book name from within the bible. For example: Genesis'),
       chapter: z
@@ -211,7 +210,7 @@ const imagePromptOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  RAIStructuredOutputParser.fromZodSchema(z.array(z.string())),
+  StructuredOutputParser.fromZodSchema(z.array(z.string())),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }

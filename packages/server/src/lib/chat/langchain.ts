@@ -2,7 +2,6 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
-import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 import {
   anthropicModelIds,
   type AnthropicModelId
@@ -19,7 +18,11 @@ import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
-import { OutputFixingParser, RouterOutputParser } from 'langchain/output_parsers';
+import {
+  OutputFixingParser,
+  RouterOutputParser,
+  StructuredOutputParser
+} from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
@@ -255,7 +258,7 @@ export async function getDocumentQaChain(options: {
       topK: 5,
       topP: 0.1
     }),
-    RAIStructuredOutputParser.fromZodSchema(
+    StructuredOutputParser.fromZodSchema(
       z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
     ),
     {

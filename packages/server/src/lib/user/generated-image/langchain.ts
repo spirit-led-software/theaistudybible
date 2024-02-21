@@ -1,9 +1,8 @@
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
-import { RAIStructuredOutputParser } from '@revelationsai/core/langchain/output_parsers';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { XMLBuilder } from 'fast-xml-parser';
-import { OutputFixingParser } from 'langchain/output_parsers';
+import { OutputFixingParser, StructuredOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
 import { getLanguageModel, llmCache } from '../../llm';
@@ -21,7 +20,7 @@ const validationOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  RAIStructuredOutputParser.fromZodSchema(
+  StructuredOutputParser.fromZodSchema(
     z.object({
       inappropriate: z.boolean()
     })
@@ -37,7 +36,7 @@ const phraseOutputParser = OutputFixingParser.fromLLM(
     topK: 5,
     topP: 0.1
   }),
-  RAIStructuredOutputParser.fromZodSchema(z.array(z.string())),
+  StructuredOutputParser.fromZodSchema(z.array(z.string())),
   {
     prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
   }
@@ -68,7 +67,7 @@ export const getImagePromptChain = async (): Promise<
       topK: 5,
       topP: 0.1
     }),
-    RAIStructuredOutputParser.fromZodSchema(
+    StructuredOutputParser.fromZodSchema(
       z.array(z.string().describe('A search query.')).describe('The search queries to be used.')
     ),
     {
