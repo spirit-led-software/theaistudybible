@@ -7,6 +7,7 @@ import {
   incrementUserGeneratedImageCount
 } from '@revelationsai/server/services/user/image-count';
 import { ApiHandler } from 'sst/node/api';
+import 'web-streams-polyfill/dist/polyfill.es2018.js';
 import {
   BadRequestResponse,
   CreatedResponse,
