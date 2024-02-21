@@ -27,6 +27,10 @@ export function Constants({ stack, app }: StackContext) {
 
   app.addDefaultFunctionEnv({
     ...COMMON_ENV_VARS,
+    LANGCHAIN_TRACING_V2: stack.stage === 'prod' ? 'true' : 'false',
+    LANGCHAIN_ENDPOINT: 'https://api.smith.langchain.com',
+    LANGCHAIN_API_KEY: process.env.LANGCHAIN_API_KEY!,
+    LANGCHAIN_PROJECT: app.name,
     PUBLIC_WEBSITE_URL: websiteUrl,
     PUBLIC_AUTH_URL: authUiUrl,
     PUBLIC_API_URL: apiUrl
