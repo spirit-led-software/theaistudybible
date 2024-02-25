@@ -155,6 +155,4 @@ What are 1 to 4 queries that you would use to help the user dive deeper into the
 Think carefully about your query first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your query will be rejected.
 <format_instructions>
 {formatInstructions}
-</format_instructions>
-
-Put your query within <query></query> XML tags.`;
+</format_instructions>`;
