@@ -39,6 +39,14 @@ export async function getChatOrThrow(id: string) {
   return chat;
 }
 
+export async function getChatsByUserId(userId: string) {
+  return await cacheGet({
+    collection: CHATS_CACHE_COLLECTION,
+    key: { name: 'userId', value: userId },
+    fn: async () => await db.select().from(chats).where(eq(chats.userId, userId))
+  });
+}
+
 export async function createChat(data: CreateChatData) {
   return await cacheUpsert({
     collection: CHATS_CACHE_COLLECTION,

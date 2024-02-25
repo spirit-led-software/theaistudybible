@@ -1,0 +1,339 @@
+scalar Date
+
+interface BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+enum Translation {
+  NIV
+  ESV
+  NKJV
+  NLT
+}
+
+type User implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  email: String!
+  name: String
+  stripeCustomerId: String
+  image: String
+  hasCustomImage: Boolean!
+  translation: Translation!
+  password: UserPassword
+  roles(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Role!]
+  messages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]
+  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]
+  chats(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Chat!]
+  generatedImages(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: SortInput
+  ): [UserGeneratedImage!]
+}
+
+type UserPassword implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  passwordHash: String!
+  salt: String!
+  userId: String!
+  user: User
+}
+
+type Role implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  name: String!
+  permissions: [String!]!
+  users: [User!]
+}
+
+type UserMessage implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  aiId: String
+  text: String!
+  chatId: String!
+  chat: Chat
+  userId: String!
+  user: User
+}
+
+type AiResponse implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  aiId: String
+  text: String
+  failed: Boolean!
+  regenerated: Boolean!
+  modelId: String!
+  searchQueries: [String!]!
+  userMessageId: String!
+  chatId: String!
+  userId: String!
+  user: User
+}
+
+type AiResponseReaction implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  reaction: String!
+  comment: String
+  aiResponseId: String!
+  aiResponse: AiResponse
+  userId: String!
+  user: User
+}
+
+type Chat implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  name: String!
+  customName: Boolean!
+  userId: String!
+  user: User
+  userMessages: [UserMessage!]
+  aiResponses: [AiResponse!]
+  chatMessages: [ChatMessage!]
+}
+
+enum ChatMessageRole {
+  system
+  user
+  assistant
+  function
+  data
+  tool
+}
+
+type ChatMessage {
+  id: String!
+  uuid: String!
+  name: String
+  role: ChatMessageRole!
+  content: String!
+  createdAt: String
+  modelId: String
+  searchQueries: [String!]
+}
+
+type UserGeneratedImage implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  url: String!
+  userPrompt: String!
+  prompt: String
+  negativePrompt: String
+  searchQueries: [String!]!
+  failed: Boolean!
+  userId: String!
+  user: User
+}
+
+type Devotion implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  topic: String!
+  bibleReading: String!
+  summary: String!
+  reflection: String
+  prayer: String
+  diveDeeperQueries: [String!]!
+  failed: Boolean!
+  reactions: [DevotionReaction!]
+  images: [DevotionImage!]
+}
+
+enum DevotionReactionType {
+  LIKE
+  DISLIKE
+}
+
+type DevotionReaction implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  reaction: DevotionReactionType!
+  comment: String
+  devotionId: String!
+  devotion: Devotion
+  userId: String!
+  user: User
+}
+
+type DevotionReactionCount {
+  type: DevotionReactionType!
+  count: Int!
+}
+
+type DevotionImage implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  url: String!
+  caption: String
+  prompt: String
+  negativePrompt: String
+  devotionId: String!
+  devotion: Devotion
+}
+
+enum DataSourceType {
+  WEB_CRAWL
+  FILE
+  WEBPAGE
+  REMOTE_FILE
+  YOUTUBE
+}
+
+enum SyncSchedule {
+  DAILY
+  WEEKLY
+  MONTHLY
+  NEVER
+}
+
+type DataSource implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  name: String!
+  url: String!
+  type: DataSourceType!
+  metadata: String!
+  numberOfDocuments: Int!
+  syncSchedule: SyncSchedule!
+  lastManualSync: String
+  lastAutomaticSync: String
+  indexOperations: [IndexOperation!]
+}
+
+enum IndexOperationStatus {
+  FAILED
+  SUCCEEDED
+  RUNNING
+  COMPLETED
+}
+
+type IndexOperation implements BaseModel {
+  id: String!
+  createdAt: Date!
+  updatedAt: Date!
+  status: IndexOperationStatus!
+  errorMessages: [String!]!
+  metadata: String!
+  dataSourceId: String!
+  dataSource: DataSource
+}
+
+enum SortOrder {
+  asc
+  desc
+}
+
+input SortInput {
+  field: String!
+  order: SortOrder!
+}
+
+input ColumnValue {
+  column: String!
+  value: String!
+}
+
+input ColumnPlaceholder {
+  column: String!
+  placeholder: String!
+}
+
+input FilterInput {
+  AND: [FilterInput!]
+  OR: [FilterInput!]
+  NOT: FilterInput
+  eq: ColumnValue
+  neq: ColumnValue
+  gt: ColumnValue
+  gte: ColumnValue
+  lt: ColumnValue
+  lte: ColumnValue
+  like: ColumnPlaceholder
+  iLike: ColumnPlaceholder
+  notLike: ColumnPlaceholder
+}
+
+type Query {
+  currentUser: User
+  user(id: String!): User
+  users(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [User!]!
+
+  userPassword(id: String!): UserPassword
+  userPasswords(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserPassword!]!
+
+  role(id: String!): Role
+  roles(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Role!]!
+
+  userMessage(id: String!): UserMessage
+  userMessages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]!
+
+  aiResponse(id: String!): AiResponse
+  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]!
+
+  aiResponseReaction(id: String!): AiResponseReaction
+  aiResponseReactions(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: SortInput
+  ): [AiResponseReaction!]!
+
+  chat(id: String!): Chat
+  chats(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Chat!]!
+
+  chatMessages(chatId: String!, limit: Int, page: Int, sort: SortInput): [ChatMessage!]!
+
+  userGeneratedImage(id: String!): UserGeneratedImage
+  userGeneratedImages(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: SortInput
+  ): [UserGeneratedImage!]!
+
+  devotion(id: String!): Devotion
+  devotions(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Devotion!]!
+
+  devotionReaction(id: String!): DevotionReaction
+  devotionReactions(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: SortInput
+  ): [DevotionReaction!]!
+  devotionReactionCount(devotionId: String!): [DevotionReactionCount!]!
+
+  devotionImage(id: String!): DevotionImage
+  devotionImages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [DevotionImage!]!
+
+  dataSource(id: String!): DataSource
+  dataSources(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [DataSource!]!
+
+  indexOperation(id: String!): IndexOperation
+  indexOperations(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [IndexOperation!]!
+}
+
+type Mutation {
+  _empty: String
+}

@@ -1,4 +1,19 @@
-import { and, asc, desc, eq, gt, gte, ilike, like, lt, lte, not, or, type SQL } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  gte,
+  ilike,
+  isNull,
+  like,
+  lt,
+  lte,
+  not,
+  or,
+  type SQL
+} from 'drizzle-orm';
 import type { PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 export interface ColumnValue {
@@ -99,4 +114,36 @@ export function buildOrderBy(
   } else {
     throw new Error(`Invalid order operator ${order}`);
   }
+}
+
+export function buildWhere(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  table: PgTableWithColumns<any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  whereMap: Record<string, any>
+): SQL<unknown> | undefined {
+  const entries = Object.entries(whereMap);
+
+  if (entries.length === 0) {
+    return undefined;
+  }
+
+  if (entries.length === 1) {
+    const [column, value] = entries[0];
+    if (!table[column]) {
+      throw new Error(`Cannot filter by ${column} on table ${table.name}`);
+    }
+    if (value) {
+      if (typeof value === 'string' && value.includes('%')) {
+        return ilike(table[column], value);
+      }
+      return eq(table[column], value);
+    }
+    if (value === null) {
+      return isNull(table[column]);
+    }
+    return undefined;
+  }
+
+  return and(...entries.map(([column, value]) => buildWhere(table, { [column]: value })));
 }

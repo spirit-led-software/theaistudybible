@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "sst dev",
+    "dev": "concurrently  --names \"SST,CodeGen\" -c \"bgYellow,bgBlue,bgMagenta\" \"sst dev\" \"graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'\"",
     "build": "sst build --stage",
     "build:all": "sst build && pnpm run -r --parallel build",
     "deploy": "sst deploy --stage",
@@ -15,15 +15,23 @@
     "lint": "eslint .",
     "lint:all": "pnpm run lint && pnpm run -r --parallel lint",
     "format": "prettier --write .",
-    "format:all": "pnpm run format && pnpm run -r --parallel format"
+    "format:all": "pnpm run format && pnpm run -r --parallel format",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/introspection": "4.0.3",
+    "@graphql-codegen/typescript": "4.0.6",
+    "@graphql-codegen/typescript-resolvers": "4.0.6",
+    "@parcel/watcher": "^2.4.1",
     "@tsconfig/node20": "^20.1.2",
     "@types/cfn-response": "^1.0.8",
     "@types/in-app-purchase": "^1.11.4",
     "@types/node": "^20.11.19",
     "@types/pg": "^8.11.0",
     "aws-cdk-lib": "2.124.0",
+    "concurrently": "^8.2.2",
     "constructs": "10.3.0",
     "drizzle-kit": "0.20.14",
     "eslint": "^8.56.0",
