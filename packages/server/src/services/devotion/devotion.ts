@@ -4,7 +4,7 @@ import type {
   Devotion,
   UpdateDevotionData
 } from '@revelationsai/core/model/devotion';
-import { desc, eq, sql, type SQL } from 'drizzle-orm';
+import { and, desc, eq, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 
@@ -58,7 +58,7 @@ export async function getDevotionOrThrow(id: string) {
  * @param includeFailed Whether to include failed devotions
  * @returns
  */
-export async function getDevotionByCreatedDate(dateString: string, includeFailed = false) {
+export async function getDevotionByCreatedDate(dateString: string) {
   return await cacheGet({
     collection: DEVOTIONS_CACHE_COLLECTION,
     key: { name: 'date', value: dateString },
@@ -67,9 +67,7 @@ export async function getDevotionByCreatedDate(dateString: string, includeFailed
         await db
           .select()
           .from(devotions)
-          .where(
-            sql`${devotions.createdAt}::date = ${dateString}::date AND ${devotions.failed} = ${includeFailed}`
-          )
+          .where(sql`${devotions.createdAt}::date = ${dateString}::date)`)
       ).at(0),
     expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
   });
