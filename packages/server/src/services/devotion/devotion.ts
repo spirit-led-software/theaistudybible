@@ -55,9 +55,10 @@ export async function getDevotionOrThrow(id: string) {
  * Get the devotion for the given date.
  *
  * @param dateString YYYY-MM-DD
+ * @param includeFailed Whether to include failed devotions
  * @returns
  */
-export async function getDevotionByCreatedDate(dateString: string) {
+export async function getDevotionByCreatedDate(dateString: string, includeFailed = false) {
   return await cacheGet({
     collection: DEVOTIONS_CACHE_COLLECTION,
     key: { name: 'date', value: dateString },
@@ -66,7 +67,9 @@ export async function getDevotionByCreatedDate(dateString: string) {
         await db
           .select()
           .from(devotions)
-          .where(sql`${devotions.createdAt}::date = ${dateString}::date`)
+          .where(
+            sql`${devotions.createdAt}::date = ${dateString}::date AND ${devotions.failed} = ${includeFailed}`
+          )
       ).at(0),
     expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
   });

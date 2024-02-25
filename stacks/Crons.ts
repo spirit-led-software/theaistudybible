@@ -1,9 +1,11 @@
-import { Constants, DatabaseScripts, Jobs, Queues, S3 } from '@stacks';
-import { Cron, dependsOn, use, type StackContext } from 'sst/constructs';
+import { Constants, DatabaseScripts, Jobs, Layers, Queues, S3 } from '@stacks';
+import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
+import { Cron, dependsOn, use, type StackContext, Function } from 'sst/constructs';
 
 export function Crons({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
+  const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { hnswIndexJob } = use(Jobs);
   const { invokeBedrockPolicy } = use(Constants);
   const { devotionImageBucket, indexFileBucket } = use(S3);
@@ -81,19 +83,28 @@ export function Crons({ stack, app }: StackContext) {
       }
     });
 
+    const dataSourceSyncFunction = new Function(stack, 'DataSourceSyncFunction', {
+      handler: 'packages/functions/src/crons/data-source-sync.handler',
+      architecture: 'x86_64',
+      runtime: 'nodejs18.x',
+      permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
+      bind: [indexFileBucket, webpageIndexQueue],
+      environment: {
+        INDEX_FILE_BUCKET: indexFileBucket.bucketName
+      },
+      memorySize: '2 GB',
+      timeout: '15 minutes'
+    });
+    // add layers
+    (dataSourceSyncFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
+      chromiumLayer.layerVersionArn,
+      axiomX86Layer.layerVersionArn
+    ]);
+
     new Cron(stack, 'dataSourceSyncCron', {
       schedule: 'cron(0 2 * * ? *)',
       job: {
-        function: {
-          handler: 'packages/functions/src/crons/data-source-sync.handler',
-          permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
-          bind: [indexFileBucket, webpageIndexQueue],
-          environment: {
-            INDEX_FILE_BUCKET: indexFileBucket.bucketName
-          },
-          timeout: '15 minutes',
-          memorySize: '2 GB'
-        }
+        function: dataSourceSyncFunction
       }
     });
   }

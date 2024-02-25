@@ -12,8 +12,11 @@ export const handler: Handler = async (event) => {
   const dateString = getTodaysDateString();
   let devo = await getDevotionByCreatedDate(dateString);
 
-  if (!devo) {
+  if (!devo || devo.failed) {
     devo = await generateDevotion();
+    if (!devo || devo.failed) {
+      throw new Error('Failed to generate devotion');
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const serviceAccount = require(path.resolve('firebase-service-account.json'));
@@ -24,19 +27,14 @@ export const handler: Handler = async (event) => {
     }
     await firebase.messaging().sendToTopic('daily-devo', {
       notification: {
-        title: `Today's Daily Devo: ${toTitleCase(devo!.topic)}`,
-        body: devo?.bibleReading,
+        title: `Today's Daily Devo: ${toTitleCase(devo.topic)}`,
+        body: devo.bibleReading,
         badge: '1'
       },
       data: {
         task: 'daily-devo',
-        id: devo!.id
+        id: devo.id
       }
     });
   }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(devo)
-  };
 };
