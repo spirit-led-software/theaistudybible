@@ -83,7 +83,7 @@ export function Crons({ stack, app }: StackContext) {
       }
     });
 
-    const dataSourceSyncFunction = new Function(stack, 'DataSourceSyncFunction', {
+    const dataSourceSyncCronFunction = new Function(stack, 'DataSourceSyncCronFunction', {
       handler: 'packages/functions/src/crons/data-source-sync.handler',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
@@ -96,7 +96,7 @@ export function Crons({ stack, app }: StackContext) {
       timeout: '15 minutes'
     });
     // add layers
-    (dataSourceSyncFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
+    (dataSourceSyncCronFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
       chromiumLayer.layerVersionArn,
       axiomX86Layer.layerVersionArn
     ]);
@@ -104,7 +104,7 @@ export function Crons({ stack, app }: StackContext) {
     new Cron(stack, 'dataSourceSyncCron', {
       schedule: 'cron(0 2 * * ? *)',
       job: {
-        function: dataSourceSyncFunction
+        function: dataSourceSyncCronFunction
       }
     });
   }

@@ -23,3 +23,5 @@ test
 firebase-service-account.json
 apple-auth-key.p8
 apple-app-store-key.p8
+
+changes.txt
