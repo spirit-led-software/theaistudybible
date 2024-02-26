@@ -11,7 +11,7 @@ export const handler: Handler = async (event) => {
   const dateString = getTodaysDateString();
   let devotion = await getDevotionByCreatedDate(dateString);
 
-  if (!devotion) {
+  if (!devotion || devotion.failed) {
     throw new Error('No devotion found');
   }
 
