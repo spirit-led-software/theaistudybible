@@ -69,13 +69,6 @@ export function API({ stack }: StackContext) {
           handler: 'packages/functions/src/rest/vector-search/post.handler',
           permissions: [invokeBedrockPolicy]
         }
-      },
-
-      // GraphQL
-      'POST /graphql': {
-        function: {
-          handler: 'packages/functions/src/graphql/index.handler'
-        }
       }
     },
     customDomain: {

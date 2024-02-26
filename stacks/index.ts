@@ -6,6 +6,7 @@ export * from './Constants';
 export * from './Crons';
 export * from './Database';
 export * from './Database-Scripts';
+export * from './GraphQL-API';
 export * from './Jobs';
 export * from './Layers';
 export * from './Queues';

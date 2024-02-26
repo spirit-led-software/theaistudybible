@@ -1,10 +1,10 @@
 import { getDevotion } from '@revelationsai/server/services/devotion';
-import { getDevotionSourceDocuments } from '@revelationsai/server/services/source-document';
+import { getSourceDocumentsByDevotionId } from '@revelationsai/server/services/source-document';
 import { ApiHandler } from 'sst/node/api';
 import {
+  InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  OkResponse,
-  InternalServerErrorResponse
+  OkResponse
 } from '../../../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
@@ -16,7 +16,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const sourceDocuments = await getDevotionSourceDocuments(devotion.id);
+    const sourceDocuments = await getSourceDocumentsByDevotionId(devotion.id);
 
     return OkResponse(
       sourceDocuments.map((sourceDocument) => {

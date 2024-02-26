@@ -7,6 +7,7 @@ const config: CodegenConfig = {
     'packages/functions/src/graphql/__generated__/resolver-types.ts': {
       plugins: ['typescript', 'typescript-resolvers'],
       config: {
+        enumsAsTypes: true,
         useIndexSignature: true,
         contextType: '../index#Context'
       }

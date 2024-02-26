@@ -1,6 +1,6 @@
 import { getAiResponse } from '@revelationsai/server/services/ai-response/ai-response';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
-import { getAiResponseSourceDocuments } from '@revelationsai/server/services/source-document';
+import { getSourceDocumentsByAiResponseId } from '@revelationsai/server/services/source-document';
 import { isObjectOwner } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
 import {
@@ -23,7 +23,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You are not authorized to view these source documents.');
     }
 
-    const sourceDocuments = await getAiResponseSourceDocuments(aiResponse.id);
+    const sourceDocuments = await getSourceDocumentsByAiResponseId(aiResponse.id);
 
     return OkResponse(
       sourceDocuments

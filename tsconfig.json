@@ -2,9 +2,8 @@
   "extends": "@tsconfig/node20/tsconfig.json",
   "exclude": ["./packages/**", "node_modules"],
   "compilerOptions": {
-    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
-    "preserveValueImports": true,
+    "verbatimModuleSyntax": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "moduleResolution": "node",
     "module": "esnext",

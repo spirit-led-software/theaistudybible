@@ -1,4 +1,5 @@
 scalar Date
+scalar Metadata
 
 interface BaseModel {
   id: String!
@@ -24,7 +25,7 @@ type User implements BaseModel {
   hasCustomImage: Boolean!
   translation: Translation!
   password: UserPassword
-  roles(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Role!]
+  roles: [Role!]
   messages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]
   aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]
   chats(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Chat!]
@@ -34,6 +35,20 @@ type User implements BaseModel {
     page: Int
     sort: SortInput
   ): [UserGeneratedImage!]
+}
+
+input CreateUserInput {
+  email: String!
+  name: String
+  image: String
+  translation: Translation
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  image: String
+  translation: Translation
 }
 
 type UserPassword implements BaseModel {
@@ -52,7 +67,17 @@ type Role implements BaseModel {
   updatedAt: Date!
   name: String!
   permissions: [String!]!
-  users: [User!]
+  users(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [User!]
+}
+
+input CreateRoleInput {
+  name: String!
+  permissions: [String!]!
+}
+
+input UpdateRoleInput {
+  name: String
+  permissions: [String!]
 }
 
 type UserMessage implements BaseModel {
@@ -78,9 +103,12 @@ type AiResponse implements BaseModel {
   modelId: String!
   searchQueries: [String!]!
   userMessageId: String!
+  userMessage: UserMessage
   chatId: String!
+  chat: Chat
   userId: String!
   user: User
+  sourceDocuments: [SourceDocument!]
 }
 
 type AiResponseReaction implements BaseModel {
@@ -95,6 +123,18 @@ type AiResponseReaction implements BaseModel {
   user: User
 }
 
+input CreateAiResponseReactionInput {
+  reaction: String!
+  comment: String
+  aiResponseId: String!
+  userId: String
+}
+
+input UpdateAiResponseReactionInput {
+  reaction: String
+  comment: String
+}
+
 type Chat implements BaseModel {
   id: String!
   createdAt: Date!
@@ -103,9 +143,18 @@ type Chat implements BaseModel {
   customName: Boolean!
   userId: String!
   user: User
-  userMessages: [UserMessage!]
-  aiResponses: [AiResponse!]
-  chatMessages: [ChatMessage!]
+  userMessages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]
+  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]
+  chatMessages(limit: Int, page: Int, sort: SortInput): [ChatMessage!]
+}
+
+input CreateChatInput {
+  name: String
+  userId: String
+}
+
+input UpdateChatInput {
+  name: String
 }
 
 enum ChatMessageRole {
@@ -119,11 +168,11 @@ enum ChatMessageRole {
 
 type ChatMessage {
   id: String!
-  uuid: String!
+  uuid: String
   name: String
   role: ChatMessageRole!
   content: String!
-  createdAt: String
+  createdAt: Date
   modelId: String
   searchQueries: [String!]
 }
@@ -140,6 +189,7 @@ type UserGeneratedImage implements BaseModel {
   failed: Boolean!
   userId: String!
   user: User
+  sourceDocuments: [SourceDocument!]
 }
 
 type Devotion implements BaseModel {
@@ -153,8 +203,18 @@ type Devotion implements BaseModel {
   prayer: String
   diveDeeperQueries: [String!]!
   failed: Boolean!
-  reactions: [DevotionReaction!]
+  reactions(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [DevotionReaction!]
   images: [DevotionImage!]
+  sourceDocuments: [SourceDocument!]
+}
+
+input UpdateDevotionInput {
+  topic: String
+  bibleReading: String
+  summary: String
+  reflection: String
+  prayer: String
+  diveDeeperQueries: [String!]
 }
 
 enum DevotionReactionType {
@@ -174,6 +234,18 @@ type DevotionReaction implements BaseModel {
   user: User
 }
 
+input CreateDevotionReactionInput {
+  reaction: DevotionReactionType!
+  comment: String
+  devotionId: String!
+  userId: String
+}
+
+input UpdateDevotionReactionInput {
+  reaction: DevotionReactionType
+  comment: String
+}
+
 type DevotionReactionCount {
   type: DevotionReactionType!
   count: Int!
@@ -189,6 +261,10 @@ type DevotionImage implements BaseModel {
   negativePrompt: String
   devotionId: String!
   devotion: Devotion
+}
+
+input UpdateDevotionImage {
+  caption: String
 }
 
 enum DataSourceType {
@@ -213,12 +289,28 @@ type DataSource implements BaseModel {
   name: String!
   url: String!
   type: DataSourceType!
-  metadata: String!
+  metadata: Metadata!
   numberOfDocuments: Int!
   syncSchedule: SyncSchedule!
   lastManualSync: String
   lastAutomaticSync: String
-  indexOperations: [IndexOperation!]
+  indexOperations(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [IndexOperation!]
+}
+
+input CreateDataSourceInput {
+  name: String!
+  url: String!
+  type: DataSourceType!
+  metadata: Metadata
+  syncSchedule: SyncSchedule
+}
+
+input UpdateDataSourceInput {
+  name: String
+  url: String
+  type: DataSourceType
+  metadata: Metadata
+  syncSchedule: SyncSchedule
 }
 
 enum IndexOperationStatus {
@@ -234,9 +326,29 @@ type IndexOperation implements BaseModel {
   updatedAt: Date!
   status: IndexOperationStatus!
   errorMessages: [String!]!
-  metadata: String!
+  metadata: Metadata!
   dataSourceId: String!
   dataSource: DataSource
+}
+
+input UpdateIndexOperationInput {
+  status: IndexOperationStatus
+  metadata: Metadata
+}
+
+enum DistanceMetric {
+  cosine
+  l2
+  innerProduct
+}
+
+type SourceDocument {
+  id: String!
+  embedding: String!
+  pageContent: String!
+  metadata: Metadata!
+  distance: Float
+  distanceMetric: DistanceMetric
 }
 
 enum SortOrder {
@@ -335,5 +447,40 @@ type Query {
 }
 
 type Mutation {
-  _empty: String
+  createUser(input: CreateUserInput!): User
+  updateUser(id: String!, input: UpdateUserInput!): User
+  deleteUser(id: String!): User
+
+  createRole(input: CreateRoleInput!): Role
+  updateRole(id: String!, input: UpdateRoleInput!): Role
+  deleteRole(id: String!): Role
+
+  deleteUserMessage(id: String!): UserMessage
+
+  deleteAiResponse(id: String!): AiResponse
+
+  createAiResponseReaction(input: CreateAiResponseReactionInput!): AiResponseReaction
+  updateAiResponseReaction(id: String!, input: UpdateAiResponseReactionInput!): AiResponseReaction
+  deleteAiResponseReaction(id: String!): AiResponseReaction
+
+  createChat(input: CreateChatInput!): Chat
+  updateChat(id: String!, input: UpdateChatInput!): Chat
+  deleteChat(id: String!): Chat
+
+  updateDevotion(id: String!, input: UpdateDevotionInput!): Devotion
+  deleteDevotion(id: String!): Devotion
+
+  createDevotionReaction(input: CreateDevotionReactionInput!): DevotionReaction
+  updateDevotionReaction(id: String!, input: UpdateDevotionReactionInput!): DevotionReaction
+  deleteDevotionReaction(id: String!): DevotionReaction
+
+  updateDevotionImage(id: String!, input: UpdateDevotionImage!): DevotionImage
+  deleteDevotionImage(id: String!): DevotionImage
+
+  createDataSource(input: CreateDataSourceInput!): DataSource
+  updateDataSource(id: String!, input: UpdateDataSourceInput!): DataSource
+  deleteDataSource(id: String!): DataSource
+
+  updateIndexOperation(id: String!, input: UpdateIndexOperationInput!): IndexOperation
+  deleteIndexOperation(id: String!): IndexOperation
 }

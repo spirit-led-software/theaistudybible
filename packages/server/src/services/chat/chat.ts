@@ -1,5 +1,11 @@
 import { chats } from '@revelationsai/core/database/schema';
-import type { Chat, CreateChatData, UpdateChatData } from '@revelationsai/core/model/chat';
+import {
+  createChatSchema,
+  updateChatSchema,
+  type Chat,
+  type CreateChatData,
+  type UpdateChatData
+} from '@revelationsai/core/model/chat';
 import { desc, eq, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
@@ -48,6 +54,11 @@ export async function getChatsByUserId(userId: string) {
 }
 
 export async function createChat(data: CreateChatData) {
+  const zodResult = createChatSchema.safeParse(data);
+  if (!zodResult.success) {
+    throw new Error(`Invalid data for creating chat:\n\t${zodResult.error.issues.join('\n\t')}`);
+  }
+
   return await cacheUpsert({
     collection: CHATS_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -57,7 +68,7 @@ export async function createChat(data: CreateChatData) {
           .insert(chats)
           .values({
             customName: data.name && data.name != 'New Chat' ? true : false,
-            ...data,
+            ...zodResult.data,
             createdAt: new Date(),
             updatedAt: new Date()
           })
@@ -67,6 +78,11 @@ export async function createChat(data: CreateChatData) {
 }
 
 export async function updateChat(id: string, data: UpdateChatData) {
+  const zodResult = updateChatSchema.safeParse(data);
+  if (!zodResult.success) {
+    throw new Error(`Invalid data for updating chat:\n\t${zodResult.error.issues.join('\n\t')}`);
+  }
+
   return await cacheUpsert({
     collection: CHATS_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -78,7 +94,7 @@ export async function updateChat(id: string, data: UpdateChatData) {
             customName: sql`${chats.customName} OR ${
               data.name && data.name != 'New Chat' ? true : false
             }`,
-            ...data,
+            ...zodResult.data,
             createdAt: undefined,
             updatedAt: new Date()
           })
