@@ -5,10 +5,9 @@
     "lib": ["dom", "dom.iterable", "ES2021"],
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
-    "preserveValueImports": true,
     "ignoreDeprecations": "5.0",
+    "verbatimModuleSyntax": true,
     "paths": {
       "@revelationsai/core": ["../core/src"],
       "@revelationsai/core/*": ["../core/src/*"]
