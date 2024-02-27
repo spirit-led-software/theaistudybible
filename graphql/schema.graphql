@@ -26,14 +26,14 @@ type User implements BaseModel {
   translation: Translation!
   password: UserPassword
   roles: [Role!]
-  messages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]
-  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]
-  chats(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Chat!]
+  messages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserMessage!]
+  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [AiResponse!]
+  chats(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Chat!]
   generatedImages(
     filter: FilterInput
     limit: Int
     page: Int
-    sort: SortInput
+    sort: [SortInput!]
   ): [UserGeneratedImage!]
 }
 
@@ -67,7 +67,7 @@ type Role implements BaseModel {
   updatedAt: Date!
   name: String!
   permissions: [String!]!
-  users(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [User!]
+  users(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [User!]
 }
 
 input CreateRoleInput {
@@ -111,11 +111,16 @@ type AiResponse implements BaseModel {
   sourceDocuments: [SourceDocument!]
 }
 
+enum AiResponseReactionType {
+  LIKE
+  DISLIKE
+}
+
 type AiResponseReaction implements BaseModel {
   id: String!
   createdAt: Date!
   updatedAt: Date!
-  reaction: String!
+  reaction: AiResponseReactionType!
   comment: String
   aiResponseId: String!
   aiResponse: AiResponse
@@ -124,14 +129,14 @@ type AiResponseReaction implements BaseModel {
 }
 
 input CreateAiResponseReactionInput {
-  reaction: String!
+  reaction: AiResponseReactionType!
   comment: String
   aiResponseId: String!
   userId: String
 }
 
 input UpdateAiResponseReactionInput {
-  reaction: String
+  reaction: AiResponseReactionType
   comment: String
 }
 
@@ -143,9 +148,9 @@ type Chat implements BaseModel {
   customName: Boolean!
   userId: String!
   user: User
-  userMessages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]
-  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]
-  chatMessages(limit: Int, page: Int, sort: SortInput): [ChatMessage!]
+  userMessages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserMessage!]
+  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [AiResponse!]
+  chatMessages(limit: Int, page: Int, sort: [SortInput!]): [ChatMessage!]
 }
 
 input CreateChatInput {
@@ -203,7 +208,7 @@ type Devotion implements BaseModel {
   prayer: String
   diveDeeperQueries: [String!]!
   failed: Boolean!
-  reactions(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [DevotionReaction!]
+  reactions(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DevotionReaction!]
   images: [DevotionImage!]
   sourceDocuments: [SourceDocument!]
 }
@@ -294,7 +299,7 @@ type DataSource implements BaseModel {
   syncSchedule: SyncSchedule!
   lastManualSync: String
   lastAutomaticSync: String
-  indexOperations(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [IndexOperation!]
+  indexOperations(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [IndexOperation!]
 }
 
 input CreateDataSourceInput {
@@ -389,61 +394,66 @@ input FilterInput {
 type Query {
   currentUser: User
   user(id: String!): User
-  users(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [User!]!
+  users(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [User!]!
 
   userPassword(id: String!): UserPassword
-  userPasswords(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserPassword!]!
+  userPasswords(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserPassword!]!
 
   role(id: String!): Role
-  roles(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Role!]!
+  roles(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Role!]!
 
   userMessage(id: String!): UserMessage
-  userMessages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [UserMessage!]!
+  userMessages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserMessage!]!
 
   aiResponse(id: String!): AiResponse
-  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [AiResponse!]!
+  aiResponses(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [AiResponse!]!
 
   aiResponseReaction(id: String!): AiResponseReaction
   aiResponseReactions(
     filter: FilterInput
     limit: Int
     page: Int
-    sort: SortInput
+    sort: [SortInput!]
   ): [AiResponseReaction!]!
 
   chat(id: String!): Chat
-  chats(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Chat!]!
+  chats(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Chat!]!
 
-  chatMessages(chatId: String!, limit: Int, page: Int, sort: SortInput): [ChatMessage!]!
+  chatMessages(chatId: String!, limit: Int, page: Int, sort: [SortInput!]): [ChatMessage!]!
 
   userGeneratedImage(id: String!): UserGeneratedImage
   userGeneratedImages(
     filter: FilterInput
     limit: Int
     page: Int
-    sort: SortInput
+    sort: [SortInput!]
   ): [UserGeneratedImage!]!
 
   devotion(id: String!): Devotion
-  devotions(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [Devotion!]!
+  devotions(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Devotion!]!
 
   devotionReaction(id: String!): DevotionReaction
   devotionReactions(
     filter: FilterInput
     limit: Int
     page: Int
-    sort: SortInput
+    sort: [SortInput!]
   ): [DevotionReaction!]!
   devotionReactionCount(devotionId: String!): [DevotionReactionCount!]!
 
   devotionImage(id: String!): DevotionImage
-  devotionImages(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [DevotionImage!]!
+  devotionImages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DevotionImage!]!
 
   dataSource(id: String!): DataSource
-  dataSources(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [DataSource!]!
+  dataSources(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DataSource!]!
 
   indexOperation(id: String!): IndexOperation
-  indexOperations(filter: FilterInput, limit: Int, page: Int, sort: SortInput): [IndexOperation!]!
+  indexOperations(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: [SortInput!]
+  ): [IndexOperation!]!
 }
 
 type Mutation {

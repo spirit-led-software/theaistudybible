@@ -16,5 +16,5 @@
     }
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/node_modules", "**/__generated__"]
+  "exclude": ["node_modules"]
 }

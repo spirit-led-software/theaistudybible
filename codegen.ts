@@ -8,6 +8,7 @@ const config: CodegenConfig = {
       plugins: ['typescript', 'typescript-resolvers'],
       config: {
         enumsAsTypes: true,
+        useTypeImports: true,
         useIndexSignature: true,
         contextType: '../index#Context'
       }

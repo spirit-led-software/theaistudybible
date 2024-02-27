@@ -29,10 +29,10 @@ export type StandardModelInput = {
 };
 
 export const llmCache =
-  upstashRedisConfig.url && upstashRedisConfig.token
+  upstashRedisConfig.restUrl && upstashRedisConfig.token
     ? new UpstashRedisCache({
         config: {
-          url: upstashRedisConfig.url,
+          url: upstashRedisConfig.restUrl,
           token: upstashRedisConfig.token
         }
       })

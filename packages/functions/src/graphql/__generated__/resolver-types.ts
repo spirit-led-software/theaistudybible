@@ -1,26 +1,22 @@
-import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { Context } from '../index';
+import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import type { Context } from '../index';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
-  [_ in K]?: never;
-};
-export type Incremental<T> =
-  | T
-  | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
-  Date: { input: any; output: any };
-  Metadata: { input: any; output: any };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  Date: { input: any; output: any; }
+  Metadata: { input: any; output: any; }
 };
 
 export type AiResponse = BaseModel & {
@@ -50,11 +46,15 @@ export type AiResponseReaction = BaseModel & {
   comment?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   id: Scalars['String']['output'];
-  reaction: Scalars['String']['output'];
+  reaction: AiResponseReactionType;
   updatedAt: Scalars['Date']['output'];
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
 };
+
+export type AiResponseReactionType =
+  | 'DISLIKE'
+  | 'LIKE';
 
 export type BaseModel = {
   createdAt: Scalars['Date']['output'];
@@ -76,24 +76,27 @@ export type Chat = BaseModel & {
   userMessages?: Maybe<Array<UserMessage>>;
 };
 
+
 export type ChatAiResponsesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type ChatChatMessagesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type ChatUserMessagesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
 export type ChatMessage = {
@@ -108,7 +111,13 @@ export type ChatMessage = {
   uuid?: Maybe<Scalars['String']['output']>;
 };
 
-export type ChatMessageRole = 'assistant' | 'data' | 'function' | 'system' | 'tool' | 'user';
+export type ChatMessageRole =
+  | 'assistant'
+  | 'data'
+  | 'function'
+  | 'system'
+  | 'tool'
+  | 'user';
 
 export type ColumnPlaceholder = {
   column: Scalars['String']['input'];
@@ -123,7 +132,7 @@ export type ColumnValue = {
 export type CreateAiResponseReactionInput = {
   aiResponseId: Scalars['String']['input'];
   comment?: InputMaybe<Scalars['String']['input']>;
-  reaction: Scalars['String']['input'];
+  reaction: AiResponseReactionType;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -175,14 +184,20 @@ export type DataSource = BaseModel & {
   url: Scalars['String']['output'];
 };
 
+
 export type DataSourceIndexOperationsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
-export type DataSourceType = 'FILE' | 'REMOTE_FILE' | 'WEBPAGE' | 'WEB_CRAWL' | 'YOUTUBE';
+export type DataSourceType =
+  | 'FILE'
+  | 'REMOTE_FILE'
+  | 'WEBPAGE'
+  | 'WEB_CRAWL'
+  | 'YOUTUBE';
 
 export type Devotion = BaseModel & {
   __typename?: 'Devotion';
@@ -201,11 +216,12 @@ export type Devotion = BaseModel & {
   updatedAt: Scalars['Date']['output'];
 };
 
+
 export type DevotionReactionsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
 export type DevotionImage = BaseModel & {
@@ -240,9 +256,14 @@ export type DevotionReactionCount = {
   type: DevotionReactionType;
 };
 
-export type DevotionReactionType = 'DISLIKE' | 'LIKE';
+export type DevotionReactionType =
+  | 'DISLIKE'
+  | 'LIKE';
 
-export type DistanceMetric = 'cosine' | 'innerProduct' | 'l2';
+export type DistanceMetric =
+  | 'cosine'
+  | 'innerProduct'
+  | 'l2';
 
 export type FilterInput = {
   AND?: InputMaybe<Array<FilterInput>>;
@@ -271,7 +292,11 @@ export type IndexOperation = BaseModel & {
   updatedAt: Scalars['Date']['output'];
 };
 
-export type IndexOperationStatus = 'COMPLETED' | 'FAILED' | 'RUNNING' | 'SUCCEEDED';
+export type IndexOperationStatus =
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'RUNNING'
+  | 'SUCCEEDED';
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -303,113 +328,139 @@ export type Mutation = {
   updateUser?: Maybe<User>;
 };
 
+
 export type MutationCreateAiResponseReactionArgs = {
   input: CreateAiResponseReactionInput;
 };
+
 
 export type MutationCreateChatArgs = {
   input: CreateChatInput;
 };
 
+
 export type MutationCreateDataSourceArgs = {
   input: CreateDataSourceInput;
 };
+
 
 export type MutationCreateDevotionReactionArgs = {
   input: CreateDevotionReactionInput;
 };
 
+
 export type MutationCreateRoleArgs = {
   input: CreateRoleInput;
 };
+
 
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
 };
 
+
 export type MutationDeleteAiResponseArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type MutationDeleteAiResponseReactionArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type MutationDeleteChatArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type MutationDeleteDataSourceArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type MutationDeleteDevotionArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type MutationDeleteDevotionImageArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type MutationDeleteDevotionReactionArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type MutationDeleteIndexOperationArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type MutationDeleteRoleArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type MutationDeleteUserArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type MutationDeleteUserMessageArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type MutationUpdateAiResponseReactionArgs = {
   id: Scalars['String']['input'];
   input: UpdateAiResponseReactionInput;
 };
 
+
 export type MutationUpdateChatArgs = {
   id: Scalars['String']['input'];
   input: UpdateChatInput;
 };
+
 
 export type MutationUpdateDataSourceArgs = {
   id: Scalars['String']['input'];
   input: UpdateDataSourceInput;
 };
 
+
 export type MutationUpdateDevotionArgs = {
   id: Scalars['String']['input'];
   input: UpdateDevotionInput;
 };
+
 
 export type MutationUpdateDevotionImageArgs = {
   id: Scalars['String']['input'];
   input: UpdateDevotionImage;
 };
 
+
 export type MutationUpdateDevotionReactionArgs = {
   id: Scalars['String']['input'];
   input: UpdateDevotionReactionInput;
 };
+
 
 export type MutationUpdateIndexOperationArgs = {
   id: Scalars['String']['input'];
   input: UpdateIndexOperationInput;
 };
 
+
 export type MutationUpdateRoleArgs = {
   id: Scalars['String']['input'];
   input: UpdateRoleInput;
 };
+
 
 export type MutationUpdateUserArgs = {
   id: Scalars['String']['input'];
@@ -449,158 +500,186 @@ export type Query = {
   users: Array<User>;
 };
 
+
 export type QueryAiResponseArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type QueryAiResponseReactionArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryAiResponseReactionsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryAiResponsesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryChatArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryChatMessagesArgs = {
   chatId: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryChatsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryDataSourceArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryDataSourcesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryDevotionArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryDevotionImageArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type QueryDevotionImagesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryDevotionReactionArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryDevotionReactionCountArgs = {
   devotionId: Scalars['String']['input'];
 };
+
 
 export type QueryDevotionReactionsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryDevotionsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryIndexOperationArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryIndexOperationsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryRoleArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryRolesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryUserArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryUserGeneratedImageArgs = {
   id: Scalars['String']['input'];
 };
+
 
 export type QueryUserGeneratedImagesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryUserMessageArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryUserMessagesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryUserPasswordArgs = {
   id: Scalars['String']['input'];
 };
 
+
 export type QueryUserPasswordsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type QueryUsersArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
 export type Role = BaseModel & {
@@ -613,11 +692,12 @@ export type Role = BaseModel & {
   users?: Maybe<Array<User>>;
 };
 
+
 export type RoleUsersArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
 export type SortInput = {
@@ -625,7 +705,9 @@ export type SortInput = {
   order: SortOrder;
 };
 
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder =
+  | 'asc'
+  | 'desc';
 
 export type SourceDocument = {
   __typename?: 'SourceDocument';
@@ -637,13 +719,21 @@ export type SourceDocument = {
   pageContent: Scalars['String']['output'];
 };
 
-export type SyncSchedule = 'DAILY' | 'MONTHLY' | 'NEVER' | 'WEEKLY';
+export type SyncSchedule =
+  | 'DAILY'
+  | 'MONTHLY'
+  | 'NEVER'
+  | 'WEEKLY';
 
-export type Translation = 'ESV' | 'NIV' | 'NKJV' | 'NLT';
+export type Translation =
+  | 'ESV'
+  | 'NIV'
+  | 'NKJV'
+  | 'NLT';
 
 export type UpdateAiResponseReactionInput = {
   comment?: InputMaybe<Scalars['String']['input']>;
-  reaction?: InputMaybe<Scalars['String']['input']>;
+  reaction?: InputMaybe<AiResponseReactionType>;
 };
 
 export type UpdateChatInput = {
@@ -712,32 +802,36 @@ export type User = BaseModel & {
   updatedAt: Scalars['Date']['output'];
 };
 
+
 export type UserAiResponsesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type UserChatsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type UserGeneratedImagesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
+
 
 export type UserMessagesArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  sort?: InputMaybe<SortInput>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
 export type UserGeneratedImage = BaseModel & {
@@ -785,12 +879,11 @@ export type ResolversObject<TObject> = WithIndex<TObject>;
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
+
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> =
-  | ResolverFn<TResult, TParent, TContext, TArgs>
-  | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -813,13 +906,7 @@ export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
-export interface SubscriptionSubscriberObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs
-> {
+export interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
   subscribe: SubscriptionSubscribeFn<{ [key in TKey]: TResult }, TParent, TContext, TArgs>;
   resolve?: SubscriptionResolveFn<TResult, { [key in TKey]: TResult }, TContext, TArgs>;
 }
@@ -833,13 +920,7 @@ export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, 
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<
-  TResult,
-  TKey extends string,
-  TParent = {},
-  TContext = {},
-  TArgs = {}
-> =
+export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
   | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
@@ -849,11 +930,7 @@ export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (
-  obj: T,
-  context: TContext,
-  info: GraphQLResolveInfo
-) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
@@ -865,28 +942,17 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
-  BaseModel:
-    | AiResponse
-    | AiResponseReaction
-    | Chat
-    | DataSource
-    | Devotion
-    | DevotionImage
-    | DevotionReaction
-    | IndexOperation
-    | Role
-    | User
-    | UserGeneratedImage
-    | UserMessage
-    | UserPassword;
+  BaseModel: ( AiResponse ) | ( AiResponseReaction ) | ( Chat ) | ( DataSource ) | ( Devotion ) | ( DevotionImage ) | ( DevotionReaction ) | ( IndexOperation ) | ( Role ) | ( User ) | ( UserGeneratedImage ) | ( UserMessage ) | ( UserPassword );
 }>;
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   AiResponse: ResolverTypeWrapper<AiResponse>;
   AiResponseReaction: ResolverTypeWrapper<AiResponseReaction>;
+  AiResponseReactionType: AiResponseReactionType;
   BaseModel: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['BaseModel']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Chat: ResolverTypeWrapper<Chat>;
@@ -987,10 +1053,7 @@ export type ResolversParentTypes = ResolversObject<{
   UserPassword: UserPassword;
 }>;
 
-export type AiResponseResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['AiResponse'] = ResolversParentTypes['AiResponse']
-> = ResolversObject<{
+export type AiResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AiResponse'] = ResolversParentTypes['AiResponse']> = ResolversObject<{
   aiId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   chat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType>;
   chatId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1000,11 +1063,7 @@ export type AiResponseResolvers<
   modelId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   regenerated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   searchQueries?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  sourceDocuments?: Resolver<
-    Maybe<Array<ResolversTypes['SourceDocument']>>,
-    ParentType,
-    ContextType
-  >;
+  sourceDocuments?: Resolver<Maybe<Array<ResolversTypes['SourceDocument']>>, ParentType, ContextType>;
   text?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -1014,65 +1073,29 @@ export type AiResponseResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AiResponseReactionResolvers<
-  ContextType = Context,
-  ParentType extends
-    ResolversParentTypes['AiResponseReaction'] = ResolversParentTypes['AiResponseReaction']
-> = ResolversObject<{
+export type AiResponseReactionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AiResponseReaction'] = ResolversParentTypes['AiResponseReaction']> = ResolversObject<{
   aiResponse?: Resolver<Maybe<ResolversTypes['AiResponse']>, ParentType, ContextType>;
   aiResponseId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   comment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  reaction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  reaction?: Resolver<ResolversTypes['AiResponseReactionType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BaseModelResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['BaseModel'] = ResolversParentTypes['BaseModel']
-> = ResolversObject<{
-  __resolveType: TypeResolveFn<
-    | 'AiResponse'
-    | 'AiResponseReaction'
-    | 'Chat'
-    | 'DataSource'
-    | 'Devotion'
-    | 'DevotionImage'
-    | 'DevotionReaction'
-    | 'IndexOperation'
-    | 'Role'
-    | 'User'
-    | 'UserGeneratedImage'
-    | 'UserMessage'
-    | 'UserPassword',
-    ParentType,
-    ContextType
-  >;
+export type BaseModelResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BaseModel'] = ResolversParentTypes['BaseModel']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'AiResponse' | 'AiResponseReaction' | 'Chat' | 'DataSource' | 'Devotion' | 'DevotionImage' | 'DevotionReaction' | 'IndexOperation' | 'Role' | 'User' | 'UserGeneratedImage' | 'UserMessage' | 'UserPassword', ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
 }>;
 
-export type ChatResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['Chat'] = ResolversParentTypes['Chat']
-> = ResolversObject<{
-  aiResponses?: Resolver<
-    Maybe<Array<ResolversTypes['AiResponse']>>,
-    ParentType,
-    ContextType,
-    Partial<ChatAiResponsesArgs>
-  >;
-  chatMessages?: Resolver<
-    Maybe<Array<ResolversTypes['ChatMessage']>>,
-    ParentType,
-    ContextType,
-    Partial<ChatChatMessagesArgs>
-  >;
+export type ChatResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Chat'] = ResolversParentTypes['Chat']> = ResolversObject<{
+  aiResponses?: Resolver<Maybe<Array<ResolversTypes['AiResponse']>>, ParentType, ContextType, Partial<ChatAiResponsesArgs>>;
+  chatMessages?: Resolver<Maybe<Array<ResolversTypes['ChatMessage']>>, ParentType, ContextType, Partial<ChatChatMessagesArgs>>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   customName?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1080,19 +1103,11 @@ export type ChatResolvers<
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  userMessages?: Resolver<
-    Maybe<Array<ResolversTypes['UserMessage']>>,
-    ParentType,
-    ContextType,
-    Partial<ChatUserMessagesArgs>
-  >;
+  userMessages?: Resolver<Maybe<Array<ResolversTypes['UserMessage']>>, ParentType, ContextType, Partial<ChatUserMessagesArgs>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ChatMessageResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['ChatMessage'] = ResolversParentTypes['ChatMessage']
-> = ResolversObject<{
+export type ChatMessageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ChatMessage'] = ResolversParentTypes['ChatMessage']> = ResolversObject<{
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1104,18 +1119,10 @@ export type ChatMessageResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type DataSourceResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['DataSource'] = ResolversParentTypes['DataSource']
-> = ResolversObject<{
+export type DataSourceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DataSource'] = ResolversParentTypes['DataSource']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  indexOperations?: Resolver<
-    Maybe<Array<ResolversTypes['IndexOperation']>>,
-    ParentType,
-    ContextType,
-    Partial<DataSourceIndexOperationsArgs>
-  >;
+  indexOperations?: Resolver<Maybe<Array<ResolversTypes['IndexOperation']>>, ParentType, ContextType, Partial<DataSourceIndexOperationsArgs>>;
   lastAutomaticSync?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lastManualSync?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   metadata?: Resolver<ResolversTypes['Metadata'], ParentType, ContextType>;
@@ -1132,10 +1139,7 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
-export type DevotionResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['Devotion'] = ResolversParentTypes['Devotion']
-> = ResolversObject<{
+export type DevotionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Devotion'] = ResolversParentTypes['Devotion']> = ResolversObject<{
   bibleReading?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   diveDeeperQueries?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1143,28 +1147,16 @@ export type DevotionResolvers<
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   images?: Resolver<Maybe<Array<ResolversTypes['DevotionImage']>>, ParentType, ContextType>;
   prayer?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  reactions?: Resolver<
-    Maybe<Array<ResolversTypes['DevotionReaction']>>,
-    ParentType,
-    ContextType,
-    Partial<DevotionReactionsArgs>
-  >;
+  reactions?: Resolver<Maybe<Array<ResolversTypes['DevotionReaction']>>, ParentType, ContextType, Partial<DevotionReactionsArgs>>;
   reflection?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  sourceDocuments?: Resolver<
-    Maybe<Array<ResolversTypes['SourceDocument']>>,
-    ParentType,
-    ContextType
-  >;
+  sourceDocuments?: Resolver<Maybe<Array<ResolversTypes['SourceDocument']>>, ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   topic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type DevotionImageResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['DevotionImage'] = ResolversParentTypes['DevotionImage']
-> = ResolversObject<{
+export type DevotionImageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DevotionImage'] = ResolversParentTypes['DevotionImage']> = ResolversObject<{
   caption?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   devotion?: Resolver<Maybe<ResolversTypes['Devotion']>, ParentType, ContextType>;
@@ -1177,11 +1169,7 @@ export type DevotionImageResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type DevotionReactionResolvers<
-  ContextType = Context,
-  ParentType extends
-    ResolversParentTypes['DevotionReaction'] = ResolversParentTypes['DevotionReaction']
-> = ResolversObject<{
+export type DevotionReactionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DevotionReaction'] = ResolversParentTypes['DevotionReaction']> = ResolversObject<{
   comment?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   devotion?: Resolver<Maybe<ResolversTypes['Devotion']>, ParentType, ContextType>;
@@ -1194,20 +1182,13 @@ export type DevotionReactionResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type DevotionReactionCountResolvers<
-  ContextType = Context,
-  ParentType extends
-    ResolversParentTypes['DevotionReactionCount'] = ResolversParentTypes['DevotionReactionCount']
-> = ResolversObject<{
+export type DevotionReactionCountResolvers<ContextType = Context, ParentType extends ResolversParentTypes['DevotionReactionCount'] = ResolversParentTypes['DevotionReactionCount']> = ResolversObject<{
   count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['DevotionReactionType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type IndexOperationResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['IndexOperation'] = ResolversParentTypes['IndexOperation']
-> = ResolversObject<{
+export type IndexOperationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['IndexOperation'] = ResolversParentTypes['IndexOperation']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   dataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType>;
   dataSourceId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1219,355 +1200,82 @@ export type IndexOperationResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface MetadataScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['Metadata'], any> {
+export interface MetadataScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Metadata'], any> {
   name: 'Metadata';
 }
 
-export type MutationResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']
-> = ResolversObject<{
-  createAiResponseReaction?: Resolver<
-    Maybe<ResolversTypes['AiResponseReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateAiResponseReactionArgs, 'input'>
-  >;
-  createChat?: Resolver<
-    Maybe<ResolversTypes['Chat']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateChatArgs, 'input'>
-  >;
-  createDataSource?: Resolver<
-    Maybe<ResolversTypes['DataSource']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateDataSourceArgs, 'input'>
-  >;
-  createDevotionReaction?: Resolver<
-    Maybe<ResolversTypes['DevotionReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateDevotionReactionArgs, 'input'>
-  >;
-  createRole?: Resolver<
-    Maybe<ResolversTypes['Role']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateRoleArgs, 'input'>
-  >;
-  createUser?: Resolver<
-    Maybe<ResolversTypes['User']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateUserArgs, 'input'>
-  >;
-  deleteAiResponse?: Resolver<
-    Maybe<ResolversTypes['AiResponse']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteAiResponseArgs, 'id'>
-  >;
-  deleteAiResponseReaction?: Resolver<
-    Maybe<ResolversTypes['AiResponseReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteAiResponseReactionArgs, 'id'>
-  >;
-  deleteChat?: Resolver<
-    Maybe<ResolversTypes['Chat']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteChatArgs, 'id'>
-  >;
-  deleteDataSource?: Resolver<
-    Maybe<ResolversTypes['DataSource']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteDataSourceArgs, 'id'>
-  >;
-  deleteDevotion?: Resolver<
-    Maybe<ResolversTypes['Devotion']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteDevotionArgs, 'id'>
-  >;
-  deleteDevotionImage?: Resolver<
-    Maybe<ResolversTypes['DevotionImage']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteDevotionImageArgs, 'id'>
-  >;
-  deleteDevotionReaction?: Resolver<
-    Maybe<ResolversTypes['DevotionReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteDevotionReactionArgs, 'id'>
-  >;
-  deleteIndexOperation?: Resolver<
-    Maybe<ResolversTypes['IndexOperation']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteIndexOperationArgs, 'id'>
-  >;
-  deleteRole?: Resolver<
-    Maybe<ResolversTypes['Role']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteRoleArgs, 'id'>
-  >;
-  deleteUser?: Resolver<
-    Maybe<ResolversTypes['User']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteUserArgs, 'id'>
-  >;
-  deleteUserMessage?: Resolver<
-    Maybe<ResolversTypes['UserMessage']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteUserMessageArgs, 'id'>
-  >;
-  updateAiResponseReaction?: Resolver<
-    Maybe<ResolversTypes['AiResponseReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateAiResponseReactionArgs, 'id' | 'input'>
-  >;
-  updateChat?: Resolver<
-    Maybe<ResolversTypes['Chat']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateChatArgs, 'id' | 'input'>
-  >;
-  updateDataSource?: Resolver<
-    Maybe<ResolversTypes['DataSource']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateDataSourceArgs, 'id' | 'input'>
-  >;
-  updateDevotion?: Resolver<
-    Maybe<ResolversTypes['Devotion']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateDevotionArgs, 'id' | 'input'>
-  >;
-  updateDevotionImage?: Resolver<
-    Maybe<ResolversTypes['DevotionImage']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateDevotionImageArgs, 'id' | 'input'>
-  >;
-  updateDevotionReaction?: Resolver<
-    Maybe<ResolversTypes['DevotionReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateDevotionReactionArgs, 'id' | 'input'>
-  >;
-  updateIndexOperation?: Resolver<
-    Maybe<ResolversTypes['IndexOperation']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateIndexOperationArgs, 'id' | 'input'>
-  >;
-  updateRole?: Resolver<
-    Maybe<ResolversTypes['Role']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateRoleArgs, 'id' | 'input'>
-  >;
-  updateUser?: Resolver<
-    Maybe<ResolversTypes['User']>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateUserArgs, 'id' | 'input'>
-  >;
+export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  createAiResponseReaction?: Resolver<Maybe<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, RequireFields<MutationCreateAiResponseReactionArgs, 'input'>>;
+  createChat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType, RequireFields<MutationCreateChatArgs, 'input'>>;
+  createDataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType, RequireFields<MutationCreateDataSourceArgs, 'input'>>;
+  createDevotionReaction?: Resolver<Maybe<ResolversTypes['DevotionReaction']>, ParentType, ContextType, RequireFields<MutationCreateDevotionReactionArgs, 'input'>>;
+  createRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationCreateRoleArgs, 'input'>>;
+  createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
+  deleteAiResponse?: Resolver<Maybe<ResolversTypes['AiResponse']>, ParentType, ContextType, RequireFields<MutationDeleteAiResponseArgs, 'id'>>;
+  deleteAiResponseReaction?: Resolver<Maybe<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, RequireFields<MutationDeleteAiResponseReactionArgs, 'id'>>;
+  deleteChat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType, RequireFields<MutationDeleteChatArgs, 'id'>>;
+  deleteDataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType, RequireFields<MutationDeleteDataSourceArgs, 'id'>>;
+  deleteDevotion?: Resolver<Maybe<ResolversTypes['Devotion']>, ParentType, ContextType, RequireFields<MutationDeleteDevotionArgs, 'id'>>;
+  deleteDevotionImage?: Resolver<Maybe<ResolversTypes['DevotionImage']>, ParentType, ContextType, RequireFields<MutationDeleteDevotionImageArgs, 'id'>>;
+  deleteDevotionReaction?: Resolver<Maybe<ResolversTypes['DevotionReaction']>, ParentType, ContextType, RequireFields<MutationDeleteDevotionReactionArgs, 'id'>>;
+  deleteIndexOperation?: Resolver<Maybe<ResolversTypes['IndexOperation']>, ParentType, ContextType, RequireFields<MutationDeleteIndexOperationArgs, 'id'>>;
+  deleteRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationDeleteRoleArgs, 'id'>>;
+  deleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  deleteUserMessage?: Resolver<Maybe<ResolversTypes['UserMessage']>, ParentType, ContextType, RequireFields<MutationDeleteUserMessageArgs, 'id'>>;
+  updateAiResponseReaction?: Resolver<Maybe<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, RequireFields<MutationUpdateAiResponseReactionArgs, 'id' | 'input'>>;
+  updateChat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType, RequireFields<MutationUpdateChatArgs, 'id' | 'input'>>;
+  updateDataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType, RequireFields<MutationUpdateDataSourceArgs, 'id' | 'input'>>;
+  updateDevotion?: Resolver<Maybe<ResolversTypes['Devotion']>, ParentType, ContextType, RequireFields<MutationUpdateDevotionArgs, 'id' | 'input'>>;
+  updateDevotionImage?: Resolver<Maybe<ResolversTypes['DevotionImage']>, ParentType, ContextType, RequireFields<MutationUpdateDevotionImageArgs, 'id' | 'input'>>;
+  updateDevotionReaction?: Resolver<Maybe<ResolversTypes['DevotionReaction']>, ParentType, ContextType, RequireFields<MutationUpdateDevotionReactionArgs, 'id' | 'input'>>;
+  updateIndexOperation?: Resolver<Maybe<ResolversTypes['IndexOperation']>, ParentType, ContextType, RequireFields<MutationUpdateIndexOperationArgs, 'id' | 'input'>>;
+  updateRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationUpdateRoleArgs, 'id' | 'input'>>;
+  updateUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
 }>;
 
-export type QueryResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
-> = ResolversObject<{
-  aiResponse?: Resolver<
-    Maybe<ResolversTypes['AiResponse']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryAiResponseArgs, 'id'>
-  >;
-  aiResponseReaction?: Resolver<
-    Maybe<ResolversTypes['AiResponseReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryAiResponseReactionArgs, 'id'>
-  >;
-  aiResponseReactions?: Resolver<
-    Array<ResolversTypes['AiResponseReaction']>,
-    ParentType,
-    ContextType,
-    Partial<QueryAiResponseReactionsArgs>
-  >;
-  aiResponses?: Resolver<
-    Array<ResolversTypes['AiResponse']>,
-    ParentType,
-    ContextType,
-    Partial<QueryAiResponsesArgs>
-  >;
-  chat?: Resolver<
-    Maybe<ResolversTypes['Chat']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryChatArgs, 'id'>
-  >;
-  chatMessages?: Resolver<
-    Array<ResolversTypes['ChatMessage']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryChatMessagesArgs, 'chatId'>
-  >;
+export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  aiResponse?: Resolver<Maybe<ResolversTypes['AiResponse']>, ParentType, ContextType, RequireFields<QueryAiResponseArgs, 'id'>>;
+  aiResponseReaction?: Resolver<Maybe<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, RequireFields<QueryAiResponseReactionArgs, 'id'>>;
+  aiResponseReactions?: Resolver<Array<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, Partial<QueryAiResponseReactionsArgs>>;
+  aiResponses?: Resolver<Array<ResolversTypes['AiResponse']>, ParentType, ContextType, Partial<QueryAiResponsesArgs>>;
+  chat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType, RequireFields<QueryChatArgs, 'id'>>;
+  chatMessages?: Resolver<Array<ResolversTypes['ChatMessage']>, ParentType, ContextType, RequireFields<QueryChatMessagesArgs, 'chatId'>>;
   chats?: Resolver<Array<ResolversTypes['Chat']>, ParentType, ContextType, Partial<QueryChatsArgs>>;
   currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  dataSource?: Resolver<
-    Maybe<ResolversTypes['DataSource']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryDataSourceArgs, 'id'>
-  >;
-  dataSources?: Resolver<
-    Array<ResolversTypes['DataSource']>,
-    ParentType,
-    ContextType,
-    Partial<QueryDataSourcesArgs>
-  >;
-  devotion?: Resolver<
-    Maybe<ResolversTypes['Devotion']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryDevotionArgs, 'id'>
-  >;
-  devotionImage?: Resolver<
-    Maybe<ResolversTypes['DevotionImage']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryDevotionImageArgs, 'id'>
-  >;
-  devotionImages?: Resolver<
-    Array<ResolversTypes['DevotionImage']>,
-    ParentType,
-    ContextType,
-    Partial<QueryDevotionImagesArgs>
-  >;
-  devotionReaction?: Resolver<
-    Maybe<ResolversTypes['DevotionReaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryDevotionReactionArgs, 'id'>
-  >;
-  devotionReactionCount?: Resolver<
-    Array<ResolversTypes['DevotionReactionCount']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryDevotionReactionCountArgs, 'devotionId'>
-  >;
-  devotionReactions?: Resolver<
-    Array<ResolversTypes['DevotionReaction']>,
-    ParentType,
-    ContextType,
-    Partial<QueryDevotionReactionsArgs>
-  >;
-  devotions?: Resolver<
-    Array<ResolversTypes['Devotion']>,
-    ParentType,
-    ContextType,
-    Partial<QueryDevotionsArgs>
-  >;
-  indexOperation?: Resolver<
-    Maybe<ResolversTypes['IndexOperation']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryIndexOperationArgs, 'id'>
-  >;
-  indexOperations?: Resolver<
-    Array<ResolversTypes['IndexOperation']>,
-    ParentType,
-    ContextType,
-    Partial<QueryIndexOperationsArgs>
-  >;
-  role?: Resolver<
-    Maybe<ResolversTypes['Role']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryRoleArgs, 'id'>
-  >;
+  dataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType, RequireFields<QueryDataSourceArgs, 'id'>>;
+  dataSources?: Resolver<Array<ResolversTypes['DataSource']>, ParentType, ContextType, Partial<QueryDataSourcesArgs>>;
+  devotion?: Resolver<Maybe<ResolversTypes['Devotion']>, ParentType, ContextType, RequireFields<QueryDevotionArgs, 'id'>>;
+  devotionImage?: Resolver<Maybe<ResolversTypes['DevotionImage']>, ParentType, ContextType, RequireFields<QueryDevotionImageArgs, 'id'>>;
+  devotionImages?: Resolver<Array<ResolversTypes['DevotionImage']>, ParentType, ContextType, Partial<QueryDevotionImagesArgs>>;
+  devotionReaction?: Resolver<Maybe<ResolversTypes['DevotionReaction']>, ParentType, ContextType, RequireFields<QueryDevotionReactionArgs, 'id'>>;
+  devotionReactionCount?: Resolver<Array<ResolversTypes['DevotionReactionCount']>, ParentType, ContextType, RequireFields<QueryDevotionReactionCountArgs, 'devotionId'>>;
+  devotionReactions?: Resolver<Array<ResolversTypes['DevotionReaction']>, ParentType, ContextType, Partial<QueryDevotionReactionsArgs>>;
+  devotions?: Resolver<Array<ResolversTypes['Devotion']>, ParentType, ContextType, Partial<QueryDevotionsArgs>>;
+  indexOperation?: Resolver<Maybe<ResolversTypes['IndexOperation']>, ParentType, ContextType, RequireFields<QueryIndexOperationArgs, 'id'>>;
+  indexOperations?: Resolver<Array<ResolversTypes['IndexOperation']>, ParentType, ContextType, Partial<QueryIndexOperationsArgs>>;
+  role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<QueryRoleArgs, 'id'>>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType, Partial<QueryRolesArgs>>;
-  user?: Resolver<
-    Maybe<ResolversTypes['User']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryUserArgs, 'id'>
-  >;
-  userGeneratedImage?: Resolver<
-    Maybe<ResolversTypes['UserGeneratedImage']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryUserGeneratedImageArgs, 'id'>
-  >;
-  userGeneratedImages?: Resolver<
-    Array<ResolversTypes['UserGeneratedImage']>,
-    ParentType,
-    ContextType,
-    Partial<QueryUserGeneratedImagesArgs>
-  >;
-  userMessage?: Resolver<
-    Maybe<ResolversTypes['UserMessage']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryUserMessageArgs, 'id'>
-  >;
-  userMessages?: Resolver<
-    Array<ResolversTypes['UserMessage']>,
-    ParentType,
-    ContextType,
-    Partial<QueryUserMessagesArgs>
-  >;
-  userPassword?: Resolver<
-    Maybe<ResolversTypes['UserPassword']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryUserPasswordArgs, 'id'>
-  >;
-  userPasswords?: Resolver<
-    Array<ResolversTypes['UserPassword']>,
-    ParentType,
-    ContextType,
-    Partial<QueryUserPasswordsArgs>
-  >;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
+  userGeneratedImage?: Resolver<Maybe<ResolversTypes['UserGeneratedImage']>, ParentType, ContextType, RequireFields<QueryUserGeneratedImageArgs, 'id'>>;
+  userGeneratedImages?: Resolver<Array<ResolversTypes['UserGeneratedImage']>, ParentType, ContextType, Partial<QueryUserGeneratedImagesArgs>>;
+  userMessage?: Resolver<Maybe<ResolversTypes['UserMessage']>, ParentType, ContextType, RequireFields<QueryUserMessageArgs, 'id'>>;
+  userMessages?: Resolver<Array<ResolversTypes['UserMessage']>, ParentType, ContextType, Partial<QueryUserMessagesArgs>>;
+  userPassword?: Resolver<Maybe<ResolversTypes['UserPassword']>, ParentType, ContextType, RequireFields<QueryUserPasswordArgs, 'id'>>;
+  userPasswords?: Resolver<Array<ResolversTypes['UserPassword']>, ParentType, ContextType, Partial<QueryUserPasswordsArgs>>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
 }>;
 
-export type RoleResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']
-> = ResolversObject<{
+export type RoleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Role'] = ResolversParentTypes['Role']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   permissions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  users?: Resolver<
-    Maybe<Array<ResolversTypes['User']>>,
-    ParentType,
-    ContextType,
-    Partial<RoleUsersArgs>
-  >;
+  users?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType, Partial<RoleUsersArgs>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type SourceDocumentResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['SourceDocument'] = ResolversParentTypes['SourceDocument']
-> = ResolversObject<{
+export type SourceDocumentResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SourceDocument'] = ResolversParentTypes['SourceDocument']> = ResolversObject<{
   distance?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   distanceMetric?: Resolver<Maybe<ResolversTypes['DistanceMetric']>, ParentType, ContextType>;
   embedding?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1577,39 +1285,16 @@ export type SourceDocumentResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']
-> = ResolversObject<{
-  aiResponses?: Resolver<
-    Maybe<Array<ResolversTypes['AiResponse']>>,
-    ParentType,
-    ContextType,
-    Partial<UserAiResponsesArgs>
-  >;
-  chats?: Resolver<
-    Maybe<Array<ResolversTypes['Chat']>>,
-    ParentType,
-    ContextType,
-    Partial<UserChatsArgs>
-  >;
+export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  aiResponses?: Resolver<Maybe<Array<ResolversTypes['AiResponse']>>, ParentType, ContextType, Partial<UserAiResponsesArgs>>;
+  chats?: Resolver<Maybe<Array<ResolversTypes['Chat']>>, ParentType, ContextType, Partial<UserChatsArgs>>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  generatedImages?: Resolver<
-    Maybe<Array<ResolversTypes['UserGeneratedImage']>>,
-    ParentType,
-    ContextType,
-    Partial<UserGeneratedImagesArgs>
-  >;
+  generatedImages?: Resolver<Maybe<Array<ResolversTypes['UserGeneratedImage']>>, ParentType, ContextType, Partial<UserGeneratedImagesArgs>>;
   hasCustomImage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  messages?: Resolver<
-    Maybe<Array<ResolversTypes['UserMessage']>>,
-    ParentType,
-    ContextType,
-    Partial<UserMessagesArgs>
-  >;
+  messages?: Resolver<Maybe<Array<ResolversTypes['UserMessage']>>, ParentType, ContextType, Partial<UserMessagesArgs>>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   password?: Resolver<Maybe<ResolversTypes['UserPassword']>, ParentType, ContextType>;
   roles?: Resolver<Maybe<Array<ResolversTypes['Role']>>, ParentType, ContextType>;
@@ -1619,22 +1304,14 @@ export type UserResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserGeneratedImageResolvers<
-  ContextType = Context,
-  ParentType extends
-    ResolversParentTypes['UserGeneratedImage'] = ResolversParentTypes['UserGeneratedImage']
-> = ResolversObject<{
+export type UserGeneratedImageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserGeneratedImage'] = ResolversParentTypes['UserGeneratedImage']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   failed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   negativePrompt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   prompt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   searchQueries?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  sourceDocuments?: Resolver<
-    Maybe<Array<ResolversTypes['SourceDocument']>>,
-    ParentType,
-    ContextType
-  >;
+  sourceDocuments?: Resolver<Maybe<Array<ResolversTypes['SourceDocument']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -1643,10 +1320,7 @@ export type UserGeneratedImageResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserMessageResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['UserMessage'] = ResolversParentTypes['UserMessage']
-> = ResolversObject<{
+export type UserMessageResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserMessage'] = ResolversParentTypes['UserMessage']> = ResolversObject<{
   aiId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   chat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType>;
   chatId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1659,10 +1333,7 @@ export type UserMessageResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UserPasswordResolvers<
-  ContextType = Context,
-  ParentType extends ResolversParentTypes['UserPassword'] = ResolversParentTypes['UserPassword']
-> = ResolversObject<{
+export type UserPasswordResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserPassword'] = ResolversParentTypes['UserPassword']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   passwordHash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1696,3 +1367,4 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   UserMessage?: UserMessageResolvers<ContextType>;
   UserPassword?: UserPasswordResolvers<ContextType>;
 }>;
+

@@ -1,39 +1,37 @@
-import { buildOrderBy, buildQuery } from '@revelationsai/core/database/helpers';
-import { aiResponses, chats, userMessages } from '@revelationsai/core/database/schema';
-import { db } from '@revelationsai/server/lib/database';
-import { deleteAiResponse, getAiResponseOrThrow } from '@revelationsai/server/services/ai-response';
+import { aiResponses, chats, userMessages, users } from '@revelationsai/core/database/schema';
 import { getSourceDocumentsByAiResponseId } from '@revelationsai/server/services/source-document';
-import { getUserOrThrow, isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
-import { and, eq } from 'drizzle-orm';
+import { isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
 import type { Resolvers } from '../__generated__/resolver-types';
+import { deleteObject, getObject, getObjects } from '../utils/crud';
 
 export const aiResponseResolvers: Resolvers = {
   AiResponse: {
     user: async (parent, _, { currentUser }) => {
-      if (!currentUser || (!isObjectOwner(parent, currentUser.id) && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this AI response's user");
-      }
-      return await getUserOrThrow(parent.userId);
+      return await getObject({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: users,
+        id: parent.userId
+      });
     },
     chat: async (parent, _, { currentUser }) => {
-      if (!currentUser || (!isObjectOwner(parent, currentUser.id) && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this AI response's chat");
-      }
-      return await db
-        .select()
-        .from(chats)
-        .where(eq(aiResponses.id, parent.chatId))
-        .then((results) => results[0]);
+      return await getObject({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: chats,
+        id: parent.chatId
+      });
     },
     userMessage: async (parent, _, { currentUser }) => {
-      if (!currentUser || (!isObjectOwner(parent, currentUser.id) && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this AI response's user message");
-      }
-      return await db
-        .select()
-        .from(userMessages)
-        .where(eq(userMessages.id, parent.userMessageId))
-        .then((results) => results[0]);
+      return await getObject({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: userMessages,
+        id: parent.userMessageId
+      });
     },
     sourceDocuments: async (parent, _, { currentUser }) => {
       if (!currentUser || (!isObjectOwner(parent, currentUser.id) && !isAdminSync(currentUser))) {
@@ -44,44 +42,37 @@ export const aiResponseResolvers: Resolvers = {
   },
   Query: {
     aiResponse: async (_, { id }, { currentUser }) => {
-      if (!currentUser) {
-        throw new Error('You must be logged in to view an AI response');
-      }
-      const aiResponse = await getAiResponseOrThrow(id);
-      if (!isObjectOwner(aiResponse, currentUser.id) && !isAdminSync(currentUser)) {
-        throw new Error('You are not authorized to view this AI response');
-      }
-      return aiResponse;
+      return await getObject({
+        currentUser,
+        role: 'owner',
+        table: aiResponses,
+        id
+      });
     },
     aiResponses: async (
       _,
       { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } },
       { currentUser }
     ) => {
-      if (!currentUser) {
-        throw new Error('You must be logged in to view AI responses');
-      }
-      const baseWhere = eq(aiResponses.userId, currentUser.id);
-      const where = filter ? and(baseWhere, buildQuery(aiResponses, filter)) : baseWhere;
-      return await db
-        .select()
-        .from(aiResponses)
-        .where(where)
-        .orderBy(buildOrderBy(aiResponses, sort!.field, sort!.order))
-        .limit(limit!)
-        .offset((page! - 1) * limit!);
+      return await getObjects({
+        currentUser,
+        role: 'owner',
+        table: aiResponses,
+        filter,
+        limit,
+        page,
+        sort
+      });
     }
   },
   Mutation: {
     deleteAiResponse: async (_, { id }, { currentUser }) => {
-      if (!currentUser) {
-        throw new Error('You must be logged in to delete an AI response');
-      }
-      const aiResponse = await getAiResponseOrThrow(id);
-      if (!isObjectOwner(aiResponse, currentUser.id) && !isAdminSync(currentUser)) {
-        throw new Error('You are not authorized to delete this AI response');
-      }
-      return await deleteAiResponse(id);
+      return await deleteObject({
+        currentUser,
+        role: 'owner',
+        table: aiResponses,
+        id
+      });
     }
   }
 };

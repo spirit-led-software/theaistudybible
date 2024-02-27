@@ -1,8 +1,10 @@
 import { aiResponses } from '@revelationsai/core/database/schema';
-import type {
-  AiResponse,
-  CreateAiResponseData,
-  UpdateAiResponseData
+import {
+  createAiResponseSchema,
+  updateAiResponseSchema,
+  type AiResponse,
+  type CreateAiResponseData,
+  type UpdateAiResponseData
 } from '@revelationsai/core/model/ai-response';
 import { desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
@@ -65,6 +67,11 @@ export async function getAiResponsesByUserMessageId(userMessageId: string) {
 }
 
 export async function createAiResponse(data: CreateAiResponseData) {
+  const zodResult = createAiResponseSchema.safeParse(data);
+  if (!zodResult.success) {
+    throw new Error(`Invalid AiResponse data:\n\t${zodResult.error.errors.join('\n\t')}`);
+  }
+
   return await cacheUpsert({
     collection: AI_RESPONSES_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -73,7 +80,7 @@ export async function createAiResponse(data: CreateAiResponseData) {
         await db
           .insert(aiResponses)
           .values({
-            ...data,
+            ...zodResult.data,
             createdAt: new Date(),
             updatedAt: new Date()
           })
@@ -83,6 +90,11 @@ export async function createAiResponse(data: CreateAiResponseData) {
 }
 
 export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
+  const zodResult = updateAiResponseSchema.safeParse(data);
+  if (!zodResult.success) {
+    throw new Error(`Invalid update AiResponse data:\n\t${zodResult.error.errors.join('\n\t')}`);
+  }
+
   return await cacheUpsert({
     collection: AI_RESPONSES_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -91,7 +103,7 @@ export async function updateAiResponse(id: string, data: UpdateAiResponseData) {
         await db
           .update(aiResponses)
           .set({
-            ...data,
+            ...zodResult.data,
             createdAt: undefined,
             updatedAt: new Date()
           })

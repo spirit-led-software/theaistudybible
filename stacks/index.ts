@@ -64,5 +64,6 @@ export const COMMON_ENV_VARS: Record<string, string> = {
 
   // Upstash
   UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL!,
+  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL!,
   UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN!
 };

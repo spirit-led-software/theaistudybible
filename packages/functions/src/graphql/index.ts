@@ -1,11 +1,15 @@
 import { ApolloServer } from '@apollo/server';
+import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 import { handlers, startServerAndCreateLambdaHandler } from '@as-integrations/aws-lambda';
+import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
 import { readFileSync } from 'fs';
 import { GraphQLScalarType, Kind } from 'graphql';
+import Keyv from 'keyv';
 import type { Resolvers } from './__generated__/resolver-types';
 import { aiResponseResolvers } from './resolvers/ai-response';
+import { aiResponseReactionResolvers } from './resolvers/ai-response/reaction';
 import { chatResolvers } from './resolvers/chat';
 import { userResolvers } from './resolvers/user';
 
@@ -43,7 +47,7 @@ const dateScalar = new GraphQLScalarType({
   }
 });
 
-const metaDataScalar = new GraphQLScalarType({
+const metadataScalar = new GraphQLScalarType({
   name: 'Metadata',
   description: 'Metadata custom scalar type',
   serialize(value) {
@@ -70,12 +74,19 @@ const metaDataScalar = new GraphQLScalarType({
 const typeDefs = readFileSync('graphql/schema.graphql', 'utf-8');
 const resolvers: Resolvers = {
   Date: dateScalar,
-  Metadata: metaDataScalar
+  Metadata: metadataScalar
 };
 
 const server = new ApolloServer<Context>({
   typeDefs,
-  resolvers: [resolvers, userResolvers, chatResolvers, aiResponseResolvers]
+  resolvers: [
+    resolvers,
+    userResolvers,
+    chatResolvers,
+    aiResponseResolvers,
+    aiResponseReactionResolvers
+  ],
+  cache: upstashRedisConfig.url ? new KeyvAdapter(new Keyv(upstashRedisConfig.url)) : undefined
 });
 
 export const handler = startServerAndCreateLambdaHandler(

@@ -1,31 +1,30 @@
-import { buildOrderBy, buildQuery } from '@revelationsai/core/database/helpers';
 import {
   aiResponses,
   chats,
   roles,
   userMessages,
+  userPasswords,
   users,
   usersToRoles
 } from '@revelationsai/core/database/schema';
+import { createUserSchema, updateUserSchema } from '@revelationsai/core/model/user';
 import { db } from '@revelationsai/server/lib/database';
-import {
-  createUser,
-  deleteUser,
-  getUserOrThrow,
-  isAdminSync,
-  updateUser
-} from '@revelationsai/server/services/user';
-import { getUserPasswordByUserId } from '@revelationsai/server/services/user/password';
-import { and, eq } from 'drizzle-orm';
+import { isAdminSync } from '@revelationsai/server/services/user';
+import { eq } from 'drizzle-orm';
 import type { Resolvers } from '../__generated__/resolver-types';
+import { createObject, deleteObject, getObject, getObjects, updateObject } from '../utils/crud';
 
 export const userResolvers: Resolvers = {
   User: {
     password: async (parent, _, { currentUser }) => {
-      if (!currentUser || (currentUser.id !== parent.id && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this user's password");
-      }
-      return await getUserPasswordByUserId(parent.id);
+      return await getObject({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: userPasswords,
+        id: parent.id,
+        ownershipField: 'id'
+      });
     },
     roles: async (parent, _, { currentUser }) => {
       if (!currentUser || (currentUser.id !== parent.id && !isAdminSync(currentUser))) {
@@ -38,103 +37,92 @@ export const userResolvers: Resolvers = {
         .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
         .then((results) => results.map((result) => result.roles));
     },
-    chats: async (
-      parent,
-      { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } },
-      { currentUser }
-    ) => {
-      if (!currentUser || (currentUser.id !== parent.id && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this user's chats");
-      }
-      const baseWhere = eq(chats.userId, parent.id);
-      const where = filter ? and(baseWhere, buildQuery(chats, filter)) : baseWhere;
-      return await db
-        .select()
-        .from(chats)
-        .where(where)
-        .orderBy(buildOrderBy(chats, sort!.field, sort!.order))
-        .limit(limit!)
-        .offset((page! - 1) * limit!);
+    chats: async (parent, args, { currentUser }) => {
+      return await getObjects({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: chats,
+        ownershipField: 'id',
+        ...args
+      });
     },
-    messages: async (
-      parent,
-      { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } },
-      { currentUser }
-    ) => {
-      if (!currentUser || (currentUser.id !== parent.id && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this user's messages");
-      }
-      const baseWhere = eq(userMessages.userId, parent.id);
-      const where = filter ? and(baseWhere, buildQuery(userMessages, filter)) : baseWhere;
-      return await db
-        .select()
-        .from(userMessages)
-        .where(where)
-        .orderBy(buildOrderBy(userMessages, sort!.field, sort!.order))
-        .limit(limit!)
-        .offset((page! - 1) * limit!);
+    messages: async (parent, args, { currentUser }) => {
+      return await getObjects({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: userMessages,
+        ownershipField: 'id',
+        ...args
+      });
     },
-    aiResponses: async (
-      parent,
-      { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } },
-      { currentUser }
-    ) => {
-      if (!currentUser || (currentUser.id !== parent.id && !isAdminSync(currentUser))) {
-        throw new Error("You are not authorized to view this user's AI responses");
-      }
-      const baseWhere = eq(aiResponses.userId, parent.id);
-      const where = filter ? and(baseWhere, buildQuery(aiResponses, filter)) : baseWhere;
-      return await db
-        .select()
-        .from(aiResponses)
-        .where(where)
-        .orderBy(buildOrderBy(aiResponses, sort!.field, sort!.order))
-        .limit(limit!)
-        .offset((page! - 1) * limit!);
+    aiResponses: async (parent, args, { currentUser }) => {
+      return await getObjects({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: aiResponses,
+        ownershipField: 'id',
+        ...args
+      });
     }
   },
   Query: {
     currentUser: async (_, __, { currentUser }) => {
-      if (!currentUser) {
-        throw new Error('You are not logged in.');
-      }
-      return await getUserOrThrow(currentUser.id);
+      return await getObject({
+        currentUser,
+        role: 'user',
+        table: users,
+        id: currentUser!.id
+      });
     },
-    user: async (_, { id }) => {
-      return await getUserOrThrow(id);
+    user: async (_, { id }, { currentUser }) => {
+      return await getObject({
+        currentUser,
+        role: 'public',
+        table: users,
+        id
+      });
     },
-    users: async (
-      _,
-      { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } }
-    ) => {
-      const where = filter ? buildQuery(users, filter) : undefined;
-      return await db
-        .select()
-        .from(users)
-        .where(where)
-        .orderBy(buildOrderBy(users, sort!.field, sort!.order))
-        .limit(limit!)
-        .offset((page! - 1) * limit!);
+    users: async (_, args, { currentUser }) => {
+      return await getObjects({
+        currentUser,
+        role: 'public',
+        table: users,
+        ...args
+      });
     }
   },
   Mutation: {
     createUser: async (_, { input }, { currentUser }) => {
-      if (!currentUser || !isAdminSync(currentUser)) {
-        throw new Error('You are not authorized to create users');
-      }
-      return await createUser(input);
+      return await createObject({
+        currentUser,
+        role: 'admin',
+        table: users,
+        data: input,
+        zodSchema: createUserSchema
+      });
     },
     updateUser: async (_, { id, input }, { currentUser }) => {
-      if (!currentUser || (currentUser.id !== id && !isAdminSync(currentUser))) {
-        throw new Error('You are not authorized to update this user');
-      }
-      return await updateUser(id, input);
+      return await updateObject({
+        currentUser,
+        role: 'owner',
+        table: users,
+        id,
+        data: input,
+        zodSchema: updateUserSchema,
+        ownershipField: 'id'
+      });
     },
     deleteUser: async (_, { id }, { currentUser }) => {
-      if (!currentUser || (currentUser.id !== id && !isAdminSync(currentUser))) {
-        throw new Error('You are not authorized to delete this user');
-      }
-      return await deleteUser(id);
+      return await deleteObject({
+        currentUser,
+        role: 'owner',
+        table: users,
+        id,
+        ownershipField: 'id'
+      });
     }
   }
 };

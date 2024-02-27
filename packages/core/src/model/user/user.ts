@@ -1,3 +1,4 @@
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { users } from '../../database/schema';
@@ -5,6 +6,7 @@ import type { Role } from '../role';
 
 export type User = typeof users.$inferSelect;
 
+export type CreateUserData = PgInsertValue<typeof users>;
 export const createUserSchema = createInsertSchema(users, {
   id: z.undefined(),
   createdAt: z.undefined(),
@@ -19,8 +21,9 @@ export const createUserSchema = createInsertSchema(users, {
   stripeCustomerId: z.string().nullish(),
   hasCustomImage: z.boolean().optional()
 });
-export type CreateUserData = z.input<typeof createUserSchema>;
+export type CreateUserInput = z.input<typeof createUserSchema>;
 
+export type UpdateUserData = PgUpdateSetSource<typeof users>;
 export const updateUserSchema = createInsertSchema(users, {
   id: z.undefined(),
   createdAt: z.undefined(),
@@ -39,7 +42,7 @@ export const updateUserSchema = createInsertSchema(users, {
   stripeCustomerId: z.string().nullish(),
   hasCustomImage: z.boolean().optional()
 });
-export type UpdateUserData = z.input<typeof updateUserSchema>;
+export type UpdateUserInput = z.input<typeof updateUserSchema>;
 
 export type UserWithRoles = User & {
   roles: Role[];

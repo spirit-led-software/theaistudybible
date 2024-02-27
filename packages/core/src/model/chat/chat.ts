@@ -1,9 +1,11 @@
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { chats } from '../../database/schema';
 
 export type Chat = typeof chats.$inferSelect;
 
+export type CreateChatData = PgInsertValue<typeof chats>;
 export const createChatSchema = createInsertSchema(chats, {
   id: z.undefined(),
   createdAt: z.undefined(),
@@ -15,10 +17,15 @@ export const createChatSchema = createInsertSchema(chats, {
     .nullish()
     .transform((val) => val || 'New Chat'),
   customName: z.boolean().optional(),
-  userId: z.string().uuid()
+  userId: z
+    .string()
+    .uuid()
+    .nullish()
+    .transform((val) => val || undefined)
 });
-export type CreateChatData = z.input<typeof createChatSchema>;
+export type CreateChatInput = z.input<typeof createChatSchema>;
 
+export type UpdateChatData = PgUpdateSetSource<typeof chats>;
 export const updateChatSchema = createInsertSchema(chats, {
   id: z.undefined(),
   createdAt: z.undefined(),
@@ -32,4 +39,4 @@ export const updateChatSchema = createInsertSchema(chats, {
   customName: z.boolean().optional(),
   userId: z.undefined()
 });
-export type UpdateChatData = z.input<typeof updateChatSchema>;
+export type UpdateChatInput = z.input<typeof updateChatSchema>;

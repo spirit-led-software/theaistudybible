@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { session } from '$lib/stores/user';
 	import { createUser } from '@revelationsai/client/services/admin/user';
-	import type { User } from '@revelationsai/core/model/user';
+	import type { CreateUserData, User } from '@revelationsai/core/model/user';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
 	import type { EventHandler } from 'svelte/elements';
 	import { v4 as uuidV4 } from 'uuid';
@@ -16,7 +16,7 @@
 
 	const client = useQueryClient();
 
-	const handleCreate = async (data: Partial<User> & { password?: string }) => {
+	const handleCreate = async (data: CreateUserData & { password?: string }) => {
 		return await createUser(data, {
 			session: $session!
 		});
@@ -67,11 +67,9 @@
 			return;
 		}
 
-		const userId = uuidV4();
 		isLoading = true;
 		try {
 			$createUserMutation.mutate({
-				id: userId,
 				name,
 				email,
 				password
