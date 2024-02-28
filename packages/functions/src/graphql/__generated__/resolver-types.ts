@@ -316,7 +316,9 @@ export type Mutation = {
   deleteIndexOperation?: Maybe<IndexOperation>;
   deleteRole?: Maybe<Role>;
   deleteUser?: Maybe<User>;
+  deleteUserGeneratedImage?: Maybe<UserGeneratedImage>;
   deleteUserMessage?: Maybe<UserMessage>;
+  deleteUserPassword?: Maybe<UserPassword>;
   updateAiResponseReaction?: Maybe<AiResponseReaction>;
   updateChat?: Maybe<Chat>;
   updateDataSource?: Maybe<DataSource>;
@@ -409,7 +411,17 @@ export type MutationDeleteUserArgs = {
 };
 
 
+export type MutationDeleteUserGeneratedImageArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteUserMessageArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteUserPasswordArgs = {
   id: Scalars['String']['input'];
 };
 
@@ -477,6 +489,7 @@ export type Query = {
   chatMessages: Array<ChatMessage>;
   chats: Array<Chat>;
   currentUser?: Maybe<User>;
+  currentUserPassword?: Maybe<UserPassword>;
   dataSource?: Maybe<DataSource>;
   dataSources: Array<DataSource>;
   devotion?: Maybe<Devotion>;
@@ -844,7 +857,7 @@ export type UserGeneratedImage = BaseModel & {
   searchQueries: Array<Scalars['String']['output']>;
   sourceDocuments?: Maybe<Array<SourceDocument>>;
   updatedAt: Scalars['Date']['output'];
-  url: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
   userPrompt: Scalars['String']['output'];
@@ -1221,7 +1234,9 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteIndexOperation?: Resolver<Maybe<ResolversTypes['IndexOperation']>, ParentType, ContextType, RequireFields<MutationDeleteIndexOperationArgs, 'id'>>;
   deleteRole?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<MutationDeleteRoleArgs, 'id'>>;
   deleteUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
+  deleteUserGeneratedImage?: Resolver<Maybe<ResolversTypes['UserGeneratedImage']>, ParentType, ContextType, RequireFields<MutationDeleteUserGeneratedImageArgs, 'id'>>;
   deleteUserMessage?: Resolver<Maybe<ResolversTypes['UserMessage']>, ParentType, ContextType, RequireFields<MutationDeleteUserMessageArgs, 'id'>>;
+  deleteUserPassword?: Resolver<Maybe<ResolversTypes['UserPassword']>, ParentType, ContextType, RequireFields<MutationDeleteUserPasswordArgs, 'id'>>;
   updateAiResponseReaction?: Resolver<Maybe<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, RequireFields<MutationUpdateAiResponseReactionArgs, 'id' | 'input'>>;
   updateChat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType, RequireFields<MutationUpdateChatArgs, 'id' | 'input'>>;
   updateDataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType, RequireFields<MutationUpdateDataSourceArgs, 'id' | 'input'>>;
@@ -1242,6 +1257,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   chatMessages?: Resolver<Array<ResolversTypes['ChatMessage']>, ParentType, ContextType, RequireFields<QueryChatMessagesArgs, 'chatId'>>;
   chats?: Resolver<Array<ResolversTypes['Chat']>, ParentType, ContextType, Partial<QueryChatsArgs>>;
   currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  currentUserPassword?: Resolver<Maybe<ResolversTypes['UserPassword']>, ParentType, ContextType>;
   dataSource?: Resolver<Maybe<ResolversTypes['DataSource']>, ParentType, ContextType, RequireFields<QueryDataSourceArgs, 'id'>>;
   dataSources?: Resolver<Array<ResolversTypes['DataSource']>, ParentType, ContextType, Partial<QueryDataSourcesArgs>>;
   devotion?: Resolver<Maybe<ResolversTypes['Devotion']>, ParentType, ContextType, RequireFields<QueryDevotionArgs, 'id'>>;
@@ -1313,7 +1329,7 @@ export type UserGeneratedImageResolvers<ContextType = Context, ParentType extend
   searchQueries?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   sourceDocuments?: Resolver<Maybe<Array<ResolversTypes['SourceDocument']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   userPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

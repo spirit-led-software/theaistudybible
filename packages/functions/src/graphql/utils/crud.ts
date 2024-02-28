@@ -12,6 +12,7 @@ export async function getObjects<Table extends PgTableWithColumns<any>>(options:
   currentUser: UserWithRoles | undefined;
   role: 'admin' | 'user' | 'public';
   table: Table;
+  where?: SQL<unknown>;
   filter?: FilterInput | null;
   limit?: number | null;
   page?: number | null;
@@ -22,6 +23,7 @@ export async function getObjects<Table extends PgTableWithColumns<any>>(options:
   currentUser?: UserWithRoles;
   role: 'owner';
   table: Table;
+  where?: SQL<unknown>;
   filter?: FilterInput | null;
   limit?: number | null;
   page?: number | null;
@@ -34,6 +36,7 @@ export async function getObjects<Table extends PgTableWithColumns<any>, ParentTy
   role: 'parent-owner';
   parent: ParentType;
   table: Table;
+  where?: SQL<unknown>;
   filter?: FilterInput | null;
   limit?: number | null;
   page?: number | null;
@@ -47,6 +50,7 @@ export async function getObjects<Table extends PgTableWithColumns<any>, ParentTy
   role: 'admin' | 'owner' | 'parent-owner' | 'user' | 'public';
   parent?: ParentType;
   table: Table;
+  where?: SQL<unknown>;
   filter?: FilterInput | null;
   limit?: number | null;
   page?: number | null;
@@ -65,16 +69,22 @@ export async function getObjects<Table extends PgTableWithColumns<any>, ParentTy
 
   if (
     role === 'parent-owner' &&
-    (!parent || parent[ownershipField as keyof ParentType] !== currentUser!.id)
+    (!parent ||
+      (parent[ownershipField as keyof ParentType] !== currentUser!.id &&
+        !isAdminSync(currentUser!)))
   ) {
     throw new Error('You are not authorized to perform this action');
   }
 
-  let baseWhere: SQL<unknown> | undefined = undefined;
+  let where: SQL<unknown> | undefined = options.where;
   if (role === 'owner' && !isAdminSync(currentUser!)) {
-    baseWhere = eq(table[ownershipField], currentUser!.id);
+    const ownerWhere = eq(table[ownershipField], currentUser!.id);
+    where = where ? and(where, ownerWhere) : ownerWhere;
   }
-  const where = filter ? and(buildQuery(table, filter), baseWhere) : baseWhere;
+  if (filter) {
+    const filterWhere = buildQuery(table, filter);
+    where = where ? and(where, filterWhere) : filterWhere;
+  }
   const orderBy = sort?.map((s) => buildOrderBy(table, s.field, s.order)) ?? [
     desc(table.createdAt ?? table.id)
   ];
@@ -143,7 +153,9 @@ export async function getObject<Table extends PgTableWithColumns<any>, ParentTyp
 
   if (
     role === 'parent-owner' &&
-    (!parent || parent[ownershipField as keyof ParentType] !== currentUser!.id)
+    (!parent ||
+      (parent[ownershipField as keyof ParentType] !== currentUser!.id &&
+        !isAdminSync(currentUser!)))
   ) {
     throw new Error('You are not authorized to perform this action');
   }
@@ -189,7 +201,6 @@ export async function createObject<
   role: 'admin' | 'user' | 'public';
   table: Table;
   data: Table['$inferInsert'];
-  zodSchema: undefined;
 }): Promise<Table['$inferSelect']>;
 
 export async function createObject<

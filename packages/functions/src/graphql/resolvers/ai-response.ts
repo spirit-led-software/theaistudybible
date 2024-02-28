@@ -49,19 +49,12 @@ export const aiResponseResolvers: Resolvers = {
         id
       });
     },
-    aiResponses: async (
-      _,
-      { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } },
-      { currentUser }
-    ) => {
+    aiResponses: async (_, args, { currentUser }) => {
       return await getObjects({
         currentUser,
         role: 'owner',
         table: aiResponses,
-        filter,
-        limit,
-        page,
-        sort
+        ...args
       });
     }
   },

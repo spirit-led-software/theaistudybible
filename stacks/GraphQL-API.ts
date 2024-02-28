@@ -11,7 +11,14 @@ export function GraphQlApi({ stack }: StackContext) {
     'POST /graphql': {
       function: {
         handler: 'packages/functions/src/graphql/index.handler',
-        bind: [auth]
+        copyFiles: [
+          {
+            from: 'graphql/schema.graphql',
+            to: 'graphql/schema.graphql'
+          }
+        ],
+        bind: [auth],
+        memorySize: '2 GB'
       }
     }
   });

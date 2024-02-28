@@ -4,6 +4,7 @@ import { createChatSchema, updateChatSchema } from '@revelationsai/core/model/ch
 import { getChatOrThrow } from '@revelationsai/server/services/chat';
 import { getChatMessages } from '@revelationsai/server/services/chat/message';
 import { isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
+import { eq } from 'drizzle-orm';
 import type { Resolvers } from '../__generated__/resolver-types';
 import { createObject, deleteObject, getObject, getObjects, updateObject } from '../utils/crud';
 
@@ -24,6 +25,7 @@ export const chatResolvers: Resolvers = {
         role: 'parent-owner',
         parent,
         table: userMessages,
+        where: eq(userMessages.chatId, parent.id),
         ...args
       });
     },
@@ -33,6 +35,7 @@ export const chatResolvers: Resolvers = {
         role: 'parent-owner',
         parent,
         table: aiResponses,
+        where: eq(aiResponses.chatId, parent.id),
         ...args
       });
     },

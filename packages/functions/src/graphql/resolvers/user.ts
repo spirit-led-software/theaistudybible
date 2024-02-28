@@ -43,6 +43,7 @@ export const userResolvers: Resolvers = {
         role: 'parent-owner',
         parent,
         table: chats,
+        where: eq(chats.userId, parent.id),
         ownershipField: 'id',
         ...args
       });
@@ -53,6 +54,7 @@ export const userResolvers: Resolvers = {
         role: 'parent-owner',
         parent,
         table: userMessages,
+        where: eq(userMessages.userId, parent.id),
         ownershipField: 'id',
         ...args
       });
@@ -63,6 +65,7 @@ export const userResolvers: Resolvers = {
         role: 'parent-owner',
         parent,
         table: aiResponses,
+        where: eq(aiResponses.userId, parent.id),
         ownershipField: 'id',
         ...args
       });

@@ -36,19 +36,12 @@ export const aiResponseReactionResolvers: Resolvers = {
         id
       });
     },
-    aiResponseReactions: async (
-      _,
-      { filter, limit = 25, page = 1, sort = { field: 'createdAt', order: 'desc' } },
-      { currentUser }
-    ) => {
+    aiResponseReactions: async (_, args, { currentUser }) => {
       return await getObjects({
         currentUser,
         role: 'owner',
         table: aiResponseReactions,
-        filter,
-        limit,
-        page,
-        sort
+        ...args
       });
     }
   },
@@ -58,7 +51,10 @@ export const aiResponseReactionResolvers: Resolvers = {
         currentUser,
         role: 'user',
         table: aiResponseReactions,
-        data: input,
+        data: {
+          ...input,
+          userId: input.userId || currentUser!.id
+        },
         zodSchema: createAiResponseReactionSchema
       });
     },

@@ -186,7 +186,7 @@ type UserGeneratedImage implements BaseModel {
   id: String!
   createdAt: Date!
   updatedAt: Date!
-  url: String!
+  url: String
   userPrompt: String!
   prompt: String
   negativePrompt: String
@@ -396,6 +396,7 @@ type Query {
   user(id: String!): User
   users(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [User!]!
 
+  currentUserPassword: UserPassword
   userPassword(id: String!): UserPassword
   userPasswords(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserPassword!]!
 
@@ -461,11 +462,15 @@ type Mutation {
   updateUser(id: String!, input: UpdateUserInput!): User
   deleteUser(id: String!): User
 
+  deleteUserPassword(id: String!): UserPassword
+
   createRole(input: CreateRoleInput!): Role
   updateRole(id: String!, input: UpdateRoleInput!): Role
   deleteRole(id: String!): Role
 
   deleteUserMessage(id: String!): UserMessage
+
+  deleteUserGeneratedImage(id: String!): UserGeneratedImage
 
   deleteAiResponse(id: String!): AiResponse
 

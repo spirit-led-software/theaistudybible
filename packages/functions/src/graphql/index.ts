@@ -1,6 +1,7 @@
 import { ApolloServer } from '@apollo/server';
 import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 import { handlers, startServerAndCreateLambdaHandler } from '@as-integrations/aws-lambda';
+import { ApolloArmor } from '@escape.tech/graphql-armor';
 import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
@@ -11,7 +12,13 @@ import type { Resolvers } from './__generated__/resolver-types';
 import { aiResponseResolvers } from './resolvers/ai-response';
 import { aiResponseReactionResolvers } from './resolvers/ai-response/reaction';
 import { chatResolvers } from './resolvers/chat';
+import { devotionResolvers } from './resolvers/devotion';
+import { devotionImageResolvers } from './resolvers/devotion/image';
+import { devotionReactionResolvers } from './resolvers/devotion/reaction';
+import { rolesResolvers as roleResolvers } from './resolvers/role';
 import { userResolvers } from './resolvers/user';
+import { userMessagesResolvers as userMessageResolvers } from './resolvers/user/message';
+import { userPasswordResolvers } from './resolvers/user/password';
 
 export interface Context {
   currentUser: UserWithRoles | undefined;
@@ -77,16 +84,33 @@ const resolvers: Resolvers = {
   Metadata: metadataScalar
 };
 
+const armor = new ApolloArmor({
+  maxDepth: {
+    enabled: true,
+    n: 10
+  }
+});
+const protection = armor.protect();
+
 const server = new ApolloServer<Context>({
   typeDefs,
   resolvers: [
     resolvers,
     userResolvers,
+    userPasswordResolvers,
+    roleResolvers,
     chatResolvers,
+    userMessageResolvers,
     aiResponseResolvers,
-    aiResponseReactionResolvers
+    aiResponseReactionResolvers,
+    devotionResolvers,
+    devotionImageResolvers,
+    devotionReactionResolvers
   ],
-  cache: upstashRedisConfig.url ? new KeyvAdapter(new Keyv(upstashRedisConfig.url)) : undefined
+  cache: upstashRedisConfig.url ? new KeyvAdapter(new Keyv(upstashRedisConfig.url)) : undefined,
+  ...protection,
+  plugins: [...protection.plugins],
+  validationRules: [...protection.validationRules]
 });
 
 export const handler = startServerAndCreateLambdaHandler(
