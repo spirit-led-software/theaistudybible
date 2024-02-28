@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session, user } from '$lib/stores/user';
 	import { graphql } from '@revelationsai/client/graphql';
@@ -8,11 +9,12 @@
 
 	export let userId: string = $user!.id;
 	export let limit: number = 5;
+	export let searchQuery: string = '';
 
-	const chatsQuery = graphql(/* GraphQL */ `
-		query UserChats($userId: String!, $limit: Int!, $page: Int!) {
+	const graphqlQuery = graphql(/* GraphQL */ `
+		query UserChats($userId: String!, $filter: FilterInput, $limit: Int!, $page: Int!) {
 			user(id: $userId) {
-				chats(limit: $limit, page: $page) {
+				chats(filter: $filter, limit: $limit, page: $page) {
 					id
 					createdAt
 					updatedAt
@@ -23,13 +25,21 @@
 	`);
 
 	$: query = createInfiniteQuery({
-		queryKey: [`user-chats-${userId}`],
+		queryKey: [`user-chats`, userId, searchQuery, limit],
 		queryFn: async ({ pageParam = 1 }) => {
 			return await graphqlRequest(
 				`${PUBLIC_API_URL}/graphql`,
-				chatsQuery,
+				graphqlQuery,
 				{
 					userId,
+					filter: searchQuery
+						? {
+								iLike: {
+									column: 'name',
+									placeholder: `%${searchQuery}%`
+								}
+							}
+						: undefined,
 					limit,
 					page: pageParam
 				},
@@ -52,12 +62,19 @@
 </script>
 
 <div class="h-full w-full overflow-scroll p-2">
-	<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Chats</h2>
+	<div class="flex justify-between">
+		<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Chats</h2>
+		<input
+			class="w-2/3 rounded-md border border-gray-300 px-2 py-1 text-center text-sm"
+			type="text"
+			placeholder="Search"
+			bind:value={searchQuery}
+		/>
+	</div>
 	{#if $query.data}
 		<table class="table-sm table">
 			<thead class="table-pin-rows">
 				<tr>
-					<th>Created</th>
 					<th>Updated</th>
 					<th>Name</th>
 				</tr>
@@ -65,8 +82,10 @@
 			<tbody>
 				{#each $query.data.pages as page}
 					{#each page as chat}
-						<tr>
-							<td>{day(chat.createdAt).format('M/D/YY')}</td>
+						<tr
+							class="hover:cursor-pointer"
+							on:click={async () => await goto(`/admin/chats/${chat.id}`)}
+						>
 							<td>{day(chat.updatedAt).format('M/D/YY')}</td>
 							<td>{chat.name}</td>
 						</tr>
@@ -86,10 +105,17 @@
 			</tbody>
 		</table>
 	{:else if $query.isFetching}
-		<div class="loading loading-spinner" />
+		<div class="flex h-52 flex-col place-items-center justify-center">
+			<span class="loading loading-spinner" />
+		</div>
 	{:else if $query.isError}
-		<div class="text-red-500">{JSON.stringify($query.error)}</div>
+		<div class="flex h-52 flex-col place-items-center justify-center">
+			<span class="text-red-500">Error loading chats</span>
+			<button class="btn" on:click={() => $query.refetch()}>Retry</button>
+		</div>
 	{:else}
-		<div>No chats found</div>
+		<div class="flex h-52 flex-col place-items-center justify-center">
+			<span class="text-red-500">No chats found</span>
+		</div>
 	{/if}
 </div>

@@ -9,7 +9,14 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"typeRoots": ["./src/lib/types"]
+		"typeRoots": ["./src/lib/types"],
+		"plugins": [
+			{
+				"name": "@0no-co/graphqlsp",
+				"schema": "../../graphql/schema.graphql",
+				"tadaOutputLocation": "../../graphql/"
+			}
+		]
 	}
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
 	//

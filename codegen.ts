@@ -15,14 +15,6 @@ const config: CodegenConfig = {
     },
     './graphql.schema.json': {
       plugins: ['introspection']
-    },
-    'packages/client/src/graphql/': {
-      documents: 'packages/website/src/**/*.svelte',
-      preset: 'client',
-      config: {
-        enumsAsTypes: true,
-        useTypeImports: true
-      }
     }
   }
 };
