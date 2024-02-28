@@ -96,6 +96,8 @@ jobs:
         name: Setup Apple Auth Key
         run: |
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
+      - name: Run Codegen
+        run: pnpm codegen
       - name: Build SST
         run: pnpm sst build --stage pr-${{ github.event.pull_request.number }} --to .sst/dist/
       - name: Rename website & auth UI .env file so svelte-kit can find it during build
