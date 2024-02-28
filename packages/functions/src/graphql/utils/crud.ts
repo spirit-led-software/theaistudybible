@@ -101,29 +101,28 @@ export async function getObjects<Table extends PgTableWithColumns<any>, ParentTy
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getObject<Table extends PgTableWithColumns<any>>(options: {
+export type GetObjectOptions<Table extends PgTableWithColumns<any>, ParentType> = {
   currentUser?: UserWithRoles;
-  role: 'owner';
   table: Table;
   id: string;
-  ownershipField?: keyof Table['$inferSelect'];
-}): Promise<Table['$inferSelect']>;
+} & (
+  | { role: 'admin' | 'user' | 'public' }
+  | { role: 'owner'; ownershipField?: keyof Table['$inferSelect'] }
+  | {
+      role: 'parent-owner';
+      parent: ParentType;
+      ownershipField?: keyof ParentType;
+    }
+);
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getObject<Table extends PgTableWithColumns<any>, ParentType>(options: {
-  currentUser?: UserWithRoles;
-  role: 'parent-owner';
-  parent: ParentType;
-  table: Table;
-  id: string;
-  ownershipField?: keyof ParentType;
-}): Promise<Table['$inferSelect']>;
+export async function getObject<Table extends PgTableWithColumns<any>, ParentType>(
+  options: GetObjectOptions<Table, ParentType> & { nullable?: true }
+): Promise<Table['$inferSelect'] | null>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getObject<Table extends PgTableWithColumns<any>>(options: {
-  currentUser?: UserWithRoles;
-  role: 'admin' | 'user' | 'public';
-  table: Table;
-  id: string;
-}): Promise<Table['$inferSelect']>;
+export async function getObject<Table extends PgTableWithColumns<any>, ParentType>(
+  options: GetObjectOptions<Table, ParentType> & { nullable?: false }
+): Promise<Table['$inferSelect']>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getObject<Table extends PgTableWithColumns<any>, ParentType>(options: {
@@ -133,14 +132,16 @@ export async function getObject<Table extends PgTableWithColumns<any>, ParentTyp
   table: Table;
   id: string;
   ownershipField?: keyof Table['$inferSelect'] | keyof ParentType;
-}): Promise<Table['$inferSelect']> {
+  nullable?: boolean;
+}): Promise<Table['$inferSelect'] | undefined> {
   const {
     currentUser,
     role,
     parent,
     table,
     id,
-    ownershipField = 'userId' as keyof Table['$inferSelect']
+    ownershipField = 'userId' as keyof Table['$inferSelect'],
+    nullable = true
   } = options;
 
   if (role !== 'public' && !currentUser) {
@@ -167,10 +168,10 @@ export async function getObject<Table extends PgTableWithColumns<any>, ParentTyp
     .then((results) => results[0])) as Table['$inferSelect'] | undefined;
 
   if (!found) {
-    throw new Error(`Object with id ${id} not found`);
-  }
-
-  if (
+    if (!nullable) {
+      throw new Error(`Object with id ${id} not found`);
+    }
+  } else if (
     role === 'owner' &&
     (!found[ownershipField as keyof Table['$inferSelect']] ||
       (found[ownershipField as keyof Table['$inferSelect']] !== currentUser!.id &&

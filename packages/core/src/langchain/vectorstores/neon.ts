@@ -580,7 +580,8 @@ export class NeonVectorStore extends VectorStore {
     embeddings: Embeddings,
     dbConfig: NeonVectorStoreArgs
   ): Promise<NeonVectorStore> {
-    const docs = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const docs: Document<any>[] = [];
     for (let i = 0; i < texts.length; i += 1) {
       const _metadata = Array.isArray(metadata) ? metadata[i] : metadata;
       const newDoc = new Document({

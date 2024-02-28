@@ -119,7 +119,7 @@ export const roles = pgTable(
 
 export const rolesRelations = relations(roles, ({ many }) => {
   return {
-    users: many(users)
+    usersToRoles: many(usersToRoles)
   };
 });
 
@@ -129,6 +129,7 @@ export const users = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
     name: text('name'),
     email: text('email').notNull(),
     stripeCustomerId: text('stripe_customer_id'),
@@ -150,8 +151,9 @@ export const users = pgTable(
 
 export const usersRelations = relations(users, ({ many }) => {
   return {
-    roles: many(roles),
+    usersToRoles: many(usersToRoles),
     userPasswords: many(userPasswords),
+    chats: many(chats),
     userGeneratedImages: many(userGeneratedImages),
     userMessages: many(userMessages),
     aiResponses: many(aiResponses),
@@ -461,6 +463,19 @@ export const usersToRoles = pgTable(
     };
   }
 );
+
+export const usersToRolesRelations = relations(usersToRoles, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [usersToRoles.userId],
+      references: [users.id]
+    }),
+    role: one(roles, {
+      fields: [usersToRoles.roleId],
+      references: [roles.id]
+    })
+  };
+});
 
 export const userGeneratedImages = pgTable(
   'user_generated_images',

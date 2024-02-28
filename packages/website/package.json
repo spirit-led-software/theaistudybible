@@ -57,6 +57,7 @@
 		"autosize": "^6.0.1",
 		"dayjs": "^1.11.10",
 		"fast-xml-parser": "^4.3.5",
+		"graphql-request": "^6.1.0",
 		"marked": "^12.0.0",
 		"stripe": "^14.18.0",
 		"uuid": "^9.0.1",

@@ -35,7 +35,7 @@ export const handler = ApiHandler(async (event) => {
     const messages = await getChatMessages(id, {
       limit,
       offset: (page - 1) * limit,
-      orderBy: buildOrderBy(aiResponses, orderBy, order)
+      orderBy: [buildOrderBy(aiResponses, orderBy, order)]
     });
 
     return OkResponse({

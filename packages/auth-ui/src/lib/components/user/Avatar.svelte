@@ -9,8 +9,6 @@
 
 	export let size: ComponentSize = 'md';
 
-	let sizeClasses = squareDimensionClasses[size];
-
 	let className: string | undefined = undefined;
 	export { className as class };
 
@@ -19,19 +17,20 @@
 
 <div class="relative">
 	<div
-		class="absolute flex flex-col bottom-1 right-1 bg-blue-300 rounded-full p-2 text-white w-6 h-6 place-items-center justify-center"
+		class="absolute bottom-1 right-1 flex h-6 w-6 flex-col place-items-center justify-center rounded-full bg-blue-300 p-2 text-white"
 	>
 		<slot />
 	</div>
 	<div
 		class={cn(
-			`flex justify-center place-items-center overflow-hidden rounded-full bg-gray-300 ${sizeClasses}`,
+			`flex place-items-center justify-center overflow-hidden rounded-full bg-gray-300`,
+			squareDimensionClasses[size],
 			className
 		)}
 	>
 		{#if image}
 			<img
-				class="w-full h-full rounded-full"
+				class="h-full w-full rounded-full"
 				src={image}
 				width={192}
 				height={192}
@@ -41,7 +40,7 @@
 				}}
 			/>
 		{:else}
-			<div class={cn('text-white uppercase rounded-full', textSizeClasses[size])}>
+			<div class={cn('rounded-full uppercase text-white', textSizeClasses[size])}>
 				{name ? name[0] : email ? email[0] : '?'}
 			</div>
 		{/if}

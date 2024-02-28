@@ -1,6 +1,7 @@
 import {
   aiResponses,
   chats,
+  devotionReactions,
   roles,
   userMessages,
   userPasswords,
@@ -11,6 +12,7 @@ import { createUserSchema, updateUserSchema } from '@revelationsai/core/model/us
 import { db } from '@revelationsai/server/lib/database';
 import { isAdminSync } from '@revelationsai/server/services/user';
 import { eq } from 'drizzle-orm';
+import { aiResponseReactions } from '../../../../core/src/database/schema';
 import type { Resolvers } from '../__generated__/resolver-types';
 import { createObject, deleteObject, getObject, getObjects, updateObject } from '../utils/crud';
 
@@ -66,6 +68,28 @@ export const userResolvers: Resolvers = {
         parent,
         table: aiResponses,
         where: eq(aiResponses.userId, parent.id),
+        ownershipField: 'id',
+        ...args
+      });
+    },
+    aiResponseReactions: async (parent, args, { currentUser }) => {
+      return await getObjects({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: aiResponseReactions,
+        where: eq(aiResponseReactions.userId, parent.id),
+        ownershipField: 'id',
+        ...args
+      });
+    },
+    devotionReactions: async (parent, args, { currentUser }) => {
+      return await getObjects({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: devotionReactions,
+        where: eq(devotionReactions.userId, parent.id),
         ownershipField: 'id',
         ...args
       });

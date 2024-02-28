@@ -798,14 +798,17 @@ export type UpdateUserInput = {
 
 export type User = BaseModel & {
   __typename?: 'User';
+  aiResponseReactions?: Maybe<Array<AiResponseReaction>>;
   aiResponses?: Maybe<Array<AiResponse>>;
   chats?: Maybe<Array<Chat>>;
   createdAt: Scalars['Date']['output'];
+  devotionReactions?: Maybe<Array<DevotionReaction>>;
   email: Scalars['String']['output'];
   generatedImages?: Maybe<Array<UserGeneratedImage>>;
   hasCustomImage: Scalars['Boolean']['output'];
   id: Scalars['String']['output'];
   image?: Maybe<Scalars['String']['output']>;
+  lastSeenAt?: Maybe<Scalars['Date']['output']>;
   messages?: Maybe<Array<UserMessage>>;
   name?: Maybe<Scalars['String']['output']>;
   password?: Maybe<UserPassword>;
@@ -813,6 +816,14 @@ export type User = BaseModel & {
   stripeCustomerId?: Maybe<Scalars['String']['output']>;
   translation: Translation;
   updatedAt: Scalars['Date']['output'];
+};
+
+
+export type UserAiResponseReactionsArgs = {
+  filter?: InputMaybe<FilterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<Array<SortInput>>;
 };
 
 
@@ -825,6 +836,14 @@ export type UserAiResponsesArgs = {
 
 
 export type UserChatsArgs = {
+  filter?: InputMaybe<FilterInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  sort?: InputMaybe<Array<SortInput>>;
+};
+
+
+export type UserDevotionReactionsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -1302,14 +1321,17 @@ export type SourceDocumentResolvers<ContextType = Context, ParentType extends Re
 }>;
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  aiResponseReactions?: Resolver<Maybe<Array<ResolversTypes['AiResponseReaction']>>, ParentType, ContextType, Partial<UserAiResponseReactionsArgs>>;
   aiResponses?: Resolver<Maybe<Array<ResolversTypes['AiResponse']>>, ParentType, ContextType, Partial<UserAiResponsesArgs>>;
   chats?: Resolver<Maybe<Array<ResolversTypes['Chat']>>, ParentType, ContextType, Partial<UserChatsArgs>>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  devotionReactions?: Resolver<Maybe<Array<ResolversTypes['DevotionReaction']>>, ParentType, ContextType, Partial<UserDevotionReactionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   generatedImages?: Resolver<Maybe<Array<ResolversTypes['UserGeneratedImage']>>, ParentType, ContextType, Partial<UserGeneratedImagesArgs>>;
   hasCustomImage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastSeenAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   messages?: Resolver<Maybe<Array<ResolversTypes['UserMessage']>>, ParentType, ContextType, Partial<UserMessagesArgs>>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   password?: Resolver<Maybe<ResolversTypes['UserPassword']>, ParentType, ContextType>;

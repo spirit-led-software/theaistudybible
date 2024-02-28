@@ -18,6 +18,7 @@ type User implements BaseModel {
   id: String!
   createdAt: Date!
   updatedAt: Date!
+  lastSeenAt: Date
   email: String!
   name: String
   stripeCustomerId: String
@@ -28,6 +29,12 @@ type User implements BaseModel {
   roles: [Role!]
   messages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserMessage!]
   aiResponses(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [AiResponse!]
+  aiResponseReactions(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: [SortInput!]
+  ): [AiResponseReaction!]
   chats(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Chat!]
   generatedImages(
     filter: FilterInput
@@ -35,6 +42,12 @@ type User implements BaseModel {
     page: Int
     sort: [SortInput!]
   ): [UserGeneratedImage!]
+  devotionReactions(
+    filter: FilterInput
+    limit: Int
+    page: Int
+    sort: [SortInput!]
+  ): [DevotionReaction!]
 }
 
 input CreateUserInput {

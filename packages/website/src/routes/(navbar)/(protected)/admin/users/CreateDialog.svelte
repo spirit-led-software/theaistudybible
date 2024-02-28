@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { session } from '$lib/stores/user';
 	import { createUser } from '@revelationsai/client/services/admin/user';
-	import type { CreateUserData, User } from '@revelationsai/core/model/user';
+	import type { CreateUserInput, User } from '@revelationsai/core/model/user';
 	import { createMutation, useQueryClient, type InfiniteData } from '@tanstack/svelte-query';
 	import type { EventHandler } from 'svelte/elements';
 	import { v4 as uuidV4 } from 'uuid';
@@ -16,7 +16,7 @@
 
 	const client = useQueryClient();
 
-	const handleCreate = async (data: CreateUserData & { password?: string }) => {
+	const handleCreate = async (data: CreateUserInput & { password?: string }) => {
 		return await createUser(data, {
 			session: $session!
 		});
@@ -37,6 +37,7 @@
 								email: input.email!,
 								createdAt: new Date(),
 								updatedAt: new Date(),
+								lastSeenAt: new Date(),
 								hasCustomImage: false,
 								stripeCustomerId: uuidV4(),
 								image: null,
@@ -85,7 +86,7 @@
 </script>
 
 <dialog bind:this={createDialog} class="modal">
-	<form on:submit|preventDefault={handleSubmitCreate} class="p-10 space-y-2 modal-box">
+	<form on:submit|preventDefault={handleSubmitCreate} class="modal-box space-y-2 p-10">
 		<h1 class="text-2xl font-bold">Create User</h1>
 		<div class="flex flex-col space-y-2">
 			<label for="name">Name*</label>
@@ -105,7 +106,7 @@
 				autocomplete="new-password"
 			/>
 		</div>
-		<button type="submit" class="w-full btn btn-primary">
+		<button type="submit" class="btn btn-primary w-full">
 			{#if isLoading}
 				<span class="loading loading-spinner" />
 			{:else}
@@ -113,7 +114,7 @@
 			{/if}
 		</button>
 		<form method="dialog" class="flex justify-end space-x-2">
-			<button class="absolute btn btn-sm btn-circle btn-ghost right-2 top-2">x</button>
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">x</button>
 		</form>
 	</form>
 </dialog>

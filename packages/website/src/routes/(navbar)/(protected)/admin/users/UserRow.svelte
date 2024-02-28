@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
@@ -55,7 +56,12 @@
 	};
 </script>
 
-<tr class="h-16">
+<tr
+	class="h-16"
+	on:click={async () => {
+		await goto(`/admin/users/${user.id}`);
+	}}
+>
 	<td>
 		<Avatar {user} />
 	</td>

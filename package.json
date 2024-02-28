@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/client-preset": "^4.2.4",
     "@graphql-codegen/introspection": "4.0.3",
     "@graphql-codegen/typescript": "4.0.6",
     "@graphql-codegen/typescript-resolvers": "4.0.6",
@@ -35,7 +36,9 @@
     "constructs": "10.3.0",
     "drizzle-kit": "0.20.14",
     "eslint": "^8.57.0",
+    "graphql": "^16.8.1",
     "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "sst": "2.40.3",
     "typescript": "^5.3.3"
   },
@@ -55,6 +58,7 @@
     "neon-sdk": "^1.17.0",
     "pg": "^8.11.3",
     "pgvector": "^0.1.8",
+    "svelte2tsx": "^0.7.2",
     "youtube-transcript": "^1.0.6",
     "youtubei.js": "^9.1.0",
     "zod": "^3.22.4"
