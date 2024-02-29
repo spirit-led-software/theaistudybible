@@ -530,9 +530,15 @@ importers:
       '@revelationsai/server':
         specifier: workspace:*
         version: link:../server
+      '@tanstack/match-sorter-utils':
+        specifier: ^8.11.8
+        version: 8.11.8
       '@tanstack/svelte-query':
         specifier: ^5.24.1
         version: 5.24.1(svelte@4.2.12)
+      '@tanstack/svelte-table':
+        specifier: ^8.13.2
+        version: 8.13.2(svelte@4.2.12)
       ai:
         specifier: ^2.2.37
         version: 2.2.37(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)
@@ -554,6 +560,9 @@ importers:
       stripe:
         specifier: ^14.18.0
         version: 14.18.0
+      svelte-writable-derived:
+        specifier: ^3.1.0
+        version: 3.1.0(svelte@4.2.12)
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -6150,6 +6159,13 @@ packages:
       - supports-color
     dev: true
 
+  /@tanstack/match-sorter-utils@8.11.8:
+    resolution: {integrity: sha512-3VPh0SYMGCa5dWQEqNab87UpCMk+ANWHDP4ALs5PeEW9EpfTAbrezzaOk/OiM52IESViefkoAOYuxdoa04p6aA==}
+    engines: {node: '>=12'}
+    dependencies:
+      remove-accents: 0.4.2
+    dev: false
+
   /@tanstack/query-core@5.24.1:
     resolution: {integrity: sha512-DZ6Nx9p7BhjkG50ayJ+MKPgff+lMeol7QYXkvuU5jr2ryW/4ok5eanaS9W5eooA4xN0A/GPHdLGOZGzArgf5Cg==}
     dev: false
@@ -6161,6 +6177,21 @@ packages:
     dependencies:
       '@tanstack/query-core': 5.24.1
       svelte: 4.2.12
+    dev: false
+
+  /@tanstack/svelte-table@8.13.2(svelte@4.2.12):
+    resolution: {integrity: sha512-lA9xSVWBDFPy7cDH6bhA2OX8AZ5bZEcuG9+VBGLmGpCg78kXjr3VZMGaWUD+rTJM42Fp6zOmp1E1McSKVhUGww==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      svelte: ^4.0.0 || ^3.49.0
+    dependencies:
+      '@tanstack/table-core': 8.13.2
+      svelte: 4.2.12
+    dev: false
+
+  /@tanstack/table-core@8.13.2:
+    resolution: {integrity: sha512-/2saD1lWBUV6/uNAwrsg2tw58uvMJ07bO2F1IWMxjFRkJiXKQRuc3Oq2aufeobD3873+4oIM/DRySIw7+QsPPw==}
+    engines: {node: '>=12'}
     dev: false
 
   /@tootallnate/once@2.0.0:
@@ -12751,6 +12782,10 @@ packages:
     resolution: {integrity: sha512-/62tYiOe6DzS5BqVsNpH/nkGlX45C/Sp6V+NtiN6JQNS1Viay7cWkazmRkrQrdFj2eshDe96SIQNIoMxqhzBOg==}
     dev: true
 
+  /remove-accents@0.4.2:
+    resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
+    dev: false
+
   /remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
     dev: true
@@ -13660,6 +13695,14 @@ packages:
       from: 0.1.7
       import: 0.0.6
     dev: true
+
+  /svelte-writable-derived@3.1.0(svelte@4.2.12):
+    resolution: {integrity: sha512-cTvaVFNIJ036vSDIyPxJYivKC7ZLtcFOPm1Iq6qWBDo1fOHzfk6ZSbwaKrxhjgy52Rbl5IHzRcWgos6Zqn9/rg==}
+    peerDependencies:
+      svelte: ^3.2.1 || ^4.0.0-next.1
+    dependencies:
+      svelte: 4.2.12
+    dev: false
 
   /svelte2tsx@0.7.2(svelte@4.2.12)(typescript@5.3.3):
     resolution: {integrity: sha512-gtKJPzGt8OARDILafwyTeM2Xh/t5nCN+/Kjr2SlfVDqct5G4t/e8jaY6e0cxjLOyiVYJTGQrjmghrMyH6jAHnQ==}

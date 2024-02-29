@@ -1,22 +1,41 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session, user } from '$lib/stores/user';
+	import Icon from '@iconify/svelte';
 	import { graphql } from '@revelationsai/client/graphql';
-	import { createInfiniteQuery } from '@tanstack/svelte-query';
+	import { rankItem } from '@tanstack/match-sorter-utils';
+	import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
+	import {
+		createSvelteTable,
+		flexRender,
+		getCoreRowModel,
+		getFilteredRowModel,
+		getSortedRowModel,
+		type ColumnDef,
+		type FilterFn,
+		type OnChangeFn,
+		type PaginationState,
+		type SortingState,
+		type TableOptions,
+		type VisibilityState
+	} from '@tanstack/svelte-table';
 	import day from 'dayjs';
 	import graphqlRequest from 'graphql-request';
+	import { derived, writable } from 'svelte/store';
 
 	export let userId: string = $user!.id;
-	export let limit: number = 5;
-	export let searchQuery: string = '';
+	export let pagination = writable<PaginationState>({
+		pageIndex: 0,
+		pageSize: 5
+	});
+	export let searchQuery = writable('');
 
 	const graphqlQuery = graphql(/* GraphQL */ `
-		query UserChats($userId: String!, $filter: FilterInput, $limit: Int!, $page: Int!) {
+		query UserChats($userId: String!, $limit: Int!, $page: Int!) {
 			user(id: $userId) {
-				chats(filter: $filter, limit: $limit, page: $page) {
+				chatCount
+				chats(limit: $limit, page: $page) {
 					id
-					createdAt
 					updatedAt
 					name
 				}
@@ -24,86 +43,242 @@
 		}
 	`);
 
-	$: query = createInfiniteQuery({
-		queryKey: [`user-chats`, userId, searchQuery, limit],
-		queryFn: async ({ pageParam = 1 }) => {
-			return await graphqlRequest(
-				`${PUBLIC_API_URL}/graphql`,
-				graphqlQuery,
-				{
-					userId,
-					filter: searchQuery
-						? {
-								iLike: {
-									column: 'name',
-									placeholder: `%${searchQuery}%`
-								}
-							}
-						: undefined,
-					limit,
-					page: pageParam
-				},
-				{
-					authorization: `Bearer ${$session}`
-				}
-			).then((r) => {
-				if (!r.user) {
-					throw new Error('User not found');
-				}
-				return r.user.chats ?? [];
-			});
-		},
-		initialPageParam: 1,
-		getNextPageParam: (lastPage, allPages) => {
-			if (lastPage.length < limit) return undefined;
-			return allPages.length + 1;
+	const query = createQuery(
+		derived([pagination], ([$pagination]) => ({
+			queryKey: ['user-chats', $pagination],
+			queryFn: async () => {
+				return await graphqlRequest(
+					`${PUBLIC_API_URL}/graphql`,
+					graphqlQuery,
+					{
+						userId,
+						limit: $pagination.pageSize,
+						page: $pagination.pageIndex + 1
+					},
+					{
+						authorization: `Bearer ${$session}`
+					}
+				);
+			},
+			placeholderData: keepPreviousData
+		}))
+	);
+	query.subscribe(({ data }) => {
+		if (data) {
+			options.update((old) => ({
+				...old,
+				data: data.user?.chats ?? [],
+				rowCount: data.user?.chatCount ?? 0
+			}));
 		}
 	});
+
+	type ColumnType = NonNullable<
+		NonNullable<NonNullable<typeof $query.data>['user']>['chats']
+	>[number];
+
+	const columns: ColumnDef<ColumnType>[] = [
+		{
+			accessorFn: (row) => row.id,
+			id: 'id',
+			header: 'ID',
+			cell: (info) => info.getValue(),
+			enableHiding: true
+		},
+		{
+			accessorFn: (row) => row.name ?? '',
+			id: 'name',
+			header: 'Name',
+			cell: (info) => info.getValue(),
+			enableHiding: false
+		},
+		{
+			accessorFn: (row) => day(row.updatedAt).format('M/D/YY'),
+			id: 'updatedAt',
+			header: 'Updated',
+			cell: (info) => info.getValue(),
+			enableHiding: true
+		}
+	];
+
+	const columnVisibility = writable<VisibilityState>({});
+
+	const setColumnVisibility: OnChangeFn<VisibilityState> = (updater) => {
+		if (updater instanceof Function) {
+			$columnVisibility = updater($columnVisibility);
+		} else {
+			$columnVisibility = updater;
+		}
+		options.update((old) => ({
+			...old,
+			state: {
+				...old.state,
+				columnVisibility: $columnVisibility
+			}
+		}));
+	};
+
+	const sorting = writable<SortingState>([]);
+
+	const setSorting: OnChangeFn<SortingState> = (updater) => {
+		if (updater instanceof Function) {
+			$sorting = updater($sorting);
+		} else {
+			$sorting = updater;
+		}
+		options.update((old) => ({
+			...old,
+			state: {
+				...old.state,
+				sorting: $sorting
+			}
+		}));
+	};
+
+	const fuzzyFilter: FilterFn<ColumnType> = (row, columnId, value, addMeta) => {
+		const itemRank = rankItem(row.getValue(columnId), value);
+		addMeta({ itemRank });
+		return itemRank.passed;
+	};
+
+	const setPagination: OnChangeFn<PaginationState> = (updater) => {
+		if (updater instanceof Function) {
+			$pagination = updater($pagination);
+		} else {
+			$pagination = updater;
+		}
+		options.update((old) => ({
+			...old,
+			state: {
+				...old.state,
+				pagination: $pagination
+			}
+		}));
+	};
+
+	const options = writable<TableOptions<ColumnType>>({
+		data: $query.data?.user?.chats ?? [],
+		columns,
+		rowCount: $query.data?.user?.chatCount ?? 0,
+		state: {
+			sorting: $sorting,
+			pagination: $pagination,
+			columnVisibility: $columnVisibility
+		},
+		filterFns: {
+			fuzzy: fuzzyFilter
+		},
+		globalFilterFn: fuzzyFilter,
+		enableMultiRowSelection: true,
+		onSortingChange: setSorting,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		onPaginationChange: setPagination,
+		onColumnVisibilityChange: setColumnVisibility,
+		manualPagination: true,
+		debugTable: true
+	});
+
+	const table = createSvelteTable(derived(options, ($options) => $options));
+
+	searchQuery.subscribe((value) => {
+		$table.setGlobalFilter(value);
+	});
+
+	const reset = () => {
+		$table.resetColumnVisibility();
+		$table.resetSorting();
+		$table.resetGlobalFilter();
+		$searchQuery = '';
+	};
 </script>
 
 <div class="h-full w-full overflow-scroll p-2">
 	<div class="flex justify-between">
 		<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Chats</h2>
 		<input
-			class="w-2/3 rounded-md border border-gray-300 px-2 py-1 text-center text-sm"
+			class="w-2/3 rounded-md border border-gray-300 px-2 py-1 text-sm"
 			type="text"
-			placeholder="Search"
-			bind:value={searchQuery}
+			placeholder="Filter"
+			bind:value={$searchQuery}
 		/>
 	</div>
 	{#if $query.data}
 		<table class="table-sm table">
-			<thead class="table-pin-rows">
-				<tr>
-					<th>Updated</th>
-					<th>Name</th>
-				</tr>
+			<thead>
+				{#each $table.getHeaderGroups() as headerGroup}
+					<tr>
+						{#each headerGroup.headers as header}
+							<th colspan={header.colSpan}>
+								{#if !header.isPlaceholder}
+									<button
+										class="flex place-items-center justify-center"
+										class:cursor-pointer={header.column.getCanSort()}
+										class:select-none={header.column.getCanSort()}
+										on:click={header.column.getToggleSortingHandler()}
+									>
+										<svelte:component
+											this={flexRender(header.column.columnDef.header, header.getContext())}
+										/>
+										{#if header.column.getCanHide()}
+											<button on:click={header.column.getToggleVisibilityHandler()}>
+												<Icon
+													icon={header.column.getIsVisible() ? 'mdi:eye' : 'mdi:eye-off'}
+													class="ml-2 h-3 w-3"
+												/>
+											</button>
+										{/if}
+										{#if header.column.getIsSorted()}
+											<Icon
+												icon={`bxs:${header.column.getIsSorted().toString() === 'asc' ? 'up' : 'down'}-arrow`}
+												class="ml-2 h-2 w-2"
+											/>
+										{/if}
+									</button>
+								{/if}
+							</th>
+						{/each}
+					</tr>
+				{/each}
 			</thead>
 			<tbody>
-				{#each $query.data.pages as page}
-					{#each page as chat}
-						<tr
-							class="hover:cursor-pointer"
-							on:click={async () => await goto(`/admin/chats/${chat.id}`)}
-						>
-							<td>{day(chat.updatedAt).format('M/D/YY')}</td>
-							<td>{chat.name}</td>
-						</tr>
-					{/each}
+				{#each $table.getRowModel().rows as row}
+					<tr>
+						{#each row.getVisibleCells() as cell}
+							<td>
+								<svelte:component
+									this={flexRender(cell.column.columnDef.cell, cell.getContext())}
+								/>
+							</td>
+						{/each}
+					</tr>
 				{/each}
-				<tr class="w-full">
-					<td class="w-full" colspan={Number.MAX_SAFE_INTEGER}>
-						{#if $query.isFetchingNextPage}
-							<div class="flex place-items-center justify-center">
-								<span class="loading loading-spinner" />
-							</div>
-						{:else if $query.hasNextPage}
-							<button class="btn w-full" on:click={() => $query.fetchNextPage()}> Load more</button>
-						{/if}
-					</td>
-				</tr>
 			</tbody>
 		</table>
+		<div class="flex items-center justify-end gap-2">
+			<button class="btn" on:click={reset}> Reset </button>
+			<button
+				class="btn"
+				on:click={() => $table.firstPage()}
+				disabled={!$table.getCanPreviousPage()}
+			>
+				First
+			</button>
+			<button
+				class="btn"
+				on:click={() => $table.previousPage()}
+				disabled={!$table.getCanPreviousPage()}
+			>
+				Previous
+			</button>
+			<button class="btn" on:click={() => $table.nextPage()} disabled={!$table.getCanNextPage()}>
+				Next
+			</button>
+			<button class="btn" on:click={() => $table.lastPage()} disabled={!$table.getCanNextPage()}>
+				Last
+			</button>
+		</div>
 	{:else if $query.isFetching}
 		<div class="flex h-52 flex-col place-items-center justify-center">
 			<span class="loading loading-spinner" />

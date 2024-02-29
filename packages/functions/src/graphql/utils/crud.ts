@@ -2,10 +2,86 @@ import { buildOrderBy, buildQuery } from '@revelationsai/core/database/helpers';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { db } from '@revelationsai/server/lib/database';
 import { isAdminSync } from '@revelationsai/server/services/user';
-import { SQL, and, desc, eq } from 'drizzle-orm';
+import { SQL, and, count, desc, eq } from 'drizzle-orm';
 import type { PgTableWithColumns, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 import type { FilterInput, SortInput } from '../__generated__/resolver-types';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getObjectCount<Table extends PgTableWithColumns<any>>(options: {
+  currentUser: UserWithRoles | undefined;
+  role: 'admin' | 'user' | 'public';
+  table: Table;
+  where?: SQL<unknown>;
+  filter?: FilterInput | null;
+}): Promise<number>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getObjectCount<Table extends PgTableWithColumns<any>>(options: {
+  currentUser?: UserWithRoles;
+  role: 'owner';
+  table: Table;
+  where?: SQL<unknown>;
+  filter?: FilterInput | null;
+  ownershipField?: keyof Table['$inferSelect'];
+}): Promise<number>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getObjectCount<Table extends PgTableWithColumns<any>, ParentType>(options: {
+  currentUser?: UserWithRoles;
+  role: 'parent-owner';
+  parent: ParentType;
+  table: Table;
+  where?: SQL<unknown>;
+  filter?: FilterInput | null;
+  ownershipField?: keyof ParentType;
+}): Promise<number>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getObjectCount<Table extends PgTableWithColumns<any>, ParentType>(options: {
+  currentUser?: UserWithRoles;
+  role: 'admin' | 'owner' | 'parent-owner' | 'user' | 'public';
+  parent?: ParentType;
+  table: Table;
+  where?: SQL<unknown>;
+  filter?: FilterInput | null;
+  ownershipField?: keyof Table['$inferSelect'] | keyof ParentType;
+}): Promise<number> {
+  const { currentUser, role, parent, table, filter, ownershipField = 'userId' } = options;
+
+  if (role !== 'public' && !currentUser) {
+    throw new Error('You must be logged in to perform this action');
+  }
+
+  if (role === 'admin' && !isAdminSync(currentUser!)) {
+    throw new Error('You are not authorized to perform this action');
+  }
+
+  if (
+    role === 'parent-owner' &&
+    (!parent ||
+      (parent[ownershipField as keyof ParentType] !== currentUser!.id &&
+        !isAdminSync(currentUser!)))
+  ) {
+    throw new Error('You are not authorized to perform this action');
+  }
+
+  let where: SQL<unknown> | undefined = options.where;
+  if (role === 'owner' && !isAdminSync(currentUser!)) {
+    const ownerWhere = eq(table[ownershipField], currentUser!.id);
+    where = where ? and(where, ownerWhere) : ownerWhere;
+  }
+  if (filter) {
+    const filterWhere = buildQuery(table, filter);
+    where = where ? and(where, filterWhere) : filterWhere;
+  }
+
+  return await db
+    .select({
+      count: count()
+    })
+    .from(table)
+    .where(where)
+    .then((results) => results[0].count);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getObjects<Table extends PgTableWithColumns<any>>(options: {

@@ -445,6 +445,15 @@ export type introspection = {
             ]
           },
           {
+            "name": "chatCount",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "args": []
+          },
+          {
             "name": "chats",
             "type": {
               "kind": "LIST",
@@ -551,6 +560,15 @@ export type introspection = {
                 }
               }
             ]
+          },
+          {
+            "name": "devotionReactionCount",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "args": []
           },
           {
             "name": "devotionReactions",

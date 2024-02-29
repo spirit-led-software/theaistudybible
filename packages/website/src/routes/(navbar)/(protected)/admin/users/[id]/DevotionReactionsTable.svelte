@@ -1,175 +1,321 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session, user } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
 	import { graphql } from '@revelationsai/client/graphql';
-	import { toTitleCase } from '@revelationsai/core/util/string';
-	import { createInfiniteQuery } from '@tanstack/svelte-query';
+	import { toCapitalizedCase } from '@revelationsai/core/util/string';
+	import { rankItem } from '@tanstack/match-sorter-utils';
+	import { createQuery, keepPreviousData } from '@tanstack/svelte-query';
+	import {
+		createSvelteTable,
+		flexRender,
+		getCoreRowModel,
+		getFilteredRowModel,
+		getSortedRowModel,
+		type ColumnDef,
+		type FilterFn,
+		type OnChangeFn,
+		type PaginationState,
+		type SortingState,
+		type TableOptions,
+		type VisibilityState
+	} from '@tanstack/svelte-table';
 	import day from 'dayjs';
 	import graphqlRequest from 'graphql-request';
+	import { derived, writable } from 'svelte/store';
 
 	export let userId: string = $user!.id;
-	export let limit: number = 5;
-	export let sort: {
-		field: string;
-		order: 'asc' | 'desc';
-	}[] = [{ field: 'updatedAt', order: 'desc' }];
+	export let pagination = writable<PaginationState>({
+		pageIndex: 0,
+		pageSize: 5
+	});
+	export let searchQuery = writable('');
 
-	const updateSort = (field: string) => {
-		const inList = sort.findIndex((s) => s.field === field);
-		if (inList === -1) {
-			sort = [
-				...sort,
-				{
-					field,
-					order: 'desc'
-				}
-			];
-		} else {
-			if (sort[inList].order === 'asc') {
-				sort[inList].order = 'desc';
-			} else if (sort[inList].order === 'desc') {
-				sort[inList].order = 'asc';
-			} else {
-				sort = sort.filter((s) => s.field !== field);
-			}
-		}
-	};
-
-	const sortContains = (field: string) => {
-		return sort.findIndex((s) => s.field === field);
-	};
-
-	const graphqlQuery = graphql(`
-		query UserDevotionReactions($userId: String!, $limit: Int!, $page: Int!, $sort: [SortInput!]!) {
+	const graphqlQuery = graphql(/* GraphQL */ `
+		query UserDevotionReactions($userId: String!, $limit: Int!, $page: Int!) {
 			user(id: $userId) {
-				devotionReactions(limit: $limit, page: $page, sort: $sort) {
+				devotionReactionCount
+				devotionReactions(limit: $limit, page: $page) {
 					id
-					createdAt
 					updatedAt
 					reaction
 					devotion {
-						id
 						createdAt
 						topic
-						bibleReading
 					}
 				}
 			}
 		}
 	`);
 
-	$: query = createInfiniteQuery({
-		queryKey: [`user-devotion-reactions-${userId}`],
-		queryFn: async ({ pageParam = 1 }) => {
-			return await graphqlRequest(
-				`${PUBLIC_API_URL}/graphql`,
-				graphqlQuery,
-				{
-					userId,
-					limit,
-					page: pageParam,
-					sort
-				},
-				{
-					authorization: `Bearer ${$session}`
-				}
-			).then((r) => {
-				if (!r.user) {
-					throw new Error('User not found');
-				}
-				return r.user.devotionReactions ?? [];
-			});
-		},
-		initialPageParam: 1,
-		getNextPageParam: (lastPage, allPages) => {
-			if (lastPage.length < limit) return undefined;
-			return allPages.length + 1;
+	const query = createQuery(
+		derived([pagination], ([$pagination]) => ({
+			queryKey: ['user-devotion-reactions', $pagination],
+			queryFn: async () => {
+				return await graphqlRequest(
+					`${PUBLIC_API_URL}/graphql`,
+					graphqlQuery,
+					{
+						userId,
+						limit: $pagination.pageSize,
+						page: $pagination.pageIndex + 1
+					},
+					{
+						authorization: `Bearer ${$session}`
+					}
+				);
+			},
+			placeholderData: keepPreviousData
+		}))
+	);
+	query.subscribe(({ data }) => {
+		if (data) {
+			options.update((old) => ({
+				...old,
+				data: data.user?.devotionReactions ?? [],
+				rowCount: data.user?.devotionReactionCount ?? 0
+			}));
 		}
 	});
+
+	type ColumnType = NonNullable<
+		NonNullable<NonNullable<typeof $query.data>['user']>['devotionReactions']
+	>[number];
+
+	const columns: ColumnDef<ColumnType>[] = [
+		{
+			header: 'Reaction Info',
+			columns: [
+				{
+					accessorKey: 'id',
+					header: 'ID',
+					cell: (info) => info.getValue(),
+					enableHiding: true
+				},
+				{
+					accessorKey: 'reaction',
+					header: 'Reaction',
+					cell: (info) => info.getValue(),
+					enableHiding: false
+				},
+				{
+					accessorFn: (row) => day(row.updatedAt).format('M/D/YY'),
+					id: 'updatedAt',
+					header: 'Date',
+					cell: (info) => info.getValue(),
+					enableHiding: true
+				}
+			]
+		},
+		{
+			header: 'Devotion Info',
+			columns: [
+				{
+					accessorFn: (row) => day(row.devotion!.createdAt).format('M/D/YY'),
+					id: 'devotion.createdAt',
+					header: 'Date',
+					cell: (info) => info.getValue()
+				},
+				{
+					accessorFn: (row) => toCapitalizedCase(row.devotion!.topic),
+					id: 'devotion.topic',
+					header: 'Topic',
+					cell: (info) => info.getValue()
+				}
+			]
+		}
+	];
+
+	const columnVisibility = writable<VisibilityState>({});
+
+	const setColumnVisibility: OnChangeFn<VisibilityState> = (updater) => {
+		if (updater instanceof Function) {
+			$columnVisibility = updater($columnVisibility);
+		} else {
+			$columnVisibility = updater;
+		}
+		options.update((old) => ({
+			...old,
+			state: {
+				...old.state,
+				columnVisibility: $columnVisibility
+			}
+		}));
+	};
+
+	const sorting = writable<SortingState>([]);
+
+	const setSorting: OnChangeFn<SortingState> = (updater) => {
+		if (updater instanceof Function) {
+			$sorting = updater($sorting);
+		} else {
+			$sorting = updater;
+		}
+		options.update((old) => ({
+			...old,
+			state: {
+				...old.state,
+				sorting: $sorting
+			}
+		}));
+	};
+
+	const fuzzyFilter: FilterFn<ColumnType> = (row, columnId, value, addMeta) => {
+		const itemRank = rankItem(row.getValue(columnId), value);
+		addMeta({ itemRank });
+		return itemRank.passed;
+	};
+
+	const setPagination: OnChangeFn<PaginationState> = (updater) => {
+		if (updater instanceof Function) {
+			$pagination = updater($pagination);
+		} else {
+			$pagination = updater;
+		}
+		options.update((old) => ({
+			...old,
+			state: {
+				...old.state,
+				pagination: $pagination
+			}
+		}));
+	};
+
+	const options = writable<TableOptions<ColumnType>>({
+		data: $query.data?.user?.devotionReactions ?? [],
+		columns,
+		rowCount: $query.data?.user?.devotionReactionCount ?? 0,
+		state: {
+			sorting: $sorting,
+			pagination: $pagination,
+			columnVisibility: $columnVisibility
+		},
+		filterFns: {
+			fuzzy: fuzzyFilter
+		},
+		globalFilterFn: fuzzyFilter,
+		enableMultiRowSelection: true,
+		onSortingChange: setSorting,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		onPaginationChange: setPagination,
+		onColumnVisibilityChange: setColumnVisibility,
+		manualPagination: true,
+		debugTable: true
+	});
+
+	const table = createSvelteTable(derived(options, ($options) => $options));
+
+	searchQuery.subscribe((value) => {
+		$table.setGlobalFilter(value);
+	});
+
+	const reset = () => {
+		$table.resetColumnVisibility();
+		$table.resetSorting();
+		$table.resetGlobalFilter();
+		$searchQuery = '';
+	};
 </script>
 
 <div class="h-full w-full overflow-scroll p-2">
-	<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Devotion Reactions</h2>
+	<div class="flex justify-between">
+		<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Devotion Reactions</h2>
+		<input
+			class="w-2/3 rounded-md border border-gray-300 px-2 py-1 text-sm"
+			type="text"
+			placeholder="Filter"
+			bind:value={$searchQuery}
+		/>
+	</div>
 	{#if $query.data}
 		<table class="table-sm table">
-			<thead class="table-pin-rows">
-				<tr>
-					<th class="flex" on:click={() => updateSort('updatedAt')}>
-						Reaction Date
-						{#if sortContains('updatedAt') !== -1}
-							{@const index = sortContains('updatedAt')}
-							<Icon
-								icon={`bi:arrow-${sort[index].order === 'asc' ? 'up' : 'down'}`}
-								class="h-4 w-4"
-							/>
-						{/if}
-					</th>
-					<th on:click={() => updateSort('reaction')}>
-						Reaction
-						{#if sortContains('reaction') !== -1}
-							{@const index = sortContains('reaction')}
-							<Icon
-								icon={`bi:arrow-${sort[index].order === 'asc' ? 'up' : 'down'}`}
-								class="h-4 w-4"
-							/>
-						{/if}
-					</th>
-					<th on:click={() => updateSort('createdAt')}>
-						Devo Date
-						{#if sortContains('createdAt') !== -1}
-							{@const index = sortContains('createdAt')}
-							<Icon
-								icon={`bi:arrow-${sort[index].order === 'asc' ? 'up' : 'down'}`}
-								class="h-4 w-4"
-							/>
-						{/if}
-					</th>
-					<th on:click={() => updateSort('topic')}>Topic</th>
-					<th on:click={() => updateSort('bibleReading')}>Bible Reading</th>
-				</tr>
+			<thead>
+				{#each $table.getHeaderGroups() as headerGroup}
+					<tr>
+						{#each headerGroup.headers as header}
+							<th colspan={header.colSpan}>
+								{#if !header.isPlaceholder}
+									<button
+										class="flex place-items-center justify-center"
+										class:cursor-pointer={header.column.getCanSort()}
+										class:select-none={header.column.getCanSort()}
+										on:click={header.column.getToggleSortingHandler()}
+									>
+										<svelte:component
+											this={flexRender(header.column.columnDef.header, header.getContext())}
+										/>
+										{#if header.column.getCanHide()}
+											<button on:click={header.column.getToggleVisibilityHandler()}>
+												<Icon
+													icon={header.column.getIsVisible() ? 'mdi:eye' : 'mdi:eye-off'}
+													class="ml-2 h-3 w-3"
+												/>
+											</button>
+										{/if}
+										{#if header.column.getIsSorted()}
+											<Icon
+												icon={`bxs:${header.column.getIsSorted().toString() === 'asc' ? 'up' : 'down'}-arrow`}
+												class="ml-2 h-2 w-2"
+											/>
+										{/if}
+									</button>
+								{/if}
+							</th>
+						{/each}
+					</tr>
+				{/each}
 			</thead>
 			<tbody>
-				{#each $query.data.pages as page}
-					{#each page as reaction}
-						<tr
-							class="hover:cursor-pointer"
-							on:click={async () => await goto(`/devotions/${reaction.devotion?.id}`)}
-						>
-							<td>{day(reaction.updatedAt).format('M/D/YY')}</td>
-							<td>{reaction.reaction}</td>
-							<td>{day(reaction.devotion?.createdAt).format('M/D/YY')}</td>
-							<td>{toTitleCase(reaction.devotion?.topic ?? '')}</td>
-							<td>{reaction.devotion?.bibleReading.split('-')[0]}</td>
-						</tr>
-					{/each}
+				{#each $table.getRowModel().rows as row}
+					<tr>
+						{#each row.getVisibleCells() as cell}
+							<td>
+								<svelte:component
+									this={flexRender(cell.column.columnDef.cell, cell.getContext())}
+								/>
+							</td>
+						{/each}
+					</tr>
 				{/each}
-				<tr class="w-full">
-					<td class="w-full" colspan={Number.MAX_SAFE_INTEGER}>
-						{#if $query.isFetchingNextPage}
-							<div class="flex place-items-center justify-center">
-								<span class="loading loading-spinner" />
-							</div>
-						{:else if $query.hasNextPage}
-							<button class="btn w-full" on:click={() => $query.fetchNextPage()}> Load more</button>
-						{/if}
-					</td>
-				</tr>
 			</tbody>
 		</table>
+		<div class="flex items-center justify-end gap-2">
+			<button class="btn" on:click={reset}> Reset </button>
+			<button
+				class="btn"
+				on:click={() => $table.firstPage()}
+				disabled={!$table.getCanPreviousPage()}
+			>
+				First
+			</button>
+			<button
+				class="btn"
+				on:click={() => $table.previousPage()}
+				disabled={!$table.getCanPreviousPage()}
+			>
+				Previous
+			</button>
+			<button class="btn" on:click={() => $table.nextPage()} disabled={!$table.getCanNextPage()}>
+				Next
+			</button>
+			<button class="btn" on:click={() => $table.lastPage()} disabled={!$table.getCanNextPage()}>
+				Last
+			</button>
+		</div>
 	{:else if $query.isFetching}
 		<div class="flex h-52 flex-col place-items-center justify-center">
 			<span class="loading loading-spinner" />
 		</div>
 	{:else if $query.isError}
 		<div class="flex h-52 flex-col place-items-center justify-center">
-			<span class="text-red-500">Error loading reactions</span>
+			<span class="text-red-500">Error loading devotion reactions</span>
 			<button class="btn" on:click={() => $query.refetch()}>Retry</button>
 		</div>
 	{:else}
 		<div class="flex h-52 flex-col place-items-center justify-center">
-			<span class="text-red-500">No reactions found</span>
+			<span class="text-red-500">No devotion reactions found</span>
 		</div>
 	{/if}
 </div>

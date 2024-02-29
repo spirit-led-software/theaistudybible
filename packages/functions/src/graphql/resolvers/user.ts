@@ -14,7 +14,14 @@ import { isAdminSync } from '@revelationsai/server/services/user';
 import { eq } from 'drizzle-orm';
 import { aiResponseReactions } from '../../../../core/src/database/schema';
 import type { Resolvers } from '../__generated__/resolver-types';
-import { createObject, deleteObject, getObject, getObjects, updateObject } from '../utils/crud';
+import {
+  createObject,
+  deleteObject,
+  getObject,
+  getObjectCount,
+  getObjects,
+  updateObject
+} from '../utils/crud';
 
 export const userResolvers: Resolvers = {
   User: {
@@ -38,6 +45,15 @@ export const userResolvers: Resolvers = {
         .where(eq(usersToRoles.userId, parent.id))
         .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
         .then((results) => results.map((result) => result.roles));
+    },
+    chatCount: async (parent, _, { currentUser }) => {
+      return await getObjectCount({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: chats,
+        where: eq(chats.userId, parent.id)
+      });
     },
     chats: async (parent, args, { currentUser }) => {
       return await getObjects({
@@ -81,6 +97,15 @@ export const userResolvers: Resolvers = {
         where: eq(aiResponseReactions.userId, parent.id),
         ownershipField: 'id',
         ...args
+      });
+    },
+    devotionReactionCount: async (parent, _, { currentUser }) => {
+      return await getObjectCount({
+        currentUser,
+        role: 'parent-owner',
+        parent,
+        table: devotionReactions,
+        where: eq(devotionReactions.userId, parent.id)
       });
     },
     devotionReactions: async (parent, args, { currentUser }) => {

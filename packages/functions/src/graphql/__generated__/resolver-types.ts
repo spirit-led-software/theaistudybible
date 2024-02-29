@@ -800,8 +800,10 @@ export type User = BaseModel & {
   __typename?: 'User';
   aiResponseReactions?: Maybe<Array<AiResponseReaction>>;
   aiResponses?: Maybe<Array<AiResponse>>;
+  chatCount?: Maybe<Scalars['Int']['output']>;
   chats?: Maybe<Array<Chat>>;
   createdAt: Scalars['Date']['output'];
+  devotionReactionCount?: Maybe<Scalars['Int']['output']>;
   devotionReactions?: Maybe<Array<DevotionReaction>>;
   email: Scalars['String']['output'];
   generatedImages?: Maybe<Array<UserGeneratedImage>>;
@@ -1323,8 +1325,10 @@ export type SourceDocumentResolvers<ContextType = Context, ParentType extends Re
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   aiResponseReactions?: Resolver<Maybe<Array<ResolversTypes['AiResponseReaction']>>, ParentType, ContextType, Partial<UserAiResponseReactionsArgs>>;
   aiResponses?: Resolver<Maybe<Array<ResolversTypes['AiResponse']>>, ParentType, ContextType, Partial<UserAiResponsesArgs>>;
+  chatCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   chats?: Resolver<Maybe<Array<ResolversTypes['Chat']>>, ParentType, ContextType, Partial<UserChatsArgs>>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  devotionReactionCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   devotionReactions?: Resolver<Maybe<Array<ResolversTypes['DevotionReaction']>>, ParentType, ContextType, Partial<UserDevotionReactionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   generatedImages?: Resolver<Maybe<Array<ResolversTypes['UserGeneratedImage']>>, ParentType, ContextType, Partial<UserGeneratedImagesArgs>>;

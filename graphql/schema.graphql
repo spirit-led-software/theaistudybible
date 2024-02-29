@@ -35,6 +35,7 @@ type User implements BaseModel {
     page: Int
     sort: [SortInput!]
   ): [AiResponseReaction!]
+  chatCount: Int
   chats(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Chat!]
   generatedImages(
     filter: FilterInput
@@ -42,6 +43,7 @@ type User implements BaseModel {
     page: Int
     sort: [SortInput!]
   ): [UserGeneratedImage!]
+  devotionReactionCount: Int
   devotionReactions(
     filter: FilterInput
     limit: Int
