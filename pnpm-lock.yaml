@@ -560,9 +560,6 @@ importers:
       stripe:
         specifier: ^14.18.0
         version: 14.18.0
-      svelte-writable-derived:
-        specifier: ^3.1.0
-        version: 3.1.0(svelte@4.2.12)
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
@@ -13695,14 +13692,6 @@ packages:
       from: 0.1.7
       import: 0.0.6
     dev: true
-
-  /svelte-writable-derived@3.1.0(svelte@4.2.12):
-    resolution: {integrity: sha512-cTvaVFNIJ036vSDIyPxJYivKC7ZLtcFOPm1Iq6qWBDo1fOHzfk6ZSbwaKrxhjgy52Rbl5IHzRcWgos6Zqn9/rg==}
-    peerDependencies:
-      svelte: ^3.2.1 || ^4.0.0-next.1
-    dependencies:
-      svelte: 4.2.12
-    dev: false
 
   /svelte2tsx@0.7.2(svelte@4.2.12)(typescript@5.3.3):
     resolution: {integrity: sha512-gtKJPzGt8OARDILafwyTeM2Xh/t5nCN+/Kjr2SlfVDqct5G4t/e8jaY6e0cxjLOyiVYJTGQrjmghrMyH6jAHnQ==}
