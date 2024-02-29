@@ -25,13 +25,18 @@
 	import { derived, writable } from 'svelte/store';
 
 	export let userId: string = $user!.id;
-	export let pagination = writable<PaginationState>({
+	let paginationInput: PaginationState = {
 		pageIndex: 0,
 		pageSize: 5
-	});
-	export let searchQuery = writable('');
+	};
+	export { paginationInput as pagination };
 
-	const graphqlQuery = graphql(/* GraphQL */ `
+	const pagination = writable<PaginationState>(paginationInput);
+	$: pagination.set(paginationInput);
+
+	const searchQuery = writable('');
+
+	const graphqlQuery = graphql(`
 		query UserDevotionReactions($userId: String!, $limit: Int!, $page: Int!) {
 			user(id: $userId) {
 				devotionReactionCount
@@ -40,6 +45,7 @@
 					updatedAt
 					reaction
 					devotion {
+						id
 						createdAt
 						topic
 					}
@@ -50,7 +56,7 @@
 
 	const query = createQuery(
 		derived([pagination], ([$pagination]) => ({
-			queryKey: ['user-devotion-reactions', $pagination],
+			queryKey: ['user-devotion-reactions', $pagination, userId],
 			queryFn: async () => {
 				return await graphqlRequest(
 					`${PUBLIC_API_URL}/graphql`,
@@ -68,15 +74,6 @@
 			placeholderData: keepPreviousData
 		}))
 	);
-	query.subscribe(({ data }) => {
-		if (data) {
-			options.update((old) => ({
-				...old,
-				data: data.user?.devotionReactions ?? [],
-				rowCount: data.user?.devotionReactionCount ?? 0
-			}));
-		}
-	});
 
 	type ColumnType = NonNullable<
 		NonNullable<NonNullable<typeof $query.data>['user']>['devotionReactions']
@@ -87,8 +84,9 @@
 			header: 'Reaction Info',
 			columns: [
 				{
-					accessorKey: 'id',
-					header: 'ID',
+					accessorFn: (row) => day(row.updatedAt).format('M/D/YY'),
+					id: 'updatedAt',
+					header: 'Date',
 					cell: (info) => info.getValue(),
 					enableHiding: true
 				},
@@ -97,13 +95,6 @@
 					header: 'Reaction',
 					cell: (info) => info.getValue(),
 					enableHiding: false
-				},
-				{
-					accessorFn: (row) => day(row.updatedAt).format('M/D/YY'),
-					id: 'updatedAt',
-					header: 'Date',
-					cell: (info) => info.getValue(),
-					enableHiding: true
 				}
 			]
 		},
@@ -201,8 +192,16 @@
 		getFilteredRowModel: getFilteredRowModel(),
 		onPaginationChange: setPagination,
 		onColumnVisibilityChange: setColumnVisibility,
-		manualPagination: true,
-		debugTable: true
+		manualPagination: true
+	});
+	query.subscribe(({ data }) => {
+		if (data) {
+			options.update((old) => ({
+				...old,
+				data: data.user?.devotionReactions ?? [],
+				rowCount: data.user?.devotionReactionCount ?? 0
+			}));
+		}
 	});
 
 	const table = createSvelteTable(derived(options, ($options) => $options));
@@ -219,7 +218,7 @@
 	};
 </script>
 
-<div class="h-full w-full overflow-scroll p-2">
+<div class="h-full w-full overflow-auto p-2">
 	<div class="flex justify-between">
 		<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Devotion Reactions</h2>
 		<input
@@ -227,9 +226,10 @@
 			type="text"
 			placeholder="Filter"
 			bind:value={$searchQuery}
+			disabled={!(($query.data?.user?.devotionReactions?.length ?? 0) > 0)}
 		/>
 	</div>
-	{#if $query.data}
+	{#if $query.data?.user?.devotionReactions && $query.data?.user?.devotionReactions.length > 0}
 		<table class="table-sm table">
 			<thead>
 				{#each $table.getHeaderGroups() as headerGroup}
@@ -281,7 +281,7 @@
 				{/each}
 			</tbody>
 		</table>
-		<div class="flex items-center justify-end gap-2">
+		<div class="mt-2 flex items-center justify-end gap-2">
 			<button class="btn" on:click={reset}> Reset </button>
 			<button
 				class="btn"

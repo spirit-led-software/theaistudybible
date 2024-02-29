@@ -68,7 +68,7 @@
 	<td>{user.id}</td>
 	<td>{user.name || 'N/A'}</td>
 	<td>{user.email}</td>
-	<td class="flex h-full flex-col space-y-1 overflow-y-scroll py-2">
+	<td class="flex h-full flex-col space-y-1 overflow-auto py-2">
 		{#if $rolesQuery.data}
 			{#each $rolesQuery.data as role (role.id)}
 				<span class="rounded-lg bg-slate-700 p-1 text-center text-white">{role.name}</span>

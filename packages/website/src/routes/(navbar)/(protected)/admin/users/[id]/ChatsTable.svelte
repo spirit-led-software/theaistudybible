@@ -24,11 +24,16 @@
 	import { derived, writable } from 'svelte/store';
 
 	export let userId: string = $user!.id;
-	export let pagination = writable<PaginationState>({
+	let paginationInput: PaginationState = {
 		pageIndex: 0,
 		pageSize: 5
-	});
-	export let searchQuery = writable('');
+	};
+	export { paginationInput as pagination };
+
+	const pagination = writable<PaginationState>(paginationInput);
+	$: pagination.set(paginationInput);
+
+	const searchQuery = writable('');
 
 	const graphqlQuery = graphql(/* GraphQL */ `
 		query UserChats($userId: String!, $limit: Int!, $page: Int!) {
@@ -45,7 +50,7 @@
 
 	const query = createQuery(
 		derived([pagination], ([$pagination]) => ({
-			queryKey: ['user-chats', $pagination],
+			queryKey: ['user-chats', $pagination, userId],
 			queryFn: async () => {
 				return await graphqlRequest(
 					`${PUBLIC_API_URL}/graphql`,
@@ -63,15 +68,6 @@
 			placeholderData: keepPreviousData
 		}))
 	);
-	query.subscribe(({ data }) => {
-		if (data) {
-			options.update((old) => ({
-				...old,
-				data: data.user?.chats ?? [],
-				rowCount: data.user?.chatCount ?? 0
-			}));
-		}
-	});
 
 	type ColumnType = NonNullable<
 		NonNullable<NonNullable<typeof $query.data>['user']>['chats']
@@ -79,15 +75,7 @@
 
 	const columns: ColumnDef<ColumnType>[] = [
 		{
-			accessorFn: (row) => row.id,
-			id: 'id',
-			header: 'ID',
-			cell: (info) => info.getValue(),
-			enableHiding: true
-		},
-		{
-			accessorFn: (row) => row.name ?? '',
-			id: 'name',
+			accessorKey: 'name',
 			header: 'Name',
 			cell: (info) => info.getValue(),
 			enableHiding: false
@@ -176,8 +164,16 @@
 		getFilteredRowModel: getFilteredRowModel(),
 		onPaginationChange: setPagination,
 		onColumnVisibilityChange: setColumnVisibility,
-		manualPagination: true,
-		debugTable: true
+		manualPagination: true
+	});
+	query.subscribe(({ data }) => {
+		if (data) {
+			options.update((old) => ({
+				...old,
+				data: data.user?.chats ?? [],
+				rowCount: data.user?.chatCount ?? 0
+			}));
+		}
 	});
 
 	const table = createSvelteTable(derived(options, ($options) => $options));
@@ -194,7 +190,7 @@
 	};
 </script>
 
-<div class="h-full w-full overflow-scroll p-2">
+<div class="h-full w-full overflow-auto p-2">
 	<div class="flex justify-between">
 		<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Chats</h2>
 		<input
@@ -202,9 +198,10 @@
 			type="text"
 			placeholder="Filter"
 			bind:value={$searchQuery}
+			disabled={!(($query.data?.user?.chats?.length ?? 0) > 0)}
 		/>
 	</div>
-	{#if $query.data}
+	{#if $query.data?.user?.chats && $query.data?.user?.chats.length > 0}
 		<table class="table-sm table">
 			<thead>
 				{#each $table.getHeaderGroups() as headerGroup}
@@ -247,16 +244,18 @@
 					<tr>
 						{#each row.getVisibleCells() as cell}
 							<td>
-								<svelte:component
-									this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-								/>
+								<a href={`/admin/chats/${$query.data.user.chats[cell.row.index].id}`}>
+									<svelte:component
+										this={flexRender(cell.column.columnDef.cell, cell.getContext())}
+									/>
+								</a>
 							</td>
 						{/each}
 					</tr>
 				{/each}
 			</tbody>
 		</table>
-		<div class="flex items-center justify-end gap-2">
+		<div class="mt-2 flex items-center justify-end gap-2">
 			<button class="btn" on:click={reset}> Reset </button>
 			<button
 				class="btn"

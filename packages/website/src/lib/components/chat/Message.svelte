@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 	import type { ModelInfo } from '@revelationsai/core/model/llm';
+	import type { User } from '@revelationsai/core/model/user';
 	import type { Message } from 'ai';
 	import Day from 'dayjs';
 	import LogoIcon from '../branding/LogoIcon.svelte';
@@ -14,7 +15,7 @@
 	import MessageMarkdown from './MessageMarkdown.svelte';
 	import ResponseSources from './ResponseSources.svelte';
 
-	export let chatId: string | undefined;
+	export let user: User | undefined = undefined;
 	export let message: RAIChatMessage;
 	export let prevMessage: RAIChatMessage | undefined = undefined;
 	export let isChatLoading = false;
@@ -44,55 +45,55 @@
 	}
 </script>
 
-<div class="flex flex-row w-full px-2 py-4 overflow-x-hidden bg-white border border-t-slate-300">
-	<div class="flex flex-col content-start w-16">
+<div class="flex w-full flex-row overflow-x-hidden border border-t-slate-300 bg-white px-2 py-4">
+	<div class="flex w-16 flex-col content-start">
 		{#if role === 'user'}
-			<Avatar size="lg" class="border shadow-xl border-slate-100" />
+			<Avatar {user} size="lg" class="border border-slate-100 shadow-xl" />
 		{:else}
 			<LogoIcon size="sm" class="w-12 rounded-full shadow-xl" />
 		{/if}
 	</div>
-	<div class="flex flex-col w-full px-3 overflow-x-clip">
+	<div class="flex w-full flex-col overflow-x-clip px-3">
 		<MessageMarkdown {content} />
-		<div class="flex w-full justify-end place-items-center space-x-2">
+		<div class="flex w-full place-items-center justify-end space-x-2">
 			{#if message.modelId}
-				<div class="flex justify-end mt-2 text-xs text-gray-400">
-					<span class="border px-2 py-1 rounded-xl">
+				<div class="mt-2 flex justify-end text-xs text-gray-400">
+					<span class="rounded-xl border px-2 py-1">
 						{modelInfos[message.modelId]?.name ?? message.modelId}
 					</span>
 				</div>
 			{/if}
-			<div class="flex justify-end mt-2 text-xs text-gray-400">
+			<div class="mt-2 flex justify-end text-xs text-gray-400">
 				{Day(message.createdAt).format('M/D/YY h:mm a')}
 			</div>
 		</div>
 		{#if role !== 'user' && !(isLastMessage && isChatLoading)}
-			<div class="flex justify-between w-full place-items-end">
-				<ResponseSources aiResponseId={uuid ?? id} {chatId} {isChatLoading} />
-				<div class="flex join">
+			<div class="flex w-full place-items-end justify-between">
+				<ResponseSources aiResponseId={uuid ?? id} {isChatLoading} />
+				<div class="join flex">
 					<CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
 					<dialog bind:this={shareModal} class="modal">
-						<form method="dialog" class="flex flex-col space-y-2 modal-box w-fit">
+						<form method="dialog" class="modal-box flex w-fit flex-col space-y-2">
 							<h1 class="text-bold">Share to:</h1>
-							<div class="flex justify-center space-x-2 place-items-center">
+							<div class="flex place-items-center justify-center space-x-2">
 								<Email
-									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
 									subject="Response from RevelationsAI"
 									body={`${sharableContent}\n\n${url}`}
 								/>
 								<Facebook
-									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
 									{url}
 									quote={sharableContent}
 								/>
 								<X
-									class="flex justify-center w-12 h-12 overflow-hidden rounded-full place-items-center"
+									class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
 									text={sharableContent}
 									{url}
 									hashtags="revelationsai,ai,christ,jesus"
 								/>
 							</div>
-							<div class="flex justify-center space-x-2 place-items-center">
+							<div class="flex place-items-center justify-center space-x-2">
 								<label for={`include-message-${id}`}>Include your message</label>
 								<input
 									tabindex="-1"
@@ -119,7 +120,7 @@
 				</div>
 			</div>
 		{:else}
-			<div class="flex justify-end place-items-end">
+			<div class="flex place-items-end justify-end">
 				<CopyButton btnClass="btn-xs btn-ghost" content={sharableContent} />
 			</div>
 		{/if}

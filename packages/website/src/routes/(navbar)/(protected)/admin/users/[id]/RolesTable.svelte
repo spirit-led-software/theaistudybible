@@ -8,7 +8,7 @@
 	export let userId: string = $user!.id;
 
 	const graphqlQuery = graphql(`
-		query UserDevotionReactions($userId: String!) {
+		query UserRoles($userId: String!) {
 			user(id: $userId) {
 				roles {
 					id
@@ -19,7 +19,7 @@
 	`);
 
 	$: query = createQuery({
-		queryKey: ['user-devotion-reactions', userId],
+		queryKey: ['user-roles', userId],
 		queryFn: async () => {
 			return await graphqlRequest(
 				`${PUBLIC_API_URL}/graphql`,
@@ -30,19 +30,14 @@
 				{
 					authorization: `Bearer ${$session}`
 				}
-			).then((r) => {
-				if (!r.user) {
-					throw new Error('User not found');
-				}
-				return r.user.roles ?? [];
-			});
+			);
 		}
 	});
 </script>
 
-<div class="h-full w-full overflow-scroll p-2">
+<div class="h-full w-full overflow-auto p-2">
 	<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Roles</h2>
-	{#if $query.data}
+	{#if $query.data?.user?.roles && $query.data?.user?.roles.length > 0}
 		<table class="table-sm table">
 			<thead class="table-pin-rows">
 				<tr>
@@ -50,7 +45,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each $query.data as role}
+				{#each $query.data.user.roles as role}
 					<tr>
 						<td>{role.name}</td>
 					</tr>

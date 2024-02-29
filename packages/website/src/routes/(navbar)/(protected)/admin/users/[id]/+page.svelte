@@ -37,14 +37,14 @@
 			</div>
 		</div>
 	</div>
-	<div class="grid h-full w-full grid-cols-1 overflow-scroll">
+	<div class="grid h-full w-full grid-cols-1 overflow-auto">
 		<div class="flex max-h-full w-full flex-col">
 			<RolesTable userId={data.user.id} />
 		</div>
-		<div class="flex max-h-full w-full flex-col">
+		<div class="flex max-h-full w-full flex-col border-t">
 			<ChatsTable userId={data.user.id} />
 		</div>
-		<div class="flex max-h-full w-full flex-col">
+		<div class="flex max-h-full w-full flex-col border-t">
 			<DevotionReactionsTable userId={data.user.id} />
 		</div>
 	</div>
