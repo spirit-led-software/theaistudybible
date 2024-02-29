@@ -10,10 +10,10 @@ export async function getChatMessages(
   options: {
     limit?: number;
     offset?: number;
-    orderBy?: SQL<unknown>;
+    orderBy?: SQL<unknown>[];
   } = {}
 ) {
-  const { limit = 25, offset = 0, orderBy = desc(aiResponses.createdAt) } = options;
+  const { limit = 25, offset = 0, orderBy = [desc(aiResponses.createdAt)] } = options;
 
   const queryResult = await db
     .select()
@@ -27,7 +27,7 @@ export async function getChatMessages(
       )
     )
     .offset(offset)
-    .orderBy(orderBy)
+    .orderBy(...orderBy)
     .limit(limit);
 
   const messages: RAIChatMessage[] = [];

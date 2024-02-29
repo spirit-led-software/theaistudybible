@@ -1,97 +1,50 @@
 <script lang="ts">
+	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
-	import {
-		getAiResponseSourceDocuments,
-		searchForAiResponses
-	} from '@revelationsai/client/services/ai-response';
-	import type { Query } from '@revelationsai/core/database/helpers';
-	import { aiResponses } from '@revelationsai/core/database/schema';
-	import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
-	import { getPropertyName } from '@revelationsai/core/util/object';
-	import { validate as uuidValidate } from 'uuid';
+	import { graphql } from '@revelationsai/client/graphql';
+	import { createQuery } from '@tanstack/svelte-query';
+	import graphqlRequest from 'graphql-request';
 
-	export let chatId: string | undefined;
 	export let aiResponseId: string;
 	export let isChatLoading = false;
 
-	let sources: NeonVectorStoreDocument[] = [];
-	let isLoading = false;
-	let hasLoaded = false;
-	let tryCount = 0;
 	let showSources = false;
 
-	const maxTries = 5;
-
-	$: fetchSources = async (chatId?: string, aiResponseId?: string) => {
-		tryCount++;
-
-		if (!chatId && !aiResponseId) {
-			await new Promise((resolve) => setTimeout(resolve, 1000 * tryCount));
-			return;
+	const graphqlQuery = graphql(`
+		query GetAiResponseSourceDocuments($aiResponseId: String!) {
+			aiResponse(id: $aiResponseId) {
+				id
+				sourceDocuments {
+					id
+					metadata
+				}
+			}
 		}
+	`);
 
-		try {
-			isLoading = true;
-			let query: Query = {
-				AND: [
-					{
-						eq: {
-							column: getPropertyName(aiResponses, (aiResponses) =>
-								uuidValidate(aiResponseId!) ? aiResponses.id : aiResponses.aiId
-							),
-							value: aiResponseId
-						}
-					},
-					{
-						eq: {
-							column: getPropertyName(aiResponses, (aiResponses) => aiResponses.chatId),
-							value: chatId
-						}
-					}
-				]
-			};
-			const { aiResponses: foundAiResponses } = await searchForAiResponses({
-				session: $session!,
-				query,
-				limit: 1
-			});
-			const aiResponse = foundAiResponses[0];
-			if (!aiResponse) return;
-
-			const foundSourceDocuments = await getAiResponseSourceDocuments(aiResponse.id, {
-				session: $session!
-			});
-			sources = foundSourceDocuments.filter((sourceDoc, index) => {
-				const firstIndex = foundSourceDocuments.findIndex((otherSourceDoc) => {
-					return sourceDoc.metadata.url === otherSourceDoc.metadata.url;
-				});
-				return firstIndex === index;
-			});
-			hasLoaded = true;
-		} catch (error) {
-			console.error(error);
-		} finally {
-			isLoading = false;
+	const query = createQuery({
+		queryKey: ['aiResponseSourceDocuments', aiResponseId],
+		queryFn: async () => {
+			return await graphqlRequest(
+				`${PUBLIC_API_URL}/graphql`,
+				graphqlQuery,
+				{
+					aiResponseId
+				},
+				{
+					authorization: `Bearer ${$session}`
+				}
+			);
 		}
-	};
+	});
 
-	$: fetchSourcesHandler = () => {
-		if (!hasLoaded && !isLoading && tryCount < maxTries && sources.length === 0 && !isChatLoading) {
-			fetchSources(chatId, aiResponseId);
-		}
-	};
-
-	$: if (showSources) {
-		fetchSourcesHandler();
-	}
-
-	$: fetchSourcesHandler();
+	$: isLoading = isChatLoading || $query.isLoading;
 </script>
 
 <div class="flex flex-col overflow-hidden">
 	<button
-		class="flex flex-row items-center w-full mt-2 space-x-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+		class="mt-2 flex w-full cursor-pointer flex-row items-center space-x-1 disabled:cursor-not-allowed disabled:opacity-50"
 		on:click|preventDefault={() => {
 			showSources = !showSources;
 		}}
@@ -99,7 +52,7 @@
 	>
 		<div class="text-sm text-blue-400">Sources</div>
 		{#if isLoading}
-			<span class="w-2 loading loading-spinner" />
+			<span class="loading loading-spinner w-2" />
 		{:else}
 			<Icon
 				icon="icon-park:right"
@@ -107,29 +60,30 @@
 			/>
 		{/if}
 	</button>
-	{#if sources && sources.length > 0}
+	{#if $query.data?.aiResponse?.sourceDocuments && $query.data?.aiResponse?.sourceDocuments.length > 0}
 		<ol
-			class={`list-outside list-decimal flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}
+			class={`flex w-full list-outside list-decimal flex-col space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}
 		>
-			{#each sources as sourceDoc (sourceDoc.id)}
-				<li class={`list-item text-xs text-gray-400 truncate`}>
+			{#each $query.data?.aiResponse?.sourceDocuments as sourceDoc (sourceDoc.id)}
+				{@const metadata = JSON.parse(sourceDoc.metadata)}
+				<li class={`list-item truncate text-xs text-gray-400`}>
 					<a
-						href={sourceDoc.metadata.url ?? '#'}
+						href={metadata.url ?? '#'}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="hover:underline"
 					>
-						<span>{sourceDoc.metadata.title ?? sourceDoc.metadata.name}</span>
-						{#if sourceDoc.metadata.author}
-							<span class="ml-1 text-slate-500">by {sourceDoc.metadata.author}</span>
+						<span>{metadata.title ?? metadata.name}</span>
+						{#if metadata.author}
+							<span class="ml-1 text-slate-500">by {metadata.author}</span>
 						{/if}
 					</a>
 				</li>
 			{/each}
 		</ol>
-	{:else if hasLoaded}
-		<ul class={`flex flex-col w-full space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
-			<li class={`text-xs text-gray-400 truncate`}>None</li>
+	{:else}
+		<ul class={`flex w-full flex-col space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}>
+			<li class={`truncate text-xs text-gray-400`}>None</li>
 		</ul>
 	{/if}
 </div>

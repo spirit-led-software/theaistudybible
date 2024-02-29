@@ -2,9 +2,8 @@
   "extends": "@tsconfig/node20/tsconfig.json",
   "exclude": ["./packages/**", "node_modules"],
   "compilerOptions": {
-    "importsNotUsedAsValues": "error",
     "isolatedModules": true,
-    "preserveValueImports": true,
+    "verbatimModuleSyntax": true,
     "lib": ["esnext", "dom", "dom.iterable"],
     "moduleResolution": "node",
     "module": "esnext",
@@ -13,6 +12,13 @@
     "paths": {
       "@stacks/*": ["./stacks/*"],
       "@stacks": ["./stacks"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "@0no-co/graphqlsp",
+        "schema": "./graphql/schema.graphql",
+        "tadaOutputLocation": "./graphql/"
+      }
+    ]
   }
 }

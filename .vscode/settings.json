@@ -10,6 +10,7 @@
   "cSpell.words": [
     "autocorrect",
     "autofocus",
+    "Codegen",
     "Cupertino",
     "Devo",
     "flushbar",
@@ -17,6 +18,7 @@
     "langchain",
     "mistralai",
     "Mixtral",
+    "NKJV",
     "openai",
     "revelationsai",
     "REVENUECAT",
@@ -60,5 +62,7 @@
     "titleBar.inactiveBackground": "#21573299",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#215732"
+  "peacock.color": "#215732",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

@@ -12,18 +12,18 @@ export interface ColumnPlaceHolder {
 }
 
 export interface Query {
-  AND?: Query[];
-  OR?: Query[];
-  NOT?: Query;
-  eq?: ColumnValue;
-  neq?: ColumnValue;
-  gt?: ColumnValue;
-  gte?: ColumnValue;
-  lt?: ColumnValue;
-  lte?: ColumnValue;
-  like?: ColumnPlaceHolder;
-  iLike?: ColumnPlaceHolder;
-  notLike?: ColumnPlaceHolder;
+  AND?: Query[] | null;
+  OR?: Query[] | null;
+  NOT?: Query | null;
+  eq?: ColumnValue | null;
+  neq?: ColumnValue | null;
+  gt?: ColumnValue | null;
+  gte?: ColumnValue | null;
+  lt?: ColumnValue | null;
+  lte?: ColumnValue | null;
+  like?: ColumnPlaceHolder | null;
+  iLike?: ColumnPlaceHolder | null;
+  notLike?: ColumnPlaceHolder | null;
 }
 
 export function buildQuery(

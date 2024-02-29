@@ -7,7 +7,7 @@ import { asc, eq } from 'drizzle-orm';
 import { db } from '../lib/database';
 import { getDocumentVectorStore } from '../lib/vector-db';
 
-export async function getDevotionSourceDocuments(devotionId: string) {
+export async function getSourceDocumentsByDevotionId(devotionId: string) {
   const sourceDocumentRelationships = await db
     .select()
     .from(devotionsToSourceDocuments)
@@ -29,7 +29,7 @@ export async function getDevotionSourceDocuments(devotionId: string) {
   });
 }
 
-export async function getAiResponseSourceDocuments(aiResponseId: string) {
+export async function getSourceDocumentsByAiResponseId(aiResponseId: string) {
   const sourceDocumentRelationships = await db
     .select()
     .from(aiResponsesToSourceDocuments)
@@ -51,7 +51,7 @@ export async function getAiResponseSourceDocuments(aiResponseId: string) {
   });
 }
 
-export async function getUserGeneratedImageSourceDocuments(userGeneratedImageId: string) {
+export async function getSourceDocumentsByUserGeneratedImageId(userGeneratedImageId: string) {
   const sourceDocumentRelationships = await db
     .select()
     .from(userGeneratedImagesToSourceDocuments)

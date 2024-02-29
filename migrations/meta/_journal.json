@@ -246,6 +246,13 @@
       "when": 1708520896028,
       "tag": "0034_damp_black_bolt",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1709131970973,
+      "tag": "0035_natural_thor",
+      "breakpoints": true
     }
   ]
 }

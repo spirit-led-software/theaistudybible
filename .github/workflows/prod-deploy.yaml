@@ -54,7 +54,8 @@ env:
   STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
   STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
-  UPSTASH_REDIS_URL: ${{ vars.UPSTASH_REDIS_URL }}
+  UPSTASH_REDIS_URL: ${{ secrets.UPSTASH_REDIS_URL }}
+  UPSTASH_REDIS_REST_URL: ${{ vars.UPSTASH_REDIS_REST_URL }}
   UPSTASH_REDIS_TOKEN: ${{ secrets.UPSTASH_REDIS_TOKEN }}
 
   AXIOM_TOKEN: ${{ secrets.AXIOM_TOKEN }}
@@ -97,6 +98,8 @@ jobs:
         name: Setup Apple Auth Key
         run: |
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
+      - name: Run Codegen
+        run: pnpm codegen
       - name: Build SST
         run: pnpm sst build --stage prod --to .sst/dist/
       - name: Rename website & auth UI .env file so svelte-kit can find it during build

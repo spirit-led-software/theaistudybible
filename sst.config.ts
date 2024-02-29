@@ -7,6 +7,7 @@ import {
   Crons,
   Database,
   DatabaseScripts,
+  GraphQlApi,
   Jobs,
   Layers,
   Queues,
@@ -34,6 +35,7 @@ export default {
       .stack(Queues)
       .stack(API)
       .stack(Auth)
+      .stack(GraphQlApi)
       .stack(ChatAPI)
       .stack(RestAPI)
       .stack(AdminAPI)

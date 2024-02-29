@@ -1,10 +1,10 @@
 import type { Role } from '@revelationsai/core/model/role';
-import type { CreateUserData, UpdateUserData, User } from '@revelationsai/core/model/user';
+import type { CreateUserInput, UpdateUserData, User } from '@revelationsai/core/model/user';
 import apiConfig from '../../../configs/api';
 import type { ProtectedApiOptions } from '../../types';
 
 export async function createUser(
-  data: Partial<CreateUserData> & {
+  data: CreateUserInput & {
     password?: string;
   },
   options: ProtectedApiOptions

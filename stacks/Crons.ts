@@ -1,6 +1,6 @@
 import { Constants, DatabaseScripts, Jobs, Layers, Queues, S3 } from '@stacks';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
-import { Cron, dependsOn, use, type StackContext, Function } from 'sst/constructs';
+import { Cron, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Crons({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);

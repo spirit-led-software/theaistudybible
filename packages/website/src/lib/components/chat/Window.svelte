@@ -191,22 +191,22 @@
 	$: userHasPlus = hasPlus($user!) || isAdmin($user!);
 </script>
 
-<div class="absolute w-full h-full overflow-hidden lg:static">
-	<div class="relative w-full h-full">
+<div class="absolute h-full w-full overflow-hidden lg:static">
+	<div class="relative h-full w-full">
 		<div
 			role="alert"
-			class={`absolute left-0 right-0 flex justify-center duration-300 z-30 ${
-				alert ? 'scale-100 top-1' : 'scale-0 -top-20'
+			class={`absolute left-0 right-0 z-30 flex justify-center duration-300 ${
+				alert ? 'top-1 scale-100' : '-top-20 scale-0'
 			}`}
 		>
 			<div
-				class="w-2/3 py-2 overflow-hidden text-center text-wrap text-white truncate bg-red-400 rounded-lg max-h-32"
+				class="max-h-32 w-2/3 overflow-hidden truncate text-wrap rounded-lg bg-red-400 py-2 text-center text-white"
 			>
 				{alert}
 			</div>
 		</div>
 		<div class="absolute left-0 right-0 top-1 flex justify-center">
-			<div class="w-full py-2 overflow-hidden text-center">
+			<div class="w-full overflow-hidden py-2 text-center">
 				<select
 					name="model"
 					id="model"
@@ -226,14 +226,13 @@
 			</div>
 		</div>
 		{#if $messages && $messages.length > 0}
-			<div class="w-full h-full overflow-y-scroll">
-				<div class="flex flex-col flex-1 min-h-full place-content-end">
+			<div class="h-full w-full overflow-y-scroll">
+				<div class="flex min-h-full flex-1 flex-col place-content-end">
 					<div class="h-16 w-full" />
 					{#each $messages as message, index}
-						<div class="flex flex-col w-full">
+						<div class="flex w-full flex-col">
 							<Message
 								{modelInfos}
-								{chatId}
 								{message}
 								prevMessage={$messages[index - 1]}
 								isChatLoading={$isLoading}
@@ -245,14 +244,14 @@
 						element={endOfMessagesRef}
 						bind:intersecting={isEndOfMessagesRefShowing}
 					>
-						<div bind:this={endOfMessagesRef} class="w-full h-20" />
+						<div bind:this={endOfMessagesRef} class="h-20 w-full" />
 					</IntersectionObserver>
 				</div>
 			</div>
 		{:else}
-			<div class="flex justify-center w-full h-full place-items-center justify-items-center">
-				<div class="flex flex-col w-5/6 px-10 py-5 space-y-2 rounded-lg h-fit lg:w-1/2">
-					<h1 class="self-center text-xl text-blue-300 font-medium md:text-2xl">
+			<div class="flex h-full w-full place-items-center justify-center justify-items-center">
+				<div class="flex h-fit w-5/6 flex-col space-y-2 rounded-lg px-10 py-5 lg:w-1/2">
+					<h1 class="self-center text-xl font-medium text-blue-300 md:text-2xl">
 						Don{`'`}t know where to start?
 					</h1>
 					<h2 class="self-center text-lg">Try these:</h2>
@@ -260,7 +259,7 @@
 						{#each starterQueries as query}
 							<li>
 								<button
-									class="flex w-full text-base text-left place-items-center justify-between p-2 rounded-xl hover:cursor-pointer hover:bg-slate-300"
+									class="flex w-full place-items-center justify-between rounded-xl p-2 text-left text-base hover:cursor-pointer hover:bg-slate-300"
 									on:click={async () => {
 										await append(
 											{
@@ -285,7 +284,7 @@
 									{query}
 									<Icon
 										icon="mdi:chevron-right"
-										class="flex-grow-0 flex-shrink-0 mr-2 text-slate-700 h-6 w-6"
+										class="mr-2 h-6 w-6 flex-shrink-0 flex-grow-0 text-slate-700"
 									/>
 								</button>
 							</li>
@@ -296,23 +295,23 @@
 		{/if}
 		{#if !isEndOfMessagesRefShowing}
 			<button
-				class="absolute p-2 bg-white rounded-full shadow-lg bottom-20 right-5 text-slate-700 hover:text-slate-900 hover:shadow-xl hover:bg-slate-100"
+				class="absolute bottom-20 right-5 rounded-full bg-white p-2 text-slate-700 shadow-lg hover:bg-slate-100 hover:text-slate-900 hover:shadow-xl"
 				on:click|preventDefault={scrollEndIntoView}
 			>
 				<Icon icon="icon-park:down" class="text-2xl" />
 			</button>
 		{/if}
-		<div class="absolute z-20 overflow-hidden bottom-2 left-5 right-5 opacity-90">
+		<div class="absolute bottom-2 left-5 right-5 z-20 overflow-hidden opacity-90">
 			<form
-				class="flex flex-col w-full bg-white border rounded-lg mb-1"
+				class="mb-1 flex w-full flex-col rounded-lg border bg-white"
 				on:submit|preventDefault={handleSubmitCustom}
 			>
-				<div class="flex items-center w-full h-auto">
+				<div class="flex h-auto w-full items-center">
 					<Icon icon="icon-park:right" class="mx-1 text-2xl" />
 					<TextAreaAutosize {input} />
-					<div class="flex mr-2">
+					<div class="mr-2 flex">
 						{#if $isLoading}
-							<div class="flex mr-1">
+							<div class="mr-1 flex">
 								<span class="loading loading-spinner loading-sm text-slate-800" />
 							</div>
 						{:else}
@@ -334,7 +333,7 @@
 				</div>
 			</form>
 			<div class="flex w-full place-items-center">
-				<p class="flex-1 text-[8px] text-gray-400 text-center md:text-xs text-nowrap truncate">
+				<p class="flex-1 truncate text-nowrap text-center text-[8px] text-gray-400 md:text-xs">
 					RevelationsAI can make mistakes. Validate all answers against the bible.
 				</p>
 			</div>

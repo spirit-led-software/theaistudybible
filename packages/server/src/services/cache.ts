@@ -6,9 +6,9 @@ import { Redis } from '@upstash/redis';
  * @type {Redis | undefined}
  */
 export const cache =
-  upstashRedisConfig.url && upstashRedisConfig.token
+  upstashRedisConfig.restUrl && upstashRedisConfig.token
     ? new Redis({
-        url: upstashRedisConfig.url,
+        url: upstashRedisConfig.restUrl,
         token: upstashRedisConfig.token
       })
     : undefined;

@@ -264,11 +264,8 @@ async function lambdaHandler(
     if (!chat.customName) {
       pendingPromises.push(aiRenameChat(chat, messages));
     } else {
-      pendingPromises.push(
-        updateChat(chat.id, {
-          updatedAt: new Date()
-        })
-      );
+      // Hacky way to update the chat updated_at field
+      pendingPromises.push(updateChat(chat.id, { name: chat.name }));
     }
 
     console.time('Validating user message');

@@ -1,5 +1,5 @@
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
-import { getUserGeneratedImageSourceDocuments } from '@revelationsai/server/services/source-document';
+import { getSourceDocumentsByUserGeneratedImageId } from '@revelationsai/server/services/source-document';
 import { isObjectOwner } from '@revelationsai/server/services/user';
 import { getUserGeneratedImage } from '@revelationsai/server/services/user/generated-image';
 import { ApiHandler } from 'sst/node/api';
@@ -23,7 +23,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You are not authorized to view these source documents.');
     }
 
-    const sourceDocuments = await getUserGeneratedImageSourceDocuments(userGeneratedImage.id);
+    const sourceDocuments = await getSourceDocumentsByUserGeneratedImageId(userGeneratedImage.id);
 
     return OkResponse(
       sourceDocuments

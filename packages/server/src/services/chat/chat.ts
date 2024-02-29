@@ -1,5 +1,9 @@
 import { chats } from '@revelationsai/core/database/schema';
-import type { Chat, CreateChatData, UpdateChatData } from '@revelationsai/core/model/chat';
+import {
+  type Chat,
+  type CreateChatData,
+  type UpdateChatData
+} from '@revelationsai/core/model/chat';
 import { desc, eq, sql, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
@@ -37,6 +41,14 @@ export async function getChatOrThrow(id: string) {
     throw new Error(`Chat with id ${id} not found`);
   }
   return chat;
+}
+
+export async function getChatsByUserId(userId: string) {
+  return await cacheGet({
+    collection: CHATS_CACHE_COLLECTION,
+    key: { name: 'userId', value: userId },
+    fn: async () => await db.select().from(chats).where(eq(chats.userId, userId))
+  });
 }
 
 export async function createChat(data: CreateChatData) {

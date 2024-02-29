@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
@@ -55,17 +56,22 @@
 	};
 </script>
 
-<tr class="h-16">
+<tr
+	class="h-16 hover:cursor-pointer"
+	on:click={async () => {
+		await goto(`/admin/users/${user.id}`);
+	}}
+>
 	<td>
 		<Avatar {user} />
 	</td>
 	<td>{user.id}</td>
 	<td>{user.name || 'N/A'}</td>
 	<td>{user.email}</td>
-	<td class="flex flex-col h-full overflow-y-scroll space-y-1 py-2">
+	<td class="flex h-full flex-col space-y-1 overflow-auto py-2">
 		{#if $rolesQuery.data}
 			{#each $rolesQuery.data as role (role.id)}
-				<span class="bg-slate-700 rounded-lg text-white p-1 text-center">{role.name}</span>
+				<span class="rounded-lg bg-slate-700 p-1 text-center text-white">{role.name}</span>
 			{/each}
 		{:else if $rolesQuery.isError}
 			<span class="text-red-500">Error</span>
@@ -74,7 +80,7 @@
 		{/if}
 	</td>
 	<td>{Day(user.createdAt).format('YYYY-MM-DD')}</td>
-	<td class="w-10 py-3 space-y-2">
+	<td class="w-10 space-y-2 py-3">
 		<button
 			class="btn btn-xs btn-error btn-circle"
 			on:click={() => {

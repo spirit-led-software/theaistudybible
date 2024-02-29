@@ -1,8 +1,9 @@
 import { aiResponseReactions, aiResponses, users } from '@revelationsai/core/database/schema';
-import type {
-  AiResponseReaction,
-  CreateAiResponseReactionData,
-  UpdateAiResponseReactionData
+import {
+  createAiResponseReactionSchema,
+  type AiResponseReaction,
+  type CreateAiResponseReactionData,
+  type UpdateAiResponseReactionData
 } from '@revelationsai/core/model/ai-response/reaction';
 import { and, desc, eq, type SQL } from 'drizzle-orm';
 import { db } from '../../lib/database';
@@ -136,6 +137,13 @@ export async function getAiResponseReactionCounts(aiResponseId: string) {
 }
 
 export async function createAiResponseReaction(data: CreateAiResponseReactionData) {
+  const zodResult = await createAiResponseReactionSchema.safeParse(data);
+  if (!zodResult.success) {
+    throw new Error(
+      `Invalid create AI response reaction data:\n\t${zodResult.error.errors.join('\n\t')}`
+    );
+  }
+
   return await cacheUpsert({
     collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -144,7 +152,7 @@ export async function createAiResponseReaction(data: CreateAiResponseReactionDat
         await db
           .insert(aiResponseReactions)
           .values({
-            ...data,
+            ...zodResult.data,
             createdAt: new Date(),
             updatedAt: new Date()
           })
@@ -154,6 +162,13 @@ export async function createAiResponseReaction(data: CreateAiResponseReactionDat
 }
 
 export async function updateAiResponseReaction(id: string, data: UpdateAiResponseReactionData) {
+  const zodResult = await createAiResponseReactionSchema.safeParse(data);
+  if (!zodResult.success) {
+    throw new Error(
+      `Invalid update AI response reaction data:\n\t${zodResult.error.errors.join('\n\t')}`
+    );
+  }
+
   return await cacheUpsert({
     collection: AI_RESPONSE_REACTIONS_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -162,7 +177,8 @@ export async function updateAiResponseReaction(id: string, data: UpdateAiRespons
         await db
           .update(aiResponseReactions)
           .set({
-            ...data,
+            ...zodResult.data,
+            createdAt: undefined,
             updatedAt: new Date()
           })
           .where(eq(aiResponseReactions.id, id))

@@ -8,6 +8,7 @@
     "isolatedModules": true,
     "ignoreDeprecations": "5.0",
     "verbatimModuleSyntax": true,
+    "noImplicitAny": false,
     "paths": {
       "@revelationsai/core": ["../core/src"],
       "@revelationsai/core/*": ["../core/src/*"]
