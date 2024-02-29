@@ -3,7 +3,6 @@ import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 import { ErrorsAreMissesCache } from '@apollo/utils.keyvaluecache';
 import { handlers, startServerAndCreateLambdaHandler } from '@as-integrations/aws-lambda';
 import { ApolloArmor } from '@escape.tech/graphql-armor';
-import '@keyv/redis';
 import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';

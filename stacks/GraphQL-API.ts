@@ -17,6 +17,9 @@ export function GraphQlApi({ stack }: StackContext) {
             to: 'graphql/schema.graphql'
           }
         ],
+        nodejs: {
+          install: ['@keyv/redis']
+        },
         bind: [auth],
         memorySize: '2 GB'
       }
