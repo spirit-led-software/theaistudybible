@@ -72,11 +72,6 @@ export async function getUserByStripeCustomerId(stripeCustomerId: string) {
 }
 
 export async function createUser(data: CreateUserData) {
-  const zodResult = createUserSchema.safeParse(data);
-  if (!zodResult.success) {
-    throw new Error(`Invalid data for creating user:\n\t${zodResult.error.errors.join('\n\t')}`);
-  }
-
   return await cacheUpsert<User>({
     collection: USERS_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -86,7 +81,7 @@ export async function createUser(data: CreateUserData) {
           .insert(users)
           .values({
             hasCustomImage: data.image ? true : false,
-            ...zodResult.data,
+            ...data,
             createdAt: new Date(),
             updatedAt: new Date()
           })
@@ -97,11 +92,6 @@ export async function createUser(data: CreateUserData) {
 }
 
 export async function updateUser(id: string, data: UpdateUserData) {
-  const zodResult = updateUserSchema.safeParse(data);
-  if (!zodResult.success) {
-    throw new Error(`Invalid data for updating user:\n\t${zodResult.error.errors.join('\n\t')}`);
-  }
-
   return await cacheUpsert<User>({
     collection: USERS_CACHE_COLLECTION,
     keys: defaultCacheKeysFn,
@@ -111,7 +101,7 @@ export async function updateUser(id: string, data: UpdateUserData) {
           .update(users)
           .set({
             hasCustomImage: sql`${users.hasCustomImage} OR ${data.image ? true : false}`,
-            ...zodResult.data,
+            ...data,
             createdAt: undefined,
             updatedAt: new Date()
           })
