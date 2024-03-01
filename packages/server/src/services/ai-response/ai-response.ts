@@ -1,7 +1,5 @@
 import { aiResponses } from '@revelationsai/core/database/schema';
 import {
-  createAiResponseSchema,
-  updateAiResponseSchema,
   type AiResponse,
   type CreateAiResponseData,
   type UpdateAiResponseData
