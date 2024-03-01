@@ -35,7 +35,7 @@
 	});
 </script>
 
-<div class="h-full w-full overflow-auto p-2">
+<div class="flex w-full flex-col overflow-auto p-2">
 	<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Roles</h2>
 	{#if $query.data?.user?.roles && $query.data?.user?.roles.length > 0}
 		<table class="table-sm table">

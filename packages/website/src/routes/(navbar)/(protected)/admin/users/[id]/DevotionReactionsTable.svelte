@@ -218,8 +218,8 @@
 	};
 </script>
 
-<div class="h-full w-full overflow-auto p-2">
-	<div class="flex justify-between">
+<div class="flex w-full flex-col overflow-auto p-2">
+	<div class="flex w-full justify-between">
 		<h2 class="flex w-full px-2 py-1 text-center text-xl font-bold">Devotion Reactions</h2>
 		<input
 			class="w-2/3 rounded-md border border-gray-300 px-2 py-1 text-sm"

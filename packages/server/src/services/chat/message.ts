@@ -1,7 +1,7 @@
 import { aiResponses, userMessages } from '@revelationsai/core/database/schema';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import { nanoid } from 'ai';
-import { and, desc, eq, type SQL } from 'drizzle-orm';
+import { and, desc, eq, isNull, or, type SQL } from 'drizzle-orm';
 import { v4 as uuidV4 } from 'uuid';
 import { db } from '../../lib/database';
 
@@ -22,8 +22,8 @@ export async function getChatMessages(
     .where(
       and(
         eq(aiResponses.chatId, chatId),
-        eq(aiResponses.failed, false),
-        eq(aiResponses.regenerated, false)
+        or(eq(aiResponses.failed, false), isNull(aiResponses.failed)),
+        or(eq(aiResponses.regenerated, false), isNull(aiResponses.regenerated))
       )
     )
     .offset(offset)
