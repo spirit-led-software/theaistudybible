@@ -1,7 +1,5 @@
 import { roles, users, usersToRoles } from '@revelationsai/core/database/schema';
 import {
-  createUserSchema,
-  updateUserSchema,
   type CreateUserData,
   type UpdateUserData,
   type User,
