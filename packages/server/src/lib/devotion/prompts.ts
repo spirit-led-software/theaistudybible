@@ -141,7 +141,10 @@ Lord, thank You for the reminder that gentleness and patience are so important i
 </example_prayer>
 </example_devotion>
 <example_queries>
-"What is the difference between gentleness and patience?", "How can I be more gentle and patient with others?", "How can I correct others with gentleness and patience?", "How can I be a servant of the Lord?"
+What is the difference between gentleness and patience?
+How can I be more gentle and patient with others?
+How can I correct others with gentleness and patience?
+How can I be a servant of the Lord?
 </example_queries>
 </example>
 

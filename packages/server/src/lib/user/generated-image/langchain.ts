@@ -4,7 +4,7 @@ import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { XMLBuilder } from 'fast-xml-parser';
 import {
-  CommaSeparatedListOutputParser,
+  CustomListOutputParser,
   JsonMarkdownStructuredOutputParser,
   OutputFixingParser
 } from 'langchain/output_parsers';
@@ -35,6 +35,18 @@ const validationOutputParser = OutputFixingParser.fromLLM(
   }
 );
 
+const searchQueryOutputParser = OutputFixingParser.fromLLM(
+  getLanguageModel({
+    temperature: 0.1,
+    topK: 5,
+    topP: 0.1
+  }),
+  new CustomListOutputParser({ separator: '\n' }),
+  {
+    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+  }
+);
+
 export const getImagePromptChain = async (): Promise<
   Runnable<
     { userPrompt: string },
@@ -52,18 +64,6 @@ export const getImagePromptChain = async (): Promise<
       k: 3,
       verbose: envConfig.isLocal
     })
-  );
-
-  const searchQueryOutputParser = OutputFixingParser.fromLLM(
-    getLanguageModel({
-      temperature: 0.1,
-      topK: 5,
-      topP: 0.1
-    }),
-    new CommaSeparatedListOutputParser(),
-    {
-      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-    }
   );
 
   const chain = RunnableSequence.from([

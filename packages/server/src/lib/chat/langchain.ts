@@ -19,7 +19,7 @@ import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { ChatMessageHistory } from 'langchain/memory';
 import {
-  CommaSeparatedListOutputParser,
+  CustomListOutputParser,
   OutputFixingParser,
   RouterOutputParser
 } from 'langchain/output_parsers';
@@ -232,6 +232,18 @@ export const getRAIChatChain = async (options: {
   return multiRouteChain;
 };
 
+const searchQueryOutputParser = OutputFixingParser.fromLLM(
+  getLanguageModel({
+    temperature: 0.1,
+    topK: 5,
+    topP: 0.1
+  }),
+  new CustomListOutputParser({ separator: '\n' }),
+  {
+    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
+  }
+);
+
 export async function getDocumentQaChain(options: {
   modelId: FreeTierModelId | PlusTierModelId;
   contextSize: number;
@@ -250,18 +262,6 @@ export async function getDocumentQaChain(options: {
       k: contextSize > 32 ? 7 : 3,
       verbose: envConfig.isLocal
     })
-  );
-
-  const searchQueryOutputParser = OutputFixingParser.fromLLM(
-    getLanguageModel({
-      temperature: 0.1,
-      topK: 5,
-      topP: 0.1
-    }),
-    new CommaSeparatedListOutputParser(),
-    {
-      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-    }
   );
 
   const qaChain = RunnableSequence.from([

@@ -111,6 +111,18 @@ Here are some important rules for you to follow:
 - Search queries must accurately reflect the query's intent.
 - Search queries must vary widely enough to cover all possible relevant documents.
 
+Here is an example of a query and some search queries that you would use to find relevant documents in a vector database. It is within <example></example> XML tags. The example query is within <example_query></example_query> XML tags and the example search queries are within <example_search_queries></example_search_queries> XML tags.
+<example>
+<example_query>
+When was Paul imprisoned?
+</example_query>
+<example_search_queries>
+paul imprisonment date
+paul jail time
+paul prison year
+paul arrested when
+</example_search_queries>
+
 Here is the query that you need to generate search queries for, within <query></query> XML tags.
 <query>
 {query}

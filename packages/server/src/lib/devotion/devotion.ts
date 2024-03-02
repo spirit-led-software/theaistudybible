@@ -224,7 +224,7 @@ const getDiveDeeperOutputParser = () =>
       topK: 5,
       topP: 0.1
     }),
-    new CustomListOutputParser({ separator: '", "' }),
+    new CustomListOutputParser({ separator: '\n' }),
     {
       prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
     }

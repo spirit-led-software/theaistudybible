@@ -63,6 +63,19 @@ Here are some important rules for you to follow:
 - Search queries must accurately reflect the prompt's intent.
 - Search queries must vary widely enough to cover all possible relevant documents.
 
+Here is an example of search queries that you could generate based on a prompt, within <example></example> XML tags. The example prompt is encapsulated within <example_prompt></example_prompt> XML tags. The example search queries are encapsulated within <example_search_queries></example_search_queries> XML tags.
+<example>
+<example_prompt>
+Jesus from the book of revelation
+</example_prompt>
+<example_search_queries>
+jesus appearance revelation
+jesus revelation description
+jesus look revelation
+jesus revelation
+</example_search_queries>
+</example>
+
 Here is the prompt that you need to generate search queries for, within <prompt></prompt> XML tags.
 <prompt>
 {userPrompt}
