@@ -83,10 +83,10 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     }
     response.Data = {
       ...response.Data,
-      redisUrl: '',
-      restUrl: '',
-      restToken: '',
-      readOnlyRestToken: ''
+      redisUrl: null,
+      restUrl: null,
+      restToken: null,
+      readOnlyRestToken: null
     };
     return response;
   }
@@ -159,6 +159,12 @@ async function toggleEviction(
       }
     }
   );
+
+  if (response.status === 400) {
+    console.warn(`Eviction was already ${eviction ? 'enabled' : 'disabled'} for database ${id}`);
+    return;
+  }
+
   if (!response.ok) {
     throw new Error(
       `Failed to ${eviction ? 'enable' : 'disable'} eviction: ${response.status} ${response.statusText}`
@@ -179,6 +185,14 @@ async function toggleAutoUpgrade(
       }
     }
   );
+
+  if (response.status === 400) {
+    console.warn(
+      `Auto upgrade was already ${autoUpgrade ? 'enabled' : 'disabled'} for database ${id}`
+    );
+    return;
+  }
+
   if (!response.ok) {
     throw new Error(
       `Failed to ${autoUpgrade ? 'enable' : 'disable'} auto upgrade: ${response.status} ${response.statusText}`
