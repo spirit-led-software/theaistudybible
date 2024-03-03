@@ -76,22 +76,18 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     if (error instanceof Error) {
       response.Reason = error.message;
       response.Data = {
-        stack: error.stack,
-        redisUrl: '',
-        restUrl: '',
-        restToken: '',
-        readOnlyRestToken: ''
+        stack: error.stack
       };
     } else {
       response.Reason = `Error: ${JSON.stringify(error)}`;
-      response.Data = {
-        stack: '',
-        redisUrl: '',
-        restUrl: '',
-        restToken: '',
-        readOnlyRestToken: ''
-      };
     }
+    response.Data = {
+      ...response.Data,
+      redisUrl: '',
+      restUrl: '',
+      restToken: '',
+      readOnlyRestToken: ''
+    };
     return response;
   }
 };
