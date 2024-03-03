@@ -1,6 +1,7 @@
 import { Constants } from '@stacks';
 import { dependsOn, type StackContext } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
+import { UpstashRedis } from './resources/UpstashRedis';
 
 export function Database({ stack, app }: StackContext) {
   dependsOn(Constants);
@@ -28,7 +29,25 @@ export function Database({ stack, app }: StackContext) {
     VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl
   });
 
+  const upstashRedis = new UpstashRedis(stack, 'UpstashRedis', {
+    email: process.env.UPSTASH_EMAIL!,
+    apiKey: process.env.UPSTASH_API_KEY!,
+    name: stack.stage === 'prod' ? 'main' : stack.stage,
+    region: app.region,
+    tls: true,
+    eviction: true,
+    autoUpgrade: true,
+    retainOnDelete: stack.stage === 'prod'
+  });
+  app.addDefaultFunctionEnv({
+    UPSTASH_REDIS_URL: upstashRedis.redisUrl,
+    UPSTASH_REDIS_REST_URL: upstashRedis.restUrl,
+    UPSTASH_REDIS_TOKEN: upstashRedis.restToken,
+    UPSTASH_REDIS_READONLY_TOKEN: upstashRedis.readOnlyRestToken
+  });
+
   return {
-    neonBranch
+    neonBranch,
+    upstashRedis
   };
 }

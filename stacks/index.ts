@@ -61,9 +61,4 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
   STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
-
-  // Upstash
-  UPSTASH_REDIS_URL: process.env.UPSTASH_REDIS_URL!,
-  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL!,
-  UPSTASH_REDIS_TOKEN: process.env.UPSTASH_REDIS_TOKEN!
 };

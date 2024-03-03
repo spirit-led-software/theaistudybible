@@ -29,7 +29,7 @@ export class NeonBranch extends Construct {
     super(scope, id);
 
     const neonBranchFunction = new Function(this, 'NeonBranchFunction', {
-      handler: 'packages/functions/src/database/branch.handler',
+      handler: 'packages/functions/src/database/neon-branch.handler',
       enableLiveDev: false // No live dev on custom resources
     });
 
