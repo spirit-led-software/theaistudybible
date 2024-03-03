@@ -104,6 +104,8 @@ interface UpstashRedisDatabase {
   user_email: string;
   endpoint: string;
   tls: boolean;
+  eviction: boolean;
+  auto_upgrade: boolean;
   rest_token: string;
   read_only_rest_token: string;
 }
@@ -160,11 +162,6 @@ async function toggleEviction(
     }
   );
 
-  if (response.status === 400) {
-    console.warn(`Eviction was already ${eviction ? 'enabled' : 'disabled'} for database ${id}`);
-    return;
-  }
-
   if (!response.ok) {
     throw new Error(
       `Failed to ${eviction ? 'enable' : 'disable'} eviction: ${response.status} ${response.statusText}`
@@ -185,13 +182,6 @@ async function toggleAutoUpgrade(
       }
     }
   );
-
-  if (response.status === 400) {
-    console.warn(
-      `Auto upgrade was already ${autoUpgrade ? 'enabled' : 'disabled'} for database ${id}`
-    );
-    return;
-  }
 
   if (!response.ok) {
     throw new Error(
@@ -225,14 +215,20 @@ async function updateDatabase(
     throw new Error(`Failed to get database: ${getResponse.status} ${getResponse.statusText}`);
   }
   const database: UpstashRedisDatabase = await getResponse.json();
+
   if (database.tls !== tls) {
     if (tls) {
       await enableTls(id, { email, apiKey });
     }
   }
 
-  await toggleEviction(id, { email, apiKey, eviction });
-  await toggleAutoUpgrade(id, { email, apiKey, autoUpgrade });
+  if (database.eviction !== eviction) {
+    await toggleEviction(id, { email, apiKey, eviction });
+  }
+
+  if (database.auto_upgrade !== autoUpgrade) {
+    await toggleAutoUpgrade(id, { email, apiKey, autoUpgrade });
+  }
 
   return database;
 }
@@ -269,10 +265,21 @@ async function createDatabase({
   if (!response.ok) {
     throw new Error(`Failed to create database: ${response.status} ${response.statusText}`);
   }
-  const data: UpstashRedisDatabase = await response.json();
+  const database: UpstashRedisDatabase = await response.json();
 
-  await toggleEviction(data.database_id, { email, apiKey, eviction });
-  await toggleAutoUpgrade(data.database_id, { email, apiKey, autoUpgrade });
+  if (database.tls !== tls) {
+    if (tls) {
+      await enableTls(database.database_id, { email, apiKey });
+    }
+  }
 
-  return data;
+  if (database.eviction !== eviction) {
+    await toggleEviction(database.database_id, { email, apiKey, eviction });
+  }
+
+  if (database.auto_upgrade !== autoUpgrade) {
+    await toggleAutoUpgrade(database.database_id, { email, apiKey, autoUpgrade });
+  }
+
+  return database;
 }
