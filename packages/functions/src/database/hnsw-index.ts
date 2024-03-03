@@ -3,7 +3,6 @@ import {
   getPartialHnswIndexInfos
 } from '@revelationsai/server/lib/vector-db';
 import { JobHandler } from 'sst/node/job';
-import 'web-streams-polyfill/dist/polyfill.es2018.js';
 
 declare module 'sst/node/job' {
   export interface JobTypes {

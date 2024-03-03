@@ -29,10 +29,7 @@ export function Crons({ stack, app }: StackContext) {
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
           },
           timeout: '5 minutes',
-          memorySize: '1 GB',
-          nodejs: {
-            install: ['web-streams-polyfill']
-          }
+          memorySize: '1 GB'
         }
       }
     });
@@ -50,10 +47,7 @@ export function Crons({ stack, app }: StackContext) {
             }
           ],
           timeout: '5 minutes',
-          memorySize: '1 GB',
-          nodejs: {
-            install: ['web-streams-polyfill']
-          }
+          memorySize: '1 GB'
         }
       }
     });

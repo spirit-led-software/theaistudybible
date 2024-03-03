@@ -37,7 +37,7 @@ export function Constants({ stack, app }: StackContext) {
     runtime: 'nodejs20.x',
     nodejs: {
       esbuild: {
-        external: ['argon2', '@sparticuz/chromium', 'web-streams-polyfill'],
+        external: ['argon2', '@sparticuz/chromium'],
         minify: stack.stage === 'prod',
         treeShaking: true,
         target: 'esnext',

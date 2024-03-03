@@ -8,12 +8,9 @@ export function Jobs({ stack }: StackContext) {
 
   const hnswIndexJob = new Job(stack, 'hnswIndexJob', {
     handler: 'packages/functions/src/database/hnsw-index.handler',
-    runtime: 'nodejs',
+    runtime: 'nodejs20.x',
     memorySize: '3 GB',
     timeout: '4 hours',
-    nodejs: {
-      install: ['web-streams-polyfill']
-    },
     environment: {
       DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
       DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,

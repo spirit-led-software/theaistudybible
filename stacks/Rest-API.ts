@@ -113,9 +113,6 @@ export function RestAPI({ stack }: StackContext) {
         timeout: '10 minutes',
         environment: {
           USER_GENERATED_IMAGE_BUCKET: userGeneratedImageBucket.bucketName
-        },
-        nodejs: {
-          install: ['web-streams-polyfill']
         }
       }
     },

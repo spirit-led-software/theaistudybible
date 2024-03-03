@@ -36,7 +36,6 @@ import { and, eq } from 'drizzle-orm';
 import { CallbackManager } from 'langchain/callbacks';
 import { Readable } from 'stream';
 import { v4 as uuidV4 } from 'uuid';
-import 'web-streams-polyfill/dist/polyfill.es2018.js';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
   body: Readable;
