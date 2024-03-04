@@ -1,4 +1,3 @@
-import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
@@ -17,7 +16,6 @@ import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
-import { ChatMessageHistory } from 'langchain/memory';
 import {
   CustomListOutputParser,
   OutputFixingParser,
@@ -52,18 +50,15 @@ export const getRAIChatChain = async (options: {
     }
   >
 > => {
-  const { modelId, user, messages, callbacks } = options;
+  const { modelId, user, callbacks } = options;
 
   const { contextSize } = allModels[modelId];
   const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
 
-  const history = new ChatMessageHistory(
-    messages.slice(contextSizeNum > 32 ? -21 : -11, -1).map((message) => {
-      return message.role === 'user'
-        ? new HumanMessage(message.content)
-        : new AIMessage(message.content);
-    })
-  );
+  const messages = options.messages.slice(contextSizeNum > 32 ? -21 : -11, -1);
+  const history = messages
+    .map((m) => new XMLBuilder().build({ message: { sender: m.role, text: m.content } }))
+    .join('\n');
 
   const identityChain = RunnableSequence.from([
     {
@@ -72,16 +67,7 @@ export const getRAIChatChain = async (options: {
     {
       text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: await history
-            .getMessages()
-            .then((messages) =>
-              messages
-                .map(
-                  (message) =>
-                    `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
-                )
-                .join('\n')
-            )
+          history
         }
       })
         .pipe(
@@ -109,16 +95,7 @@ export const getRAIChatChain = async (options: {
     {
       text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE, {
         partialVariables: {
-          history: await history
-            .getMessages()
-            .then((messages) =>
-              messages
-                .map(
-                  (message) =>
-                    `<message>\n<sender>${message.name}</sender><text>${message.content}</text>\n</message>`
-                )
-                .join('\n')
-            )
+          history
         }
       })
         .pipe(
@@ -150,13 +127,7 @@ export const getRAIChatChain = async (options: {
       },
       "metadata->>'category' != 'bible'"
     ],
-    history: await history
-      .getMessages()
-      .then((messages) =>
-        messages
-          .map((m) => `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`)
-          .join('\n')
-      ),
+    history,
     extraPromptVars: {
       bibleTranslation: user.translation
     },
@@ -208,15 +179,10 @@ export const getRAIChatChain = async (options: {
               'chat-history: For retrieving information about the current chat conversation.',
               'faith-qa: For answering general queries about Christian faith.'
             ].join('\n'),
-            history: await history.getMessages().then((messages) =>
-              messages
-                .slice(-10)
-                .map(
-                  (m) =>
-                    `<message>\n<sender>${m.name}</sender><text>${m.content}</text>\n</message>`
-                )
-                .join('\n')
-            )
+            history: messages
+              .slice(-10)
+              .map((m) => new XMLBuilder().build({ message: { sender: m.role, text: m.content } }))
+              .join('\n')
           }
         }),
         getLanguageModel({
@@ -259,7 +225,7 @@ export async function getDocumentQaChain(options: {
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: contextSize > 32 ? 12 : 7,
+      k: contextSize > 32 ? 15 : 8,
       verbose: envConfig.isLocal
     })
   );
