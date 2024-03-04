@@ -28,6 +28,18 @@ export type introspection = {
         "name": "Metadata"
       },
       {
+        "kind": "ENUM",
+        "name": "CacheControlScope",
+        "enumValues": [
+          {
+            "name": "PUBLIC"
+          },
+          {
+            "name": "PRIVATE"
+          }
+        ]
+      },
+      {
         "kind": "INTERFACE",
         "name": "BaseModel",
         "fields": [
@@ -451,7 +463,16 @@ export type introspection = {
               "name": "Int",
               "ofType": null
             },
-            "args": []
+            "args": [
+              {
+                "name": "filter",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "FilterInput",
+                  "ofType": null
+                }
+              }
+            ]
           },
           {
             "name": "chats",
@@ -568,7 +589,16 @@ export type introspection = {
               "name": "Int",
               "ofType": null
             },
-            "args": []
+            "args": [
+              {
+                "name": "filter",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "FilterInput",
+                  "ofType": null
+                }
+              }
+            ]
           },
           {
             "name": "devotionReactions",
@@ -3553,6 +3583,24 @@ export type introspection = {
             ]
           },
           {
+            "name": "userCount",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "args": [
+              {
+                "name": "filter",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "FilterInput",
+                  "ofType": null
+                }
+              }
+            ]
+          },
+          {
             "name": "currentUserPassword",
             "type": {
               "kind": "OBJECT",
@@ -4025,6 +4073,24 @@ export type introspection = {
                       "ofType": null
                     }
                   }
+                }
+              }
+            ]
+          },
+          {
+            "name": "chatCount",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "args": [
+              {
+                "name": "filter",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "FilterInput",
+                  "ofType": null
                 }
               }
             ]

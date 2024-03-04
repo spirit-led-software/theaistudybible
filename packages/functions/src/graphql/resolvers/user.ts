@@ -46,13 +46,14 @@ export const userResolvers: Resolvers = {
         .innerJoin(roles, eq(usersToRoles.roleId, roles.id))
         .then((results) => results.map((result) => result.roles));
     },
-    chatCount: async (parent, _, { currentUser }) => {
+    chatCount: async (parent, args, { currentUser }) => {
       return await getObjectCount({
         currentUser,
         role: 'parent-owner',
         parent,
         table: chats,
-        where: eq(chats.userId, parent.id)
+        where: eq(chats.userId, parent.id),
+        filter: args.filter
       });
     },
     chats: async (parent, args, { currentUser }) => {
@@ -99,13 +100,14 @@ export const userResolvers: Resolvers = {
         ...args
       });
     },
-    devotionReactionCount: async (parent, _, { currentUser }) => {
+    devotionReactionCount: async (parent, args, { currentUser }) => {
       return await getObjectCount({
         currentUser,
         role: 'parent-owner',
         parent,
         table: devotionReactions,
-        where: eq(devotionReactions.userId, parent.id)
+        where: eq(devotionReactions.userId, parent.id),
+        filter: args.filter
       });
     },
     devotionReactions: async (parent, args, { currentUser }) => {
@@ -143,6 +145,14 @@ export const userResolvers: Resolvers = {
         role: 'public',
         table: users,
         ...args
+      });
+    },
+    userCount: async (_, args, { currentUser }) => {
+      return await getObjectCount({
+        currentUser,
+        role: 'public',
+        table: users,
+        filter: args.filter
       });
     }
   },

@@ -62,6 +62,10 @@ export type BaseModel = {
   updatedAt: Scalars['Date']['output'];
 };
 
+export type CacheControlScope =
+  | 'PRIVATE'
+  | 'PUBLIC';
+
 export type Chat = BaseModel & {
   __typename?: 'Chat';
   aiResponses?: Maybe<Array<AiResponse>>;
@@ -486,6 +490,7 @@ export type Query = {
   aiResponseReactions: Array<AiResponseReaction>;
   aiResponses: Array<AiResponse>;
   chat?: Maybe<Chat>;
+  chatCount?: Maybe<Scalars['Int']['output']>;
   chatMessages: Array<ChatMessage>;
   chats: Array<Chat>;
   currentUser?: Maybe<User>;
@@ -504,6 +509,7 @@ export type Query = {
   role?: Maybe<Role>;
   roles: Array<Role>;
   user?: Maybe<User>;
+  userCount?: Maybe<Scalars['Int']['output']>;
   userGeneratedImage?: Maybe<UserGeneratedImage>;
   userGeneratedImages: Array<UserGeneratedImage>;
   userMessage?: Maybe<UserMessage>;
@@ -542,6 +548,11 @@ export type QueryAiResponsesArgs = {
 
 export type QueryChatArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryChatCountArgs = {
+  filter?: InputMaybe<FilterInput>;
 };
 
 
@@ -646,6 +657,11 @@ export type QueryRolesArgs = {
 
 export type QueryUserArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryUserCountArgs = {
+  filter?: InputMaybe<FilterInput>;
 };
 
 
@@ -837,11 +853,21 @@ export type UserAiResponsesArgs = {
 };
 
 
+export type UserChatCountArgs = {
+  filter?: InputMaybe<FilterInput>;
+};
+
+
 export type UserChatsArgs = {
   filter?: InputMaybe<FilterInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   sort?: InputMaybe<Array<SortInput>>;
+};
+
+
+export type UserDevotionReactionCountArgs = {
+  filter?: InputMaybe<FilterInput>;
 };
 
 
@@ -989,6 +1015,7 @@ export type ResolversTypes = ResolversObject<{
   AiResponseReactionType: AiResponseReactionType;
   BaseModel: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['BaseModel']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CacheControlScope: CacheControlScope;
   Chat: ResolverTypeWrapper<Chat>;
   ChatMessage: ResolverTypeWrapper<ChatMessage>;
   ChatMessageRole: ChatMessageRole;
@@ -1086,6 +1113,14 @@ export type ResolversParentTypes = ResolversObject<{
   UserMessage: UserMessage;
   UserPassword: UserPassword;
 }>;
+
+export type CacheControlDirectiveArgs = {
+  inheritMaxAge?: Maybe<Scalars['Boolean']['input']>;
+  maxAge?: Maybe<Scalars['Int']['input']>;
+  scope?: Maybe<CacheControlScope>;
+};
+
+export type CacheControlDirectiveResolver<Result, Parent, ContextType = Context, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AiResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AiResponse'] = ResolversParentTypes['AiResponse']> = ResolversObject<{
   aiId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1275,6 +1310,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   aiResponseReactions?: Resolver<Array<ResolversTypes['AiResponseReaction']>, ParentType, ContextType, Partial<QueryAiResponseReactionsArgs>>;
   aiResponses?: Resolver<Array<ResolversTypes['AiResponse']>, ParentType, ContextType, Partial<QueryAiResponsesArgs>>;
   chat?: Resolver<Maybe<ResolversTypes['Chat']>, ParentType, ContextType, RequireFields<QueryChatArgs, 'id'>>;
+  chatCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType, Partial<QueryChatCountArgs>>;
   chatMessages?: Resolver<Array<ResolversTypes['ChatMessage']>, ParentType, ContextType, RequireFields<QueryChatMessagesArgs, 'chatId'>>;
   chats?: Resolver<Array<ResolversTypes['Chat']>, ParentType, ContextType, Partial<QueryChatsArgs>>;
   currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -1293,6 +1329,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   role?: Resolver<Maybe<ResolversTypes['Role']>, ParentType, ContextType, RequireFields<QueryRoleArgs, 'id'>>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType, Partial<QueryRolesArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
+  userCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType, Partial<QueryUserCountArgs>>;
   userGeneratedImage?: Resolver<Maybe<ResolversTypes['UserGeneratedImage']>, ParentType, ContextType, RequireFields<QueryUserGeneratedImageArgs, 'id'>>;
   userGeneratedImages?: Resolver<Array<ResolversTypes['UserGeneratedImage']>, ParentType, ContextType, Partial<QueryUserGeneratedImagesArgs>>;
   userMessage?: Resolver<Maybe<ResolversTypes['UserMessage']>, ParentType, ContextType, RequireFields<QueryUserMessageArgs, 'id'>>;
@@ -1325,10 +1362,10 @@ export type SourceDocumentResolvers<ContextType = Context, ParentType extends Re
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   aiResponseReactions?: Resolver<Maybe<Array<ResolversTypes['AiResponseReaction']>>, ParentType, ContextType, Partial<UserAiResponseReactionsArgs>>;
   aiResponses?: Resolver<Maybe<Array<ResolversTypes['AiResponse']>>, ParentType, ContextType, Partial<UserAiResponsesArgs>>;
-  chatCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  chatCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType, Partial<UserChatCountArgs>>;
   chats?: Resolver<Maybe<Array<ResolversTypes['Chat']>>, ParentType, ContextType, Partial<UserChatsArgs>>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  devotionReactionCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  devotionReactionCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType, Partial<UserDevotionReactionCountArgs>>;
   devotionReactions?: Resolver<Maybe<Array<ResolversTypes['DevotionReaction']>>, ParentType, ContextType, Partial<UserDevotionReactionsArgs>>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   generatedImages?: Resolver<Maybe<Array<ResolversTypes['UserGeneratedImage']>>, ParentType, ContextType, Partial<UserGeneratedImagesArgs>>;
@@ -1410,3 +1447,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   UserPassword?: UserPasswordResolvers<ContextType>;
 }>;
 
+export type DirectiveResolvers<ContextType = Context> = ResolversObject<{
+  cacheControl?: CacheControlDirectiveResolver<any, any, ContextType>;
+}>;

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { PUBLIC_API_URL } from '$env/static/public';
-	import Avatar from '$lib/components/user/Avatar.svelte';
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
 	import { graphql } from '@revelationsai/client/graphql';
@@ -30,44 +29,69 @@
 
 	const pagination = writable<PaginationState>({
 		pageIndex: 0,
-		pageSize: data.users.length
+		pageSize: data.chats.length
 	});
 
 	const searchQuery = writable('');
 
-	type ColumnType = NonNullable<NonNullable<typeof $query.data>['users']>[number];
+	type ColumnType = NonNullable<NonNullable<typeof $query.data>['chats']>[number];
 
 	const columns: ColumnDef<ColumnType>[] = [
 		{
-			accessorKey: 'id',
-			header: 'ID',
-			cell: (info) => info.getValue(),
-			enableHiding: true
-		},
-		{
-			accessorKey: 'email',
-			header: 'Email',
-			cell: (info) => info.getValue(),
-			enableHiding: false
-		},
-		{
-			accessorKey: 'name',
-			header: 'Name',
-			cell: (info) => info.getValue(),
-			enableHiding: true
-		},
-		{
-			header: 'Joined',
-			accessorFn: (row) => day(row.createdAt as Date).format('M/D/YY'),
-			id: 'createdAt',
-			enableHiding: true
-		},
-		{
-			header: 'Roles',
-			accessorFn: (row) => row.roles?.map((role) => role.name).join(', ') ?? 'N/A',
-			id: 'roles',
+			header: 'Chat',
+			columns: [
+				{
+					accessorKey: 'id',
+					header: 'ID',
+					cell: (info) => info.getValue(),
+					enableHiding: true
+				},
+				{
+					accessorKey: 'name',
+					header: 'Name',
+					cell: (info) => info.getValue(),
+					enableHiding: false
+				},
+				{
+					accessorKey: 'createdAt',
+					header: 'Started',
+					cell: (info) => day(info.getValue()).format('M/D/YY'),
+					enableHiding: true
+				},
+				{
+					accessorKey: 'updatedAt',
+					header: 'Updated',
+					cell: (info) => day(info.getValue()).format('M/D/YY'),
+					enableHiding: true
+				}
+			],
 			enableHiding: false,
-			enableSorting: true
+			enableSorting: false
+		},
+		{
+			header: 'User',
+			columns: [
+				{
+					accessorKey: 'user.id',
+					header: 'ID',
+					cell: (info) => info.getValue(),
+					enableHiding: true
+				},
+				{
+					accessorKey: 'user.email',
+					header: 'Email',
+					cell: (info) => info.getValue(),
+					enableHiding: false
+				},
+				{
+					accessorKey: 'user.name',
+					header: 'Name',
+					cell: (info) => info.getValue(),
+					enableHiding: true
+				}
+			],
+			enableHiding: false,
+			enableSorting: false
 		}
 	];
 
@@ -90,7 +114,7 @@
 
 	const sorting = writable<SortingState>([
 		{
-			id: 'createdAt',
+			id: 'updatedAt',
 			desc: true
 		}
 	]);
@@ -143,7 +167,7 @@
 	>(undefined);
 	sorting.subscribe((value) => {
 		$serverSorting = value
-			.filter((sort) => !sort.id.startsWith('roles'))
+			.filter((sort) => !sort.id.startsWith('user'))
 			.map((sort) => ({
 				field: sort.id,
 				order: sort.desc ? 'desc' : 'asc'
@@ -151,16 +175,16 @@
 	});
 
 	const graphqlQuery = graphql(`
-		query GetUsers($filter: FilterInput, $limit: Int!, $page: Int!, $sort: [SortInput!]) {
-			userCount(filter: $filter)
-			users(filter: $filter, limit: $limit, page: $page, sort: $sort) {
+		query GetChats($filter: FilterInput, $limit: Int!, $page: Int!, $sort: [SortInput!]) {
+			chatCount(filter: $filter)
+			chats(filter: $filter, limit: $limit, page: $page, sort: $sort) {
 				id
-				image
-				email
-				name
 				createdAt
 				updatedAt
-				roles {
+				name
+				user {
+					id
+					email
 					name
 				}
 			}
@@ -171,7 +195,7 @@
 			[pagination, searchQuery, serverSorting],
 			([$pagination, $searchQuery, $serverSorting]) => ({
 				queryKey: [
-					'users',
+					'chats',
 					{ pagination: $pagination, searchQuery: $searchQuery, sorting: $serverSorting }
 				],
 				queryFn: async () => {
@@ -185,12 +209,6 @@
 											{
 												iLike: {
 													column: 'name',
-													placeholder: `%${$searchQuery}%`
-												}
-											},
-											{
-												iLike: {
-													column: 'email',
 													placeholder: `%${$searchQuery}%`
 												}
 											}
@@ -208,19 +226,16 @@
 				},
 				placeholderData: keepPreviousData,
 				initialData: {
-					users: data.users.map((user) => ({
-						...user,
-						roles: user.usersToRoles.map((userToRole) => userToRole.role)
-					})),
-					userCount: data.userCount
+					chats: data.chats,
+					chatCount: data.chatCount
 				}
 			})
 		)
 	);
 
 	const options = writable<TableOptions<ColumnType>>({
-		data: $query.data?.users ?? [],
-		rowCount: $query.data?.userCount ?? 0,
+		data: $query.data?.chats ?? [],
+		rowCount: $query.data?.chatCount ?? 0,
 		columns,
 		state: {
 			sorting: $sorting,
@@ -245,8 +260,8 @@
 		if (data) {
 			options.update((old) => ({
 				...old,
-				data: data.users ?? [],
-				rowCount: data.userCount ?? 0
+				data: data.chats ?? [],
+				rowCount: data.chatCount ?? 0
 			}));
 		}
 	});
@@ -268,7 +283,7 @@
 <div class="flex w-full flex-col overflow-auto p-2">
 	<div class="flex w-full justify-between">
 		<div class="flex place-items-center space-x-2">
-			<h2 class="flex px-2 py-1 text-center text-xl font-bold">Users</h2>
+			<h2 class="flex px-2 py-1 text-center text-xl font-bold">Chats</h2>
 			{#if $query.isFetching}
 				<span class="loading loading-sm loading-spinner" />
 			{/if}
@@ -280,13 +295,12 @@
 			bind:value={$searchQuery}
 		/>
 	</div>
-	{#if $query.data?.users && $query.data?.users.length > 0}
+	{#if $query.data?.chats && $query.data?.chats.length > 0}
 		<div class="h-full w-full overflow-auto">
 			<table class="table-sm table">
 				<thead>
 					{#each $table.getHeaderGroups() as headerGroup}
 						<tr>
-							<th />
 							{#each headerGroup.headers as header}
 								<th colspan={header.colSpan}>
 									{#if !header.isPlaceholder}
@@ -324,11 +338,10 @@
 					{#each $table.getRowModel().rows as row}
 						<tr
 							class="cursor-pointer"
-							on:click={async () => await goto(`/admin/users/${$query.data.users[row.index].id}`)}
+							on:click={async () => {
+								await goto(`/admin/chats/${$query.data.chats[row.index].id}`);
+							}}
 						>
-							<td>
-								<Avatar user={$query.data.users[row.index]} />
-							</td>
 							{#each row.getVisibleCells() as cell}
 								<td>
 									<svelte:component
@@ -348,7 +361,7 @@
 				type="text"
 				placeholder="Filter"
 				bind:value={$filterQuery}
-				disabled={!(($query.data?.users?.length ?? 0) > 0)}
+				disabled={!(($query.data?.chats?.length ?? 0) > 0)}
 			/>
 			<div class="flex space-x-2">
 				<button class="btn" on:click={reset}> Reset </button>
@@ -380,12 +393,12 @@
 		</div>
 	{:else if $query.isError}
 		<div class="flex h-52 flex-col place-items-center justify-center">
-			<span class="text-red-500">Error loading users</span>
+			<span class="text-red-500">Error loading chats</span>
 			<button class="btn" on:click={() => $query.refetch()}>Retry</button>
 		</div>
 	{:else}
 		<div class="flex h-52 flex-col place-items-center justify-center">
-			<span class="text-red-500">No users found</span>
+			<span class="text-red-500">No chats found</span>
 		</div>
 	{/if}
 </div>

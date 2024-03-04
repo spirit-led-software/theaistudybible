@@ -6,7 +6,14 @@ import { getChatMessages } from '@revelationsai/server/services/chat/message';
 import { isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
 import { eq } from 'drizzle-orm';
 import type { Resolvers } from '../__generated__/resolver-types';
-import { createObject, deleteObject, getObject, getObjects, updateObject } from '../utils/crud';
+import {
+  createObject,
+  deleteObject,
+  getObject,
+  getObjectCount,
+  getObjects,
+  updateObject
+} from '../utils/crud';
 
 export const chatResolvers: Resolvers = {
   Chat: {
@@ -69,6 +76,14 @@ export const chatResolvers: Resolvers = {
         role: 'owner',
         table: chats,
         ...args
+      });
+    },
+    chatCount: async (_, args, { currentUser }) => {
+      return await getObjectCount({
+        currentUser,
+        role: 'owner',
+        table: chats,
+        filter: args.filter
       });
     },
     chatMessages: async (

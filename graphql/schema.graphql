@@ -1,6 +1,17 @@
 scalar Date
 scalar Metadata
 
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
 interface BaseModel {
   id: String!
   createdAt: Date!
@@ -26,7 +37,7 @@ type User implements BaseModel {
   hasCustomImage: Boolean!
   translation: Translation!
   password: UserPassword
-  roles: [Role!]
+  roles: [Role!] @cacheControl(maxAge: 300, scope: PRIVATE)
   messages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserMessage!]
   aiResponses(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [AiResponse!]
   aiResponseReactions(
@@ -35,7 +46,7 @@ type User implements BaseModel {
     page: Int
     sort: [SortInput!]
   ): [AiResponseReaction!]
-  chatCount: Int
+  chatCount(filter: FilterInput): Int
   chats(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Chat!]
   generatedImages(
     filter: FilterInput
@@ -43,7 +54,7 @@ type User implements BaseModel {
     page: Int
     sort: [SortInput!]
   ): [UserGeneratedImage!]
-  devotionReactionCount: Int
+  devotionReactionCount(filter: FilterInput): Int
   devotionReactions(
     filter: FilterInput
     limit: Int
@@ -407,69 +418,80 @@ input FilterInput {
 }
 
 type Query {
-  currentUser: User
-  user(id: String!): User
+  currentUser: User @cacheControl(maxAge: 120, scope: PRIVATE)
+  user(id: String!): User @cacheControl(maxAge: 120)
   users(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [User!]!
+    @cacheControl(maxAge: 120)
+  userCount(filter: FilterInput): Int @cacheControl(maxAge: 120)
 
   currentUserPassword: UserPassword
   userPassword(id: String!): UserPassword
   userPasswords(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserPassword!]!
 
-  role(id: String!): Role
+  role(id: String!): Role @cacheControl(maxAge: 300)
   roles(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Role!]!
+    @cacheControl(maxAge: 300)
 
-  userMessage(id: String!): UserMessage
+  userMessage(id: String!): UserMessage @cacheControl(maxAge: 60, scope: PRIVATE)
   userMessages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [UserMessage!]!
+    @cacheControl(maxAge: 60, scope: PRIVATE)
 
-  aiResponse(id: String!): AiResponse
+  aiResponse(id: String!): AiResponse @cacheControl(maxAge: 60, scope: PRIVATE)
   aiResponses(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [AiResponse!]!
+    @cacheControl(maxAge: 60, scope: PRIVATE)
 
-  aiResponseReaction(id: String!): AiResponseReaction
+  aiResponseReaction(id: String!): AiResponseReaction @cacheControl(maxAge: 60, scope: PRIVATE)
   aiResponseReactions(
     filter: FilterInput
     limit: Int
     page: Int
     sort: [SortInput!]
-  ): [AiResponseReaction!]!
+  ): [AiResponseReaction!]! @cacheControl(maxAge: 60, scope: PRIVATE)
 
-  chat(id: String!): Chat
+  chat(id: String!): Chat @cacheControl(maxAge: 60, scope: PRIVATE)
   chats(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Chat!]!
+    @cacheControl(maxAge: 60, scope: PRIVATE)
+  chatCount(filter: FilterInput): Int @cacheControl(maxAge: 60, scope: PRIVATE)
 
   chatMessages(chatId: String!, limit: Int, page: Int, sort: [SortInput!]): [ChatMessage!]!
+    @cacheControl(maxAge: 60, scope: PRIVATE)
 
-  userGeneratedImage(id: String!): UserGeneratedImage
+  userGeneratedImage(id: String!): UserGeneratedImage @cacheControl(maxAge: 60, scope: PRIVATE)
   userGeneratedImages(
     filter: FilterInput
     limit: Int
     page: Int
     sort: [SortInput!]
-  ): [UserGeneratedImage!]!
+  ): [UserGeneratedImage!]! @cacheControl(maxAge: 60, scope: PRIVATE)
 
-  devotion(id: String!): Devotion
+  devotion(id: String!): Devotion @cacheControl(maxAge: 300)
   devotions(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [Devotion!]!
+    @cacheControl(maxAge: 300)
 
-  devotionReaction(id: String!): DevotionReaction
+  devotionReaction(id: String!): DevotionReaction @cacheControl(maxAge: 60)
   devotionReactions(
     filter: FilterInput
     limit: Int
     page: Int
     sort: [SortInput!]
-  ): [DevotionReaction!]!
-  devotionReactionCount(devotionId: String!): [DevotionReactionCount!]!
+  ): [DevotionReaction!]! @cacheControl(maxAge: 60)
+  devotionReactionCount(devotionId: String!): [DevotionReactionCount!]! @cacheControl(maxAge: 60)
 
-  devotionImage(id: String!): DevotionImage
+  devotionImage(id: String!): DevotionImage @cacheControl(maxAge: 300)
   devotionImages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DevotionImage!]!
+    @cacheControl(maxAge: 300)
 
-  dataSource(id: String!): DataSource
+  dataSource(id: String!): DataSource @cacheControl(maxAge: 300)
   dataSources(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DataSource!]!
+    @cacheControl(maxAge: 300)
 
-  indexOperation(id: String!): IndexOperation
+  indexOperation(id: String!): IndexOperation @cacheControl(maxAge: 60, scope: PRIVATE)
   indexOperations(
     filter: FilterInput
     limit: Int
     page: Int
     sort: [SortInput!]
-  ): [IndexOperation!]!
+  ): [IndexOperation!]! @cacheControl(maxAge: 60, scope: PRIVATE)
 }
 
 type Mutation {

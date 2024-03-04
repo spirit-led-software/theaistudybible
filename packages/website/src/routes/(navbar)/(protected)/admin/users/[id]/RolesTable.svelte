@@ -19,7 +19,7 @@
 	`);
 
 	$: query = createQuery({
-		queryKey: ['user-roles', userId],
+		queryKey: ['user-roles', { userId }],
 		queryFn: async () => {
 			return await graphqlRequest(
 				`${PUBLIC_API_URL}/graphql`,

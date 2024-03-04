@@ -23,8 +23,6 @@
 
 	const messages = writable<RAIChatMessage[]>(messagesInput);
 	$: messages.set(messagesInput);
-
-	let alert: string | undefined = undefined;
 	let endOfMessagesRef: HTMLDivElement | undefined;
 	let isEndOfMessagesRefShowing = true;
 
@@ -47,18 +45,6 @@
 
 <div class="absolute h-full w-full overflow-hidden lg:static">
 	<div class="relative h-full w-full">
-		<div
-			role="alert"
-			class={`absolute left-0 right-0 z-30 flex justify-center duration-300 ${
-				alert ? 'top-1 scale-100' : '-top-20 scale-0'
-			}`}
-		>
-			<div
-				class="max-h-32 w-2/3 overflow-hidden truncate text-wrap rounded-lg bg-red-400 py-2 text-center text-white"
-			>
-				{alert}
-			</div>
-		</div>
 		{#if $messages && $messages.length > 0}
 			<div class="h-full w-full overflow-y-scroll">
 				<div class="flex min-h-full flex-1 flex-col place-content-end">
@@ -78,7 +64,7 @@
 						element={endOfMessagesRef}
 						bind:intersecting={isEndOfMessagesRefShowing}
 					>
-						<div bind:this={endOfMessagesRef} class="h-20 w-full" />
+						<div bind:this={endOfMessagesRef} class="h-0 w-full" />
 					</IntersectionObserver>
 				</div>
 			</div>
@@ -89,7 +75,7 @@
 		{/if}
 		{#if !isEndOfMessagesRefShowing}
 			<button
-				class="absolute bottom-20 right-5 rounded-full bg-white p-2 text-slate-700 shadow-lg hover:bg-slate-100 hover:text-slate-900 hover:shadow-xl"
+				class="absolute bottom-5 right-8 rounded-full bg-white p-2 text-slate-700 shadow-lg hover:bg-slate-100 hover:text-slate-900 hover:shadow-xl"
 				on:click|preventDefault={scrollEndIntoView}
 			>
 				<Icon icon="icon-park:down" class="text-2xl" />

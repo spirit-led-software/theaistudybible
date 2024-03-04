@@ -1,4 +1,5 @@
 import { ApolloServer } from '@apollo/server';
+import responseCachePlugin from '@apollo/server-plugin-response-cache';
 import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 import { ErrorsAreMissesCache } from '@apollo/utils.keyvaluecache';
 import { handlers, startServerAndCreateLambdaHandler } from '@as-integrations/aws-lambda';
@@ -112,7 +113,13 @@ const server = new ApolloServer<Context>({
     ? new ErrorsAreMissesCache(new KeyvAdapter(new Keyv(upstashRedisConfig.url)))
     : undefined,
   ...protection,
-  plugins: [...protection.plugins],
+  plugins: [
+    ...protection.plugins,
+    responseCachePlugin({
+      sessionId: async (requestContext) =>
+        requestContext.request.http?.headers.get('authorization') || null
+    })
+  ],
   validationRules: [...protection.validationRules]
 });
 

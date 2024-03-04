@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { PUBLIC_API_URL } from '$env/static/public';
 	import { session, user } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
@@ -56,7 +57,7 @@
 
 	const query = createQuery(
 		derived([pagination], ([$pagination]) => ({
-			queryKey: ['user-devotion-reactions', $pagination, userId],
+			queryKey: ['user-devotion-reactions', { pagination: $pagination, userId }],
 			queryFn: async () => {
 				return await graphqlRequest(
 					`${PUBLIC_API_URL}/graphql`,
@@ -269,7 +270,15 @@
 			</thead>
 			<tbody>
 				{#each $table.getRowModel().rows as row}
-					<tr>
+					<tr
+						class="cursor-pointer"
+						on:click={async () => {
+							await goto(
+								// @ts-expect-error - We know this is a string
+								`/devotions/${$query.data?.user?.devotionReactions[row.index]?.devotion?.id}`
+							);
+						}}
+					>
 						{#each row.getVisibleCells() as cell}
 							<td>
 								<svelte:component

@@ -1,28 +1,24 @@
-import { users as usersTable } from '@revelationsai/core/database/schema';
+import { chats as chatsTable } from '@revelationsai/core/database/schema';
 import { db } from '@revelationsai/server/lib/database';
 import { count } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const [users, userCount] = await Promise.all([
-		db.query.users.findMany({
+	const [chats, chatCount] = await Promise.all([
+		db.query.chats.findMany({
 			limit: 13,
-			orderBy: ({ createdAt }, { desc }) => desc(createdAt),
+			orderBy: ({ updatedAt }, { desc }) => desc(updatedAt),
 			with: {
-				usersToRoles: {
-					with: {
-						role: true
-					}
-				}
+				user: true
 			}
 		}),
 		db
 			.select({ count: count() })
-			.from(usersTable)
+			.from(chatsTable)
 			.then((results) => results[0].count)
 	]);
 	return {
-		users,
-		userCount
+		chats,
+		chatCount
 	};
 };
