@@ -25,7 +25,7 @@ export function ChatAPI({ stack, app }: StackContext) {
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
     handler: 'packages/functions/src/chat.handler',
     bind: [auth],
-    memorySize: '2 GB',
+    memorySize: '3 GB',
     timeout: '5 minutes',
     enableLiveDev: false // Cannot live dev with response stream
   });
