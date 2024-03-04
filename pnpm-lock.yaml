@@ -48,8 +48,8 @@ importers:
         specifier: ^0.1.25
         version: 0.1.25(@aws-sdk/client-bedrock-runtime@3.525.0)(@aws-sdk/client-s3@3.525.0)(@aws-sdk/credential-provider-node@3.525.0)(pg@8.11.3)(ws@8.16.0)(youtube-transcript@1.0.6)(youtubei.js@9.1.0)
       neon-sdk:
-        specifier: ^1.17.0
-        version: 1.17.0
+        specifier: ^1.18.0
+        version: 1.18.0
       pg:
         specifier: ^8.11.3
         version: 8.11.3
@@ -148,11 +148,11 @@ importers:
         specifier: workspace:*
         version: link:../server
       '@tanstack/svelte-query':
-        specifier: ^5.24.6
-        version: 5.24.6(svelte@4.2.12)
+        specifier: ^5.24.8
+        version: 5.24.8(svelte@4.2.12)
       ai:
-        specifier: ^3.0.2
-        version: 3.0.2(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
+        specifier: ^3.0.4
+        version: 3.0.4(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
       autosize:
         specifier: ^6.0.1
         version: 6.0.1
@@ -291,8 +291,8 @@ importers:
   packages/core:
     dependencies:
       ai:
-        specifier: ^3.0.2
-        version: 3.0.2(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
+        specifier: ^3.0.4
+        version: 3.0.4(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
       axios:
         specifier: ^1.6.7
         version: 1.6.7
@@ -355,8 +355,8 @@ importers:
         specifier: ^1.28.4
         version: 1.28.4
       ai:
-        specifier: ^3.0.2
-        version: 3.0.2(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
+        specifier: ^3.0.4
+        version: 3.0.4(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
       argon2:
         specifier: ^0.40.1
         version: 0.40.1
@@ -449,8 +449,8 @@ importers:
         specifier: ^1.28.4
         version: 1.28.4
       ai:
-        specifier: ^3.0.2
-        version: 3.0.2(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
+        specifier: ^3.0.4
+        version: 3.0.4(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
       argon2:
         specifier: ^0.40.1
         version: 0.40.1
@@ -537,14 +537,14 @@ importers:
         specifier: ^8.11.8
         version: 8.11.8
       '@tanstack/svelte-query':
-        specifier: ^5.24.6
-        version: 5.24.6(svelte@4.2.12)
+        specifier: ^5.24.8
+        version: 5.24.8(svelte@4.2.12)
       '@tanstack/svelte-table':
         specifier: ^8.13.2
         version: 8.13.2(svelte@4.2.12)
       ai:
-        specifier: ^3.0.2
-        version: 3.0.2(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
+        specifier: ^3.0.4
+        version: 3.0.4(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
       autosize:
         specifier: ^6.0.1
         version: 6.0.1
@@ -6126,7 +6126,7 @@ packages:
       esm-env: 1.0.0
       import-meta-resolve: 4.0.0
       kleur: 4.1.5
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       mrmime: 2.0.0
       sade: 1.8.1
       set-cookie-parser: 2.6.0
@@ -6163,7 +6163,7 @@ packages:
       debug: 4.3.4
       deepmerge: 4.3.1
       kleur: 4.1.5
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       svelte: 4.2.12
       svelte-hmr: 0.15.3(svelte@4.2.12)
       vite: 5.1.4(@types/node@20.11.24)
@@ -6179,16 +6179,16 @@ packages:
       remove-accents: 0.4.2
     dev: false
 
-  /@tanstack/query-core@5.24.6:
-    resolution: {integrity: sha512-xYhxiMUPh1JzamVK8VwwkBpIBXVYRyIBW9gjSN+/BB4kL1nS86gnRWeW8L+sacCj1RiyEsysJe3GSvtbIpHdWw==}
+  /@tanstack/query-core@5.24.8:
+    resolution: {integrity: sha512-yH7KnfXMf10p1U5GffTQzFi2Miiw6WJZImGYGdV7eqa5ZbKO8qVx9lOA9SfhIaJXomrMp1Yz5w/CBhVM3yWeTA==}
     dev: false
 
-  /@tanstack/svelte-query@5.24.6(svelte@4.2.12):
-    resolution: {integrity: sha512-tFWcZP2cAMyQDbLMEX2v9DPQIMO/K0hGiH7PX/A4CYE1sMvVePcGTTuuP3jTB7EdFT/kTKMCaidALH8nPXALGw==}
+  /@tanstack/svelte-query@5.24.8(svelte@4.2.12):
+    resolution: {integrity: sha512-8oxwMDG3Ogb0oqcLZAo91gEJtAM5FQYBE66Fg5FxObLqMMxY0E9JEMqV24k/jkeT0/pOG+Pf9kz9zOjlQ3f8RQ==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
     dependencies:
-      '@tanstack/query-core': 5.24.6
+      '@tanstack/query-core': 5.24.8
       svelte: 4.2.12
     dev: false
 
@@ -6607,7 +6607,7 @@ packages:
   /@vitest/snapshot@1.3.1:
     resolution: {integrity: sha512-EF++BZbt6RZmOlE3SuTPu/NfwBF6q4ABS37HHXzs2LUVPBLx2QoY/K0fKpRChSo8eLiuxcbCVfqKgx/dplCDuQ==}
     dependencies:
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       pathe: 1.1.2
       pretty-format: 29.7.0
     dev: true
@@ -6653,7 +6653,7 @@ packages:
       '@vue/compiler-ssr': 3.4.21
       '@vue/shared': 3.4.21
       estree-walker: 2.0.2
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       postcss: 8.4.35
       source-map-js: 1.0.2
     dev: false
@@ -6886,8 +6886,8 @@ packages:
       indent-string: 4.0.0
     dev: true
 
-  /ai@3.0.2(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4):
-    resolution: {integrity: sha512-dDOj7U63tLCSQixSKk3nmPekjqPnb0st/ZC8ERpBiu5+nezcic5B5bHKzPDLx4rbObCocfA+KPcez9Y1Luf4Vw==}
+  /ai@3.0.4(react@18.2.0)(solid-js@1.8.15)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4):
+    resolution: {integrity: sha512-DsQwPbOszx58iPag+vujQKv5idl4Y7tHyJSPCeCchDfJ67Ipf/++h4oiDWsKT+U3ibPFrT8xmHel6oRJF+0uMQ==}
     engines: {node: '>=14.6'}
     peerDependencies:
       react: ^18.2.0
@@ -7190,7 +7190,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.23.0
-      caniuse-lite: 1.0.30001591
+      caniuse-lite: 1.0.30001593
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -7476,7 +7476,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001591
+      caniuse-lite: 1.0.30001593
       electron-to-chromium: 1.4.690
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
@@ -7584,8 +7584,8 @@ packages:
     engines: {node: '>=14.16'}
     dev: true
 
-  /caniuse-lite@1.0.30001591:
-    resolution: {integrity: sha512-PCzRMei/vXjJyL5mJtzNiUCKP59dm8Apqc3PH8gJkMnMXZGox93RbE76jHsmLwmIo6/3nsYIpJtx0O7u5PqFuQ==}
+  /caniuse-lite@1.0.30001593:
+    resolution: {integrity: sha512-UWM1zlo3cZfkpBysd7AS+z+v007q9G1+fLTUU42rQnY6t2axoogPW/xol6T7juU5EUoOhML4WgBIdG+9yYqAjQ==}
     dev: true
 
   /capital-case@1.0.4:
@@ -11178,8 +11178,8 @@ packages:
       es5-ext: 0.10.64
     dev: true
 
-  /magic-string@0.30.7:
-    resolution: {integrity: sha512-8vBuFF/I/+OSLRmdf2wwFCJCz+nSn0m6DPvGH1fS/KiQoSaR+sETbov0eIk9KhEKy8CYqIkIAnbohxT/4H0kuA==}
+  /magic-string@0.30.8:
+    resolution: {integrity: sha512-ISQTe55T2ao7XtlAStud6qwYPZjE4GK1S/BeVPus4jrq6JuOnQ00YKQC581RWhR122W7msZV263KzVeLoqidyQ==}
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/sourcemap-codec': 1.4.15
@@ -11548,8 +11548,8 @@ packages:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
 
-  /neon-sdk@1.17.0:
-    resolution: {integrity: sha512-jma21tZX5mzfIqJWZ/gDcfrL5vyGgAHVdIhk89RBGHzYvQwGBoTo6vDl0p5dia9HMzJ/e8Hbx826fV97HePiVA==}
+  /neon-sdk@1.18.0:
+    resolution: {integrity: sha512-9oYsu4k/pKUBjSqmQBfAsn7LemNfus4ZAEy7Puy69fh3oiQXGzvJxtU6KvdWiDX0gRC2nHAl75QVCXbrzz9h+A==}
     engines: {deno: '>=1.28', node: '>=18'}
     dev: false
 
@@ -13723,7 +13723,7 @@ packages:
       '@babel/core': 7.24.0
       '@types/pug': 2.0.10
       detect-indent: 6.1.0
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       postcss: 8.4.35
       sorcery: 0.11.0
       strip-indent: 3.0.0
@@ -13767,7 +13767,7 @@ packages:
       estree-walker: 3.0.3
       is-reference: 3.0.2
       locate-character: 3.0.0
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       periscopic: 3.1.0
 
   /swap-case@2.0.2:
@@ -14344,7 +14344,7 @@ packages:
       debug: 4.3.4
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.7
+      magic-string: 0.30.8
       pathe: 1.1.2
       picocolors: 1.0.0
       std-env: 3.7.0

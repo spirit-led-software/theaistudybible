@@ -20,7 +20,7 @@
   "dependencies": {
     "@revelationsai/core": "workspace:*",
     "@upstash/redis": "^1.28.4",
-    "ai": "^3.0.2",
+    "ai": "^3.0.4",
     "argon2": "^0.40.1",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",

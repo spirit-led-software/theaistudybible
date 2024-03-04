@@ -6,6 +6,6 @@
   "keywords": [],
   "author": "Ian Pascoe",
   "dependencies": {
-    "@sparticuz/chromium": "^119.0.2"
+    "@sparticuz/chromium": "^122.0.0"
   }
 }

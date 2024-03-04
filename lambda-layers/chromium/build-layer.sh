@@ -6,6 +6,9 @@ echo "Building layer from ${layerUrl}"
 echo "Deleting old chromium.zip"
 rm -rf chromium.zip
 
+echo "Installing @sparticuz/chromium"
+npm install @sparticuz/chromium@latest --save
+
 echo "Downloading chromium.zip"
 curl -SL ${layerUrl} > chromium.zip
 
