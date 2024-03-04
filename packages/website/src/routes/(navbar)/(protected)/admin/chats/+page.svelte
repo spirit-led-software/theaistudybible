@@ -354,37 +354,45 @@
 					{/each}
 				</tbody>
 			</table>
-		</div>
-		<div class="flex items-center justify-between space-x-2">
-			<input
-				class="input input-bordered flex-1"
-				type="text"
-				placeholder="Filter"
-				bind:value={$filterQuery}
-				disabled={!(($query.data?.chats?.length ?? 0) > 0)}
-			/>
-			<div class="flex space-x-2">
-				<button class="btn" on:click={reset}> Reset </button>
-				<button
-					class="btn"
-					on:click={() => $table.firstPage()}
-					disabled={!$table.getCanPreviousPage()}
-				>
-					First
-				</button>
-				<button
-					class="btn"
-					on:click={() => $table.previousPage()}
-					disabled={!$table.getCanPreviousPage()}
-				>
-					Previous
-				</button>
-				<button class="btn" on:click={() => $table.nextPage()} disabled={!$table.getCanNextPage()}>
-					Next
-				</button>
-				<button class="btn" on:click={() => $table.lastPage()} disabled={!$table.getCanNextPage()}>
-					Last
-				</button>
+			<div class="flex items-center justify-between space-x-2">
+				<input
+					class="input input-bordered flex-1"
+					type="text"
+					placeholder="Filter"
+					bind:value={$filterQuery}
+					disabled={!(($query.data?.chats?.length ?? 0) > 0)}
+				/>
+				<div class="flex space-x-2">
+					<button class="btn" on:click={reset}> Reset </button>
+					<button
+						class="btn"
+						on:click={() => $table.firstPage()}
+						disabled={!$table.getCanPreviousPage()}
+					>
+						First
+					</button>
+					<button
+						class="btn"
+						on:click={() => $table.previousPage()}
+						disabled={!$table.getCanPreviousPage()}
+					>
+						Previous
+					</button>
+					<button
+						class="btn"
+						on:click={() => $table.nextPage()}
+						disabled={!$table.getCanNextPage()}
+					>
+						Next
+					</button>
+					<button
+						class="btn"
+						on:click={() => $table.lastPage()}
+						disabled={!$table.getCanNextPage()}
+					>
+						Last
+					</button>
+				</div>
 			</div>
 		</div>
 	{:else if $query.isFetching}
