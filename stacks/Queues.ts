@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, Layers } from '@stacks';
+import { DatabaseScripts, Layers } from '@stacks';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib/core';
 import { Function, Queue, dependsOn, use, type StackContext } from 'sst/constructs';
@@ -6,7 +6,6 @@ import { Function, Queue, dependsOn, use, type StackContext } from 'sst/construc
 export function Queues({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { invokeBedrockPolicy } = use(Constants);
   const { chromiumLayer, axiomX86Layer } = use(Layers);
 
   const webpageIndexQueueConsumerFunction = new Function(
@@ -14,7 +13,6 @@ export function Queues({ stack }: StackContext) {
     'webpageIndexQueueConsumerFunction',
     {
       handler: 'packages/functions/src/scraper/webpage/queue.consumer',
-      permissions: [invokeBedrockPolicy],
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
       timeout: '15 minutes',

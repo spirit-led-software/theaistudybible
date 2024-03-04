@@ -16,6 +16,7 @@
     "flushbar",
     "Hnsw",
     "langchain",
+    "LANGSMITH",
     "mistralai",
     "Mixtral",
     "NKJV",

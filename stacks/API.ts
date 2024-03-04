@@ -5,8 +5,7 @@ import { Api, Function, dependsOn, use, type StackContext } from 'sst/constructs
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { hostedZone, apiUrl, apiDomainName, websiteUrl, invokeBedrockPolicy, authUiUrl } =
-    use(Constants);
+  const { hostedZone, apiUrl, apiDomainName, websiteUrl, authUiUrl } = use(Constants);
   const { indexFileBucket } = use(S3);
   const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { webpageIndexQueue } = use(Queues);
@@ -16,7 +15,6 @@ export function API({ stack }: StackContext) {
     architecture: 'x86_64',
     runtime: 'nodejs18.x',
     layers: [chromiumLayer, axiomX86Layer],
-    permissions: [invokeBedrockPolicy],
     timeout: '15 minutes',
     memorySize: '2 GB'
   });
@@ -64,12 +62,7 @@ export function API({ stack }: StackContext) {
       'POST /notifications/revenue-cat': 'packages/functions/src/webhooks/revenue-cat.handler',
 
       // Vector similarity search
-      'POST /vector-search': {
-        function: {
-          handler: 'packages/functions/src/rest/vector-search/post.handler',
-          permissions: [invokeBedrockPolicy]
-        }
-      }
+      'POST /vector-search': 'packages/functions/src/rest/vector-search/post.handler'
     },
     customDomain: {
       domainName: apiDomainName,

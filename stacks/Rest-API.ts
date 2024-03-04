@@ -1,10 +1,9 @@
-import { API, Constants, DatabaseScripts, Layers, S3 } from '@stacks';
+import { API, DatabaseScripts, Layers, S3 } from '@stacks';
 import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { invokeBedrockPolicy } = use(Constants);
   const { userProfilePictureBucket, userGeneratedImageBucket } = use(S3);
   const { argonLayer } = use(Layers);
   const { api } = use(API);
@@ -109,11 +108,12 @@ export function RestAPI({ stack }: StackContext) {
       function: {
         handler: 'packages/functions/src/rest/generated-images/post.handler',
         bind: [userGeneratedImageBucket],
-        permissions: [userGeneratedImageBucket, invokeBedrockPolicy],
-        timeout: '10 minutes',
+        permissions: [userGeneratedImageBucket],
+        memorySize: '2 GB',
         environment: {
           USER_GENERATED_IMAGE_BUCKET: userGeneratedImageBucket.bucketName
-        }
+        },
+        timeout: '10 minutes'
       }
     },
     'GET /generated-images/{id}': 'packages/functions/src/rest/generated-images/[id]/get.handler',

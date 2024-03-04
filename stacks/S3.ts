@@ -1,16 +1,14 @@
-import { Constants, DatabaseScripts } from '@stacks';
+import { DatabaseScripts } from '@stacks';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
-import { Bucket, dependsOn, use, type StackContext } from 'sst/constructs';
+import { Bucket, dependsOn, type StackContext } from 'sst/constructs';
 
 export function S3({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { invokeBedrockPolicy } = use(Constants);
-
   const indexFileBucket = new Bucket(stack, 'indexFileBucket', {
     defaults: {
       function: {
-        permissions: ['s3', invokeBedrockPolicy],
+        permissions: ['s3'],
         timeout: '15 minutes',
         memorySize: '2 GB'
       }

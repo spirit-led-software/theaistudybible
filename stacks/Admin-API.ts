@@ -1,11 +1,10 @@
-import { API, Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
+import { API, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function AdminAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { invokeBedrockPolicy } = use(Constants);
   const { userProfilePictureBucket, indexFileBucket, devotionImageBucket } = use(S3);
   const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);
   const { webpageIndexQueue } = use(Queues);
@@ -15,7 +14,7 @@ export function AdminAPI({ stack }: StackContext) {
     handler: 'packages/functions/src/rest/admin/data-sources/[id]/sync/post.handler',
     architecture: 'x86_64',
     runtime: 'nodejs18.x',
-    permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
+    permissions: [indexFileBucket, webpageIndexQueue],
     bind: [indexFileBucket, webpageIndexQueue],
     environment: {
       INDEX_FILE_BUCKET: indexFileBucket.bucketName
@@ -51,7 +50,8 @@ export function AdminAPI({ stack }: StackContext) {
       function: {
         handler: 'packages/functions/src/rest/admin/devotions/post.handler',
         bind: [devotionImageBucket],
-        permissions: [devotionImageBucket, invokeBedrockPolicy],
+        permissions: [devotionImageBucket],
+        memorySize: '2 GB',
         environment: {
           DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
         },

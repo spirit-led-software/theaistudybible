@@ -1,24 +1,23 @@
-import { Constants, DatabaseScripts, Jobs, Layers, Queues, S3 } from '@stacks';
+import { DatabaseScripts, Jobs, Layers, Queues, S3 } from '@stacks';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Cron, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
-export function Crons({ stack, app }: StackContext) {
+export function Crons({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { hnswIndexJob } = use(Jobs);
-  const { invokeBedrockPolicy } = use(Constants);
   const { devotionImageBucket, indexFileBucket } = use(S3);
   const { webpageIndexQueue } = use(Queues);
 
-  if (app.stage === 'prod') {
+  if (stack.stage === 'prod') {
     new Cron(stack, 'dailyDevoCron', {
       schedule: 'cron(0 13 * * ? *)',
       job: {
         function: {
           handler: 'packages/functions/src/crons/daily-devo.handler',
           bind: [devotionImageBucket],
-          permissions: [devotionImageBucket, invokeBedrockPolicy],
+          permissions: [devotionImageBucket],
           copyFiles: [
             {
               from: 'firebase-service-account.json',
@@ -29,7 +28,7 @@ export function Crons({ stack, app }: StackContext) {
             DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
           },
           timeout: '5 minutes',
-          memorySize: '1 GB'
+          memorySize: '2 GB'
         }
       }
     });
@@ -39,7 +38,6 @@ export function Crons({ stack, app }: StackContext) {
       job: {
         function: {
           handler: 'packages/functions/src/crons/daily-query.handler',
-          permissions: [invokeBedrockPolicy],
           copyFiles: [
             {
               from: 'firebase-service-account.json',
@@ -47,7 +45,7 @@ export function Crons({ stack, app }: StackContext) {
             }
           ],
           timeout: '5 minutes',
-          memorySize: '1 GB'
+          memorySize: '2 GB'
         }
       }
     });
@@ -81,7 +79,7 @@ export function Crons({ stack, app }: StackContext) {
       handler: 'packages/functions/src/crons/data-source-sync.handler',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
-      permissions: [invokeBedrockPolicy, indexFileBucket, webpageIndexQueue],
+      permissions: [indexFileBucket, webpageIndexQueue],
       bind: [indexFileBucket, webpageIndexQueue],
       environment: {
         INDEX_FILE_BUCKET: indexFileBucket.bucketName

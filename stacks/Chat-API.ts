@@ -19,17 +19,15 @@ const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 export function ChatAPI({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { hostedZone, apiDomainName, domainNamePrefix, websiteUrl, invokeBedrockPolicy } =
-    use(Constants);
+  const { hostedZone, apiDomainName, domainNamePrefix, websiteUrl } = use(Constants);
   const { auth } = use(Auth);
 
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
     handler: 'packages/functions/src/chat.handler',
+    bind: [auth],
+    memorySize: '2 GB',
     timeout: '5 minutes',
-    enableLiveDev: false, // Cannot live dev with response stream
-    memorySize: '1536 MB',
-    permissions: [invokeBedrockPolicy],
-    bind: [auth]
+    enableLiveDev: false // Cannot live dev with response stream
   });
   const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
     invokeMode: InvokeMode.RESPONSE_STREAM,

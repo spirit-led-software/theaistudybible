@@ -1,7 +1,62 @@
-import { COMMON_ENV_VARS } from '@stacks';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import type { StackContext } from 'sst/constructs';
+import { LANGSMITH_ENV_VARS } from './helpers/langsmith';
+
+export const COMMON_ENV_VARS: Record<string, string> = {
+  // Environment
+  IS_LOCAL: process.env.IS_LOCAL!,
+  NODE_ENV: process.env.NODE_ENV!,
+
+  // Unstructured
+  UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
+
+  // OpenAI
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
+
+  // Google AI
+  GOOGLE_API_KEY: process.env.GOOGLE_API_KEY!,
+
+  // Fireworks AI
+  FIREWORKS_API_KEY: process.env.FIREWORKS_API_KEY!,
+
+  // Revenue Cat
+  REVENUECAT_PROJECT_ID: process.env.REVENUECAT_PROJECT_ID!,
+  REVENUECAT_API_KEY: process.env.REVENUECAT_API_KEY!,
+  REVENUECAT_STRIPE_API_KEY: process.env.REVENUECAT_STRIPE_API_KEY!,
+  REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET!,
+
+  // Apple Auth
+  APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID!,
+  APPLE_TEAM_ID: process.env.APPLE_TEAM_ID!,
+  APPLE_KEY_ID: process.env.APPLE_KEY_ID!,
+
+  // Google Auth
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+
+  // Email Auth
+  EMAIL_FROM: process.env.EMAIL_FROM!,
+  EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO!,
+  EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST!,
+  EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT!,
+  EMAIL_SERVER_USERNAME: process.env.EMAIL_SERVER_USERNAME!,
+  EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD!,
+
+  // Admin User
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL!,
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD!,
+
+  // Stripe
+  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
+  STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!
+};
+
+const invokeBedrockPolicy = new PolicyStatement({
+  effect: Effect.ALLOW,
+  actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
+  resources: ['*']
+});
 
 export function Constants({ stack, app }: StackContext) {
   const hostedZone = HostedZone.fromLookup(stack, 'hostedZone', {
@@ -25,13 +80,14 @@ export function Constants({ stack, app }: StackContext) {
     app.setDefaultRemovalPolicy('destroy');
   }
 
+  app.addDefaultFunctionPermissions([invokeBedrockPolicy]);
   app.addDefaultFunctionEnv({
     ...COMMON_ENV_VARS,
+    ...LANGSMITH_ENV_VARS(app, stack),
     PUBLIC_WEBSITE_URL: websiteUrl,
     PUBLIC_AUTH_URL: authUiUrl,
     PUBLIC_API_URL: apiUrl
   });
-
   app.setDefaultFunctionProps({
     timeout: '60 seconds',
     runtime: 'nodejs20.x',
@@ -49,12 +105,6 @@ export function Constants({ stack, app }: StackContext) {
     tracing: app.mode === 'dev' ? 'active' : 'pass_through'
   });
 
-  const invokeBedrockPolicy = new PolicyStatement({
-    effect: Effect.ALLOW,
-    actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
-    resources: ['*']
-  });
-
   return {
     hostedZone,
     domainName,
@@ -63,7 +113,6 @@ export function Constants({ stack, app }: StackContext) {
     authUiDomainName,
     authUiUrl,
     apiDomainName,
-    apiUrl,
-    invokeBedrockPolicy
+    apiUrl
   };
 }
