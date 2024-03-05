@@ -3,6 +3,8 @@ import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import type { StackContext } from 'sst/constructs';
 import { LANGSMITH_ENV_VARS } from './helpers/langsmith';
 
+export const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
+
 export const COMMON_ENV_VARS: Record<string, string> = {
   // Environment
   IS_LOCAL: process.env.IS_LOCAL!,

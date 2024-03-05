@@ -2,6 +2,7 @@ import {
   API,
   AdminAPI,
   Auth,
+  CDN,
   ChatAPI,
   Constants,
   Crons,
@@ -28,6 +29,7 @@ export default {
     app
       .stack(Constants)
       .stack(Layers)
+      .stack(CDN)
       .stack(Database)
       .stack(Jobs)
       .stack(DatabaseScripts)

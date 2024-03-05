@@ -1,4 +1,5 @@
 import { Auth, Constants, DatabaseScripts } from '@stacks';
+import { CLOUDFRONT_HOSTED_ZONE_ID } from '@stacks/Constants';
 import { Fn } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import {
@@ -13,8 +14,6 @@ import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { FunctionUrlAuthType, HttpMethod, InvokeMode } from 'aws-cdk-lib/aws-lambda';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
-
-const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 
 export function ChatAPI({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);

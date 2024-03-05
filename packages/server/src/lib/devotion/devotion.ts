@@ -2,6 +2,7 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
+import cdnConfig from '@revelationsai/core/configs/cdn';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
@@ -158,10 +159,14 @@ export async function generateDevotionImages(devo: Devotion) {
     );
   }
 
-  const imageUrl = s3Url.split('?')[0];
+  let imageUrl = new URL(s3Url.split('?')[0]);
+  if (cdnConfig.url) {
+    imageUrl = new URL(`${cdnConfig.url}/devotion-images${imageUrl.pathname}`);
+  }
+
   await createDevotionImage({
     devotionId: devo.id,
-    url: imageUrl,
+    url: imageUrl.toString(),
     caption: imageCaption,
     prompt: imagePrompt
   });

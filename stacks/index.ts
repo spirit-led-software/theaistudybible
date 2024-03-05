@@ -13,3 +13,4 @@ export * from './Queues';
 export * from './Rest-API';
 export * from './S3';
 export * from './Website';
+export * from './CDN';

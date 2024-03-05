@@ -1,4 +1,6 @@
-import type { UpdateUserData } from '@revelationsai/core/model/user';
+import cdnConfig from '@revelationsai/core/configs/cdn';
+import s3Config from '@revelationsai/core/configs/s3';
+import { updateUserSchema } from '@revelationsai/core/model/user';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { getUser, isAdminSync, updateUser } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
@@ -11,9 +13,11 @@ import {
 
 export const handler = ApiHandler(async (event) => {
   const id = event.pathParameters!.id!;
-  const data: UpdateUserData = JSON.parse(event.body ?? '{}');
+  const data = JSON.parse(event.body ?? '{}');
 
   try {
+    const values = updateUserSchema.parse(data);
+
     let user = await getUser(id);
     if (!user) {
       return ObjectNotFoundResponse(id);
@@ -24,7 +28,13 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse();
     }
 
-    user = await updateUser(user.id, data);
+    // if the user is updating their image with an image from within our bucket, use the CDN if it exists
+    if (values.image && values.image.includes(s3Config.userProfilePictureBucket) && cdnConfig.url) {
+      const imageUrl = new URL(values.image);
+      values.image = `${process.env.CDN_URL}/user-profile-pictures${imageUrl.pathname}`;
+    }
+
+    user = await updateUser(user.id, values);
     return OkResponse(user);
   } catch (error) {
     console.error(`Error updating user '${id}':`, error);

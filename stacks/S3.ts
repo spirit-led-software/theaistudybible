@@ -1,9 +1,12 @@
-import { DatabaseScripts } from '@stacks';
+import { CDN, DatabaseScripts } from '@stacks';
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
-import { Bucket, dependsOn, type StackContext } from 'sst/constructs';
+import { Bucket, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function S3({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
+
+  const { cdn } = use(CDN);
 
   const indexFileBucket = new Bucket(stack, 'indexFileBucket', {
     defaults: {
@@ -38,6 +41,9 @@ export function S3({ stack }: StackContext) {
       }
     }
   });
+  if (cdn) {
+    cdn.addBehavior('/devotion-images', new S3Origin(devotionImageBucket.cdk.bucket));
+  }
 
   const userProfilePictureBucket = new Bucket(stack, 'userProfilePictureBucket', {
     cdk: {
@@ -47,6 +53,9 @@ export function S3({ stack }: StackContext) {
       }
     }
   });
+  if (cdn) {
+    cdn.addBehavior('/user-profile-pictures', new S3Origin(userProfilePictureBucket.cdk.bucket));
+  }
 
   const userGeneratedImageBucket = new Bucket(stack, 'userGeneratedImageBucket', {
     cdk: {
@@ -56,6 +65,9 @@ export function S3({ stack }: StackContext) {
       }
     }
   });
+  if (cdn) {
+    cdn.addBehavior('/user-generated-images', new S3Origin(userGeneratedImageBucket.cdk.bucket));
+  }
 
   stack.addOutputs({
     IndexFileBucket: indexFileBucket.bucketName,

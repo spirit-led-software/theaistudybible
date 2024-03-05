@@ -2,6 +2,7 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
+import cdnConfig from '@revelationsai/core/configs/cdn';
 import s3Config from '@revelationsai/core/configs/s3';
 import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
@@ -100,9 +101,13 @@ export async function generatedImage(
       );
     }
 
-    const imageUrl = s3Url.split('?')[0];
+    let imageUrl = new URL(s3Url.split('?')[0]);
+    if (cdnConfig.url) {
+      imageUrl = new URL(`${cdnConfig.url}/user-generated-images${imageUrl.pathname}`);
+    }
+
     return await updateUserGeneratedImage(userGeneratedImage.id, {
-      url: imageUrl,
+      url: imageUrl.toString(),
       prompt,
       searchQueries
     });
