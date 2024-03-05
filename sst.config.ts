@@ -29,10 +29,10 @@ export default {
     app
       .stack(Constants)
       .stack(Layers)
-      .stack(CDN)
       .stack(Database)
       .stack(Jobs)
       .stack(DatabaseScripts)
+      .stack(CDN)
       .stack(S3)
       .stack(Queues)
       .stack(API)
