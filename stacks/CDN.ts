@@ -34,12 +34,12 @@ export function CDN({ app, stack }: StackContext) {
             originAccessIdentity: devotionImageBucketOriginAccessIdentity
           })
         },
-        'user-generated-images/*': {
+        '/user-generated-images/*': {
           origin: new S3Origin(userGeneratedImageBucket.cdk.bucket, {
             originAccessIdentity: userGeneratedImageBucketOriginAccessIdentity
           })
         },
-        'user-profile-pictures/*': {
+        '/user-profile-pictures/*': {
           origin: new S3Origin(userProfilePictureBucket.cdk.bucket, {
             originAccessIdentity: userProfilePictureBucketOriginAccessIdentity
           })
