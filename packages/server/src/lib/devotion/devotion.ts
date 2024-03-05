@@ -137,8 +137,8 @@ export async function generateDevotionImages(devo: Devotion) {
     new PutObjectCommand({
       ACL: 'public-read',
       ContentType: 'image/png',
-      Bucket: Bucket.devotionImageBucket.bucketName,
-      Key: `${devo.id}.png`
+      Bucket: Bucket.PublicBucket.bucketName,
+      Key: `devotion-images/${devo.id}.png`
     })
   );
   if (!s3Url) {
@@ -161,7 +161,7 @@ export async function generateDevotionImages(devo: Devotion) {
 
   let imageUrl = new URL(s3Url.split('?')[0]);
   if (Config.CDN_URL) {
-    imageUrl = new URL(`${Config.CDN_URL}/devotion-images${imageUrl.pathname}`);
+    imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
   }
 
   await createDevotionImage({

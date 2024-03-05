@@ -31,13 +31,11 @@ export const handler = ApiHandler(async (event) => {
     // if the user is updating their image with an image from within our bucket, use the CDN if it exists
     if (
       values.image &&
-      values.image
-        .toLowerCase()
-        .includes(Bucket.userProfilePictureBucket.bucketName.toLowerCase()) &&
+      values.image.toLowerCase().includes(Bucket.PublicBucket.bucketName.toLowerCase()) &&
       Config.CDN_URL
     ) {
       const imageUrl = new URL(values.image);
-      values.image = `${Config.CDN_URL}/user-profile-pictures${imageUrl.pathname}`;
+      values.image = `${Config.CDN_URL}${imageUrl.pathname}`;
     }
 
     user = await updateUser(user.id, values);

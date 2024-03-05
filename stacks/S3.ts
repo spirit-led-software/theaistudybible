@@ -31,7 +31,7 @@ export function S3({ app, stack }: StackContext) {
     }
   });
 
-  const devotionImageBucket = new Bucket(stack, 'devotionImageBucket', {
+  const publicBucket = new Bucket(stack, 'PublicBucket', {
     cdk: {
       bucket: {
         autoDeleteObjects: stack.stage !== 'prod',
@@ -39,67 +39,23 @@ export function S3({ app, stack }: StackContext) {
       }
     }
   });
-  const devotionImageBucketOriginAccessIdentity = new OriginAccessIdentity(
+  const publicBucketOriginAccessIdentity = new OriginAccessIdentity(
     stack,
-    'DevotionImageBucketOriginAccessIdentity'
+    'PublicBucketOriginAccessIdentity'
   );
-  devotionImageBucket.cdk.bucket.grantRead(devotionImageBucketOriginAccessIdentity);
+  publicBucket.cdk.bucket.grantRead(publicBucketOriginAccessIdentity);
 
-  const userProfilePictureBucket = new Bucket(stack, 'userProfilePictureBucket', {
-    cdk: {
-      bucket: {
-        autoDeleteObjects: stack.stage !== 'prod',
-        removalPolicy: stack.stage === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY
-      }
-    }
-  });
-  const userProfilePictureBucketOriginAccessIdentity = new OriginAccessIdentity(
-    stack,
-    'UserProfilePictureBucketOriginAccessIdentity'
-  );
-  userProfilePictureBucket.cdk.bucket.grantRead(userProfilePictureBucketOriginAccessIdentity);
-
-  const userGeneratedImageBucket = new Bucket(stack, 'userGeneratedImageBucket', {
-    cdk: {
-      bucket: {
-        autoDeleteObjects: stack.stage !== 'prod',
-        removalPolicy: stack.stage === 'prod' ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY
-      }
-    }
-  });
-  const userGeneratedImageBucketOriginAccessIdentity = new OriginAccessIdentity(
-    stack,
-    'UserGeneratedImageBucketOriginAccessIdentity'
-  );
-  userGeneratedImageBucket.cdk.bucket.grantRead(userGeneratedImageBucketOriginAccessIdentity);
-
-  app.addDefaultFunctionBinding([
-    indexFileBucket,
-    devotionImageBucket,
-    userProfilePictureBucket,
-    userGeneratedImageBucket
-  ]);
-  app.addDefaultFunctionPermissions([
-    indexFileBucket,
-    devotionImageBucket,
-    userProfilePictureBucket,
-    userGeneratedImageBucket
-  ]);
+  app.addDefaultFunctionBinding([indexFileBucket, publicBucket]);
+  app.addDefaultFunctionPermissions([indexFileBucket, publicBucket]);
 
   stack.addOutputs({
     IndexFileBucket: indexFileBucket.bucketName,
-    DevotionImageBucket: devotionImageBucket.bucketName,
-    UserProfilePictureBucket: userProfilePictureBucket.bucketName,
-    UserGeneratedImageBucket: userGeneratedImageBucket.bucketName
+    PublicBucket: publicBucket.bucketName
   });
 
   return {
     indexFileBucket,
-    devotionImageBucket,
-    devotionImageBucketOriginAccessIdentity,
-    userProfilePictureBucket,
-    userProfilePictureBucketOriginAccessIdentity,
-    userGeneratedImageBucket,
-    userGeneratedImageBucketOriginAccessIdentity
+    publicBucket,
+    publicBucketOriginAccessIdentity
   };
 }

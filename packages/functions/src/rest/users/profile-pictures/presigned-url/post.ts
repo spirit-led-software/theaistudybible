@@ -31,8 +31,8 @@ export const handler = ApiHandler(async (event) => {
       new PutObjectCommand({
         ACL: 'public-read',
         ContentType: fileType,
-        Bucket: Bucket.userProfilePictureBucket.bucketName,
-        Key: `${userWithRoles.id}-${Date.now()}`
+        Bucket: Bucket.PublicBucket.bucketName,
+        Key: `profile-pictures/${userWithRoles.id}-${Date.now()}`
       })
     );
 

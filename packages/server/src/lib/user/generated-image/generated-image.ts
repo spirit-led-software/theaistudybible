@@ -79,8 +79,8 @@ export async function generatedImage(
       new PutObjectCommand({
         ACL: 'public-read',
         ContentType: 'image/png',
-        Bucket: Bucket.userGeneratedImageBucket.bucketName,
-        Key: `${userGeneratedImage.id}.png`
+        Bucket: Bucket.PublicBucket.bucketName,
+        Key: `user-generated-images/${userGeneratedImage.id}.png`
       })
     );
     if (!s3Url) {
@@ -103,7 +103,7 @@ export async function generatedImage(
 
     let imageUrl = new URL(s3Url.split('?')[0]);
     if (Config.CDN_URL) {
-      imageUrl = new URL(`${Config.CDN_URL}/user-generated-images${imageUrl.pathname}`);
+      imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
     }
 
     return await updateUserGeneratedImage(userGeneratedImage.id, {
