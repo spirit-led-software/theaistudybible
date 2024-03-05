@@ -27,7 +27,7 @@ export function CDN({ app, stack }: StackContext) {
     cdnDomainName = `cdn.${domainName}`;
     cdn = new Distribution(stack, 'CDN', {
       defaultBehavior: {
-        origin: new HttpOrigin(cdnDomainName),
+        origin: new HttpOrigin(domainName),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
         cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
@@ -37,7 +37,7 @@ export function CDN({ app, stack }: StackContext) {
           corsBehavior: {
             originOverride: true,
             accessControlAllowCredentials: true,
-            accessControlAllowHeaders: ['Authorization', 'Content-type'],
+            accessControlAllowHeaders: ['authorization', 'content-type'],
             accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
             accessControlAllowOrigins: [websiteUrl, authUiUrl],
             accessControlExposeHeaders: ['content-type', 'content-length']
@@ -46,13 +46,58 @@ export function CDN({ app, stack }: StackContext) {
       },
       additionalBehaviors: {
         'devotion-images/*': {
-          origin: new S3Origin(devotionImageBucket.cdk.bucket)
+          origin: new S3Origin(devotionImageBucket.cdk.bucket),
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
+            corsBehavior: {
+              originOverride: true,
+              accessControlAllowCredentials: false,
+              accessControlAllowHeaders: [],
+              accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
+              accessControlAllowOrigins: [websiteUrl, authUiUrl],
+              accessControlExposeHeaders: ['content-type', 'content-length']
+            }
+          })
         },
         'user-generated-images/*': {
-          origin: new S3Origin(userGeneratedImageBucket.cdk.bucket)
+          origin: new S3Origin(userGeneratedImageBucket.cdk.bucket),
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
+            corsBehavior: {
+              originOverride: true,
+              accessControlAllowCredentials: false,
+              accessControlAllowHeaders: [],
+              accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
+              accessControlAllowOrigins: [websiteUrl, authUiUrl],
+              accessControlExposeHeaders: ['content-type', 'content-length']
+            }
+          })
         },
         'user-profile-pictures/*': {
-          origin: new S3Origin(userProfilePictureBucket.cdk.bucket)
+          origin: new S3Origin(userProfilePictureBucket.cdk.bucket),
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
+          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
+          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
+            corsBehavior: {
+              originOverride: true,
+              accessControlAllowCredentials: false,
+              accessControlAllowHeaders: [],
+              accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
+              accessControlAllowOrigins: [websiteUrl, authUiUrl],
+              accessControlExposeHeaders: ['content-type', 'content-length']
+            }
+          })
         }
       },
       domainNames: [cdnDomainName],
