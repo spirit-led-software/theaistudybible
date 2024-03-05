@@ -89,7 +89,7 @@ export function CDN({ app, stack }: StackContext) {
     });
 
     stack.addOutputs({
-      CDN_URL: cdnUrl
+      CdnUrl: cdnUrl
     });
   }
 

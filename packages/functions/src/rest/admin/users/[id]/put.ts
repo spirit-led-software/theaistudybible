@@ -29,7 +29,11 @@ export const handler = ApiHandler(async (event) => {
     }
 
     // if the user is updating their image with an image from within our bucket, use the CDN if it exists
-    if (values.image && values.image.includes(s3Config.userProfilePictureBucket) && cdnConfig.url) {
+    if (
+      values.image &&
+      values.image.toLowerCase().includes(s3Config.userProfilePictureBucket.toLowerCase()) &&
+      cdnConfig.url
+    ) {
       const imageUrl = new URL(values.image);
       values.image = `${process.env.CDN_URL}/user-profile-pictures${imageUrl.pathname}`;
     }
