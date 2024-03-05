@@ -1,8 +1,8 @@
 import envConfig from '@revelationsai/core/configs/env';
-import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import { users } from '@revelationsai/core/database/schema';
 import { NeonVectorStore } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import { Config } from 'sst/node/config';
 import { getEmbeddingsModel } from './llm';
 
 export async function getDocumentVectorStore(options?: {
@@ -20,8 +20,8 @@ export async function getDocumentVectorStore(options?: {
     {
       tableName: `documents_${getEmbeddingsModel().model.replaceAll(/[^a-zA-Z0-9]/g, '_')}`,
       connectionOptions: {
-        readWriteUrl: vectorDBConfig.writeUrl,
-        readOnlyUrl: vectorDBConfig.readUrl
+        readWriteUrl: Config.VECTOR_DB_READWRITE_URL,
+        readOnlyUrl: Config.VECTOR_DB_READONLY_URL
       },
       dimensions: 1536, //! Must match embedding model (above) output size.
       distance: 'cosine',

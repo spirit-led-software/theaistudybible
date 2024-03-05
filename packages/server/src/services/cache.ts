@@ -1,15 +1,15 @@
-import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import { Redis } from '@upstash/redis';
+import { Config } from 'sst/node/config';
 
 /**
  * Redis cache instance.
  * @type {Redis | undefined}
  */
 export const cache =
-  upstashRedisConfig.restUrl && upstashRedisConfig.token
+  Config.UPSTASH_REDIS_REST_URL && Config.UPSTASH_REDIS_TOKEN
     ? new Redis({
-        url: upstashRedisConfig.restUrl,
-        token: upstashRedisConfig.token
+        url: Config.UPSTASH_REDIS_REST_URL,
+        token: Config.UPSTASH_REDIS_TOKEN
       })
     : undefined;
 

@@ -1,4 +1,3 @@
-import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { DataSource } from '@revelationsai/core/model/data-source';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
@@ -45,8 +44,8 @@ export async function indexYoutubeVideo({
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: vectorDBConfig.docEmbeddingContentLength,
-      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
+      chunkSize: 1024,
+      chunkOverlap: 256
     });
     docs = await splitter.invoke(docs, {});
 

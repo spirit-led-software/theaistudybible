@@ -1,4 +1,3 @@
-import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import { dataSources, indexOperations } from '@revelationsai/core/database/schema';
 import { PuppeteerCoreWebBaseLoader } from '@revelationsai/core/langchain/document_loaders/puppeteer-core';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
@@ -83,8 +82,8 @@ export async function generatePageContentEmbeddings(
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);
 
         const splitter = new RecursiveCharacterTextSplitter({
-          chunkSize: vectorDBConfig.docEmbeddingContentLength,
-          chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
+          chunkSize: 1024,
+          chunkOverlap: 256
         });
         console.log('Splitting documents.');
         docs = await splitter.invoke(docs, {});

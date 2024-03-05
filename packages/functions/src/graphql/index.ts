@@ -4,12 +4,12 @@ import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 import { ErrorsAreMissesCache } from '@apollo/utils.keyvaluecache';
 import { handlers, startServerAndCreateLambdaHandler } from '@as-integrations/aws-lambda';
 import { ApolloArmor } from '@escape.tech/graphql-armor';
-import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
 import { readFileSync } from 'fs';
 import { GraphQLScalarType, Kind } from 'graphql';
 import Keyv from 'keyv';
+import { Config } from 'sst/node/config';
 import type { Resolvers } from './__generated__/resolver-types';
 import { aiResponseResolvers } from './resolvers/ai-response';
 import { aiResponseReactionResolvers } from './resolvers/ai-response/reaction';
@@ -109,8 +109,8 @@ const server = new ApolloServer<Context>({
     devotionImageResolvers,
     devotionReactionResolvers
   ],
-  cache: upstashRedisConfig.url
-    ? new ErrorsAreMissesCache(new KeyvAdapter(new Keyv(upstashRedisConfig.url)))
+  cache: Config.UPSTASH_REDIS_URL
+    ? new ErrorsAreMissesCache(new KeyvAdapter(new Keyv(Config.UPSTASH_REDIS_URL)))
     : undefined,
   ...protection,
   plugins: [

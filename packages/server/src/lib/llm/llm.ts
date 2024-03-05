@@ -2,7 +2,6 @@ import type { BaseCache } from '@langchain/core/caches';
 import { OpenAI } from '@langchain/openai';
 import envConfig from '@revelationsai/core/configs/env';
 import openAiConfig from '@revelationsai/core/configs/openai';
-import upstashRedisConfig from '@revelationsai/core/configs/upstash-redis';
 import {
   RAIBedrockEmbeddings,
   type RAIBedrockEmbeddingsParams
@@ -14,6 +13,7 @@ import {
 } from '@revelationsai/core/langchain/types/bedrock';
 import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/openai';
 import { UpstashRedisCache } from 'langchain/cache/upstash_redis';
+import { Config } from 'sst/node/config';
 
 export type StandardModelInput = {
   stream?: boolean;
@@ -29,11 +29,11 @@ export type StandardModelInput = {
 };
 
 export const llmCache =
-  upstashRedisConfig.restUrl && upstashRedisConfig.token
+  Config.UPSTASH_REDIS_REST_URL && Config.UPSTASH_REDIS_TOKEN
     ? new UpstashRedisCache({
         config: {
-          url: upstashRedisConfig.restUrl,
-          token: upstashRedisConfig.token
+          url: Config.UPSTASH_REDIS_REST_URL,
+          token: Config.UPSTASH_REDIS_TOKEN
         }
       })
     : undefined;

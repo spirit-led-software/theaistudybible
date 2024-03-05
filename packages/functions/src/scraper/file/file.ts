@@ -1,6 +1,5 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import unstructuredConfig from '@revelationsai/core/configs/unstructured';
-import vectorDBConfig from '@revelationsai/core/configs/vector-db';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
@@ -116,8 +115,8 @@ export const handler: S3Handler = async (event) => {
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: vectorDBConfig.docEmbeddingContentLength,
-      chunkOverlap: vectorDBConfig.docEmbeddingContentOverlap
+      chunkSize: 1024,
+      chunkOverlap: 256
     });
     console.log('Starting split documents');
     docs = await splitter.invoke(docs, {});
