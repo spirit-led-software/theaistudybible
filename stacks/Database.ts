@@ -1,5 +1,5 @@
 import { Constants } from '@stacks';
-import { dependsOn, type StackContext } from 'sst/constructs';
+import { Config, dependsOn, type StackContext } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
 import { UpstashRedis } from './resources/UpstashRedis';
 
@@ -22,12 +22,14 @@ export function Database({ stack, app }: StackContext) {
     ],
     retainOnDelete: stack.stage === 'prod'
   });
-  app.addDefaultFunctionEnv({
+
+  const neonBranchConfigs = Config.Parameter.create(stack, {
     DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
     DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
     VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
     VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl
   });
+  app.addDefaultFunctionBinding(Object.values(neonBranchConfigs));
 
   const upstashRedis = new UpstashRedis(stack, 'UpstashRedis', {
     email: process.env.UPSTASH_EMAIL!,
@@ -39,15 +41,19 @@ export function Database({ stack, app }: StackContext) {
     autoUpgrade: true,
     retainOnDelete: stack.stage === 'prod'
   });
-  app.addDefaultFunctionEnv({
+
+  const upstashRedisConfigs = Config.Parameter.create(stack, {
     UPSTASH_REDIS_URL: upstashRedis.redisUrl,
     UPSTASH_REDIS_REST_URL: upstashRedis.restUrl,
     UPSTASH_REDIS_TOKEN: upstashRedis.restToken,
     UPSTASH_REDIS_READONLY_TOKEN: upstashRedis.readOnlyRestToken
   });
+  app.addDefaultFunctionBinding(Object.values(upstashRedisConfigs));
 
   return {
     neonBranch,
-    upstashRedis
+    neonBranchConfigs,
+    upstashRedis,
+    upstashRedisConfigs
   };
 }

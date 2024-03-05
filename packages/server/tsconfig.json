@@ -10,7 +10,8 @@
     "ignoreDeprecations": "5.0",
     "paths": {
       "@revelationsai/core": ["../core/src"],
-      "@revelationsai/core/*": ["../core/src/*"]
+      "@revelationsai/core/*": ["../core/src/*"],
+      "@lib/database": ["./src/lib/database"]
     }
   },
   "include": ["**/*.ts"],

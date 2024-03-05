@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { userMessages, users } from '@revelationsai/core/database/schema';
 import type {
   CreateUserMessageData,
@@ -5,7 +6,6 @@ import type {
   UserMessage
 } from '@revelationsai/core/model/user/message';
 import { and, desc, eq, like, not, sql, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 
 export const USER_MESSAGES_CACHE_COLLECTION = 'userMessages';

@@ -1,16 +1,16 @@
-import databaseConfig from '@revelationsai/core/configs/database';
 import { withReplicas } from 'drizzle-orm/pg-core';
+import { Config } from 'sst/node/config';
 import { RAIDatabaseConfig } from './config';
 
 export const readWriteDatabaseConfig = new RAIDatabaseConfig({
-  connectionString: databaseConfig.readWriteUrl,
+  connectionString: Config.DATABASE_READWRITE_URL,
   readOnly: false
 });
 
 function getDatabase() {
-  if (databaseConfig.readWriteUrl !== databaseConfig.readOnlyUrl) {
+  if (Config.DATABASE_READWRITE_URL !== Config.DATABASE_READONLY_URL) {
     const readOnlyDatabaseConfig = new RAIDatabaseConfig({
-      connectionString: databaseConfig.readOnlyUrl,
+      connectionString: Config.DATABASE_READONLY_URL,
       readOnly: true
     });
     return withReplicas(readWriteDatabaseConfig.database, [readOnlyDatabaseConfig.database]);

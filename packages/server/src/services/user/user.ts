@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { roles, users, usersToRoles } from '@revelationsai/core/database/schema';
 import {
   type CreateUserData,
@@ -6,7 +7,6 @@ import {
   type UserWithRoles
 } from '@revelationsai/core/model/user';
 import { desc, eq, sql, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 
 export const USERS_CACHE_COLLECTION = 'users';

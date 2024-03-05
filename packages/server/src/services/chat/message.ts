@@ -1,9 +1,9 @@
+import { db } from '@lib/database';
 import { aiResponses, userMessages } from '@revelationsai/core/database/schema';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import { nanoid } from 'ai';
 import { and, desc, eq, isNull, or, type SQL } from 'drizzle-orm';
 import { v4 as uuidV4 } from 'uuid';
-import { db } from '../../lib/database';
 
 export async function getChatMessages(
   chatId: string,

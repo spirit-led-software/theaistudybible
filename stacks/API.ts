@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
+import { Constants, DatabaseScripts, Layers } from '@stacks';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Api, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -6,9 +6,7 @@ export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { hostedZone, apiUrl, apiDomainName, websiteUrl, authUiUrl } = use(Constants);
-  const { indexFileBucket } = use(S3);
   const { chromiumLayer, axiomX86Layer } = use(Layers);
-  const { webpageIndexQueue } = use(Queues);
 
   const webpageScraperFunction = new Function(stack, 'webpageScraperFunction', {
     handler: 'packages/functions/src/scraper/webpage/webpage.handler',
@@ -29,33 +27,14 @@ export function API({ stack }: StackContext) {
       'POST /scraper/web-crawl': {
         function: {
           handler: 'packages/functions/src/scraper/web-crawl.handler',
-          bind: [webpageIndexQueue],
-          permissions: [webpageIndexQueue],
           timeout: '15 minutes',
           memorySize: '2 GB'
         }
       },
       'POST /scraper/webpage': webpageScraperFunction,
-      'POST /scraper/file/presigned-url': {
-        function: {
-          handler: 'packages/functions/src/scraper/file/upload-url.handler',
-          bind: [indexFileBucket],
-          permissions: [indexFileBucket],
-          environment: {
-            INDEX_FILE_BUCKET: indexFileBucket.bucketName
-          }
-        }
-      },
-      'POST /scraper/file/remote-download': {
-        function: {
-          handler: 'packages/functions/src/scraper/file/remote-download.handler',
-          bind: [indexFileBucket],
-          permissions: [indexFileBucket],
-          environment: {
-            INDEX_FILE_BUCKET: indexFileBucket.bucketName
-          }
-        }
-      },
+      'POST /scraper/file/presigned-url': 'packages/functions/src/scraper/file/upload-url.handler',
+      'POST /scraper/file/remote-download':
+        'packages/functions/src/scraper/file/remote-download.handler',
 
       // Webhooks
       'POST /notifications/stripe': 'packages/functions/src/webhooks/stripe.handler',

@@ -1,5 +1,5 @@
+import { db } from '$lib/server/database';
 import { chats as chatsTable } from '@revelationsai/core/database/schema';
-import { db } from '@revelationsai/server/lib/database';
 import { count } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 

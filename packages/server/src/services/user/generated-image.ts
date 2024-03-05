@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { userGeneratedImages } from '@revelationsai/core/database/schema';
 import type {
   CreateUserGeneratedImageData,
@@ -5,7 +6,6 @@ import type {
   UserGeneratedImage
 } from '@revelationsai/core/model/user/generated-image';
 import { desc, eq, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../cache';
 
 export const USER_GENERATED_IMAGES_CACHE_COLLECTION = 'userGeneratedImages';

@@ -1,10 +1,10 @@
+import { db } from '@lib/database';
 import {
   aiResponsesToSourceDocuments,
   devotionsToSourceDocuments,
   userGeneratedImagesToSourceDocuments
 } from '@revelationsai/core/database/schema';
 import { asc, eq } from 'drizzle-orm';
-import { db } from '../lib/database';
 import { getDocumentVectorStore } from '../lib/vector-db';
 
 export async function getSourceDocumentsByDevotionId(devotionId: string) {

@@ -6,8 +6,7 @@ import {
   Constants,
   Database,
   DatabaseScripts,
-  Layers,
-  S3
+  Layers
 } from '@stacks';
 import { Architecture } from 'aws-cdk-lib/aws-lambda';
 import { SvelteKitSite, dependsOn, use, type StackContext } from 'sst/constructs';
@@ -17,22 +16,17 @@ export function Website({ stack }: StackContext) {
 
   const { hostedZone, domainName, websiteUrl, authUiUrl, apiUrl } = use(Constants);
   const { axiomArm64Layer } = use(Layers);
-  const { neonBranch } = use(Database);
-  const { indexFileBucket } = use(S3);
+  const { neonBranchConfigs, upstashRedisConfigs } = use(Database);
   const { auth } = use(Auth);
   const { api } = use(API);
   const { chatApiUrl } = use(ChatAPI);
 
   const website = new SvelteKitSite(stack, 'website', {
     path: 'packages/website',
-    permissions: [api, indexFileBucket],
-    bind: [auth, api, indexFileBucket],
+    permissions: [api],
+    bind: [auth, api, ...Object.values(neonBranchConfigs), ...Object.values(upstashRedisConfigs)],
     environment: {
       ...COMMON_ENV_VARS,
-      DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
-      DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
-      VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
-      VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl,
       AXIOM_TOKEN: process.env.AXIOM_TOKEN!,
       AXIOM_DATASET: process.env.AXIOM_DATASET!,
       PUBLIC_WEBSITE_URL: websiteUrl,

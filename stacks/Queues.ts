@@ -3,7 +3,7 @@ import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib/core';
 import { Function, Queue, dependsOn, use, type StackContext } from 'sst/constructs';
 
-export function Queues({ stack }: StackContext) {
+export function Queues({ app, stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { chromiumLayer, axiomX86Layer } = use(Layers);
@@ -43,6 +43,9 @@ export function Queues({ stack }: StackContext) {
   });
   webpageIndexQueue.bind([webpageIndexQueue]);
   webpageIndexQueue.attachPermissions([webpageIndexQueue]);
+
+  app.addDefaultFunctionBinding([webpageIndexQueue]);
+  app.addDefaultFunctionPermissions([webpageIndexQueue]);
 
   return {
     webpageIndexQueue

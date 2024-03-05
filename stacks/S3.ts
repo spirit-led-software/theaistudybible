@@ -2,7 +2,7 @@ import { DatabaseScripts } from '@stacks';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
 import { Bucket, dependsOn, type StackContext } from 'sst/constructs';
 
-export function S3({ stack }: StackContext) {
+export function S3({ app, stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const indexFileBucket = new Bucket(stack, 'indexFileBucket', {
@@ -56,6 +56,19 @@ export function S3({ stack }: StackContext) {
       }
     }
   });
+
+  app.addDefaultFunctionBinding([
+    indexFileBucket,
+    devotionImageBucket,
+    userProfilePictureBucket,
+    userGeneratedImageBucket
+  ]);
+  app.addDefaultFunctionPermissions([
+    indexFileBucket,
+    devotionImageBucket,
+    userProfilePictureBucket,
+    userGeneratedImageBucket
+  ]);
 
   stack.addOutputs({
     IndexFileBucket: indexFileBucket.bucketName,

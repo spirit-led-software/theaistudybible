@@ -4,11 +4,11 @@ import { Cron, Function, dependsOn, use, type StackContext } from 'sst/construct
 
 export function Crons({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
+  dependsOn(S3);
+  dependsOn(Queues);
 
   const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { hnswIndexJob } = use(Jobs);
-  const { devotionImageBucket, indexFileBucket } = use(S3);
-  const { webpageIndexQueue } = use(Queues);
 
   if (stack.stage === 'prod') {
     new Cron(stack, 'dailyDevoCron', {
@@ -16,17 +16,12 @@ export function Crons({ stack }: StackContext) {
       job: {
         function: {
           handler: 'packages/functions/src/crons/daily-devo.handler',
-          bind: [devotionImageBucket],
-          permissions: [devotionImageBucket],
           copyFiles: [
             {
               from: 'firebase-service-account.json',
               to: 'firebase-service-account.json'
             }
           ],
-          environment: {
-            DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
-          },
           timeout: '5 minutes',
           memorySize: '2 GB'
         }
@@ -79,11 +74,6 @@ export function Crons({ stack }: StackContext) {
       handler: 'packages/functions/src/crons/data-source-sync.handler',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
-      permissions: [indexFileBucket, webpageIndexQueue],
-      bind: [indexFileBucket, webpageIndexQueue],
-      environment: {
-        INDEX_FILE_BUCKET: indexFileBucket.bucketName
-      },
       memorySize: '2 GB',
       timeout: '15 minutes'
     });

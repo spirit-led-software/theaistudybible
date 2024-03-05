@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { devotionImages } from '@revelationsai/core/database/schema';
 import type {
   CreateDevotionImageData,
@@ -5,7 +6,6 @@ import type {
   UpdateDevotionImageData
 } from '@revelationsai/core/model/devotion/image';
 import { desc, eq, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInputFn } from '../../services/cache';
 
 export const DEVOTION_IMAGES_CACHE_COLLECTION = 'devotionImages';

@@ -1,8 +1,8 @@
 import cdnConfig from '@revelationsai/core/configs/cdn';
-import s3Config from '@revelationsai/core/configs/s3';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { getUser, updateUser } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import { Bucket } from 'sst/node/bucket';
 import { updateUserSchema } from '../../../../../core/src/model/user/user';
 import {
   InternalServerErrorResponse,
@@ -31,7 +31,9 @@ export const handler = ApiHandler(async (event) => {
     // if the user is updating their image with an image from within our bucket, use the CDN if it exists
     if (
       values.image &&
-      values.image.toLowerCase().includes(s3Config.userProfilePictureBucket.toLowerCase()) &&
+      values.image
+        .toLowerCase()
+        .includes(Bucket.userProfilePictureBucket.bucketName.toLowerCase()) &&
       cdnConfig.url
     ) {
       const imageUrl = new URL(values.image);

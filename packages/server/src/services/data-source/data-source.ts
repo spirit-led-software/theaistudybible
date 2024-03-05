@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { dataSources } from '@revelationsai/core/database/schema';
 import type {
   CreateDataSourceData,
@@ -5,7 +6,6 @@ import type {
   UpdateDataSourceData
 } from '@revelationsai/core/model/data-source';
 import { desc, eq, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { getDocumentVectorStore } from '../../lib/vector-db';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 

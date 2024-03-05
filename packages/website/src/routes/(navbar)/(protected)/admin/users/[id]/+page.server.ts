@@ -1,4 +1,4 @@
-import { db } from '@revelationsai/server/lib/database';
+import { db } from '$lib/server/database';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

@@ -3,8 +3,8 @@ import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
+  dependsOn(S3);
 
-  const { userProfilePictureBucket, userGeneratedImageBucket } = use(S3);
   const { argonLayer } = use(Layers);
   const { api } = use(API);
 
@@ -91,28 +91,14 @@ export function RestAPI({ stack }: StackContext) {
     },
 
     // Generate presigned url for user profile picture upload
-    'POST /users/profile-pictures/presigned-url': {
-      function: {
-        handler: 'packages/functions/src/rest/users/profile-pictures/presigned-url/post.handler',
-        bind: [userProfilePictureBucket],
-        permissions: [userProfilePictureBucket],
-        environment: {
-          USER_PROFILE_PICTURE_BUCKET: userProfilePictureBucket.bucketName
-        }
-      }
-    },
+    'POST /users/profile-pictures/presigned-url':
+      'packages/functions/src/rest/users/profile-pictures/presigned-url/post.handler',
 
     // User generated images
     'GET /generated-images': 'packages/functions/src/rest/generated-images/get.handler',
     'POST /generated-images': {
       function: {
         handler: 'packages/functions/src/rest/generated-images/post.handler',
-        bind: [userGeneratedImageBucket],
-        permissions: [userGeneratedImageBucket],
-        memorySize: '2 GB',
-        environment: {
-          USER_GENERATED_IMAGE_BUCKET: userGeneratedImageBucket.bucketName
-        },
         timeout: '10 minutes'
       }
     },

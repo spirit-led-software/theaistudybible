@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import axios from '@revelationsai/core/configs/axios';
-import s3Config from '@revelationsai/core/configs/s3';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import { Bucket } from 'sst/node/bucket';
 
 export async function indexRemoteFile({
   dataSourceId,
@@ -25,7 +25,7 @@ export async function indexRemoteFile({
   const s3Client = new S3Client({});
   const putCommandResponse = await s3Client.send(
     new PutObjectCommand({
-      Bucket: s3Config.indexFileBucket,
+      Bucket: Bucket.indexFileBucket.bucketName,
       Key: filename,
       ContentType: contentType,
       Body: downloadResponse.data,

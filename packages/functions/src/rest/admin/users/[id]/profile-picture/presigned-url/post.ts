@@ -1,9 +1,9 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import s3Config from '@revelationsai/core/configs/s3';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { getUser, isAdminSync } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
+import { Bucket } from 'sst/node/bucket';
 import {
   BadRequestResponse,
   InternalServerErrorResponse,
@@ -39,7 +39,7 @@ export const handler = ApiHandler(async (event) => {
       new PutObjectCommand({
         ACL: 'public-read',
         ContentType: fileType,
-        Bucket: s3Config.userProfilePictureBucket,
+        Bucket: Bucket.userProfilePictureBucket.bucketName,
         Key: `${user.id}-${Date.now()}`
       })
     );

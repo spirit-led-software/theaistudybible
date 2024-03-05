@@ -12,7 +12,8 @@
       "@revelationsai/core": ["../core/src"],
       "@revelationsai/core/*": ["../core/src/*"],
       "@revelationsai/server": ["../server/src"],
-      "@revelationsai/server/*": ["../server/src/*"]
+      "@revelationsai/server/*": ["../server/src/*"],
+      "@lib/database": ["../server/src/lib/database"]
     }
   },
   "include": ["**/*.ts"],

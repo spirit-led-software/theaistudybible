@@ -1,10 +1,10 @@
+import { db } from '@lib/database';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type {
   CreateIndexOperationData,
   UpdateIndexOperationData
 } from '@revelationsai/core/model/data-source/index-op';
 import { desc, eq, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 
 export async function getIndexOperations(
   options: {

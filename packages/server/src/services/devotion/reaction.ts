@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { devotionReactions, devotions, users } from '@revelationsai/core/database/schema';
 import type {
   CreateDevotionReactionData,
@@ -5,7 +6,6 @@ import type {
   UpdateDevotionReactionData
 } from '@revelationsai/core/model/devotion/reaction';
 import { and, desc, eq, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInputFn } from '../../services/cache';
 
 export const DEVOTION_REACTIONS_CACHE_COLLECTION = 'devotionReactions';

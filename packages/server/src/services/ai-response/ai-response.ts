@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { aiResponses } from '@revelationsai/core/database/schema';
 import {
   type AiResponse,
@@ -5,7 +6,6 @@ import {
   type UpdateAiResponseData
 } from '@revelationsai/core/model/ai-response';
 import { desc, eq, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 
 export const AI_RESPONSES_CACHE_COLLECTION = 'aiResponses';

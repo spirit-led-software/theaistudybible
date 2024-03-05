@@ -1,3 +1,4 @@
+import { db } from '@lib/database';
 import { chats } from '@revelationsai/core/database/schema';
 import {
   type Chat,
@@ -5,7 +6,6 @@ import {
   type UpdateChatData
 } from '@revelationsai/core/model/chat';
 import { desc, eq, sql, type SQL } from 'drizzle-orm';
-import { db } from '../../lib/database';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
 
 export const CHATS_CACHE_COLLECTION = 'chats';

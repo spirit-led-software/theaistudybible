@@ -4,21 +4,16 @@ import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function AdminAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
+  dependsOn(S3);
+  dependsOn(Queues);
 
-  const { userProfilePictureBucket, indexFileBucket, devotionImageBucket } = use(S3);
   const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);
-  const { webpageIndexQueue } = use(Queues);
   const { api } = use(API);
 
   const dataSourceSyncFunction = new Function(stack, 'DataSourceSyncFunction', {
     handler: 'packages/functions/src/rest/admin/data-sources/[id]/sync/post.handler',
     architecture: 'x86_64',
     runtime: 'nodejs18.x',
-    permissions: [indexFileBucket, webpageIndexQueue],
-    bind: [indexFileBucket, webpageIndexQueue],
-    environment: {
-      INDEX_FILE_BUCKET: indexFileBucket.bucketName
-    },
     memorySize: '2 GB',
     timeout: '15 minutes'
   });
@@ -49,12 +44,7 @@ export function AdminAPI({ stack }: StackContext) {
     'POST /admin/devotions': {
       function: {
         handler: 'packages/functions/src/rest/admin/devotions/post.handler',
-        bind: [devotionImageBucket],
-        permissions: [devotionImageBucket],
         memorySize: '2 GB',
-        environment: {
-          DEVOTION_IMAGE_BUCKET: devotionImageBucket.bucketName
-        },
         timeout: '5 minutes'
       }
     },
@@ -104,12 +94,7 @@ export function AdminAPI({ stack }: StackContext) {
     'POST /admin/users/{id}/profile-picture/presigned-url': {
       function: {
         handler:
-          'packages/functions/src/rest/admin/users/[id]/profile-picture/presigned-url/post.handler',
-        bind: [userProfilePictureBucket],
-        permissions: [userProfilePictureBucket],
-        environment: {
-          USER_PROFILE_PICTURE_BUCKET: userProfilePictureBucket.bucketName
-        }
+          'packages/functions/src/rest/admin/users/[id]/profile-picture/presigned-url/post.handler'
       }
     }
   });

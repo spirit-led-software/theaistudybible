@@ -3,11 +3,11 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
 import cdnConfig from '@revelationsai/core/configs/cdn';
-import s3Config from '@revelationsai/core/configs/s3';
 import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
+import { Bucket } from 'sst/node/bucket';
 import {
   createUserGeneratedImage,
   updateUserGeneratedImage
@@ -79,7 +79,7 @@ export async function generatedImage(
       new PutObjectCommand({
         ACL: 'public-read',
         ContentType: 'image/png',
-        Bucket: s3Config.userGeneratedImageBucket,
+        Bucket: Bucket.userGeneratedImageBucket.bucketName,
         Key: `${userGeneratedImage.id}.png`
       })
     );
