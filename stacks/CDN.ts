@@ -1,3 +1,4 @@
+import { S3 } from '@stacks';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
@@ -8,13 +9,14 @@ import {
   ResponseHeadersPolicy,
   ViewerProtocolPolicy
 } from 'aws-cdk-lib/aws-cloudfront';
-import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { use, type StackContext } from 'sst/constructs';
 import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './Constants';
 
 export function CDN({ app, stack }: StackContext) {
   const { websiteUrl, authUiUrl, domainName, domainNamePrefix, hostedZone } = use(Constants);
+  const { devotionImageBucket, userGeneratedImageBucket, userProfilePictureBucket } = use(S3);
 
   let cdnDomainName: string | undefined = undefined;
   let cdnUrl: string | undefined = undefined;
@@ -41,6 +43,17 @@ export function CDN({ app, stack }: StackContext) {
             accessControlExposeHeaders: ['content-type', 'content-length']
           }
         })
+      },
+      additionalBehaviors: {
+        'devotion-images/*': {
+          origin: new S3Origin(devotionImageBucket.cdk.bucket)
+        },
+        'user-generated-images/*': {
+          origin: new S3Origin(userGeneratedImageBucket.cdk.bucket)
+        },
+        'user-profile-pictures/*': {
+          origin: new S3Origin(userProfilePictureBucket.cdk.bucket)
+        }
       },
       domainNames: [cdnDomainName],
       certificate: new Certificate(stack, 'CDNCertificate', {
@@ -74,11 +87,11 @@ export function CDN({ app, stack }: StackContext) {
     app.addDefaultFunctionEnv({
       CDN_URL: cdnUrl
     });
-  }
 
-  stack.addOutputs({
-    CDN_URL: cdnUrl
-  });
+    stack.addOutputs({
+      CDN_URL: cdnUrl
+    });
+  }
 
   return {
     cdn,
