@@ -3,13 +3,17 @@
 	import { session } from '$lib/stores/user';
 	import Icon from '@iconify/svelte';
 	import { graphql } from '@revelationsai/client/graphql';
+	import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 	import { createQuery } from '@tanstack/svelte-query';
 	import graphqlRequest from 'graphql-request';
+	import { writable } from 'svelte/store';
 
 	export let aiResponseId: string;
 	export let isChatLoading = false;
 
 	let showSources = false;
+
+	let sourceDocs = writable<Pick<NeonVectorStoreDocument, 'id' | 'metadata'>[]>([]);
 
 	const graphqlQuery = graphql(`
 		query GetAiResponseSourceDocuments($aiResponseId: String!) {
@@ -38,6 +42,20 @@
 			);
 		}
 	});
+	query.subscribe(({ data }) => {
+		if (data?.aiResponse?.sourceDocuments) {
+			sourceDocs.set(
+				data.aiResponse.sourceDocuments
+					.map((doc) => ({
+						id: doc.id,
+						metadata: JSON.parse(doc.metadata)
+					}))
+					.filter(
+						(doc, index, arr) => arr.findIndex((d) => d.metadata.url === doc.metadata.url) === index
+					)
+			);
+		}
+	});
 
 	$: isLoading = isChatLoading || $query.isLoading;
 </script>
@@ -60,22 +78,21 @@
 			/>
 		{/if}
 	</button>
-	{#if $query.data?.aiResponse?.sourceDocuments && $query.data?.aiResponse?.sourceDocuments.length > 0}
+	{#if $sourceDocs.length > 0}
 		<ol
 			class={`flex w-full list-outside list-decimal flex-col space-y-1 duration-300 ${showSources ? '' : 'hidden'}`}
 		>
-			{#each $query.data?.aiResponse?.sourceDocuments as sourceDoc (sourceDoc.id)}
-				{@const metadata = JSON.parse(sourceDoc.metadata)}
+			{#each $sourceDocs as sourceDoc (sourceDoc.id)}
 				<li class={`list-item truncate text-xs text-gray-400`}>
 					<a
-						href={metadata.url ?? '#'}
+						href={sourceDoc.metadata.url ?? '#'}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="hover:underline"
 					>
-						<span>{metadata.title ?? metadata.name}</span>
-						{#if metadata.author}
-							<span class="ml-1 text-slate-500">by {metadata.author}</span>
+						<span>{sourceDoc.metadata.title ?? sourceDoc.metadata.name}</span>
+						{#if sourceDoc.metadata.author}
+							<span class="ml-1 text-slate-500">by {sourceDoc.metadata.author}</span>
 						{/if}
 					</a>
 				</li>
