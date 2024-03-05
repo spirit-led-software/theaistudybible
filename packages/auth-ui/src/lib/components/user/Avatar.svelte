@@ -51,27 +51,34 @@
 	$: ({ image, name, email } = user ?? $userStore!);
 </script>
 
-<div
-	class={cn(
-		`flex flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-gray-300`,
-		squareDimensionClasses[size],
-		className
-	)}
->
-	{#if image}
-		<img
-			class="h-full w-full rounded-full"
-			src={image}
-			width={512}
-			height={512}
-			alt="avatar"
-			on:error={() => {
-				image = null;
-			}}
-		/>
-	{:else}
-		<div class={cn(`rounded-full uppercase text-white`, textSizeClasses[size])}>
-			{name ? name[0] : email ? email[0] : '?'}
-		</div>
-	{/if}
+<div class="relative">
+	<div
+		class="absolute bottom-1 right-1 flex h-6 w-6 flex-col place-items-center justify-center rounded-full bg-blue-300 p-2 text-white"
+	>
+		<slot />
+	</div>
+	<div
+		class={cn(
+			'flex flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-gray-300',
+			squareDimensionClasses[size],
+			className
+		)}
+	>
+		{#if image}
+			<img
+				class="h-full w-full rounded-full"
+				src={image}
+				width={512}
+				height={512}
+				alt="avatar"
+				on:error={() => {
+					image = null;
+				}}
+			/>
+		{:else}
+			<div class={cn('rounded-full uppercase text-white', textSizeClasses[size])}>
+				{name ? name[0] : email ? email[0] : '?'}
+			</div>
+		{/if}
+	</div>
 </div>
