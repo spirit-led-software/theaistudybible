@@ -1,4 +1,5 @@
 import { DatabaseScripts } from '@stacks';
+import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
 import { Bucket, dependsOn, type StackContext } from 'sst/constructs';
 
@@ -38,6 +39,11 @@ export function S3({ app, stack }: StackContext) {
       }
     }
   });
+  const devotionImageBucketOriginAccessIdentity = new OriginAccessIdentity(
+    stack,
+    'DevotionImageBucketOriginAccessIdentity'
+  );
+  devotionImageBucket.cdk.bucket.grantRead(devotionImageBucketOriginAccessIdentity);
 
   const userProfilePictureBucket = new Bucket(stack, 'userProfilePictureBucket', {
     cdk: {
@@ -47,6 +53,11 @@ export function S3({ app, stack }: StackContext) {
       }
     }
   });
+  const userProfilePictureBucketOriginAccessIdentity = new OriginAccessIdentity(
+    stack,
+    'UserProfilePictureBucketOriginAccessIdentity'
+  );
+  userProfilePictureBucket.cdk.bucket.grantRead(userProfilePictureBucketOriginAccessIdentity);
 
   const userGeneratedImageBucket = new Bucket(stack, 'userGeneratedImageBucket', {
     cdk: {
@@ -56,6 +67,11 @@ export function S3({ app, stack }: StackContext) {
       }
     }
   });
+  const userGeneratedImageBucketOriginAccessIdentity = new OriginAccessIdentity(
+    stack,
+    'UserGeneratedImageBucketOriginAccessIdentity'
+  );
+  userGeneratedImageBucket.cdk.bucket.grantRead(userGeneratedImageBucketOriginAccessIdentity);
 
   app.addDefaultFunctionBinding([
     indexFileBucket,
@@ -80,7 +96,10 @@ export function S3({ app, stack }: StackContext) {
   return {
     indexFileBucket,
     devotionImageBucket,
+    devotionImageBucketOriginAccessIdentity,
     userProfilePictureBucket,
-    userGeneratedImageBucket
+    userProfilePictureBucketOriginAccessIdentity,
+    userGeneratedImageBucket,
+    userGeneratedImageBucketOriginAccessIdentity
   };
 }
