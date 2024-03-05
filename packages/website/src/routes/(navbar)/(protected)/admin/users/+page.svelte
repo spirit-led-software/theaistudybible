@@ -57,6 +57,12 @@
 			enableHiding: true
 		},
 		{
+			accessorKey: 'lastSeenAt',
+			header: 'Last Seen',
+			cell: (info) => (info.getValue() ? day(info.getValue() as Date).format('M/D/YY') : undefined),
+			enableHiding: true
+		},
+		{
 			header: 'Joined',
 			accessorFn: (row) => day(row.createdAt as Date).format('M/D/YY'),
 			id: 'createdAt',
@@ -160,6 +166,7 @@
 				name
 				createdAt
 				updatedAt
+				lastSeenAt
 				roles {
 					name
 				}
