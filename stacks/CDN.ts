@@ -73,7 +73,7 @@ export function CDN({ app, stack }: StackContext) {
     });
     const cdnAaaaRecord = new AaaaRecord(stack, 'CDNAAAARecord', {
       zone: hostedZone,
-      recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
+      recordName: `cdn${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
       target: RecordTarget.fromAlias({
         bind: () => ({
           dnsName: cdn!.distributionDomainName,
