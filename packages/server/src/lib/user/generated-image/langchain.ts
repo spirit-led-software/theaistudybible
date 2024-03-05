@@ -1,5 +1,6 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
+import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { XMLBuilder } from 'fast-xml-parser';
@@ -10,7 +11,7 @@ import {
 } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
-import { getLanguageModel, llmCache } from '../../llm';
+import { getLanguageModel } from '../../llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../llm/prompts';
 import { getDocumentVectorStore } from '../../vector-db';
 import {

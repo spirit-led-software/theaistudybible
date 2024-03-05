@@ -1,17 +1,4 @@
-import { Redis } from '@upstash/redis';
-import { Config } from 'sst/node/config';
-
-/**
- * Redis cache instance.
- * @type {Redis | undefined}
- */
-export const cache =
-  Config.UPSTASH_REDIS_REST_URL && Config.UPSTASH_REDIS_TOKEN
-    ? new Redis({
-        url: Config.UPSTASH_REDIS_REST_URL,
-        token: Config.UPSTASH_REDIS_TOKEN
-      })
-    : undefined;
+import { cache } from '@lib/cache';
 
 const DEFAULT_EXPIRE_SECONDS = 60 * 60;
 
@@ -67,10 +54,6 @@ export async function cacheGet<T>(options: {
   expireSeconds?: number;
 }): Promise<T | null> {
   const { collection, key, fn, expireSeconds = DEFAULT_EXPIRE_SECONDS } = options;
-
-  if (!cache) {
-    return fn ? await fn() : null;
-  }
 
   const cacheKey = `${collection}:${key.name}:${key.value}`;
   try {
@@ -139,10 +122,6 @@ export async function cacheUpsert<T>(options: {
     invalidateIterables = false
   } = options;
 
-  if (!cache) {
-    return fn();
-  }
-
   const obj = await fn();
 
   try {
@@ -152,20 +131,20 @@ export async function cacheUpsert<T>(options: {
         const cacheKey = `${collection}:${name}:${value}`;
         if (type === 'list') {
           if (invalidateIterables) {
-            await cache.del(cacheKey);
+            await cache!.del(cacheKey);
           } else {
-            await cache.lpush(cacheKey, JSON.stringify(obj));
-            await cache.expire(cacheKey, expireSeconds);
+            await cache!.lpush(cacheKey, JSON.stringify(obj));
+            await cache!.expire(cacheKey, expireSeconds);
           }
         } else if (type === 'set') {
           if (invalidateIterables) {
-            await cache.del(cacheKey);
+            await cache!.del(cacheKey);
           } else {
-            await cache.sadd(cacheKey, JSON.stringify(obj));
-            await cache.expire(cacheKey, expireSeconds);
+            await cache!.sadd(cacheKey, JSON.stringify(obj));
+            await cache!.expire(cacheKey, expireSeconds);
           }
         } else {
-          await cache.set(cacheKey, JSON.stringify(obj), {
+          await cache!.set(cacheKey, JSON.stringify(obj), {
             ex: expireSeconds
           });
         }
@@ -198,10 +177,6 @@ export async function cacheDelete<T>(options: {
 }) {
   const { collection, keys, fn } = options;
 
-  if (!cache) {
-    return fn ? await fn() : null;
-  }
-
   const obj = fn ? await fn() : null;
 
   try {
@@ -223,10 +198,6 @@ export async function cacheDelete<T>(options: {
 export async function cacheInvalidate(options: { collection: string; key: CacheKey }) {
   const { collection, key } = options;
 
-  if (!cache) {
-    return;
-  }
-
   try {
     const cacheKey = `${collection}:${key.name}:${key.value}`;
     await cache.del(cacheKey);
@@ -241,10 +212,6 @@ export async function cacheInvalidate(options: { collection: string; key: CacheK
 
 export async function cacheGetTtl(options: { collection: string; key: CacheKey }) {
   const { collection, key } = options;
-
-  if (!cache) {
-    return 0;
-  }
 
   try {
     const cacheKey = `${collection}:${key.name}:${key.value}`;
@@ -264,9 +231,6 @@ export async function cacheGetTtl(options: { collection: string; key: CacheKey }
  * @returns {Promise<void>} A promise that resolves when the cache is cleared.
  */
 export async function clearCache() {
-  if (!cache) {
-    return 'SKIPPED';
-  }
   return await cache.flushdb();
 }
 

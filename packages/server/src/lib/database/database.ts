@@ -19,4 +19,3 @@ function getDatabase() {
 }
 
 export const db = getDatabase();
-export default db;

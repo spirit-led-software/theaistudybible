@@ -11,7 +11,8 @@
     "paths": {
       "@revelationsai/core": ["../core/src"],
       "@revelationsai/core/*": ["../core/src/*"],
-      "@lib/database": ["./src/lib/database"]
+      "@lib/database": ["./src/lib/database"],
+      "@lib/cache": ["./src/lib/cache"]
     }
   },
   "include": ["**/*.ts"],

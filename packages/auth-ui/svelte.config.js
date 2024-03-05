@@ -14,7 +14,8 @@ const config = {
 			'@revelationsai/core': '../core/src',
 			'@revelationsai/server': '../server/src',
 			'@revelationsai/client': '../client/src',
-			'@lib/database': './src/lib/server/database'
+			'@lib/database': './src/lib/server/database',
+			'@lib/cache': './src/lib/server/cache'
 		}
 	}
 };

@@ -1,5 +1,6 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
+import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/env';
 import {
   anthropicModelIds,
@@ -24,7 +25,7 @@ import {
 import { PromptTemplate } from 'langchain/prompts';
 import type { PartialValues } from 'langchain/schema';
 import { z } from 'zod';
-import { getLanguageModel, llmCache } from '../llm';
+import { getLanguageModel } from '../llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
 import { getDocumentVectorStore } from '../vector-db';
 import {

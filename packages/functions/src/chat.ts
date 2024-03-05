@@ -14,7 +14,7 @@ import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
 import { getRAIChatChain } from '@revelationsai/server/lib/chat/langchain';
-import db from '@revelationsai/server/lib/database/database';
+import { db } from '@revelationsai/server/lib/database';
 import {
   createAiResponse,
   getAiResponse,
