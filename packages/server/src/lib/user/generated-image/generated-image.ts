@@ -2,12 +2,12 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
-import cdnConfig from '@revelationsai/core/configs/cdn';
 import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { Bucket } from 'sst/node/bucket';
+import { Config } from 'sst/node/config';
 import {
   createUserGeneratedImage,
   updateUserGeneratedImage
@@ -102,8 +102,8 @@ export async function generatedImage(
     }
 
     let imageUrl = new URL(s3Url.split('?')[0]);
-    if (cdnConfig.url) {
-      imageUrl = new URL(`${cdnConfig.url}/user-generated-images${imageUrl.pathname}`);
+    if (Config.CDN_URL) {
+      imageUrl = new URL(`${Config.CDN_URL}/user-generated-images${imageUrl.pathname}`);
     }
 
     return await updateUserGeneratedImage(userGeneratedImage.id, {

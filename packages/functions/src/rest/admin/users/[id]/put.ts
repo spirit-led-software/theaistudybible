@@ -1,9 +1,9 @@
-import cdnConfig from '@revelationsai/core/configs/cdn';
 import { updateUserSchema } from '@revelationsai/core/model/user';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { getUser, isAdminSync, updateUser } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
 import { Bucket } from 'sst/node/bucket';
+import { Config } from 'sst/node/config';
 import {
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
@@ -34,10 +34,10 @@ export const handler = ApiHandler(async (event) => {
       values.image
         .toLowerCase()
         .includes(Bucket.userProfilePictureBucket.bucketName.toLowerCase()) &&
-      cdnConfig.url
+      Config.CDN_URL
     ) {
       const imageUrl = new URL(values.image);
-      values.image = `${process.env.CDN_URL}/user-profile-pictures${imageUrl.pathname}`;
+      values.image = `${Config.CDN_URL}/user-profile-pictures${imageUrl.pathname}`;
     }
 
     user = await updateUser(user.id, values);

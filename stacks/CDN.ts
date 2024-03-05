@@ -11,7 +11,7 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { use, type StackContext } from 'sst/constructs';
+import { Config, use, type StackContext } from 'sst/constructs';
 import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './Constants';
 
 export function CDN({ app, stack }: StackContext) {
@@ -84,14 +84,15 @@ export function CDN({ app, stack }: StackContext) {
     cdnAaaaRecord.node.addDependency(cdnARecord);
     cdnUrl = `https://${cdnAaaaRecord.domainName}`;
 
-    app.addDefaultFunctionEnv({
-      CDN_URL: cdnUrl
-    });
-
     stack.addOutputs({
       CdnUrl: cdnUrl
     });
   }
+
+  const CDN_URL = new Config.Parameter(stack, 'CDN_URL', {
+    value: cdnUrl || ''
+  });
+  app.addDefaultFunctionBinding([CDN_URL]);
 
   return {
     cdn,

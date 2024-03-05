@@ -2,7 +2,6 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
-import cdnConfig from '@revelationsai/core/configs/cdn';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
@@ -10,6 +9,7 @@ import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser, OutputFixingParser } from 'langchain/output_parsers';
 import { PromptTemplate } from 'langchain/prompts';
 import { Bucket } from 'sst/node/bucket';
+import { Config } from 'sst/node/config';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
 import { db } from '../database';
@@ -160,8 +160,8 @@ export async function generateDevotionImages(devo: Devotion) {
   }
 
   let imageUrl = new URL(s3Url.split('?')[0]);
-  if (cdnConfig.url) {
-    imageUrl = new URL(`${cdnConfig.url}/devotion-images${imageUrl.pathname}`);
+  if (Config.CDN_URL) {
+    imageUrl = new URL(`${Config.CDN_URL}/devotion-images${imageUrl.pathname}`);
   }
 
   await createDevotionImage({

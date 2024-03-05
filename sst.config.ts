@@ -33,6 +33,7 @@ export default {
       .stack(Jobs)
       .stack(DatabaseScripts)
       .stack(S3)
+      .stack(CDN)
       .stack(Queues)
       .stack(API)
       .stack(Auth)
@@ -41,7 +42,6 @@ export default {
       .stack(RestAPI)
       .stack(AdminAPI)
       .stack(Website)
-      .stack(CDN)
       .stack(Crons);
   }
 } satisfies SSTConfig;
