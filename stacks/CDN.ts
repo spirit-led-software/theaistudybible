@@ -1,103 +1,40 @@
 import { S3 } from '@stacks';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
-import {
-  AllowedMethods,
-  CachePolicy,
-  CachedMethods,
-  Distribution,
-  OriginRequestPolicy,
-  ResponseHeadersPolicy,
-  ViewerProtocolPolicy
-} from 'aws-cdk-lib/aws-cloudfront';
-import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { Distribution, OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Config, use, type StackContext } from 'sst/constructs';
 import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './Constants';
 
 export function CDN({ app, stack }: StackContext) {
-  const { websiteUrl, authUiUrl, domainName, domainNamePrefix, hostedZone } = use(Constants);
+  const { domainName, domainNamePrefix, hostedZone } = use(Constants);
   const { devotionImageBucket, userGeneratedImageBucket, userProfilePictureBucket } = use(S3);
 
   let cdnDomainName: string | undefined = undefined;
   let cdnUrl: string | undefined = undefined;
   let cdn: Distribution | undefined = undefined;
 
+  const originAccessIdentity = new OriginAccessIdentity(stack, 'OriginAccessIdentity');
+  devotionImageBucket.cdk.bucket.grantRead(originAccessIdentity);
+  userGeneratedImageBucket.cdk.bucket.grantRead(originAccessIdentity);
+  userProfilePictureBucket.cdk.bucket.grantRead(originAccessIdentity);
+
   // Create cloudfront distribution for non-dev environments
   if (stack.stage === 'prod') {
     cdnDomainName = `cdn.${domainName}`;
     cdn = new Distribution(stack, 'CDN', {
       defaultBehavior: {
-        origin: new HttpOrigin(domainName),
-        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
-        cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
-        cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-        allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
-          corsBehavior: {
-            originOverride: true,
-            accessControlAllowCredentials: true,
-            accessControlAllowHeaders: ['authorization', 'content-type'],
-            accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
-            accessControlAllowOrigins: [websiteUrl, authUiUrl],
-            accessControlExposeHeaders: ['content-type', 'content-length']
-          }
-        })
+        origin: new S3Origin(devotionImageBucket.cdk.bucket, { originAccessIdentity })
       },
       additionalBehaviors: {
         'devotion-images/*': {
-          origin: new S3Origin(devotionImageBucket.cdk.bucket),
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
-          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
-          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-          responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
-            corsBehavior: {
-              originOverride: true,
-              accessControlAllowCredentials: false,
-              accessControlAllowHeaders: [],
-              accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
-              accessControlAllowOrigins: [websiteUrl, authUiUrl],
-              accessControlExposeHeaders: ['content-type', 'content-length']
-            }
-          })
+          origin: new S3Origin(devotionImageBucket.cdk.bucket, { originAccessIdentity })
         },
         'user-generated-images/*': {
-          origin: new S3Origin(userGeneratedImageBucket.cdk.bucket),
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
-          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
-          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-          responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
-            corsBehavior: {
-              originOverride: true,
-              accessControlAllowCredentials: false,
-              accessControlAllowHeaders: [],
-              accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
-              accessControlAllowOrigins: [websiteUrl, authUiUrl],
-              accessControlExposeHeaders: ['content-type', 'content-length']
-            }
-          })
+          origin: new S3Origin(userGeneratedImageBucket.cdk.bucket, { originAccessIdentity })
         },
         'user-profile-pictures/*': {
-          origin: new S3Origin(userProfilePictureBucket.cdk.bucket),
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
-          cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
-          cachePolicy: CachePolicy.CACHING_OPTIMIZED,
-          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-          responseHeadersPolicy: new ResponseHeadersPolicy(stack, 'CDNResponseHeadersPolicy', {
-            corsBehavior: {
-              originOverride: true,
-              accessControlAllowCredentials: false,
-              accessControlAllowHeaders: [],
-              accessControlAllowMethods: ['GET', 'HEAD', 'OPTIONS'],
-              accessControlAllowOrigins: [websiteUrl, authUiUrl],
-              accessControlExposeHeaders: ['content-type', 'content-length']
-            }
-          })
+          origin: new S3Origin(userProfilePictureBucket.cdk.bucket, { originAccessIdentity })
         }
       },
       domainNames: [cdnDomainName],
