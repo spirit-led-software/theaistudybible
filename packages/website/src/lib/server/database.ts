@@ -3,9 +3,9 @@ import { RAIDatabaseConfig } from '@revelationsai/server/lib/database/config';
 import { withReplicas } from 'drizzle-orm/pg-core';
 import { Config } from 'sst/node/config';
 
-let readWriteDatabaseConfig: RAIDatabaseConfig;
+export let readWriteDatabaseConfig: RAIDatabaseConfig;
 if (!building) {
-	new RAIDatabaseConfig({
+	readWriteDatabaseConfig = new RAIDatabaseConfig({
 		connectionString: Config.DATABASE_READWRITE_URL,
 		readOnly: false
 	});
