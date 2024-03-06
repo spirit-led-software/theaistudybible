@@ -25,7 +25,7 @@ export default {
       region: 'us-east-1'
     };
   },
-  async stacks(app) {
+  stacks(app) {
     app
       .stack(Constants)
       .stack(Layers)

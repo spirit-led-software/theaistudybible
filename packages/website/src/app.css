@@ -3,32 +3,32 @@
 @tailwind utilities;
 
 @layer base {
-	body {
-		@apply font-dm-sans text-slate-800;
-	}
+  body {
+    @apply font-dm-sans text-slate-800;
+  }
 }
 
 @supports (-webkit-touch-callout: none) {
-	.min-h-screen {
-		min-height: -webkit-fill-available !important;
-	}
+  .min-h-screen {
+    min-height: -webkit-fill-available !important;
+  }
 
-	.h-screen {
-		height: 100vh;
-		max-height: -webkit-fill-available !important;
-	}
+  .h-screen {
+    height: 100vh;
+    max-height: -webkit-fill-available !important;
+  }
 
-	.max-h-screen {
-		max-height: 100vh;
-		max-height: -webkit-fill-available !important;
-	}
+  .max-h-screen {
+    max-height: 100vh;
+    max-height: -webkit-fill-available !important;
+  }
 }
 
 @layer utilities {
-	.animation-delay-200 {
-		animation-delay: 0.2s;
-	}
-	.animation-delay-400 {
-		animation-delay: 0.4s;
-	}
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
 }

@@ -3,12 +3,12 @@ import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
-	if (!locals.user) {
-		redirect(307, `${PUBLIC_AUTH_URL}/sign-in?returnUrl=${encodeURIComponent(url.toString())}`);
-	}
+  if (!locals.user) {
+    redirect(307, `${PUBLIC_AUTH_URL}/sign-in?returnUrl=${encodeURIComponent(url.toString())}`);
+  }
 
-	return {
-		user: locals.user!,
-		session: locals.session!
-	};
+  return {
+    user: locals.user!,
+    session: locals.session!
+  };
 };

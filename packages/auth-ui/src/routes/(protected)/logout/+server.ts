@@ -4,9 +4,9 @@ import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ cookies }) => {
-	cookies.delete(commonCookies.session, {
-		domain: new URL(PUBLIC_WEBSITE_URL).hostname,
-		path: '/'
-	});
-	redirect(307, PUBLIC_WEBSITE_URL);
+  cookies.delete(commonCookies.session, {
+    domain: new URL(PUBLIC_WEBSITE_URL).hostname,
+    path: '/'
+  });
+  redirect(307, PUBLIC_WEBSITE_URL);
 };

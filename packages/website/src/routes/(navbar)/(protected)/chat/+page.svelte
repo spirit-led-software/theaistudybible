@@ -1,15 +1,15 @@
 <script lang="ts">
-	import Window from '$lib/components/chat/Window.svelte';
-	import type { PageData } from './$types';
+  import Window from '$lib/components/chat/Window.svelte';
+  import type { PageData } from './$types';
 
-	export let data: PageData;
+  export let data: PageData;
 
-	$: ({ modelInfos } = data);
+  $: ({ modelInfos } = data);
 </script>
 
 <svelte:head>
-	<title>New Chat</title>
-	<meta name="description" content="Start a new chat with RevelationsAI" />
+  <title>New Chat</title>
+  <meta name="description" content="Start a new chat with RevelationsAI" />
 </svelte:head>
 
 <Window {modelInfos} />

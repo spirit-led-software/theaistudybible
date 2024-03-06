@@ -1,3 +1,3 @@
-<div class="flex flex-col min-h-screen overflow-y-scroll">
-	<slot />
+<div class="flex min-h-screen flex-col overflow-y-scroll">
+  <slot />
 </div>

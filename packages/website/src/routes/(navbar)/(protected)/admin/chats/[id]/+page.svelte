@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import ChatWindow from './ChatWindow.svelte';
+  import type { PageData } from './$types';
+  import ChatWindow from './ChatWindow.svelte';
 
-	export let data: PageData;
+  export let data: PageData;
 </script>
 
 <ChatWindow
-	modelInfos={data.modelInfos}
-	user={data.chatUser}
-	chat={data.chat}
-	messages={data.chatMessages}
+  modelInfos={data.modelInfos}
+  user={data.chatUser}
+  chat={data.chat}
+  messages={data.chatMessages}
 />

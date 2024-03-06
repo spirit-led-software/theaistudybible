@@ -7,42 +7,42 @@ import type { Handle, HandleServerError } from '@sveltejs/kit';
 apiConfig.url = PUBLIC_API_URL;
 
 export const handle: Handle = async ({ resolve, event }) => {
-	try {
-		const session = event.cookies.get(commonCookies.session);
-		if (!session) {
-			console.debug('No session found');
-			event.locals.user = undefined;
-			event.locals.session = undefined;
-			return resolve(event);
-		}
+  try {
+    const session = event.cookies.get(commonCookies.session);
+    if (!session) {
+      console.debug('No session found');
+      event.locals.user = undefined;
+      event.locals.session = undefined;
+      return resolve(event);
+    }
 
-		const sessionInfo = await validNonApiHandlerSession(session);
-		if (!sessionInfo.isValid) {
-			throw new Error('Invalid session');
-		}
+    const sessionInfo = await validNonApiHandlerSession(session);
+    if (!sessionInfo.isValid) {
+      throw new Error('Invalid session');
+    }
 
-		event.locals.user = {
-			...sessionInfo.userWithRoles,
-			maxQueries: sessionInfo.maxQueries,
-			remainingQueries: sessionInfo.remainingQueries,
-			maxGeneratedImages: sessionInfo.maxGeneratedImages,
-			remainingGeneratedImages: sessionInfo.remainingGeneratedImages
-		};
-		event.locals.session = session;
-	} catch (error) {
-		console.debug('Error authorizing user:', error);
-		// Unauthorized
-		event.locals.user = undefined;
-		event.locals.session = undefined;
-	}
+    event.locals.user = {
+      ...sessionInfo.userWithRoles,
+      maxQueries: sessionInfo.maxQueries,
+      remainingQueries: sessionInfo.remainingQueries,
+      maxGeneratedImages: sessionInfo.maxGeneratedImages,
+      remainingGeneratedImages: sessionInfo.remainingGeneratedImages
+    };
+    event.locals.session = session;
+  } catch (error) {
+    console.debug('Error authorizing user:', error);
+    // Unauthorized
+    event.locals.user = undefined;
+    event.locals.session = undefined;
+  }
 
-	return resolve(event);
+  return resolve(event);
 };
 
 export const handleError: HandleServerError = async ({ error, message }) => {
-	console.debug(`Error: ${message}`, error);
+  console.debug(`Error: ${message}`, error);
 
-	return {
-		message: 'Oops! Something went wrong.'
-	};
+  return {
+    message: 'Oops! Something went wrong.'
+  };
 };

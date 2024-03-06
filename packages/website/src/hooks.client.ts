@@ -5,9 +5,9 @@ import type { HandleClientError } from '@sveltejs/kit';
 apiConfig.url = PUBLIC_API_URL;
 
 export const handleError: HandleClientError = async ({ error, message }) => {
-	console.debug(`Error: ${message}`, error);
+  console.debug(`Error: ${message}`, error);
 
-	return {
-		message: 'Oops! Something went wrong.'
-	};
+  return {
+    message: 'Oops! Something went wrong.'
+  };
 };

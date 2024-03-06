@@ -1,3 +1,3 @@
-<div class="flex flex-col justify-center w-full h-full place-items-center">
-	Please Select a Tool to Continue
+<div class="flex h-full w-full flex-col place-items-center justify-center">
+  Please Select a Tool to Continue
 </div>

@@ -17,6 +17,6 @@
       "@lib/cache": ["../server/src/lib/cache"]
     }
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./node_modules/**"]
 }

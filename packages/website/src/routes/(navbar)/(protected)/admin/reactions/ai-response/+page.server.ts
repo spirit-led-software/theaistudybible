@@ -3,21 +3,21 @@ import { getAiResponseReactionsWithInfo } from '@revelationsai/server/services/a
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const limit = 10;
-	const reactionInfos = await getAiResponseReactionsWithInfo({
-		limit
-	}).then((reactions) =>
-		reactions.map(
-			(reaction) =>
-				({
-					...reaction.ai_response_reactions,
-					user: reaction.users,
-					response: reaction.ai_responses
-				}) satisfies AiResponseReactionInfo
-		)
-	);
-	return {
-		reactionInfos,
-		limit
-	};
+  const limit = 10;
+  const reactionInfos = await getAiResponseReactionsWithInfo({
+    limit
+  }).then((reactions) =>
+    reactions.map(
+      (reaction) =>
+        ({
+          ...reaction.ai_response_reactions,
+          user: reaction.users,
+          response: reaction.ai_responses
+        }) satisfies AiResponseReactionInfo
+    )
+  );
+  return {
+    reactionInfos,
+    limit
+  };
 };

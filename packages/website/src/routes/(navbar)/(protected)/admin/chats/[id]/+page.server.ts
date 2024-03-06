@@ -6,21 +6,21 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const [chat, chatMessages, modelInfos] = await Promise.all([
-		getChat(params.id),
-		getChatMessages(params.id),
-		getLanguageModels()
-	]);
-	if (!chat) {
-		return redirect(302, '/admin');
-	}
+  const [chat, chatMessages, modelInfos] = await Promise.all([
+    getChat(params.id),
+    getChatMessages(params.id),
+    getLanguageModels()
+  ]);
+  if (!chat) {
+    return redirect(302, '/admin');
+  }
 
-	const user = await getUserOrThrow(chat.userId);
+  const user = await getUserOrThrow(chat.userId);
 
-	return {
-		modelInfos,
-		chatUser: user,
-		chat,
-		chatMessages: chatMessages.reverse()
-	};
+  return {
+    modelInfos,
+    chatUser: user,
+    chat,
+    chatMessages: chatMessages.reverse()
+  };
 };

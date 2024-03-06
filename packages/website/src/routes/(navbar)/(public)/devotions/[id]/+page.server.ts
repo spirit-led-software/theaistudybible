@@ -8,23 +8,23 @@ import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const [devotion, sourceDocs, images, reactionCounts] = await Promise.all([
-		getDevotion(params.id),
-		getSourceDocumentsByDevotionId(params.id),
-		getDevotionImages({
-			where: eq(devotionImages.devotionId, params.id)
-		}),
-		getDevotionReactionCounts(params.id)
-	]);
+  const [devotion, sourceDocs, images, reactionCounts] = await Promise.all([
+    getDevotion(params.id),
+    getSourceDocumentsByDevotionId(params.id),
+    getDevotionImages({
+      where: eq(devotionImages.devotionId, params.id)
+    }),
+    getDevotionReactionCounts(params.id)
+  ]);
 
-	if (!devotion) {
-		throw redirect(302, '/devotions');
-	}
+  if (!devotion) {
+    throw redirect(302, '/devotions');
+  }
 
-	return {
-		devotion,
-		sourceDocs,
-		images,
-		reactionCounts
-	};
+  return {
+    devotion,
+    sourceDocs,
+    images,
+    reactionCounts
+  };
 };

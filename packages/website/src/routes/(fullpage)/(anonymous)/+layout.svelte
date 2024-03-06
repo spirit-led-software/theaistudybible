@@ -1,16 +1,16 @@
 <script lang="ts">
-	import Logo from '$lib/components/branding/Logo.svelte';
+  import Logo from '$lib/components/branding/Logo.svelte';
 </script>
 
 <div
-	class="flex h-full place-items-center place-content-center bg-slate-700 lg:place-items-end lg:place-content-end"
+  class="flex h-full place-content-center place-items-center bg-slate-700 lg:place-content-end lg:place-items-end"
 >
-	<div class="justify-center flex-1 hidden h-full place-items-center lg:flex lg:visible">
-		<div class="flex flex-col justify-center w-full space-y-4 place-items-center">
-			<div class="flex flex-col justify-center w-3/4 place-items-center">
-				<Logo size={'8xl'} colorscheme={'light'} />
-			</div>
-		</div>
-	</div>
-	<slot />
+  <div class="hidden h-full flex-1 place-items-center justify-center lg:visible lg:flex">
+    <div class="flex w-full flex-col place-items-center justify-center space-y-4">
+      <div class="flex w-3/4 flex-col place-items-center justify-center">
+        <Logo size={'8xl'} colorscheme={'light'} />
+      </div>
+    </div>
+  </div>
+  <slot />
 </div>

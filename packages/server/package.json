@@ -4,13 +4,11 @@
   "type": "module",
   "scripts": {
     "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write ."
+    "typecheck": "tsc -noEmit"
   },
   "devDependencies": {
     "@sparticuz/chromium": "^122.0.0",
-    "@types/aws-lambda": "^8.10.134",
+    "@types/aws-lambda": "^8.10.136",
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.11.24",
     "@types/nodemailer": "^6.4.14",
@@ -20,7 +18,7 @@
   "dependencies": {
     "@revelationsai/core": "workspace:*",
     "@upstash/redis": "^1.28.4",
-    "ai": "^3.0.4",
+    "ai": "^3.0.5",
     "argon2": "^0.40.1",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
@@ -31,7 +29,7 @@
     "openai": "^4.28.4",
     "pdf-parse": "^1.1.1",
     "pug": "^3.0.2",
-    "puppeteer-core": "^22.3.0",
+    "puppeteer-core": "^22.4.0",
     "stripe": "^14.19.0",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",

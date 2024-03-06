@@ -4,12 +4,10 @@
   "type": "module",
   "scripts": {
     "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit",
-    "lint": "eslint .",
-    "format": "prettier --write ."
+    "typecheck": "tsc -noEmit"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.134",
+    "@types/aws-lambda": "^8.10.136",
     "@types/busboy": "^1.5.3",
     "@types/node": "^20.11.24",
     "@types/nodemailer": "^6.4.14",
