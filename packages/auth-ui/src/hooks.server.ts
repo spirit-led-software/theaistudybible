@@ -39,7 +39,7 @@ export const handle: Handle = async ({ resolve, event }) => {
   return resolve(event);
 };
 
-export const handleError: HandleServerError = async ({ error, message }) => {
+export const handleError: HandleServerError = ({ error, message }) => {
   console.debug(`Error: ${message}`, error);
 
   return {

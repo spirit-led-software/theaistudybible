@@ -9,6 +9,7 @@ mobile
 .env
 .env.*
 !.env.example
+graphql/introspection.d.ts
 
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml

@@ -17,6 +17,7 @@
     "flushbar",
     "graphqlsp",
     "Hnsw",
+    "iconify",
     "langchain",
     "LANGSMITH",
     "mistralai",
@@ -32,6 +33,7 @@
     "unfocus",
     "upstash"
   ],
+  "eslint.lintTask.enable": true,
   "eslint.experimental.useFlatConfig": true,
   "eslint.validate": [
     "javascript",

@@ -3,7 +3,7 @@ import { commonCookies } from '@revelationsai/client/utils/cookies';
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = ({ url, cookies }) => {
   const { searchParams } = url;
   const token = searchParams.get('token');
   if (!token) {
