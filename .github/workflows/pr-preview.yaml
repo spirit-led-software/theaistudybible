@@ -88,6 +88,8 @@ jobs:
           mv packages/auth-ui/.env.example packages/auth-ui/.env
       - name: Build SST
         run: bun sst build --stage pr-${{ github.event.pull_request.number }} --to .sst/dist/
+      - name: Typecheck workspace
+        run: bun run typecheck:all
       - name: Lint workspace
         run: bun run lint
       - name: Remove website & auth UI .env file so it doesn't get picked up by the deploy

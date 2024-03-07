@@ -10,6 +10,7 @@
     "remove": "sst remove --stage",
     "console": "sst console",
     "typecheck": "tsc --noEmit",
+    "typecheck:all": "concurrently --names 'root,auth-ui,client,core,functions,server,website' -c 'bgYellow,bgRed,bgBlue,bgBlack,bgCyan,bgGray,bgGreen' 'bun run typecheck' 'bun run --cwd packages/auth-ui typecheck' 'bun run --cwd packages/client typecheck' 'bun run --cwd packages/core typecheck' 'bun run --cwd packages/functions typecheck' 'bun run --cwd packages/server typecheck' 'bun run --cwd packages/website typecheck' ",
     "lint": "eslint .",
     "format": "prettier --write .",
     "codegen": "graphql-codegen --config codegen.ts",

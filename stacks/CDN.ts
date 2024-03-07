@@ -52,15 +52,15 @@ export function CDN({ app, stack }: StackContext) {
     cdnAaaaRecord.node.addDependency(cdnARecord);
     cdnUrl = `https://${cdnDomainName}`;
 
+    const CDN_URL = new Config.Parameter(stack, 'CDN_URL', {
+      value: cdnUrl
+    });
+    app.addDefaultFunctionBinding([CDN_URL]);
+
     stack.addOutputs({
       CdnUrl: cdnUrl
     });
   }
-
-  const CDN_URL = new Config.Parameter(stack, 'CDN_URL', {
-    value: cdnUrl || ''
-  });
-  app.addDefaultFunctionBinding([CDN_URL]);
 
   return {
     cdn,

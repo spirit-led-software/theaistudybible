@@ -2267,6 +2267,21 @@ export type introspection = {
             ]
           },
           {
+            "name": "reactionCounts",
+            "type": {
+              "kind": "LIST",
+              "ofType": {
+                "kind": "NON_NULL",
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DevotionReactionCount",
+                  "ofType": null
+                }
+              }
+            },
+            "args": []
+          },
+          {
             "name": "images",
             "type": {
               "kind": "LIST",
@@ -4384,36 +4399,6 @@ export type introspection = {
                       "name": "SortInput",
                       "ofType": null
                     }
-                  }
-                }
-              }
-            ]
-          },
-          {
-            "name": "devotionReactionCount",
-            "type": {
-              "kind": "NON_NULL",
-              "ofType": {
-                "kind": "LIST",
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "DevotionReactionCount",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "args": [
-              {
-                "name": "devotionId",
-                "type": {
-                  "kind": "NON_NULL",
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
                   }
                 }
               }

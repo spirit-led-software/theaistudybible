@@ -1,8 +1,8 @@
 import { devotionImages, devotionReactions, devotions } from '@revelationsai/core/database/schema';
 import { updateDevotionSchema } from '@revelationsai/core/model/devotion';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { Resolvers } from '../__generated__/resolver-types';
-import { deleteObject, getObject, getObjects, updateObject } from '../utils/crud';
+import { deleteObject, getObject, getObjectCount, getObjects, updateObject } from '../utils/crud';
 
 export const devotionResolvers: Resolvers = {
   Devotion: {
@@ -23,6 +23,38 @@ export const devotionResolvers: Resolvers = {
         where: eq(devotionReactions.devotionId, parent.id),
         ...args
       });
+    },
+    reactionCounts: async (parent, _, { currentUser }) => {
+      const [likeCount, dislikeCount] = await Promise.all([
+        getObjectCount({
+          currentUser,
+          role: 'public',
+          table: devotionReactions,
+          where: and(
+            eq(devotionReactions.devotionId, parent.id),
+            eq(devotionReactions.reaction, 'LIKE')
+          )
+        }),
+        getObjectCount({
+          currentUser,
+          role: 'public',
+          table: devotionReactions,
+          where: and(
+            eq(devotionReactions.devotionId, parent.id),
+            eq(devotionReactions.reaction, 'DISLIKE')
+          )
+        })
+      ]);
+      return [
+        {
+          type: 'LIKE',
+          count: likeCount
+        },
+        {
+          type: 'DISLIKE',
+          count: dislikeCount
+        }
+      ];
     }
   },
   Query: {

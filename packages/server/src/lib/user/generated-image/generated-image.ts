@@ -102,7 +102,9 @@ export async function generatedImage(
     }
 
     let imageUrl = new URL(s3Url.split('?')[0]);
+    // @ts-expect-error - this may not be defined in non-prod-envs
     if (Config.CDN_URL) {
+      // @ts-expect-error - this may not be defined in non-prod-envs
       imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
     }
 

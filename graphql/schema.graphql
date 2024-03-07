@@ -235,6 +235,7 @@ type Devotion implements BaseModel {
   diveDeeperQueries: [String!]!
   failed: Boolean!
   reactions(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DevotionReaction!]
+  reactionCounts: [DevotionReactionCount!]
   images: [DevotionImage!]
   sourceDocuments: [SourceDocument!]
 }
@@ -475,7 +476,6 @@ type Query {
     page: Int
     sort: [SortInput!]
   ): [DevotionReaction!]! @cacheControl(maxAge: 60)
-  devotionReactionCount(devotionId: String!): [DevotionReactionCount!]! @cacheControl(maxAge: 60)
 
   devotionImage(id: String!): DevotionImage @cacheControl(maxAge: 300)
   devotionImages(filter: FilterInput, limit: Int, page: Int, sort: [SortInput!]): [DevotionImage!]!
