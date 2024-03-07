@@ -5,7 +5,7 @@ import type {
   DevotionReaction,
   UpdateDevotionReactionData
 } from '@revelationsai/core/model/devotion/reaction';
-import { and, desc, eq, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, type SQL } from 'drizzle-orm';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInputFn } from '../../services/cache';
 
 export const DEVOTION_REACTIONS_CACHE_COLLECTION = 'devotionReactions';
@@ -101,17 +101,16 @@ export async function getDevotionReactionCountByDevotionIdAndReactionType(
     collection: DEVOTION_REACTIONS_CACHE_COLLECTION,
     key: { name: 'devotionId_reactionType_count', value: `${devotionId}_${reactionType}` },
     fn: async () =>
-      (
-        await db
-          .select()
-          .from(devotionReactions)
-          .where(
-            and(
-              eq(devotionReactions.devotionId, devotionId),
-              eq(devotionReactions.reaction, reactionType)
-            )
+      await db
+        .select({ count: count() })
+        .from(devotionReactions)
+        .where(
+          and(
+            eq(devotionReactions.devotionId, devotionId),
+            eq(devotionReactions.reaction, reactionType)
           )
-      ).length,
+        )
+        .then((result) => result[0].count),
     expireSeconds: DEVOTIONS_CACHE_TTL_SECONDS
   });
 }
