@@ -32,11 +32,13 @@ export const handler = ApiHandler(async (event) => {
     if (
       values.image &&
       values.image.toLowerCase().includes(Bucket.PublicBucket.bucketName.toLowerCase()) &&
-      // @ts-expect-error - this may not be defined in non-prod-envs
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - this may not be defined in non-prod-envs
       Config.CDN_URL
     ) {
       const imageUrl = new URL(values.image);
-      // @ts-expect-error - this may not be defined in non-prod-envs
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore - this may not be defined in non-prod-envs
       values.image = `${Config.CDN_URL}${imageUrl.pathname}`;
     }
 
