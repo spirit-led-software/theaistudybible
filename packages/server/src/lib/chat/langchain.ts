@@ -226,7 +226,7 @@ export async function getDocumentQaChain(options: {
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
-      k: contextSize > 32 ? 15 : 8,
+      k: contextSize > 32 ? 12 : 5,
       verbose: envConfig.isLocal
     })
   );
