@@ -66,10 +66,29 @@ jobs:
       - id: checkout
         name: Checkout
         uses: actions/checkout@v3
-      - name: Install bun
-        uses: oven-sh/setup-bun@v1
-      - name: Install dependencies
-        run: bun install
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: latest
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - id: install_deps
+        name: Install dependencies
+        run: pnpm install
       - id: setup_firebase_creds
         name: Setup Firebase Credentials
         run: |
@@ -79,19 +98,19 @@ jobs:
         run: |
           echo $ENCODED_APPLE_AUTH_KEY | base64 --decode > apple-auth-key.p8
       - name: Run Codegen
-        run: bun run codegen
+        run: pnpm run codegen
       - name: Rename website & auth UI .env file so svelte-kit can find it during build
         run: |
           mv packages/website/.env.example packages/website/.env
           mv packages/auth-ui/.env.example packages/auth-ui/.env
       - name: Build SST
-        run: bun sst build --stage prod --to .sst/dist/
+        run: pnpm sst build --stage prod --to .sst/dist/
       - name: Typecheck workspace
-        run: bun run typecheck:all
+        run: pnpm run typecheck:all
       - name: Lint workspace
-        run: bun run lint
+        run: pnpm run lint
       - name: Remove website & auth UI .env file so it doesn't get picked up by the deploy
         run: rm packages/{website,auth-ui}/.env
       - id: sst_deploy
         name: Deploy to AWS
-        run: bun sst deploy --stage prod --from .sst/dist/
+        run: pnpm sst deploy --stage prod --from .sst/dist/

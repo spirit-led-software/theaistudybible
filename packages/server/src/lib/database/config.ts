@@ -61,7 +61,6 @@ export class RAIDatabaseConfig {
     const queryFn = neon(connectionString, {
       readOnly
     });
-    // @ts-expect-error - Error with NeonHttpDatabase right now for some reason
     this.database = drizzleHttp(queryFn, {
       schema,
       logger: envConfig.isLocal

@@ -39,7 +39,6 @@ export class PuppeteerCoreWebBaseLoader extends BaseDocumentLoader implements Do
   ): Promise<{ title: string; content: string }> {
     console.log(`Launching puppeteer for url '${url}'`);
     const browser = await launch({
-      // @ts-expect-error - Puppeteer and sparticuz/chromium types are not compatible
       headless: chromium.headless,
       args: [...chromium.args, '--no-sandbox'],
       defaultViewport: chromium.defaultViewport,
