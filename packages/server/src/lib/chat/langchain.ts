@@ -2,10 +2,6 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/env';
-import {
-  anthropicModelIds,
-  type AnthropicModelId
-} from '@revelationsai/core/langchain/types/bedrock';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
@@ -22,8 +18,8 @@ import {
   OutputFixingParser,
   RouterOutputParser
 } from 'langchain/output_parsers';
-import { PromptTemplate } from 'langchain/prompts';
-import type { PartialValues } from 'langchain/schema';
+import { ChatPromptTemplate, PromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
+import type { MessageContent, MessageType, PartialValues } from 'langchain/schema';
 import { z } from 'zod';
 import { getLanguageModel } from '../llm';
 import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
@@ -57,29 +53,33 @@ export const getRAIChatChain = async (options: {
   const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
 
   const messages = options.messages.slice(contextSizeNum > 32 ? -21 : -11, -1);
-  const history = messages
-    .map((m) => new XMLBuilder().build({ message: { sender: m.role, text: m.content } }))
-    .join('\n');
+
+  const history = messages.map((message) => {
+    let role: MessageType;
+    if (message.role === 'assistant') {
+      role = 'ai';
+    } else if (message.role === 'user') {
+      role = 'human';
+    } else if (message.role === 'data') {
+      role = 'generic';
+    } else {
+      role = message.role;
+    }
+    return [message.role, message.content] as [MessageType, MessageContent];
+  });
 
   const identityChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      text: PromptTemplate.fromTemplate(CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE, {
-        partialVariables: {
-          history
-        }
-      })
+      text: ChatPromptTemplate.fromMessages<{
+        query: string;
+      }>([['system', CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE], ...history, ['human', '{query}']])
         .pipe(
           getLanguageModel({
             modelId,
-            stream: true,
-            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
-              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
-              completionPrefix: '<answer>',
-              stopSequences: ['</answer>']
-            })
+            stream: true
           })
         )
         .pipe(new StringOutputParser())
@@ -94,20 +94,13 @@ export const getRAIChatChain = async (options: {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      text: PromptTemplate.fromTemplate(CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE, {
-        partialVariables: {
-          history
-        }
-      })
+      text: ChatPromptTemplate.fromMessages<{
+        query: string;
+      }>([['system', CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE], ...history, ['human', '{query}']])
         .pipe(
           getLanguageModel({
             modelId,
-            stream: true,
-            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
-              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
-              completionPrefix: '<answer>',
-              stopSequences: ['</answer>']
-            })
+            stream: true
           })
         )
         .pipe(new StringOutputParser())
@@ -217,7 +210,7 @@ export async function getDocumentQaChain(options: {
   prompt: string;
   callbacks: CallbackManager;
   filters?: (Metadata | string)[];
-  history: string;
+  history: [MessageType, MessageContent][];
   extraPromptVars?: PartialValues<string>;
 }) {
   const { modelId, contextSize, prompt, filters, extraPromptVars, history, callbacks } = options;
@@ -236,12 +229,22 @@ export async function getDocumentQaChain(options: {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      searchQueries: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
-        partialVariables: {
-          history,
-          formatInstructions: searchQueryOutputParser.getFormatInstructions()
-        }
-      })
+      searchQueries: ChatPromptTemplate.fromMessages<{
+        query: string;
+      }>([
+        new SystemMessagePromptTemplate({
+          prompt: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
+            partialVariables: {
+              formatInstructions: searchQueryOutputParser.getFormatInstructions()
+            }
+          })
+        }),
+        ...history,
+        [
+          'human',
+          'What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}'
+        ]
+      ])
         .pipe(
           getLanguageModel({
             cache: llmCache
@@ -299,21 +302,24 @@ export async function getDocumentQaChain(options: {
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      text: PromptTemplate.fromTemplate(prompt, {
-        partialVariables: {
-          history,
-          ...extraPromptVars
-        }
-      })
+      text: ChatPromptTemplate.fromMessages<{
+        query: string;
+        sources: string;
+      }>([
+        new SystemMessagePromptTemplate({
+          prompt: PromptTemplate.fromTemplate(prompt, {
+            partialVariables: {
+              ...extraPromptVars
+            }
+          })
+        }),
+        ...history,
+        ['human', '{query}']
+      ])
         .pipe(
           getLanguageModel({
             modelId,
-            stream: true,
-            ...(anthropicModelIds.includes(modelId as AnthropicModelId) && {
-              promptSuffix: '\nPlace your answer within <answer></answer> XML tags.',
-              completionPrefix: '<answer>',
-              stopSequences: ['</answer>']
-            })
+            stream: true
           })
         )
         .pipe(new StringOutputParser())

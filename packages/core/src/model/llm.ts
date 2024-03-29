@@ -2,7 +2,7 @@ export type ModelInfo = {
   name: string;
   description: string;
   contextSize: `${number}k`;
-  provider: 'bedrock' | 'openai' | 'fireworks' | 'google';
+  provider: 'bedrock' | 'openai' | 'anthropic';
   link: string;
   tier: 'free' | 'plus';
 };
@@ -16,11 +16,11 @@ export const freeTierModels = {
     link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
     tier: 'free'
   } satisfies ModelInfo,
-  'anthropic.claude-instant-v1': {
+  'claude-instant-1.2': {
     name: 'Claude-Instant',
     description: 'A large language model trained by Anthropic',
     contextSize: '100k',
-    provider: 'bedrock',
+    provider: 'anthropic',
     link: 'https://www.anthropic.com/news/releasing-claude-instant-1-2',
     tier: 'free'
   } satisfies ModelInfo // TODO: Remove this from free tier
@@ -37,12 +37,12 @@ export const plusTierModels = {
     link: 'https://openai.com/gpt-4',
     tier: 'plus'
   } satisfies ModelInfo,
-  'anthropic.claude-v2:1': {
-    name: 'Claude-2.1',
+  'claude-3-opus-20240229': {
+    name: 'Claude-3-Opus',
     description: 'A large language model trained by Anthropic',
     contextSize: '200k',
     provider: 'bedrock',
-    link: 'https://www.anthropic.com/news/claude-2-1',
+    link: 'https://www.anthropic.com/claude',
     tier: 'plus'
   } satisfies ModelInfo
 } as const;
