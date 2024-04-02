@@ -1,6 +1,11 @@
 #!/bin/bash
 layerUrl=$1
 
+if [ -z "$layerUrl" ]; then
+  echo "Usage: $0 <layer-url>"
+  exit 1
+fi
+
 echo "Building layer from ${layerUrl}"
 
 echo "Deleting old chromium.zip"
