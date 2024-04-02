@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "codegen": "graphql-codegen --config codegen.ts",
-    "codegen:watch": "graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'"
+    "codegen:watch": "graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'",
+    "update": "pnpm update -rLf && pnpm sst update && pnpm install -rf"
   },
   "devDependencies": {
     "@0no-co/graphqlsp": "^1.7.1",
@@ -33,7 +34,7 @@
     "@types/pg": "^8.11.4",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
-    "aws-cdk-lib": "2.135.0",
+    "aws-cdk-lib": "2.132.1",
     "concurrently": "^8.2.2",
     "constructs": "10.3.0",
     "drizzle-kit": "0.20.14",
