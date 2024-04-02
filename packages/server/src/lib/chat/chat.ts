@@ -24,7 +24,7 @@ export async function aiRenameChat(chat: Chat, history: RAIChatMessage[]) {
     } else {
       role = message.role;
     }
-    return [message.role, message.content] as [MessageType, MessageContent];
+    return [role, message.content] as [MessageType, MessageContent];
   });
 
   const renameChain = ChatPromptTemplate.fromMessages([

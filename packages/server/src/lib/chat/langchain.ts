@@ -65,7 +65,7 @@ export const getRAIChatChain = async (options: {
     } else {
       role = message.role;
     }
-    return [message.role, message.content] as [MessageType, MessageContent];
+    return [role, message.content] as [MessageType, MessageContent];
   });
 
   const identityChain = RunnableSequence.from([

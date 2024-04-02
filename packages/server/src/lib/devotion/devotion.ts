@@ -251,11 +251,7 @@ export async function generateDiveDeeperQueries(devotion: Devotion) {
   })
     .pipe(
       getLanguageModel({
-        modelId: 'anthropic.claude-v2:1',
-        stream: false,
-        promptSuffix: '\nPlace your queries within <queries></queries> XML tags.',
-        completionPrefix: '<queries>',
-        stopSequences: ['</queries>']
+        modelId: 'claude-3-opus-20240229'
       })
     )
     .pipe(diveDeeperOutputParser);

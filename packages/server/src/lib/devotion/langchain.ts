@@ -105,10 +105,7 @@ export const getDevotionGeneratorChain = async (): Promise<
       })
         .pipe(
           getLanguageModel({
-            modelId: 'anthropic.claude-v2:1',
-            promptSuffix: '\nPlace your output within <output></output> XML tags.',
-            completionPrefix: '<output>',
-            stopSequences: ['</output>']
+            modelId: 'claude-3-opus-20240229'
           })
         )
         .pipe(devotionOutputParser)
@@ -192,10 +189,7 @@ export const getBibleReadingChain = async (topic: string) => {
     })
       .pipe(
         getLanguageModel({
-          modelId: 'anthropic.claude-instant-v1',
-          promptSuffix: '\nPlace your output within <output></output> XML tags.',
-          completionPrefix: '<output>',
-          stopSequences: ['</output>']
+          modelId: 'claude-3-haiku-20240307'
         })
       )
       .pipe(bibleReadingOutputParser)
@@ -217,11 +211,7 @@ export const getImageCaptionChain = () => {
   return PromptTemplate.fromTemplate(DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE)
     .pipe(
       getLanguageModel({
-        modelId: 'anthropic.claude-v2:1',
-        stream: false,
-        promptSuffix: '\nPlace your output within <output></output> XML tags.',
-        completionPrefix: '<output>',
-        stopSequences: ['</output>']
+        modelId: 'claude-3-opus-20240229'
       })
     )
     .pipe(new StringOutputParser());
