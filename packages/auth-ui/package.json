@@ -55,6 +55,7 @@
     "autosize": "^6.0.1",
     "dayjs": "^1.11.10",
     "graphql-request": "^6.1.0",
+    "tailwind-variants": "^0.2.1",
     "uuid": "^9.0.1",
     "validator": "^13.11.0"
   }

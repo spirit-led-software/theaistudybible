@@ -1,4 +1,4 @@
-import { PUBLIC_API_URL } from '$env/static/public';
+import { PUBLIC_API_URL, PUBLIC_WEBSITE_URL } from '$env/static/public';
 import apiConfig from '@revelationsai/client/configs/api';
 import { commonCookies } from '@revelationsai/client/utils/cookies';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
@@ -18,6 +18,10 @@ export const handle: Handle = async ({ resolve, event }) => {
 
     const sessionInfo = await validNonApiHandlerSession(session);
     if (!sessionInfo.isValid) {
+      event.cookies.delete(commonCookies.session, {
+        domain: new URL(PUBLIC_WEBSITE_URL).hostname,
+        path: '/'
+      });
       throw new Error('Invalid session');
     }
 

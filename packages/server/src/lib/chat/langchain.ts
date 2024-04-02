@@ -18,7 +18,7 @@ import {
   OutputFixingParser,
   RouterOutputParser
 } from 'langchain/output_parsers';
-import { ChatPromptTemplate, PromptTemplate, SystemMessagePromptTemplate } from 'langchain/prompts';
+import { ChatPromptTemplate, PromptTemplate } from 'langchain/prompts';
 import type { MessageContent, MessageType, PartialValues } from 'langchain/schema';
 import { z } from 'zod';
 import { getLanguageModel } from '../llm';
@@ -229,22 +229,20 @@ export async function getDocumentQaChain(options: {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      searchQueries: ChatPromptTemplate.fromMessages<{
-        query: string;
-      }>([
-        new SystemMessagePromptTemplate({
-          prompt: PromptTemplate.fromTemplate(CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE, {
-            partialVariables: {
-              formatInstructions: searchQueryOutputParser.getFormatInstructions()
-            }
-          })
-        }),
-        ...history,
-        [
-          'human',
-          'What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}'
-        ]
-      ])
+      searchQueries: (
+        await ChatPromptTemplate.fromMessages<{
+          query: string;
+        }>([
+          ['system', CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE],
+          ...history,
+          [
+            'human',
+            'What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}'
+          ]
+        ]).partial({
+          formatInstructions: searchQueryOutputParser.getFormatInstructions()
+        })
+      )
         .pipe(
           getLanguageModel({
             cache: llmCache
@@ -302,20 +300,14 @@ export async function getDocumentQaChain(options: {
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      text: ChatPromptTemplate.fromMessages<{
-        query: string;
-        sources: string;
-      }>([
-        new SystemMessagePromptTemplate({
-          prompt: PromptTemplate.fromTemplate(prompt, {
-            partialVariables: {
-              ...extraPromptVars
-            }
-          })
-        }),
-        ...history,
-        ['human', '{query}']
-      ])
+      text: (
+        await ChatPromptTemplate.fromMessages<{
+          query: string;
+          sources: string;
+        }>([['system', prompt], ...history, ['human', '{query}']]).partial({
+          ...extraPromptVars
+        })
+      )
         .pipe(
           getLanguageModel({
             modelId,

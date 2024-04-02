@@ -125,4 +125,5 @@ Here are some important rules for you to follow:
 - Your title must be concise.
 - Your title must have proper capitalization.
 - Your title must be a maximum of 32 characters.
-- Do not put your title in quotes.`;
+- Do not put your title in quotes.
+- Do not use markdown formatting in your title.`;
