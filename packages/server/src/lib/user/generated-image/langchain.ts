@@ -6,46 +6,28 @@ import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vect
 import { XMLBuilder } from 'fast-xml-parser';
 import {
   CustomListOutputParser,
-  JsonMarkdownStructuredOutputParser,
-  OutputFixingParser
+  JsonMarkdownStructuredOutputParser
 } from 'langchain/output_parsers';
-import { PromptTemplate } from 'langchain/prompts';
 import { z } from 'zod';
+import { RAIOutputFixingParser } from '../../langchain/output_parsers/rai-output-fixing';
 import { getLanguageModel } from '../../llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../llm/prompts';
 import { getDocumentVectorStore } from '../../vector-db';
 import {
-  USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-  USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
-  USER_GENERATED_IMAGE_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE
+  getImagePromptChainPromptInfo,
+  getPromptValidatorPromptInfo,
+  getSearchQueryPromptInfo
 } from './prompts';
 
-const validationOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
+const validationOutputParser = RAIOutputFixingParser.fromParser(
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
       inappropriate: z.boolean()
     })
-  ),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
+  )
 );
 
-const searchQueryOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
-  new CustomListOutputParser({ separator: '\n' }),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
+const searchQueryOutputParser = RAIOutputFixingParser.fromParser(
+  new CustomListOutputParser({ separator: '\n' })
 );
 
 export const getImagePromptChain = async (): Promise<
@@ -67,17 +49,26 @@ export const getImagePromptChain = async (): Promise<
     })
   );
 
+  const { prompt: promptValidatorPrompt, stopSequences: promptValidatorStopSequences } =
+    await getPromptValidatorPromptInfo({
+      formatInstructions: validationOutputParser.getFormatInstructions()
+    });
+  const { prompt: searchQueryPrompt, stopSequences: searchQueryStopSequences } =
+    await getSearchQueryPromptInfo({
+      formatInstructions: searchQueryOutputParser.getFormatInstructions()
+    });
+  const { prompt: promptGeneratorPrompt, stopSequences: promptGeneratorStopSequences } =
+    await getImagePromptChainPromptInfo();
   const chain = RunnableSequence.from([
     {
       userPrompt: (input) => input.userPrompt,
-      validation: new PromptTemplate({
-        template: USER_GENERATED_IMAGE_PROMPT_VALIDATOR_PROMPT_TEMPLATE,
-        inputVariables: ['userPrompt'],
-        partialVariables: {
-          formatInstructions: validationOutputParser.getFormatInstructions()
-        }
-      })
-        .pipe(getLanguageModel())
+      validation: promptValidatorPrompt
+        .pipe(
+          getLanguageModel({
+            cache: llmCache,
+            stopSequences: promptValidatorStopSequences
+          })
+        )
         .pipe(validationOutputParser)
     },
     {
@@ -89,17 +80,11 @@ export const getImagePromptChain = async (): Promise<
       userPrompt: (previousStepResult) => previousStepResult.userPrompt
     },
     {
-      searchQueries: PromptTemplate.fromTemplate(
-        USER_GENERATED_IMAGE_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE,
-        {
-          partialVariables: {
-            formatInstructions: searchQueryOutputParser.getFormatInstructions()
-          }
-        }
-      )
+      searchQueries: searchQueryPrompt
         .pipe(
           getLanguageModel({
-            cache: llmCache
+            cache: llmCache,
+            stopSequences: searchQueryStopSequences
           })
         )
         .pipe(searchQueryOutputParser),
@@ -153,11 +138,12 @@ export const getImagePromptChain = async (): Promise<
       userPrompt: (previousStepResult) => previousStepResult.userPrompt
     },
     {
-      prompt: new PromptTemplate({
-        template: USER_GENERATED_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-        inputVariables: ['userPrompt', 'sources']
-      })
-        .pipe(getLanguageModel())
+      prompt: promptGeneratorPrompt
+        .pipe(
+          getLanguageModel({
+            stopSequences: promptGeneratorStopSequences
+          })
+        )
         .pipe(new StringOutputParser()),
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
       searchQueries: (previousStepResult) => previousStepResult.searchQueries

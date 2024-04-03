@@ -13,24 +13,44 @@ import type { User } from '@revelationsai/core/model/user';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
-import {
-  CustomListOutputParser,
-  OutputFixingParser,
-  RouterOutputParser
-} from 'langchain/output_parsers';
-import { ChatPromptTemplate, PromptTemplate } from 'langchain/prompts';
-import type { MessageContent, MessageType, PartialValues } from 'langchain/schema';
+import { CustomListOutputParser, RouterOutputParser } from 'langchain/output_parsers';
+import { BasePromptTemplate } from 'langchain/prompts';
+import type { MessageContent, MessageType } from 'langchain/schema';
 import { z } from 'zod';
+import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
 import { getLanguageModel } from '../llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
 import { getDocumentVectorStore } from '../vector-db';
 import {
-  CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
-  CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE,
-  CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
-  CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE
+  getFaithQaChainPromptInfo,
+  getHistoryChainPromptInfo,
+  getIdentityChainPromptInfo,
+  getRouterChainPromptInfo,
+  getSearchQueryChainPromptInfo
 } from './prompts';
+
+const queryAnsweringSystems = [
+  'identity: For greetings, introducing yourself, or talking about yourself.',
+  'chat-history: For retrieving information about the current chat conversation.',
+  'faith-qa: For answering general queries about Christian faith.'
+] as const;
+
+const routerChainOutputParser = RAIOutputFixingParser.fromParser(
+  RouterOutputParser.fromZodSchema(
+    z.object({
+      destination: z
+        .string()
+        .optional()
+        .describe(
+          'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
+        ),
+      next_inputs: z
+        .object({
+          query: z.string().describe('The query to be fed into the next model.')
+        })
+        .describe('The input to be fed into the next model.')
+    })
+  )
+);
 
 export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;
@@ -52,7 +72,10 @@ export const getRAIChatChain = async (options: {
   const { contextSize } = allModels[modelId];
   const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
 
-  const messages = options.messages.slice(contextSizeNum > 32 ? -21 : -11, -1);
+  let messages = options.messages.slice(contextSizeNum > 32 ? -21 : -11);
+  if (messages.at(-1)?.role === 'user') {
+    messages = messages.slice(0, -1);
+  }
 
   const history = messages.map((message) => {
     let role: MessageType;
@@ -68,18 +91,19 @@ export const getRAIChatChain = async (options: {
     return [role, message.content] as [MessageType, MessageContent];
   });
 
+  const { prompt: identityChainPrompt, stopSequences: identityChainStopSequences } =
+    getIdentityChainPromptInfo({ history });
   const identityChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      text: ChatPromptTemplate.fromMessages<{
-        query: string;
-      }>([['system', CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE], ...history, ['human', '{query}']])
+      text: identityChainPrompt
         .pipe(
           getLanguageModel({
             modelId,
-            stream: true
+            stream: true,
+            stopSequences: identityChainStopSequences
           })
         )
         .pipe(new StringOutputParser())
@@ -89,18 +113,19 @@ export const getRAIChatChain = async (options: {
     }
   ]);
 
+  const { prompt: historyChainPrompt, stopSequences: historyChainStopSequences } =
+    getHistoryChainPromptInfo({ history });
   const chatHistoryChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      text: ChatPromptTemplate.fromMessages<{
-        query: string;
-      }>([['system', CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE], ...history, ['human', '{query}']])
+      text: historyChainPrompt
         .pipe(
           getLanguageModel({
             modelId,
-            stream: true
+            stream: true,
+            stopSequences: historyChainStopSequences
           })
         )
         .pipe(new StringOutputParser())
@@ -110,10 +135,13 @@ export const getRAIChatChain = async (options: {
     }
   ]);
 
+  const { prompt: faithQaChainPrompt, stopSequences: faithQaChainStopSequences } =
+    await getFaithQaChainPromptInfo({ history, bibleTranslation: user.translation });
   const faithQaChain = await getDocumentQaChain({
     modelId,
     contextSize: contextSizeNum,
-    prompt: CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE,
+    prompt: faithQaChainPrompt,
+    stopSequences: faithQaChainStopSequences,
     filters: [
       {
         category: 'bible',
@@ -122,9 +150,6 @@ export const getRAIChatChain = async (options: {
       "metadata->>'category' != 'bible'"
     ],
     history,
-    extraPromptVars: {
-      bibleTranslation: user.translation
-    },
     callbacks
   });
 
@@ -135,52 +160,19 @@ export const getRAIChatChain = async (options: {
     faithQaChain
   ]);
 
-  const routerChainOutputParser = OutputFixingParser.fromLLM(
-    getLanguageModel({
-      temperature: 0.1,
-      topK: 5,
-      topP: 0.1
-    }),
-    RouterOutputParser.fromZodSchema(
-      z.object({
-        destination: z
-          .string()
-          .optional()
-          .describe(
-            'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
-          ),
-        next_inputs: z
-          .object({
-            query: z.string().describe('The query to be fed into the next model.')
-          })
-          .describe('The input to be fed into the next model.')
-      })
-    ),
-    {
-      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-    }
-  );
+  const { prompt: routerPrompt, stopSequences: routerStopSequences } =
+    await getRouterChainPromptInfo({
+      history,
+      candidates: queryAnsweringSystems,
+      formatInstructions: routerChainOutputParser.getFormatInstructions()
+    });
   const multiRouteChain = RunnableSequence.from([
     {
       routingInstructions: RunnableSequence.from([
-        new PromptTemplate({
-          template: CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE,
-          inputVariables: ['query'],
-          partialVariables: {
-            formatInstructions: routerChainOutputParser.getFormatInstructions(),
-            destinations: [
-              'identity: For greetings, introducing yourself, or talking about yourself.',
-              'chat-history: For retrieving information about the current chat conversation.',
-              'faith-qa: For answering general queries about Christian faith.'
-            ].join('\n'),
-            history: messages
-              .slice(-10)
-              .map((m) => new XMLBuilder().build({ message: { sender: m.role, text: m.content } }))
-              .join('\n')
-          }
-        }),
+        routerPrompt,
         getLanguageModel({
-          cache: llmCache
+          cache: llmCache,
+          stopSequences: routerStopSequences
         }),
         routerChainOutputParser
       ]),
@@ -192,28 +184,20 @@ export const getRAIChatChain = async (options: {
   return multiRouteChain;
 };
 
-const searchQueryOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
-  new CustomListOutputParser({ separator: '\n' }),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
+const searchQueryOutputParser = RAIOutputFixingParser.fromParser(
+  new CustomListOutputParser({ separator: '\n' })
 );
 
 export async function getDocumentQaChain(options: {
   modelId: FreeTierModelId | PlusTierModelId;
   contextSize: number;
-  prompt: string;
+  prompt: BasePromptTemplate;
+  stopSequences?: string[];
   callbacks: CallbackManager;
   filters?: (Metadata | string)[];
   history: [MessageType, MessageContent][];
-  extraPromptVars?: PartialValues<string>;
 }) {
-  const { modelId, contextSize, prompt, filters, extraPromptVars, history, callbacks } = options;
+  const { modelId, contextSize, prompt, stopSequences, filters, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
     filters,
     verbose: envConfig.isLocal
@@ -224,28 +208,21 @@ export async function getDocumentQaChain(options: {
     })
   );
 
+  const { prompt: searchQueryPrompt, stopSequences: searchQueryStopSequences } =
+    await getSearchQueryChainPromptInfo({
+      history,
+      formatInstructions: searchQueryOutputParser.getFormatInstructions()
+    });
   const qaChain = RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
     {
-      searchQueries: (
-        await ChatPromptTemplate.fromMessages<{
-          query: string;
-        }>([
-          ['system', CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE],
-          ...history,
-          [
-            'human',
-            'What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}'
-          ]
-        ]).partial({
-          formatInstructions: searchQueryOutputParser.getFormatInstructions()
-        })
-      )
+      searchQueries: searchQueryPrompt
         .pipe(
           getLanguageModel({
-            cache: llmCache
+            cache: llmCache,
+            stopSequences: searchQueryStopSequences
           })
         )
         .pipe(searchQueryOutputParser),
@@ -300,18 +277,12 @@ export async function getDocumentQaChain(options: {
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      text: (
-        await ChatPromptTemplate.fromMessages<{
-          query: string;
-          sources: string;
-        }>([['system', prompt], ...history, ['human', '{query}']]).partial({
-          ...extraPromptVars
-        })
-      )
+      text: prompt
         .pipe(
           getLanguageModel({
             modelId,
-            stream: true
+            stream: true,
+            stopSequences
           })
         )
         .pipe(new StringOutputParser())

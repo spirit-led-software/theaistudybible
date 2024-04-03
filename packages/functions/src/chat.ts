@@ -1,5 +1,4 @@
 import middy from '@middy/core';
-import envConfig from '@revelationsai/core/configs/env';
 import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { Chat } from '@revelationsai/core/model/chat';
@@ -105,6 +104,12 @@ function validateModelId(
     };
   }
   return undefined;
+}
+
+function getDefaultModelId(userWithRoles: UserWithRoles): FreeTierModelId | PlusTierModelId {
+  return hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)
+    ? ('claude-3-opus-20240229' satisfies PlusTierModelId)
+    : ('claude-3-haiku-20240307' satisfies FreeTierModelId);
 }
 
 async function postResponseValidationLogic({
@@ -238,11 +243,7 @@ async function lambdaHandler(
         return modelIdValidationResponse;
       }
     }
-    const modelId =
-      providedModelId ??
-      ((hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)) && !envConfig.isLocal
-        ? ('claude-3-opus-20240229' satisfies PlusTierModelId)
-        : ('gpt-3.5-turbo' satisfies FreeTierModelId));
+    const modelId = providedModelId ?? getDefaultModelId(userWithRoles);
 
     console.time('Validating chat');
     const chat = chatId
@@ -259,13 +260,8 @@ async function lambdaHandler(
         });
 
     console.timeEnd('Validating chat');
-
-    if (!chat.customName) {
-      pendingPromises.push(aiRenameChat(chat, messages));
-    } else {
-      // Hacky way to update the chat updated_at field
-      pendingPromises.push(updateChat(chat.id, { name: chat.name }));
-    }
+    // Hacky way to update the chat updated_at field
+    pendingPromises.push(updateChat(chat.id, { name: chat.name }));
 
     console.time('Validating user message');
     const userMessage = await getUserMessages({
@@ -321,21 +317,37 @@ async function lambdaHandler(
         console.log(`LangChain result: ${JSON.stringify(result)}`);
         const sourceDocuments = result.sourceDocuments ?? [];
         const searchQueries = result.searchQueries ?? [];
-        await postResponseValidationLogic({
-          modelId: modelId as FreeTierModelId | PlusTierModelId,
-          chat,
-          userMessageId: userMessage.id,
-          aiResponseId,
-          userId: userWithRoles.id,
-          lastMessage,
-          response: result.text,
-          sourceDocuments,
-          searchQueries
-        });
+        await Promise.all([
+          !chat.customName
+            ? aiRenameChat(chat, [
+                ...messages,
+                {
+                  id: uuidV4(),
+                  role: 'assistant',
+                  content: result.text
+                }
+              ])
+            : Promise.resolve(),
+          postResponseValidationLogic({
+            modelId: modelId as FreeTierModelId | PlusTierModelId,
+            chat,
+            userMessageId: userMessage.id,
+            aiResponseId,
+            userId: userWithRoles.id,
+            lastMessage,
+            response: result.text,
+            sourceDocuments,
+            searchQueries
+          })
+        ]);
         return result;
       })
-      .catch(async (err) => {
-        console.error(`Error: ${err.stack}`);
+      .catch(async (err: unknown) => {
+        if (err instanceof Error) {
+          console.error(`Error: ${err.message}\n\t${err.stack}`);
+        } else {
+          console.error(`Error: ${JSON.stringify(err)}`);
+        }
         await Promise.all([
           incrementQueryCountPromise.then(() => {
             decrementUserQueryCount(userWithRoles.id);

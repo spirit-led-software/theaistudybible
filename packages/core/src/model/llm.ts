@@ -8,14 +8,6 @@ export type ModelInfo = {
 };
 
 export const freeTierModels = {
-  'gpt-3.5-turbo': {
-    name: 'GPT-3.5 Turbo',
-    description: 'A large language model trained by OpenAI',
-    contextSize: '16k',
-    provider: 'openai',
-    link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
-    tier: 'free'
-  } satisfies ModelInfo,
   'claude-3-haiku-20240307': {
     name: 'Claude-3 Haiku',
     description: 'A large language model trained by Anthropic',
@@ -23,7 +15,15 @@ export const freeTierModels = {
     provider: 'anthropic',
     link: 'https://www.anthropic.com/news/claude-3-family',
     tier: 'free'
-  } satisfies ModelInfo // TODO: Remove this from free tier
+  } satisfies ModelInfo,
+  'gpt-3.5-turbo': {
+    name: 'GPT-3.5 Turbo',
+    description: 'A large language model trained by OpenAI',
+    contextSize: '16k',
+    provider: 'openai',
+    link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
+    tier: 'free'
+  } satisfies ModelInfo
 } as const;
 export type FreeTierModelId = keyof typeof freeTierModels;
 export const freeTierModelIds = Object.keys(freeTierModels) as FreeTierModelId[];

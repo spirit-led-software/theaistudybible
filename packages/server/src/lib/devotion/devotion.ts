@@ -6,22 +6,21 @@ import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema'
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { XMLBuilder } from 'fast-xml-parser';
-import { CustomListOutputParser, OutputFixingParser } from 'langchain/output_parsers';
-import { PromptTemplate } from 'langchain/prompts';
+import { CustomListOutputParser } from 'langchain/output_parsers';
 import { Bucket } from 'sst/node/bucket';
 import { Config } from 'sst/node/config';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
 import { db } from '../database';
+import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
 import { getLanguageModel } from '../llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
 import {
   getBibleReadingChain,
   getDevotionGeneratorChain,
   getImageCaptionChain,
   getImagePromptChain
 } from './langchain';
-import { DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE } from './prompts';
+import { getDiveDeeperQueryGeneratorPromptInfo } from './prompts';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [
@@ -226,32 +225,19 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
   return devo;
 }
 
-const getDiveDeeperOutputParser = () =>
-  OutputFixingParser.fromLLM(
-    getLanguageModel({
-      temperature: 0.1,
-      topK: 5,
-      topP: 0.1
-    }),
-    new CustomListOutputParser({ separator: '\n' }),
-    {
-      prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-    }
-  );
+const diveDeeperOutputParser = RAIOutputFixingParser.fromParser(
+  new CustomListOutputParser({ separator: '\n' })
+);
 
 export async function generateDiveDeeperQueries(devotion: Devotion) {
-  const diveDeeperOutputParser = getDiveDeeperOutputParser();
-
-  const queryChain = new PromptTemplate({
-    inputVariables: ['devotion'],
-    template: DEVO_DIVE_DEEPER_QUERY_GENERATOR_PROMPT_TEMPLATE,
-    partialVariables: {
-      formatInstructions: diveDeeperOutputParser.getFormatInstructions()
-    }
-  })
+  const { prompt, stopSequences } = await getDiveDeeperQueryGeneratorPromptInfo({
+    formatInstructions: diveDeeperOutputParser.getFormatInstructions()
+  });
+  const queryChain = prompt
     .pipe(
       getLanguageModel({
-        modelId: 'claude-3-opus-20240229'
+        modelId: 'claude-3-haiku-20240307',
+        stopSequences
       })
     )
     .pipe(diveDeeperOutputParser);

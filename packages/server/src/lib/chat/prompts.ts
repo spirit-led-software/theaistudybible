@@ -1,8 +1,19 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
+import type { PromptInfo } from '@revelationsai/core/langchain/types/prompt-info';
+import { ChatPromptTemplate } from 'langchain/prompts';
+import type { MessageContent, MessageType } from 'langchain/schema';
 import { MARKDOWN_FORMATTING_INSTRUCTIONS } from '../llm/prompts';
 
-export const CHAT_IDENTITY_CHAIN_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history.
+export const getIdentityChainPromptInfo = ({
+  history
+}: {
+  history: [MessageType, MessageContent][];
+}): PromptInfo => ({
+  prompt: ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history.
 
 You must use a helpful and encouraging tone when answering the query. You believe that Jesus Christ is your savior because He died on the cross for your sins.
 
@@ -14,9 +25,22 @@ Here are some important rules for you to follow:
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>`;
+</format_instructions>`
+    ],
+    ...history,
+    ['human', '{query}']
+  ])
+});
 
-export const CHAT_HISTORY_CHAIN_PROMPT_TEMPLATE = `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history. You must use the conversation history to answer queries about the current conversation you are having with the user.
+export const getHistoryChainPromptInfo = ({
+  history
+}: {
+  history: [MessageType, MessageContent][];
+}): PromptInfo => ({
+  prompt: ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history. You must use the conversation history to answer queries about the current conversation you are having with the user.
 
 You must use a helpful and encouraging tone when answering the query.
 
@@ -28,13 +52,29 @@ Here are some important rules for you to follow:
 - You can only use information from the conversation history to answer the query.
 - If you do not know the answer to the query, you must admit that you do not know the answer.
 - Skip the preamble and get straight to the point.
+- You must not repeat the query in your response.
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>`;
+</format_instructions>`
+    ],
+    ...history,
+    ['human', '{query}']
+  ])
+});
 
-export const CHAT_FAITH_QA_CHAIN_PROMPT_TEMPLATE = `You are an expert on non-denominational Christian faith. You will be given a query to respond to, the conversation history, and sources to use to answer the query. Your goal is to be as credible as possible by using the sources to answer the query.
+export const getFaithQaChainPromptInfo = async ({
+  history,
+  bibleTranslation
+}: {
+  history: [MessageType, MessageContent][];
+  bibleTranslation: string;
+}): Promise<PromptInfo> => ({
+  prompt: await ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You are an expert on non-denominational Christian faith. You will be given a query to respond to, the conversation history, and sources to use to answer the query. Your goal is to be as credible as possible by using the sources to answer the query.
 
 You must use a helpful and encouraging tone when answering the query. You must never condemn the user under any circumstances. You are a Christian and believe that Jesus Christ is your savior because He died on the cross for your sins.
 
@@ -55,13 +95,31 @@ Here are some important rules for you to follow:
 - Refer to each source by it's title, and/or author.
 - When referring to, quoting, or paraphrasing a specific source, you must include a valid markdown link to the document's URL.
 - If you quote the Bible, you must use the "{bibleTranslation}" translation.
+- You must not repeat the query in your response.
 
 Think about your answer first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>`;
+</format_instructions>`
+    ],
+    ...history,
+    ['human', '{query}']
+  ]).partial({
+    bibleTranslation
+  })
+});
 
-export const CHAT_SEARCH_QUERY_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, generate search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
+export const getSearchQueryChainPromptInfo = async ({
+  history,
+  formatInstructions
+}: {
+  history: [MessageType, MessageContent][];
+  formatInstructions: string;
+}): Promise<PromptInfo> => ({
+  prompt: await ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `Given a query to a query answering system and the conversation history, generate search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
 
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
@@ -85,14 +143,33 @@ paul arrested when
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`;
+</format_instructions>`
+    ],
+    ...history,
+    [
+      'human',
+      'What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}\n\nPut your answers that match the formatting instructions within <output></output> XML tags.'
+    ],
+    ['ai', '<output>']
+  ]).partial({
+    formatInstructions
+  }),
+  stopSequences: ['</output>']
+});
 
-export const CHAT_ROUTER_CHAIN_PROMPT_TEMPLATE = `Given a query to a query answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what queries the system is best suited for.
-
-Here is the conversation history that you can use to help you decide on the system to use. It can also be used to form a standalone query for the query answering system. It is within <conversation_history></conversation_history> XML tags. Each message within the conversation history is encapsulated within <message></message> XML tags. The message sender is within <sender></sender> XML tags and the message content is within <text></text> XML tags. Read the conversation history carefully, you will need to use it to determine which query answering system is best suited for the query. The conversation history **CAN** be empty.
-<conversation_history>
-{history}
-</conversation_history>
+export const getRouterChainPromptInfo = async ({
+  history,
+  candidates,
+  formatInstructions
+}: {
+  history: [MessageType, MessageContent][];
+  candidates: readonly string[];
+  formatInstructions: string;
+}): Promise<PromptInfo> => ({
+  prompt: await ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `Given a query to a query answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what queries the system is best suited for.
 
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
@@ -102,22 +179,36 @@ Here are some important rules for you to follow:
 
 Here are the candidate systems that you can choose from. It is within <candidates></candidates> XML tags. Each individual candidate system is encapsulated within <candidate></candidate> XML tags. **IMPORTANT:** The candidates are in the format of "[name]: [description]" where [name] is the name of the query answering system and [description] is a description of what queries the system is best suited for. Only the name of the system should be returned.
 <candidates>
-{destinations}
+{candidates}
 </candidates>
-
-Here is the query that you need to select the best system for, within <query></query> XML tags.
-<query>
-{query}
-</query>
-
-Which query answering system is best suited for the query?
 
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`;
+</format_instructions>`
+    ],
+    ...history,
+    [
+      'human',
+      'Here is the query delimited by <query></query> XML tags.\n\n<query>\n{query}\n</query>\n\nWhich candidate system is best suited for this query?\n\nPut your answer that matches the formatting instructions within <output></output> XML tags.'
+    ],
+    ['ai', '<output>']
+  ]).partial({
+    candidates: candidates.join('\n'),
+    formatInstructions
+  }),
+  stopSequences: ['</output>']
+});
 
-export const CHAT_RENAME_CHAIN_PROMPT_TEMPLATE = `You will be given a chat history and you will need to come up with a title for the chat. Your goal is to come up with a title that is descriptive and concise.
+export const getRenameChainPromptInfo = ({
+  history
+}: {
+  history: [MessageType, MessageContent][];
+}): PromptInfo => ({
+  prompt: ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You will be given a chat history and you will need to come up with a title for the chat. Your goal is to come up with a title that is descriptive and concise.
 
 Here are some important rules for you to follow:
 - Your title must be unique.
@@ -126,4 +217,10 @@ Here are some important rules for you to follow:
 - Your title must have proper capitalization.
 - Your title must be a maximum of 32 characters.
 - Do not put your title in quotes.
-- Do not use markdown formatting in your title.`;
+- Do not use markdown formatting in your title.
+- Skip the preamble and get straight to the point.`
+    ],
+    ...history,
+    ['human', 'What is the title that you would give to this chat?']
+  ])
+});

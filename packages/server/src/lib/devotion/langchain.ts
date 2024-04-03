@@ -5,26 +5,20 @@ import { devotions } from '@revelationsai/core/database/schema';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
-import { JsonMarkdownStructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers';
-import { PromptTemplate } from 'langchain/prompts';
+import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { z } from 'zod';
 import { getDevotions } from '../../services/devotion/devotion';
+import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
 import { getLanguageModel } from '../llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../llm/prompts';
 import { getDocumentVectorStore } from '../vector-db';
 import {
-  DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
-  DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-  DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE,
-  DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE
+  getBibleReadingFinderPromptInfo,
+  getDevoGeneratorPromptInfo,
+  getImageCaptionPromptInfo,
+  getImagePromptChainPromptInfo
 } from './prompts';
 
-const devotionOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
+const devotionOutputParser = RAIOutputFixingParser.fromParser(
   JsonMarkdownStructuredOutputParser.fromZodSchema(
     z.object({
       summary: z
@@ -39,10 +33,25 @@ const devotionOutputParser = OutputFixingParser.fromLLM(
         .string()
         .describe('A prayer to end the devotion. Between 500 and 2000 characters in length.')
     })
-  ),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
+  )
+);
+
+const bibleReadingOutputParser = RAIOutputFixingParser.fromParser(
+  JsonMarkdownStructuredOutputParser.fromZodSchema(
+    z.object({
+      book: z.string().describe('The book name from within the bible. For example: Genesis'),
+      chapter: z
+        .string()
+        .describe(
+          'The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**'
+        ),
+      verseRange: z
+        .string()
+        .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
+        .describe('The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**'),
+      text: z.string().describe('The exact text of the bible reading.')
+    })
+  )
 );
 
 export const getDevotionGeneratorChain = async (): Promise<
@@ -76,6 +85,10 @@ export const getDevotionGeneratorChain = async (): Promise<
       verbose: envConfig.isLocal
     })
   );
+
+  const { prompt, stopSequences } = await getDevoGeneratorPromptInfo({
+    formatInstructions: devotionOutputParser.getFormatInstructions()
+  });
   const chain = RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
@@ -96,16 +109,11 @@ export const getDevotionGeneratorChain = async (): Promise<
     },
     {
       sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
-      result: new PromptTemplate({
-        template: DEVO_GENERATOR_CHAIN_PROMPT_TEMPLATE,
-        inputVariables: ['topic', 'bibleReading', 'documents'],
-        partialVariables: {
-          formatInstructions: devotionOutputParser.getFormatInstructions()
-        }
-      })
+      result: prompt
         .pipe(
           getLanguageModel({
-            modelId: 'claude-3-opus-20240229'
+            modelId: 'claude-3-opus-20240229',
+            stopSequences
           })
         )
         .pipe(devotionOutputParser)
@@ -114,32 +122,6 @@ export const getDevotionGeneratorChain = async (): Promise<
 
   return chain;
 };
-
-const bibleReadingOutputParser = OutputFixingParser.fromLLM(
-  getLanguageModel({
-    temperature: 0.1,
-    topK: 5,
-    topP: 0.1
-  }),
-  JsonMarkdownStructuredOutputParser.fromZodSchema(
-    z.object({
-      book: z.string().describe('The book name from within the bible. For example: Genesis'),
-      chapter: z
-        .string()
-        .describe(
-          'The chapter number from within the book. For example: 1. **PUT IN STRING FORMAT**'
-        ),
-      verseRange: z
-        .string()
-        .regex(/(\d+)(-(\d+))?/g) // Ex: 1 or 1-3
-        .describe('The verse range. For example: 1 or 1-3. **PUT IN STRING FORMAT**'),
-      text: z.string().describe('The exact text of the bible reading.')
-    })
-  ),
-  {
-    prompt: PromptTemplate.fromTemplate(OUTPUT_FIXER_PROMPT_TEMPLATE)
-  }
-);
 
 export const getBibleReadingChain = async (topic: string) => {
   const retriever = await getDocumentVectorStore({
@@ -156,6 +138,19 @@ export const getBibleReadingChain = async (topic: string) => {
       verbose: envConfig.isLocal
     })
   );
+
+  const { prompt, stopSequences } = await getBibleReadingFinderPromptInfo({
+    formatInstructions: bibleReadingOutputParser.getFormatInstructions(),
+    previousBibleReadings: (
+      await getDevotions({
+        limit: 10,
+        orderBy: desc(devotions.createdAt),
+        where: eq(devotions.topic, topic)
+      })
+    )
+      .map((d) => `<off_limits_bible_reading>\n${d.bibleReading}\n</off_limits_bible_reading>`)
+      .join('\n')
+  });
   const chain = RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
@@ -171,25 +166,11 @@ export const getBibleReadingChain = async (topic: string) => {
           .join('\n'),
       topic: (previousStepResult: { topic: string }) => previousStepResult.topic
     },
-    new PromptTemplate({
-      template: DEVO_BIBLE_READING_CHAIN_PROMPT_TEMPLATE,
-      inputVariables: ['topic', 'documents'],
-      partialVariables: {
-        previousBibleReadings: (
-          await getDevotions({
-            limit: 10,
-            orderBy: desc(devotions.createdAt),
-            where: eq(devotions.topic, topic)
-          })
-        )
-          .map((d) => `<off_limits_bible_reading>\n${d.bibleReading}\n</off_limits_bible_reading>`)
-          .join('\n'),
-        formatInstructions: bibleReadingOutputParser.getFormatInstructions()
-      }
-    })
+    prompt
       .pipe(
         getLanguageModel({
-          modelId: 'claude-3-haiku-20240307'
+          modelId: 'claude-3-haiku-20240307',
+          stopSequences
         })
       )
       .pipe(bibleReadingOutputParser)
@@ -199,19 +180,22 @@ export const getBibleReadingChain = async (topic: string) => {
 };
 
 export const getImagePromptChain = () => {
-  return new PromptTemplate({
-    template: DEVO_IMAGE_PROMPT_CHAIN_PROMPT_TEMPLATE,
-    inputVariables: ['devotion']
-  })
-    .pipe(getLanguageModel())
+  const { prompt, stopSequences } = getImagePromptChainPromptInfo();
+  return prompt
+    .pipe(
+      getLanguageModel({
+        stopSequences
+      })
+    )
     .pipe(new StringOutputParser());
 };
 
 export const getImageCaptionChain = () => {
-  return PromptTemplate.fromTemplate(DEVO_IMAGE_CAPTION_CHAIN_PROMPT_TEMPLATE)
+  const { prompt, stopSequences } = getImageCaptionPromptInfo();
+  return prompt
     .pipe(
       getLanguageModel({
-        modelId: 'claude-3-opus-20240229'
+        stopSequences
       })
     )
     .pipe(new StringOutputParser());
