@@ -45,8 +45,15 @@
   }
 </script>
 
-<div class="flex w-full flex-row overflow-x-hidden border border-t-slate-300 bg-white px-2 py-4">
-  <div class="flex w-16 flex-col content-start">
+<div class="relative flex w-full flex-row border border-t-slate-300 bg-white px-2 py-5">
+  {#if message.modelId}
+    <div class="absolute -top-4 left-1 mt-2 flex-shrink-0 bg-white text-xs text-gray-400">
+      <span class="rounded-xl border px-2 py-1">
+        {modelInfos[message.modelId]?.name ?? message.modelId}
+      </span>
+    </div>
+  {/if}
+  <div class="flex w-12 flex-col content-start">
     {#if role === 'user'}
       <Avatar {user} size="lg" class="border border-slate-100 shadow-xl" />
     {:else}
@@ -59,19 +66,12 @@
       class={`flex w-full ${role !== 'user' && !(isLastMessage && isChatLoading) ? 'justify-between' : 'justify-end'}`}
     >
       {#if role !== 'user' && !(isLastMessage && isChatLoading)}
-        <div class="mr-1 flex flex-1 lg:mr-5">
+        <div class="mr-2 flex flex-1 lg:mr-8">
           <ResponseSources aiResponseId={uuid ?? id} {isChatLoading} />
         </div>
       {/if}
       <div class="mt-1 flex flex-col place-items-end justify-start">
         <div class="flex place-items-end justify-end space-x-2">
-          {#if message.modelId}
-            <div class="mt-2 flex-shrink-0 text-xs text-gray-400">
-              <span class="rounded-xl border px-2 py-1">
-                {modelInfos[message.modelId]?.name ?? message.modelId}
-              </span>
-            </div>
-          {/if}
           <div class="mt-2 flex-shrink-0 text-xs text-gray-400">
             {Day(message.createdAt).format('M/D/YY h:mm a')}
           </div>

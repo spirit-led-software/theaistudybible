@@ -71,13 +71,15 @@
   $: isLoading = $isChatLoading || $query.isLoading;
 </script>
 
-<Accordion.Root class="mr-1 w-full rounded-xl border px-5">
+<Accordion.Root class="w-full rounded-xl border px-3">
   <Accordion.Item value="sources" class="border-b-0">
     <Accordion.Trigger class="w-full text-sm text-blue-400" disabled={isLoading}>
-      All Sources
-      {#if isLoading}
-        <span class="loading loading-spinner ml-2 w-4" />
-      {/if}
+      <div class="flex justify-start">
+        All Sources
+        {#if isLoading}
+          <span class="loading loading-spinner ml-2 w-4" />
+        {/if}
+      </div>
     </Accordion.Trigger>
     <Accordion.Content>
       {#if $sourceDocs.length > 0}

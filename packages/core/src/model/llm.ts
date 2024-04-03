@@ -9,19 +9,19 @@ export type ModelInfo = {
 
 export const freeTierModels = {
   'gpt-3.5-turbo': {
-    name: 'GPT-3.5',
+    name: 'GPT-3.5 Turbo',
     description: 'A large language model trained by OpenAI',
     contextSize: '16k',
     provider: 'openai',
     link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
     tier: 'free'
   } satisfies ModelInfo,
-  'claude-instant-1.2': {
-    name: 'Claude-Instant',
+  'claude-3-haiku-20240307': {
+    name: 'Claude-3 Haiku',
     description: 'A large language model trained by Anthropic',
     contextSize: '100k',
     provider: 'anthropic',
-    link: 'https://www.anthropic.com/news/releasing-claude-instant-1-2',
+    link: 'https://www.anthropic.com/news/claude-3-family',
     tier: 'free'
   } satisfies ModelInfo // TODO: Remove this from free tier
 } as const;
@@ -30,7 +30,7 @@ export const freeTierModelIds = Object.keys(freeTierModels) as FreeTierModelId[]
 
 export const plusTierModels = {
   'gpt-4-turbo-preview': {
-    name: 'GPT-4',
+    name: 'GPT-4 Turbo',
     description: 'A large language model trained by OpenAI',
     contextSize: '128k',
     provider: 'openai',
@@ -38,11 +38,11 @@ export const plusTierModels = {
     tier: 'plus'
   } satisfies ModelInfo,
   'claude-3-opus-20240229': {
-    name: 'Claude-3-Opus',
+    name: 'Claude-3 Opus',
     description: 'A large language model trained by Anthropic',
     contextSize: '200k',
     provider: 'bedrock',
-    link: 'https://www.anthropic.com/claude',
+    link: 'https://www.anthropic.com/news/claude-3-family',
     tier: 'plus'
   } satisfies ModelInfo
 } as const;
