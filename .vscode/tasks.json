@@ -5,7 +5,7 @@
       "type": "shell",
       "label": "pnpm-install",
       "detail": "Install packages",
-      "command": "pnpm install -rf",
+      "command": "pnpm install -r",
       "problemMatcher": []
     },
   ]
