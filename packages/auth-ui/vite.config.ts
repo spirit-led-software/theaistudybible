@@ -8,7 +8,8 @@ export default defineConfig({
       sourceMapsUploadOptions: {
         org: 'revelationsai',
         project: 'svelte-kit'
-      }
+      },
+      adapter: 'other'
     }),
     sveltekit()
   ],
