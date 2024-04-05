@@ -50,6 +50,7 @@
     "@revelationsai/client": "workspace:*",
     "@revelationsai/core": "workspace:*",
     "@revelationsai/server": "workspace:*",
+    "@sentry/sveltekit": "^7.109.0",
     "@tanstack/svelte-query": "^5.28.13",
     "ai": "^3.0.19",
     "autosize": "^6.0.1",
