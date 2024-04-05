@@ -1,4 +1,4 @@
-import {sequence} from '@sveltejs/kit/hooks';
+import { sequence } from '@sveltejs/kit/hooks';
 import * as Sentry from '@sentry/sveltekit';
 import { PUBLIC_API_URL, PUBLIC_WEBSITE_URL } from '$env/static/public';
 import apiConfig from '@revelationsai/client/configs/api';
@@ -7,9 +7,9 @@ import { validNonApiHandlerSession } from '@revelationsai/server/services/sessio
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 
 Sentry.init({
-    dsn: "https://4e3a10962cce1eb46a534d5720440f95@o4506418175737856.ingest.us.sentry.io/4506418505187328",
-    tracesSampleRate: 1
-})
+  dsn: 'https://4e3a10962cce1eb46a534d5720440f95@o4506418175737856.ingest.us.sentry.io/4506418505187328',
+  tracesSampleRate: 1
+});
 
 apiConfig.url = PUBLIC_API_URL;
 
