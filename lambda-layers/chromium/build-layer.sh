@@ -1,10 +1,9 @@
 #!/bin/bash
-layerUrl=$1
 
-if [ -z "$layerUrl" ]; then
-  echo "Usage: $0 <layer-url>"
-  exit 1
-fi
+layerUrl=$(curl -s https://api.github.com/repos/Sparticuz/chromium/releases/latest \
+| grep "browser_download_url.*-layer.zip" \
+| cut -d : -f 2,3 \
+| tr -d \")
 
 echo "Building layer from ${layerUrl}"
 

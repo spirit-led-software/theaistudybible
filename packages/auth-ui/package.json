@@ -24,7 +24,7 @@
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "daisyui": "^4.9.0",
+    "daisyui": "^4.10.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.35.1",
@@ -42,8 +42,8 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-brand-colors": "^0.3.6",
     "tslib": "^2.6.2",
-    "typescript": "^5.4.3",
-    "vite": "^5.2.7"
+    "typescript": "^5.4.4",
+    "vite": "^5.2.8"
   },
   "type": "module",
   "dependencies": {
@@ -51,7 +51,7 @@
     "@revelationsai/core": "workspace:*",
     "@revelationsai/server": "workspace:*",
     "@tanstack/svelte-query": "^5.28.13",
-    "ai": "^3.0.17",
+    "ai": "^3.0.19",
     "autosize": "^6.0.1",
     "dayjs": "^1.11.10",
     "graphql-request": "^6.1.0",
