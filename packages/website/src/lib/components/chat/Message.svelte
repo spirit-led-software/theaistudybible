@@ -45,8 +45,15 @@
   }
 </script>
 
-<div class="flex w-full flex-row overflow-x-hidden border border-t-slate-300 bg-white px-2 py-4">
-  <div class="flex w-16 flex-col content-start">
+<div class="relative flex w-full flex-row border border-t-slate-300 bg-white px-2 py-5">
+  {#if message.modelId}
+    <div class="absolute -top-4 left-1 mt-2 flex-shrink-0 bg-white text-xs text-gray-400">
+      <span class="rounded-xl border px-2 py-1">
+        {modelInfos[message.modelId]?.name ?? message.modelId}
+      </span>
+    </div>
+  {/if}
+  <div class="flex w-12 flex-col content-start">
     {#if role === 'user'}
       <Avatar {user} size="lg" class="border border-slate-100 shadow-xl" />
     {:else}
@@ -55,74 +62,75 @@
   </div>
   <div class="flex w-full flex-col overflow-x-clip px-3">
     <MessageMarkdown {content} />
-    <div class="flex w-full place-items-center justify-end space-x-2">
-      {#if message.modelId}
-        <div class="mt-2 flex justify-end text-xs text-gray-400">
-          <span class="rounded-xl border px-2 py-1">
-            {modelInfos[message.modelId]?.name ?? message.modelId}
-          </span>
+    <div
+      class={`flex w-full ${role !== 'user' && !(isLastMessage && isChatLoading) ? 'justify-between' : 'justify-end'}`}
+    >
+      {#if role !== 'user' && !(isLastMessage && isChatLoading)}
+        <div class="mr-2 flex flex-1 lg:mr-8">
+          <ResponseSources aiResponseId={uuid ?? id} {isChatLoading} />
         </div>
       {/if}
-      <div class="mt-2 flex justify-end text-xs text-gray-400">
-        {Day(message.createdAt).format('M/D/YY h:mm a')}
-      </div>
-    </div>
-    {#if role !== 'user' && !(isLastMessage && isChatLoading)}
-      <div class="flex w-full place-items-end justify-between">
-        <ResponseSources aiResponseId={uuid ?? id} {isChatLoading} />
-        <div class="join flex">
-          <CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
-          <dialog bind:this={shareModal} class="modal">
-            <form method="dialog" class="modal-box flex w-fit flex-col space-y-2">
-              <h1 class="text-bold">Share to:</h1>
-              <div class="flex place-items-center justify-center space-x-2">
-                <Email
-                  class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
-                  subject="Response from RevelationsAI"
-                  body={`${sharableContent}\n\n${url}`}
-                />
-                <Facebook
-                  class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
-                  {url}
-                  quote={sharableContent}
-                />
-                <X
-                  class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
-                  text={sharableContent}
-                  {url}
-                  hashtags="revelationsai,ai,christ,jesus"
-                />
-              </div>
-              <div class="flex place-items-center justify-center space-x-2">
-                <label for={`include-message-${id}`}>Include your message</label>
-                <input
-                  tabindex="-1"
-                  id={`include-message-${id}`}
-                  type="checkbox"
-                  class="checkbox checkbox-primary checkbox-sm"
-                  bind:checked={includePreviousMessage}
-                />
-              </div>
-              <p class="text-xs text-gray-400">Text will also be copied to your clipboard!</p>
-            </form>
-            <form method="dialog" class="modal-backdrop">
-              <button>close</button>
-            </form>
-          </dialog>
-          <button
-            class="btn btn-xs btn-ghost join-item"
-            on:click={() => {
-              shareModal?.showModal();
-            }}
-          >
-            <Icon icon="lucide:share" width={16} height={16} />
-          </button>
+      <div class="mt-1 flex flex-col place-items-end justify-start">
+        <div class="flex place-items-end justify-end space-x-2">
+          <div class="mt-2 flex-shrink-0 text-xs text-gray-400">
+            {Day(message.createdAt).format('M/D/YY h:mm a')}
+          </div>
+        </div>
+        <div class="mt-1 flex place-items-start justify-end">
+          {#if role !== 'user' && !(isLastMessage && isChatLoading)}
+            <div class="join flex">
+              <CopyButton btnClass="btn-xs btn-ghost join-item" {content} />
+              <dialog bind:this={shareModal} class="modal">
+                <form method="dialog" class="modal-box flex w-fit flex-col space-y-2">
+                  <h1 class="text-bold">Share to:</h1>
+                  <div class="flex place-items-center justify-center space-x-2">
+                    <Email
+                      class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
+                      subject="Response from RevelationsAI"
+                      body={`${sharableContent}\n\n${url}`}
+                    />
+                    <Facebook
+                      class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
+                      {url}
+                      quote={sharableContent}
+                    />
+                    <X
+                      class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
+                      text={sharableContent}
+                      {url}
+                      hashtags="revelationsai,ai,christ,jesus"
+                    />
+                  </div>
+                  <div class="flex place-items-center justify-center space-x-2">
+                    <label for={`include-message-${id}`}>Include your message</label>
+                    <input
+                      tabindex="-1"
+                      id={`include-message-${id}`}
+                      type="checkbox"
+                      class="checkbox checkbox-primary checkbox-sm"
+                      bind:checked={includePreviousMessage}
+                    />
+                  </div>
+                  <p class="text-xs text-gray-400">Text will also be copied to your clipboard!</p>
+                </form>
+                <form method="dialog" class="modal-backdrop">
+                  <button>close</button>
+                </form>
+              </dialog>
+              <button
+                class="btn btn-xs btn-ghost join-item"
+                on:click={() => {
+                  shareModal?.showModal();
+                }}
+              >
+                <Icon icon="lucide:share" width={16} height={16} />
+              </button>
+            </div>
+          {:else}
+            <CopyButton btnClass="btn-xs btn-ghost" content={sharableContent} />
+          {/if}
         </div>
       </div>
-    {:else}
-      <div class="flex place-items-end justify-end">
-        <CopyButton btnClass="btn-xs btn-ghost" content={sharableContent} />
-      </div>
-    {/if}
+    </div>
   </div>
 </div>

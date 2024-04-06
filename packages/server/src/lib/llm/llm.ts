@@ -1,16 +1,17 @@
+import { ChatAnthropic } from '@langchain/anthropic';
 import type { BaseCache } from '@langchain/core/caches';
-import { OpenAI } from '@langchain/openai';
+import { ChatOpenAI } from '@langchain/openai';
+import anthropicConfig from '@revelationsai/core/configs/anthropic';
 import envConfig from '@revelationsai/core/configs/env';
 import openAiConfig from '@revelationsai/core/configs/openai';
 import {
   RAIBedrockEmbeddings,
   type RAIBedrockEmbeddingsParams
 } from '@revelationsai/core/langchain/embeddings/bedrock';
-import { RAIBedrock } from '@revelationsai/core/langchain/llms/bedrock';
 import {
   anthropicModelIds,
   type AnthropicModelId
-} from '@revelationsai/core/langchain/types/bedrock';
+} from '@revelationsai/core/langchain/types/anthropic';
 import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/openai';
 
 export type StandardModelInput = {
@@ -20,9 +21,6 @@ export type StandardModelInput = {
   topP?: number;
   topK?: number;
   stopSequences?: string[];
-  promptPrefix?: string;
-  promptSuffix?: string;
-  completionPrefix?: string;
   cache?: BaseCache;
 };
 
@@ -31,23 +29,17 @@ export function getEmbeddingsModel(options?: RAIBedrockEmbeddingsParams) {
 }
 
 export function getLanguageModel({
-  modelId = 'gpt-3.5-turbo',
+  modelId = 'claude-3-haiku-20240307',
   temperature = 0.7,
   maxTokens = 4096,
   stopSequences = [],
   stream = false,
   topK = 50,
   topP = 0.7,
-  promptPrefix,
-  promptSuffix,
-  completionPrefix,
   cache
 }: StandardModelInput & { modelId?: OpenAiModelId | AnthropicModelId } = {}) {
   if (openAiModelIds.includes(modelId as OpenAiModelId)) {
-    if (promptPrefix || promptSuffix || completionPrefix) {
-      throw new Error('Prompt/completion prefixes/suffixes are not supported for OpenAI models');
-    }
-    return new OpenAI({
+    return new ChatOpenAI({
       modelName: modelId as OpenAiModelId,
       openAIApiKey: openAiConfig.apiKey,
       streaming: stream,
@@ -61,19 +53,15 @@ export function getLanguageModel({
   }
 
   if (anthropicModelIds.includes(modelId as AnthropicModelId)) {
-    return new RAIBedrock({
-      modelId: modelId as AnthropicModelId,
-      stream: stream,
-      promptPrefix,
-      promptSuffix: promptSuffix || '\nPut your output within <output></output> XML tags.',
-      completionPrefix: completionPrefix || '<output>',
-      body: {
-        max_tokens_to_sample: maxTokens,
-        temperature: temperature,
-        top_p: topP,
-        top_k: topK,
-        stop_sequences: stopSequences.length ? stopSequences : ['</output>']
-      },
+    return new ChatAnthropic({
+      modelName: modelId as AnthropicModelId,
+      anthropicApiKey: anthropicConfig.apiKey,
+      streaming: stream,
+      stopSequences,
+      temperature,
+      topP,
+      topK,
+      maxTokens,
       cache,
       verbose: envConfig.isLocal
     });

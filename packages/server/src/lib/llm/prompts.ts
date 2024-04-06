@@ -1,6 +1,12 @@
 // General prompts for use in various use cases
 
-export const OUTPUT_FIXER_PROMPT_TEMPLATE = `You are an expert at fixing text completions from LLMs that are not formatted correctly. Your goal is to fix the completion provided to you so that it fixes the error and follows the formatting instructions exactly.
+import { ChatPromptTemplate } from 'langchain/prompts';
+
+export const OUTPUT_FIXER_PROMPT_TEMPLATE = {
+  prompt: ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You are an expert at fixing text completions from LLMs that are not formatted correctly. Your goal is to fix the completion provided to you so that it fixes the error and follows the formatting instructions exactly.
 
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
@@ -27,11 +33,16 @@ Here is the error that you are to fix, within <error></error> XML tags. Read the
 Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {instructions}
-</format_instructions>
-
-Adjust the completion so that it fixes the error and follows the formatting instructions exactly.
-
-Think carefully about your output first before you respond.`;
+</format_instructions>`
+    ],
+    [
+      'human',
+      'How would you fix the error?\n\nPut your answer that matches the formatting instructions within <output></output> XML tags.'
+    ],
+    ['ai', '<output>']
+  ]),
+  stopSequences: ['</output>']
+};
 
 export const MARKDOWN_FORMATTING_INSTRUCTIONS = `Your output must be formatted in markdown. You are only allowed to use the following markdown syntax in your output:
 

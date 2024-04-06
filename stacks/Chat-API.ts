@@ -11,7 +11,7 @@ import {
   ViewerProtocolPolicy
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { FunctionUrlAuthType, HttpMethod, InvokeMode } from 'aws-cdk-lib/aws-lambda';
+import { HttpMethod } from 'aws-cdk-lib/aws-lambda';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -26,26 +26,26 @@ export function ChatAPI({ stack, app }: StackContext) {
     bind: [auth],
     memorySize: '3 GB',
     timeout: '5 minutes',
-    enableLiveDev: false // Cannot live dev with response stream
-  });
-  const chatApiFunctionUrl = chatApiFunction.addFunctionUrl({
-    invokeMode: InvokeMode.RESPONSE_STREAM,
-    authType: FunctionUrlAuthType.NONE,
-    cors: {
-      allowCredentials: true,
-      allowedOrigins: [websiteUrl],
-      allowedHeaders: ['Authorization', 'Content-Type'],
-      allowedMethods: [HttpMethod.ALL],
-      exposedHeaders: ['*']
+    enableLiveDev: false, // Can't do live dev with streaming
+    url: {
+      streaming: true,
+      authorizer: 'none',
+      cors: {
+        allowCredentials: true,
+        allowOrigins: [websiteUrl],
+        allowHeaders: ['Authorization', 'Content-Type'],
+        allowMethods: [HttpMethod.ALL],
+        exposeHeaders: ['*']
+      }
     }
   });
 
-  let chatApiUrl = chatApiFunctionUrl.url;
+  let chatApiUrl = chatApiFunction.url!;
   // Create cloudfront distribution for non-dev environments
   if (app.stage === 'prod') {
     const chatApiUrlDistribution = new Distribution(stack, 'chatApiUrlDistribution', {
       defaultBehavior: {
-        origin: new HttpOrigin(Fn.select(2, Fn.split('/', chatApiFunctionUrl.url))),
+        origin: new HttpOrigin(Fn.select(2, Fn.split('/', chatApiUrl))),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         originRequestPolicy: OriginRequestPolicy.CORS_CUSTOM_ORIGIN,
         cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
@@ -110,7 +110,6 @@ export function ChatAPI({ stack, app }: StackContext) {
 
   return {
     chatApiFunction,
-    chatApiFunctionUrl,
     chatApiUrl
   };
 }

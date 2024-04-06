@@ -16,17 +16,17 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev:sst"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/packages/website",
       "preLaunchTask": "pnpm-install"
     },
     {
-      "name": "Auth Dev",
+      "name": "Auth UI Dev",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev:sst"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/packages/auth-ui",
       "preLaunchTask": "pnpm-install"
