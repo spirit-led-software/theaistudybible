@@ -80,9 +80,13 @@ a man preaching to a crowd of people in ancient Greece, a podium in front of him
 {userPrompt}
 </user_prompt>
 
-What is a prompt that you would use to generate a high-quality image?`
-    ]
-  ])
+What is a prompt that you would use to generate a high-quality image?
+
+Put your response within <output></output> XML tags.`
+    ],
+    ['ai', '<output>']
+  ]),
+  stopSequences: ['</output>']
 });
 
 export const getSearchQueryPromptInfo = async ({
