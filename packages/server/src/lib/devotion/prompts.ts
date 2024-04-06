@@ -130,13 +130,17 @@ a man with a beard hanging on a cross with a crown of thorns, a bright light shi
 <example_prompt>
 a man preaching to a crowd of people in ancient Greece, a podium in front of him, his hands raised
 </example_prompt>
-</examples>
+</examples>`
+    ],
+    [
+      'human',
+      `What is a prompt that you would use to generate a high-quality image?
 
-What is a prompt that you would use to generate a high-quality image?
-
-Think carefully about your output first before you respond.`
-    ]
-  ])
+Put your response within <output></output> XML tags.`
+    ],
+    ['ai', '<output>']
+  ]),
+  stopSequences: ['</output>']
 });
 
 export const getImageCaptionPromptInfo = (): PromptInfo => ({

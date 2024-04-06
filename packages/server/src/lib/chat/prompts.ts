@@ -211,16 +211,26 @@ export const getRenameChainPromptInfo = ({
       `You will be given a chat history and you will need to come up with a title for the chat. Your goal is to come up with a title that is descriptive and concise.
 
 Here are some important rules for you to follow:
-- Your title must be unique.
 - Your title must be descriptive.
 - Your title must be concise.
 - Your title must have proper capitalization.
+
+You must follow these formatting instructions delimited by <format_instructions></format_instructions> XML tags.
+<format_instructions>
 - Your title must be a maximum of 32 characters.
 - Do not put your title in quotes.
 - Do not use markdown formatting in your title.
-- Skip the preamble and get straight to the point.`
+- Skip the preamble and get straight to the point.
+</format_instructions>`
     ],
     ...history,
-    ['human', 'What is the title that you would give to this chat?']
-  ])
+    [
+      'human',
+      `What is the title that you would give to this chat?
+    
+Put your answer that matches the formatting instructions within <output></output> XML tags.`
+    ],
+    ['ai', '<output>']
+  ]),
+  stopSequences: ['</output>']
 });
