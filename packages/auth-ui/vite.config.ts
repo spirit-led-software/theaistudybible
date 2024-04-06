@@ -9,8 +9,7 @@ export default defineConfig({
         org: 'revelationsai',
         project: 'svelte-kit'
       },
-      adapter: 'other',
-      autoInstrument: false
+      adapter: 'other'
     }),
     sveltekit()
   ],
