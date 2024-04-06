@@ -560,9 +560,6 @@ importers:
       '@revelationsai/server':
         specifier: workspace:*
         version: link:../server
-      '@sentry/sveltekit':
-        specifier: ^7.109.0
-        version: 7.109.0(@sveltejs/kit@2.5.5)(svelte@4.2.12)
       '@tanstack/match-sorter-utils':
         specifier: ^8.15.1
         version: 8.15.1

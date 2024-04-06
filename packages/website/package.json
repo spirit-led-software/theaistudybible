@@ -50,7 +50,6 @@
     "@revelationsai/client": "workspace:*",
     "@revelationsai/core": "workspace:*",
     "@revelationsai/server": "workspace:*",
-    "@sentry/sveltekit": "^7.109.0",
     "@tanstack/match-sorter-utils": "^8.15.1",
     "@tanstack/svelte-query": "^5.28.13",
     "@tanstack/svelte-table": "^8.15.3",
