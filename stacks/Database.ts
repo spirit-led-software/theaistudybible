@@ -35,6 +35,7 @@ export function Database({ stack, app }: StackContext) {
     email: process.env.UPSTASH_EMAIL!,
     apiKey: process.env.UPSTASH_API_KEY!,
     name: stack.stage === 'prod' ? 'main' : stack.stage,
+    // @ts-expect-error - Region is a string in SST
     region: app.region,
     tls: true,
     eviction: true,

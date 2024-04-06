@@ -10,7 +10,7 @@ export type UpstashRedisProps = {
   tls: boolean;
   eviction?: boolean;
   autoUpgrade?: boolean;
-  region?: string;
+  region?: 'eu-west-1' | 'us-east-1' | 'us-west-1' | 'ap-northeast-1' | 'us-central-1';
   retainOnDelete?: boolean;
 };
 

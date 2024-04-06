@@ -28,13 +28,16 @@ importers:
         version: 0.1.10
       '@langchain/community':
         specifier: ^0.0.44
-        version: 0.0.44(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(pg@8.11.5)(ws@8.16.0)
+        version: 0.0.44(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(@upstash/vector@1.0.5)(pg@8.11.5)(ws@8.16.0)
       '@langchain/openai':
         specifier: ^0.0.26
         version: 0.0.26
       '@neondatabase/serverless':
         specifier: ^0.9.0
         version: 0.9.0
+      '@upstash/vector':
+        specifier: ^1.0.5
+        version: 1.0.5
       drizzle-orm:
         specifier: ^0.30.7
         version: 0.30.7(@aws-sdk/client-rds-data@3.549.0)(@neondatabase/serverless@0.9.0)(@types/pg@8.11.4)(kysely@0.25.0)(pg@8.11.5)(react@18.2.0)
@@ -46,7 +49,7 @@ importers:
         version: 1.4.3(graphql@16.8.1)(typescript@5.4.4)
       langchain:
         specifier: ^0.1.31
-        version: 0.1.31(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/client-s3@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(pg@8.11.5)(ws@8.16.0)(youtube-transcript@1.1.0)(youtubei.js@9.2.0)
+        version: 0.1.31(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/client-s3@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(@upstash/vector@1.0.5)(pg@8.11.5)(ws@8.16.0)(youtube-transcript@1.1.0)(youtubei.js@9.2.0)
       neon-sdk:
         specifier: ^1.18.0
         version: 1.18.0
@@ -5108,7 +5111,7 @@ packages:
       - encoding
     dev: false
 
-  /@langchain/community@0.0.44(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(pg@8.11.5)(ws@8.16.0):
+  /@langchain/community@0.0.44(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(@upstash/vector@1.0.5)(pg@8.11.5)(ws@8.16.0):
     resolution: {integrity: sha512-II9Hz90jJmfWRICtxTg1auQWzFw0npqacWiiOpaxNhzs6rptdf56gyfC48Z6n1ii4R8FfAlfX6YxhOE7lGGKXg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -5391,6 +5394,7 @@ packages:
       '@aws-sdk/credential-provider-node': 3.549.0
       '@langchain/core': 0.1.54
       '@langchain/openai': 0.0.26
+      '@upstash/vector': 1.0.5
       expr-eval: 2.0.2
       flat: 5.0.2
       langsmith: 0.1.14
@@ -6946,6 +6950,10 @@ packages:
     resolution: {integrity: sha512-kbO5fgMAeUzErnA/SOtaSbAa0dguYhhBT4MZHJ1O8gVl4iK754aC9+rIYY5hsp4nlxeCGfnIDkWpof991c9jjA==}
     dependencies:
       crypto-js: 4.2.0
+    dev: false
+
+  /@upstash/vector@1.0.5:
+    resolution: {integrity: sha512-bbPnb0DaWsQLXmc+TA2YfPXvevGU2+uS2KK814fp5wcVbQav/7HmG9IpJfehRBvh1LgQxrs7hqFsiulDBZKm1g==}
     dev: false
 
   /@vitest/expect@1.4.0:
@@ -11029,7 +11037,7 @@ packages:
     resolution: {integrity: sha512-AaMXqUM+GcJ2OpNF2LI78jzbZ84rSckH+uKfstMQFqXDn+ZBLIkJgkUk+L0fuCGzw+LP5VToUxJKDfAbtLXSGw==}
     dev: false
 
-  /langchain@0.1.31(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/client-s3@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(pg@8.11.5)(ws@8.16.0)(youtube-transcript@1.1.0)(youtubei.js@9.2.0):
+  /langchain@0.1.31(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/client-s3@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(@upstash/vector@1.0.5)(pg@8.11.5)(ws@8.16.0)(youtube-transcript@1.1.0)(youtubei.js@9.2.0):
     resolution: {integrity: sha512-J2iZZL48Nwdo1XDU5cS5YYm91b2L6sL3a8hH1gBljvDzCY7jbtUOTuIoRVx5iHN3DXuuLnszS4lhqg0u9hQxBQ==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -11191,7 +11199,7 @@ packages:
       '@anthropic-ai/sdk': 0.9.1
       '@aws-sdk/client-s3': 3.549.0
       '@aws-sdk/credential-provider-node': 3.549.0
-      '@langchain/community': 0.0.44(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(pg@8.11.5)(ws@8.16.0)
+      '@langchain/community': 0.0.44(@aws-sdk/client-bedrock-runtime@3.549.0)(@aws-sdk/credential-provider-node@3.549.0)(@upstash/vector@1.0.5)(pg@8.11.5)(ws@8.16.0)
       '@langchain/core': 0.1.54
       '@langchain/openai': 0.0.26
       binary-extensions: 2.3.0
