@@ -24,10 +24,8 @@ export function Database({ stack, app }: StackContext) {
     retainOnDelete: stack.stage === 'prod'
   });
   const neonBranchConfigs = Config.Parameter.create(stack, {
-    DATABASE_READWRITE_URL: neonBranch.urls.dbReadWriteUrl,
-    DATABASE_READONLY_URL: neonBranch.urls.dbReadOnlyUrl,
-    VECTOR_DB_READWRITE_URL: neonBranch.urls.vectorDbReadWriteUrl,
-    VECTOR_DB_READONLY_URL: neonBranch.urls.vectorDbReadOnlyUrl
+    DATABASE_READWRITE_URL: neonBranch.urls.readWriteUrl,
+    DATABASE_READONLY_URL: neonBranch.urls.readOnlyUrl
   });
   app.addDefaultFunctionBinding(Object.values(neonBranchConfigs));
 

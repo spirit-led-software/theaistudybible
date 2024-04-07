@@ -22,9 +22,7 @@ const Neon = (apiKey: string) =>
 
 export enum DatabaseType {
   READWRITE,
-  READONLY,
-  VECTOR_READWRITE,
-  VECTOR_READONLY
+  READONLY
 }
 
 export type NeonConnectionUrl = {
@@ -314,43 +312,23 @@ function formConnectionUrls(databases: Database[], endpoints: Endpoint[], role: 
 }
 
 function determineDbType(databaseName: string, endpointType: EndpointType): DatabaseType {
-  if (databaseName.includes('vectors')) {
-    if (endpointType === 'read_write') {
-      return DatabaseType.VECTOR_READWRITE;
-    } else {
-      return DatabaseType.VECTOR_READONLY;
-    }
+  if (endpointType === 'read_write') {
+    return DatabaseType.READWRITE;
   } else {
-    if (endpointType === 'read_write') {
-      return DatabaseType.READWRITE;
-    } else {
-      return DatabaseType.READONLY;
-    }
+    return DatabaseType.READONLY;
   }
 }
 
 function getDatabasesFromConnectionUrls(connectionUrls: NeonConnectionUrl[]) {
-  const dbReadWriteUrl = connectionUrls.find((url) => url.type === DatabaseType.READWRITE)?.url;
-  if (!dbReadWriteUrl) {
+  const readWriteUrl = connectionUrls.find((url) => url.type === DatabaseType.READWRITE)?.url;
+  if (!readWriteUrl) {
     throw new Error('No readwrite database found');
   }
-  const dbReadOnlyUrl =
-    connectionUrls.find((url) => url.type === DatabaseType.READONLY)?.url || dbReadWriteUrl;
-
-  const vectorDbReadWriteUrl = connectionUrls.find(
-    (url) => url.type === DatabaseType.VECTOR_READWRITE
-  )?.url;
-  if (!vectorDbReadWriteUrl) {
-    throw new Error('No vector readwrite database found');
-  }
-  const vectorDbReadOnlyUrl =
-    connectionUrls.find((url) => url.type === DatabaseType.VECTOR_READONLY)?.url ||
-    vectorDbReadWriteUrl;
+  const readOnlyUrl =
+    connectionUrls.find((url) => url.type === DatabaseType.READONLY)?.url || readWriteUrl;
 
   return {
-    dbReadOnlyUrl,
-    dbReadWriteUrl,
-    vectorDbReadOnlyUrl,
-    vectorDbReadWriteUrl
+    readOnlyUrl,
+    readWriteUrl
   };
 }
