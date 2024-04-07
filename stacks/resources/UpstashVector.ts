@@ -3,6 +3,18 @@ import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
 import { Function } from 'sst/constructs';
 
+export type CopyIndexProps = {
+  /**
+   * The name of the source index.
+   */
+  sourceIndexName: string;
+
+  /**
+   * Number of vectors to copy from the source index to the destination index.
+   */
+  numVectors: number;
+};
+
 export type UpstashVectorProps = {
   email: string;
   apiKey: string;
@@ -12,6 +24,7 @@ export type UpstashVectorProps = {
   dimensionCount: number;
   type?: 'payg' | 'fixed';
   retainOnDelete?: boolean;
+  copyIndex?: CopyIndexProps;
 };
 
 export class UpstashVector extends Construct {
@@ -42,7 +55,8 @@ export class UpstashVector extends Construct {
         similarityFunction: props.similarityFunction,
         dimensionCount: props.dimensionCount,
         type: props.type ?? 'payg',
-        retainOnDelete: props.retainOnDelete ?? true
+        retainOnDelete: props.retainOnDelete ?? true,
+        copyIndex: props.copyIndex ? JSON.stringify(props.copyIndex) : undefined
       }
     });
 

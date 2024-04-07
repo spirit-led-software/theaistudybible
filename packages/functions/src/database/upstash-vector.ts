@@ -1,4 +1,18 @@
+import { CONCURRENT_UPSERT_LIMIT } from '@revelationsai/core/langchain/vectorstores/upstash';
+import { Index } from '@upstash/vector';
 import type { CdkCustomResourceHandler, CdkCustomResourceResponse } from 'aws-lambda';
+
+export type CopyIndexProps = {
+  /**
+   * The name of the source index.
+   */
+  sourceIndexName: string;
+
+  /**
+   * Number of vectors to copy from the source index to the destination index.
+   */
+  numVectors: number;
+};
 
 export const handler: CdkCustomResourceHandler = async (event) => {
   console.log('Received event from custom resource:', JSON.stringify(event));
@@ -20,9 +34,12 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     const dimensionCount = parseInt(event.ResourceProperties.dimensionCount);
     const type = event.ResourceProperties.type as 'payg' | 'fixed';
     const retainOnDelete = event.ResourceProperties.retainOnDelete === 'true';
+    const copyIndex = event.ResourceProperties.copyIndex
+      ? (JSON.parse(event.ResourceProperties.copyIndex) as CopyIndexProps)
+      : undefined;
 
     console.log(
-      `Upstash Vector inputs: apiKey: ${apiKey}, name: ${name}, retainOnDelete: ${retainOnDelete} similarityFunction: ${similarityFunction}, dimensionCount: ${dimensionCount}, type: ${type}`
+      `Upstash Vector inputs: apiKey: ${apiKey}, name: ${name}, retainOnDelete: ${retainOnDelete} similarityFunction: ${similarityFunction}, dimensionCount: ${dimensionCount}, type: ${type} region: ${region} copyIndex: ${copyIndex}`
     );
 
     switch (event.RequestType) {
@@ -62,7 +79,8 @@ export const handler: CdkCustomResourceHandler = async (event) => {
             region,
             similarityFunction,
             dimensionCount,
-            type
+            type,
+            copyIndex
           });
         }
 
@@ -98,7 +116,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
   }
 };
 
-interface UpstashVector {
+interface UpstashVectorIndex {
   customer_id: string;
   id: string;
   name: string;
@@ -127,7 +145,7 @@ export async function listIndices({
 }: {
   email: string;
   apiKey: string;
-}): Promise<UpstashVector[]> {
+}): Promise<UpstashVectorIndex[]> {
   const response = await fetch('https://api.upstash.com/v2/vector/index/', {
     method: 'GET',
     headers: {
@@ -150,7 +168,7 @@ export async function getIndex({
   email: string;
   apiKey: string;
   indexId: string;
-}): Promise<UpstashVector> {
+}): Promise<UpstashVectorIndex> {
   const response = await fetch(`https://api.upstash.com/v2/vector/index/${indexId}`, {
     method: 'GET',
     headers: {
@@ -172,7 +190,8 @@ export async function createIndex({
   region,
   similarityFunction,
   dimensionCount,
-  type
+  type,
+  copyIndex
 }: {
   email: string;
   apiKey: string;
@@ -181,7 +200,8 @@ export async function createIndex({
   similarityFunction: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
   dimensionCount: number;
   type: 'payg' | 'fixed';
-}): Promise<UpstashVector> {
+  copyIndex?: CopyIndexProps;
+}): Promise<UpstashVectorIndex> {
   const response = await fetch('https://api.upstash.com/v2/vector/index/', {
     method: 'POST',
     headers: {
@@ -201,7 +221,50 @@ export async function createIndex({
     throw new Error(`Failed to create index: ${response.status}\n\t${response.statusText}`);
   }
 
-  return response.json();
+  const createdVector = await response.json();
+
+  if (copyIndex) {
+    try {
+      const source = await listIndices({ email, apiKey }).then((indices) =>
+        indices.find((index) => index.name === copyIndex.sourceIndexName)
+      );
+      if (!source) {
+        throw new Error(`Source index ${copyIndex.sourceIndexName} not found`);
+      }
+
+      const sourceIndex = new Index({
+        url: source.endpoint,
+        token: source.token
+      });
+      const destIndex = new Index({
+        url: createdVector.endpoint,
+        token: createdVector.token
+      });
+
+      let i = 0;
+      while (i < copyIndex.numVectors) {
+        const { vectors, nextCursor } = await sourceIndex.range({
+          cursor: i,
+          limit: CONCURRENT_UPSERT_LIMIT,
+          includeMetadata: true,
+          includeVectors: true
+        });
+        await destIndex.upsert(vectors);
+        if (!nextCursor) {
+          break;
+        }
+        i = parseInt(nextCursor);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error copying vectors: ${error.message}\n\t${error.stack}`);
+      } else {
+        console.error(`Error copying vectors: ${JSON.stringify(error)}`);
+      }
+    }
+  }
+
+  return createdVector;
 }
 
 export async function deleteIndex({

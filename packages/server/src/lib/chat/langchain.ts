@@ -10,7 +10,6 @@ import {
   type PlusTierModelId
 } from '@revelationsai/core/model/llm';
 import type { User } from '@revelationsai/core/model/user';
-import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { CustomListOutputParser, RouterOutputParser } from 'langchain/output_parsers';
@@ -144,13 +143,7 @@ export const getRAIChatChain = async (options: {
     contextSize: contextSizeNum,
     prompt: faithQaChainPrompt,
     stopSequences: faithQaChainStopSequences,
-    filters: [
-      {
-        category: 'bible',
-        translation: user.translation
-      },
-      "metadata->>'category' != 'bible'"
-    ],
+    filter: `(category = "bible" AND translation = "${user.translation}") OR (category != "bible")`,
     history,
     callbacks
   });
@@ -196,12 +189,12 @@ export async function getDocumentQaChain(options: {
   prompt: BasePromptTemplate;
   stopSequences?: string[];
   callbacks: CallbackManager;
-  filters?: (Metadata | string)[];
+  filter?: string;
   history: [MessageType, MessageContent][];
 }) {
-  const { modelId, contextSize, prompt, stopSequences, filters, history, callbacks } = options;
+  const { modelId, contextSize, prompt, stopSequences, filter, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
-    filters,
+    filter,
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
