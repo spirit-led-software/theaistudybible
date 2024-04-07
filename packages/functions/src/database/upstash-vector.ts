@@ -108,9 +108,9 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     }
     response.Data = {
       ...response.Data,
-      endpoint: null,
-      token: null,
-      readOnlyToken: null
+      restUrl: null,
+      restToken: null,
+      readOnlyRestToken: null
     };
     return response;
   }
