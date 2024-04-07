@@ -100,7 +100,12 @@ export const getImagePromptChain = async (): Promise<
         );
         return sourceDocuments
           .flat()
-          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id));
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .map((doc) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { vector, ...rest } = doc;
+            return rest;
+          });
       },
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       userPrompt: (input) => input.userPrompt

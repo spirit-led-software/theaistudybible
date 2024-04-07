@@ -5,7 +5,7 @@ import type { Actions } from './$types';
 
 type ActionData = {
   banner: string;
-  results: (Omit<UpstashVectorStoreDocument, 'embedding'> & { score: number })[];
+  results: (Omit<UpstashVectorStoreDocument, 'vector'> & { score: number })[];
 };
 
 export const actions: Actions = {

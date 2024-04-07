@@ -8,7 +8,7 @@
 
   let isLoading = false;
   let alert: { type: 'error' | 'success'; text: string } | undefined = undefined;
-  let results: (Omit<UpstashVectorStoreDocument, 'embedding'> & { score: number })[] = [];
+  let results: (Omit<UpstashVectorStoreDocument, 'vector'> & { score: number })[] = [];
 
   const submit: SubmitFunction = () => {
     isLoading = true;

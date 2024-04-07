@@ -11,17 +11,20 @@ export type UpstashVectorSimilarityFunction = 'COSINE' | 'EUCLIDEAN' | 'DOT_PROD
 export class UpstashVectorStoreDocument extends Document {
   declare metadata: UpstashMetadata;
   id: string | number;
+  vector: number[];
   score?: number;
   similarityFunction?: UpstashVectorSimilarityFunction;
 
   constructor({
     id,
+    vector,
     metadata,
     pageContent,
     score,
     similarityFunction
   }: {
     id: string | number;
+    vector: number[];
     metadata: UpstashMetadata;
     pageContent: string;
     score?: number;
@@ -29,6 +32,7 @@ export class UpstashVectorStoreDocument extends Document {
   }) {
     super({ metadata, pageContent });
     this.id = id;
+    this.vector = vector;
     this.score = score;
     this.similarityFunction = similarityFunction;
   }
@@ -252,6 +256,7 @@ export class UpstashVectorStore extends VectorStore {
       return [
         new UpstashVectorStoreDocument({
           id: res.id,
+          vector: res.vector,
           metadata,
           pageContent,
           score,
