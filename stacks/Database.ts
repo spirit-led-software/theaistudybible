@@ -17,7 +17,7 @@ export function Database({ stack, app }: StackContext) {
         type: 'read_write',
         provisioner: 'k8s-neonvm',
         autoscaling_limit_min_cu: stack.stage === 'prod' ? 0.5 : 0.25,
-        autoscaling_limit_max_cu: stack.stage === 'prod' ? 7 : 1,
+        autoscaling_limit_max_cu: stack.stage === 'prod' ? 4 : 1,
         suspend_timeout_seconds: 0
       }
     ],
