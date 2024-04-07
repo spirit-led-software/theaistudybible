@@ -15,13 +15,20 @@ node_modules
 .env*.local
 /.env
 
+# Docker volumes
 volumes
-.secret
 
+# test files
 test
 
+# Various app secret files
+.secret
 firebase-service-account.json
 apple-auth-key.p8
 apple-app-store-key.p8
 
+# A file I use to keep track of changes to the project
 changes.txt
+
+# GraphQL Codegen
+__generated__
