@@ -253,13 +253,6 @@
       "when": 1709131970973,
       "tag": "0035_natural_thor",
       "breakpoints": true
-    },
-    {
-      "idx": 36,
-      "version": "5",
-      "when": 1712509206716,
-      "tag": "0036_burly_random",
-      "breakpoints": true
     }
   ]
 }
