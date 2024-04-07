@@ -403,12 +403,12 @@ export const aiResponsesToSourceDocuments = pgTable(
         onUpdate: 'cascade'
       }),
     sourceDocumentId: uuid('source_document_id').notNull(),
-    score: doublePrecision('score').notNull().default(0),
-    similarityFunction: text('similarity_function', {
-      enum: ['COSINE', 'EUCLIDEAN', 'DOT_PRODUCT']
+    distance: doublePrecision('distance').notNull().default(0),
+    distanceMetric: text('distance_metric', {
+      enum: ['cosine', 'l2', 'innerProduct']
     })
       .notNull()
-      .default('COSINE')
+      .default('cosine')
   },
   (table) => {
     return {
@@ -430,12 +430,12 @@ export const devotionsToSourceDocuments = pgTable(
         onUpdate: 'cascade'
       }),
     sourceDocumentId: uuid('source_document_id').notNull(),
-    score: doublePrecision('score').notNull().default(0),
-    similarityFunction: text('similarity_function', {
-      enum: ['COSINE', 'EUCLIDEAN', 'DOT_PRODUCT']
+    distance: doublePrecision('distance').notNull().default(0),
+    distanceMetric: text('distance_metric', {
+      enum: ['cosine', 'l2', 'innerProduct']
     })
       .notNull()
-      .default('COSINE')
+      .default('cosine')
   },
   (table) => {
     return {
@@ -510,12 +510,12 @@ export const userGeneratedImagesToSourceDocuments = pgTable(
         onUpdate: 'cascade'
       }),
     sourceDocumentId: uuid('source_document_id').notNull(),
-    score: doublePrecision('score').notNull().default(0),
-    similarityFunction: text('similarity_function', {
-      enum: ['COSINE', 'EUCLIDEAN', 'DOT_PRODUCT']
+    distance: doublePrecision('distance').notNull().default(0),
+    distanceMetric: text('distance_metric', {
+      enum: ['cosine', 'l2', 'innerProduct']
     })
       .notNull()
-      .default('COSINE')
+      .default('cosine')
   },
   (table) => {
     return {

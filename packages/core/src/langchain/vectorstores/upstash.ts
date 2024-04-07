@@ -12,7 +12,7 @@ export class UpstashVectorStoreDocument extends Document {
   declare metadata: UpstashMetadata;
   id: string | number;
   score?: number;
-  similarityFunction?: string;
+  similarityFunction?: UpstashVectorSimilarityFunction;
 
   constructor({
     id,

@@ -20,7 +20,7 @@ export const handler = ApiHandler(async (event) => {
 
     return OkResponse(
       sourceDocuments
-        .sort((a, b) => (b.score && a.score ? a.score - b.score : 0))
+        .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
         .map((sourceDocument) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { vector, ...rest } = sourceDocument;

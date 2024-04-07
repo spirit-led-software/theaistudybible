@@ -3,7 +3,6 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import axios from '@revelationsai/core/configs/axios';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
-import type { UpstashVectorSimilarityFunction } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { XMLBuilder } from 'fast-xml-parser';
@@ -12,6 +11,7 @@ import { Bucket } from 'sst/node/bucket';
 import { Config } from 'sst/node/config';
 import { createDevotion, updateDevotion } from '../../services/devotion';
 import { createDevotionImage } from '../../services/devotion/image';
+import { similarityFunctionMapping } from '../../services/source-document';
 import { db } from '../database';
 import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
 import { getLanguageModel } from '../llm';
@@ -204,8 +204,8 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
         await db.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id.toString(),
-          score: c.score,
-          similarityFunction: c.similarityFunction as UpstashVectorSimilarityFunction
+          distance: c.score!,
+          distanceMetric: similarityFunctionMapping[c.similarityFunction!]
         });
       })
     );
