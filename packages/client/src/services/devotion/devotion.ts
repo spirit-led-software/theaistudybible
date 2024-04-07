@@ -1,4 +1,4 @@
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import apiConfig from '../../configs/api';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
@@ -88,7 +88,7 @@ export async function getDevotionSourceDocuments(id: string) {
     throw new Error(data.error || `Error retrieving source documents for devotion with id ${id}`);
   }
 
-  const sourceDocuments: NeonVectorStoreDocument[] = await response.json();
+  const sourceDocuments: UpstashVectorStoreDocument[] = await response.json();
 
   return sourceDocuments;
 }

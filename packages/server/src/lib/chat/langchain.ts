@@ -3,6 +3,7 @@ import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runn
 import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
   allModels,
@@ -63,7 +64,7 @@ export const getRAIChatChain = async (options: {
     { query: string },
     {
       text: string;
-      sourceDocuments?: NeonVectorStoreDocument[];
+      sourceDocuments?: UpstashVectorStoreDocument[];
       searchQueries?: string[];
     }
   >

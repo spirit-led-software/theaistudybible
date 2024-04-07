@@ -7,7 +7,6 @@
   import { session } from '$lib/stores/user';
   import { default as Icon, default as Iconify } from '@iconify/svelte';
   import type { devotionReactions } from '@revelationsai/core/database/schema';
-  import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
   import { toTitleCase } from '@revelationsai/core/util/string';
   import Day from 'dayjs';
   import type { PageData } from './$types';
@@ -58,10 +57,9 @@
   $: ({ devotion: activeDevo, sourceDocs, images, reactionCounts } = data);
   $: likeCount = reactionCounts?.LIKE || 0;
   $: dislikeCount = reactionCounts?.DISLIKE || 0;
-  $: sourceDocuments = sourceDocs?.filter((sourceDoc: NeonVectorStoreDocument, index: number) => {
+  $: sourceDocuments = sourceDocs?.filter((sourceDoc, index) => {
     const firstIndex = sourceDocs.findIndex(
-      (otherSourceDoc: NeonVectorStoreDocument) =>
-        sourceDoc.metadata.url === otherSourceDoc.metadata.url
+      (otherSourceDoc) => sourceDoc.metadata?.url === otherSourceDoc.metadata?.url
     );
     return firstIndex === index;
   });
@@ -243,13 +241,13 @@
           {#each sourceDocuments as sourceDoc (sourceDoc.id)}
             <li>
               <a
-                href={sourceDoc.metadata.url}
+                href={sourceDoc.metadata?.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="hover:text-slate-500 hover:underline"
               >
-                <span>{sourceDoc.metadata.title ?? sourceDoc.metadata.name}</span>
-                {#if sourceDoc.metadata.author}
+                <span>{sourceDoc.metadata?.title ?? sourceDoc.metadata?.name}</span>
+                {#if sourceDoc.metadata?.author}
                   <span class="ml-1 text-slate-500">by {sourceDoc.metadata.author}</span>
                 {/if}
               </a>

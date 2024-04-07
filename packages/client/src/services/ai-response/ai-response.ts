@@ -1,4 +1,4 @@
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type {
   AiResponse,
   CreateAiResponseData,
@@ -105,7 +105,7 @@ export async function getAiResponseSourceDocuments(id: string, options: Protecte
     );
   }
 
-  const sourceDocuments: NeonVectorStoreDocument[] = await response.json();
+  const sourceDocuments: UpstashVectorStoreDocument[] = await response.json();
 
   return sourceDocuments;
 }

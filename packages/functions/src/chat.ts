@@ -1,6 +1,6 @@
 import middy from '@middy/core';
 import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
@@ -129,7 +129,7 @@ async function postResponseValidationLogic({
   userId: string;
   lastMessage: RAIChatMessage;
   response: string;
-  sourceDocuments: NeonVectorStoreDocument[];
+  sourceDocuments: UpstashVectorStoreDocument[];
   searchQueries: string[];
 }): Promise<void> {
   const aiResponse = await createAiResponse({
@@ -147,8 +147,8 @@ async function postResponseValidationLogic({
       await db.insert(aiResponsesToSourceDocuments).values({
         aiResponseId: aiResponse.id,
         sourceDocumentId: sourceDoc.id,
-        distance: sourceDoc.distance,
-        distanceMetric: sourceDoc.distanceMetric
+        score: sourceDoc.score,
+        similarityFunction: sourceDoc.similarityFunction
       });
     })
   );

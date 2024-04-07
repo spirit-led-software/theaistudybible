@@ -9,18 +9,26 @@ import { v4 as uuidV4 } from 'uuid';
 export class UpstashVectorStoreDocument extends Document {
   declare metadata: UpstashMetadata;
   id: string | number;
+  score?: number;
+  similarityFunction?: string;
 
   constructor({
     id,
     metadata,
-    pageContent
+    pageContent,
+    score,
+    similarityFunction
   }: {
     id: string | number;
     metadata: UpstashMetadata;
     pageContent: string;
+    score?: number;
+    similarityFunction?: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
   }) {
     super({ metadata, pageContent });
     this.id = id;
+    this.score = score;
+    this.similarityFunction = similarityFunction;
   }
 }
 
@@ -235,13 +243,17 @@ export class UpstashVectorStore extends VectorStore {
       filter: this._getFilter(filter)
     });
 
+    const similarityFunction = await this.index.info().then((info) => info.similarityFunction);
     const searchResult: [UpstashVectorStoreDocument, number][] = results.map((res) => {
+      const { score } = res;
       const { pageContent, ...metadata } = (res.metadata ?? {}) as UpstashQueryMetadata;
       return [
         new UpstashVectorStoreDocument({
           id: res.id,
           metadata,
-          pageContent
+          pageContent,
+          score,
+          similarityFunction
         }),
         res.score
       ];
