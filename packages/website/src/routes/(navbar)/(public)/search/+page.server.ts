@@ -1,11 +1,11 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 type ActionData = {
   banner: string;
-  results: (Omit<NeonVectorStoreDocument, 'embedding'> & { score: number })[];
+  results: (Omit<UpstashVectorStoreDocument, 'embedding'> & { score: number })[];
 };
 
 export const actions: Actions = {

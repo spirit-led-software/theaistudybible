@@ -2,7 +2,6 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/env';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
 import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
@@ -229,23 +228,18 @@ export async function getDocumentQaChain(options: {
         const searchQueries = previousStepResult.searchQueries;
         const sourceDocuments = await Promise.all(
           searchQueries.map(async (query) => {
-            return (await qaRetriever.getRelevantDocuments(query)) as NeonVectorStoreDocument[];
+            return (await qaRetriever.getRelevantDocuments(query)) as UpstashVectorStoreDocument[];
           })
         );
         return sourceDocuments
           .flat()
-          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
-          .map((doc) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { embedding, ...rest } = doc;
-            return rest;
-          });
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id));
       },
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      sources: (previousStepResult: { sourceDocuments: NeonVectorStoreDocument[] }) =>
+      sources: (previousStepResult: { sourceDocuments: UpstashVectorStoreDocument[] }) =>
         previousStepResult.sourceDocuments
           .reduce((acc, doc) => {
             const existingDoc = acc.find((d) => d.metadata.url === doc.metadata.url);
@@ -255,8 +249,8 @@ export async function getDocumentQaChain(options: {
               acc.push(doc);
             }
             return acc;
-          }, [] as NeonVectorStoreDocument[])
-          .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
+          }, [] as UpstashVectorStoreDocument[])
+          .sort((a, b) => (b.score && a.score ? a.score - b.score : 0))
           .map((sourceDoc) =>
             new XMLBuilder().build({
               source: {
