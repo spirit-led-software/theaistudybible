@@ -2,7 +2,7 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/env';
 import { devotions } from '@revelationsai/core/database/schema';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
@@ -66,7 +66,7 @@ export const getDevotionGeneratorChain = async (): Promise<
         reflection: string;
         prayer: string;
       };
-      sourceDocuments: NeonVectorStoreDocument[];
+      sourceDocuments: UpstashVectorStoreDocument[];
     }
   >
 > => {

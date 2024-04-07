@@ -1,6 +1,9 @@
 import middy from '@middy/core';
 import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
+import type {
+  UpstashVectorSimilarityFunction,
+  UpstashVectorStoreDocument
+} from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
@@ -146,9 +149,9 @@ async function postResponseValidationLogic({
     sourceDocuments.map(async (sourceDoc) => {
       await db.insert(aiResponsesToSourceDocuments).values({
         aiResponseId: aiResponse.id,
-        sourceDocumentId: sourceDoc.id,
+        sourceDocumentId: sourceDoc.id.toString(),
         score: sourceDoc.score,
-        similarityFunction: sourceDoc.similarityFunction
+        similarityFunction: sourceDoc.similarityFunction as UpstashVectorSimilarityFunction
       });
     })
   );

@@ -3,6 +3,7 @@ import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/env';
 import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { XMLBuilder } from 'fast-xml-parser';
 import {
   CustomListOutputParser,
@@ -35,7 +36,7 @@ export const getImagePromptChain = async (): Promise<
     { userPrompt: string },
     {
       prompt: string;
-      sourceDocuments: NeonVectorStoreDocument[];
+      sourceDocuments: UpstashVectorStoreDocument[];
       searchQueries: string[];
     }
   >

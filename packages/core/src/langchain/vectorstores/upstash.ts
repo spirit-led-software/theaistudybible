@@ -6,6 +6,8 @@ import { VectorStore } from '@langchain/core/vectorstores';
 import { Index as UpstashIndex } from '@upstash/vector';
 import { v4 as uuidV4 } from 'uuid';
 
+export type UpstashVectorSimilarityFunction = 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
+
 export class UpstashVectorStoreDocument extends Document {
   declare metadata: UpstashMetadata;
   id: string | number;
@@ -23,7 +25,7 @@ export class UpstashVectorStoreDocument extends Document {
     metadata: UpstashMetadata;
     pageContent: string;
     score?: number;
-    similarityFunction?: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
+    similarityFunction?: UpstashVectorSimilarityFunction;
   }) {
     super({ metadata, pageContent });
     this.id = id;

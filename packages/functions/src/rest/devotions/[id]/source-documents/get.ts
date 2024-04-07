@@ -19,11 +19,13 @@ export const handler = ApiHandler(async (event) => {
     const sourceDocuments = await getSourceDocumentsByDevotionId(devotion.id);
 
     return OkResponse(
-      sourceDocuments.map((sourceDocument) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { vector, ...rest } = sourceDocument;
-        return rest;
-      })
+      sourceDocuments
+        .sort((a, b) => (b.score && a.score ? a.score - b.score : 0))
+        .map((sourceDocument) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { vector, ...rest } = sourceDocument;
+          return rest;
+        })
     );
   } catch (error) {
     console.error(`Error getting source documents for devotion '${id}':`, error);

@@ -37,7 +37,7 @@ export async function getSourceDocumentsByDevotionId(
     .select()
     .from(devotionsToSourceDocuments)
     .where(eq(devotionsToSourceDocuments.devotionId, devotionId))
-    .orderBy(asc(devotionsToSourceDocuments.distance));
+    .orderBy(asc(devotionsToSourceDocuments.score));
 
   const vectorStore = await getDocumentVectorStore();
   const foundSourceDocuments = await vectorStore.getVectors(
@@ -52,8 +52,8 @@ export async function getSourceDocumentsByDevotionId(
     const relationship = sourceDocumentRelationships.find((d2) => d2.devotionId === d!.id);
     return {
       ...d,
-      distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? 'cosine'
+      score: relationship?.score ?? 0,
+      similarityFunction: relationship?.similarityFunction ?? 'COSINE'
     };
   });
 }
@@ -69,7 +69,7 @@ export async function getSourceDocumentsByAiResponseId(
     .select()
     .from(aiResponsesToSourceDocuments)
     .where(eq(aiResponsesToSourceDocuments.aiResponseId, aiResponseId))
-    .orderBy(asc(aiResponsesToSourceDocuments.distance));
+    .orderBy(asc(aiResponsesToSourceDocuments.score));
 
   const vectorStore = await getDocumentVectorStore();
   const foundSourceDocuments = await vectorStore.getVectors(
@@ -84,8 +84,8 @@ export async function getSourceDocumentsByAiResponseId(
     const relationship = sourceDocumentRelationships.find((r) => r.sourceDocumentId === d.id);
     return {
       ...d,
-      distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? 'cosine'
+      score: relationship?.score ?? 0,
+      similarityFunction: relationship?.similarityFunction ?? 'COSINE'
     };
   });
 }
@@ -101,7 +101,7 @@ export async function getSourceDocumentsByUserGeneratedImageId(
     .select()
     .from(userGeneratedImagesToSourceDocuments)
     .where(eq(userGeneratedImagesToSourceDocuments.userGeneratedImageId, userGeneratedImageId))
-    .orderBy(asc(userGeneratedImagesToSourceDocuments.distance));
+    .orderBy(asc(userGeneratedImagesToSourceDocuments.score));
 
   const vectorStore = await getDocumentVectorStore();
   const foundSourceDocuments = await vectorStore.getVectors(
@@ -116,8 +116,8 @@ export async function getSourceDocumentsByUserGeneratedImageId(
     const relationship = sourceDocumentRelationships.find((r) => r.sourceDocumentId === d!.id);
     return {
       ...d,
-      distance: relationship?.distance ?? 0,
-      distanceMetric: relationship?.distanceMetric ?? 'cosine'
+      score: relationship?.score ?? 0,
+      similarityFunction: relationship?.similarityFunction ?? 'COSINE'
     };
   });
 }
