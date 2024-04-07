@@ -7,6 +7,7 @@ import { indexRemoteFile } from '../services/scraper/file';
 import { indexWebCrawl } from '../services/scraper/web-crawl';
 import { indexWebPage } from '../services/scraper/webpage';
 import { indexYoutubeVideo } from '../services/scraper/youtube';
+import { getSourceDocumentsByDataSourceId } from '../services/source-document';
 import { getDocumentVectorStore } from './vector-db';
 
 export async function syncDataSource(id: string, manual: boolean = false): Promise<DataSource> {
@@ -23,6 +24,12 @@ export async function syncDataSource(id: string, manual: boolean = false): Promi
     throw new Error(`Cannot sync data source ${dataSource.id} because it is already being indexed`);
   }
 
+  // Delete old vectors
+  const vectorDb = await getDocumentVectorStore();
+  const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSource.id);
+  await vectorDb.delete(sourceDocuments.filter((d) => d).map((d) => d!.id));
+
+  // Reset the number of documents
   dataSource = await updateDataSource(dataSource.id, {
     numberOfDocuments: 0
   });
@@ -72,20 +79,6 @@ export async function syncDataSource(id: string, manual: boolean = false): Promi
   dataSource = await updateDataSource(dataSource.id, {
     lastManualSync: manual ? syncDate : undefined,
     lastAutomaticSync: !manual ? syncDate : undefined
-  });
-
-  // Delete old vectors
-  const vectorDb = await getDocumentVectorStore();
-  await vectorDb.transaction(async (client) => {
-    return await client.query(
-      `DELETE FROM ${vectorDb.tableName} 
-      WHERE (
-        metadata->>'dataSourceId' = $1
-        AND
-        metadata->>'indexDate' < $2
-      );`,
-      [dataSource.id, syncDate]
-    );
   });
 
   return dataSource;

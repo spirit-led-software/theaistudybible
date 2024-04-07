@@ -8,6 +8,7 @@ import type {
 import { desc, eq, type SQL } from 'drizzle-orm';
 import { getDocumentVectorStore } from '../../lib/vector-db';
 import { cacheDelete, cacheGet, cacheUpsert, type CacheKeysInput } from '../../services/cache';
+import { getSourceDocumentsByDataSourceId } from '../source-document';
 
 export const DATA_SOURCE_CACHE_COLLECTION = 'dataSources';
 export const defaultCacheKeysFn: CacheKeysInput<DataSource> = (dataSource) => [
@@ -95,23 +96,21 @@ export async function updateDataSourceRelatedDocuments(
   dataSourceId: string,
   dataSource: DataSource
 ) {
+  const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSourceId);
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.transaction(async (client) => {
-    return await client.query(
-      `UPDATE ${vectorDb.tableName} 
-      SET metadata = metadata || $1::jsonb
-      WHERE (
-        metadata->>'dataSourceId' = $2
-      );`,
-      [
-        JSON.stringify({
+  await vectorDb.index.upsert(
+    sourceDocuments
+      .filter((d) => d)
+      .map((d) => ({
+        id: d!.id,
+        vector: d!.vector,
+        metadata: {
+          ...d!.metadata,
           ...dataSource.metadata,
           dataSourceId: dataSource.id
-        }),
-        dataSourceId
-      ]
-    );
-  });
+        }
+      }))
+  );
 }
 
 export async function deleteDataSource(id: string) {
@@ -123,14 +122,7 @@ export async function deleteDataSource(id: string) {
 }
 
 export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {
+  const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSourceId);
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.transaction(async (client) => {
-    return await client.query(
-      `DELETE FROM ${vectorDb.tableName} 
-      WHERE (
-        metadata->>'dataSourceId' = $1
-      );`,
-      [dataSourceId]
-    );
-  });
+  await vectorDb.delete(sourceDocuments.filter((d) => d).map((d) => d!.id));
 }

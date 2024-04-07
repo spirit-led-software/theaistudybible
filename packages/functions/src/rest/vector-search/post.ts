@@ -12,7 +12,6 @@ export const handler = ApiHandler(async (event) => {
 
   const searchParams = event.queryStringParameters ?? {};
   const limit = parseInt(searchParams.limit ?? '25');
-  const page = parseInt(searchParams.page ?? '1');
   const { query, filter } = JSON.parse(event.body ?? '{}');
 
   if (!query) {
@@ -25,12 +24,11 @@ export const handler = ApiHandler(async (event) => {
     const results = await vectorStore.similaritySearchVectorWithScore(
       await embeddings.embedQuery(query),
       limit,
-      filter,
-      (page - 1) * limit
+      filter
     );
 
-    return OkResponse({
-      entities: results.map((result) => {
+    return OkResponse(
+      results.map((result) => {
         const [doc, score] = result;
         return {
           id: doc.id,
@@ -38,10 +36,8 @@ export const handler = ApiHandler(async (event) => {
           metadata: doc.metadata,
           score
         };
-      }),
-      page,
-      perPage: limit
-    });
+      })
+    );
   } catch (error) {
     console.error('Error getting vector similarity search results:', error);
     if (error instanceof Error) {

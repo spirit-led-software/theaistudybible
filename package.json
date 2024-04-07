@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently  --names \"SST,CodeGen\" -c \"bgYellow,bgBlue\" \"sst dev\" \"graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'\"",
-    "build": "sst build --stage",
+    "build": "concurrently --names \"SST,CodeGen\" -c \"bgYellow,bgBlue\" \"sst build --stage\" \"graphql-codegen\"",
     "deploy": "sst deploy --stage",
     "remove": "sst remove --stage",
     "console": "sst console",

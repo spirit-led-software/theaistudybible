@@ -21,7 +21,7 @@ export const handler = ApiHandler(async (event) => {
     return OkResponse(
       sourceDocuments.map((sourceDocument) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { embedding, ...rest } = sourceDocument;
+        const { vector, ...rest } = sourceDocument;
         return rest;
       })
     );

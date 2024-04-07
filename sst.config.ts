@@ -9,7 +9,6 @@ import {
   Database,
   DatabaseScripts,
   GraphQlApi,
-  Jobs,
   Layers,
   Queues,
   S3,
@@ -30,7 +29,6 @@ export default {
       .stack(Constants)
       .stack(Layers)
       .stack(Database)
-      .stack(Jobs)
       .stack(DatabaseScripts)
       .stack(S3)
       .stack(CDN)

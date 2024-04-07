@@ -38,7 +38,7 @@ export const actions: Actions = {
       });
     }
 
-    const { entities } = await response.json();
+    const entities = await response.json();
 
     return {
       success: {

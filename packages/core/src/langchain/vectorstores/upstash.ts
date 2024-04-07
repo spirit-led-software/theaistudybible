@@ -6,6 +6,24 @@ import { VectorStore } from '@langchain/core/vectorstores';
 import { Index as UpstashIndex } from '@upstash/vector';
 import { v4 as uuidV4 } from 'uuid';
 
+export class UpstashVectorStoreDocument extends Document {
+  declare metadata: UpstashMetadata;
+  id: string | number;
+
+  constructor({
+    id,
+    metadata,
+    pageContent
+  }: {
+    id: string | number;
+    metadata: UpstashMetadata;
+    pageContent: string;
+  }) {
+    super({ metadata, pageContent });
+    this.id = id;
+  }
+}
+
 /**
  * This interface defines the arguments for the UpstashVectorStore class.
  */
@@ -119,7 +137,7 @@ export class UpstashVectorStore extends VectorStore {
 
   async getVectors(
     ids: string[],
-    options: {
+    options?: {
       includeMetadata?: boolean;
       includeVectors?: boolean;
     }
@@ -211,16 +229,17 @@ export class UpstashVectorStore extends VectorStore {
     query: number[],
     k: number,
     filter?: this['FilterType']
-  ): Promise<[DocumentInterface, number][]> {
+  ): Promise<[UpstashVectorStoreDocument, number][]> {
     const results = await this._runUpstashQuery(query, k, {
       includeMetadata: true,
       filter: this._getFilter(filter)
     });
 
-    const searchResult: [DocumentInterface, number][] = results.map((res) => {
+    const searchResult: [UpstashVectorStoreDocument, number][] = results.map((res) => {
       const { pageContent, ...metadata } = (res.metadata ?? {}) as UpstashQueryMetadata;
       return [
-        new Document({
+        new UpstashVectorStoreDocument({
+          id: res.id,
           metadata,
           pageContent
         }),

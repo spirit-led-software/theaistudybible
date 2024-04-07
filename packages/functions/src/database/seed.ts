@@ -17,7 +17,6 @@ import {
 import argon from 'argon2';
 import type { Handler } from 'aws-lambda';
 import { randomBytes } from 'crypto';
-import { Job } from 'sst/node/job';
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
@@ -183,14 +182,6 @@ export const handler: Handler = async () => {
     await createRcEntitlementRoles();
     await deleteStripeRoles();
     await createInitialAdminUser();
-
-    await Job.hnswIndexJob.run({
-      payload: {
-        vectorDbOptions: {
-          recreateIndexes: false
-        }
-      }
-    });
 
     console.log('Database seeding complete');
   } catch (e) {
