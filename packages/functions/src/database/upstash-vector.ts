@@ -86,9 +86,9 @@ export const handler: CdkCustomResourceHandler = async (event) => {
 
         response.Status = 'SUCCESS';
         response.Data = {
-          endpoint: index.endpoint,
-          token: index.token,
-          readOnlyToken: index.read_only_token
+          restUrl: `https://${index.endpoint}`,
+          restToken: index.token,
+          readOnlyRestToken: index.read_only_token
         };
         break;
       }

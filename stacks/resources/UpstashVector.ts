@@ -28,9 +28,9 @@ export type UpstashVectorProps = {
 };
 
 export class UpstashVector extends Construct {
-  public readonly endpoint: string;
-  public readonly token: string;
-  public readonly readOnlyToken: string;
+  public readonly restUrl: string;
+  public readonly restToken: string;
+  public readonly readOnlyRestToken: string;
 
   constructor(scope: Construct, id: string, props: UpstashVectorProps) {
     super(scope, id);
@@ -60,8 +60,8 @@ export class UpstashVector extends Construct {
       }
     });
 
-    this.endpoint = upstashVectorCustomResource.getAttString('endpoint');
-    this.token = upstashVectorCustomResource.getAttString('token');
-    this.readOnlyToken = upstashVectorCustomResource.getAttString('readOnlyToken');
+    this.restUrl = upstashVectorCustomResource.getAttString('restUrl');
+    this.restToken = upstashVectorCustomResource.getAttString('restToken');
+    this.readOnlyRestToken = upstashVectorCustomResource.getAttString('readOnlyRestToken');
   }
 }
