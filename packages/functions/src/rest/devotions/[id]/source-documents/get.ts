@@ -16,16 +16,13 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const sourceDocuments = await getSourceDocumentsByDevotionId(devotion.id);
+    const sourceDocuments = await getSourceDocumentsByDevotionId(devotion.id, {
+      includeMetadata: true,
+      includeVectors: true
+    });
 
     return OkResponse(
-      sourceDocuments
-        .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
-        .map((sourceDocument) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { vector, ...rest } = sourceDocument;
-          return rest;
-        })
+      sourceDocuments.sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
     );
   } catch (error) {
     console.error(`Error getting source documents for devotion '${id}':`, error);

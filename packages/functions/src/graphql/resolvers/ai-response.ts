@@ -37,7 +37,10 @@ export const aiResponseResolvers: Resolvers = {
       if (!currentUser || (!isObjectOwner(parent, currentUser.id) && !isAdminSync(currentUser))) {
         throw new Error("You are not authorized to view this AI response's source documents");
       }
-      return await getSourceDocumentsByAiResponseId(parent.id);
+      return await getSourceDocumentsByAiResponseId(parent.id, {
+        includeMetadata: true,
+        includeVectors: true
+      });
     }
   },
   Query: {
