@@ -64,9 +64,9 @@ export function Database({ stack, app }: StackContext) {
         : undefined
   });
   const upstashVectorConfigs = Config.Parameter.create(stack, {
-    UPSTASH_VECTOR_REST_URL: upstashVector.endpoint,
-    UPSTASH_VECTOR_REST_TOKEN: upstashVector.token,
-    UPSTASH_VECTOR_READONLY_REST_TOKEN: upstashVector.readOnlyToken
+    UPSTASH_VECTOR_REST_URL: upstashVector.restUrl,
+    UPSTASH_VECTOR_REST_TOKEN: upstashVector.restToken,
+    UPSTASH_VECTOR_READONLY_REST_TOKEN: upstashVector.readOnlyRestToken
   });
   app.addDefaultFunctionBinding(Object.values(upstashVectorConfigs));
 
