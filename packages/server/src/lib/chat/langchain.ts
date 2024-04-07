@@ -32,7 +32,7 @@ const queryAnsweringSystems = [
   'identity: For greetings, introducing yourself, or talking about yourself.',
   'chat-history: For retrieving information about the current chat conversation.',
   'faith-qa: For answering general queries about Christian faith.'
-] as const;
+];
 
 const routerChainOutputParser = RAIOutputFixingParser.fromParser(
   RouterOutputParser.fromZodSchema(
@@ -42,12 +42,14 @@ const routerChainOutputParser = RAIOutputFixingParser.fromParser(
         .optional()
         .describe(
           'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
-        ),
+        )
+        .default('DEFAULT'),
       next_inputs: z
         .object({
-          query: z.string().describe('The query to be fed into the next model.')
+          query: z.string().describe('The query to be fed into the next model.').min(1)
         })
         .describe('The input to be fed into the next model.')
+        .required()
     })
   )
 );

@@ -163,7 +163,7 @@ export const getRouterChainPromptInfo = async ({
   formatInstructions
 }: {
   history: [MessageType, MessageContent][];
-  candidates: readonly string[];
+  candidates: string[];
   formatInstructions: string;
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
@@ -174,7 +174,7 @@ export const getRouterChainPromptInfo = async ({
 Here are some important rules for you to follow:
 - Your output must match the formatting instructions exactly.
 - You must select the system that is best suited for the input.
-- If you do not know which system is best, your can use "default" as the system name.
+- If you do not know which system is best, your can use "DEFAULT" as the system name.
 - You are not allowed to alter the query in any way.
 
 Here are the candidate systems that you can choose from. It is within <candidates></candidates> XML tags. Each individual candidate system is encapsulated within <candidate></candidate> XML tags. **IMPORTANT:** The candidates are in the format of "[name]: [description]" where [name] is the name of the query answering system and [description] is a description of what queries the system is best suited for. Only the name of the system should be returned.
@@ -190,7 +190,15 @@ Think about your output first before you respond. Here are the formatting instru
     ...history,
     [
       'human',
-      'Here is the query delimited by <query></query> XML tags.\n\n<query>\n{query}\n</query>\n\nWhich candidate system is best suited for this query?\n\nPut your answer that matches the formatting instructions within <output></output> XML tags.'
+      `Here is the query delimited by <query></query> XML tags.
+
+<query>
+{query}
+</query>
+
+Which candidate system is best suited for this query?
+
+Put your answer that matches the formatting instructions within <output></output> XML tags.`
     ],
     ['ai', '<output>']
   ]).partial({
