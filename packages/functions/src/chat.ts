@@ -300,6 +300,34 @@ async function lambdaHandler(
     const aiResponseId = uuidV4();
     const { stream, handlers } = LangChainStream();
 
+    const reader = stream.getReader();
+    const bodyStream = new Readable({
+      read() {
+        reader
+          .read()
+          .then(async ({ done, value }: { done: boolean; value?: unknown }) => {
+            if (done) {
+              console.log('Finished chat stream response');
+              await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
+              this.push(null);
+              this.destroy();
+              return;
+            }
+            if (value) {
+              this.push(value, 'utf-8');
+            }
+            this.read();
+          })
+          .catch(async (err) => {
+            console.error(`Error while streaming response: ${err}`);
+            await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
+            this.push(null);
+            this.destroy(err);
+            throw err;
+          });
+      }
+    });
+
     console.time('Creating chat chain');
     const chain = await getRAIChatChain({
       modelId: modelId as FreeTierModelId | PlusTierModelId,
@@ -344,11 +372,6 @@ async function lambdaHandler(
         return result;
       })
       .catch(async (err: unknown) => {
-        if (err instanceof Error) {
-          console.error(`Error: ${err.message}\n\t${err.stack}`);
-        } else {
-          console.error(`Error: ${JSON.stringify(err)}`);
-        }
         await Promise.all([
           incrementQueryCountPromise.then(() => {
             decrementUserQueryCount(userWithRoles.id);
@@ -361,11 +384,23 @@ async function lambdaHandler(
             }
           })
         ]);
+
+        if (err instanceof Error) {
+          console.error(`Error: ${err.message}\n\t${err.stack}`);
+          bodyStream.push(`Error: ${err.message}`, 'utf-8');
+          bodyStream.push(null);
+          bodyStream.destroy(err);
+        } else {
+          console.error(`Error: ${JSON.stringify(err)}`);
+          bodyStream.push(`Error: ${JSON.stringify(err)}`, 'utf-8');
+          bodyStream.push(null);
+          bodyStream.destroy(new Error(JSON.stringify(err)));
+        }
+
         throw err;
       });
     pendingPromises.push(langChainResponsePromise);
 
-    const reader = stream.getReader();
     return {
       statusCode: 200,
       headers: {
@@ -375,33 +410,7 @@ async function lambdaHandler(
         'x-ai-response-id': aiResponseId,
         'x-model-id': modelId
       },
-      body: new Readable({
-        read() {
-          reader
-            .read()
-            .then(async ({ done, value }: { done: boolean; value?: unknown }) => {
-              if (done) {
-                console.log('Finished chat stream response');
-                await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
-                this.push(null);
-                this.destroy();
-                return;
-              }
-              if (value) {
-                console.log(`Pushing ${typeof value}: ${value}`);
-                this.push(value, 'utf-8');
-              }
-              this.read();
-            })
-            .catch(async (err) => {
-              console.error(`Error while streaming response: ${err}`);
-              await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
-              this.push(null);
-              this.destroy(err);
-              throw err;
-            });
-        }
-      })
+      body: bodyStream
     };
   } catch (error) {
     console.error(`Caught error: ${JSON.stringify(error)}`);
