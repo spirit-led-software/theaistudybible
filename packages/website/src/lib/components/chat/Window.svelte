@@ -205,7 +205,7 @@
         {alert}
       </div>
     </div>
-    <div class="absolute left-0 right-0 top-1 flex justify-center">
+    <div class="absolute left-0 right-0 top-1 z-50 flex justify-center">
       <div class="w-full overflow-hidden py-2 text-center">
         <select
           name="model"
