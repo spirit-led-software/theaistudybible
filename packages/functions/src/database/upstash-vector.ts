@@ -9,6 +9,11 @@ export type CopyIndexProps = {
   sourceIndexName: string;
 
   /**
+   * The name of the destination index.
+   */
+  destIndexName: string;
+
+  /**
    * Number of vectors to copy from the source index to the destination index.
    */
   numVectors: number;
@@ -79,8 +84,18 @@ export const handler: CdkCustomResourceHandler = async (event) => {
             region,
             similarityFunction,
             dimensionCount,
-            type,
-            copyIndex
+            type
+          });
+        }
+
+        if (copyIndex) {
+          await cloneIndex({
+            email,
+            apiKey,
+            options: {
+              ...copyIndex,
+              destIndexName: name
+            }
           });
         }
 
@@ -139,7 +154,7 @@ interface UpstashVectorIndex {
   creation_time: number;
 }
 
-export async function listIndices({
+async function listIndices({
   email,
   apiKey
 }: {
@@ -160,7 +175,8 @@ export async function listIndices({
   return response.json();
 }
 
-export async function getIndex({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function getIndex({
   email,
   apiKey,
   indexId
@@ -183,15 +199,14 @@ export async function getIndex({
   return response.json();
 }
 
-export async function createIndex({
+async function createIndex({
   email,
   apiKey,
   name,
   region,
   similarityFunction,
   dimensionCount,
-  type,
-  copyIndex
+  type
 }: {
   email: string;
   apiKey: string;
@@ -200,7 +215,6 @@ export async function createIndex({
   similarityFunction: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
   dimensionCount: number;
   type: 'payg' | 'fixed';
-  copyIndex?: CopyIndexProps;
 }): Promise<UpstashVectorIndex> {
   const response = await fetch('https://api.upstash.com/v2/vector/index/', {
     method: 'POST',
@@ -221,53 +235,10 @@ export async function createIndex({
     throw new Error(`Failed to create index: ${response.status}\n\t${response.statusText}`);
   }
 
-  const createdVector = await response.json();
-
-  if (copyIndex) {
-    try {
-      const source = await listIndices({ email, apiKey }).then((indices) =>
-        indices.find((index) => index.name === copyIndex.sourceIndexName)
-      );
-      if (!source) {
-        throw new Error(`Source index ${copyIndex.sourceIndexName} not found`);
-      }
-
-      const sourceIndex = new Index({
-        url: source.endpoint,
-        token: source.token
-      });
-      const destIndex = new Index({
-        url: createdVector.endpoint,
-        token: createdVector.token
-      });
-
-      let i = 0;
-      while (i < copyIndex.numVectors) {
-        const { vectors, nextCursor } = await sourceIndex.range({
-          cursor: i,
-          limit: CONCURRENT_UPSERT_LIMIT,
-          includeMetadata: true,
-          includeVectors: true
-        });
-        await destIndex.upsert(vectors);
-        if (!nextCursor) {
-          break;
-        }
-        i = parseInt(nextCursor);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(`Error copying vectors: ${error.message}\n\t${error.stack}`);
-      } else {
-        console.error(`Error copying vectors: ${JSON.stringify(error)}`);
-      }
-    }
-  }
-
-  return createdVector;
+  return await response.json();
 }
 
-export async function deleteIndex({
+async function deleteIndex({
   email,
   apiKey,
   indexId
@@ -285,5 +256,58 @@ export async function deleteIndex({
 
   if (!response.ok) {
     throw new Error(`Failed to delete index: ${response.status}\n\t${response.statusText}`);
+  }
+}
+
+async function cloneIndex({
+  email,
+  apiKey,
+  options
+}: {
+  email: string;
+  apiKey: string;
+  options: CopyIndexProps;
+}): Promise<void> {
+  try {
+    const list = await listIndices({ email, apiKey });
+    const source = list.find((index) => index.name === options.sourceIndexName);
+    if (!source) {
+      throw new Error(`Source index ${options.sourceIndexName} not found`);
+    }
+
+    const dest = list.find((index) => index.name === options.destIndexName);
+    if (!dest) {
+      throw new Error(`Destination index ${options.destIndexName} not found`);
+    }
+
+    const sourceIndex = new Index({
+      url: source.endpoint,
+      token: source.token
+    });
+    const destIndex = new Index({
+      url: dest.endpoint,
+      token: dest.token
+    });
+
+    let i = 0;
+    while (i < options.numVectors) {
+      const { vectors, nextCursor } = await sourceIndex.range({
+        cursor: i,
+        limit: CONCURRENT_UPSERT_LIMIT,
+        includeMetadata: true,
+        includeVectors: true
+      });
+      await destIndex.upsert(vectors);
+      if (!nextCursor) {
+        break;
+      }
+      i = parseInt(nextCursor);
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error copying vectors: ${error.message}\n\t${error.stack}`);
+    } else {
+      console.error(`Error copying vectors: ${JSON.stringify(error)}`);
+    }
   }
 }
