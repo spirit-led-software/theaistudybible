@@ -387,12 +387,12 @@ async function lambdaHandler(
 
         if (err instanceof Error) {
           console.error(`Error: ${err.message}\n\t${err.stack}`);
-          bodyStream.push(`Error: ${err.message}`, 'utf-8');
+          bodyStream.push(`Error: ${err.message}`);
           bodyStream.push(null);
           bodyStream.destroy(err);
         } else {
           console.error(`Error: ${JSON.stringify(err)}`);
-          bodyStream.push(`Error: ${JSON.stringify(err)}`, 'utf-8');
+          bodyStream.push(`Error: ${JSON.stringify(err)}`);
           bodyStream.push(null);
           bodyStream.destroy(new Error(JSON.stringify(err)));
         }
