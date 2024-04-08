@@ -28,7 +28,7 @@ export function getEmbeddingsModel(options?: RAIBedrockEmbeddingsParams) {
 }
 
 export function getLanguageModel({
-  modelId = 'claude-3-haiku-20240307',
+  modelId = config.llm.chat.defaultModel,
   temperature = 0.7,
   maxTokens = 4096,
   stopSequences = [],
