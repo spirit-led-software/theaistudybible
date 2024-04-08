@@ -3,7 +3,7 @@ import type { EmbeddingsInterface } from '@langchain/core/embeddings';
 import { AsyncCaller, type AsyncCallerParams } from '@langchain/core/utils/async_caller';
 import { chunkArray } from '@langchain/core/utils/chunk_array';
 import { VectorStore } from '@langchain/core/vectorstores';
-import { Index as UpstashIndex } from '@upstash/vector';
+import { Index as UpstashIndex, type Vector } from '@upstash/vector';
 import { v4 as uuidV4 } from 'uuid';
 
 export type UpstashVectorSimilarityFunction = 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
@@ -137,15 +137,7 @@ export class UpstashVectorStore extends VectorStore {
         metadata
       };
     });
-
-    const vectorChunks = chunkArray(upstashVectors, CONCURRENT_UPSERT_LIMIT);
-
-    const batchRequests = vectorChunks.map((chunk) =>
-      this.caller.call(async () => this.index.upsert(chunk))
-    );
-
-    await Promise.all(batchRequests);
-
+    await this.upsert(upstashVectors);
     return documentIds;
   }
 
@@ -160,6 +152,18 @@ export class UpstashVectorStore extends VectorStore {
     return vectors;
   }
 
+  async upsert(vectors: Vector<UpstashQueryMetadata>[]) {
+    if (vectors.length === 0) {
+      return;
+    }
+
+    const vectorChunks = chunkArray(vectors, CONCURRENT_UPSERT_LIMIT);
+    const batchRequests = vectorChunks.map((chunk) =>
+      this.caller.call(async () => this.index.upsert(chunk))
+    );
+    await Promise.all(batchRequests);
+  }
+
   /**
    * This method deletes the documents with the provided ids from the Upstash vector database.
    *
@@ -168,6 +172,10 @@ export class UpstashVectorStore extends VectorStore {
    * @returns Promise that resolves when the delete operation is done.
    */
   async delete(ids: string[]) {
+    if (ids.length === 0) {
+      return;
+    }
+
     await this.index.delete(ids);
   }
 

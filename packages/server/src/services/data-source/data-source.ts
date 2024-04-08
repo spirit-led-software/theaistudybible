@@ -96,20 +96,22 @@ export async function updateDataSourceRelatedDocuments(
   dataSourceId: string,
   dataSource: DataSource
 ) {
-  const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSourceId);
+  const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSourceId, {
+    includeMetadata: true,
+    includeVectors: true
+  });
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.index.upsert(
-    sourceDocuments
-      .filter((d) => d)
-      .map((d) => ({
-        id: d!.id,
-        vector: d!.vector,
-        metadata: {
-          ...d!.metadata,
-          ...dataSource.metadata,
-          dataSourceId: dataSource.id
-        }
-      }))
+  await vectorDb.upsert(
+    sourceDocuments.map((d) => ({
+      id: d!.id,
+      vector: d!.vector,
+      metadata: {
+        ...d!.metadata,
+        pageContent: d!.metadata!.pageContent,
+        ...dataSource.metadata,
+        dataSourceId: dataSource.id
+      }
+    }))
   );
 }
 
@@ -124,5 +126,5 @@ export async function deleteDataSource(id: string) {
 export async function deleteDataSourceRelatedDocuments(dataSourceId: string) {
   const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSourceId);
   const vectorDb = await getDocumentVectorStore();
-  await vectorDb.delete(sourceDocuments.filter((d) => d).map((d) => d!.id));
+  await vectorDb.delete(sourceDocuments.map((d) => d.id));
 }
