@@ -16,10 +16,7 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const sourceDocuments = await getSourceDocumentsByDevotionId(devotion.id, {
-      includeMetadata: true,
-      includeVectors: true
-    });
+    const sourceDocuments = await getSourceDocumentsByDevotionId(devotion.id);
 
     return OkResponse(
       sourceDocuments.sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))

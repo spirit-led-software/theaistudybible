@@ -53,8 +53,7 @@ export type UpstashQueryMetadata = UpstashMetadata & {
   /**
    * The page content of the document.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pageContent: any;
+  pageContent: string;
 };
 
 export const CONCURRENT_UPSERT_LIMIT = 1000;
@@ -148,6 +147,10 @@ export class UpstashVectorStore extends VectorStore {
       includeVectors?: boolean;
     }
   ) {
+    if (ids.length === 0) {
+      return [];
+    }
+
     const vectors = await this.index.fetch<UpstashQueryMetadata>(ids, options);
     return vectors;
   }
@@ -227,13 +230,13 @@ export class UpstashVectorStore extends VectorStore {
   protected _getFilter(filter?: this['FilterType']): this['FilterType'] | undefined {
     let filterString: string | undefined;
     if (filter) {
-      filterString += filter;
+      filterString += `(${filter})`;
     }
     if (this.filter) {
       if (filterString) {
         filterString += ' AND ';
       }
-      filterString += this.filter;
+      filterString += `(${this.filter})`;
     }
     return filterString;
   }

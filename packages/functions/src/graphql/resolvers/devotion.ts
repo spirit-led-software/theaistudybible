@@ -58,10 +58,7 @@ export const devotionResolvers: Resolvers = {
       ];
     },
     sourceDocuments: async (parent) => {
-      return await getSourceDocumentsByDevotionId(parent.id, {
-        includeMetadata: true,
-        includeVectors: true
-      });
+      return await getSourceDocumentsByDevotionId(parent.id);
     }
   },
   Query: {

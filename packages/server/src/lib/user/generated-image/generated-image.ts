@@ -3,12 +3,12 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
 import axios from '@revelationsai/core/lib/axios';
+import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { Bucket } from 'sst/node/bucket';
 import { Config } from 'sst/node/config';
-import { similarityFunctionMapping } from '../../../services/source-document';
 import {
   createUserGeneratedImage,
   updateUserGeneratedImage

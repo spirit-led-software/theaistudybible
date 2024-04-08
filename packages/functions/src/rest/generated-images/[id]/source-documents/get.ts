@@ -23,10 +23,7 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You are not authorized to view these source documents.');
     }
 
-    const sourceDocuments = await getSourceDocumentsByUserGeneratedImageId(userGeneratedImage.id, {
-      includeMetadata: true,
-      includeVectors: true
-    });
+    const sourceDocuments = await getSourceDocumentsByUserGeneratedImageId(userGeneratedImage.id);
 
     return OkResponse(
       sourceDocuments.sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))

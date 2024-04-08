@@ -1,8 +1,9 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import config from '@revelationsai/core/configs/revelationsai';
-import { indexOperations } from '@revelationsai/core/database/schema';
+import { dataSourcesToSourceDocuments, indexOperations } from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import { db } from '@revelationsai/server/lib/database';
 import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
 import { getDataSourceOrThrow, updateDataSource } from '@revelationsai/server/services/data-source';
 import {
@@ -141,14 +142,20 @@ export const handler: S3Handler = async (event) => {
     });
     console.log('Adding documents to vector store');
     const vectorStore = await getDocumentVectorStore({ write: true });
-    await vectorStore.addDocuments(docs);
+    const ids = await vectorStore.addDocuments(docs);
     [indexOp, dataSource] = await Promise.all([
       updateIndexOperation(indexOp!.id, {
         status: 'SUCCEEDED'
       }),
       updateDataSource(dataSourceId, {
         numberOfDocuments: docs.length
-      })
+      }),
+      ...ids.map((sourceDocumentId) =>
+        db.insert(dataSourcesToSourceDocuments).values({
+          dataSourceId,
+          sourceDocumentId
+        })
+      )
     ]);
     console.log('Finished adding documents to vector store');
   } catch (error) {

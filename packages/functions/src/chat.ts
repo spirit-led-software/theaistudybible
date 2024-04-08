@@ -9,6 +9,7 @@ import {
   type FreeTierModelId,
   type PlusTierModelId
 } from '@revelationsai/core/model/llm';
+import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
@@ -22,7 +23,6 @@ import {
 } from '@revelationsai/server/services/ai-response/ai-response';
 import { createChat, getChat, updateChat } from '@revelationsai/server/services/chat';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
-import { similarityFunctionMapping } from '@revelationsai/server/services/source-document';
 import { hasPlusSync, isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
 import { createUserMessage, getUserMessages } from '@revelationsai/server/services/user/message';
 import {
