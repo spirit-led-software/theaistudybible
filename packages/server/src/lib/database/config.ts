@@ -1,5 +1,5 @@
 import { Client as NeonClient, neon, neonConfig } from '@neondatabase/serverless';
-import envConfig from '@revelationsai/core/configs/env';
+import envConfig from '@revelationsai/core/configs/environment';
 import * as schema from '@revelationsai/core/database/schema';
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { drizzle as drizzleHttp } from 'drizzle-orm/neon-http';

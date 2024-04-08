@@ -1,3 +1,4 @@
+import config from '@revelationsai/core/configs/revelationsai';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { DataSource } from '@revelationsai/core/model/data-source';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
@@ -44,8 +45,8 @@ export async function indexYoutubeVideo({
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1024,
-      chunkOverlap: 256
+      chunkSize: config.llm.embeddings.chunkSize,
+      chunkOverlap: config.llm.embeddings.chunkOverlap
     });
     docs = await splitter.invoke(docs, {});
 

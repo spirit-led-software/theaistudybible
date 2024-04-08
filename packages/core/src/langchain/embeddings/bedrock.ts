@@ -1,14 +1,13 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { Embeddings, type EmbeddingsParams } from '@langchain/core/embeddings';
+import type {
+  AmazonEmbeddingModelId,
+  BedrockEmbeddingModelId,
+  CohereEmbeddingModelId
+} from '../types/bedrock';
 import type { CredentialType } from '../util/bedrock';
 
 export type BedrockEmbeddingProvider = 'amazon' | 'cohere';
-
-export type AmazonEmbeddingModel = 'amazon.titan-embed-text-v1';
-
-export type CohereEmbeddingModel = 'cohere.embed-english-v3' | 'cohere.embed-multilingual-v3';
-
-export type BedrockEmbeddingModel = AmazonEmbeddingModel | CohereEmbeddingModel;
 
 export type CohereEmbeddingInputType =
   | 'search_document'
@@ -35,14 +34,14 @@ export type RAIBedrockEmbeddingsParams = EmbeddingsParams & {
   credentials?: CredentialType;
 } & (
     | {
-        model?: CohereEmbeddingModel;
+        model?: CohereEmbeddingModelId;
 
         inputType?: CohereEmbeddingInputType;
 
         truncate?: CohereEmbeddingTruncateSetting;
       }
     | {
-        model?: AmazonEmbeddingModel;
+        model?: AmazonEmbeddingModelId;
       }
   );
 
@@ -55,7 +54,7 @@ export const COHERE_MAX_BATCH_SIZE = 96;
  * generating embeddings using the Bedrock API.
  */
 export class RAIBedrockEmbeddings extends Embeddings {
-  model: BedrockEmbeddingModel;
+  model: BedrockEmbeddingModelId;
   provider: BedrockEmbeddingProvider;
 
   inputType?: CohereEmbeddingInputType;

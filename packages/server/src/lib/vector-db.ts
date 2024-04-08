@@ -1,4 +1,5 @@
-import envConfig from '@revelationsai/core/configs/env';
+import envConfig from '@revelationsai/core/configs/environment';
+import config from '@revelationsai/core/configs/revelationsai';
 import { UpstashVectorStore } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { Index } from '@upstash/vector';
 import { Config } from 'sst/node/config';
@@ -12,7 +13,7 @@ export async function getDocumentVectorStore(options?: {
   const { verbose, filter, write } = options ?? {};
   const vectorStore = await UpstashVectorStore.fromExistingIndex(
     getEmbeddingsModel({
-      model: 'cohere.embed-multilingual-v3',
+      model: config.llm.embeddings.model,
       inputType: write ? 'search_document' : 'search_query',
       verbose: envConfig.isLocal ? true : verbose
     }),

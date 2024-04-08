@@ -1,3 +1,4 @@
+import config from '@revelationsai/core/configs/revelationsai';
 import { Constants } from '@stacks';
 import { Config, dependsOn, type StackContext } from 'sst/constructs';
 import { NeonBranch } from './resources/NeonBranch';
@@ -48,17 +49,20 @@ export function Database({ stack, app }: StackContext) {
   });
   app.addDefaultFunctionBinding(Object.values(upstashRedisConfigs));
 
+  const mainIndexName = `main-${config.llm.embeddings.model}`;
+  const indexName =
+    stack.stage === 'prod' ? mainIndexName : `${stack.stage}-${config.llm.embeddings.model}`;
   const upstashVector = new UpstashVector(stack, 'UpstashVector', {
     email: process.env.UPSTASH_EMAIL!,
     apiKey: process.env.UPSTASH_API_KEY!,
-    name: stack.stage === 'prod' ? 'main' : stack.stage,
+    name: indexName,
     similarityFunction: 'COSINE',
-    dimensionCount: 1536,
+    dimensionCount: config.llm.embeddings.dimensions,
     retainOnDelete: stack.stage === 'prod',
     copyIndex:
       stack.stage === 'prod'
         ? {
-            sourceIndexName: 'main',
+            sourceIndexName: mainIndexName,
             numVectors: 100
           }
         : undefined

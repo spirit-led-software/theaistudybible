@@ -11,6 +11,8 @@
     "target": "esnext",
     "ignoreDeprecations": "5.0",
     "paths": {
+      "@revelationsai/core/*": ["./packages/core/src/*"],
+      "@revelationsai/core": ["./packages/core/src"],
       "@stacks/*": ["./stacks/*"],
       "@stacks": ["./stacks"]
     },

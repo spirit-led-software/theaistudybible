@@ -1,6 +1,6 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import envConfig from '@revelationsai/core/configs/env';
+import envConfig from '@revelationsai/core/configs/environment';
 import { devotions } from '@revelationsai/core/database/schema';
 import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { desc, eq } from 'drizzle-orm';

@@ -1,6 +1,5 @@
-import { config as emailConfig, emailTransport } from '@revelationsai/core/configs/email';
-import { config as stripeConfig } from '@revelationsai/core/configs/stripe';
-import { config as websiteConfig } from '@revelationsai/core/configs/website';
+import config from '@revelationsai/core/configs/revelationsai';
+import { emailTransport } from '@revelationsai/core/lib/email';
 import type { User } from '@revelationsai/core/model/user';
 import { addRoleToUser, doesUserHaveRole } from '@revelationsai/server/services/role';
 import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
@@ -54,7 +53,7 @@ const SessionParameter = (user: User, url?: string) =>
       expiresIn: 1000 * 60 * 60 * 24 * 7, // = 7 days = MS * S * M * H * D
       sub: user.id
     },
-    redirect: url || `${websiteConfig.authUrl}/callback`,
+    redirect: url || `${config.website.authUrl}/callback`,
     properties: {
       id: user.id
     }
@@ -130,7 +129,7 @@ const checkForUserOrCreateFromTokenSet = async (tokenSet: TokenSet) => {
 };
 
 async function createStripeCustomer(user: User) {
-  const stripe = new Stripe(stripeConfig.apiKey, {
+  const stripe = new Stripe(config.stripe.apiKey, {
     apiVersion: '2023-10-16'
   });
 
@@ -168,7 +167,7 @@ const createAppleAdapter = (callbackUrl?: string) =>
   });
 
 const createCredentialsAdapter = (
-  callbackUrlBase: string = websiteConfig.authUrl,
+  callbackUrlBase: string = config.website.authUrl,
   isMobile = false
 ) =>
   CredentialsAdapter({
@@ -178,8 +177,8 @@ const createCredentialsAdapter = (
         link
       });
       const sendEmailResponse = await emailTransport.sendMail({
-        from: emailConfig.from,
-        replyTo: emailConfig.replyTo,
+        from: config.email.from,
+        replyTo: config.email.replyTo,
         to: claims.email,
         subject: 'Verify your email',
         html
@@ -254,8 +253,8 @@ const createCredentialsAdapter = (
         link
       });
       const sendEmailResponse = await emailTransport.sendMail({
-        from: emailConfig.from,
-        replyTo: emailConfig.replyTo,
+        from: config.email.from,
+        replyTo: config.email.replyTo,
         to: claims.email,
         subject: 'Reset Your Password',
         html

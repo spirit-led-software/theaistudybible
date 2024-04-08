@@ -1,5 +1,4 @@
-import authConfig from '@revelationsai/core/configs/auth';
-import revenueCatConfig from '@revelationsai/core/configs/revenue-cat';
+import config from '@revelationsai/core/configs/revelationsai';
 import {
   addRoleToUser,
   createRole,
@@ -20,16 +19,16 @@ import { randomBytes } from 'crypto';
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
-  let adminUser = await getUserByEmail(authConfig.adminUser.email);
-  if (!adminUser) {
-    adminUser = await createUser({
-      email: authConfig.adminUser.email
+  let admin = await getUserByEmail(config.auth.admin.email);
+  if (!admin) {
+    admin = await createUser({
+      email: config.auth.admin.email
     });
 
     const salt = randomBytes(16).toString('hex');
     await createUserPassword({
-      userId: adminUser.id,
-      passwordHash: await argon.hash(`${authConfig.adminUser.password}${salt}`),
+      userId: admin.id,
+      passwordHash: await argon.hash(`${config.auth.admin.password}${salt}`),
       salt: Buffer.from(salt, 'hex').toString('base64')
     });
 
@@ -37,16 +36,16 @@ async function createInitialAdminUser() {
   } else {
     console.log('Admin user already existed, updating password.');
     const salt = randomBytes(16).toString('hex');
-    await updateUserPasswordByUserId(adminUser.id, {
-      passwordHash: await argon.hash(`${authConfig.adminUser.password}${salt}`),
+    await updateUserPasswordByUserId(admin.id, {
+      passwordHash: await argon.hash(`${config.auth.admin.password}${salt}`),
       salt: Buffer.from(salt, 'hex').toString('base64')
     });
   }
 
   console.log('Adding admin role to admin user');
-  await isAdmin(adminUser.id).then(async (isAdmin) => {
+  await isAdmin(admin.id).then(async (isAdmin) => {
     if (!isAdmin) {
-      await addRoleToUser('admin', adminUser!.id);
+      await addRoleToUser('admin', admin!.id);
       console.log('Admin role added to admin user');
     } else {
       console.log('Admin role already added to admin user');
@@ -135,10 +134,10 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
 
 async function createRcEntitlementRoles() {
   const response = await fetch(
-    `https://api.revenuecat.com/v2/projects/${revenueCatConfig.projectId}/entitlements?limit=25`,
+    `https://api.revenuecat.com/v2/projects/${config.revenueCat.projectId}/entitlements?limit=25`,
     {
       headers: {
-        Authorization: `Bearer ${revenueCatConfig.apiKey}`,
+        Authorization: `Bearer ${config.revenueCat.apiKey}`,
         Accept: 'application/json'
       }
     }

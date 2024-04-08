@@ -1,5 +1,5 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import unstructuredConfig from '@revelationsai/core/configs/unstructured';
+import config from '@revelationsai/core/configs/revelationsai';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
@@ -94,7 +94,7 @@ export const handler: S3Handler = async (event) => {
       const filePath = join(tmpDir, fileName);
       writeFileSync(filePath, Buffer.from(await blob.arrayBuffer()));
       loader = new UnstructuredLoader(filePath, {
-        apiKey: unstructuredConfig.apiKey
+        apiKey: config.unstructured.apiKey
       });
       indexOpMetadata = {
         ...indexOpMetadata,
@@ -115,8 +115,8 @@ export const handler: S3Handler = async (event) => {
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1024,
-      chunkOverlap: 256
+      chunkSize: config.llm.embeddings.chunkSize,
+      chunkOverlap: config.llm.embeddings.chunkOverlap
     });
     console.log('Starting split documents');
     docs = await splitter.invoke(docs, {});
