@@ -204,7 +204,7 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
         await db.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
           sourceDocumentId: c.id.toString(),
-          distance: c.score!,
+          distance: 1 - c.score!,
           distanceMetric: similarityFunctionMapping[c.similarityFunction!]
         });
       })

@@ -37,7 +37,7 @@ export async function generatedImage(
         await db.insert(userGeneratedImagesToSourceDocuments).values({
           userGeneratedImageId: userGeneratedImage!.id,
           sourceDocumentId: sourceDoc.id.toString(),
-          distance: sourceDoc.score!,
+          distance: 1 - sourceDoc.score!,
           distanceMetric: similarityFunctionMapping[sourceDoc.similarityFunction!]
         });
       })

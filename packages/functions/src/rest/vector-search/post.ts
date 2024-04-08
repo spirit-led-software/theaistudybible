@@ -32,7 +32,7 @@ export const handler = ApiHandler(async (event) => {
           pageContent: doc.pageContent,
           metadata: doc.metadata,
           embedding: doc.vector,
-          distance: score,
+          distance: 1 - score,
           distanceMetric: 'cosine'
         } satisfies SourceDocument;
       })
