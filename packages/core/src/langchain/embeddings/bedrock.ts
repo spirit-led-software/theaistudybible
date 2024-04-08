@@ -46,6 +46,10 @@ export type RAIBedrockEmbeddingsParams = EmbeddingsParams & {
       }
   );
 
+export const AMAZON_MAX_CONCURRENT_REQUESTS = 5;
+
+export const COHERE_MAX_BATCH_SIZE = 96;
+
 /**
  * Class that extends the Embeddings class and provides methods for
  * generating embeddings using the Bedrock API.
@@ -187,10 +191,9 @@ export class RAIBedrockEmbeddings extends Embeddings {
     this._log('Embedding documents:', documents);
     if (this.provider === 'amazon') {
       this._log('Embedding documents with Amazon');
-      const chunkSize = 5;
       const chunks: number[][][] = [];
-      for (let i = 0; i < documents.length; i += chunkSize) {
-        const chunk = documents.slice(i, i + chunkSize);
+      for (let i = 0; i < documents.length; i += AMAZON_MAX_CONCURRENT_REQUESTS) {
+        const chunk = documents.slice(i, i + AMAZON_MAX_CONCURRENT_REQUESTS);
         this._log('Embedding chunk of length:', chunk.length);
         const embeddings = await Promise.all(
           chunk.map(async (document) => {
@@ -202,10 +205,9 @@ export class RAIBedrockEmbeddings extends Embeddings {
       return chunks.flat();
     } else if (this.provider === 'cohere') {
       this._log('Embedding documents with Cohere');
-      const chunkSize = 96; // max documents allowed by cohere API
       const chunks: Promise<number[][]>[] = [];
-      for (let i = 0; i < documents.length; i += chunkSize) {
-        const chunk = documents.slice(i, i + chunkSize);
+      for (let i = 0; i < documents.length; i += COHERE_MAX_BATCH_SIZE) {
+        const chunk = documents.slice(i, i + COHERE_MAX_BATCH_SIZE);
         this._log('Embedding chunk of length:', chunk.length);
         chunks.push(this.caller.callWithOptions({}, this._embedTexts.bind(this), chunk));
       }

@@ -9,11 +9,11 @@ export async function getDocumentVectorStore(options?: {
   filter?: string;
   write?: boolean;
 }) {
-  const { verbose, filter } = options ?? {};
+  const { verbose, filter, write } = options ?? {};
   const vectorStore = await UpstashVectorStore.fromExistingIndex(
     getEmbeddingsModel({
-      model: 'amazon.titan-embed-text-v1',
-      // inputType: write ? 'search_document' : 'search_query',
+      model: 'cohere.embed-multilingual-v3',
+      inputType: write ? 'search_document' : 'search_query',
       verbose: envConfig.isLocal ? true : verbose
     }),
     {
