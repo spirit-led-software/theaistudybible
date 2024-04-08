@@ -1,11 +1,11 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { SourceDocument } from '@revelationsai/core/model/source-document';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 type ActionData = {
   banner: string;
-  results: (Omit<NeonVectorStoreDocument, 'embedding'> & { score: number })[];
+  results: (Omit<SourceDocument, 'embedding'> & { score: number })[];
 };
 
 export const actions: Actions = {
@@ -38,7 +38,7 @@ export const actions: Actions = {
       });
     }
 
-    const { entities } = await response.json();
+    const entities = await response.json();
 
     return {
       success: {

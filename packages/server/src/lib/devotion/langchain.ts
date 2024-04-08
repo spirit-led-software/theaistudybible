@@ -1,8 +1,8 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import envConfig from '@revelationsai/core/configs/env';
+import envConfig from '@revelationsai/core/configs/environment';
 import { devotions } from '@revelationsai/core/database/schema';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { desc, eq } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
@@ -66,19 +66,13 @@ export const getDevotionGeneratorChain = async (): Promise<
         reflection: string;
         prayer: string;
       };
-      sourceDocuments: NeonVectorStoreDocument[];
+      sourceDocuments: UpstashVectorStoreDocument[];
     }
   >
 > => {
   const retriever = await getDocumentVectorStore({
     verbose: envConfig.isLocal,
-    filters: [
-      {
-        category: 'bible',
-        translation: 'ESV'
-      },
-      "metadata->>'category' != 'bible'"
-    ]
+    filter: '(category = "bible" AND translation = "ESV") OR (category != "bible")'
   }).then((store) =>
     store.asRetriever({
       k: 10,
@@ -125,12 +119,7 @@ export const getDevotionGeneratorChain = async (): Promise<
 
 export const getBibleReadingChain = async (topic: string) => {
   const retriever = await getDocumentVectorStore({
-    filters: [
-      {
-        category: 'bible',
-        translation: 'ESV'
-      }
-    ],
+    filter: 'category = "bible" AND translation = "ESV"',
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({

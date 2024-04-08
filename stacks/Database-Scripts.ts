@@ -1,11 +1,10 @@
-import { Database, Jobs, Layers } from '@stacks';
+import { Database, Layers } from '@stacks';
 import { Script, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function DatabaseScripts({ stack }: StackContext) {
   dependsOn(Database);
 
   const { argonLayer } = use(Layers);
-  const { hnswIndexJob } = use(Jobs);
 
   const dbMigrationsScript = new Script(stack, 'dbMigrationsScript', {
     onCreate: 'packages/functions/src/database/migrations.handler',
@@ -32,8 +31,6 @@ export function DatabaseScripts({ stack }: StackContext) {
       function: {
         layers: [argonLayer],
         enableLiveDev: false,
-        permissions: [hnswIndexJob],
-        bind: [hnswIndexJob],
         timeout: '15 minutes'
       }
     }

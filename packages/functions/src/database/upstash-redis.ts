@@ -12,7 +12,12 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     const email = event.ResourceProperties.email as string;
     const apiKey = event.ResourceProperties.apiKey as string;
     const name = event.ResourceProperties.name as string;
-    const region = event.ResourceProperties.region as string;
+    const region = event.ResourceProperties.region as
+      | 'eu-west-1'
+      | 'us-east-1'
+      | 'us-west-1'
+      | 'ap-northeast-1'
+      | 'us-central-1';
     const tls = event.ResourceProperties.tls === 'true';
     const eviction = event.ResourceProperties.eviction === 'true';
     const autoUpgrade = event.ResourceProperties.autoUpgrade === 'true';
@@ -96,7 +101,7 @@ interface UpstashRedisDatabase {
   database_id: string;
   database_name: string;
   database_type: string;
-  region: string;
+  region: 'eu-west-1' | 'us-east-1' | 'us-west-1' | 'ap-northeast-1' | 'us-central-1';
   port: number;
   creation_time: number;
   state: string;

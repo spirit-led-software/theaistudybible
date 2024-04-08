@@ -1,9 +1,8 @@
 import { ChatAnthropic } from '@langchain/anthropic';
 import type { BaseCache } from '@langchain/core/caches';
 import { ChatOpenAI } from '@langchain/openai';
-import anthropicConfig from '@revelationsai/core/configs/anthropic';
-import envConfig from '@revelationsai/core/configs/env';
-import openAiConfig from '@revelationsai/core/configs/openai';
+import envConfig from '@revelationsai/core/configs/environment';
+import config from '@revelationsai/core/configs/revelationsai';
 import {
   RAIBedrockEmbeddings,
   type RAIBedrockEmbeddingsParams
@@ -29,7 +28,7 @@ export function getEmbeddingsModel(options?: RAIBedrockEmbeddingsParams) {
 }
 
 export function getLanguageModel({
-  modelId = 'claude-3-haiku-20240307',
+  modelId = config.llm.chat.defaultModel,
   temperature = 0.7,
   maxTokens = 4096,
   stopSequences = [],
@@ -41,7 +40,7 @@ export function getLanguageModel({
   if (openAiModelIds.includes(modelId as OpenAiModelId)) {
     return new ChatOpenAI({
       modelName: modelId as OpenAiModelId,
-      openAIApiKey: openAiConfig.apiKey,
+      openAIApiKey: config.openai.apiKey,
       streaming: stream,
       stop: stopSequences,
       temperature,
@@ -55,7 +54,7 @@ export function getLanguageModel({
   if (anthropicModelIds.includes(modelId as AnthropicModelId)) {
     return new ChatAnthropic({
       modelName: modelId as AnthropicModelId,
-      anthropicApiKey: anthropicConfig.apiKey,
+      anthropicApiKey: config.anthropic.apiKey,
       streaming: stream,
       stopSequences,
       temperature,

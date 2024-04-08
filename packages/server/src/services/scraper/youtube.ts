@@ -1,4 +1,6 @@
-import { indexOperations } from '@revelationsai/core/database/schema';
+import { db } from '@lib/database';
+import config from '@revelationsai/core/configs/revelationsai';
+import { dataSourcesToSourceDocuments, indexOperations } from '@revelationsai/core/database/schema';
 import type { DataSource } from '@revelationsai/core/model/data-source';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
@@ -44,8 +46,8 @@ export async function indexYoutubeVideo({
     let docs = await loader.load();
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1024,
-      chunkOverlap: 256
+      chunkSize: config.llm.embeddings.chunkSize,
+      chunkOverlap: config.llm.embeddings.chunkOverlap
     });
     docs = await splitter.invoke(docs, {});
 
@@ -71,17 +73,23 @@ export async function indexYoutubeVideo({
     });
 
     console.log('Adding documents to vector store');
-    const vectorStore = await getDocumentVectorStore();
-    await vectorStore.addDocuments(docs);
-
+    const vectorStore = await getDocumentVectorStore({ write: true });
+    const ids = await vectorStore.addDocuments(docs);
     console.log(`Successfully indexed youtube video '${url}'.`);
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      status: 'SUCCEEDED'
-    });
-
-    await updateDataSource(dataSource.id, {
-      numberOfDocuments: docs.length
-    });
+    [indexOp, dataSource] = await Promise.all([
+      updateIndexOperation(indexOp!.id, {
+        status: 'SUCCEEDED'
+      }),
+      updateDataSource(dataSource.id, {
+        numberOfDocuments: docs.length
+      }),
+      ...ids.map((sourceDocumentId) =>
+        db.insert(dataSourcesToSourceDocuments).values({
+          dataSourceId,
+          sourceDocumentId
+        })
+      )
+    ]);
 
     return indexOp;
   } catch (err) {

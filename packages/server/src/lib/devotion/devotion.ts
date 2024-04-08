@@ -1,9 +1,10 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import axios from '@revelationsai/core/configs/axios';
 import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
+import axios from '@revelationsai/core/lib/axios';
 import type { Devotion } from '@revelationsai/core/model/devotion';
+import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser } from 'langchain/output_parsers';
@@ -202,9 +203,9 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
       sourceDocuments.map(async (c) => {
         await db.insert(devotionsToSourceDocuments).values({
           devotionId: devo!.id,
-          sourceDocumentId: c.id,
-          distance: c.distance,
-          distanceMetric: c.distanceMetric
+          sourceDocumentId: c.id.toString(),
+          distance: c.score!,
+          distanceMetric: similarityFunctionMapping[c.similarityFunction!]
         });
       })
     );

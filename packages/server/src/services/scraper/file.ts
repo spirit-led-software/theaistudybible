@@ -1,5 +1,5 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import axios from '@revelationsai/core/configs/axios';
+import axios from '@revelationsai/core/lib/axios';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import { Bucket } from 'sst/node/bucket';
 

@@ -96,3 +96,21 @@ export type BedrockInput = {
       body: CohereModelBody;
     }
 );
+
+export const amazonEmbeddingModelIds = [
+  'amazon.titan-embed-text-v1',
+  'amazon.titan-embed-image-v1'
+] as const;
+export type AmazonEmbeddingModelId = (typeof amazonEmbeddingModelIds)[number];
+
+export const cohereEmbeddingModelIds = [
+  'cohere.embed-english-v3',
+  'cohere.embed-multilingual-v3'
+] as const;
+export type CohereEmbeddingModelId = (typeof cohereEmbeddingModelIds)[number];
+
+export const bedrockEmbeddingModelIds = [
+  ...cohereEmbeddingModelIds,
+  ...amazonEmbeddingModelIds
+] as const;
+export type BedrockEmbeddingModelId = (typeof bedrockEmbeddingModelIds)[number];

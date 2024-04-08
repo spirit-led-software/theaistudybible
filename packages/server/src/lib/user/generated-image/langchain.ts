@@ -1,8 +1,8 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import { llmCache } from '@lib/cache';
-import envConfig from '@revelationsai/core/configs/env';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import envConfig from '@revelationsai/core/configs/environment';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import { XMLBuilder } from 'fast-xml-parser';
 import {
   CustomListOutputParser,
@@ -35,7 +35,7 @@ export const getImagePromptChain = async (): Promise<
     { userPrompt: string },
     {
       prompt: string;
-      sourceDocuments: NeonVectorStoreDocument[];
+      sourceDocuments: UpstashVectorStoreDocument[];
       searchQueries: string[];
     }
   >
@@ -95,7 +95,7 @@ export const getImagePromptChain = async (): Promise<
         const searchQueries = previousStepResult.searchQueries;
         const sourceDocuments = await Promise.all(
           searchQueries.map(async (query) => {
-            return (await retriever.getRelevantDocuments(query)) as NeonVectorStoreDocument[];
+            return (await retriever.getRelevantDocuments(query)) as UpstashVectorStoreDocument[];
           })
         );
         return sourceDocuments
@@ -103,7 +103,7 @@ export const getImagePromptChain = async (): Promise<
           .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
           .map((doc) => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { embedding, ...rest } = doc;
+            const { vector, ...rest } = doc;
             return rest;
           });
       },
@@ -111,7 +111,7 @@ export const getImagePromptChain = async (): Promise<
       userPrompt: (input) => input.userPrompt
     },
     {
-      sources: (previousStepResult: { sourceDocuments: NeonVectorStoreDocument[] }) =>
+      sources: (previousStepResult: { sourceDocuments: UpstashVectorStoreDocument[] }) =>
         previousStepResult.sourceDocuments
           .reduce((acc, doc) => {
             const existingDoc = acc.find((d) => d.metadata.url === doc.metadata.url);
@@ -121,8 +121,8 @@ export const getImagePromptChain = async (): Promise<
               acc.push(doc);
             }
             return acc;
-          }, [] as NeonVectorStoreDocument[])
-          .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
+          }, [] as UpstashVectorStoreDocument[])
+          .sort((a, b) => (b.score && a.score ? a.score - b.score : 0))
           .map((sourceDoc) =>
             new XMLBuilder().build({
               source: {

@@ -2,7 +2,7 @@
   import { PUBLIC_API_URL } from '$env/static/public';
   import { session } from '$lib/stores/user';
   import { graphql } from '@revelationsai/client/graphql';
-  import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+  import type { SourceDocument } from '@revelationsai/core/model/source-document';
   import { createQuery } from '@tanstack/svelte-query';
   import graphqlRequest from 'graphql-request';
   import { derived, writable } from 'svelte/store';
@@ -19,7 +19,7 @@
   const isChatLoading = writable(argIsChatLoading);
   $: isChatLoading.set(argIsChatLoading);
 
-  let sourceDocs = writable<Pick<NeonVectorStoreDocument, 'id' | 'metadata'>[]>([]);
+  let sourceDocs = writable<Pick<SourceDocument, 'id' | 'metadata'>[]>([]);
 
   const graphqlQuery = graphql(`
     query GetAiResponseSourceDocuments($aiResponseId: String!) {

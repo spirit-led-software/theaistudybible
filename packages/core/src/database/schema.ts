@@ -564,6 +564,27 @@ export const dataSources = pgTable(
   }
 );
 
+export const dataSourcesToSourceDocuments = pgTable(
+  'data_sources_to_source_documents',
+  {
+    dataSourceId: uuid('data_source_id')
+      .notNull()
+      .references(() => dataSources.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    sourceDocumentId: uuid('source_document_id').notNull()
+  },
+  (table) => {
+    return {
+      dataSourceSourceDocumentKey: uniqueIndex('data_source_source_document_key').on(
+        table.dataSourceId,
+        table.sourceDocumentId
+      )
+    };
+  }
+);
+
 export const dataSourcesRelations = relations(dataSources, ({ many }) => {
   return {
     indexOperations: many(indexOperations)

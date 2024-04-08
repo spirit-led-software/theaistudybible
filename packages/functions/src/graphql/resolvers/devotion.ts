@@ -1,5 +1,6 @@
 import { devotionImages, devotionReactions, devotions } from '@revelationsai/core/database/schema';
 import { updateDevotionSchema } from '@revelationsai/core/model/devotion';
+import { getSourceDocumentsByDevotionId } from '@revelationsai/server/services/source-document';
 import { and, eq } from 'drizzle-orm';
 import type { Resolvers } from '../__generated__/resolver-types';
 import { deleteObject, getObject, getObjectCount, getObjects, updateObject } from '../utils/crud';
@@ -55,6 +56,9 @@ export const devotionResolvers: Resolvers = {
           count: dislikeCount
         }
       ];
+    },
+    sourceDocuments: async (parent) => {
+      return await getSourceDocumentsByDevotionId(parent.id);
     }
   },
   Query: {

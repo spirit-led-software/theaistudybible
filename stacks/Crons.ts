@@ -1,4 +1,4 @@
-import { DatabaseScripts, Jobs, Layers, Queues, S3 } from '@stacks';
+import { DatabaseScripts, Layers, Queues, S3 } from '@stacks';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Cron, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
@@ -8,7 +8,6 @@ export function Crons({ stack }: StackContext) {
   dependsOn(Queues);
 
   const { chromiumLayer, axiomX86Layer } = use(Layers);
-  const { hnswIndexJob } = use(Jobs);
 
   if (stack.stage === 'prod') {
     new Cron(stack, 'dailyDevoCron', {
@@ -41,20 +40,6 @@ export function Crons({ stack }: StackContext) {
           ],
           timeout: '5 minutes',
           memorySize: '2 GB'
-        }
-      }
-    });
-
-    new Cron(stack, 'recreateHnswIndexesCron', {
-      // once every month
-      schedule: 'cron(0 0 1 * ? *)',
-      job: {
-        function: {
-          handler: 'packages/functions/src/crons/recreate-indexes.handler',
-          permissions: [hnswIndexJob],
-          bind: [hnswIndexJob],
-          timeout: '15 minutes',
-          memorySize: '1 GB'
         }
       }
     });

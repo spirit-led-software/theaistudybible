@@ -1,4 +1,4 @@
-import stripeConfig from '@revelationsai/core/configs/stripe';
+import config from '@revelationsai/core/configs/revelationsai';
 import {
   getUser,
   getUserByStripeCustomerId,
@@ -8,7 +8,7 @@ import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
 import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '../lib/api-responses';
 
-const stripe = new Stripe(stripeConfig.apiKey, {
+const stripe = new Stripe(config.stripe.apiKey, {
   apiVersion: '2023-10-16'
 });
 

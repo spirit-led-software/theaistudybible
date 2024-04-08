@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently  --names \"SST,CodeGen\" -c \"bgYellow,bgBlue\" \"sst dev\" \"graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'\"",
-    "build": "sst build --stage",
+    "build": "concurrently --names \"SST,CodeGen\" -c \"bgYellow,bgBlue\" \"sst build --stage\" \"graphql-codegen\"",
     "deploy": "sst deploy --stage",
     "remove": "sst remove --stage",
     "console": "sst console",
@@ -58,6 +58,7 @@
     "@langchain/community": "^0.0.44",
     "@langchain/openai": "^0.0.26",
     "@neondatabase/serverless": "^0.9.0",
+    "@upstash/vector": "^1.0.5",
     "drizzle-orm": "^0.30.7",
     "drizzle-zod": "^0.5.1",
     "gql.tada": "^1.4.3",

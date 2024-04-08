@@ -1,6 +1,6 @@
 import middy from '@middy/core';
 import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { Chat } from '@revelationsai/core/model/chat';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
@@ -9,6 +9,7 @@ import {
   type FreeTierModelId,
   type PlusTierModelId
 } from '@revelationsai/core/model/llm';
+import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
@@ -129,7 +130,7 @@ async function postResponseValidationLogic({
   userId: string;
   lastMessage: RAIChatMessage;
   response: string;
-  sourceDocuments: NeonVectorStoreDocument[];
+  sourceDocuments: UpstashVectorStoreDocument[];
   searchQueries: string[];
 }): Promise<void> {
   const aiResponse = await createAiResponse({
@@ -146,9 +147,9 @@ async function postResponseValidationLogic({
     sourceDocuments.map(async (sourceDoc) => {
       await db.insert(aiResponsesToSourceDocuments).values({
         aiResponseId: aiResponse.id,
-        sourceDocumentId: sourceDoc.id,
-        distance: sourceDoc.distance,
-        distanceMetric: sourceDoc.distanceMetric
+        sourceDocumentId: sourceDoc.id.toString(),
+        distance: sourceDoc.score!,
+        distanceMetric: similarityFunctionMapping[sourceDoc.similarityFunction!]
       });
     })
   );

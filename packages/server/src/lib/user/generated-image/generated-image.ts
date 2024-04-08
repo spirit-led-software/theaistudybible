@@ -1,8 +1,9 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import axios from '@revelationsai/core/configs/axios';
 import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
+import axios from '@revelationsai/core/lib/axios';
+import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
@@ -35,9 +36,9 @@ export async function generatedImage(
       sourceDocuments.map(async (sourceDoc) => {
         await db.insert(userGeneratedImagesToSourceDocuments).values({
           userGeneratedImageId: userGeneratedImage!.id,
-          sourceDocumentId: sourceDoc.id,
-          distance: sourceDoc.distance,
-          distanceMetric: sourceDoc.distanceMetric
+          sourceDocumentId: sourceDoc.id.toString(),
+          distance: sourceDoc.score!,
+          distanceMetric: similarityFunctionMapping[sourceDoc.similarityFunction!]
         });
       })
     );

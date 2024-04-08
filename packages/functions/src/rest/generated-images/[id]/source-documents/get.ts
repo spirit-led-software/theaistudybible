@@ -26,13 +26,7 @@ export const handler = ApiHandler(async (event) => {
     const sourceDocuments = await getSourceDocumentsByUserGeneratedImageId(userGeneratedImage.id);
 
     return OkResponse(
-      sourceDocuments
-        .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
-        .map((sourceDocument) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { embedding, ...rest } = sourceDocument;
-          return rest;
-        })
+      sourceDocuments.sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
     );
   } catch (error) {
     console.error(`Error getting source documents for user generated image '${id}':`, error);

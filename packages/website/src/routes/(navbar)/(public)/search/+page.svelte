@@ -1,14 +1,14 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
   import Icon from '@iconify/svelte';
-  import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+  import type { SourceDocument } from '@revelationsai/core/model/source-document';
   import type { ActionData, SubmitFunction } from './$types';
 
   export let form: ActionData;
 
   let isLoading = false;
   let alert: { type: 'error' | 'success'; text: string } | undefined = undefined;
-  let results: (Omit<NeonVectorStoreDocument, 'embedding'> & { score: number })[] = [];
+  let results: (Omit<SourceDocument, 'embedding'> & { score: number })[] = [];
 
   const submit: SubmitFunction = () => {
     isLoading = true;

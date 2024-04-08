@@ -1,4 +1,5 @@
-import { getEmbeddingsModel } from '@revelationsai/server/lib/llm';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
+import type { SourceDocument } from '@revelationsai/core/model/source-document';
 import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
 import { ApiHandler } from 'sst/node/api';
 import {
@@ -12,7 +13,6 @@ export const handler = ApiHandler(async (event) => {
 
   const searchParams = event.queryStringParameters ?? {};
   const limit = parseInt(searchParams.limit ?? '25');
-  const page = parseInt(searchParams.page ?? '1');
   const { query, filter } = JSON.parse(event.body ?? '{}');
 
   if (!query) {
@@ -20,28 +20,23 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
-    const embeddings = getEmbeddingsModel();
     const vectorStore = await getDocumentVectorStore();
-    const results = await vectorStore.similaritySearchVectorWithScore(
-      await embeddings.embedQuery(query),
-      limit,
-      filter,
-      (page - 1) * limit
-    );
+    const results = await vectorStore.similaritySearchWithScore(query, limit, filter);
 
-    return OkResponse({
-      entities: results.map((result) => {
+    return OkResponse(
+      // @ts-expect-error - We know the results are of the correct type
+      results.map((result: [UpstashVectorStoreDocument, number]) => {
         const [doc, score] = result;
         return {
-          id: doc.id,
+          id: doc.id.toString(),
           pageContent: doc.pageContent,
           metadata: doc.metadata,
-          score
-        };
-      }),
-      page,
-      perPage: limit
-    });
+          embedding: doc.vector,
+          distance: score,
+          distanceMetric: 'cosine'
+        } satisfies SourceDocument;
+      })
+    );
   } catch (error) {
     console.error('Error getting vector similarity search results:', error);
     if (error instanceof Error) {

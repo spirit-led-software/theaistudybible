@@ -1,8 +1,8 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import { llmCache } from '@lib/cache';
-import envConfig from '@revelationsai/core/configs/env';
-import type { NeonVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/neon';
+import envConfig from '@revelationsai/core/configs/environment';
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
 import {
   allModels,
@@ -10,7 +10,6 @@ import {
   type PlusTierModelId
 } from '@revelationsai/core/model/llm';
 import type { User } from '@revelationsai/core/model/user';
-import type { Metadata } from '@revelationsai/core/types/metadata';
 import { XMLBuilder } from 'fast-xml-parser';
 import type { CallbackManager } from 'langchain/callbacks';
 import { CustomListOutputParser, RouterOutputParser } from 'langchain/output_parsers';
@@ -64,7 +63,7 @@ export const getRAIChatChain = async (options: {
     { query: string },
     {
       text: string;
-      sourceDocuments?: NeonVectorStoreDocument[];
+      sourceDocuments?: UpstashVectorStoreDocument[];
       searchQueries?: string[];
     }
   >
@@ -144,13 +143,7 @@ export const getRAIChatChain = async (options: {
     contextSize: contextSizeNum,
     prompt: faithQaChainPrompt,
     stopSequences: faithQaChainStopSequences,
-    filters: [
-      {
-        category: 'bible',
-        translation: user.translation
-      },
-      "metadata->>'category' != 'bible'"
-    ],
+    filter: `(category = "bible" AND translation = "${user.translation}") OR (category != "bible")`,
     history,
     callbacks
   });
@@ -196,12 +189,12 @@ export async function getDocumentQaChain(options: {
   prompt: BasePromptTemplate;
   stopSequences?: string[];
   callbacks: CallbackManager;
-  filters?: (Metadata | string)[];
+  filter?: string;
   history: [MessageType, MessageContent][];
 }) {
-  const { modelId, contextSize, prompt, stopSequences, filters, history, callbacks } = options;
+  const { modelId, contextSize, prompt, stopSequences, filter, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
-    filters,
+    filter,
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
@@ -235,7 +228,7 @@ export async function getDocumentQaChain(options: {
         const searchQueries = previousStepResult.searchQueries;
         const sourceDocuments = await Promise.all(
           searchQueries.map(async (query) => {
-            return (await qaRetriever.getRelevantDocuments(query)) as NeonVectorStoreDocument[];
+            return (await qaRetriever.getRelevantDocuments(query)) as UpstashVectorStoreDocument[];
           })
         );
         return sourceDocuments
@@ -243,7 +236,7 @@ export async function getDocumentQaChain(options: {
           .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
           .map((doc) => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { embedding, ...rest } = doc;
+            const { vector, ...rest } = doc;
             return rest;
           });
       },
@@ -251,7 +244,7 @@ export async function getDocumentQaChain(options: {
       query: (previousStepResult) => previousStepResult.query
     },
     {
-      sources: (previousStepResult: { sourceDocuments: NeonVectorStoreDocument[] }) =>
+      sources: (previousStepResult: { sourceDocuments: UpstashVectorStoreDocument[] }) =>
         previousStepResult.sourceDocuments
           .reduce((acc, doc) => {
             const existingDoc = acc.find((d) => d.metadata.url === doc.metadata.url);
@@ -261,8 +254,8 @@ export async function getDocumentQaChain(options: {
               acc.push(doc);
             }
             return acc;
-          }, [] as NeonVectorStoreDocument[])
-          .sort((a, b) => (b.distance && a.distance ? a.distance - b.distance : 0))
+          }, [] as UpstashVectorStoreDocument[])
+          .sort((a, b) => (b.score && a.score ? a.score - b.score : 0))
           .map((sourceDoc) =>
             new XMLBuilder().build({
               source: {

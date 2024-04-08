@@ -1,4 +1,4 @@
-import envConfig from '@revelationsai/core/configs/env';
+import envConfig from '@revelationsai/core/configs/environment';
 import * as schema from '@revelationsai/core/database/schema';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import type { NeonQueryResultHKT } from 'drizzle-orm/neon-serverless';

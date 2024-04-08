@@ -1,4 +1,10 @@
-import { dataSources, indexOperations } from '@revelationsai/core/database/schema';
+import { db } from '@lib/database';
+import config from '@revelationsai/core/configs/revelationsai';
+import {
+  dataSources,
+  dataSourcesToSourceDocuments,
+  indexOperations
+} from '@revelationsai/core/database/schema';
 import { PuppeteerCoreWebBaseLoader } from '@revelationsai/core/langchain/document_loaders/puppeteer-core';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
@@ -82,8 +88,8 @@ export async function generatePageContentEmbeddings(
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);
 
         const splitter = new RecursiveCharacterTextSplitter({
-          chunkSize: 1024,
-          chunkOverlap: 256
+          chunkSize: config.llm.embeddings.chunkSize,
+          chunkOverlap: config.llm.embeddings.chunkOverlap
         });
         console.log('Splitting documents.');
         docs = await splitter.invoke(docs, {});
@@ -112,11 +118,18 @@ export async function generatePageContentEmbeddings(
         console.log('Docs already loaded. Adding them to the vector store.');
       }
       const vectorStore = await getDocumentVectorStore({ write: true });
-      await vectorStore.addDocuments(docs);
-
-      await updateDataSource(dataSourceId, {
-        numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`
-      });
+      const ids = await vectorStore.addDocuments(docs);
+      await Promise.all([
+        updateDataSource(dataSourceId, {
+          numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`
+        }),
+        ...ids.map((sourceDocumentId) =>
+          db.insert(dataSourcesToSourceDocuments).values({
+            dataSourceId,
+            sourceDocumentId
+          })
+        )
+      ]);
 
       error = undefined;
       break;

@@ -376,9 +376,9 @@ enum DistanceMetric {
 
 type SourceDocument {
   id: String!
-  embedding: String!
-  pageContent: String!
+  embedding: [Float!]
   metadata: Metadata!
+  pageContent: String
   distance: Float
   distanceMetric: DistanceMetric
 }
