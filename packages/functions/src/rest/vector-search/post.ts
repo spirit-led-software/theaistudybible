@@ -1,3 +1,4 @@
+import type { SourceDocument } from '@revelationsai/core/model/source-document';
 import { getEmbeddingsModel } from '@revelationsai/server/lib/llm';
 import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
 import { ApiHandler } from 'sst/node/api';
@@ -31,11 +32,13 @@ export const handler = ApiHandler(async (event) => {
       results.map((result) => {
         const [doc, score] = result;
         return {
-          id: doc.id,
+          id: doc.id.toString(),
           pageContent: doc.pageContent,
           metadata: doc.metadata,
-          score
-        };
+          embedding: doc.vector,
+          distance: score,
+          distanceMetric: 'cosine'
+        } satisfies SourceDocument;
       })
     );
   } catch (error) {

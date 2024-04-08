@@ -257,6 +257,7 @@ export class UpstashVectorStore extends VectorStore {
   ): Promise<[UpstashVectorStoreDocument, number][]> {
     const results = await this._runUpstashQuery(query, k, {
       includeMetadata: true,
+      includeVectors: true,
       filter: this._getFilter(filter)
     });
 

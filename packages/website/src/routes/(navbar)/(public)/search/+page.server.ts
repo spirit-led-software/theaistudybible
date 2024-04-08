@@ -1,11 +1,11 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
+import type { SourceDocument } from '@revelationsai/core/model/source-document';
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
 type ActionData = {
   banner: string;
-  results: (Omit<UpstashVectorStoreDocument, 'vector'> & { score: number })[];
+  results: (Omit<SourceDocument, 'embedding'> & { score: number })[];
 };
 
 export const actions: Actions = {

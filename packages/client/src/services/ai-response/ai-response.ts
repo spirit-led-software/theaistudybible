@@ -1,9 +1,9 @@
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type {
   AiResponse,
   CreateAiResponseData,
   UpdateAiResponseData
 } from '@revelationsai/core/model/ai-response';
+import type { SourceDocument } from '@revelationsai/core/model/source-document';
 import apiConfig from '../../configs/api';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
@@ -105,7 +105,7 @@ export async function getAiResponseSourceDocuments(id: string, options: Protecte
     );
   }
 
-  const sourceDocuments: UpstashVectorStoreDocument[] = await response.json();
+  const sourceDocuments: SourceDocument[] = await response.json();
 
   return sourceDocuments;
 }

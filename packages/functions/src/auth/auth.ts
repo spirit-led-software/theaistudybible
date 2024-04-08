@@ -61,9 +61,9 @@ const SessionParameter = (user: User, url?: string) =>
 
 const AppleClientSecret = () => {
   const audience = 'https://appleid.apple.com';
-  const keyId = process.env.APPLE_KEY_ID!;
-  const teamId = process.env.APPLE_TEAM_ID!;
-  const clientId = process.env.APPLE_CLIENT_ID!;
+  const keyId = config.auth.apple.keyId;
+  const teamId = config.auth.apple.teamId;
+  const clientId = config.auth.apple.clientId;
 
   const privateKey = fs.readFileSync(path.resolve('apple-auth-key.p8')).toString();
 
@@ -148,7 +148,7 @@ async function createStripeCustomer(user: User) {
 const createGoogleAdapter = (callbackUrl?: string) =>
   GoogleAdapter({
     mode: 'oidc',
-    clientID: process.env.GOOGLE_CLIENT_ID!,
+    clientID: config.auth.google.clientId,
     onSuccess: async (tokenSet) => {
       const user = await checkForUserOrCreateFromTokenSet(tokenSet);
       return SessionParameter(user, callbackUrl);
@@ -157,7 +157,7 @@ const createGoogleAdapter = (callbackUrl?: string) =>
 
 const createAppleAdapter = (callbackUrl?: string) =>
   AppleAdapter({
-    clientID: process.env.APPLE_CLIENT_ID!,
+    clientID: config.auth.apple.clientId,
     clientSecret: appleClientSecret,
     scope: 'openid name email',
     onSuccess: async (tokenSet) => {
