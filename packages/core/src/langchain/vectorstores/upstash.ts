@@ -83,9 +83,10 @@ export class UpstashVectorStore extends VectorStore {
 
     this.embeddings = embeddings;
 
-    const { index, ...asyncCallerArgs } = args;
+    const { index, filter, ...asyncCallerArgs } = args;
 
     this.index = index;
+    this.filter = filter;
     this.caller = new AsyncCaller(asyncCallerArgs);
   }
 
