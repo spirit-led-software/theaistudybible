@@ -383,7 +383,8 @@ async function lambdaHandler(
                 failed: true
               });
             }
-          })
+          }),
+          ...pendingPromises
         ]);
 
         if (err instanceof Error) {
