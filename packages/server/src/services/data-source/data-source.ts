@@ -103,11 +103,11 @@ export async function updateDataSourceRelatedDocuments(
   const vectorDb = await getDocumentVectorStore();
   await vectorDb.upsert(
     sourceDocuments.map((d) => ({
-      id: d!.id,
-      vector: d!.vector,
+      id: d.id,
+      vector: d.vector,
       metadata: {
-        ...d!.metadata,
-        pageContent: d!.metadata!.pageContent,
+        ...d.metadata,
+        pageContent: d.metadata!.pageContent,
         ...dataSource.metadata,
         dataSourceId: dataSource.id
       }
