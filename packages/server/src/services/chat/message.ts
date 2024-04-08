@@ -48,13 +48,13 @@ export async function getChatMessages(
         role: 'assistant',
         id: nanoid(),
         uuid: uuidV4(),
-        content: 'Failed.',
+        content: 'Response not found.',
         createdAt: new Date()
       });
     }
 
     messages.push({
-      role: 'user',
+      role: row.user_messages.anonymous ? 'anonymous' : 'user',
       id: row.user_messages.aiId ?? row.user_messages.id,
       uuid: row.user_messages.id,
       content: row.user_messages.text!,

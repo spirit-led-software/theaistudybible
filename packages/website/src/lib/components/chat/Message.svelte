@@ -7,9 +7,9 @@
   import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
   import type { ModelInfo } from '@revelationsai/core/model/llm';
   import type { User } from '@revelationsai/core/model/user';
-  import type { Message } from 'ai';
   import Day from 'dayjs';
   import LogoIcon from '../branding/LogoIcon.svelte';
+  import AnonymousAvatar from '../user/AnonymousAvatar.svelte';
   import Avatar from '../user/Avatar.svelte';
   import CopyButton from './CopyButton.svelte';
   import MessageMarkdown from './MessageMarkdown.svelte';
@@ -30,7 +30,7 @@
 
   let id: string;
   let uuid: string | undefined;
-  let role: Message['role'];
+  let role: RAIChatMessage['role'];
   let content: string;
 
   $: ({ id, uuid, role, content } = message);
@@ -56,6 +56,8 @@
   <div class="flex w-12 flex-col content-start">
     {#if role === 'user'}
       <Avatar {user} size="lg" class="border border-slate-100 shadow-xl" />
+    {:else if role === 'anonymous'}
+      <AnonymousAvatar size="sm" class="border border-slate-100 shadow-xl" />
     {:else}
       <LogoIcon size="sm" class="w-12 rounded-full shadow-xl" />
     {/if}

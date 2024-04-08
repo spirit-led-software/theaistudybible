@@ -195,6 +195,7 @@ enum ChatMessageRole {
   function
   data
   tool
+  anonymous
 }
 
 type ChatMessage {

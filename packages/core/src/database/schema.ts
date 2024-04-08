@@ -305,7 +305,8 @@ export const userMessages = pgTable(
       .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
+      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    anonymous: boolean('anonymous').notNull().default(false)
   },
   (table) => {
     return {
@@ -389,7 +390,34 @@ export const chatsRelations = relations(chats, ({ one, many }) => {
       references: [users.id]
     }),
     userMessages: many(userMessages),
-    aiResponses: many(aiResponses)
+    aiResponses: many(aiResponses),
+    shareOptions: one(shareChatOptions)
+  };
+});
+
+export const shareChatOptions = pgTable(
+  'share_chat_options',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    chatId: uuid('chat_id')
+      .notNull()
+      .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' })
+  },
+  (table) => {
+    return {
+      chatIdIdx: index('chat_share_options_chat_id').on(table.chatId)
+    };
+  }
+);
+
+export const shareChatOptionsRelations = relations(shareChatOptions, ({ one }) => {
+  return {
+    chat: one(chats, {
+      fields: [shareChatOptions.chatId],
+      references: [chats.id]
+    })
   };
 });
 

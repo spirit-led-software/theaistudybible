@@ -82,7 +82,7 @@ export const getRAIChatChain = async (options: {
     let role: MessageType;
     if (message.role === 'assistant') {
       role = 'ai';
-    } else if (message.role === 'user') {
+    } else if (message.role === 'user' || message.role === 'anonymous') {
       role = 'human';
     } else if (message.role === 'data') {
       role = 'generic';

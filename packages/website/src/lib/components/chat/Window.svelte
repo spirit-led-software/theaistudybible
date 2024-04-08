@@ -43,7 +43,7 @@
 
   const { input, handleSubmit, messages, setMessages, append, error, isLoading, reload } = useChat({
     api: PUBLIC_CHAT_API_URL,
-    initialMessages: initMessages,
+    initialMessages: initMessages as ChatMessage[] | undefined,
     sendExtraMessageFields: true,
     onError: (err) => {
       console.error('On Chat Error:', err);
@@ -119,7 +119,7 @@
     });
   };
 
-  $: handleAiResponse = async (chatMessage: ChatMessage) => {
+  $: handleAiResponse = async (chatMessage: RAIChatMessage) => {
     if (lastAiResponseId) {
       try {
         $messages = [
@@ -178,7 +178,7 @@
     chatId = initChatId;
   }
   $: if (initMessages) {
-    setMessages(initMessages);
+    setMessages(initMessages as ChatMessage[]);
   }
 
   $: if (!$isLoading && lastChatMessage) handleAiResponse(lastChatMessage);

@@ -1083,6 +1083,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "anonymous",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "assistant",
             "description": null,
             "isDeprecated": false,
