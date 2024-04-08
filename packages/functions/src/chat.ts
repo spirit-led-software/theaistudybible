@@ -321,6 +321,7 @@ async function lambdaHandler(
           .catch(async (err) => {
             console.error(`Error while streaming response: ${err}`);
             await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
+            this.push(`Error: ${err.message}`);
             this.push(null);
             this.destroy(err);
             throw err;
