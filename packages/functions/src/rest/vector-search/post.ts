@@ -1,5 +1,5 @@
+import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { SourceDocument } from '@revelationsai/core/model/source-document';
-import { getEmbeddingsModel } from '@revelationsai/server/lib/llm';
 import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
 import { ApiHandler } from 'sst/node/api';
 import {
@@ -20,16 +20,12 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
-    const embeddings = getEmbeddingsModel();
     const vectorStore = await getDocumentVectorStore();
-    const results = await vectorStore.similaritySearchVectorWithScore(
-      await embeddings.embedQuery(query),
-      limit,
-      filter
-    );
+    const results = await vectorStore.similaritySearchWithScore(query, limit, filter);
 
     return OkResponse(
-      results.map((result) => {
+      // @ts-expect-error - We know the results are of the correct type
+      results.map((result: [UpstashVectorStoreDocument, number]) => {
         const [doc, score] = result;
         return {
           id: doc.id.toString(),

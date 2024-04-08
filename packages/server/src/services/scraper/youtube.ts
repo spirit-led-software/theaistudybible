@@ -73,7 +73,7 @@ export async function indexYoutubeVideo({
     });
 
     console.log('Adding documents to vector store');
-    const vectorStore = await getDocumentVectorStore();
+    const vectorStore = await getDocumentVectorStore({ write: true });
     const ids = await vectorStore.addDocuments(docs);
     console.log(`Successfully indexed youtube video '${url}'.`);
     [indexOp, dataSource] = await Promise.all([

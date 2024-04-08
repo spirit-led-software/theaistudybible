@@ -10,7 +10,7 @@ export async function getDocumentVectorStore(options?: {
   filter?: string;
   write?: boolean;
 }) {
-  const { verbose, filter, write } = options ?? {};
+  const { verbose, filter, write = false } = options ?? {};
   const vectorStore = await UpstashVectorStore.fromExistingIndex(
     getEmbeddingsModel({
       model: config.llm.embeddings.model,
