@@ -231,13 +231,13 @@ export class UpstashVectorStore extends VectorStore {
   protected _getFilter(filter?: this['FilterType']): this['FilterType'] | undefined {
     let filterString: string | undefined;
     if (filter) {
-      filterString += `(${filter})`;
+      filterString += `${filter}`;
     }
     if (this.filter) {
       if (filterString) {
         filterString += ' AND ';
       }
-      filterString += `(${this.filter})`;
+      filterString += `${this.filter}`;
     }
     return filterString;
   }
