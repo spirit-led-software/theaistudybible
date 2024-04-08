@@ -318,12 +318,20 @@ async function lambdaHandler(
             }
             this.read();
           })
-          .catch(async (err) => {
+          .catch(async (err: unknown) => {
             console.error(`Error while streaming response: ${err}`);
             await Promise.all(pendingPromises); // make sure everything is done before destroying the stream
-            this.push(`Error: ${err.message}`);
-            this.push(null);
-            this.destroy(err);
+
+            if (err instanceof Error) {
+              this.push(`Error: ${err.message}`);
+              this.push(null);
+              this.destroy(err);
+            } else {
+              this.push(`Error: ${JSON.stringify(err)}`);
+              this.push(null);
+              this.destroy(new Error(JSON.stringify(err)));
+            }
+
             throw err;
           });
       }
