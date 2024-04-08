@@ -143,7 +143,7 @@ export const getRAIChatChain = async (options: {
     contextSize: contextSizeNum,
     prompt: faithQaChainPrompt,
     stopSequences: faithQaChainStopSequences,
-    filter: `category = "bible" AND translation = "${user.translation}" OR category != "bible"`,
+    filter: `(category = 'bible' AND translation = '${user.translation}') OR category != 'bible'`,
     history,
     callbacks
   });

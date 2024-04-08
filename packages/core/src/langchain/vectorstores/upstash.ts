@@ -229,17 +229,15 @@ export class UpstashVectorStore extends VectorStore {
    * @returns The filter string generated from the filter object.
    */
   protected _getFilter(filter?: this['FilterType']): this['FilterType'] | undefined {
-    let filterString: string | undefined;
-    if (filter) {
-      filterString += `${filter}`;
+    if (this.filter && filter) {
+      return `(${this.filter}) AND (${filter})`;
+    } else if (this.filter) {
+      return this.filter;
+    } else if (filter) {
+      return filter;
+    } else {
+      return undefined;
     }
-    if (this.filter) {
-      if (filterString) {
-        filterString += ' AND ';
-      }
-      filterString += `${this.filter}`;
-    }
-    return filterString;
   }
 
   /**

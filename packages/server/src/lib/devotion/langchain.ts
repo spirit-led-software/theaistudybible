@@ -72,7 +72,7 @@ export const getDevotionGeneratorChain = async (): Promise<
 > => {
   const retriever = await getDocumentVectorStore({
     verbose: envConfig.isLocal,
-    filter: 'category = "bible" AND translation = "ESV" OR category != "bible"'
+    filter: "(category = 'bible' AND translation = 'ESV') OR category != 'bible'"
   }).then((store) =>
     store.asRetriever({
       k: 10,
@@ -119,7 +119,7 @@ export const getDevotionGeneratorChain = async (): Promise<
 
 export const getBibleReadingChain = async (topic: string) => {
   const retriever = await getDocumentVectorStore({
-    filter: 'category = "bible" AND translation = "ESV"',
+    filter: "category = 'bible' AND translation = 'ESV'",
     verbose: envConfig.isLocal
   }).then((store) =>
     store.asRetriever({
