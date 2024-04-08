@@ -37,6 +37,11 @@ export function RestAPI({ stack }: StackContext) {
     // Chat Messages
     'GET /chats/{id}/messages': 'packages/functions/src/rest/chats/[id]/messages/get.handler',
 
+    // Chat sharing
+    'GET /chats/{id}/share': 'packages/functions/src/rest/chats/[id]/share/get.handler',
+    'POST /chats/{id}/share': 'packages/functions/src/rest/chats/[id]/share/post.handler',
+    'DELETE /chats/{id}/share': 'packages/functions/src/rest/chats/[id]/share/delete.handler',
+
     // Data Sources
     'GET /data-sources': 'packages/functions/src/rest/data-sources/get.handler',
     'POST /data-sources/search': 'packages/functions/src/rest/data-sources/search/post.handler',
