@@ -66,11 +66,11 @@
       class={`flex w-full ${role !== 'user' && !(isLastMessage && isChatLoading) ? 'justify-between' : 'justify-end'}`}
     >
       {#if role !== 'user' && !(isLastMessage && isChatLoading)}
-        <div class="mr-2 flex flex-1 lg:mr-8">
+        <div class="mr-2 flex w-2/3 lg:mr-8 lg:w-3/4">
           <ResponseSources aiResponseId={uuid ?? id} {isChatLoading} />
         </div>
       {/if}
-      <div class="mt-1 flex flex-col place-items-end justify-start">
+      <div class="mt-1 flex w-1/3 flex-col place-items-end justify-start lg:w-1/4">
         <div class="flex place-items-end justify-end space-x-2">
           <div class="mt-2 flex-shrink-0 text-xs text-gray-400">
             {Day(message.createdAt).format('M/D/YY h:mm a')}
