@@ -66,7 +66,7 @@
       class={`flex w-full ${role !== 'user' && !(isLastMessage && isChatLoading) ? 'justify-between' : 'justify-end'}`}
     >
       {#if role !== 'user' && !(isLastMessage && isChatLoading)}
-        <div class="mr-2 flex w-2/3 lg:mr-8 lg:w-3/4">
+        <div class="mr-2 flex w-2/3 lg:w-3/4">
           <ResponseSources aiResponseId={uuid ?? id} {isChatLoading} />
         </div>
       {/if}
