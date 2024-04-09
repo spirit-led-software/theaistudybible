@@ -7,9 +7,9 @@ import { eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
+  DeletedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  OkResponse,
   UnauthorizedResponse
 } from '../../../../lib/api-responses';
 
@@ -34,17 +34,16 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You do not have permission to unshare this chat');
     }
 
-    const shareChat = (
-      await db.select().from(shareChatOptions).where(eq(shareChatOptions.chatId, chat.id)).limit(1)
-    ).at(0);
+    const shareChat = await db.query.shareChatOptions.findFirst({
+      where: ({ chatId }, { eq }) => eq(chatId, chat.id)
+    });
     if (!shareChat) {
       return BadRequestResponse('Chat is not shared');
     }
 
     await db.delete(shareChatOptions).where(eq(shareChatOptions.chatId, chat.id));
-    return OkResponse({
-      message: 'Chat unshared successfully'
-    });
+
+    return DeletedResponse(shareChat.id);
   } catch (error) {
     console.error('Error unsharing chat:', error);
     if (error instanceof Error) {

@@ -5,9 +5,10 @@ import { validApiHandlerSession } from '@revelationsai/server/services/session';
 import { isObjectOwner } from '@revelationsai/server/services/user';
 import { ApiHandler } from 'sst/node/api';
 import {
+  BadRequestResponse,
+  CreatedResponse,
   InternalServerErrorResponse,
   ObjectNotFoundResponse,
-  OkResponse,
   UnauthorizedResponse
 } from '../../../../lib/api-responses';
 
@@ -32,13 +33,23 @@ export const handler = ApiHandler(async (event) => {
       return UnauthorizedResponse('You do not have permission to share this chat');
     }
 
-    await db.insert(shareChatOptions).values({
-      chatId: chat.id
+    let share = await db.query.shareChatOptions.findFirst({
+      where: ({ chatId }, { eq }) => eq(chatId, chat.id)
     });
+    if (share) {
+      return BadRequestResponse('Chat already shared');
+    }
 
-    return OkResponse({
-      message: 'Chat shared successfully'
-    });
+    share = (
+      await db
+        .insert(shareChatOptions)
+        .values({
+          chatId: chat.id
+        })
+        .returning()
+    )[0];
+
+    return CreatedResponse(share);
   } catch (error) {
     console.error('Error sharing chat:', error);
     if (error instanceof Error) {

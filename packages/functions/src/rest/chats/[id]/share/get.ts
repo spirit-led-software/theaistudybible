@@ -1,4 +1,4 @@
-import { aiResponses, shareChatOptions } from '@revelationsai/core/database/schema';
+import { aiResponses } from '@revelationsai/core/database/schema';
 import { db } from '@revelationsai/server/lib/database';
 import { createAiResponse } from '@revelationsai/server/services/ai-response';
 import { createChat, getChat } from '@revelationsai/server/services/chat';
@@ -31,9 +31,9 @@ export const handler = ApiHandler(async (event) => {
       return ObjectNotFoundResponse(id);
     }
 
-    const share = (
-      await db.select().from(shareChatOptions).where(eq(shareChatOptions.chatId, chat.id)).limit(1)
-    ).at(0);
+    const share = await db.query.shareChatOptions.findFirst({
+      where: ({ chatId }, { eq }) => eq(chatId, chat.id)
+    });
     if (!share) {
       return BadRequestResponse('Chat not shared');
     }
@@ -70,6 +70,7 @@ export const handler = ApiHandler(async (event) => {
           userId: userWithRoles.id,
           createdAt: message.createdAt,
           updatedAt: message.updatedAt,
+          aiId: message.aiId,
           text: message.text,
           anonymous: true
         });
@@ -79,6 +80,7 @@ export const handler = ApiHandler(async (event) => {
           userId: userWithRoles.id,
           createdAt: response.createdAt,
           updatedAt: response.updatedAt,
+          aiId: response.aiId,
           text: response.text,
           modelId: response.modelId,
           searchQueries: response.searchQueries
@@ -86,9 +88,7 @@ export const handler = ApiHandler(async (event) => {
       })
     );
 
-    return OkResponse({
-      message: 'Chat cloned from shared chat successfully'
-    });
+    return OkResponse(createdChat);
   } catch (error) {
     console.error('Error sharing chat:', error);
     if (error instanceof Error) {
