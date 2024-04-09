@@ -5,11 +5,7 @@ const config = {
   darkMode: ['class'],
   content: ['./src/**/*.{html,js,svelte,ts}'],
   safelist: ['dark'],
-  plugins: [
-    require('daisyui'),
-    require('tailwindcss-animate'),
-    require('tailwindcss-brand-colors')
-  ],
+  plugins: [require('tailwindcss-animate'), require('tailwindcss-brand-colors')],
   theme: {
     container: {
       center: true,
@@ -64,34 +60,6 @@ const config = {
         'dm-sans': ['DM Sans']
       }
     }
-  },
-  daisyui: {
-    themes: [
-      {
-        default: {
-          primary: '#334155',
-          secondary: '#60a5fa',
-          accent: '#93c5fd',
-          neutral: '#1e151d',
-          'base-100': '#fcfffa',
-          info: '#60a5fa',
-          success: '#4ade80',
-          warning: '#fde047',
-          error: '#f87171'
-        },
-        dark: {
-          primary: '#334155',
-          secondary: '#60a5fa',
-          accent: '#93c5fd',
-          neutral: '#f1f5f9',
-          'base-100': '#1e293b',
-          info: '#60a5fa',
-          success: '#4ade80',
-          warning: '#fde047',
-          error: '#f87171'
-        }
-      }
-    ]
   }
 };
 

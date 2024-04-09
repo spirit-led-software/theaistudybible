@@ -19,6 +19,7 @@
   } from '@tanstack/svelte-query';
   import Day from 'dayjs';
   import { derived, writable } from 'svelte/store';
+  import Button from '../ui/button/button.svelte';
 
   export let initChats: Chat[] = [];
   export let activeChatId: string | undefined = undefined;
@@ -225,14 +226,14 @@
   }`}
 >
   <div class="relative flex h-full w-full flex-col">
-    <button
-      class={`absolute top-2 z-40 cursor-pointer rounded-full border border-slate-700 bg-white p-1 duration-300 lg:hidden ${
-        isOpen ? 'right-2 rotate-0' : '-right-10 rotate-180 opacity-75'
+    <Button
+      class={`bg-primary text-primary-foreground border-foreground absolute top-2 z-40 cursor-pointer rounded-full border px-2 py-1 duration-500 lg:hidden ${
+        isOpen ? 'right-2 rotate-0' : '-right-12 rotate-180 opacity-75'
       }`}
-      on:click|preventDefault={() => (isOpen = !isOpen)}
+      on:click={() => (isOpen = !isOpen)}
     >
       <Icon icon="formkit:arrowleft" height={20} width={20} />
-    </button>
+    </Button>
     <div
       class={`h-full w-full overflow-y-auto px-6 py-4 text-white lg:visible lg:px-2 ${
         isOpen ? 'visible' : 'invisible'

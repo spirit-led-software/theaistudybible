@@ -6,7 +6,7 @@
   import { createQuery } from '@tanstack/svelte-query';
   import graphqlRequest from 'graphql-request';
   import { derived, writable } from 'svelte/store';
-  import * as Accordion from '../ui/accordion';
+  import * as Accordion from '../../ui/accordion';
 
   let argAiResponseId: string;
   export { argAiResponseId as aiResponseId };

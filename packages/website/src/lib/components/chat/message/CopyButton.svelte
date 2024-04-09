@@ -1,7 +1,8 @@
 <script lang="ts">
+  import Button from '$lib/components/ui/button/button.svelte';
   import Icon from '@iconify/svelte';
   import { cn } from '@revelationsai/client/utils/class-names';
-  import { copy } from 'svelte-copy';
+  import { copyText } from 'svelte-copy';
 
   /**
    * Icon classes
@@ -23,7 +24,13 @@
   $: if (copied) setTimeout(() => (copied = false), 2000);
 </script>
 
-<button use:copy={content} on:click={() => (copied = true)} class={cn(btnClass, 'btn')}>
+<Button
+  on:click={() => {
+    copied = true;
+    copyText(content);
+  }}
+  class={cn(btnClass, 'btn')}
+>
   <Icon
     icon={copied ? 'carbon:checkmark' : 'clarity:copy-to-clipboard-line'}
     width={16}
@@ -33,4 +40,4 @@
       `transition-transform duration-200 ${copied ? 'rotate-[360deg] text-green-600' : 'rotate-0'}`
     )}
   />
-</button>
+</Button>

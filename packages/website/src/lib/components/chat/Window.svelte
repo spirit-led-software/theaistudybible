@@ -2,11 +2,10 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { PUBLIC_CHAT_API_URL } from '$env/static/public';
-  import Message from '$lib/components/chat/Message.svelte';
+  import Message from '$lib/components/chat/message/Message.svelte';
   import { session, user } from '$lib/stores/user';
   import Icon from '@iconify/svelte';
   import { updateAiResponse } from '@revelationsai/client/services/ai-response';
-  import { hasPlus, isAdmin } from '@revelationsai/client/services/user';
   import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
   import type { ModelInfo } from '@revelationsai/core/model/llm';
   import { useQueryClient } from '@tanstack/svelte-query';
@@ -14,6 +13,9 @@
   import { useChat } from 'ai/svelte';
   import { onMount } from 'svelte';
   import IntersectionObserver from 'svelte-intersection-observer';
+  import { Pulse } from 'svelte-loading-spinners';
+  import Button from '../ui/button/button.svelte';
+  import ChatToolBar from './ChatToolBar.svelte';
   import TextAreaAutosize from './TextAreaAutosize.svelte';
 
   export let initChatId: string | undefined = undefined;
@@ -187,8 +189,6 @@
   $: if ($page.url.searchParams.get('query')) {
     handleSearchParamQuery();
   }
-
-  $: userHasPlus = hasPlus($user!) || isAdmin($user!);
 </script>
 
 <div class="absolute h-full w-full overflow-hidden lg:static">
@@ -205,25 +205,8 @@
         {alert}
       </div>
     </div>
-    <div class="absolute left-0 right-0 top-1 z-50 flex justify-center">
-      <div class="w-full overflow-hidden py-2 text-center">
-        <select
-          name="model"
-          id="model"
-          class="select select-sm bg-slate-700 text-white"
-          bind:value={modelId}
-          on:change={async (event) => {
-            const selectedModelId = event.currentTarget.value;
-            if (modelInfos[selectedModelId].tier === 'plus' && !userHasPlus) {
-              await goto('/upgrade');
-            }
-          }}
-        >
-          {#each Object.keys(modelInfos) as modelId}
-            <option value={modelId}>{modelInfos[modelId].name}</option>
-          {/each}
-        </select>
-      </div>
+    <div class="absolute left-0 right-0 top-1 z-20 flex place-items-center justify-center">
+      <ChatToolBar {modelInfos} {modelId} {chatId} />
     </div>
     {#if $messages && $messages.length > 0}
       <div class="h-full w-full overflow-y-scroll">
@@ -258,8 +241,8 @@
           <ul class="list-outside space-y-2">
             {#each starterQueries as query}
               <li>
-                <button
-                  class="flex w-full place-items-center justify-between rounded-xl p-2 text-left text-base hover:cursor-pointer hover:bg-slate-300"
+                <Button
+                  class="flex w-full place-items-center justify-between rounded-xl p-2 text-left text-base hover:cursor-pointer"
                   on:click={async () => {
                     await append(
                       {
@@ -284,9 +267,9 @@
                   {query}
                   <Icon
                     icon="mdi:chevron-right"
-                    class="mr-2 h-6 w-6 flex-shrink-0 flex-grow-0 text-slate-700"
+                    class="text-foreground mr-2 h-6 w-6 flex-shrink-0 flex-grow-0"
                   />
-                </button>
+                </Button>
               </li>
             {/each}
           </ul>
@@ -295,7 +278,7 @@
     {/if}
     {#if !isEndOfMessagesRefShowing}
       <button
-        class="absolute bottom-20 right-5 rounded-full bg-white p-2 text-slate-700 shadow-lg hover:bg-slate-100 hover:text-slate-900 hover:shadow-xl"
+        class="absolute bottom-20 right-5 rounded-full p-2 text-slate-700 shadow-lg hover:bg-slate-100 hover:text-slate-900 hover:shadow-xl"
         on:click|preventDefault={scrollEndIntoView}
       >
         <Icon icon="icon-park:down" class="text-2xl" />
@@ -303,16 +286,20 @@
     {/if}
     <div class="absolute bottom-2 left-5 right-5 z-20 overflow-hidden opacity-90">
       <form
-        class="mb-1 flex w-full flex-col rounded-lg border bg-white"
+        class="bg-background border-foreground mb-1 flex w-full flex-col rounded-full border border-opacity-90"
         on:submit|preventDefault={handleSubmitCustom}
       >
         <div class="flex h-auto w-full items-center">
-          <Icon icon="icon-park:right" class="mx-1 text-2xl" />
+          <div
+            class="border-foreground ml-1 mr-2 flex h-8 w-8 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full border"
+          >
+            {($user?.remainingQueries ?? 0) > 10 ? '>10' : $user?.remainingQueries}
+          </div>
           <TextAreaAutosize {input} />
           <div class="mr-2 flex">
             {#if $isLoading}
               <div class="mr-1 flex">
-                <span class="loading loading-spinner loading-sm text-slate-800" />
+                <Pulse color={'hsl(var(--primary-foreground))'} size={20} />
               </div>
             {:else}
               <div class="flex space-x-1">
@@ -320,11 +307,11 @@
                   type="button"
                   tabindex={-1}
                   on:click|preventDefault={handleReload}
-                  class="mr-1 text-2xl text-slate-700 hover:text-slate-900"
+                  class="text-foreground mr-1 text-2xl"
                 >
                   <Icon icon="gg:redo" />
                 </button>
-                <button type="submit" class="mr-1 text-2xl text-slate-700 hover:text-slate-900">
+                <button type="submit" class="text-foreground mr-1 text-2xl">
                   <Icon icon="majesticons:send-line" />
                 </button>
               </div>

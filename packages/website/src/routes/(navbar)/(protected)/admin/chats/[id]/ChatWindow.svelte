@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Message from '$lib/components/chat/Message.svelte';
+  import Message from '$lib/components/chat/message/Message.svelte';
   import Icon from '@iconify/svelte';
   import type { Chat } from '@revelationsai/core/model/chat';
   import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
