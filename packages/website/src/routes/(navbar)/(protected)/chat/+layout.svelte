@@ -8,7 +8,7 @@
   $: ({ chats } = data);
 </script>
 
-<div class="relative flex h-full w-full overflow-hidden">
+<div class="relative flex h-full w-full">
   <Sidebar initChats={chats} activeChatId={$page.params.id} />
   <slot />
 </div>

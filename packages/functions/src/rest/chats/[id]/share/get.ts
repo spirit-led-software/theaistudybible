@@ -3,6 +3,7 @@ import { db } from '@revelationsai/server/lib/database';
 import { createAiResponse } from '@revelationsai/server/services/ai-response';
 import { createChat, getChat } from '@revelationsai/server/services/chat';
 import { validApiHandlerSession } from '@revelationsai/server/services/session';
+import { isObjectOwner } from '@revelationsai/server/services/user';
 import { createUserMessage } from '@revelationsai/server/services/user/message';
 import { and, eq } from 'drizzle-orm';
 import { ApiHandler } from 'sst/node/api';
@@ -35,6 +36,13 @@ export const handler = ApiHandler(async (event) => {
       where: ({ chatId }, { eq }) => eq(chatId, chat.id)
     });
     if (!share) {
+      return BadRequestResponse('Chat not shared');
+    }
+
+    if (isObjectOwner(chat, userWithRoles.id)) {
+      if (share) {
+        return OkResponse(chat);
+      }
       return BadRequestResponse('Chat not shared');
     }
 

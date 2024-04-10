@@ -20,6 +20,7 @@
   import Day from 'dayjs';
   import { derived, writable } from 'svelte/store';
   import Button from '../ui/button/button.svelte';
+  import Spinner from '../ui/spinner/spinner.svelte';
 
   export let initChats: Chat[] = [];
   export let activeChatId: string | undefined = undefined;
@@ -221,21 +222,21 @@
 </script>
 
 <nav
-  class={`absolute z-30 flex h-full flex-shrink-0 flex-grow-0 border-t-2 bg-slate-700 duration-300 lg:static lg:w-1/4 ${
+  class={`bg-primary absolute z-30 flex h-full flex-shrink-0 flex-grow-0 border-t-2 duration-300 lg:static lg:w-1/4 ${
     isOpen ? 'w-full' : 'w-0'
   }`}
 >
   <div class="relative flex h-full w-full flex-col">
     <Button
       class={`bg-primary text-primary-foreground border-foreground absolute top-2 z-40 cursor-pointer rounded-full border px-2 py-1 duration-500 lg:hidden ${
-        isOpen ? 'right-2 rotate-0' : '-right-12 rotate-180 opacity-75'
+        isOpen ? 'right-2 rotate-0' : '-right-12 rotate-180 opacity-95'
       }`}
       on:click={() => (isOpen = !isOpen)}
     >
       <Icon icon="formkit:arrowleft" height={20} width={20} />
     </Button>
     <div
-      class={`h-full w-full overflow-y-auto px-6 py-4 text-white lg:visible lg:px-2 ${
+      class={`text-primary-foreground h-full w-full overflow-y-auto px-6 py-4 lg:visible lg:px-2 ${
         isOpen ? 'visible' : 'invisible'
       }`}
     >
@@ -321,7 +322,7 @@
             <div class="flex place-items-center justify-center space-x-1">
               {#if loadingChatId === chat.id}
                 <div class="mr-2">
-                  <span class="loading loading-spinner loading-xs" />
+                  <Spinner size="sm" variant="accent" />
                 </div>
               {:else if editChatId === chat.id}
                 <button

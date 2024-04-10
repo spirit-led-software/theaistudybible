@@ -3,6 +3,7 @@
   import Icon from '@iconify/svelte';
   import { cn } from '@revelationsai/client/utils/class-names';
   import { copyText } from 'svelte-copy';
+  import { toast } from 'svelte-sonner';
 
   /**
    * Icon classes
@@ -28,8 +29,10 @@
   on:click={() => {
     copied = true;
     copyText(content);
+    toast('Copied to clipboard!');
   }}
-  class={cn(btnClass, 'btn')}
+  variant="outline"
+  class={btnClass}
 >
   <Icon
     icon={copied ? 'carbon:checkmark' : 'clarity:copy-to-clipboard-line'}
@@ -37,7 +40,7 @@
     height={16}
     class={cn(
       iconClass,
-      `transition-transform duration-200 ${copied ? 'rotate-[360deg] text-green-600' : 'rotate-0'}`
+      `transition-transform duration-200 ${copied ? 'text-green-600' : 'text-foreground'}`
     )}
   />
 </Button>

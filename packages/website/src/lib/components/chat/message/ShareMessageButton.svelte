@@ -2,38 +2,45 @@
   // @ts-expect-error - No types for svelte-share-buttons-component
   import { Email, Facebook, X } from 'svelte-share-buttons-component';
 
+  import { PUBLIC_WEBSITE_URL } from '$env/static/public';
   import { Button } from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
+  import Icon from '@iconify/svelte';
+  import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+
+  export let message: RAIChatMessage;
+  export let includePreviousMessage: boolean;
+  export let content: string;
+
+  const url = `${PUBLIC_WEBSITE_URL}/chat`;
+
+  $: ({ id } = message);
 </script>
 
 <Dialog.Root>
   <Dialog.Trigger asChild let:builder>
-    <Button builders={[builder]} class="btn btn-primary">Share</Button>
+    <Button builders={[builder]} variant="outline" class="rounded-r-none">
+      <Icon icon="ion:share-outline" width={16} height={16} class="text-foreground" />
+    </Button>
   </Dialog.Trigger>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>Share</Dialog.Title>
     </Dialog.Header>
-  </Dialog.Content>
-</Dialog.Root>
-
-<dialog bind:this={shareModal} class="modal">
-  <form method="dialog" class="modal-box flex w-fit flex-col space-y-2">
-    <h1 class="text-bold">Share to:</h1>
     <div class="flex place-items-center justify-center space-x-2">
       <Email
         class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
         subject="Response from RevelationsAI"
-        body={`${sharableContent}\n\n${url}`}
+        body={`${content}\n\n${url}`}
       />
       <Facebook
         class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
         {url}
-        quote={sharableContent}
+        quote={content}
       />
       <X
         class="flex h-12 w-12 place-items-center justify-center overflow-hidden rounded-full"
-        text={sharableContent}
+        text={content}
         {url}
         hashtags="revelationsai,ai,christ,jesus"
       />
@@ -48,9 +55,5 @@
         bind:checked={includePreviousMessage}
       />
     </div>
-    <p class="text-xs text-gray-400">Text will also be copied to your clipboard!</p>
-  </form>
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
-</dialog>
+  </Dialog.Content>
+</Dialog.Root>

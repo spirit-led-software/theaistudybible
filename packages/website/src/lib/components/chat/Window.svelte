@@ -191,7 +191,7 @@
   }
 </script>
 
-<div class="absolute h-full w-full overflow-hidden lg:static">
+<div class="absolute h-full w-full lg:static">
   <div class="relative h-full w-full">
     <div
       role="alert"
@@ -205,7 +205,9 @@
         {alert}
       </div>
     </div>
-    <div class="absolute left-0 right-0 top-1 z-20 flex place-items-center justify-center">
+    <div
+      class="absolute -top-12 left-0 right-0 z-20 flex place-items-center justify-center lg:top-1"
+    >
       <ChatToolBar {modelInfos} {modelId} {chatId} />
     </div>
     {#if $messages && $messages.length > 0}
@@ -277,12 +279,13 @@
       </div>
     {/if}
     {#if !isEndOfMessagesRefShowing}
-      <button
-        class="absolute bottom-20 right-5 rounded-full p-2 text-slate-700 shadow-lg hover:bg-slate-100 hover:text-slate-900 hover:shadow-xl"
-        on:click|preventDefault={scrollEndIntoView}
+      <Button
+        variant="secondary"
+        class="absolute bottom-20 left-0 right-0 mx-auto w-fit rounded-full p-2 shadow-lg hover:shadow-xl"
+        on:click={scrollEndIntoView}
       >
-        <Icon icon="icon-park:down" class="text-2xl" />
-      </button>
+        <Icon icon="mdi:chevron-down" class="text-2xl" />
+      </Button>
     {/if}
     <div class="absolute bottom-2 left-5 right-5 z-20 overflow-hidden opacity-90">
       <form

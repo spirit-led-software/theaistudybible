@@ -1,12 +1,13 @@
 <script lang="ts">
   import { PUBLIC_API_URL } from '$env/static/public';
+  import * as Accordion from '$lib/components/ui/accordion';
+  import { Spinner } from '$lib/components/ui/spinner';
   import { session } from '$lib/stores/user';
   import { graphql } from '@revelationsai/client/graphql';
   import type { SourceDocument } from '@revelationsai/core/model/source-document';
   import { createQuery } from '@tanstack/svelte-query';
   import graphqlRequest from 'graphql-request';
   import { derived, writable } from 'svelte/store';
-  import * as Accordion from '../../ui/accordion';
 
   let argAiResponseId: string;
   export { argAiResponseId as aiResponseId };
@@ -71,13 +72,18 @@
   $: isLoading = $isChatLoading || $query.isLoading;
 </script>
 
-<Accordion.Root class="w-full rounded-xl border px-3">
+<Accordion.Root class="border-foreground w-full rounded-xl border border-opacity-15 px-3 py-1">
   <Accordion.Item value="sources" class="border-b-0">
-    <Accordion.Trigger class="w-full text-sm text-blue-400" disabled={isLoading}>
-      <div class="flex justify-start">
+    <Accordion.Trigger
+      class="text-foreground flex w-full place-items-center text-sm"
+      disabled={isLoading}
+    >
+      <div class="flex place-items-center justify-start">
         All Sources
         {#if isLoading}
-          <span class="loading loading-spinner ml-2 w-4" />
+          <Spinner size="sm" class="ml-2" variant="foreground" />
+        {:else}
+          ({$sourceDocs.length})
         {/if}
       </div>
     </Accordion.Trigger>
