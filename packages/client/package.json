@@ -3,16 +3,19 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.137",
-    "@types/busboy": "^1.5.3",
-    "@types/node": "^20.12.4",
-    "@types/nodemailer": "^6.4.14",
-    "sst": "2.41.4",
-    "vitest": "^1.4.0"
+    "@revelationsai/eslint-config": "workspace:*",
+    "@revelationsai/prettier-config": "workspace:*",
+    "@revelationsai/tsconfig": "workspace:*",
+    "@types/aws-lambda": "^8.10.138",
+    "@types/busboy": "^1.5.4",
+    "@types/node": "^20.12.12",
+    "@types/nodemailer": "^6.4.15",
+    "sst": "2.41.5"
   },
   "dependencies": {
     "@revelationsai/core": "workspace:*"

@@ -1,15 +1,8 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
+  "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "moduleResolution": "node",
-    "module": "esnext",
-    "target": "esnext",
-    "ignoreDeprecations": "5.0",
-    "typeRoots": ["./src/types"]
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"]
   },
-  "include": ["./src/**/*.ts"],
+  "include": ["./src/**/*.ts", "sst-env.d.ts", "globals.d.ts"],
   "exclude": ["./node_modules/**"]
 }

@@ -1,6 +1,6 @@
-import config from '@revelationsai/core/configs/revelationsai';
 import { Constants } from '@stacks';
 import { Config, dependsOn, type StackContext } from 'sst/constructs';
+import config from '../packages/core/src/configs/revelationsai';
 import { NeonBranch } from './resources/NeonBranch';
 import { UpstashRedis } from './resources/UpstashRedis';
 import { UpstashVector } from './resources/UpstashVector';

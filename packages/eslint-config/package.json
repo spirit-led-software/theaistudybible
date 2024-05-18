@@ -1,0 +1,17 @@
+{
+  "name": "@revelationsai/eslint-config",
+  "version": "1.0.0",
+  "description": "The AI Study Bible ESLint Config",
+  "private": true,
+  "main": "eslint.config.js",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.3.0",
+    "@revelationsai/tsconfig": "workspace:*",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.3.0",
+    "eslint-plugin-svelte": "^2.39.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.9.0"
+  }
+}

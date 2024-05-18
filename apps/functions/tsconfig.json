@@ -9,12 +9,12 @@
     "isolatedModules": true,
     "ignoreDeprecations": "5.0",
     "paths": {
-      "@revelationsai/core": ["../core/src"],
-      "@revelationsai/core/*": ["../core/src/*"],
-      "@revelationsai/server": ["../server/src"],
-      "@revelationsai/server/*": ["../server/src/*"],
-      "@lib/database": ["../server/src/lib/database"],
-      "@lib/cache": ["../server/src/lib/cache"]
+      "@revelationsai/core": ["../../packages/core/src"],
+      "@revelationsai/core/*": ["../../packages/core/src/*"],
+      "@revelationsai/server": ["../../packages/server/src"],
+      "@revelationsai/server/*": ["../../packages/server/src/*"],
+      "@lib/database": ["../../packages/server/src/lib/database"],
+      "@lib/cache": ["../../packages/server/src/lib/cache"]
     }
   },
   "include": ["./src/**/*.ts", "../core/src/types/**/*.ts"],

@@ -12,7 +12,7 @@ import { createUserSchema, updateUserSchema } from '@revelationsai/core/model/us
 import { db } from '@revelationsai/server/lib/database';
 import { isAdminSync } from '@revelationsai/server/services/user';
 import { eq } from 'drizzle-orm';
-import { aiResponseReactions } from '../../../../core/src/database/schema';
+import { aiResponseReactions } from '../../../../../packages/core/src/database/schema';
 import type { Resolvers } from '../__generated__/resolver-types';
 import {
   createObject,

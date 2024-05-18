@@ -11,9 +11,9 @@ const config = {
     // See https://kit.svelte.dev/docs/adapters for more information about adapters.
     adapter: adapter(),
     alias: {
-      '@revelationsai/core': '../core/src',
-      '@revelationsai/server': '../server/src',
-      '@revelationsai/client': '../client/src',
+      '@revelationsai/core': '../../packages/core/src',
+      '@revelationsai/server': '../../packages/server/src',
+      '@revelationsai/client': '../../packages/client/src',
       '@lib/database': './src/lib/server/database',
       '@lib/cache': './src/lib/server/cache'
     }

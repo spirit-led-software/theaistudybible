@@ -1,18 +1,7 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
-  "include": ["./stacks/**/*.ts", "*.ts"],
-  "exclude": ["./node_modules/**", "./.sst/**"],
+  "extends": "./packages/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "moduleResolution": "node",
-    "module": "esnext",
-    "target": "esnext",
-    "ignoreDeprecations": "5.0",
     "paths": {
-      "@revelationsai/core/*": ["./packages/core/src/*"],
-      "@revelationsai/core": ["./packages/core/src"],
       "@stacks/*": ["./stacks/*"],
       "@stacks": ["./stacks"]
     },
@@ -23,5 +12,12 @@
         "tadaOutputLocation": "./graphql/"
       }
     ]
-  }
+  },
+  "include": [
+    "sst.config.ts",
+    "drizzle.config.ts",
+    "codegen.ts",
+    "./stacks/**/*.ts"
+  ],
+  "exclude": ["./node_modules/**", "./.sst/**"]
 }

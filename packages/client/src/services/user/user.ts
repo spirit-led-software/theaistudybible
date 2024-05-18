@@ -1,4 +1,5 @@
 import type { UpdateUserData, User, UserInfo, UserWithRoles } from '@revelationsai/core/model/user';
+import apiConfig from '../../configs/api';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
@@ -6,7 +7,6 @@ import type {
   ProtectedApiOptions,
   SearchForEntitiesOptions
 } from '../types';
-import apiConfig from '../../configs/api';
 
 export async function getUserInfo(session: string) {
   const response = await fetch(`${apiConfig.url}/auth/user-info`, {
