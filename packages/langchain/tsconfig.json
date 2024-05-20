@@ -1,13 +1,14 @@
 {
   "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
     "paths": {
       "@revelationsai/core/*": ["../core/src/*"],
       "@revelationsai/core": ["../core/src"],
-      "@revelationsai/client/*": ["./src/*"],
-      "@revelationsai/client": ["./src"]
+      "@revelationsai/langchain/*": ["./src/*"],
+      "@revelationsai/langchain": ["./src"]
     }
   },
   "include": ["./src/**/*.ts", "../core/globals.d.ts"],
-  "exclude": ["./node_modules/**"]
+  "exclude": ["./node_modules"]
 }

@@ -3,8 +3,12 @@
   "compilerOptions": {
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
     "paths": {
-      "@revelationsai/core": ["../core/src"],
       "@revelationsai/core/*": ["../core/src/*"],
+      "@revelationsai/core": ["../core/src"],
+      "@revelationsai/langchain/*": ["../langchain/src/*"],
+      "@revelationsai/langchain": ["../langchain/src"],
+      "@revelationsai/server/*": ["./src/*"],
+      "@revelationsai/server": ["./src"],
       "@lib/database": ["./src/lib/database"],
       "@lib/cache": ["./src/lib/cache"]
     }

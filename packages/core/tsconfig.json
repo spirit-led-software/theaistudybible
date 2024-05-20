@@ -1,7 +1,11 @@
 {
   "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
-    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"]
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@revelationsai/core/*": ["./src/*"],
+      "@revelationsai/core": ["./src"]
+    }
   },
   "include": ["./src/**/*.ts", "sst-env.d.ts", "globals.d.ts"],
   "exclude": ["./node_modules/**"]

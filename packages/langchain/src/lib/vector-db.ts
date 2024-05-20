@@ -1,9 +1,9 @@
 import envConfig from '@revelationsai/core/configs/environment';
 import config from '@revelationsai/core/configs/revelationsai';
-import { getEmbeddingsModel } from '@revelationsai/langchain/lib/llm';
 import { UpstashVectorStore } from '@revelationsai/langchain/vectorstores/upstash';
 import { Index } from '@upstash/vector';
 import { Config } from 'sst/node/config';
+import { getEmbeddingsModel } from './llm';
 
 export async function getDocumentVectorStore(options?: {
   verbose?: boolean;

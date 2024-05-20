@@ -1,0 +1,29 @@
+{
+  "name": "@revelationsai/langchain",
+  "version": "1.0.0",
+  "description": "Langchain for Revelations AI",
+  "type": "module",
+  "scripts": {
+    "test": "sst bind vitest",
+    "typecheck": "tsc -noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@revelationsai/eslint-config": "workspace:*",
+    "@revelationsai/prettier-config": "workspace:*",
+    "@revelationsai/tsconfig": "workspace:*",
+    "@sparticuz/chromium": "^123.0.1",
+    "sst": "2.42.0",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "@revelationsai/core": "workspace:*",
+    "@langchain/anthropic": "^0.1.21",
+    "@langchain/community": "^0.2.0",
+    "@langchain/openai": "^0.0.33",
+    "langchain": "^0.2.0",
+    "youtube-transcript": "^1.2.1",
+    "youtubei.js": "^9.4.0"
+  }
+}

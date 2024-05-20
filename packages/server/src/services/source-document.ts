@@ -5,8 +5,8 @@ import {
   devotionsToSourceDocuments,
   userGeneratedImagesToSourceDocuments
 } from '@revelationsai/core/database/schema';
-import type { UpstashQueryMetadata } from '@revelationsai/core/langchain/vectorstores/upstash';
 import type { SourceDocument } from '@revelationsai/core/model/source-document';
+import type { UpstashQueryMetadata } from '@revelationsai/langchain/vectorstores/upstash';
 import type { FetchResult } from '@upstash/vector';
 import { asc, eq } from 'drizzle-orm';
 import { getDocumentVectorStore } from '../lib/vector-db';

@@ -1,4 +1,4 @@
-import type { BedrockEmbeddingModelId } from '../langchain/types/bedrock';
+import type { BedrockEmbeddingModelId } from '../../../langchain/src/types/bedrock';
 import type { allModels } from '../model/llm';
 
 export type RAIConfig = {

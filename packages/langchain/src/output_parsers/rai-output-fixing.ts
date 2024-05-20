@@ -1,7 +1,7 @@
 import { BaseOutputParser } from '@langchain/core/output_parsers';
 import { OutputFixingParser } from 'langchain/output_parsers';
-import { getLanguageModel } from '../../llm';
-import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../../llm/prompts';
+import { getLanguageModel } from '../lib/llm';
+import { OUTPUT_FIXER_PROMPT_TEMPLATE } from '../lib/prompts/general';
 
 export class RAIOutputFixingParser<T> extends OutputFixingParser<T> {
   static lc_name(): string {

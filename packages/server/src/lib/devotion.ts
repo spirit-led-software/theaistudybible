@@ -1,27 +1,28 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
+import { devotions, devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
 import axios from '@revelationsai/core/lib/axios';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
-import { XMLBuilder } from 'fast-xml-parser';
-import { CustomListOutputParser } from 'langchain/output_parsers';
-import { Bucket } from 'sst/node/bucket';
-import { Config } from 'sst/node/config';
-import { createDevotion, updateDevotion } from '../../services/devotion';
-import { createDevotionImage } from '../../services/devotion/image';
-import { db } from '../database';
-import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
-import { getLanguageModel } from '../llm';
 import {
   getBibleReadingChain,
   getDevotionGeneratorChain,
   getImageCaptionChain,
   getImagePromptChain
-} from './langchain';
-import { getDiveDeeperQueryGeneratorPromptInfo } from './prompts';
+} from '@revelationsai/langchain/lib/chains/devotion';
+import { getLanguageModel } from '@revelationsai/langchain/lib/llm';
+import { getDiveDeeperQueryGeneratorPromptInfo } from '@revelationsai/langchain/lib/prompts/devotion';
+import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
+import { eq } from 'drizzle-orm';
+import { XMLBuilder } from 'fast-xml-parser';
+import { CustomListOutputParser } from 'langchain/output_parsers';
+import { Bucket } from 'sst/node/bucket';
+import { Config } from 'sst/node/config';
+import { createDevotion, getDevotions, updateDevotion } from '../services/devotion';
+import { createDevotionImage } from '../services/devotion/image';
+import { db } from './database';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [
@@ -66,7 +67,13 @@ function getTopic() {
 export async function getBibleReading() {
   const topic = getTopic();
   console.log(`Devotion topic: ${topic}`);
-  const chain = await getBibleReadingChain(topic);
+  const chain = await getBibleReadingChain(
+    topic,
+    await getDevotions({
+      where: eq(devotions.topic, topic),
+      limit: 10
+    })
+  );
   const result = await chain.invoke({
     topic
   });
@@ -78,7 +85,7 @@ export async function getBibleReading() {
 }
 
 export async function generateDevotionImages(devo: Devotion) {
-  const imagePromptChain = getImagePromptChain();
+  const imagePromptChain = await getImagePromptChain();
   const imagePrompt = await imagePromptChain.invoke({
     devotion: new XMLBuilder().build({
       topic: devo.topic,

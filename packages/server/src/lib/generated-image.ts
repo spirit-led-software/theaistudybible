@@ -7,14 +7,14 @@ import { similarityFunctionMapping } from '@revelationsai/core/model/source-docu
 import type { UserWithRoles } from '@revelationsai/core/model/user';
 import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
+import { getImagePromptChain } from '@revelationsai/langchain/lib/chains/generated-image';
 import { Bucket } from 'sst/node/bucket';
 import { Config } from 'sst/node/config';
 import {
   createUserGeneratedImage,
   updateUserGeneratedImage
-} from '../../../services/user/generated-image';
-import { db } from '../../database';
-import { getImagePromptChain } from './langchain';
+} from '../services/user/generated-image';
+import { db } from './database';
 
 export async function generatedImage(
   user: UserWithRoles,

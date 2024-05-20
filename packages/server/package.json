@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "test": "sst bind vitest",
     "typecheck": "tsc -noEmit",
     "lint": "eslint .",
     "format": "prettier --write ."
@@ -21,6 +22,7 @@
   },
   "dependencies": {
     "@revelationsai/core": "workspace:*",
+    "@revelationsai/langchain": "workspace:*",
     "@upstash/redis": "^1.31.1",
     "ai": "^3.1.12",
     "argon2": "^0.40.1",

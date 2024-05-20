@@ -1,22 +1,22 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import { llmCache } from '@lib/cache';
 import envConfig from '@revelationsai/core/configs/environment';
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
+import { llmCache } from '@revelationsai/langchain/lib/cache';
+import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
+import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
 import { XMLBuilder } from 'fast-xml-parser';
 import {
   CustomListOutputParser,
   JsonMarkdownStructuredOutputParser
 } from 'langchain/output_parsers';
 import { z } from 'zod';
-import { RAIOutputFixingParser } from '../../langchain/output_parsers/rai-output-fixing';
-import { getLanguageModel } from '../../llm';
-import { getDocumentVectorStore } from '../../vector-db';
+import { getLanguageModel } from '../llm';
 import {
   getImagePromptChainPromptInfo,
   getPromptValidatorPromptInfo,
   getSearchQueryPromptInfo
-} from './prompts';
+} from '../prompts/generated-image';
+import { getDocumentVectorStore } from '../vector-db';
 
 const validationOutputParser = RAIOutputFixingParser.fromParser(
   JsonMarkdownStructuredOutputParser.fromZodSchema(

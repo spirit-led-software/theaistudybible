@@ -1,14 +1,12 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/environment';
-import { devotions } from '@revelationsai/core/database/schema';
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
-import { desc, eq } from 'drizzle-orm';
+import type { Devotion } from '@revelationsai/core/model/devotion';
+import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
+import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
 import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { z } from 'zod';
-import { getDevotions } from '../../services/devotion/devotion';
-import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
 import { getLanguageModel } from '../llm';
 import { getDocumentVectorStore } from '../vector-db';
 import {
@@ -16,7 +14,7 @@ import {
   getDevoGeneratorPromptInfo,
   getImageCaptionPromptInfo,
   getImagePromptChainPromptInfo
-} from './prompts';
+} from '../prompts/devotion';
 
 const devotionOutputParser = RAIOutputFixingParser.fromParser(
   JsonMarkdownStructuredOutputParser.fromZodSchema(
@@ -117,7 +115,7 @@ export const getDevotionGeneratorChain = async (): Promise<
   return chain;
 };
 
-export const getBibleReadingChain = async (topic: string) => {
+export const getBibleReadingChain = async (topic: string, previousDevotions: Devotion[]) => {
   const retriever = await getDocumentVectorStore({
     filter: "category = 'bible' AND translation = 'ESV'",
     verbose: envConfig.isLocal
@@ -130,13 +128,7 @@ export const getBibleReadingChain = async (topic: string) => {
 
   const { prompt, stopSequences } = await getBibleReadingFinderPromptInfo({
     formatInstructions: bibleReadingOutputParser.getFormatInstructions(),
-    previousBibleReadings: (
-      await getDevotions({
-        limit: 10,
-        orderBy: desc(devotions.createdAt),
-        where: eq(devotions.topic, topic)
-      })
-    )
+    previousBibleReadings: previousDevotions
       .map((d) => `<off_limits_bible_reading>\n${d.bibleReading}\n</off_limits_bible_reading>`)
       .join('\n')
   });

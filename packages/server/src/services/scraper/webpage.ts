@@ -5,9 +5,9 @@ import {
   dataSourcesToSourceDocuments,
   indexOperations
 } from '@revelationsai/core/database/schema';
-import { PuppeteerCoreWebBaseLoader } from '@revelationsai/core/langchain/document_loaders/puppeteer-core';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import { PuppeteerCoreWebBaseLoader } from '@revelationsai/langchain/document_loaders/puppeteer-core';
 import { sql } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';

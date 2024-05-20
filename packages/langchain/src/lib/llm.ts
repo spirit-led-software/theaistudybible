@@ -6,12 +6,9 @@ import config from '@revelationsai/core/configs/revelationsai';
 import {
   RAIBedrockEmbeddings,
   type RAIBedrockEmbeddingsParams
-} from '@revelationsai/core/langchain/embeddings/bedrock';
-import {
-  anthropicModelIds,
-  type AnthropicModelId
-} from '@revelationsai/core/langchain/types/anthropic';
-import { openAiModelIds, type OpenAiModelId } from '@revelationsai/core/langchain/types/openai';
+} from '@revelationsai/langchain/embeddings/bedrock';
+import { anthropicModelIds, type AnthropicModelId } from '@revelationsai/langchain/types/anthropic';
+import { openAiModelIds, type OpenAiModelId } from '@revelationsai/langchain/types/openai';
 
 export type StandardModelInput = {
   stream?: boolean;

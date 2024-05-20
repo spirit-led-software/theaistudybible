@@ -3,7 +3,7 @@ import type { Embeddings } from '@langchain/core/embeddings';
 import { VectorStore } from '@langchain/core/vectorstores';
 import { Client, neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
-import type { Metadata } from '../../types/metadata';
+import type { Metadata } from '../../../core/src/types/metadata';
 
 export type DistanceMetric = 'l2' | 'cosine' | 'innerProduct';
 
