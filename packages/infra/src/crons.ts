@@ -1,10 +1,10 @@
-import { DatabaseScripts, Layers, Queues, S3 } from '@stacks';
+import { Buckets, DatabaseScripts, Layers, Queues } from '@revelationsai/infra';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Cron, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Crons({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
-  dependsOn(S3);
+  dependsOn(Buckets);
   dependsOn(Queues);
 
   const { chromiumLayer, axiomX86Layer } = use(Layers);

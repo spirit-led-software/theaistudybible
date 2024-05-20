@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "devDependencies": {
+    "@revelationsai/eslint-config": "workspace:*",
+    "@revelationsai/prettier-config": "workspace:*",
+    "@revelationsai/tsconfig": "workspace:*",
     "@sparticuz/chromium": "^123.0.1",
     "@types/aws-lambda": "^8.10.138",
     "@types/busboy": "^1.5.4",
     "@types/node": "^20.12.12",
     "@types/nodemailer": "^6.4.15",
-    "sst": "2.41.5",
+    "sst": "2.42.0",
     "vitest": "^1.6.0"
   },
   "dependencies": {
@@ -22,7 +26,7 @@
     "argon2": "^0.40.1",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",
-    "fast-xml-parser": "^4.3.6",
+    "fast-xml-parser": "^4.4.0",
     "firebase-admin": "^12.1.0",
     "lambda-stream": "^0.5.0",
     "mammoth": "^1.7.2",

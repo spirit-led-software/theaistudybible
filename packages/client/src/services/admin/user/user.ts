@@ -22,11 +22,11 @@ export async function createUser(
     console.error(
       `Error creating user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error creating user.');
   }
 
-  const user: User = await response.json();
+  const user = (await response.json()) as User;
 
   return user;
 }
@@ -49,11 +49,11 @@ export async function updateUser(
     console.error(
       `Error updating user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating user.');
   }
 
-  const user: User = await response.json();
+  const user = (await response.json()) as User;
 
   return user;
 }
@@ -70,7 +70,7 @@ export async function deleteUser(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error deleting user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error deleting user.');
   }
 
@@ -90,11 +90,11 @@ export async function getUserRoles(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error getting user roles. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error getting user roles.');
   }
 
-  const roles: Role[] = await response.json();
+  const roles = (await response.json()) as Role[];
 
   return roles;
 }

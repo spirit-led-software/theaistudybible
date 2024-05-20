@@ -1,7 +1,7 @@
 import type { DataSource } from '@revelationsai/core/model/data-source';
+import apiConfig from '../../configs/api';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type { PaginatedEntitiesOptions, PaginatedEntitiesResponse } from '../types';
-import apiConfig from '../../configs/api';
 
 export async function getDataSources(options: PaginatedEntitiesOptions) {
   const searchParams = GetEntitiesSearchParams(options);
@@ -13,11 +13,12 @@ export async function getDataSources(options: PaginatedEntitiesOptions) {
     console.error(
       `Error retrieving data sources. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving data sources.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<DataSource> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<DataSource>;
 
   return {
     dataSources: entities,
@@ -35,11 +36,11 @@ export async function getDataSource(id: string) {
     console.error(
       `Error retrieving data source. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving data source.');
   }
 
-  const dataSource: DataSource = await response.json();
+  const dataSource = (await response.json()) as DataSource;
 
   return dataSource;
 }

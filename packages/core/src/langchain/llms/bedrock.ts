@@ -5,10 +5,10 @@ import {
   type InvokeModelCommandInput,
   type InvokeModelWithResponseStreamCommandInput
 } from '@aws-sdk/client-bedrock-runtime';
+import type { CallbackManagerForLLMRun } from '@langchain/core/callbacks/manager';
+import type { BaseLanguageModelCallOptions } from '@langchain/core/language_models/base';
+import { LLM, type BaseLLMParams } from '@langchain/core/language_models/llms';
 import { GenerationChunk } from '@langchain/core/outputs';
-import type { BaseLanguageModelCallOptions } from 'langchain/base_language';
-import type { CallbackManagerForLLMRun } from 'langchain/callbacks';
-import { LLM, type BaseLLMParams } from 'langchain/llms/base';
 import type { BedrockInput } from '../types/bedrock';
 
 export class RAIBedrock extends LLM<BaseLanguageModelCallOptions> {

@@ -26,12 +26,12 @@ export async function getIndexOperations(options: PaginatedEntitiesOptions & Pro
     console.error(
       `Error retrieving index operations. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving index operations.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<IndexOperation> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<IndexOperation>;
 
   return {
     indexOperations: entities,
@@ -52,11 +52,11 @@ export async function getIndexOperation(id: string, options: ProtectedApiOptions
     console.error(
       `Error retrieving index operation. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving index operation.');
   }
 
-  const indexOperation: IndexOperation = await response.json();
+  const indexOperation = (await response.json()) as IndexOperation;
 
   return indexOperation;
 }
@@ -79,11 +79,11 @@ export async function updateIndexOperation(
     console.error(
       `Error updating index operation. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating index operation.');
   }
 
-  const indexOperation: IndexOperation = await response.json();
+  const indexOperation = (await response.json()) as IndexOperation;
 
   return indexOperation;
 }

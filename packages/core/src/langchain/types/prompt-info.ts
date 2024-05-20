@@ -1,4 +1,4 @@
-import { BasePromptTemplate } from 'langchain/prompts';
+import { BasePromptTemplate } from '@langchain/core/prompts';
 
 export type PromptInfo = {
   /**

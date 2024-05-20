@@ -1,14 +1,14 @@
-import { S3 } from '@stacks';
+import { Buckets } from '@revelationsai/infra';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { Config, use, type StackContext } from 'sst/constructs';
-import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './Constants';
+import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './constants';
 
 export function CDN({ app, stack }: StackContext) {
   const { domainName, domainNamePrefix, hostedZone } = use(Constants);
-  const { publicBucket, publicBucketOriginAccessIdentity } = use(S3);
+  const { publicBucket, publicBucketOriginAccessIdentity } = use(Buckets);
 
   let cdnDomainName: string | undefined = undefined;
   let cdnUrl: string | undefined = undefined;

@@ -1,7 +1,7 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
+import { ChatPromptTemplate } from '@langchain/core/prompts';
 import type { PromptInfo } from '@revelationsai/core/langchain/types/prompt-info';
-import { ChatPromptTemplate } from 'langchain/prompts';
 
 export const getPromptValidatorPromptInfo = async ({
   formatInstructions

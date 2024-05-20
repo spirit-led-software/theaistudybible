@@ -1,18 +1,18 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
-import type { PromptInfo } from '@revelationsai/core/langchain/types/prompt-info';
-import { ChatPromptTemplate } from 'langchain/prompts';
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import type { PromptInfo } from "@revelationsai/core/langchain/types/prompt-info";
 
 export const getBibleReadingFinderPromptInfo = async ({
   formatInstructions,
-  previousBibleReadings
+  previousBibleReadings,
 }: {
   formatInstructions: string;
   previousBibleReadings: string;
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are a gifted Bible scholar who is an expert at fetching Bible passages based on a given topic. Your goal is to fetch a Bible reading based on the topic provided to you and the documents that you are given.
 
 Here are the documents that you are to search through to find the Bible reading, within <documents></documents> XML tags. Each individual document is encapsulated within <document></document> XML tags. You are not allowed to fetch a Bible reading from any other source.
@@ -29,10 +29,10 @@ Here are some important rules for you to follow:
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`
+</format_instructions>`,
     ],
     [
-      'human',
+      "human",
       `Here are some off-limits Bible readings that you **CANNOT** use as your output, within <off_limits_bible_readings></off_limits_bible_readings> XML tags. Each individual Bible reading is encapsulated within <off_limits_bible_reading></off_limits_bible_reading> XML tags.
 <off_limits_bible_readings>
 {previousBibleReadings}
@@ -45,24 +45,24 @@ Here is the topic that you are to fetch a Bible reading for, within <topic></top
 
 What is the Bible reading that you would fetch for this topic? Remember, you must not return a Bible reading that is included in the off-limits Bible readings.
 
-Put your response that matches the formatting instructions within <output></output> XML tags.`
+Put your response that matches the formatting instructions within <output></output> XML tags.`,
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]).partial({
     formatInstructions,
-    previousBibleReadings
+    previousBibleReadings,
   }),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });
 
 export const getDevoGeneratorPromptInfo = async ({
-  formatInstructions
+  formatInstructions,
 }: {
   formatInstructions: string;
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are a gifted non-denominational Christian writer who is an expert at generating devotions based on a given topic and Bible reading. Your goal is to generate a devotion based on the topic and Bible reading provided to you.
 
 You should maintain a hopeful and encouraging tone throughout the devotion, but also try to convict your audience in some way. Your focus should be on the topic, with added details from the Bible reading and provided documents.
@@ -81,10 +81,10 @@ Here are some important rules for you to follow:
 Think carefully about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your output will be rejected.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`
+</format_instructions>`,
     ],
     [
-      'human',
+      "human",
       `Here is the topic that you are to write a devotion for, within <topic></topic> XML tags.
 <topic>
 {topic}
@@ -97,19 +97,19 @@ Here is the Bible reading that you are to use, within <bible_reading></bible_rea
 
 Go ahead and write a devotion based on the topic and Bible reading provided.
 
-Put your response that matches the formatting instructions within <output></output> XML tags.`
+Put your response that matches the formatting instructions within <output></output> XML tags.`,
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]).partial({
-    formatInstructions
+    formatInstructions,
   }),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });
 
 export const getImagePromptChainPromptInfo = (): PromptInfo => ({
   prompt: ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are an expert at prompting stable diffusion models to create high-quality images. Your goal is to generate a prompt that will result in a high-quality image using the devotion provided to you as a starting point.
 
 Here is the devotion that you are to generate an image prompt for, within <devotion></devotion> XML tags.
@@ -130,23 +130,23 @@ a man with a beard hanging on a cross with a crown of thorns, a bright light shi
 <example_prompt>
 a man preaching to a crowd of people in ancient Greece, a podium in front of him, his hands raised
 </example_prompt>
-</examples>`
+</examples>`,
     ],
     [
-      'human',
+      "human",
       `What is a prompt that you would use to generate a high-quality image?
 
-Put your response within <output></output> XML tags.`
+Put your response within <output></output> XML tags.`,
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });
 
 export const getImageCaptionPromptInfo = (): PromptInfo => ({
   prompt: ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are an expert at generating captions for Christian images. You will be given a devotion that has an image to go along with it. Your goal is to generate a caption for the image based on the image prompt provided to you.
 
 Here are some important rules for you to follow:
@@ -165,20 +165,20 @@ Prayer:\n{prayer}\n
 Here is the image prompt that was used to generate the image, within <image_prompt></image_prompt> XML tags.
 <image_prompt>
 {imagePrompt}
-</image_prompt>`
+</image_prompt>`,
     ],
-    ['human', 'What is the caption you would use for this image?']
-  ])
+    ["human", "What is the caption you would use for this image?"],
+  ]),
 });
 
 export const getDiveDeeperQueryGeneratorPromptInfo = async ({
-  formatInstructions
+  formatInstructions,
 }: {
   formatInstructions: string;
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are a non-denominational Christian faith and theology expert. You will be given a devotion to generate queries for. Your goal is to generate queries that help the user dive deeper into the topic of the devotion. These queries will be fed back into a query answering system, so make sure the queries are not a personal question about the user.
 
 Here are some important rules for you to follow:
@@ -218,10 +218,10 @@ How can I be a servant of the Lord?
 Think carefully about your query first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags. If these instructions are not followed exactly, your query will be rejected.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`
+</format_instructions>`,
     ],
     [
-      'human',
+      "human",
       `Here is the devotion that you need to generate a query for, within <devotion></devotion> XML tags. The topic is within <topic></topic> XML tags. The Bible reading is within <bible_reading></bible_reading> XML tags. The summary is within <summary></summary> XML tags. The reflection is within <reflection></reflection> XML tags. The prayer is within <prayer></prayer> XML tags.
 <devotion>
 {devotion}
@@ -229,11 +229,11 @@ Think carefully about your query first before you respond. Here are the formatti
 
 What are 1 to 4 queries that you would use to help the user dive deeper into the topic of the devotion?
 
-Put your response that matches the formatting instructions within <output></output> XML tags.`
+Put your response that matches the formatting instructions within <output></output> XML tags.`,
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]).partial({
-    formatInstructions
+    formatInstructions,
   }),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });

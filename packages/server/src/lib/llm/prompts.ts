@@ -1,6 +1,6 @@
 // General prompts for use in various use cases
 
-import { ChatPromptTemplate } from 'langchain/prompts';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
 
 export const OUTPUT_FIXER_PROMPT_TEMPLATE = {
   prompt: ChatPromptTemplate.fromMessages([

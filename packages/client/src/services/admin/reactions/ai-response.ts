@@ -26,12 +26,12 @@ export async function getAiResponseReactions(
       `Error retrieving reactions for aiResponses. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving reactions for aiResponses`);
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<AiResponseReactionInfo> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<AiResponseReactionInfo>;
 
   return {
     reactions: entities,

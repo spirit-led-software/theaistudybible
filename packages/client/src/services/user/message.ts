@@ -1,4 +1,5 @@
 import type { UserMessage } from '@revelationsai/core/model/user/message';
+import apiConfig from '../../configs/api';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
@@ -6,7 +7,6 @@ import type {
   ProtectedApiOptions,
   SearchForEntitiesOptions
 } from '../types';
-import apiConfig from '../../configs/api';
 
 export async function getUserMessages(options: PaginatedEntitiesOptions & ProtectedApiOptions) {
   const searchParams = GetEntitiesSearchParams(options);
@@ -19,11 +19,12 @@ export async function getUserMessages(options: PaginatedEntitiesOptions & Protec
 
   if (!response.ok) {
     console.error(`Error retrieving user messages. Received response:`, JSON.stringify(response));
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving user messages.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<UserMessage> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<UserMessage>;
 
   return {
     userMessages: entities,
@@ -42,11 +43,11 @@ export async function getUserMessage(id: string, options: ProtectedApiOptions) {
 
   if (!response.ok) {
     console.error(`Error retrieving user message. Received response:`, JSON.stringify(response));
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving user message.');
   }
 
-  const userMessage: UserMessage = await response.json();
+  const userMessage = (await response.json()) as UserMessage;
 
   return userMessage;
 }
@@ -68,11 +69,12 @@ export async function searchForUserMessages(
       `Error searching for user messages. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error searching for user messages.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<UserMessage> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<UserMessage>;
 
   return {
     userMessages: entities,

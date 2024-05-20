@@ -1,10 +1,10 @@
-import { API, DatabaseScripts, Layers, Queues, S3 } from '@stacks';
+import { API, Buckets, DatabaseScripts, Layers, Queues } from '@revelationsai/infra';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function AdminAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
-  dependsOn(S3);
+  dependsOn(Buckets);
   dependsOn(Queues);
 
   const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);

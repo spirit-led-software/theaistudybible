@@ -26,11 +26,12 @@ export async function getAiResponses(options: PaginatedEntitiesOptions & Protect
     console.error(
       `Error retrieving AI responses. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving AI responses.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<AiResponse> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<AiResponse>;
 
   return {
     aiResponses: entities,
@@ -49,11 +50,11 @@ export async function getAiResponse(id: string, options: ProtectedApiOptions) {
 
   if (!response.ok) {
     console.error(`Error retrieving AI response. Received response:`, JSON.stringify(response));
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving AI response.');
   }
 
-  const aiResponse: AiResponse = await response.json();
+  const aiResponse = (await response.json()) as AiResponse;
 
   return aiResponse;
 }
@@ -74,11 +75,12 @@ export async function searchForAiResponses(
     console.error(
       `Error searching for AI responses. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error searching for AI responses.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<AiResponse> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<AiResponse>;
 
   return {
     aiResponses: entities,
@@ -99,13 +101,13 @@ export async function getAiResponseSourceDocuments(id: string, options: Protecte
     console.error(
       `Error retrieving source documents for AI response with id ${id}. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(
       data.error || `Error retrieving source documents for AI response with id ${id}`
     );
   }
 
-  const sourceDocuments: SourceDocument[] = await response.json();
+  const sourceDocuments = (await response.json()) as SourceDocument[];
 
   return sourceDocuments;
 }
@@ -127,11 +129,11 @@ export async function createAiResponse(
     console.error(
       `Error creating AI response. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error creating AI response.');
   }
 
-  const aiResponse: AiResponse = await response.json();
+  const aiResponse = (await response.json()) as AiResponse;
 
   return aiResponse;
 }
@@ -154,11 +156,11 @@ export async function updateAiResponse(
     console.error(
       `Error updating AI response. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating AI response.');
   }
 
-  const aiResponse: AiResponse = await response.json();
+  const aiResponse = (await response.json()) as AiResponse;
 
   return aiResponse;
 }
@@ -175,7 +177,7 @@ export async function deleteAiResponse(id: string, options: ProtectedApiOptions)
     console.error(
       `Error deleting AI response. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error deleting AI response.');
   }
 

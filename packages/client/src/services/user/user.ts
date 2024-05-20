@@ -20,11 +20,11 @@ export async function getUserInfo(session: string) {
     console.error(
       `Error retrieving current user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving current user.');
   }
 
-  const user: UserInfo = await response.json();
+  const user = (await response.json()) as UserInfo;
 
   return user;
 }
@@ -41,7 +41,7 @@ export async function deleteUser(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error deleting user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error deleting user.');
   }
 }
@@ -83,11 +83,11 @@ export async function updateUser(
     console.error(
       `Error updating user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating user.');
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as User;
   return data;
 }
 
@@ -108,7 +108,7 @@ export async function updatePassword(
     console.error(
       `Error updating password. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating password.');
   }
 }
@@ -133,7 +133,7 @@ export async function uploadProfilePicture(file: File, session: string): Promise
     throw new Error('Error getting presigned url.');
   }
 
-  const data = await urlRequest.json();
+  const data = (await urlRequest.json()) as { url: string };
   const url = new URL(data.url);
 
   const uploadRequest = await fetch(url.toString(), {
@@ -164,11 +164,11 @@ export async function getUsers(options: PaginatedEntitiesOptions & ProtectedApiO
     console.error(
       `Error retrieving users. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving users.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<User> = await response.json();
+  const { entities, page, perPage } = (await response.json()) as PaginatedEntitiesResponse<User>;
 
   return {
     users: entities,
@@ -193,11 +193,11 @@ export async function searchForUsers(
     console.error(
       `Error searching for users. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error searching for users.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<User> = await response.json();
+  const { entities, page, perPage } = (await response.json()) as PaginatedEntitiesResponse<User>;
 
   return {
     users: entities,
@@ -218,11 +218,11 @@ export async function getUser(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error retrieving user. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving user.');
   }
 
-  const user: User = await response.json();
+  const user = (await response.json()) as User;
 
   return user;
 }

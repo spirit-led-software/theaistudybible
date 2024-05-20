@@ -1,36 +1,43 @@
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
-import { llmCache } from '@lib/cache';
-import envConfig from '@revelationsai/core/configs/environment';
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
-import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import type { CallbackManager } from "@langchain/core/callbacks/manager";
+import type { MessageContent, MessageType } from "@langchain/core/messages";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { BasePromptTemplate } from "@langchain/core/prompts";
+import {
+  Runnable,
+  RunnableBranch,
+  RunnableSequence,
+} from "@langchain/core/runnables";
+import { llmCache } from "@lib/cache";
+import envConfig from "@revelationsai/core/configs/environment";
+import type { UpstashVectorStoreDocument } from "@revelationsai/core/langchain/vectorstores/upstash";
+import type { RAIChatMessage } from "@revelationsai/core/model/chat/message";
 import {
   allModels,
   type FreeTierModelId,
-  type PlusTierModelId
-} from '@revelationsai/core/model/llm';
-import type { User } from '@revelationsai/core/model/user';
-import { XMLBuilder } from 'fast-xml-parser';
-import type { CallbackManager } from 'langchain/callbacks';
-import { CustomListOutputParser, RouterOutputParser } from 'langchain/output_parsers';
-import { BasePromptTemplate } from 'langchain/prompts';
-import type { MessageContent, MessageType } from 'langchain/schema';
-import { z } from 'zod';
-import { RAIOutputFixingParser } from '../langchain/output_parsers/rai-output-fixing';
-import { getLanguageModel } from '../llm';
-import { getDocumentVectorStore } from '../vector-db';
+  type PlusTierModelId,
+} from "@revelationsai/core/model/llm";
+import type { User } from "@revelationsai/core/model/user";
+import { XMLBuilder } from "fast-xml-parser";
+import {
+  CustomListOutputParser,
+  RouterOutputParser,
+} from "langchain/output_parsers";
+import { z } from "zod";
+import { RAIOutputFixingParser } from "../langchain/output_parsers/rai-output-fixing";
+import { getLanguageModel } from "../llm";
+import { getDocumentVectorStore } from "../vector-db";
 import {
   getFaithQaChainPromptInfo,
   getHistoryChainPromptInfo,
   getIdentityChainPromptInfo,
   getRouterChainPromptInfo,
-  getSearchQueryChainPromptInfo
-} from './prompts';
+  getSearchQueryChainPromptInfo,
+} from "./prompts";
 
 const queryAnsweringSystems = [
-  'identity: For greetings, introducing yourself, or talking about yourself.',
-  'chat-history: For retrieving information about the current chat conversation.',
-  'faith-qa: For answering general queries about Christian faith.'
+  "identity: For greetings, introducing yourself, or talking about yourself.",
+  "chat-history: For retrieving information about the current chat conversation.",
+  "faith-qa: For answering general queries about Christian faith.",
 ];
 
 const routerChainOutputParser = RAIOutputFixingParser.fromParser(
@@ -42,13 +49,16 @@ const routerChainOutputParser = RAIOutputFixingParser.fromParser(
         .describe(
           'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
         )
-        .default('DEFAULT'),
+        .default("DEFAULT"),
       next_inputs: z
         .object({
-          query: z.string().describe('The query to be fed into the next model.').min(1)
+          query: z
+            .string()
+            .describe("The query to be fed into the next model.")
+            .min(1),
         })
-        .describe('The input to be fed into the next model.')
-        .required()
+        .describe("The input to be fed into the next model.")
+        .required(),
     })
   )
 );
@@ -71,32 +81,36 @@ export const getRAIChatChain = async (options: {
   const { modelId, user, callbacks } = options;
 
   const { contextSize } = allModels[modelId];
-  const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
+  const contextSizeNum = parseInt(
+    contextSize.substring(0, contextSize.indexOf("k"))
+  );
 
   let messages = options.messages.slice(contextSizeNum > 32 ? -21 : -11);
-  if (messages.at(-1)?.role === 'user') {
+  if (messages.at(-1)?.role === "user") {
     messages = messages.slice(0, -1);
   }
 
   const history = messages.map((message) => {
     let role: MessageType;
-    if (message.role === 'assistant') {
-      role = 'ai';
-    } else if (message.role === 'user' || message.role === 'anonymous') {
-      role = 'human';
-    } else if (message.role === 'data') {
-      role = 'generic';
+    if (message.role === "assistant") {
+      role = "ai";
+    } else if (message.role === "user" || message.role === "anonymous") {
+      role = "human";
+    } else if (message.role === "data") {
+      role = "generic";
     } else {
       role = message.role;
     }
     return [role, message.content] as [MessageType, MessageContent];
   });
 
-  const { prompt: identityChainPrompt, stopSequences: identityChainStopSequences } =
-    getIdentityChainPromptInfo({ history });
+  const {
+    prompt: identityChainPrompt,
+    stopSequences: identityChainStopSequences,
+  } = getIdentityChainPromptInfo({ history });
   const identityChain = RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query
+      query: (input) => input.routingInstructions.next_inputs.query,
     },
     {
       text: identityChainPrompt
@@ -104,21 +118,23 @@ export const getRAIChatChain = async (options: {
           getLanguageModel({
             modelId,
             stream: true,
-            stopSequences: identityChainStopSequences
+            stopSequences: identityChainStopSequences,
           })
         )
         .pipe(new StringOutputParser())
         .withConfig({
-          callbacks
-        })
-    }
+          callbacks,
+        }),
+    },
   ]);
 
-  const { prompt: historyChainPrompt, stopSequences: historyChainStopSequences } =
-    getHistoryChainPromptInfo({ history });
+  const {
+    prompt: historyChainPrompt,
+    stopSequences: historyChainStopSequences,
+  } = getHistoryChainPromptInfo({ history });
   const chatHistoryChain = RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query
+      query: (input) => input.routingInstructions.next_inputs.query,
     },
     {
       text: historyChainPrompt
@@ -126,18 +142,23 @@ export const getRAIChatChain = async (options: {
           getLanguageModel({
             modelId,
             stream: true,
-            stopSequences: historyChainStopSequences
+            stopSequences: historyChainStopSequences,
           })
         )
         .pipe(new StringOutputParser())
         .withConfig({
-          callbacks
-        })
-    }
+          callbacks,
+        }),
+    },
   ]);
 
-  const { prompt: faithQaChainPrompt, stopSequences: faithQaChainStopSequences } =
-    await getFaithQaChainPromptInfo({ history, bibleTranslation: user.translation });
+  const {
+    prompt: faithQaChainPrompt,
+    stopSequences: faithQaChainStopSequences,
+  } = await getFaithQaChainPromptInfo({
+    history,
+    bibleTranslation: user.translation,
+  });
   const faithQaChain = await getDocumentQaChain({
     modelId,
     contextSize: contextSizeNum,
@@ -145,21 +166,24 @@ export const getRAIChatChain = async (options: {
     stopSequences: faithQaChainStopSequences,
     filter: `(category = 'bible' AND translation = '${user.translation}') OR category != 'bible'`,
     history,
-    callbacks
+    callbacks,
   });
 
   const branch = RunnableBranch.from([
-    [(x) => x.routingInstructions.destination === 'identity', identityChain],
-    [(x) => x.routingInstructions.destination === 'chat-history', chatHistoryChain],
-    [(x) => x.routingInstructions.destination === 'faith-qa', faithQaChain],
-    faithQaChain
+    [(x) => x.routingInstructions.destination === "identity", identityChain],
+    [
+      (x) => x.routingInstructions.destination === "chat-history",
+      chatHistoryChain,
+    ],
+    [(x) => x.routingInstructions.destination === "faith-qa", faithQaChain],
+    faithQaChain,
   ]);
 
   const { prompt: routerPrompt, stopSequences: routerStopSequences } =
     await getRouterChainPromptInfo({
       history,
       candidates: queryAnsweringSystems,
-      formatInstructions: routerChainOutputParser.getFormatInstructions()
+      formatInstructions: routerChainOutputParser.getFormatInstructions(),
     });
   const multiRouteChain = RunnableSequence.from([
     {
@@ -167,20 +191,20 @@ export const getRAIChatChain = async (options: {
         routerPrompt,
         getLanguageModel({
           cache: llmCache,
-          stopSequences: routerStopSequences
+          stopSequences: routerStopSequences,
         }),
-        routerChainOutputParser
+        routerChainOutputParser,
       ]),
-      input: (input) => input.query
+      input: (input) => input.query,
     },
-    branch
+    branch,
   ]);
 
   return multiRouteChain;
 };
 
 const searchQueryOutputParser = RAIOutputFixingParser.fromParser(
-  new CustomListOutputParser({ separator: '\n' })
+  new CustomListOutputParser({ separator: "\n" })
 );
 
 export async function getDocumentQaChain(options: {
@@ -192,48 +216,63 @@ export async function getDocumentQaChain(options: {
   filter?: string;
   history: [MessageType, MessageContent][];
 }) {
-  const { modelId, contextSize, prompt, stopSequences, filter, history, callbacks } = options;
+  const {
+    modelId,
+    contextSize,
+    prompt,
+    stopSequences,
+    filter,
+    history,
+    callbacks,
+  } = options;
   const qaRetriever = await getDocumentVectorStore({
     filter,
-    verbose: envConfig.isLocal
+    verbose: envConfig.isLocal,
   }).then((store) =>
     store.asRetriever({
       k: contextSize > 32 ? 12 : 5,
-      verbose: envConfig.isLocal
+      verbose: envConfig.isLocal,
     })
   );
 
   const { prompt: searchQueryPrompt, stopSequences: searchQueryStopSequences } =
     await getSearchQueryChainPromptInfo({
       history,
-      formatInstructions: searchQueryOutputParser.getFormatInstructions()
+      formatInstructions: searchQueryOutputParser.getFormatInstructions(),
     });
   const qaChain = RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query
+      query: (input) => input.routingInstructions.next_inputs.query,
     },
     {
       searchQueries: searchQueryPrompt
         .pipe(
           getLanguageModel({
             cache: llmCache,
-            stopSequences: searchQueryStopSequences
+            stopSequences: searchQueryStopSequences,
           })
         )
         .pipe(searchQueryOutputParser),
-      query: (previousStepResult) => previousStepResult.query
+      query: (previousStepResult) => previousStepResult.query,
     },
     {
-      sourceDocuments: async (previousStepResult: { searchQueries: string[] }) => {
+      sourceDocuments: async (previousStepResult: {
+        searchQueries: string[];
+      }) => {
         const searchQueries = previousStepResult.searchQueries;
         const sourceDocuments = await Promise.all(
           searchQueries.map(async (query) => {
-            return (await qaRetriever.getRelevantDocuments(query)) as UpstashVectorStoreDocument[];
+            return (await qaRetriever.getRelevantDocuments(
+              query
+            )) as UpstashVectorStoreDocument[];
           })
         );
         return sourceDocuments
           .flat()
-          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .filter(
+            (doc, index, self) =>
+              index === self.findIndex((d) => d.id === doc.id)
+          )
           .map((doc) => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { vector, ...rest } = doc;
@@ -241,13 +280,17 @@ export async function getDocumentQaChain(options: {
           });
       },
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
-      query: (previousStepResult) => previousStepResult.query
+      query: (previousStepResult) => previousStepResult.query,
     },
     {
-      sources: (previousStepResult: { sourceDocuments: UpstashVectorStoreDocument[] }) =>
+      sources: (previousStepResult: {
+        sourceDocuments: UpstashVectorStoreDocument[];
+      }) =>
         previousStepResult.sourceDocuments
           .reduce((acc, doc) => {
-            const existingDoc = acc.find((d) => d.metadata.url === doc.metadata.url);
+            const existingDoc = acc.find(
+              (d) => d.metadata.url === doc.metadata.url
+            );
             if (existingDoc) {
               existingDoc.pageContent += `\n${doc.pageContent}`;
             } else {
@@ -259,17 +302,19 @@ export async function getDocumentQaChain(options: {
           .map((sourceDoc) =>
             new XMLBuilder().build({
               source: {
-                source_title: sourceDoc.metadata.title ?? sourceDoc.metadata.name,
+                source_title:
+                  sourceDoc.metadata.title ?? sourceDoc.metadata.name,
                 source_author: sourceDoc.metadata.author,
                 source_content: sourceDoc.pageContent,
-                source_url: sourceDoc.metadata.url
-              }
+                source_url: sourceDoc.metadata.url,
+              },
             })
           )
-          .join('\n'),
-      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
+          .join("\n"),
+      sourceDocuments: (previousStepResult) =>
+        previousStepResult.sourceDocuments,
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
-      query: (previousStepResult) => previousStepResult.query
+      query: (previousStepResult) => previousStepResult.query,
     },
     {
       text: prompt
@@ -277,16 +322,17 @@ export async function getDocumentQaChain(options: {
           getLanguageModel({
             modelId,
             stream: true,
-            stopSequences
+            stopSequences,
           })
         )
         .pipe(new StringOutputParser())
         .withConfig({
-          callbacks
+          callbacks,
         }),
-      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
-      searchQueries: (previousStepResult) => previousStepResult.searchQueries
-    }
+      sourceDocuments: (previousStepResult) =>
+        previousStepResult.sourceDocuments,
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries,
+    },
   ]);
 
   return qaChain;

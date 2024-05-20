@@ -1,4 +1,4 @@
-import { API, COMMON_ENV_VARS, Constants, Database, DatabaseScripts, Layers } from '@stacks';
+import { API, COMMON_ENV_VARS, Constants, Database, DatabaseScripts, Layers } from '@revelationsai/infra';
 import { Architecture } from 'aws-cdk-lib/aws-lambda';
 import {
   Auth as AuthConstruct,

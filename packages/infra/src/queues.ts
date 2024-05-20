@@ -1,4 +1,4 @@
-import { DatabaseScripts, Layers } from '@stacks';
+import { DatabaseScripts, Layers } from '@revelationsai/infra';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib/core';
 import { Function, Queue, dependsOn, use, type StackContext } from 'sst/constructs';

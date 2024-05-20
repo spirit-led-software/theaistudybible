@@ -10,11 +10,11 @@ export async function getLanguageModels() {
     console.error(
       `Error retrieving language models. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving language models.');
   }
 
-  const modelInfos: { [k: string]: ModelInfo } = await response.json();
+  const modelInfos = (await response.json()) as { [k: string]: ModelInfo };
 
   return modelInfos;
 }

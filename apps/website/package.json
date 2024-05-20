@@ -35,7 +35,7 @@
     "svelte-check": "^3.6.9",
     "svelte-copy": "^1.4.1",
     "svelte-intersection-observer": "^1.0.0",
-    "svelte-kit-sst": "2.41.5",
+    "svelte-kit-sst": "2.42.0",
     "svelte-loading-spinners": "^0.3.6",
     "svelte-share-buttons-component": "^3.0.0",
     "tailwind-merge": "^2.2.2",

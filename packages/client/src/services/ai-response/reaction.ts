@@ -3,8 +3,8 @@ import apiConfig from '../../configs/api';
 import { GetEntitiesSearchParams } from '../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
-  ProtectedApiOptions,
-  PaginatedEntitiesResponse
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions
 } from '../types';
 
 export async function getAiResponseReactionsById(
@@ -27,12 +27,12 @@ export async function getAiResponseReactionsById(
       `Error retrieving reactions for aiResponse with id ${id}. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving reactions for aiResponse with id ${id}`);
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<AiResponseReaction> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<AiResponseReaction>;
 
   return {
     reactions: entities,

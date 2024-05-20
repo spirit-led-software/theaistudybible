@@ -1,13 +1,7 @@
 {
-  "extends": "@revelationsai/core/tsconfig.json",
+  "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
-    "typeRoots": ["../core/src/types"],
-    "lib": ["dom", "dom.iterable", "ES2021"],
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "ignoreDeprecations": "5.0",
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
     "paths": {
       "@revelationsai/core": ["../core/src"],
       "@revelationsai/core/*": ["../core/src/*"],
@@ -15,6 +9,6 @@
       "@lib/cache": ["./src/lib/cache"]
     }
   },
-  "include": ["./src/**/*.ts", "../core/src/types/**/*.ts"],
-  "exclude": ["./node_modules/**"]
+  "include": ["./src/**/*.ts", "../core/globals.d.ts"],
+  "exclude": ["./node_modules"]
 }

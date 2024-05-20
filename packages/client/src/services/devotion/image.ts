@@ -17,12 +17,12 @@ export async function getDevotionImages(id: string, options?: PaginatedEntitiesO
       `Error retrieving images for devotion with id ${id}. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving images for devotion with id ${id}`);
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<DevotionImage> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<DevotionImage>;
 
   return {
     images: entities,

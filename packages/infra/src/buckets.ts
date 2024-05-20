@@ -1,9 +1,9 @@
-import { DatabaseScripts } from '@stacks';
+import { DatabaseScripts } from '@revelationsai/infra';
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
 import { Bucket, dependsOn, type StackContext } from 'sst/constructs';
 
-export function S3({ app, stack }: StackContext) {
+export function Buckets({ app, stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const indexFileBucket = new Bucket(stack, 'indexFileBucket', {

@@ -1,9 +1,9 @@
-import { Constants } from '@stacks';
+import { Constants } from '@revelationsai/infra';
 import { Config, dependsOn, type StackContext } from 'sst/constructs';
-import config from '../packages/core/src/configs/revelationsai';
-import { NeonBranch } from './resources/NeonBranch';
-import { UpstashRedis } from './resources/UpstashRedis';
-import { UpstashVector } from './resources/UpstashVector';
+import config from '../../core/src/configs/revelationsai';
+import { NeonBranch } from './resources/neon-branch';
+import { UpstashRedis } from './resources/upstash-redis';
+import { UpstashVector } from './resources/upstash-vector';
 
 export function Database({ stack, app }: StackContext) {
   dependsOn(Constants);

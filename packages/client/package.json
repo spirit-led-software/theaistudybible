@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "test": "sst bind vitest",
     "typecheck": "tsc -noEmit",
     "lint": "eslint .",
     "format": "prettier --write ."
@@ -15,9 +16,11 @@
     "@types/busboy": "^1.5.4",
     "@types/node": "^20.12.12",
     "@types/nodemailer": "^6.4.15",
-    "sst": "2.41.5"
+    "sst": "2.42.0"
   },
   "dependencies": {
-    "@revelationsai/core": "workspace:*"
+    "@revelationsai/core": "workspace:*",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0"
   }
 }

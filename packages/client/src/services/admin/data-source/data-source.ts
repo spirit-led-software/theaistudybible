@@ -20,11 +20,11 @@ export async function createDataSource(data: CreateDataSourceData, options: Prot
     console.error(
       `Error creating data source. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error creating data source.');
   }
 
-  const dataSource: DataSource = await response.json();
+  const dataSource = (await response.json()) as DataSource;
 
   return dataSource;
 }
@@ -47,11 +47,11 @@ export async function updateDataSource(
     console.error(
       `Error updating data source. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating data source.');
   }
 
-  const dataSource: DataSource = await response.json();
+  const dataSource = (await response.json()) as DataSource;
 
   return dataSource;
 }
@@ -68,7 +68,7 @@ export async function deleteDataSource(id: string, options: ProtectedApiOptions)
     console.error(
       `Error deleting data source. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error deleting data source.');
   }
 
@@ -87,11 +87,11 @@ export async function syncDataSource(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error syncing data source. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error syncing data source.');
   }
 
-  const dataSource: DataSource = await response.json();
+  const dataSource = (await response.json()) as DataSource;
 
   return dataSource;
 }

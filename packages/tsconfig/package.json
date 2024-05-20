@@ -5,7 +5,8 @@
   "private": true,
   "main": "tsconfig.json",
   "devDependencies": {
-    "@types/node": "20.12.12",
+    "@0no-co/graphqlsp": "^1.12.3",
+    "@types/node": "^20.12.12",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5"
   }

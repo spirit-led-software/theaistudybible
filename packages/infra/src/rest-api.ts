@@ -1,9 +1,9 @@
-import { API, DatabaseScripts, Layers, S3 } from '@stacks';
+import { API, Buckets, DatabaseScripts, Layers } from '@revelationsai/infra';
 import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
-  dependsOn(S3);
+  dependsOn(Buckets);
 
   const { argonLayer } = use(Layers);
   const { api } = use(API);

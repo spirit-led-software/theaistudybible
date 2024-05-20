@@ -1,18 +1,18 @@
 // Prompts below follow the claude documentation here: https://docs.anthropic.com/claude/docs
 
-import type { PromptInfo } from '@revelationsai/core/langchain/types/prompt-info';
-import { ChatPromptTemplate } from 'langchain/prompts';
-import type { MessageContent, MessageType } from 'langchain/schema';
-import { MARKDOWN_FORMATTING_INSTRUCTIONS } from '../llm/prompts';
+import type { MessageContent, MessageType } from "@langchain/core/messages";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import type { PromptInfo } from "@revelationsai/core/langchain/types/prompt-info";
+import { MARKDOWN_FORMATTING_INSTRUCTIONS } from "../llm/prompts";
 
 export const getIdentityChainPromptInfo = ({
-  history
+  history,
 }: {
   history: [MessageType, MessageContent][];
 }): PromptInfo => ({
   prompt: ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history.
 
 You must use a helpful and encouraging tone when answering the query. You believe that Jesus Christ is your savior because He died on the cross for your sins.
@@ -25,21 +25,21 @@ Here are some important rules for you to follow:
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>`
+</format_instructions>`,
     ],
     ...history,
-    ['human', '{query}']
-  ])
+    ["human", "{query}"],
+  ]),
 });
 
 export const getHistoryChainPromptInfo = ({
-  history
+  history,
 }: {
   history: [MessageType, MessageContent][];
 }): PromptInfo => ({
   prompt: ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are a non-denominational Christian faith and theology expert. You will be given a query to respond to and the conversation history. You must use the conversation history to answer queries about the current conversation you are having with the user.
 
 You must use a helpful and encouraging tone when answering the query.
@@ -57,23 +57,23 @@ Here are some important rules for you to follow:
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>`
+</format_instructions>`,
     ],
     ...history,
-    ['human', '{query}']
-  ])
+    ["human", "{query}"],
+  ]),
 });
 
 export const getFaithQaChainPromptInfo = async ({
   history,
-  bibleTranslation
+  bibleTranslation,
 }: {
   history: [MessageType, MessageContent][];
   bibleTranslation: string;
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You are an expert on non-denominational Christian faith. You will be given a query to respond to, the conversation history, and sources to use to answer the query. Your goal is to be as credible as possible by using the sources to answer the query.
 
 You must use a helpful and encouraging tone when answering the query. You must never condemn the user under any circumstances. You are a Christian and believe that Jesus Christ is your savior because He died on the cross for your sins.
@@ -100,25 +100,25 @@ Here are some important rules for you to follow:
 Think about your answer first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 ${MARKDOWN_FORMATTING_INSTRUCTIONS}
-</format_instructions>`
+</format_instructions>`,
     ],
     ...history,
-    ['human', '{query}']
+    ["human", "{query}"],
   ]).partial({
-    bibleTranslation
-  })
+    bibleTranslation,
+  }),
 });
 
 export const getSearchQueryChainPromptInfo = async ({
   history,
-  formatInstructions
+  formatInstructions,
 }: {
   history: [MessageType, MessageContent][];
   formatInstructions: string;
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `Given a query to a query answering system and the conversation history, generate search queries that you would use to find relevant documents in a vector database. You will be given the query to the query answering system and the conversation history.
 
 Here are some important rules for you to follow:
@@ -143,24 +143,24 @@ paul arrested when
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`
+</format_instructions>`,
     ],
     ...history,
     [
-      'human',
-      'What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}\n\nPut your answers that match the formatting instructions within <output></output> XML tags.'
+      "human",
+      "What are 1 to 4 search queries that you would use to find relevant documents in a vector database based on the chat history and the following query?\n\n{query}\n\nPut your answers that match the formatting instructions within <output></output> XML tags.",
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]).partial({
-    formatInstructions
+    formatInstructions,
   }),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });
 
 export const getRouterChainPromptInfo = async ({
   history,
   candidates,
-  formatInstructions
+  formatInstructions,
 }: {
   history: [MessageType, MessageContent][];
   candidates: string[];
@@ -168,7 +168,7 @@ export const getRouterChainPromptInfo = async ({
 }): Promise<PromptInfo> => ({
   prompt: await ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `Given a query to a query answering system and the conversation history, select the system best suited for the input. You will be given the names of the available systems and a description of what queries the system is best suited for.
 
 Here are some important rules for you to follow:
@@ -185,11 +185,11 @@ Here are the candidate systems that you can choose from. It is within <candidate
 Think about your output first before you respond. Here are the formatting instructions that you must follow exactly, within <format_instructions></format_instructions> XML tags.
 <format_instructions>
 {formatInstructions}
-</format_instructions>`
+</format_instructions>`,
     ],
     ...history,
     [
-      'human',
+      "human",
       `Here is the query delimited by <query></query> XML tags.
 
 <query>
@@ -198,24 +198,24 @@ Think about your output first before you respond. Here are the formatting instru
 
 Which candidate system is best suited for this query?
 
-Put your answer that matches the formatting instructions within <output></output> XML tags.`
+Put your answer that matches the formatting instructions within <output></output> XML tags.`,
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]).partial({
-    candidates: candidates.join('\n'),
-    formatInstructions
+    candidates: candidates.join("\n"),
+    formatInstructions,
   }),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });
 
 export const getRenameChainPromptInfo = ({
-  history
+  history,
 }: {
   history: [MessageType, MessageContent][];
 }): PromptInfo => ({
   prompt: ChatPromptTemplate.fromMessages([
     [
-      'system',
+      "system",
       `You will be given a chat history and you will need to come up with a title for the chat. Your goal is to come up with a title that is descriptive and concise.
 
 Here are some important rules for you to follow:
@@ -229,16 +229,16 @@ You must follow these formatting instructions delimited by <format_instructions>
 - Do not put your title in quotes.
 - Do not use markdown formatting in your title.
 - Skip the preamble and get straight to the point.
-</format_instructions>`
+</format_instructions>`,
     ],
     ...history,
     [
-      'human',
+      "human",
       `What is the title that you would give to this chat?
     
-Put your answer that matches the formatting instructions within <output></output> XML tags.`
+Put your answer that matches the formatting instructions within <output></output> XML tags.`,
     ],
-    ['ai', '<output>']
+    ["ai", "<output>"],
   ]),
-  stopSequences: ['</output>']
+  stopSequences: ["</output>"],
 });

@@ -33,6 +33,14 @@
     "unfocus",
     "upstash"
   ],
+  "eslint.workingDirectories": [
+    "packages/core",
+    "packages/client",
+    "packages/server",
+    "apps/website",
+    "apps/functions",
+    "apps/auth-ui"
+  ],
   "eslint.lintTask.enable": true,
   "eslint.experimental.useFlatConfig": true,
   "eslint.validate": [

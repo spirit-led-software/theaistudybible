@@ -1,4 +1,4 @@
-import { Constants, DatabaseScripts, Layers } from '@stacks';
+import { Constants, DatabaseScripts, Layers } from '@revelationsai/infra';
 import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Api, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 

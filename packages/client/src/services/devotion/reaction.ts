@@ -18,12 +18,12 @@ export async function getDevotionReactionsById(id: string, options?: PaginatedEn
       `Error retrieving reactions for devotion with id ${id}. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving reactions for devotion with id ${id}`);
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<DevotionReaction> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<DevotionReaction>;
 
   return {
     reactions: entities,
@@ -42,13 +42,13 @@ export async function getDevotionReactionCounts(id: string) {
       `Error retrieving reaction counts for devotion with id ${id}. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving reaction counts for devotion with id ${id}`);
   }
 
-  const reactionCounts: {
+  const reactionCounts = (await response.json()) as {
     [key in (typeof devotionReactions.reaction.enumValues)[number]]?: number;
-  } = await response.json();
+  };
 
   return reactionCounts;
 }

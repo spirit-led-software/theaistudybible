@@ -3,8 +3,8 @@ import apiConfig from '../../../configs/api';
 import { GetEntitiesSearchParams } from '../../helpers/search-params';
 import type {
   PaginatedEntitiesOptions,
-  ProtectedApiOptions,
-  PaginatedEntitiesResponse
+  PaginatedEntitiesResponse,
+  ProtectedApiOptions
 } from '../../types';
 
 export async function getDevotionReactions(
@@ -26,12 +26,12 @@ export async function getDevotionReactions(
       `Error retrieving reactions for devotions. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving reactions for devotions`);
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<DevotionReactionInfo> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<DevotionReactionInfo>;
 
   return {
     reactions: entities,

@@ -16,11 +16,12 @@ export async function getDevotions(options: PaginatedEntitiesOptions) {
 
   if (!response.ok) {
     console.error('Error retrieving devotions. Received response:', JSON.stringify(response));
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving devotions');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<Devotion> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<Devotion>;
 
   return {
     devotions: entities,
@@ -42,11 +43,12 @@ export async function searchForDevotions(
     console.error(
       `Error searching for devotions. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error searching for devotions.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<Devotion> = await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<Devotion>;
 
   return {
     devotions: entities,
@@ -65,11 +67,11 @@ export async function getDevotion(id: string) {
       `Error retrieving devotion with id ${id}. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving devotion with id ${id}`);
   }
 
-  const devotion: Devotion = await response.json();
+  const devotion = (await response.json()) as Devotion;
 
   return devotion;
 }
@@ -84,11 +86,11 @@ export async function getDevotionSourceDocuments(id: string) {
       `Error retrieving source documents for devotion with id ${id}. Received response:`,
       JSON.stringify(response)
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || `Error retrieving source documents for devotion with id ${id}`);
   }
 
-  const sourceDocuments: SourceDocument[] = await response.json();
+  const sourceDocuments = (await response.json()) as SourceDocument[];
 
   return sourceDocuments;
 }

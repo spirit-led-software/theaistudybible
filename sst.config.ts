@@ -2,6 +2,7 @@ import {
   API,
   AdminAPI,
   Auth,
+  Buckets,
   CDN,
   ChatAPI,
   Constants,
@@ -11,17 +12,16 @@ import {
   GraphQlApi,
   Layers,
   Queues,
-  S3,
-  Website
-} from '@stacks';
-import type { SSTConfig } from 'sst';
-import { RestAPI } from './stacks/Rest-API';
+  RestAPI,
+  Website,
+} from "@revelationsai/infra";
+import type { SSTConfig } from "sst";
 
 export default {
   config() {
     return {
-      name: 'revelationsai',
-      region: 'us-east-1'
+      name: "revelationsai",
+      region: "us-east-1",
     };
   },
   stacks(app) {
@@ -30,7 +30,7 @@ export default {
       .stack(Layers)
       .stack(Database)
       .stack(DatabaseScripts)
-      .stack(S3)
+      .stack(Buckets)
       .stack(CDN)
       .stack(Queues)
       .stack(API)
@@ -41,5 +41,5 @@ export default {
       .stack(AdminAPI)
       .stack(Website)
       .stack(Crons);
-  }
+  },
 } satisfies SSTConfig;

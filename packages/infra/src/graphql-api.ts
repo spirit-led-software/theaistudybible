@@ -1,4 +1,4 @@
-import { API, Auth, DatabaseScripts } from '@stacks';
+import { API, Auth, DatabaseScripts } from '@revelationsai/infra';
 import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function GraphQlApi({ stack }: StackContext) {

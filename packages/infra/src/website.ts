@@ -7,7 +7,7 @@ import {
   Database,
   DatabaseScripts,
   Layers
-} from '@stacks';
+} from '@revelationsai/infra';
 import { Architecture } from 'aws-cdk-lib/aws-lambda';
 import { SvelteKitSite, dependsOn, use, type StackContext } from 'sst/constructs';
 

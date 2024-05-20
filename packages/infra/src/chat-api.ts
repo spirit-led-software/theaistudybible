@@ -1,5 +1,5 @@
-import { Auth, Constants, DatabaseScripts } from '@stacks';
-import { CLOUDFRONT_HOSTED_ZONE_ID } from '@stacks/Constants';
+import { Auth, Constants, DatabaseScripts } from '@revelationsai/infra';
+import { CLOUDFRONT_HOSTED_ZONE_ID } from '@revelationsai/infra/constants';
 import { Fn } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import {

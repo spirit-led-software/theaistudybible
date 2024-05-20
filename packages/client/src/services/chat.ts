@@ -22,11 +22,11 @@ export async function getChats(options: PaginatedEntitiesOptions & ProtectedApiO
     console.error(
       `Error retrieving chats. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving chats.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<Chat> = await response.json();
+  const { entities, page, perPage } = (await response.json()) as PaginatedEntitiesResponse<Chat>;
 
   return {
     chats: entities,
@@ -51,11 +51,11 @@ export async function searchForChats(
     console.error(
       `Error searching for chats. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error searching for chats.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<Chat> = await response.json();
+  const { entities, page, perPage } = (await response.json()) as PaginatedEntitiesResponse<Chat>;
 
   return {
     chats: entities,
@@ -76,11 +76,11 @@ export async function getChat(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error retrieving chat. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving chat.');
   }
 
-  const chat: Chat = await response.json();
+  const chat = (await response.json()) as Chat;
 
   return chat;
 }
@@ -99,11 +99,11 @@ export async function createChat(data: Partial<CreateChatData>, options: Protect
     console.error(
       `Error creating chat. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error creating chat.');
   }
 
-  const chat: Chat = await response.json();
+  const chat = (await response.json()) as Chat;
 
   return chat;
 }
@@ -126,11 +126,11 @@ export async function updateChat(
     console.error(
       `Error updating chat. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error updating chat.');
   }
 
-  const chat: Chat = await response.json();
+  const chat = (await response.json()) as Chat;
 
   return chat;
 }
@@ -147,7 +147,7 @@ export async function deleteChat(id: string, options: ProtectedApiOptions) {
     console.error(
       `Error deleting chat. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error deleting chat.');
   }
 
@@ -170,12 +170,12 @@ export async function getChatMessages(
     console.error(
       `Error retrieving chat messages. Received response: ${response.status} ${response.statusText}`
     );
-    const data = await response.json();
+    const data = (await response.json()) as { error?: string };
     throw new Error(data.error || 'Error retrieving chat messages.');
   }
 
-  const { entities, page, perPage }: PaginatedEntitiesResponse<RAIChatMessage> =
-    await response.json();
+  const { entities, page, perPage } =
+    (await response.json()) as PaginatedEntitiesResponse<RAIChatMessage>;
 
   return {
     messages: entities,

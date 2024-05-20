@@ -24,14 +24,14 @@ importers:
         specifier: ^3.577.0
         version: 3.577.0
       '@langchain/anthropic':
-        specifier: ^0.1.20
-        version: 0.1.20(openai@4.47.1)
+        specifier: ^0.1.21
+        version: 0.1.21(openai@4.47.1)
       '@langchain/community':
         specifier: ^0.2.0
-        version: 0.2.0(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-lambda@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(@google-cloud/storage@7.11.0)(@neondatabase/serverless@0.9.3)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/redis@1.31.1)(@upstash/vector@1.1.1)(axios@1.6.8)(fast-xml-parser@4.3.6)(firebase-admin@12.1.0)(ignore@5.3.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(pg@8.11.5)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)
+        version: 0.2.0(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-lambda@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(@google-cloud/storage@7.11.0)(@neondatabase/serverless@0.9.3)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/redis@1.31.1)(@upstash/vector@1.1.1)(axios@1.7.0)(fast-xml-parser@4.4.0)(firebase-admin@12.1.0)(ignore@5.3.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(pg@8.11.5)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)
       '@langchain/openai':
-        specifier: ^0.0.32
-        version: 0.0.32
+        specifier: ^0.0.33
+        version: 0.0.33
       '@neondatabase/serverless':
         specifier: ^0.9.3
         version: 0.9.3
@@ -49,7 +49,7 @@ importers:
         version: 1.7.5(graphql@16.8.1)(svelte@4.2.17)(typescript@5.4.5)
       langchain:
         specifier: ^0.2.0
-        version: 0.2.0(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(axios@1.6.8)(fast-xml-parser@4.3.6)(ignore@5.3.1)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)
+        version: 0.2.0(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(axios@1.7.0)(fast-xml-parser@4.4.0)(ignore@5.3.1)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)
       neon-sdk:
         specifier: ^1.21.0
         version: 1.21.0
@@ -66,9 +66,6 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
-      '@0no-co/graphqlsp':
-        specifier: ^1.12.3
-        version: 1.12.3(graphql@16.8.1)(typescript@5.4.5)
       '@graphql-codegen/cli':
         specifier: 5.0.2
         version: 5.0.2(@types/node@20.12.12)(graphql@16.8.1)(typescript@5.4.5)
@@ -91,8 +88,8 @@ importers:
         specifier: ^8.11.6
         version: 8.11.6
       aws-cdk-lib:
-        specifier: 2.132.1
-        version: 2.132.1(constructs@10.3.0)
+        specifier: 2.142.1
+        version: 2.142.1(constructs@10.3.0)
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -106,8 +103,8 @@ importers:
         specifier: ^16.8.1
         version: 16.8.1
       sst:
-        specifier: 2.41.5
-        version: 2.41.5(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
+        specifier: 2.42.0
+        version: 2.42.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -117,6 +114,12 @@ importers:
       '@revelationsai/core':
         specifier: workspace:*
         version: link:../core
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      tailwind-merge:
+        specifier: ^2.3.0
+        version: 2.3.0
     devDependencies:
       '@revelationsai/eslint-config':
         specifier: workspace:*
@@ -140,8 +143,8 @@ importers:
         specifier: ^6.4.15
         version: 6.4.15
       sst:
-        specifier: 2.41.5
-        version: 2.41.5(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
+        specifier: 2.42.0
+        version: 2.42.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
 
   packages/core:
     dependencies:
@@ -149,11 +152,11 @@ importers:
         specifier: ^3.1.12
         version: 3.1.12(openai@4.47.1)(react@18.3.1)(solid-js@1.8.17)(svelte@4.2.17)(vue@3.4.27(typescript@5.4.5))(zod@3.23.8)
       axios:
-        specifier: ^1.6.8
-        version: 1.6.8
+        specifier: ^1.7.0
+        version: 1.7.0
       axios-retry:
         specifier: ^4.2.0
-        version: 4.2.0(axios@1.6.8)
+        version: 4.2.0(axios@1.7.0)
     devDependencies:
       '@revelationsai/eslint-config':
         specifier: workspace:*
@@ -167,9 +170,12 @@ importers:
       '@types/node':
         specifier: ^20.12.12
         version: 20.12.12
+      '@types/validator':
+        specifier: ^13.11.10
+        version: 13.11.10
       sst:
-        specifier: 2.41.5
-        version: 2.41.5(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
+        specifier: 2.42.0
+        version: 2.42.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.12.12)
@@ -197,6 +203,25 @@ importers:
       typescript-eslint:
         specifier: ^7.9.0
         version: 7.9.0(eslint@9.3.0)(typescript@5.4.5)
+
+  packages/infra:
+    dependencies:
+      '@revelationsai/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@revelationsai/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@revelationsai/prettier-config':
+        specifier: workspace:*
+        version: link:../prettier-config
+      '@revelationsai/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      sst:
+        specifier: ^2.42.0
+        version: 2.42.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
 
   packages/prettier-config:
     devDependencies:
@@ -234,8 +259,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       fast-xml-parser:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^4.4.0
+        version: 4.4.0
       firebase-admin:
         specifier: ^12.1.0
         version: 12.1.0
@@ -273,6 +298,15 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
     devDependencies:
+      '@revelationsai/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@revelationsai/prettier-config':
+        specifier: workspace:*
+        version: link:../prettier-config
+      '@revelationsai/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       '@sparticuz/chromium':
         specifier: ^123.0.1
         version: 123.0.1
@@ -289,16 +323,19 @@ importers:
         specifier: ^6.4.15
         version: 6.4.15
       sst:
-        specifier: 2.41.5
-        version: 2.41.5(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
+        specifier: 2.42.0
+        version: 2.42.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5)
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.12.12)
 
   packages/tsconfig:
     devDependencies:
+      '@0no-co/graphqlsp':
+        specifier: ^1.12.3
+        version: 1.12.3(graphql@16.8.1)(typescript@5.4.5)
       '@types/node':
-        specifier: 20.12.12
+        specifier: ^20.12.12
         version: 20.12.12
       tsc-alias:
         specifier: ^1.8.10
@@ -366,37 +403,40 @@ packages:
   '@aws-cdk/asset-node-proxy-agent-v6@2.0.3':
     resolution: {integrity: sha512-twhuEG+JPOYCYPx/xy5uH2+VUsIEhPTzDY0F1KuB+ocjWWB/KEDiOVL19nHvbPCB6fhWnkykXEMJ4HHcKvjtvg==}
 
-  '@aws-cdk/aws-lambda-python-alpha@2.132.1-alpha.0':
-    resolution: {integrity: sha512-YZNLRw4Yhxt615RfC2kzuvp6/7HdU6RQZHlz3+Cb1VGMcFFdKJhKB/TrMx7xNq2NMwp9CDgasLkdxYuF8Nmd4A==}
+  '@aws-cdk/aws-lambda-python-alpha@2.142.1-alpha.0':
+    resolution: {integrity: sha512-XknR1To5RJbMWR92h3VCOA+DaKnjLDgKSNrWVAdbqkrnlpB1zygWFSXQQeV38f8ySkCwbt8NaUw2Mhi3Z6w+Eg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
-      aws-cdk-lib: ^2.132.1
+      aws-cdk-lib: ^2.142.1
       constructs: ^10.0.0
 
-  '@aws-cdk/aws-service-spec@0.0.52':
-    resolution: {integrity: sha512-SJA4xtG2y5NpTmtKtFNbrYh6BaFgKEcr7ye8N+S4H3KByXIa0NLOh5bPTVBjvyXiRPDJ9q39Xu433vxC3BsDhg==}
+  '@aws-cdk/aws-service-spec@0.1.2':
+    resolution: {integrity: sha512-FJ53m99YypZgb3zRIxf4b6mGy4HRrdUFWEaMHsmAjdB7exdkgl0TS+DIJ7+64e0RQerS8oQiv7ypuCT32c1xvw==}
 
-  '@aws-cdk/cloud-assembly-schema@2.132.1':
-    resolution: {integrity: sha512-PAusB9kKT9CELzbj8x5G3BpFl6Wjwk5ULn+8/uP21MIygWmAcktzOD2CVzkxMvljT7qU4KN1GEDCZXVqLzzomg==}
+  '@aws-cdk/cloud-assembly-schema@2.142.1':
+    resolution: {integrity: sha512-qXPblguf9+24YFZz8vECeB5NIXoghiokeQjSXYvZNS5VS+YhqvFSoN+YIu/aoJFfAiMsbamI2CW2Z8xs3qUtiQ==}
     engines: {node: '>= 14.15.0'}
     bundledDependencies:
       - jsonschema
       - semver
 
-  '@aws-cdk/cloudformation-diff@2.132.1':
-    resolution: {integrity: sha512-h93B/VC4lujT9gjeSgUCg3XaypDyydvggbpJ0jCbl2kagDK90SHInZm5yscPNof+FpT8Igvn+5yEUOLVnfFYYg==}
+  '@aws-cdk/cloudformation-diff@2.142.1':
+    resolution: {integrity: sha512-32tadRx2vzSLUk/5XDpHAxlXCDay0IpnrorTGk2svZDUgySSQoQjv5MA5B0P/1rQJ2ZOpurOIuneBwl6GLlUUg==}
     engines: {node: '>= 14.15.0'}
 
-  '@aws-cdk/cx-api@2.132.1':
-    resolution: {integrity: sha512-JWf9Xou9vtO7wMyDKvcbigjGLY6kPS31cYc+e+dJSMsCxWEbvpEdndAJOU7y9Y8/99SnvihYxEbgbpWGwcK/Xg==}
+  '@aws-cdk/cx-api@2.142.1':
+    resolution: {integrity: sha512-bj9cF8dkikv0LzH+aq0yan0BYDOrUsnTTTjSorC0oCJTzTfxo2hXGNGlP6nEfZr09Ws7tUemqPoHASgItzPHUA==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
-      '@aws-cdk/cloud-assembly-schema': 2.132.1
+      '@aws-cdk/cloud-assembly-schema': 2.142.1
     bundledDependencies:
       - semver
 
-  '@aws-cdk/service-spec-types@0.0.52':
-    resolution: {integrity: sha512-vVoZPgEmkUPeTVJSQ9iyXTiwnb6GiBbntJdnsWTr6I9ao66TuU9HijEcAQHxkC7CxTkian+3KSX/NTl01Klm0A==}
+  '@aws-cdk/service-spec-types@0.0.69':
+    resolution: {integrity: sha512-bYCdtU5ZGfYJyKsh25ILzdtXyC4poB64k9oQ1p8EeRngnh6TlxObO/J+sI1CDvOpGoa+BUzCdAhewIkdMjzl5A==}
+
+  '@aws-cdk/service-spec-types@0.0.70':
+    resolution: {integrity: sha512-MyxFn3CWC4d3aNwMigr6SKjudjg/AEwQWYKFF4aRlMcqJkys8KIRg5BaaZRFPYCO8pFW8AcrzGNutZt0O3cwWg==}
 
   '@aws-crypto/crc32@3.0.0':
     resolution: {integrity: sha512-IzSgsrxUcsrejQbPVilIKy16kAT52EwB6zSaI+M3xxIhKh5+aldEyvI+z6erM7TCLB2BJsFrtHjp6/4/sr+3dA==}
@@ -1901,8 +1941,8 @@ packages:
   '@kamilkisiela/fast-url-parser@1.1.4':
     resolution: {integrity: sha512-gbkePEBupNydxCelHCESvFSFM8XPh1Zs/OAVRW/rKpEqPAl5PbOM90Si8mv9bvnR53uPD2s/FiRxdvSejpRJew==}
 
-  '@langchain/anthropic@0.1.20':
-    resolution: {integrity: sha512-FQOSrczGwhwDbW9KYjHdSImjabrE02QOAgHHw60fCl73whZhkXMz5ngyEddZTOrnzPiMDY2JuiWv7PdozM1YMA==}
+  '@langchain/anthropic@0.1.21':
+    resolution: {integrity: sha512-7L5UDhO93UYfBwdaGxIqc5ZGSQ4wgMyYdENflLYhA9Aeho+BSHd0Krqh6zEHNGy4p+OrCElyDy58G8yiDEpxvw==}
     engines: {node: '>=18'}
 
   '@langchain/community@0.2.0':
@@ -2257,8 +2297,8 @@ packages:
     resolution: {integrity: sha512-UbCJUp9eh2JXd9AW/vhPbTgtZoMgTqJgSan5Wf/EP27X8JM65lWdCOpJW+gHyBXvabbyrZz3/EGaptTUL5gutw==}
     engines: {node: '>=18'}
 
-  '@langchain/openai@0.0.32':
-    resolution: {integrity: sha512-3tUYSFjy+ajWzySvtQouEQJn2P3lx54uZJFh2vx1jLwAAaplOh/km1csapf3pvX5vTUtBCFxtXbjkSvSV49EGw==}
+  '@langchain/openai@0.0.33':
+    resolution: {integrity: sha512-hTBo9y9bHtFvMT5ySBW7TrmKhLSA91iNahigeqAFBVrLmBDz+6rzzLFc1mpq6JEAR3fZKdaUXqso3nB23jIpTw==}
     engines: {node: '>=18'}
 
   '@langchain/textsplitters@0.0.2':
@@ -2837,6 +2877,9 @@ packages:
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
 
+  '@types/validator@13.11.10':
+    resolution: {integrity: sha512-e2PNXoXLr6Z+dbfx5zSh9TRlXJrELycxiaXznp4S5+D2M3b9bqJEitNHA5923jhnB2zzFiZHa2f0SI1HoIahpg==}
+
   '@types/ws@8.5.10':
     resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
 
@@ -3209,8 +3252,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  aws-cdk-lib@2.132.1:
-    resolution: {integrity: sha512-VheC7WcvmxiteNaZPucS9J9haGQZwbUtwNiNqsbTaEiru6ETUhf/yIOIamLto1kOKEPxCw2bfLkgYrWoCzwOpw==}
+  aws-cdk-lib@2.142.1:
+    resolution: {integrity: sha512-xs4NRoml5/Zh30YHSk/Wwmr7VcZOZHyIInuBye3gC/BYwCh1lsUe9/ChWIeLUCRhUrELd5npyoBOJiHb3ql7Rg==}
     engines: {node: '>= 14.15.0'}
     peerDependencies:
       constructs: ^10.0.0
@@ -3243,8 +3286,8 @@ packages:
     peerDependencies:
       axios: 0.x || 1.x
 
-  axios@1.6.8:
-    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
+  axios@1.7.0:
+    resolution: {integrity: sha512-IiB0wQeKyPRdsFVhBgIo31FbzOyf2M6wYl7/NVutFwFBRMiAbjNiydJIHKeLmPugF4kJLfA1uWZ82Is2QzqqFA==}
 
   axobject-query@4.0.0:
     resolution: {integrity: sha512-+60uv1hiVFhHZeO+Lz0RYzsVHy5Wr1ayX0mwda9KPDVLNJgZ1T9Ny7VmFbLDzxsH0D87I86vgj3gFrjTJUYznw==}
@@ -3395,8 +3438,8 @@ packages:
   capital-case@1.0.4:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
 
-  cdk-assets@2.132.1:
-    resolution: {integrity: sha512-npaa5DTO9GMdnErCk5mguR6XpaLZv1R36T3kJPgSuJDcD2T5gk7BzuMyJWQM0QHMLNw3fMOOjG1D7Wi39LJ3cQ==}
+  cdk-assets@2.142.1:
+    resolution: {integrity: sha512-zNQMXRWl9gp8KJHZyPk0agh9p180Ec/rW9ZrDk7rITnR5qMgFcaNO6on8BiQVGMALpv1A6UTp45FIiWkqGYf6A==}
     engines: {node: '>= 14.15.0'}
     hasBin: true
 
@@ -3496,6 +3539,10 @@ packages:
   clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
     engines: {node: '>=0.8'}
+
+  clsx@2.1.1:
+    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
+    engines: {node: '>=6'}
 
   code-excerpt@4.0.0:
     resolution: {integrity: sha512-xxodCmBen3iy2i0WtAK8FlFNrRzjUqjRsMfho58xT/wvZU1YTM3fCnRjcy1gJPMepaRlgm/0e6w8SpWHpn3/cA==}
@@ -4190,8 +4237,8 @@ packages:
     resolution: {integrity: sha512-B9/wizE4WngqQftFPmdaMYlXoJlJOYxGQOanC77fq9k8+Z0v5dDSVh+3glErdIROP//s/jgb7ZuxKfB8nVyo0g==}
     hasBin: true
 
-  fast-xml-parser@4.3.6:
-    resolution: {integrity: sha512-M2SovcRxD4+vC493Uc2GZVcZaj66CCJhWurC4viynVSTvrpErCShNcDz1lAho6n9REQKvL/ll4A4/fw6Y9z8nw==}
+  fast-xml-parser@4.4.0:
+    resolution: {integrity: sha512-kLY3jFlwIYwBNDojclKsNAC12sfD6NwW74QB2CoNGPvtVxjliYehVunB3HYyNi+n4Tt1dAcgwYvmKF/Z18flqg==}
     hasBin: true
 
   fastq@1.17.1:
@@ -5092,8 +5139,8 @@ packages:
   langchainhub@0.0.10:
     resolution: {integrity: sha512-mOVso7TGTMSlvTTUR1b4zUIMtu8zgie/pcwRm1SeooWwuHYMQovoNXjT6gEjvWEZ6cjt4gVH+1lu2tp1/phyIQ==}
 
-  langsmith@0.1.25:
-    resolution: {integrity: sha512-Hft4Y1yoMgFgCUXVQklRZ7ndmLQ/6FmRZE9P3u5BRdMq5Fa0hpg8R7jd7bLLBXkAjqcFvWo0AGhpb8MMY5FAiA==}
+  langsmith@0.1.26:
+    resolution: {integrity: sha512-c7hMlHhJShtxrzwCNpWttp/xiycHCso+sy9U4VKmLgpsufjogBJ8L33XlWK4rY2nAhpVjx5d5612s7S70gpEtQ==}
     peerDependencies:
       openai: '*'
     peerDependenciesMeta:
@@ -6409,13 +6456,13 @@ packages:
   sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
 
-  sst-aws-cdk@2.132.1:
-    resolution: {integrity: sha512-zep3sr+XkCmw9rHjgYQc44G+6s4eB/yxgLCCoi1h6R2AN8IarwZ4aHRwxAfigmJTPXYO6kmsxBIOcwjKy+oi3g==}
+  sst-aws-cdk@2.142.1:
+    resolution: {integrity: sha512-zrw3VpTfS6fEgpTo0J0lpkZg3nvuVsVzV3zcPswRx7EKIgBFndrAMBE38Wmvk2FBHYDp6OygdzbK8Gul/DJW+g==}
     engines: {node: '>= 14.15.0'}
     hasBin: true
 
-  sst@2.41.5:
-    resolution: {integrity: sha512-IM1O1CnDcrjAAsl0ag9fXxQ7zyjYXyZDxBZwcdrAbjnijaSBMheC9v3b+WMXmRj1YBiVOjGAHIgzkTJVp/REvg==}
+  sst@2.42.0:
+    resolution: {integrity: sha512-p3Wi8SS7pn0MQ+062uEiMZJX1iq2nSaJi76f+bQki2FLj9xu3l1F4x9IULv76pMFNPZKtNd8yr1/RT2RiwK95Q==}
     hasBin: true
     peerDependencies:
       '@sls-next/lambda-at-edge': ^3.7.0
@@ -6567,6 +6614,9 @@ packages:
   table@6.8.2:
     resolution: {integrity: sha512-w2sfv80nrAh2VCbqR5AK27wswXhqcck2AhfnNW76beQXskGZ1V12GwS//yYVa3d3fcvAip2OUnbDAjW2k3v9fA==}
     engines: {node: '>=10.0.0'}
+
+  tailwind-merge@2.3.0:
+    resolution: {integrity: sha512-vkYrLpIP+lgR0tQCG6AP7zZXCTLc1Lnv/CCRT3BqJ9CZ3ui2++GPaGb1x/ILsINIMSYqqvrpqjUFsMNLlW99EA==}
 
   tar-fs@2.1.1:
     resolution: {integrity: sha512-V0r2Y9scmbDRLCNex/+hYzvp/zyYjvFbHPNgVTKfQvVrb6guiE/fxP+XblDNR011utopbkex2nM4dHNV6GDsng==}
@@ -7185,33 +7235,37 @@ snapshots:
 
   '@aws-cdk/asset-node-proxy-agent-v6@2.0.3': {}
 
-  '@aws-cdk/aws-lambda-python-alpha@2.132.1-alpha.0(aws-cdk-lib@2.132.1(constructs@10.3.0))(constructs@10.3.0)':
+  '@aws-cdk/aws-lambda-python-alpha@2.142.1-alpha.0(aws-cdk-lib@2.142.1(constructs@10.3.0))(constructs@10.3.0)':
     dependencies:
-      aws-cdk-lib: 2.132.1(constructs@10.3.0)
+      aws-cdk-lib: 2.142.1(constructs@10.3.0)
       constructs: 10.3.0
 
-  '@aws-cdk/aws-service-spec@0.0.52':
+  '@aws-cdk/aws-service-spec@0.1.2':
     dependencies:
-      '@aws-cdk/service-spec-types': 0.0.52
+      '@aws-cdk/service-spec-types': 0.0.70
       '@cdklabs/tskb': 0.0.3
 
-  '@aws-cdk/cloud-assembly-schema@2.132.1': {}
+  '@aws-cdk/cloud-assembly-schema@2.142.1': {}
 
-  '@aws-cdk/cloudformation-diff@2.132.1':
+  '@aws-cdk/cloudformation-diff@2.142.1':
     dependencies:
-      '@aws-cdk/aws-service-spec': 0.0.52
-      '@aws-cdk/service-spec-types': 0.0.52
+      '@aws-cdk/aws-service-spec': 0.1.2
+      '@aws-cdk/service-spec-types': 0.0.69
       chalk: 4.1.2
       diff: 5.2.0
       fast-deep-equal: 3.1.3
       string-width: 4.2.3
       table: 6.8.2
 
-  '@aws-cdk/cx-api@2.132.1(@aws-cdk/cloud-assembly-schema@2.132.1)':
+  '@aws-cdk/cx-api@2.142.1(@aws-cdk/cloud-assembly-schema@2.142.1)':
     dependencies:
-      '@aws-cdk/cloud-assembly-schema': 2.132.1
+      '@aws-cdk/cloud-assembly-schema': 2.142.1
 
-  '@aws-cdk/service-spec-types@0.0.52':
+  '@aws-cdk/service-spec-types@0.0.69':
+    dependencies:
+      '@cdklabs/tskb': 0.0.3
+
+  '@aws-cdk/service-spec-types@0.0.70':
     dependencies:
       '@cdklabs/tskb': 0.0.3
 
@@ -9231,7 +9285,7 @@ snapshots:
       abort-controller: 3.0.0
       async-retry: 1.3.3
       duplexify: 4.1.3
-      fast-xml-parser: 4.3.6
+      fast-xml-parser: 4.4.0
       gaxios: 6.6.0
       google-auth-library: 9.10.0
       html-entities: 2.5.2
@@ -9834,27 +9888,27 @@ snapshots:
 
   '@kamilkisiela/fast-url-parser@1.1.4': {}
 
-  '@langchain/anthropic@0.1.20(openai@4.47.1)':
+  '@langchain/anthropic@0.1.21(openai@4.47.1)':
     dependencies:
       '@anthropic-ai/sdk': 0.21.0
       '@langchain/core': 0.2.0(openai@4.47.1)
-      fast-xml-parser: 4.3.6
+      fast-xml-parser: 4.4.0
       zod: 3.23.8
       zod-to-json-schema: 3.23.0(zod@3.23.8)
     transitivePeerDependencies:
       - encoding
       - openai
 
-  '@langchain/community@0.2.0(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-lambda@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(@google-cloud/storage@7.11.0)(@neondatabase/serverless@0.9.3)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/redis@1.31.1)(@upstash/vector@1.1.1)(axios@1.6.8)(fast-xml-parser@4.3.6)(firebase-admin@12.1.0)(ignore@5.3.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(pg@8.11.5)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)':
+  '@langchain/community@0.2.0(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-lambda@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(@google-cloud/storage@7.11.0)(@neondatabase/serverless@0.9.3)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/redis@1.31.1)(@upstash/vector@1.1.1)(axios@1.7.0)(fast-xml-parser@4.4.0)(firebase-admin@12.1.0)(ignore@5.3.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(pg@8.11.5)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)':
     dependencies:
       '@langchain/core': 0.2.0(openai@4.47.1)
-      '@langchain/openai': 0.0.32
+      '@langchain/openai': 0.0.33
       binary-extensions: 2.3.0
       expr-eval: 2.0.2
       flat: 5.0.2
       js-yaml: 4.1.0
-      langchain: 0.2.0(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(axios@1.6.8)(fast-xml-parser@4.3.6)(ignore@5.3.1)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)
-      langsmith: 0.1.25(openai@4.47.1)
+      langchain: 0.2.0(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(axios@1.7.0)(fast-xml-parser@4.4.0)(ignore@5.3.1)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0)
+      langsmith: 0.1.26(openai@4.47.1)
       uuid: 9.0.1
       zod: 3.23.8
       zod-to-json-schema: 3.23.0(zod@3.23.8)
@@ -9897,7 +9951,7 @@ snapshots:
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.12
-      langsmith: 0.1.25(openai@4.47.1)
+      langsmith: 0.1.26(openai@4.47.1)
       ml-distance: 4.0.1
       mustache: 4.2.0
       p-queue: 6.6.2
@@ -9908,7 +9962,7 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/openai@0.0.32':
+  '@langchain/openai@0.0.33':
     dependencies:
       '@langchain/core': 0.2.0(openai@4.47.1)
       js-tiktoken: 1.0.12
@@ -10667,6 +10721,8 @@ snapshots:
 
   '@types/uuid@9.0.8': {}
 
+  '@types/validator@13.11.10': {}
+
   '@types/ws@8.5.10':
     dependencies:
       '@types/node': 20.12.12
@@ -11125,7 +11181,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  aws-cdk-lib@2.132.1(constructs@10.3.0):
+  aws-cdk-lib@2.142.1(constructs@10.3.0):
     dependencies:
       '@aws-cdk/asset-awscli-v1': 2.2.202
       '@aws-cdk/asset-kubectl-v20': 2.1.2
@@ -11136,7 +11192,7 @@ snapshots:
     dependencies:
       '@aws-sdk/util-utf8-browser': 3.259.0
       '@httptoolkit/websocket-stream': 6.0.1
-      axios: 1.6.8
+      axios: 1.7.0
       buffer: 6.0.3
       crypto-js: 4.2.0
       mqtt: 4.3.8
@@ -11171,12 +11227,12 @@ snapshots:
       uuid: 8.0.0
       xml2js: 0.6.2
 
-  axios-retry@4.2.0(axios@1.6.8):
+  axios-retry@4.2.0(axios@1.7.0):
     dependencies:
-      axios: 1.6.8
+      axios: 1.7.0
       is-retry-allowed: 2.2.0
 
-  axios@1.6.8:
+  axios@1.7.0:
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
@@ -11381,10 +11437,10 @@ snapshots:
       tslib: 2.6.2
       upper-case-first: 2.0.2
 
-  cdk-assets@2.132.1:
+  cdk-assets@2.142.1:
     dependencies:
-      '@aws-cdk/cloud-assembly-schema': 2.132.1
-      '@aws-cdk/cx-api': 2.132.1(@aws-cdk/cloud-assembly-schema@2.132.1)
+      '@aws-cdk/cloud-assembly-schema': 2.142.1
+      '@aws-cdk/cx-api': 2.142.1(@aws-cdk/cloud-assembly-schema@2.142.1)
       archiver: 5.3.2
       aws-sdk: 2.1623.0
       glob: 7.2.3
@@ -11528,6 +11584,8 @@ snapshots:
       wrap-ansi: 7.0.0
 
   clone@1.0.4: {}
+
+  clsx@2.1.1: {}
 
   code-excerpt@4.0.0:
     dependencies:
@@ -12295,7 +12353,7 @@ snapshots:
     dependencies:
       strnum: 1.0.5
 
-  fast-xml-parser@4.3.6:
+  fast-xml-parser@4.4.0:
     dependencies:
       strnum: 1.0.5
 
@@ -13155,17 +13213,17 @@ snapshots:
 
   lambda-stream@0.5.0: {}
 
-  langchain@0.2.0(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(axios@1.6.8)(fast-xml-parser@4.3.6)(ignore@5.3.1)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0):
+  langchain@0.2.0(@aws-sdk/client-s3@3.577.0(aws-crt@1.21.2))(@aws-sdk/credential-provider-node@3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2))(axios@1.7.0)(fast-xml-parser@4.4.0)(ignore@5.3.1)(mammoth@1.7.2)(openai@4.47.1)(pdf-parse@1.1.1)(ws@8.17.0)(youtube-transcript@1.2.1)(youtubei.js@9.4.0):
     dependencies:
       '@langchain/core': 0.2.0(openai@4.47.1)
-      '@langchain/openai': 0.0.32
+      '@langchain/openai': 0.0.33
       '@langchain/textsplitters': 0.0.2(openai@4.47.1)
       binary-extensions: 2.3.0
       js-tiktoken: 1.0.12
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
       langchainhub: 0.0.10
-      langsmith: 0.1.25(openai@4.47.1)
+      langsmith: 0.1.26(openai@4.47.1)
       ml-distance: 4.0.1
       openapi-types: 12.1.3
       p-retry: 4.6.2
@@ -13176,8 +13234,8 @@ snapshots:
     optionalDependencies:
       '@aws-sdk/client-s3': 3.577.0(aws-crt@1.21.2)
       '@aws-sdk/credential-provider-node': 3.577.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(@aws-sdk/client-sts@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)
-      axios: 1.6.8
-      fast-xml-parser: 4.3.6
+      axios: 1.7.0
+      fast-xml-parser: 4.4.0
       ignore: 5.3.1
       mammoth: 1.7.2
       pdf-parse: 1.1.1
@@ -13190,7 +13248,7 @@ snapshots:
 
   langchainhub@0.0.10: {}
 
-  langsmith@0.1.25(openai@4.47.1):
+  langsmith@0.1.26(openai@4.47.1):
     dependencies:
       '@types/uuid': 9.0.8
       commander: 10.0.1
@@ -14543,7 +14601,7 @@ snapshots:
 
   sprintf-js@1.1.3: {}
 
-  sst-aws-cdk@2.132.1:
+  sst-aws-cdk@2.142.1:
     dependencies:
       archiver: 5.3.2
       chalk: 4.1.2
@@ -14553,12 +14611,12 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  sst@2.41.5(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5):
+  sst@2.42.0(@aws-sdk/client-sso-oidc@3.577.0(aws-crt@1.21.2))(aws-crt@1.21.2)(pg@8.11.5):
     dependencies:
-      '@aws-cdk/aws-lambda-python-alpha': 2.132.1-alpha.0(aws-cdk-lib@2.132.1(constructs@10.3.0))(constructs@10.3.0)
-      '@aws-cdk/cloud-assembly-schema': 2.132.1
-      '@aws-cdk/cloudformation-diff': 2.132.1
-      '@aws-cdk/cx-api': 2.132.1(@aws-cdk/cloud-assembly-schema@2.132.1)
+      '@aws-cdk/aws-lambda-python-alpha': 2.142.1-alpha.0(aws-cdk-lib@2.142.1(constructs@10.3.0))(constructs@10.3.0)
+      '@aws-cdk/cloud-assembly-schema': 2.142.1
+      '@aws-cdk/cloudformation-diff': 2.142.1
+      '@aws-cdk/cx-api': 2.142.1(@aws-cdk/cloud-assembly-schema@2.142.1)
       '@aws-crypto/sha256-js': 5.2.0
       '@aws-sdk/client-cloudformation': 3.577.0(aws-crt@1.21.2)
       '@aws-sdk/client-ecs': 3.577.0(aws-crt@1.21.2)
@@ -14583,11 +14641,11 @@ snapshots:
       '@smithy/signature-v4': 2.3.0
       '@trpc/server': 9.16.0
       adm-zip: 0.5.12
-      aws-cdk-lib: 2.132.1(constructs@10.3.0)
+      aws-cdk-lib: 2.142.1(constructs@10.3.0)
       aws-iot-device-sdk: 2.2.13
       aws-sdk: 2.1623.0
       builtin-modules: 3.2.0
-      cdk-assets: 2.132.1
+      cdk-assets: 2.142.1
       chalk: 5.3.0
       chokidar: 3.6.0
       ci-info: 3.9.0
@@ -14615,7 +14673,7 @@ snapshots:
       ora: 6.3.1
       react: 18.3.1
       remeda: 1.61.0
-      sst-aws-cdk: 2.132.1
+      sst-aws-cdk: 2.142.1
       tree-kill: 1.2.2
       undici: 5.28.4
       uuid: 9.0.1
@@ -14794,6 +14852,10 @@ snapshots:
       slice-ansi: 4.0.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
+
+  tailwind-merge@2.3.0:
+    dependencies:
+      '@babel/runtime': 7.24.5
 
   tar-fs@2.1.1:
     dependencies:

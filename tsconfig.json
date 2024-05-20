@@ -2,22 +2,10 @@
   "extends": "./packages/tsconfig/tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@stacks/*": ["./stacks/*"],
-      "@stacks": ["./stacks"]
-    },
-    "plugins": [
-      {
-        "name": "@0no-co/graphqlsp",
-        "schema": "./graphql/schema.graphql",
-        "tadaOutputLocation": "./graphql/"
-      }
-    ]
+      "@revelationsai/infra/*": ["./packages/infra/src/*"],
+      "@revelationsai/infra": ["./packages/infra/src"]
+    }
   },
-  "include": [
-    "sst.config.ts",
-    "drizzle.config.ts",
-    "codegen.ts",
-    "./stacks/**/*.ts"
-  ],
-  "exclude": ["./node_modules/**", "./.sst/**"]
+  "include": ["./sst.config.ts", "./drizzle.config.ts", "./codegen.ts"],
+  "exclude": ["./node_modules/**", "./.sst/**", "./apps", "./packages"]
 }

@@ -1,0 +1,11 @@
+{
+  "extends": "@revelationsai/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@revelationsai/infra/*": ["./src/*"],
+      "@revelationsai/infra": ["./src"]
+    }
+  },
+  "include": ["./src/**/*.ts", "../core/globals.d.ts"],
+  "exclude": ["./node_modules/**"]
+}

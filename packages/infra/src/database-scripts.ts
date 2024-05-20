@@ -1,4 +1,4 @@
-import { Database, Layers } from '@stacks';
+import { Database, Layers } from '@revelationsai/infra';
 import { Script, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function DatabaseScripts({ stack }: StackContext) {
