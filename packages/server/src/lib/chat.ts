@@ -1,12 +1,14 @@
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { chats } from '@revelationsai/core/database/schema';
 import type { Chat } from '@revelationsai/core/model/chat';
-import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import type { Message } from '@revelationsai/core/model/chat/message';
 import { getLanguageModel } from '@revelationsai/langchain/lib/llm';
 import { getRenameChainPromptInfo } from '@revelationsai/langchain/lib/prompts/chat';
-import { updateChat } from '../services/chat';
+import { eq } from 'drizzle-orm';
+import { db } from './database';
 
-export async function aiRenameChat(chat: Chat, argMessages: RAIChatMessage[]) {
+export async function aiRenameChat(chat: Chat, argMessages: Message[]) {
   if (chat.customName) {
     throw new Error('Chat has already been named by the user');
   }
@@ -17,17 +19,7 @@ export async function aiRenameChat(chat: Chat, argMessages: RAIChatMessage[]) {
   }
 
   const history = messages.map((message) => {
-    let role: MessageType;
-    if (message.role === 'assistant') {
-      role = 'ai';
-    } else if (message.role === 'user' || message.role === 'anonymous') {
-      role = 'human';
-    } else if (message.role === 'data') {
-      role = 'generic';
-    } else {
-      role = message.role;
-    }
-    return [role, message.content] as [MessageType, MessageContent];
+    return [message.role, message.content] as [MessageType, MessageContent];
   });
 
   const { prompt, stopSequences } = getRenameChainPromptInfo({ history });
@@ -41,8 +33,11 @@ export async function aiRenameChat(chat: Chat, argMessages: RAIChatMessage[]) {
 
   const result = await renameChain.invoke({}).then((result) => result.trim().replace(/"/g, ''));
 
-  return await updateChat(chat.id, {
-    name: result,
-    customName: false
-  });
+  return await db
+    .update(chats)
+    .set({
+      name: result,
+      customName: false
+    })
+    .where(eq(chats.id, chat.id));
 }

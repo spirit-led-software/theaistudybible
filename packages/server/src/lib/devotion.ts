@@ -1,7 +1,11 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { devotions, devotionsToSourceDocuments } from '@revelationsai/core/database/schema';
+import {
+  devotionImages,
+  devotions,
+  devotionsToSourceDocuments
+} from '@revelationsai/core/database/schema';
 import axios from '@revelationsai/core/lib/axios';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
@@ -20,8 +24,6 @@ import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser } from 'langchain/output_parsers';
 import { Bucket } from 'sst/node/bucket';
 import { Config } from 'sst/node/config';
-import { createDevotion, getDevotions, updateDevotion } from '../services/devotion';
-import { createDevotionImage } from '../services/devotion/image';
 import { db } from './database';
 
 // 31 topics, one for each day of the month
@@ -69,7 +71,7 @@ export async function getBibleReading() {
   console.log(`Devotion topic: ${topic}`);
   const chain = await getBibleReadingChain(
     topic,
-    await getDevotions({
+    await db.query.devotions.findMany({
       where: eq(devotions.topic, topic),
       limit: 10
     })
@@ -175,12 +177,17 @@ export async function generateDevotionImages(devo: Devotion) {
     imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
   }
 
-  await createDevotionImage({
-    devotionId: devo.id,
-    url: imageUrl.toString(),
-    caption: imageCaption,
-    prompt: imagePrompt
-  });
+  const [devoImage] = await db
+    .insert(devotionImages)
+    .values({
+      devotionId: devo.id,
+      url: imageUrl.toString(),
+      caption: imageCaption,
+      prompt: imagePrompt
+    })
+    .returning();
+
+  return devoImage;
 }
 
 export async function generateDevotion(topic?: string, bibleReading?: string) {
@@ -198,13 +205,16 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
       bibleReading
     });
 
-    devo = await createDevotion({
-      topic,
-      bibleReading,
-      summary: result.summary,
-      reflection: result.reflection,
-      prayer: result.prayer
-    });
+    [devo] = await db
+      .insert(devotions)
+      .values({
+        topic,
+        bibleReading,
+        summary: result.summary,
+        reflection: result.reflection,
+        prayer: result.prayer
+      })
+      .returning();
 
     await Promise.all(
       sourceDocuments.map(async (c) => {
@@ -220,13 +230,19 @@ export async function generateDevotion(topic?: string, bibleReading?: string) {
     await generateDevotionImages(devo);
 
     const diveDeeperQueries = await generateDiveDeeperQueries(devo);
-    devo = await updateDevotion(devo.id, {
-      diveDeeperQueries
-    });
+    [devo] = await db
+      .update(devotions)
+      .set({ diveDeeperQueries })
+      .where(eq(devotions.id, devo.id))
+      .returning();
   } catch (e) {
     console.error(e);
     if (devo) {
-      devo = await updateDevotion(devo.id, { failed: true });
+      [devo] = await db
+        .update(devotions)
+        .set({ failed: true })
+        .where(eq(devotions.id, devo.id))
+        .returning();
     }
   }
 

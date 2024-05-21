@@ -1,38 +1,52 @@
-import { indexOperations } from '@revelationsai/core/database/schema';
+import {
+  dataSources,
+  dataSourcesToSourceDocuments,
+  indexOperations
+} from '@revelationsai/core/database/schema';
 import type { DataSource } from '@revelationsai/core/model/data-source';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
 import { and, eq } from 'drizzle-orm';
-import { getDataSourceOrThrow, updateDataSource } from '../services/data-source';
-import { getIndexOperations } from '../services/data-source/index-op';
-import { indexRemoteFile } from '../services/scraper/file';
-import { indexWebCrawl } from '../services/scraper/web-crawl';
-import { indexWebPage } from '../services/scraper/webpage';
-import { indexYoutubeVideo } from '../services/scraper/youtube';
-import { getSourceDocumentsByDataSourceId } from '../services/source-document';
-import { getDocumentVectorStore } from './vector-db';
+import { db } from './database';
+import { indexRemoteFile } from './scraper/file';
+import { indexWebCrawl } from './scraper/web-crawl';
+import { indexWebPage } from './scraper/webpage';
+import { indexYoutubeVideo } from './scraper/youtube';
 
 export async function syncDataSource(id: string, manual: boolean = false): Promise<DataSource> {
-  let dataSource = await getDataSourceOrThrow(id);
+  let dataSource = await db.query.dataSources.findFirst({
+    where: eq(dataSources.id, id)
+  });
+  if (!dataSource) {
+    throw new Error(`Data source ${id} not found`);
+  }
 
-  const runningIndexOps = await getIndexOperations({
+  const runningIndexOp = await db.query.indexOperations.findFirst({
     where: and(
       eq(indexOperations.dataSourceId, dataSource.id),
       eq(indexOperations.status, 'RUNNING')
-    ),
-    limit: 1
+    )
   });
-  if (runningIndexOps.length > 0) {
+  if (runningIndexOp) {
     throw new Error(`Cannot sync data source ${dataSource.id} because it is already being indexed`);
   }
 
   // Delete old vectors
   const vectorDb = await getDocumentVectorStore();
-  const sourceDocuments = await getSourceDocumentsByDataSourceId(dataSource.id);
-  await vectorDb.delete(sourceDocuments.filter((d) => d).map((d) => d!.id));
+  const sourceDocumentIds = await db.query.dataSourcesToSourceDocuments
+    .findMany({
+      where: eq(dataSourcesToSourceDocuments.dataSourceId, dataSource.id)
+    })
+    .then((docs) => docs.map((doc) => doc.sourceDocumentId));
+  await vectorDb.delete(sourceDocumentIds);
 
   // Reset the number of documents
-  dataSource = await updateDataSource(dataSource.id, {
-    numberOfDocuments: 0
-  });
+  [dataSource] = await db
+    .update(dataSources)
+    .set({
+      numberOfDocuments: 0
+    })
+    .where(eq(dataSources.id, dataSource.id))
+    .returning();
 
   const syncDate = new Date();
 
@@ -76,10 +90,14 @@ export async function syncDataSource(id: string, manual: boolean = false): Promi
       throw new Error(`Unsupported data source type ${dataSource.type}`);
   }
 
-  dataSource = await updateDataSource(dataSource.id, {
-    lastManualSync: manual ? syncDate : undefined,
-    lastAutomaticSync: !manual ? syncDate : undefined
-  });
+  [dataSource] = await db
+    .update(dataSources)
+    .set({
+      lastManualSync: manual ? syncDate : undefined,
+      lastAutomaticSync: !manual ? syncDate : undefined
+    })
+    .where(eq(dataSources.id, dataSource.id))
+    .returning();
 
   return dataSource;
 }

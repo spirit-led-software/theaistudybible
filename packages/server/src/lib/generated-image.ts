@@ -1,31 +1,31 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { userGeneratedImagesToSourceDocuments } from '@revelationsai/core/database/schema';
+import type { User } from '@clerk/backend';
+import {
+  userGeneratedImages,
+  userGeneratedImagesToSourceDocuments
+} from '@revelationsai/core/database/schema';
 import axios from '@revelationsai/core/lib/axios';
+import type { UserGeneratedImage } from '@revelationsai/core/model/generated-image';
 import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
-import type { UserWithRoles } from '@revelationsai/core/model/user';
-import type { UserGeneratedImage } from '@revelationsai/core/model/user/generated-image';
 import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
 import { getImagePromptChain } from '@revelationsai/langchain/lib/chains/generated-image';
+import { eq } from 'drizzle-orm';
 import { Bucket } from 'sst/node/bucket';
 import { Config } from 'sst/node/config';
-import {
-  createUserGeneratedImage,
-  updateUserGeneratedImage
-} from '../services/user/generated-image';
 import { db } from './database';
 
-export async function generatedImage(
-  user: UserWithRoles,
-  userPrompt: string
-): Promise<UserGeneratedImage> {
+export async function generatedImage(user: User, userPrompt: string): Promise<UserGeneratedImage> {
   let userGeneratedImage: UserGeneratedImage | undefined;
   try {
-    userGeneratedImage = await createUserGeneratedImage({
-      userId: user.id,
-      userPrompt
-    });
+    [userGeneratedImage] = await db
+      .insert(userGeneratedImages)
+      .values({
+        userId: user.id,
+        userPrompt
+      })
+      .returning();
 
     const chain = await getImagePromptChain();
     const { prompt, sourceDocuments, searchQueries } = await chain.invoke({
@@ -111,17 +111,24 @@ export async function generatedImage(
       imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
     }
 
-    return await updateUserGeneratedImage(userGeneratedImage.id, {
-      url: imageUrl.toString(),
-      prompt,
-      searchQueries
-    });
+    [userGeneratedImage] = await db
+      .update(userGeneratedImages)
+      .set({
+        url: imageUrl.toString(),
+        prompt,
+        searchQueries
+      })
+      .where(eq(userGeneratedImages.id, userGeneratedImage.id))
+      .returning();
+
+    return userGeneratedImage;
   } catch (error) {
     console.error(error);
     if (userGeneratedImage) {
-      await updateUserGeneratedImage(userGeneratedImage.id, {
-        failed: true
-      });
+      await db
+        .update(userGeneratedImages)
+        .set({ failed: true })
+        .where(eq(userGeneratedImages.id, userGeneratedImage.id));
     }
     throw error;
   }

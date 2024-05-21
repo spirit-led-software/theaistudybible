@@ -8,13 +8,13 @@ import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { z } from 'zod';
 import { getLanguageModel } from '../llm';
-import { getDocumentVectorStore } from '../vector-db';
 import {
   getBibleReadingFinderPromptInfo,
   getDevoGeneratorPromptInfo,
   getImageCaptionPromptInfo,
   getImagePromptChainPromptInfo
 } from '../prompts/devotion';
+import { getDocumentVectorStore } from '../vector-db';
 
 const devotionOutputParser = RAIOutputFixingParser.fromParser(
   JsonMarkdownStructuredOutputParser.fromZodSchema(

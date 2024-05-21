@@ -1,7 +1,10 @@
+import { createId } from '@paralleldrive/cuid2';
+import { type FunctionCall, type JSONValue, type ToolCall } from 'ai';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
   doublePrecision,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -9,372 +12,30 @@ import {
   text,
   timestamp,
   uniqueIndex,
-  uuid
+  type AnyPgColumn
 } from 'drizzle-orm/pg-core';
-import { freeTierModelIds, plusTierModelIds } from '../model/llm';
+import type { Content } from '../types/bible';
 import type { Metadata } from '../types/metadata';
 
-export const aiResponses = pgTable('ai_responses', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const roles = pgTable('roles', {
+  id: text('id').primaryKey().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-  aiId: text('ai_id'),
-  text: text('text'),
-  failed: boolean('failed').notNull().default(false),
-  regenerated: boolean('regenerated').notNull().default(false),
-  modelId: text('model_id', {
-    enum: ['unknown', ...freeTierModelIds, ...plusTierModelIds]
-  })
-    .notNull()
-    .default('unknown'),
-  searchQueries: jsonb('search_queries').notNull().default([]).$type<string[]>(),
-  userMessageId: uuid('user_message_id')
-    .notNull()
-    .references(() => userMessages.id, {
-      onDelete: 'cascade',
-      onUpdate: 'cascade'
-    }),
-  chatId: uuid('chat_id')
-    .notNull()
-    .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
-});
-
-export const aiResponsesRelations = relations(aiResponses, ({ one, many }) => {
-  return {
-    user: one(users, {
-      fields: [aiResponses.userId],
-      references: [users.id]
-    }),
-    chat: one(chats, {
-      fields: [aiResponses.chatId],
-      references: [chats.id]
-    }),
-    userMessage: one(userMessages, {
-      fields: [aiResponses.userMessageId],
-      references: [userMessages.id]
-    }),
-    aiResponseReactions: many(aiResponseReactions)
-  };
-});
-
-export const aiResponseReactions = pgTable(
-  'ai_response_reactions',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    aiResponseId: uuid('ai_response_id')
-      .notNull()
-      .references(() => aiResponses.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      }),
-    reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
-    comment: text('comment')
-  },
-  (table) => {
-    return {
-      aiResponseIdIdx: index('ai_response_reactions_ai_response_id').on(table.aiResponseId)
-    };
-  }
-);
-
-export const aiResponseReactionsRelations = relations(aiResponseReactions, ({ one }) => {
-  return {
-    aiResponse: one(aiResponses, {
-      fields: [aiResponseReactions.aiResponseId],
-      references: [aiResponses.id]
-    }),
-    user: one(users, {
-      fields: [aiResponseReactions.userId],
-      references: [users.id]
-    })
-  };
-});
-
-export const roles = pgTable(
-  'roles',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    name: text('name').notNull(),
-    permissions: jsonb('permissions').notNull().default([]).$type<string[]>()
-  },
-  (table) => {
-    return {
-      nameKey: uniqueIndex('roles_name_key').on(table.name)
-    };
-  }
-);
-
-export const rolesRelations = relations(roles, ({ many }) => {
-  return {
-    usersToRoles: many(usersToRoles)
-  };
-});
-
-export const users = pgTable(
-  'users',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
-    name: text('name'),
-    email: text('email').notNull(),
-    stripeCustomerId: text('stripe_customer_id'),
-    image: text('image'),
-    hasCustomImage: boolean('has_custom_image').notNull().default(false),
-    translation: text('translation', {
-      enum: ['NIV', 'ESV', 'NKJV', 'NLT']
-    })
-      .notNull()
-      .default('ESV')
-  },
-  (table) => {
-    return {
-      emailKey: uniqueIndex('users_email_key').on(table.email),
-      stripeCustomerIdIdx: index('users_stripe_customer_id').on(table.stripeCustomerId)
-    };
-  }
-);
-
-export const usersRelations = relations(users, ({ many }) => {
-  return {
-    usersToRoles: many(usersToRoles),
-    userPasswords: many(userPasswords),
-    chats: many(chats),
-    userGeneratedImages: many(userGeneratedImages),
-    userMessages: many(userMessages),
-    aiResponses: many(aiResponses),
-    devotionReactions: many(devotionReactions),
-    aiResponseReactions: many(aiResponseReactions)
-  };
-});
-
-export const userPasswords = pgTable(
-  'user_passwords',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    passwordHash: text('password_hash').notNull(),
-    salt: text('salt').notNull().default(''),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
-  },
-  (table) => {
-    return {
-      userIdIdx: index('user_passwords_user_id').on(table.userId)
-    };
-  }
-);
-
-export const userPasswordsRelations = relations(userPasswords, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [userPasswords.userId],
-      references: [users.id]
-    })
-  };
-});
-
-export const devotions = pgTable(
-  'devotions',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    topic: text('topic').notNull().default('general'),
-    bibleReading: text('bible_reading').notNull(),
-    summary: text('summary').notNull(),
-    reflection: text('reflection'),
-    prayer: text('prayer'),
-    diveDeeperQueries: jsonb('dive_deeper_queries').notNull().default([]).$type<string[]>(),
-    failed: boolean('failed').notNull().default(false)
-  },
-  (table) => {
-    return {
-      createdAtIdx: index('devotions_created_at_idx').on(table.createdAt)
-    };
-  }
-);
-
-export const devotionsRelations = relations(devotions, ({ many }) => {
-  return {
-    images: many(devotionImages),
-    reactions: many(devotionReactions)
-  };
-});
-
-export const devotionReactions = pgTable(
-  'devotion_reactions',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    devotionId: uuid('devotion_id')
-      .notNull()
-      .references(() => devotions.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      }),
-    reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
-    comment: text('comment')
-  },
-  (table) => {
-    return {
-      devotionIdIdx: index('devotion_reactions_devotion_id').on(table.devotionId)
-    };
-  }
-);
-
-export const devotionReactionsRelations = relations(devotionReactions, ({ one }) => {
-  return {
-    devotion: one(devotions, {
-      fields: [devotionReactions.devotionId],
-      references: [devotions.id]
-    }),
-    user: one(users, {
-      fields: [devotionReactions.userId],
-      references: [users.id]
-    })
-  };
-});
-
-export const devotionImages = pgTable(
-  'devotion_images',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    devotionId: uuid('devotion_id')
-      .notNull()
-      .references(() => devotions.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      }),
-    url: text('url').notNull(),
-    caption: text('caption'),
-    prompt: text('prompt'),
-    negativePrompt: text('negative_prompt')
-  },
-  (table) => {
-    return {
-      devotionIdIdx: index('devotion_images_devotion_id').on(table.devotionId)
-    };
-  }
-);
-
-export const devotionImagesRelations = relations(devotionImages, ({ one }) => {
-  return {
-    devotion: one(devotions, {
-      fields: [devotionImages.devotionId],
-      references: [devotions.id]
-    })
-  };
-});
-
-export const userMessages = pgTable(
-  'user_messages',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-    aiId: text('ai_id'),
-    text: text('text').notNull(),
-    chatId: uuid('chat_id')
-      .notNull()
-      .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    anonymous: boolean('anonymous').notNull().default(false)
-  },
-  (table) => {
-    return {
-      aiIdIdx: index('ai_id').on(table.aiId),
-      textIdx: index('text').on(table.text)
-    };
-  }
-);
-
-export const userMessagesRelations = relations(userMessages, ({ one, many }) => {
-  return {
-    chat: one(chats, {
-      fields: [userMessages.chatId],
-      references: [chats.id]
-    }),
-    user: one(users, {
-      fields: [userMessages.userId],
-      references: [users.id]
-    }),
-    aiResponses: many(aiResponses)
-  };
-});
-
-export const indexOperations = pgTable(
-  'index_operations',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    status: text('status', {
-      enum: ['FAILED', 'SUCCEEDED', 'RUNNING', 'COMPLETED']
-    }).notNull(),
-    errorMessages: jsonb('error_messages').notNull().default([]).$type<string[]>(),
-    metadata: jsonb('metadata').$type<unknown>().default({}).notNull(),
-    dataSourceId: uuid('data_source_id')
-      .notNull()
-      .references(() => dataSources.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      })
-  },
-  (table) => {
-    return {
-      statusIdx: index('index_operation_status').on(table.status)
-    };
-  }
-);
-
-export const indexOperationsRelations = relations(indexOperations, ({ one }) => {
-  return {
-    dataSource: one(dataSources, {
-      fields: [indexOperations.dataSourceId],
-      references: [dataSources.id]
-    })
-  };
+  name: text('name').notNull(),
+  permissions: jsonb('permissions').notNull().default([]).$type<string[]>()
 });
 
 export const chats = pgTable(
   'chats',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     name: text('name').notNull().default('New Chat'),
     customName: boolean('custom_name').notNull().default(false),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' })
+    userId: text('user_id').notNull()
   },
   (table) => {
     return {
@@ -385,12 +46,7 @@ export const chats = pgTable(
 
 export const chatsRelations = relations(chats, ({ one, many }) => {
   return {
-    user: one(users, {
-      fields: [chats.userId],
-      references: [users.id]
-    }),
-    userMessages: many(userMessages),
-    aiResponses: many(aiResponses),
+    messages: many(messages),
     shareOptions: one(shareChatOptions)
   };
 });
@@ -398,10 +54,12 @@ export const chatsRelations = relations(chats, ({ one, many }) => {
 export const shareChatOptions = pgTable(
   'share_chat_options',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    chatId: uuid('chat_id')
+    chatId: text('chat_id')
       .notNull()
       .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' })
   },
@@ -421,16 +79,133 @@ export const shareChatOptionsRelations = relations(shareChatOptions, ({ one }) =
   };
 });
 
-export const aiResponsesToSourceDocuments = pgTable(
-  'ai_responses_to_source_documents',
+export const messages = pgTable(
+  'messages',
   {
-    aiResponseId: uuid('ai_response_id')
+    // Fields required by the ai sdk
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    tool_call_id: text('tool_call_id'),
+    content: text('content'),
+    role: text('role', {
+      enum: ['system', 'user', 'assistant', 'function', 'data', 'tool']
+    }).notNull(),
+    name: text('name'),
+    function_call: jsonb('function_call').$type<string | FunctionCall>().default({}),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: jsonb('data').$type<JSONValue>(),
+    tool_calls: jsonb('tool_calls').$type<string | ToolCall[]>().default([]),
+    annotations: jsonb('annotations').$type<JSONValue>(),
+
+    // Custom fields
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+    metadata: jsonb('metadata')
+      .$type<
+        Metadata & {
+          failed?: boolean;
+          regenerated?: boolean;
+          modelId?: string;
+          searchQueries?: string[];
+        }
+      >()
+      .default({}),
+    anonymous: boolean('anonymous').notNull().default(false),
+
+    // Relations fields
+    chatId: text('chat_id')
       .notNull()
-      .references(() => aiResponses.id, {
+      .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+    userId: text('user_id').notNull(),
+    originMessageId: text('origin_message_id').references((): AnyPgColumn => messages.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
+    })
+  },
+  (table) => {
+    return {
+      roleIdx: index('role').on(table.role),
+      contentIdx: index('content').on(table.content),
+      chatIdIdx: index('chat_id').on(table.chatId),
+      userIdIdx: index('user_id').on(table.userId),
+      originMessageIdIdx: index('origin_message_id').on(table.originMessageId),
+      anonymousIdx: index('anonymous').on(table.anonymous),
+      originMessageReference: foreignKey({
+        columns: [table.originMessageId],
+        foreignColumns: [table.id],
+        name: 'origin_message_reference'
+      })
+        .onUpdate('cascade')
+        .onDelete('cascade')
+    };
+  }
+);
+
+export const messagesRelations = relations(messages, ({ one, many }) => {
+  return {
+    chat: one(chats, {
+      fields: [messages.chatId],
+      references: [chats.id]
+    }),
+    originMessage: one(messages, {
+      fields: [messages.originMessageId],
+      references: [messages.id],
+      relationName: 'originMessage'
+    }),
+    responses: many(messages, {
+      relationName: 'responses'
+    }),
+    reactions: many(messageReactions),
+    images: many(userGeneratedImages),
+    messagesToSourceDocuments: many(messagesToSourceDocuments)
+  };
+});
+
+export const messageReactions = pgTable(
+  'message_reactions',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    messageId: text('message_id')
+      .notNull()
+      .references(() => messages.id, {
         onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
-    sourceDocumentId: uuid('source_document_id').notNull(),
+    userId: text('user_id').notNull(),
+    reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
+    comment: text('comment')
+  },
+  (table) => {
+    return {
+      messageReactionKey: uniqueIndex('message_reaction_key').on(table.messageId, table.userId)
+    };
+  }
+);
+
+export const messageReactionsRelations = relations(messageReactions, ({ one }) => {
+  return {
+    message: one(messages, {
+      fields: [messageReactions.messageId],
+      references: [messages.id]
+    })
+  };
+});
+
+export const messagesToSourceDocuments = pgTable(
+  'messages_to_source_documents',
+  {
+    messageId: text('message_id')
+      .notNull()
+      .references(() => messages.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    sourceDocumentId: text('source_document_id').notNull(),
     distance: doublePrecision('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct']
@@ -440,24 +215,229 @@ export const aiResponsesToSourceDocuments = pgTable(
   },
   (table) => {
     return {
-      aiResponseSourceDocumentKey: uniqueIndex('ai_response_source_document_key').on(
-        table.aiResponseId,
+      messageSourceDocumentKey: uniqueIndex('message_source_document_key').on(
+        table.messageId,
         table.sourceDocumentId
       )
     };
   }
 );
 
-export const devotionsToSourceDocuments = pgTable(
-  'devotions_to_source_documents',
+export const userGeneratedImages = pgTable(
+  'user_generated_images',
   {
-    devotionId: uuid('devotion_id')
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    userId: text('user_id').notNull(),
+    messageId: text('message_id').references(() => messages.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade'
+    }),
+    url: text('url'),
+    userPrompt: text('user_prompt').notNull(),
+    prompt: text('prompt'),
+    negativePrompt: text('negative_prompt'),
+    searchQueries: jsonb('search_queries').notNull().default([]).$type<string[]>(),
+    failed: boolean('failed').notNull().default(false)
+  },
+  (table) => {
+    return {
+      userIdIdx: index('user_generated_images_user_id').on(table.userId),
+      messageIdIdx: index('user_generated_images_message_id').on(table.messageId)
+    };
+  }
+);
+
+export const userGeneratedImagesRelations = relations(userGeneratedImages, ({ one, many }) => {
+  return {
+    message: one(messages, {
+      fields: [userGeneratedImages.messageId],
+      references: [messages.id]
+    }),
+    reactions: many(userGeneratedImagesReactions),
+    imagesToSourceDocuments: many(userGeneratedImagesToSourceDocuments)
+  };
+});
+
+export const userGeneratedImagesReactions = pgTable(
+  'user_generated_images_reactions',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    userGeneratedImageId: text('user_generated_image_id')
+      .notNull()
+      .references(() => userGeneratedImages.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    userId: text('user_id').notNull(),
+    reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
+    comment: text('comment')
+  },
+  (table) => {
+    return {
+      userGeneratedImageReactionKey: uniqueIndex('user_generated_image_reaction_key').on(
+        table.userGeneratedImageId,
+        table.userId
+      )
+    };
+  }
+);
+
+export const userGeneratedImagesReactionsRelations = relations(
+  userGeneratedImagesReactions,
+  ({ one }) => {
+    return {
+      userGeneratedImage: one(userGeneratedImages, {
+        fields: [userGeneratedImagesReactions.userGeneratedImageId],
+        references: [userGeneratedImages.id]
+      })
+    };
+  }
+);
+
+export const userGeneratedImagesToSourceDocuments = pgTable(
+  'user_generated_images_to_source_documents',
+  {
+    userGeneratedImageId: text('user_generated_image_id')
+      .notNull()
+      .references(() => userGeneratedImages.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    sourceDocumentId: text('source_document_id').notNull(),
+    distance: doublePrecision('distance').notNull().default(0),
+    distanceMetric: text('distance_metric', {
+      enum: ['cosine', 'l2', 'innerProduct']
+    })
+      .notNull()
+      .default('cosine')
+  },
+  (table) => {
+    return {
+      userGeneratedImageSourceDocumentKey: uniqueIndex(
+        'user_generated_image_source_document_key'
+      ).on(table.userGeneratedImageId, table.sourceDocumentId)
+    };
+  }
+);
+
+export const devotions = pgTable(
+  'devotions',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    topic: text('topic').notNull().default('general'),
+    bibleReading: text('bible_reading').notNull(),
+    summary: text('summary').notNull(),
+    reflection: text('reflection'),
+    prayer: text('prayer'),
+    diveDeeperQueries: jsonb('dive_deeper_queries').notNull().default([]).$type<string[]>(),
+    failed: boolean('failed').notNull().default(false)
+  },
+  (table) => {
+    return {
+      createdAtIdx: index('devotions_created_at_idx').on(table.createdAt)
+    };
+  }
+);
+
+export const devotionsRelations = relations(devotions, ({ one, many }) => {
+  return {
+    images: one(devotionImages),
+    reactions: many(devotionReactions),
+    devotionsToSourceDocuments: many(devotionsToSourceDocuments)
+  };
+});
+
+export const devotionReactions = pgTable(
+  'devotion_reactions',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    devotionId: text('devotion_id')
       .notNull()
       .references(() => devotions.id, {
         onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
-    sourceDocumentId: uuid('source_document_id').notNull(),
+    userId: text('user_id').notNull(),
+    reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
+    comment: text('comment')
+  },
+  (table) => {
+    return {
+      devotionIdIdx: index('devotion_reactions_devotion_id').on(table.devotionId)
+    };
+  }
+);
+
+export const devotionReactionsRelations = relations(devotionReactions, ({ one }) => {
+  return {
+    devotion: one(devotions, {
+      fields: [devotionReactions.devotionId],
+      references: [devotions.id]
+    })
+  };
+});
+
+export const devotionImages = pgTable(
+  'devotion_images',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    devotionId: text('devotion_id')
+      .notNull()
+      .references(() => devotions.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    url: text('url'),
+    prompt: text('prompt'),
+    negativePrompt: text('negative_prompt'),
+    caption: text('caption')
+  },
+  (table) => {
+    return {
+      devotionIdIdx: index('devotion_images_devotion_id').on(table.devotionId)
+    };
+  }
+);
+
+export const devotionImagesRelations = relations(devotionImages, ({ one }) => {
+  return {
+    devotion: one(devotions, {
+      fields: [devotionImages.devotionId],
+      references: [devotions.id]
+    })
+  };
+});
+
+export const devotionsToSourceDocuments = pgTable(
+  'devotions_to_source_documents',
+  {
+    devotionId: text('devotion_id')
+      .notNull()
+      .references(() => devotions.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    sourceDocumentId: text('source_document_id').notNull(),
     distance: doublePrecision('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct']
@@ -475,98 +455,12 @@ export const devotionsToSourceDocuments = pgTable(
   }
 );
 
-export const usersToRoles = pgTable(
-  'users_to_roles',
-  {
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    roleId: uuid('role_id')
-      .notNull()
-      .references(() => roles.id, { onDelete: 'cascade', onUpdate: 'cascade' })
-  },
-  (table) => {
-    return {
-      userRoleKey: uniqueIndex('user_role_key').on(table.userId, table.roleId)
-    };
-  }
-);
-
-export const usersToRolesRelations = relations(usersToRoles, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [usersToRoles.userId],
-      references: [users.id]
-    }),
-    role: one(roles, {
-      fields: [usersToRoles.roleId],
-      references: [roles.id]
-    })
-  };
-});
-
-export const userGeneratedImages = pgTable(
-  'user_generated_images',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    url: text('url'),
-    userPrompt: text('user_prompt').notNull(),
-    prompt: text('prompt'),
-    negativePrompt: text('negative_prompt'),
-    searchQueries: jsonb('search_queries').notNull().default([]).$type<string[]>(),
-    failed: boolean('failed').notNull().default(false)
-  },
-  (table) => {
-    return {
-      userIdIdx: index('user_generated_images_user_id').on(table.userId)
-    };
-  }
-);
-
-export const userGeneratedImagesToSourceDocuments = pgTable(
-  'user_generated_images_to_source_documents',
-  {
-    userGeneratedImageId: uuid('user_generated_image_id')
-      .notNull()
-      .references(() => userGeneratedImages.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-      }),
-    sourceDocumentId: uuid('source_document_id').notNull(),
-    distance: doublePrecision('distance').notNull().default(0),
-    distanceMetric: text('distance_metric', {
-      enum: ['cosine', 'l2', 'innerProduct']
-    })
-      .notNull()
-      .default('cosine')
-  },
-  (table) => {
-    return {
-      userGeneratedImageSourceDocumentKey: uniqueIndex(
-        'user_generated_image_source_document_key'
-      ).on(table.userGeneratedImageId, table.sourceDocumentId)
-    };
-  }
-);
-
-export const userGeneratedImagesRelations = relations(userGeneratedImages, ({ one }) => {
-  return {
-    user: one(users, {
-      fields: [userGeneratedImages.userId],
-      references: [users.id]
-    })
-  };
-});
-
 export const dataSources = pgTable(
   'data_sources',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     name: text('name').notNull(),
@@ -592,16 +486,23 @@ export const dataSources = pgTable(
   }
 );
 
+export const dataSourcesRelations = relations(dataSources, ({ many }) => {
+  return {
+    indexOperations: many(indexOperations),
+    dataSourcesToSourceDocuments: many(dataSourcesToSourceDocuments)
+  };
+});
+
 export const dataSourcesToSourceDocuments = pgTable(
   'data_sources_to_source_documents',
   {
-    dataSourceId: uuid('data_source_id')
+    dataSourceId: text('data_source_id')
       .notNull()
       .references(() => dataSources.id, {
         onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
-    sourceDocumentId: uuid('source_document_id').notNull()
+    sourceDocumentId: text('source_document_id').notNull()
   },
   (table) => {
     return {
@@ -613,8 +514,282 @@ export const dataSourcesToSourceDocuments = pgTable(
   }
 );
 
-export const dataSourcesRelations = relations(dataSources, ({ many }) => {
+export const indexOperations = pgTable(
+  'index_operations',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    status: text('status', {
+      enum: ['FAILED', 'SUCCEEDED', 'RUNNING', 'COMPLETED']
+    }).notNull(),
+    errorMessages: jsonb('error_messages').notNull().default([]).$type<string[]>(),
+    metadata: jsonb('metadata').$type<unknown>().default({}).notNull(),
+    dataSourceId: text('data_source_id')
+      .notNull()
+      .references(() => dataSources.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+  },
+  (table) => {
+    return {
+      statusIdx: index('index_operation_status').on(table.status)
+    };
+  }
+);
+
+export const indexOperationsRelations = relations(indexOperations, ({ one }) => {
   return {
-    indexOperations: many(indexOperations)
+    dataSource: one(dataSources, {
+      fields: [indexOperations.dataSourceId],
+      references: [dataSources.id]
+    })
+  };
+});
+
+export const bibles = pgTable(
+  'bibles',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    abbreviation: text('abbreviation').notNull().unique(),
+    abbreviationLocal: text('abbreviation_local').notNull(),
+    name: text('name').notNull(),
+    nameLocal: text('name_local').notNull(),
+    description: text('description').notNull(),
+    languageISO: text('language_iso').notNull(),
+    countryISOs: jsonb('country_isos').notNull().default([]).$type<string[]>()
+  },
+  (table) => {
+    return {
+      abbreviationIdx: index('bibles_abbreviation').on(table.abbreviation),
+      languageISOIdx: index('bibles_language_iso').on(table.languageISO),
+      countryISOsIdx: index('bibles_country_isos').on(table.countryISOs)
+    };
+  }
+);
+
+export const biblesRelations = relations(bibles, ({ many }) => {
+  return {
+    books: many(books),
+    chapters: many(chapters),
+    verses: many(verses)
+  };
+});
+
+export const books = pgTable(
+  'books',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    previousId: text('previous_id'),
+    nextId: text('next_id'),
+    number: integer('number').notNull(),
+    abbreviation: text('abbreviation').notNull(),
+    shortName: text('short_name').notNull(),
+    longName: text('long_name').notNull()
+  },
+  (table) => {
+    return {
+      abbreviationIdx: index('books_abbreviation').on(table.abbreviation),
+      shortNameIdx: index('books_short_name').on(table.shortName),
+      longNameIdx: index('books_long_name').on(table.longName)
+    };
+  }
+);
+
+export const booksRelations = relations(books, ({ one, many }) => {
+  return {
+    bible: one(bibles, {
+      fields: [books.bibleId],
+      references: [bibles.id]
+    }),
+    previous: one(books, {
+      fields: [books.previousId],
+      references: [books.id],
+      relationName: 'previous'
+    }),
+    next: one(books, {
+      fields: [books.nextId],
+      references: [books.id],
+      relationName: 'next'
+    }),
+    chapters: many(chapters),
+    verses: many(verses)
+  };
+});
+
+export const chapters = pgTable(
+  'chapters',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    bookId: text('book_id')
+      .references(() => books.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    previousId: text('previous_id'),
+    nextId: text('next_id'),
+    abbreviation: text('abbreviation').notNull(),
+    name: text('name').notNull(),
+    number: integer('number').notNull(),
+    content: jsonb('content').notNull().$type<Content[]>()
+  },
+  (table) => {
+    return {
+      nameIdx: index('chapters_name').on(table.name)
+    };
+  }
+);
+
+export const chaptersRelations = relations(chapters, ({ one, many }) => {
+  return {
+    bible: one(bibles, {
+      fields: [chapters.bibleId],
+      references: [bibles.id]
+    }),
+    book: one(books, {
+      fields: [chapters.bookId],
+      references: [books.id]
+    }),
+    previous: one(chapters, {
+      fields: [chapters.previousId],
+      references: [chapters.id],
+      relationName: 'previous'
+    }),
+    next: one(chapters, {
+      fields: [chapters.nextId],
+      references: [chapters.id],
+      relationName: 'next'
+    }),
+    verses: many(verses),
+    chapterHighlights: many(chapterHighlights)
+  };
+});
+
+export const chapterHighlights = pgTable(
+  'chapter_highlights',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    chapterId: text('chapter_id')
+      .references(() => chapters.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    userId: text('user_id').notNull(),
+    color: text('color').notNull()
+  },
+  (table) => {
+    return {
+      chapterIdIdx: index('chapter_highlights_chapter_id').on(table.chapterId),
+      userIdIdx: index('chapter_highlights_user_id').on(table.userId)
+    };
+  }
+);
+
+export const chapterHighlightsRelations = relations(chapterHighlights, ({ one }) => {
+  return {
+    chapter: one(chapters, {
+      fields: [chapterHighlights.chapterId],
+      references: [chapters.id]
+    })
+  };
+});
+
+export const verses = pgTable(
+  'verses',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    bookId: text('book_id')
+      .references(() => books.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    chapterId: text('chapter_id')
+      .references(() => chapters.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    previousId: text('previous_id'),
+    nextId: text('next_id'),
+    abbreviation: text('abbreviation').notNull(),
+    name: text('name').notNull(),
+    number: integer('number').notNull(),
+    content: jsonb('content').notNull().$type<Content[]>()
+  },
+  (table) => {
+    return {
+      nameIdx: index('verses_name').on(table.name)
+    };
+  }
+);
+
+export const versesRelations = relations(verses, ({ one }) => {
+  return {
+    bible: one(bibles, {
+      fields: [verses.bibleId],
+      references: [bibles.id]
+    }),
+    book: one(books, {
+      fields: [verses.bookId],
+      references: [books.id]
+    }),
+    chapter: one(chapters, {
+      fields: [verses.chapterId],
+      references: [chapters.id]
+    }),
+    previous: one(verses, {
+      fields: [verses.previousId],
+      references: [verses.id],
+      relationName: 'previous'
+    }),
+    next: one(verses, {
+      fields: [verses.nextId],
+      references: [verses.id],
+      relationName: 'next'
+    })
   };
 });

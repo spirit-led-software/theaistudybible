@@ -11,10 +11,8 @@
     "console": "sst console",
     "typecheck": "tsc --noEmit",
     "typecheck:all": "pnpm run typecheck && pnpm run -r --parallel typecheck",
-    "lint": "eslint .",
-    "lint:all": "pnpm run lint && pnpm run -r --parallel lint",
-    "format": "prettier --write .",
-    "format:all": "pnpm run format && pnpm run -r --parallel format",
+    "lint": "pnpm run -r --parallel lint",
+    "format": "pnpm run -r --parallel format",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:watch": "graphql-codegen --watch './graphql/schema.graphql' --watch './codegen.ts'",
     "update": "concurrently --names \"Dependency Update,Chromium Layer Update,Argon Layer Update\" -c \"bgYellow,bgBlue,bgPink\" \"pnpm update -rLf && pnpm sst update && pnpm install -rf\" \"cd lambda-layers/chromium && ./build-layer.sh\" \"cd lambda-layers/argon2 && ./build-layer.sh\""

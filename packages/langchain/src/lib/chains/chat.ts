@@ -1,16 +1,16 @@
+import type { User } from '@clerk/backend';
 import type { CallbackManager } from '@langchain/core/callbacks/manager';
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { BasePromptTemplate } from '@langchain/core/prompts';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import envConfig from '@revelationsai/core/configs/environment';
-import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import type { Message } from '@revelationsai/core/model/chat/message';
 import {
   allModels,
   type FreeTierModelId,
   type PlusTierModelId
 } from '@revelationsai/core/model/llm';
-import type { User } from '@revelationsai/core/model/user';
 import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
 import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
 import { XMLBuilder } from 'fast-xml-parser';
@@ -56,7 +56,7 @@ const routerChainOutputParser = RAIOutputFixingParser.fromParser(
 export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;
   user: User;
-  messages: RAIChatMessage[];
+  messages: Message[];
   callbacks: CallbackManager;
 }): Promise<
   Runnable<
@@ -79,17 +79,7 @@ export const getRAIChatChain = async (options: {
   }
 
   const history = messages.map((message) => {
-    let role: MessageType;
-    if (message.role === 'assistant') {
-      role = 'ai';
-    } else if (message.role === 'user' || message.role === 'anonymous') {
-      role = 'human';
-    } else if (message.role === 'data') {
-      role = 'generic';
-    } else {
-      role = message.role;
-    }
-    return [role, message.content] as [MessageType, MessageContent];
+    return [message.role, message.content] as [MessageType, MessageContent];
   });
 
   const { prompt: identityChainPrompt, stopSequences: identityChainStopSequences } =
@@ -139,14 +129,14 @@ export const getRAIChatChain = async (options: {
   const { prompt: faithQaChainPrompt, stopSequences: faithQaChainStopSequences } =
     await getFaithQaChainPromptInfo({
       history,
-      bibleTranslation: user.translation
+      bibleTranslation: user.publicMetadata.bibleTranslation ?? 'WEB'
     });
   const faithQaChain = await getDocumentQaChain({
     modelId,
     contextSize: contextSizeNum,
     prompt: faithQaChainPrompt,
     stopSequences: faithQaChainStopSequences,
-    filter: `(category = 'bible' AND translation = '${user.translation}') OR category != 'bible'`,
+    filter: `(category = 'bible' AND translation = '${user.publicMetadata.bibleTranslation ?? 'WEB'}') OR category != 'bible'`,
     history,
     callbacks
   });

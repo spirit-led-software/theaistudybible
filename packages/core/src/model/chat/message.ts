@@ -1,8 +1,6 @@
-import type { Message } from 'ai';
+import type { messages } from '@revelationsai/core/database/schema';
+import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 
-export type RAIChatMessage = Omit<Message, 'role'> & {
-  role: Message['role'] | 'anonymous';
-  uuid?: string;
-  modelId?: string;
-  searchQueries?: string[];
-};
+export type Message = typeof messages.$inferSelect;
+export type CreateMessageData = PgInsertValue<typeof messages>;
+export type UpdateMessageData = PgUpdateSetSource<typeof messages>;

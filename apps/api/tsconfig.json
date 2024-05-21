@@ -1,0 +1,15 @@
+{
+  "extends": "@revelationsai/tsconfig",
+  "compilerOptions": {
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@core/*": ["../../packages/core/src/*"],
+      "@core": ["../../packages/core/src"],
+      "@langchain/*": ["../../packages/langchain/src/*"],
+      "@langchain": ["../../packages/langchain/src"],
+      "@api/*": ["./src/*"],
+      "@api": ["./src"]
+    }
+  },
+  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"]
+}

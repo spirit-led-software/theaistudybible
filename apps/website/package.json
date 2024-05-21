@@ -48,7 +48,6 @@
   },
   "type": "module",
   "dependencies": {
-    "@revelationsai/client": "workspace:*",
     "@revelationsai/core": "workspace:*",
     "@revelationsai/server": "workspace:*",
     "@tanstack/match-sorter-utils": "^8.15.1",
