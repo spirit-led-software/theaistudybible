@@ -1,6 +1,7 @@
 // @ts-check
 
 import eslint from "@eslint/js";
+import prettierPlugin from "eslint-plugin-prettier";
 import sveltePlugin from "eslint-plugin-svelte";
 import globals from "globals";
 import svelteParser from "svelte-eslint-parser";
@@ -21,6 +22,11 @@ export default tsEslint.config(
   {
     rules: {
       "@typescript-eslint/triple-slash-reference": "off",
+    },
+  },
+  {
+    plugins: {
+      prettier: prettierPlugin,
     },
   },
   {

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.passgoco.revelationsai",
+      "sha256_cert_fingerprints": [
+        "75:41:3B:49:A6:05:D3:70:0A:32:3A:DB:03:F1:03:5E:73:40:9A:59:CF:BD:16:DC:0C:60:74:F8:8A:E0:C1:96"
+      ]
+    }
+  }
+]

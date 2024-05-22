@@ -2,10 +2,13 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
 
 export default defineConfig({
-  plugins: [sveltekit()],
-  server: {
-    fs: {
-      allow: [searchForWorkspaceRoot(process.cwd())]
-    }
-  }
+	plugins: [sveltekit()],
+	server: {
+		fs: {
+			allow: [searchForWorkspaceRoot(process.cwd())]
+		}
+	},
+	test: {
+		include: ['src/**/*.{test,spec}.{js,ts}']
+	}
 });

@@ -18,11 +18,11 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@revelationsai/core": "workspace:*",
     "@langchain/anthropic": "^0.1.21",
-    "@langchain/community": "^0.2.0",
+    "@langchain/community": "^0.2.1",
     "@langchain/core": "^0.2.0",
     "@langchain/openai": "^0.0.33",
+    "@revelationsai/core": "workspace:*",
     "langchain": "^0.2.0",
     "youtube-transcript": "^1.2.1",
     "youtubei.js": "^9.4.0"

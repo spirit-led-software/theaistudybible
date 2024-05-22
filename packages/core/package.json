@@ -20,7 +20,7 @@
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
     "ai": "^3.1.12",
-    "axios": "^1.7.0",
-    "axios-retry": "^4.2.0"
+    "axios": "^1.7.2",
+    "axios-retry": "^4.3.0"
   }
 }

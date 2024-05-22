@@ -2,12 +2,12 @@
   "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
     "paths": {
-      "@revelationsai/core/*": ["../core/src/*"],
       "@revelationsai/core": ["../core/src"],
-      "@revelationsai/langchain/*": ["../langchain/src/*"],
+      "@revelationsai/core/*": ["../core/src/*"],
       "@revelationsai/langchain": ["../langchain/src"],
-      "@revelationsai/server/*": ["./src/*"],
-      "@revelationsai/server": ["./src"]
+      "@revelationsai/langchain/*": ["../langchain/src/*"],
+      "@revelationsai/server": ["./src"],
+      "@revelationsai/server/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "../core/globals.d.ts"],

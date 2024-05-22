@@ -21,7 +21,7 @@
     "aws-cdk-lib": "2.142.1",
     "concurrently": "^8.2.2",
     "constructs": "10.3.0",
-    "drizzle-kit": "0.21.2",
+    "drizzle-kit": "0.21.3",
     "graphql": "^16.8.1",
     "sst": "2.42.0",
     "typescript": "^5.4.5"

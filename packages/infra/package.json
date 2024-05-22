@@ -13,7 +13,7 @@
     "@revelationsai/eslint-config": "workspace:*",
     "@revelationsai/prettier-config": "workspace:*",
     "@revelationsai/tsconfig": "workspace:*",
-    "sst": "^2.42.0"
+    "sst": "2.42.0"
   },
   "dependencies": {
     "@revelationsai/core": "workspace:*"
