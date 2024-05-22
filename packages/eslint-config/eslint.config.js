@@ -1,11 +1,17 @@
-// @ts-check
-
+import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import prettierPlugin from "eslint-plugin-prettier";
-import sveltePlugin from "eslint-plugin-svelte";
-import globals from "globals";
-import svelteParser from "svelte-eslint-parser";
+import path from "path";
 import tsEslint from "typescript-eslint";
+import { fileURLToPath } from "url";
+
+// mimic CommonJS variables -- not needed if using CommonJS
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
 
 export default tsEslint.config(
   {
@@ -24,30 +30,29 @@ export default tsEslint.config(
       "@typescript-eslint/triple-slash-reference": "off",
     },
   },
+  // prettier
   {
     plugins: {
       prettier: prettierPlugin,
     },
   },
-  {
-    files: ["**/*.svelte"],
-    plugins: {
-      svelte: sveltePlugin,
-    },
-    languageOptions: {
-      parser: svelteParser,
-      parserOptions: {
-        parser: "@typescript-eslint/parser",
-      },
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-        ...globals.es2021,
-      },
-    },
-    // @ts-ignore
+  // drizzle
+  ...compat.config({
+    plugins: ["drizzle"],
+    extends: ["plugin:drizzle/recommended"],
     rules: {
-      ...sveltePlugin.configs.recommended.rules,
+      "drizzle/enforce-delete-with-where": [
+        "error",
+        {
+          drizzleObjectName: "db",
+        },
+      ],
+      "drizzle/enforce-update-with-where": [
+        "error",
+        {
+          drizzleObjectName: "db",
+        },
+      ],
     },
-  }
+  })
 );

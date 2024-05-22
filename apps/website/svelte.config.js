@@ -17,6 +17,11 @@ const config = {
       '@theaistudybible/langchain': '../../packages/langchain/src',
       '@theaistudybible/server': '../../packages/server/src',
       '@theaistudybible/api': '../api/src'
+    },
+    typescript: {
+      config: (config) => {
+        config.include = [...config.include, '../../../packages/core/globals.d.ts'];
+      }
     }
   }
 };

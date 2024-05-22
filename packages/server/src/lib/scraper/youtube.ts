@@ -89,6 +89,7 @@ export async function indexYoutubeVideo({
         .set({
           numberOfDocuments: docs.length
         })
+        .where(eq(dataSources.id, dataSourceId))
         .returning(),
       ...ids.map((sourceDocumentId) =>
         db.insert(dataSourcesToSourceDocuments).values({

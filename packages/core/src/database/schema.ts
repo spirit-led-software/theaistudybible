@@ -94,7 +94,6 @@ export const messages = pgTable(
     }).notNull(),
     name: text('name'),
     function_call: jsonb('function_call').$type<string | FunctionCall>().default({}),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: jsonb('data').$type<JSONValue>(),
     tool_calls: jsonb('tool_calls').$type<string | ToolCall[]>().default([]),
     annotations: jsonb('annotations').$type<JSONValue>(),
