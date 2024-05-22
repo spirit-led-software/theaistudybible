@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless';
-import * as schema from '@revelationsai/core/database/schema';
+import * as schema from '@theaistudybible/core/database/schema';
 import type { Handler } from 'aws-lambda';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { migrate } from 'drizzle-orm/neon-http/migrator';

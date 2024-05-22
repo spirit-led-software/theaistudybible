@@ -1,4 +1,4 @@
-import type { messageReactions, messages } from '@revelationsai/core/database/schema';
+import type { messageReactions, messages } from '@theaistudybible/core/database/schema';
 import type { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
 
 export type Message = typeof messages.$inferSelect;

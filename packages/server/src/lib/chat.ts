@@ -1,10 +1,10 @@
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
-import { chats } from '@revelationsai/core/database/schema';
-import type { Chat } from '@revelationsai/core/model/chat';
-import type { Message } from '@revelationsai/core/model/chat/message';
-import { getLanguageModel } from '@revelationsai/langchain/lib/llm';
-import { getRenameChainPromptInfo } from '@revelationsai/langchain/lib/prompts/chat';
+import { chats } from '@theaistudybible/core/database/schema';
+import type { Chat } from '@theaistudybible/core/model/chat';
+import type { Message } from '@theaistudybible/core/model/chat/message';
+import { getLanguageModel } from '@theaistudybible/langchain/lib/llm';
+import { getRenameChainPromptInfo } from '@theaistudybible/langchain/lib/prompts/chat';
 import { eq } from 'drizzle-orm';
 import { db } from './database';
 

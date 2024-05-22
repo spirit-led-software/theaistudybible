@@ -1,11 +1,9 @@
-import { clerkClient } from '@revelationsai/server/lib/user';
+import { clerkClient } from '@theaistudybible/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
 import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '../lib/api-responses';
 
-const stripe = new Stripe(process.env.STRIPE_API_KEY, {
-  apiVersion: '2023-10-16'
-});
+const stripe = new Stripe(process.env.STRIPE_API_KEY);
 
 export const handler = ApiHandler(async (event) => {
   console.log(`Stripe webhook event received: ${JSON.stringify(event)}`);

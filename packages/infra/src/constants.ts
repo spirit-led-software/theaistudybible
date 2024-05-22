@@ -45,7 +45,7 @@ const invokeBedrockPolicy = new PolicyStatement({
 
 export function Constants({ stack, app }: StackContext) {
   const hostedZone = HostedZone.fromLookup(stack, 'hostedZone', {
-    domainName: 'revelationsai.com'
+    domainName: 'theaistudybible.com'
   });
 
   const domainNamePrefix = `${stack.stage !== 'prod' ? `${stack.stage}.test` : ''}`;

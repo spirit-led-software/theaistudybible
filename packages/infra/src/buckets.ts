@@ -1,4 +1,4 @@
-import { DatabaseScripts } from '@revelationsai/infra';
+import { DatabaseScripts } from '@theaistudybible/infra';
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { RemovalPolicy } from 'aws-cdk-lib/core';
 import { Bucket, dependsOn, type StackContext } from 'sst/constructs';

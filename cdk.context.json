@@ -11,8 +11,8 @@
     "Id": "/hostedzone/Z098238210NNPHVI71QP0",
     "Name": "chatesv.com."
   },
-  "hosted-zone:account=008193302444:domainName=revelationsai.com:region=us-east-1": {
+  "hosted-zone:account=008193302444:domainName=theaistudybible.com:region=us-east-1": {
     "Id": "/hostedzone/Z001240212L6HVY0C49BH",
-    "Name": "revelationsai.com."
+    "Name": "theaistudybible.com."
   }
 }

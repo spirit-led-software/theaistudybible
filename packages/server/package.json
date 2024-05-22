@@ -1,5 +1,5 @@
 {
-  "name": "@revelationsai/server",
+  "name": "@theaistudybible/server",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -9,9 +9,9 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@revelationsai/eslint-config": "workspace:*",
-    "@revelationsai/prettier-config": "workspace:*",
-    "@revelationsai/tsconfig": "workspace:*",
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
     "@sparticuz/chromium": "^123.0.1",
     "@types/aws-lambda": "^8.10.138",
     "@types/busboy": "^1.5.4",
@@ -21,8 +21,8 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@revelationsai/core": "workspace:*",
-    "@revelationsai/langchain": "workspace:*",
+    "@theaistudybible/core": "workspace:*",
+    "@theaistudybible/langchain": "workspace:*",
     "@upstash/redis": "^1.31.1",
     "ai": "^3.1.12",
     "argon2": "^0.40.1",

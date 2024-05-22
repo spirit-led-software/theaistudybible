@@ -1,7 +1,7 @@
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { indexOperations } from '@revelationsai/core/database/schema';
-import axios from '@revelationsai/core/lib/axios';
-import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
+import { indexOperations } from '@theaistudybible/core/database/schema';
+import axios from '@theaistudybible/core/lib/axios';
+import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
 import { eq, sql } from 'drizzle-orm';
 import escapeStringRegexp from 'escape-string-regexp';
 import { XMLParser } from 'fast-xml-parser';

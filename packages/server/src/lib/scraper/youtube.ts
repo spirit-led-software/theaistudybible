@@ -3,11 +3,11 @@ import {
   dataSources,
   dataSourcesToSourceDocuments,
   indexOperations
-} from '@revelationsai/core/database/schema';
-import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
-import type { Metadata } from '@revelationsai/core/types/metadata';
-import { getEmbeddingsModelInfo } from '@revelationsai/langchain/lib/llm';
-import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+} from '@theaistudybible/core/database/schema';
+import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
+import type { Metadata } from '@theaistudybible/core/types/metadata';
+import { getEmbeddingsModelInfo } from '@theaistudybible/langchain/lib/llm';
+import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { eq, sql } from 'drizzle-orm';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { db } from '../database';

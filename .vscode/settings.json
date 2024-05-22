@@ -24,7 +24,7 @@
     "Mixtral",
     "NKJV",
     "openai",
-    "revelationsai",
+    "theaistudybible",
     "REVENUECAT",
     "Riverpod",
     "tada",
@@ -70,8 +70,6 @@
     "titleBar.inactiveForeground": "#e7e7e799"
   },
   "peacock.color": "#215732",
-  "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
   "editor.formatOnSave": true,
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

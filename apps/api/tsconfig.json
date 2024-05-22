@@ -1,15 +1,15 @@
 {
-  "extends": "@revelationsai/tsconfig",
+  "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
     "paths": {
-      "@revelationsai/core": ["../../packages/core/src"],
-      "@revelationsai/core/*": ["../../packages/core/src/*"],
-      "@revelationsai/langchain": ["../../packages/langchain/src"],
-      "@revelationsai/langchain/*": ["../../packages/langchain/src/*"],
-      "@revelationsai/server": ["../../packages/server/src"],
-      "@revelationsai/server/*": ["../../packages/server/src/*"],
-      "@revelationsai/api": ["./src"],
-      "@revelationsai/api/*": ["./src/*"]
+      "@theaistudybible/core": ["../../packages/core/src"],
+      "@theaistudybible/core/*": ["../../packages/core/src/*"],
+      "@theaistudybible/langchain": ["../../packages/langchain/src"],
+      "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
+      "@theaistudybible/server": ["../../packages/server/src"],
+      "@theaistudybible/server/*": ["../../packages/server/src/*"],
+      "@theaistudybible/api": ["./src"],
+      "@theaistudybible/api/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"]

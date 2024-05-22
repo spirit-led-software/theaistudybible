@@ -1,5 +1,5 @@
 {
-  "name": "@revelationsai/core",
+  "name": "@theaistudybible/core",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -9,9 +9,9 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@revelationsai/eslint-config": "workspace:*",
-    "@revelationsai/prettier-config": "workspace:*",
-    "@revelationsai/tsconfig": "workspace:*",
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
     "@types/node": "^20.12.12",
     "@types/validator": "^13.11.10",
     "sst": "2.42.0",

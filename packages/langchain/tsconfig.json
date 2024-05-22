@@ -1,11 +1,11 @@
 {
-  "extends": "@revelationsai/tsconfig",
+  "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
     "paths": {
-      "@revelationsai/core": ["../core/src"],
-      "@revelationsai/core/*": ["../core/src/*"],
-      "@revelationsai/langchain": ["./src"],
-      "@revelationsai/langchain/*": ["./src/*"]
+      "@theaistudybible/core": ["../core/src"],
+      "@theaistudybible/core/*": ["../core/src/*"],
+      "@theaistudybible/langchain": ["./src"],
+      "@theaistudybible/langchain/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "../core/globals.d.ts"],

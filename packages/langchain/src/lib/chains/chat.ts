@@ -4,14 +4,14 @@ import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { BasePromptTemplate } from '@langchain/core/prompts';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
-import type { Message } from '@revelationsai/core/model/chat/message';
+import type { Message } from '@theaistudybible/core/model/chat/message';
 import {
   allModels,
   type FreeTierModelId,
   type PlusTierModelId
-} from '@revelationsai/core/model/llm';
-import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
-import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
+} from '@theaistudybible/core/model/llm';
+import { RAIOutputFixingParser } from '@theaistudybible/langchain/output_parsers/rai-output-fixing';
+import type { UpstashVectorStoreDocument } from '@theaistudybible/langchain/vectorstores/upstash';
 import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser, RouterOutputParser } from 'langchain/output_parsers';
 import { z } from 'zod';

@@ -1,10 +1,10 @@
 import { zValidator } from '@hono/zod-validator';
-import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@revelationsai/api/types';
-import { dataSources, dataSourcesToSourceDocuments } from '@revelationsai/core/database/schema';
-import type { DataSource } from '@revelationsai/core/model/data-source';
-import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
-import { db } from '@revelationsai/server/lib/database';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
+import { dataSources, dataSourcesToSourceDocuments } from '@theaistudybible/core/database/schema';
+import type { DataSource } from '@theaistudybible/core/model/data-source';
+import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
+import { db } from '@theaistudybible/server/lib/database';
 import { count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';

@@ -1,6 +1,6 @@
-import { getSessionClaimsFromEvent } from '@revelationsai/functions/lib/user';
-import { indexRemoteFile } from '@revelationsai/server/lib/scraper/file';
-import { hasRole } from '@revelationsai/server/lib/user';
+import { getSessionClaimsFromEvent } from '@theaistudybible/functions/lib/user';
+import { indexRemoteFile } from '@theaistudybible/server/lib/scraper/file';
+import { hasRole } from '@theaistudybible/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,

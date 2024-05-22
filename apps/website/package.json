@@ -1,5 +1,5 @@
 {
-  "name": "@revelationsai/website",
+  "name": "@theaistudybible/website",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -17,9 +17,9 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@revelationsai/eslint-config": "workspace:*",
-    "@revelationsai/prettier-config": "workspace:*",
-    "@revelationsai/tsconfig": "workspace:*",
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
@@ -28,6 +28,7 @@
     "postcss": "^8.4.33",
     "svelte": "^5.0.0-next.1",
     "svelte-check": "^3.6.0",
+    "svelte-kit-sst": "2.42.0",
     "tailwindcss": "^3.4.1",
     "tslib": "^2.4.1",
     "typescript": "^5.0.0",
@@ -35,11 +36,14 @@
     "vitest": "^1.2.0"
   },
   "dependencies": {
-    "@revelationsai/core": "workspace:*",
-    "@revelationsai/langchain": "workspace:*",
-    "@revelationsai/server": "workspace:*",
+    "@theaistudybible/core": "workspace:*",
+    "@theaistudybible/langchain": "workspace:*",
+    "@theaistudybible/server": "workspace:*",
+    "@tanstack/svelte-query": "^5.37.1",
     "bits-ui": "^0.21.9",
+    "clerk-sveltekit": "^0.4.2",
     "clsx": "^2.1.1",
+    "hono": "^4.3.9",
     "tailwind-merge": "^2.3.0",
     "tailwind-variants": "^0.2.1"
   }

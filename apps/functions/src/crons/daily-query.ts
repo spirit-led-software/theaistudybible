@@ -1,7 +1,7 @@
-import { devotions } from '@revelationsai/core/database/schema';
-import { getTodaysDateString } from '@revelationsai/core/util/date';
-import { db } from '@revelationsai/server/lib/database';
-import { generateDiveDeeperQueries } from '@revelationsai/server/lib/devotion';
+import { devotions } from '@theaistudybible/core/database/schema';
+import { getTodaysDateString } from '@theaistudybible/core/util/date';
+import { db } from '@theaistudybible/server/lib/database';
+import { generateDiveDeeperQueries } from '@theaistudybible/server/lib/devotion';
 import type { Handler } from 'aws-lambda';
 import { eq, sql } from 'drizzle-orm';
 import firebase from 'firebase-admin';

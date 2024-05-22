@@ -1,5 +1,5 @@
-import { indexOperations } from '@revelationsai/core/database/schema';
-import { db } from '@revelationsai/server/lib/database';
+import { indexOperations } from '@theaistudybible/core/database/schema';
+import { db } from '@theaistudybible/server/lib/database';
 import type { Handler } from 'aws-lambda';
 import { and, eq, lt } from 'drizzle-orm';
 

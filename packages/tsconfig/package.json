@@ -1,5 +1,5 @@
 {
-  "name": "@revelationsai/tsconfig",
+  "name": "@theaistudybible/tsconfig",
   "version": "1.0.0",
   "description": "The AI Study Bible TypeScript Configuration",
   "private": true,

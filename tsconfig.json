@@ -2,10 +2,10 @@
   "extends": "./packages/tsconfig/tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@revelationsai/core/*": ["./packages/core/src/*"],
-      "@revelationsai/core": ["./packages/core/src"],
-      "@revelationsai/infra/*": ["./packages/infra/src/*"],
-      "@revelationsai/infra": ["./packages/infra/src"]
+      "@theaistudybible/core/*": ["./packages/core/src/*"],
+      "@theaistudybible/core": ["./packages/core/src"],
+      "@theaistudybible/infra/*": ["./packages/infra/src/*"],
+      "@theaistudybible/infra": ["./packages/infra/src"]
     }
   },
   "include": ["./sst.config.ts", "./drizzle.config.ts", "./codegen.ts"],

@@ -6,12 +6,12 @@ import {
   dataSources,
   dataSourcesToSourceDocuments,
   indexOperations
-} from '@revelationsai/core/database/schema';
-import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
-import type { Metadata } from '@revelationsai/core/types/metadata';
-import { getEmbeddingsModelInfo } from '@revelationsai/langchain/lib/llm';
-import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
-import { db } from '@revelationsai/server/lib/database';
+} from '@theaistudybible/core/database/schema';
+import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
+import type { Metadata } from '@theaistudybible/core/types/metadata';
+import { getEmbeddingsModelInfo } from '@theaistudybible/langchain/lib/llm';
+import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
+import { db } from '@theaistudybible/server/lib/database';
 import type { S3Handler } from 'aws-lambda';
 import { eq, sql } from 'drizzle-orm';
 import { mkdtempSync, writeFileSync } from 'fs';

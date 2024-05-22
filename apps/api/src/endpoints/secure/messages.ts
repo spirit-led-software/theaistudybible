@@ -1,11 +1,11 @@
 import { zValidator } from '@hono/zod-validator';
-import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@revelationsai/api/types';
-import { messageReactions, messages } from '@revelationsai/core/database/schema';
-import type { Message, MessageReaction } from '@revelationsai/core/model/chat/message';
-import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
-import { db } from '@revelationsai/server/lib/database';
-import { hasRole } from '@revelationsai/server/lib/user';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
+import { messageReactions, messages } from '@theaistudybible/core/database/schema';
+import type { Message, MessageReaction } from '@theaistudybible/core/model/chat/message';
+import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
+import { db } from '@theaistudybible/server/lib/database';
+import { hasRole } from '@theaistudybible/server/lib/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';

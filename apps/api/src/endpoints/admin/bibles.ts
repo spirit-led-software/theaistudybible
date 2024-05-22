@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
-import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@revelationsai/api/types';
-import { bibles } from '@revelationsai/core/database/schema';
-import type { Bible } from '@revelationsai/core/model/bible';
-import { db } from '@revelationsai/server/lib/database';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
+import { bibles } from '@theaistudybible/core/database/schema';
+import type { Bible } from '@theaistudybible/core/model/bible';
+import { db } from '@theaistudybible/server/lib/database';
 import { count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 

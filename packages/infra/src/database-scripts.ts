@@ -1,4 +1,4 @@
-import { Database } from '@revelationsai/infra';
+import { Database } from '@theaistudybible/infra';
 import { Script, dependsOn, type StackContext } from 'sst/constructs';
 
 export function DatabaseScripts({ stack }: StackContext) {

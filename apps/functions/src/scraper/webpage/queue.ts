@@ -1,7 +1,7 @@
-import { indexOperations } from '@revelationsai/core/database/schema';
-import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
-import { db } from '@revelationsai/server/lib/database';
-import { generatePageContentEmbeddings } from '@revelationsai/server/lib/scraper/webpage';
+import { indexOperations } from '@theaistudybible/core/database/schema';
+import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
+import { db } from '@theaistudybible/server/lib/database';
+import { generatePageContentEmbeddings } from '@theaistudybible/server/lib/scraper/webpage';
 import type { SQSHandler } from 'aws-lambda';
 import { eq, sql } from 'drizzle-orm';
 

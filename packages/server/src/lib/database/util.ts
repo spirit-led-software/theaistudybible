@@ -1,4 +1,4 @@
-import * as schema from '@revelationsai/core/database/schema';
+import * as schema from '@theaistudybible/core/database/schema';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import type { NeonQueryResultHKT } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleWs } from 'drizzle-orm/neon-serverless';

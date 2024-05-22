@@ -1,4 +1,4 @@
-import { UpstashVectorStore } from '@revelationsai/langchain/vectorstores/upstash';
+import { UpstashVectorStore } from '@theaistudybible/langchain/vectorstores/upstash';
 import { Index } from '@upstash/vector';
 import { getEmbeddingsModel } from './llm';
 

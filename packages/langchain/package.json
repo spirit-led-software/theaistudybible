@@ -1,7 +1,7 @@
 {
-  "name": "@revelationsai/langchain",
+  "name": "@theaistudybible/langchain",
   "version": "1.0.0",
-  "description": "Langchain for Revelations AI",
+  "description": "Langchain for The AI Study Bible",
   "type": "module",
   "scripts": {
     "test": "sst bind vitest",
@@ -10,9 +10,9 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@revelationsai/eslint-config": "workspace:*",
-    "@revelationsai/prettier-config": "workspace:*",
-    "@revelationsai/tsconfig": "workspace:*",
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
     "@sparticuz/chromium": "^123.0.1",
     "sst": "2.42.0",
     "vitest": "^1.6.0"
@@ -22,7 +22,7 @@
     "@langchain/community": "^0.2.1",
     "@langchain/core": "^0.2.0",
     "@langchain/openai": "^0.0.33",
-    "@revelationsai/core": "workspace:*",
+    "@theaistudybible/core": "workspace:*",
     "langchain": "^0.2.0",
     "youtube-transcript": "^1.2.1",
     "youtubei.js": "^9.4.0"

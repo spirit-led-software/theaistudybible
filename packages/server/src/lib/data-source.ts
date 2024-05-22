@@ -2,9 +2,9 @@ import {
   dataSources,
   dataSourcesToSourceDocuments,
   indexOperations
-} from '@revelationsai/core/database/schema';
-import type { DataSource } from '@revelationsai/core/model/data-source';
-import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+} from '@theaistudybible/core/database/schema';
+import type { DataSource } from '@theaistudybible/core/model/data-source';
+import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { and, eq } from 'drizzle-orm';
 import { db } from './database';
 import { indexRemoteFile } from './scraper/file';

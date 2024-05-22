@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
-import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@revelationsai/api/types';
-import { chats, messages } from '@revelationsai/core/database/schema';
-import { type Chat } from '@revelationsai/core/model/chat';
-import { db } from '@revelationsai/server/lib/database';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
+import { chats, messages } from '@theaistudybible/core/database/schema';
+import { type Chat } from '@theaistudybible/core/model/chat';
+import { db } from '@theaistudybible/server/lib/database';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';

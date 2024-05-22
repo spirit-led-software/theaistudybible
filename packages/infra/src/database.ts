@@ -1,5 +1,5 @@
-import { devEmbeddingModel, embeddingModel } from '@revelationsai/core/model/llm';
-import { Constants } from '@revelationsai/infra';
+import { devEmbeddingModel, embeddingModel } from '@theaistudybible/core/model/llm';
+import { Constants } from '@theaistudybible/infra';
 import { dependsOn, type StackContext } from 'sst/constructs';
 import { NeonBranch } from './resources/neon-branch';
 import { UpstashRedis } from './resources/upstash-redis';

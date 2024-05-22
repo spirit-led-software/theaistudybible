@@ -1,5 +1,5 @@
-import type { Bindings, Variables } from '@revelationsai/api/types';
-import { hasRole } from '@revelationsai/server/lib/user';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
+import { hasRole } from '@theaistudybible/server/lib/user';
 import { Hono } from 'hono';
 import bibles from './bibles';
 import chats from './chats';

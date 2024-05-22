@@ -7,23 +7,23 @@ import {
   messages,
   messages as messagesTable,
   messagesToSourceDocuments
-} from '@revelationsai/core/database/schema';
-import type { Chat } from '@revelationsai/core/model/chat';
-import type { Message } from '@revelationsai/core/model/chat/message';
+} from '@theaistudybible/core/database/schema';
+import type { Chat } from '@theaistudybible/core/model/chat';
+import type { Message } from '@theaistudybible/core/model/chat/message';
 import {
   freeTierModelIds,
   plusTierModelIds,
   type FreeTierModelId,
   type PlusTierModelId
-} from '@revelationsai/core/model/llm';
-import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
-import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
-import { getRAIChatChain } from '@revelationsai/langchain/lib/chains/chat';
-import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
-import { cache } from '@revelationsai/server/lib/cache';
-import { aiRenameChat } from '@revelationsai/server/lib/chat';
-import { db } from '@revelationsai/server/lib/database';
-import { getMaxQueryCountForUser, hasRole } from '@revelationsai/server/lib/user';
+} from '@theaistudybible/core/model/llm';
+import { similarityFunctionMapping } from '@theaistudybible/core/model/source-document';
+import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
+import { getRAIChatChain } from '@theaistudybible/langchain/lib/chains/chat';
+import type { UpstashVectorStoreDocument } from '@theaistudybible/langchain/vectorstores/upstash';
+import { cache } from '@theaistudybible/server/lib/cache';
+import { aiRenameChat } from '@theaistudybible/server/lib/chat';
+import { db } from '@theaistudybible/server/lib/database';
+import { getMaxQueryCountForUser, hasRole } from '@theaistudybible/server/lib/user';
 import { Ratelimit } from '@upstash/ratelimit';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';

@@ -1,6 +1,6 @@
-import { dataSources } from '@revelationsai/core/database/schema';
-import { syncDataSource } from '@revelationsai/server/lib/data-source';
-import { db } from '@revelationsai/server/lib/database';
+import { dataSources } from '@theaistudybible/core/database/schema';
+import { syncDataSource } from '@theaistudybible/server/lib/data-source';
+import { db } from '@theaistudybible/server/lib/database';
 import type { Handler } from 'aws-lambda';
 import { eq, not } from 'drizzle-orm';
 

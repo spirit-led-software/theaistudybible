@@ -1,6 +1,6 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import axios from '@revelationsai/core/lib/axios';
-import type { Metadata } from '@revelationsai/core/types/metadata';
+import axios from '@theaistudybible/core/lib/axios';
+import type { Metadata } from '@theaistudybible/core/types/metadata';
 import { Bucket } from 'sst/node/bucket';
 
 export async function indexRemoteFile({

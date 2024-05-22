@@ -1,5 +1,5 @@
-import { indexWebCrawl } from '@revelationsai/server/lib/scraper/web-crawl';
-import { hasRole } from '@revelationsai/server/lib/user';
+import { indexWebCrawl } from '@theaistudybible/server/lib/scraper/web-crawl';
+import { hasRole } from '@theaistudybible/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,

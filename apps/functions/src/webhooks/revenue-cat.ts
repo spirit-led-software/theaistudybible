@@ -1,6 +1,6 @@
-import { db } from '@revelationsai/server/lib/database';
-import { clerkClient } from '@revelationsai/server/lib/user';
-import { userHasRole } from '@revelationsai/server/src/lib/user';
+import { db } from '@theaistudybible/server/lib/database';
+import { clerkClient } from '@theaistudybible/server/lib/user';
+import { userHasRole } from '@theaistudybible/server/src/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,

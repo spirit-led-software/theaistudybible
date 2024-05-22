@@ -1,5 +1,5 @@
 {
-  "name": "revelationsai",
+  "name": "theaistudybible",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -24,7 +24,9 @@
     "drizzle-kit": "0.21.3",
     "graphql": "^16.8.1",
     "sst": "2.42.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0",
+    "vite-tsconfig-paths": "^4.3.2"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.577.0",

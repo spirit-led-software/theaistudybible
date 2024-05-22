@@ -5,20 +5,23 @@ import {
   devotionImages,
   devotions,
   devotionsToSourceDocuments
-} from '@revelationsai/core/database/schema';
-import axios from '@revelationsai/core/lib/axios';
-import type { Devotion } from '@revelationsai/core/model/devotion';
-import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
-import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
+} from '@theaistudybible/core/database/schema';
+import axios from '@theaistudybible/core/lib/axios';
+import type { Devotion } from '@theaistudybible/core/model/devotion';
+import { similarityFunctionMapping } from '@theaistudybible/core/model/source-document';
+import type {
+  StabilityModelInput,
+  StabilityModelOutput
+} from '@theaistudybible/core/types/bedrock';
 import {
   getBibleReadingChain,
   getDevotionGeneratorChain,
   getImageCaptionChain,
   getImagePromptChain
-} from '@revelationsai/langchain/lib/chains/devotion';
-import { getLanguageModel } from '@revelationsai/langchain/lib/llm';
-import { getDiveDeeperQueryGeneratorPromptInfo } from '@revelationsai/langchain/lib/prompts/devotion';
-import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
+} from '@theaistudybible/langchain/lib/chains/devotion';
+import { getLanguageModel } from '@theaistudybible/langchain/lib/llm';
+import { getDiveDeeperQueryGeneratorPromptInfo } from '@theaistudybible/langchain/lib/prompts/devotion';
+import { RAIOutputFixingParser } from '@theaistudybible/langchain/output_parsers/rai-output-fixing';
 import { eq } from 'drizzle-orm';
 import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser } from 'langchain/output_parsers';

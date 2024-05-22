@@ -4,12 +4,15 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import {
   userGeneratedImages,
   userGeneratedImagesToSourceDocuments
-} from '@revelationsai/core/database/schema';
-import axios from '@revelationsai/core/lib/axios';
-import type { UserGeneratedImage } from '@revelationsai/core/model/generated-image';
-import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
-import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/core/types/bedrock';
-import { getImagePromptChain } from '@revelationsai/langchain/lib/chains/generated-image';
+} from '@theaistudybible/core/database/schema';
+import axios from '@theaistudybible/core/lib/axios';
+import type { UserGeneratedImage } from '@theaistudybible/core/model/generated-image';
+import { similarityFunctionMapping } from '@theaistudybible/core/model/source-document';
+import type {
+  StabilityModelInput,
+  StabilityModelOutput
+} from '@theaistudybible/core/types/bedrock';
+import { getImagePromptChain } from '@theaistudybible/langchain/lib/chains/generated-image';
 import { eq } from 'drizzle-orm';
 import { Bucket } from 'sst/node/bucket';
 import { db } from './database';

@@ -1,5 +1,5 @@
 {
-  "name": "@revelationsai/prettier-config",
+  "name": "@theaistudybible/prettier-config",
   "version": "1.0.0",
   "description": "Prettier configuration for The AI Study Bible",
   "private": true,

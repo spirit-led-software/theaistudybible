@@ -1,7 +1,7 @@
 import { clerkMiddleware } from '@hono/clerk-auth';
 import { sentry } from '@hono/sentry';
-import adminRoutes from '@revelationsai/api/endpoints/admin';
-import type { Bindings, Variables } from '@revelationsai/api/types';
+import adminRoutes from '@theaistudybible/api/endpoints/admin';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { Hono } from 'hono';
 import { handle } from 'hono/aws-lambda';
 import { cors } from 'hono/cors';

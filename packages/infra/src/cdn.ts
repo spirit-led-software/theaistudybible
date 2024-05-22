@@ -1,4 +1,4 @@
-import { Buckets } from '@revelationsai/infra';
+import { Buckets } from '@theaistudybible/infra';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import { Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';

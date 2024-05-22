@@ -10,13 +10,13 @@ import {
   Layers,
   Queues,
   Website,
-} from "@revelationsai/infra";
+} from "@theaistudybible/infra";
 import type { SSTConfig } from "sst";
 
 export default {
   config() {
     return {
-      name: "revelationsai",
+      name: "theaistudybible",
       region: "us-east-1",
     };
   },

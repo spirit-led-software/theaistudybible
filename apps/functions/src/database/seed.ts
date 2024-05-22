@@ -1,6 +1,6 @@
 import { createClerkClient } from '@clerk/clerk-sdk-node';
-import { roles } from '@revelationsai/core/database/schema';
-import { db } from '@revelationsai/server/lib/database';
+import { roles } from '@theaistudybible/core/database/schema';
+import { db } from '@theaistudybible/server/lib/database';
 import type { Handler } from 'aws-lambda';
 import { eq } from 'drizzle-orm';
 

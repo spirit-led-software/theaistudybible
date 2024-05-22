@@ -1,9 +1,12 @@
 import { ChatAnthropic } from '@langchain/anthropic';
 import type { BaseCache } from '@langchain/core/caches';
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
-import { defaultModelId, devEmbeddingModel, embeddingModel } from '@revelationsai/core/model/llm';
-import { anthropicModelIds, type AnthropicModelId } from '@revelationsai/langchain/types/anthropic';
-import { openAiModelIds, type OpenAiModelId } from '@revelationsai/langchain/types/openai';
+import { defaultModelId, devEmbeddingModel, embeddingModel } from '@theaistudybible/core/model/llm';
+import {
+  anthropicModelIds,
+  type AnthropicModelId
+} from '@theaistudybible/langchain/types/anthropic';
+import { openAiModelIds, type OpenAiModelId } from '@theaistudybible/langchain/types/openai';
 
 export type StandardModelInput = {
   stream?: boolean;

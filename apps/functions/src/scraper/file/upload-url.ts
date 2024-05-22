@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { getSessionClaimsFromEvent } from '@revelationsai/functions/lib/user';
-import { hasRole } from '@revelationsai/server/lib/user';
+import { getSessionClaimsFromEvent } from '@theaistudybible/functions/lib/user';
+import { hasRole } from '@theaistudybible/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import { Bucket } from 'sst/node/bucket';
 import {

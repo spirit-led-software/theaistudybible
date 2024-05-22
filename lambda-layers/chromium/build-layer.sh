@@ -16,7 +16,7 @@ npm install @sparticuz/chromium@latest --save
 echo "Downloading chromium.zip"
 curl -SL ${layerUrl} > chromium.zip
 
-bucketName="revelationsai-lambda-layer-zips"
+bucketName="theaistudybible-lambda-layer-zips"
 
 echo "Uploading chromium.zip to S3"
 aws s3 cp chromium.zip "s3://${bucketName}/"

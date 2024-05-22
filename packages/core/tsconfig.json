@@ -1,9 +1,9 @@
 {
-  "extends": "@revelationsai/tsconfig",
+  "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
     "paths": {
-      "@revelationsai/core": ["./src"],
-      "@revelationsai/core/*": ["./src/*"]
+      "@theaistudybible/core": ["./src"],
+      "@theaistudybible/core/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "sst-env.d.ts", "globals.d.ts"],

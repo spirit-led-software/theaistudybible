@@ -1,7 +1,7 @@
 {
-  "name": "@revelationsai/infra",
+  "name": "@theaistudybible/infra",
   "version": "1.0.0",
-  "description": "The Infrastructure as Code for Revelations AI",
+  "description": "The Infrastructure as Code for The AI Study Bible",
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
@@ -10,12 +10,12 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@revelationsai/eslint-config": "workspace:*",
-    "@revelationsai/prettier-config": "workspace:*",
-    "@revelationsai/tsconfig": "workspace:*",
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
     "sst": "2.42.0"
   },
   "dependencies": {
-    "@revelationsai/core": "workspace:*"
+    "@theaistudybible/core": "workspace:*"
   }
 }

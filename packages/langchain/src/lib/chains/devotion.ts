@@ -1,8 +1,8 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import type { Devotion } from '@revelationsai/core/model/devotion';
-import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
-import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
+import type { Devotion } from '@theaistudybible/core/model/devotion';
+import { RAIOutputFixingParser } from '@theaistudybible/langchain/output_parsers/rai-output-fixing';
+import type { UpstashVectorStoreDocument } from '@theaistudybible/langchain/vectorstores/upstash';
 import type { Document } from 'langchain/document';
 import { JsonMarkdownStructuredOutputParser } from 'langchain/output_parsers';
 import { z } from 'zod';

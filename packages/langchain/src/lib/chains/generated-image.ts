@@ -1,8 +1,8 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import { llmCache } from '@revelationsai/langchain/lib/cache';
-import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
-import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
+import { llmCache } from '@theaistudybible/langchain/lib/cache';
+import { RAIOutputFixingParser } from '@theaistudybible/langchain/output_parsers/rai-output-fixing';
+import type { UpstashVectorStoreDocument } from '@theaistudybible/langchain/vectorstores/upstash';
 import { XMLBuilder } from 'fast-xml-parser';
 import {
   CustomListOutputParser,

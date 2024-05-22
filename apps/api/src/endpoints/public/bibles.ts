@@ -2,17 +2,17 @@ import { zValidator } from '@hono/zod-validator';
 import {
   PaginationSchema,
   PaginationSchemaNoDefault
-} from '@revelationsai/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@revelationsai/api/types';
+} from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import {
   bibles,
   books,
   chapterHighlights,
   chapters,
   verses
-} from '@revelationsai/core/database/schema';
-import type { Bible, Book, Chapter, Verse } from '@revelationsai/core/model/bible';
-import { db } from '@revelationsai/server/lib/database';
+} from '@theaistudybible/core/database/schema';
+import type { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
+import { db } from '@theaistudybible/server/lib/database';
 import { SQL, and, count, eq, inArray, or, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';

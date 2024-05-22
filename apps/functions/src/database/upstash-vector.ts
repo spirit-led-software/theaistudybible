@@ -1,9 +1,6 @@
-import { CONCURRENT_UPSERT_LIMIT } from "@revelationsai/langchain/vectorstores/upstash";
-import { Index } from "@upstash/vector";
-import type {
-  CdkCustomResourceHandler,
-  CdkCustomResourceResponse,
-} from "aws-lambda";
+import { CONCURRENT_UPSERT_LIMIT } from '@theaistudybible/langchain/vectorstores/upstash';
+import { Index } from '@upstash/vector';
+import type { CdkCustomResourceHandler, CdkCustomResourceResponse } from 'aws-lambda';
 
 export type CopyIndexProps = {
   /**
@@ -23,25 +20,25 @@ export type CopyIndexProps = {
 };
 
 export const handler: CdkCustomResourceHandler = async (event) => {
-  console.log("Received event from custom resource:", JSON.stringify(event));
+  console.log('Received event from custom resource:', JSON.stringify(event));
 
   const response: CdkCustomResourceResponse = {
     StackId: event.StackId,
     RequestId: event.RequestId,
-    LogicalResourceId: event.LogicalResourceId,
+    LogicalResourceId: event.LogicalResourceId
   };
   try {
     const email = event.ResourceProperties.email as string;
     const apiKey = event.ResourceProperties.apiKey as string;
     const name = event.ResourceProperties.name as string;
-    const region = event.ResourceProperties.region as "eu-west-1" | "us-east-1";
+    const region = event.ResourceProperties.region as 'eu-west-1' | 'us-east-1';
     const similarityFunction = event.ResourceProperties.similarityFunction as
-      | "COSINE"
-      | "EUCLIDEAN"
-      | "DOT_PRODUCT";
+      | 'COSINE'
+      | 'EUCLIDEAN'
+      | 'DOT_PRODUCT';
     const dimensionCount = parseInt(event.ResourceProperties.dimensionCount);
-    const type = event.ResourceProperties.type as "payg" | "fixed";
-    const retainOnDelete = event.ResourceProperties.retainOnDelete === "true";
+    const type = event.ResourceProperties.type as 'payg' | 'fixed';
+    const retainOnDelete = event.ResourceProperties.retainOnDelete === 'true';
     const copyIndex = event.ResourceProperties.copyIndex
       ? (JSON.parse(event.ResourceProperties.copyIndex) as CopyIndexProps)
       : undefined;
@@ -51,7 +48,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
     );
 
     switch (event.RequestType) {
-      case "Delete": {
+      case 'Delete': {
         if (!retainOnDelete) {
           const indices = await listIndices({ email, apiKey });
           const index = indices.find((index) => index.name === name);
@@ -61,7 +58,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
             console.warn(`Index ${name} not found`);
           }
         }
-        response.Status = "SUCCESS";
+        response.Status = 'SUCCESS';
         break;
       }
       default: {
@@ -87,7 +84,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
             region,
             similarityFunction,
             dimensionCount,
-            type,
+            type
           });
         }
 
@@ -97,29 +94,29 @@ export const handler: CdkCustomResourceHandler = async (event) => {
             apiKey,
             options: {
               ...copyIndex,
-              destIndexName: name,
-            },
+              destIndexName: name
+            }
           });
         }
 
-        response.Status = "SUCCESS";
+        response.Status = 'SUCCESS';
         response.Data = {
           restUrl: `https://${index.endpoint}`,
           restToken: index.token,
-          readOnlyRestToken: index.read_only_token,
+          readOnlyRestToken: index.read_only_token
         };
         break;
       }
     }
-    console.log("Response from custom resource:", response);
+    console.log('Response from custom resource:', response);
     return response;
   } catch (error) {
     console.error(error);
-    response.Status = "FAILED";
+    response.Status = 'FAILED';
     if (error instanceof Error) {
       response.Reason = error.message;
       response.Data = {
-        stack: error.stack,
+        stack: error.stack
       };
     } else {
       response.Reason = `Error: ${JSON.stringify(error)}`;
@@ -128,7 +125,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
       ...response.Data,
       restUrl: null,
       restToken: null,
-      readOnlyRestToken: null,
+      readOnlyRestToken: null
     };
     return response;
   }
@@ -138,13 +135,13 @@ interface UpstashVectorIndex {
   customer_id: string;
   id: string;
   name: string;
-  similarity_function: "COSINE" | "EUCLIDEAN" | "DOT_PRODUCT";
+  similarity_function: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
   dimension_count: number;
   endpoint: string;
   token: string;
   read_only_token: string;
-  type: "payg" | "fixed";
-  region: "eu-west-1" | "us-east-1";
+  type: 'payg' | 'fixed';
+  region: 'eu-west-1' | 'us-east-1';
   max_vector_count: number;
   max_daily_updates: number;
   max_daily_queries: number;
@@ -159,22 +156,20 @@ interface UpstashVectorIndex {
 
 async function listIndices({
   email,
-  apiKey,
+  apiKey
 }: {
   email: string;
   apiKey: string;
 }): Promise<UpstashVectorIndex[]> {
-  const response = await fetch("https://api.upstash.com/v2/vector/index/", {
-    method: "GET",
+  const response = await fetch('https://api.upstash.com/v2/vector/index/', {
+    method: 'GET',
     headers: {
-      Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString("base64")}`,
-    },
+      Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString('base64')}`
+    }
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to list indices: ${response.status}\n\t${response.statusText}`
-    );
+    throw new Error(`Failed to list indices: ${response.status}\n\t${response.statusText}`);
   }
 
   return response.json();
@@ -184,26 +179,21 @@ async function listIndices({
 async function getIndex({
   email,
   apiKey,
-  indexId,
+  indexId
 }: {
   email: string;
   apiKey: string;
   indexId: string;
 }): Promise<UpstashVectorIndex> {
-  const response = await fetch(
-    `https://api.upstash.com/v2/vector/index/${indexId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString("base64")}`,
-      },
+  const response = await fetch(`https://api.upstash.com/v2/vector/index/${indexId}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString('base64')}`
     }
-  );
+  });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to get index: ${response.status}\n\t${response.statusText}`
-    );
+    throw new Error(`Failed to get index: ${response.status}\n\t${response.statusText}`);
   }
 
   return response.json();
@@ -216,35 +206,33 @@ async function createIndex({
   region,
   similarityFunction,
   dimensionCount,
-  type,
+  type
 }: {
   email: string;
   apiKey: string;
   name: string;
-  region: "eu-west-1" | "us-east-1";
-  similarityFunction: "COSINE" | "EUCLIDEAN" | "DOT_PRODUCT";
+  region: 'eu-west-1' | 'us-east-1';
+  similarityFunction: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
   dimensionCount: number;
-  type: "payg" | "fixed";
+  type: 'payg' | 'fixed';
 }): Promise<UpstashVectorIndex> {
-  const response = await fetch("https://api.upstash.com/v2/vector/index/", {
-    method: "POST",
+  const response = await fetch('https://api.upstash.com/v2/vector/index/', {
+    method: 'POST',
     headers: {
-      Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString("base64")}`,
-      "Content-Type": "application/json",
+      Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString('base64')}`,
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       name,
       region,
       similarity_function: similarityFunction,
       dimension_count: dimensionCount,
-      type,
-    }),
+      type
+    })
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to create index: ${response.status}\n\t${response.statusText}`
-    );
+    throw new Error(`Failed to create index: ${response.status}\n\t${response.statusText}`);
   }
 
   return await response.json();
@@ -253,33 +241,28 @@ async function createIndex({
 async function deleteIndex({
   email,
   apiKey,
-  indexId,
+  indexId
 }: {
   email: string;
   apiKey: string;
   indexId: string;
 }): Promise<void> {
-  const response = await fetch(
-    `https://api.upstash.com/v2/vector/index/${indexId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString("base64")}`,
-      },
+  const response = await fetch(`https://api.upstash.com/v2/vector/index/${indexId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${email}:${apiKey}`).toString('base64')}`
     }
-  );
+  });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to delete index: ${response.status}\n\t${response.statusText}`
-    );
+    throw new Error(`Failed to delete index: ${response.status}\n\t${response.statusText}`);
   }
 }
 
 async function cloneIndex({
   email,
   apiKey,
-  options,
+  options
 }: {
   email: string;
   apiKey: string;
@@ -299,11 +282,11 @@ async function cloneIndex({
 
     const sourceIndex = new Index({
       url: source.endpoint,
-      token: source.token,
+      token: source.token
     });
     const destIndex = new Index({
       url: dest.endpoint,
-      token: dest.token,
+      token: dest.token
     });
 
     let i = 0;
@@ -312,7 +295,7 @@ async function cloneIndex({
         cursor: i,
         limit: CONCURRENT_UPSERT_LIMIT,
         includeMetadata: true,
-        includeVectors: true,
+        includeVectors: true
       });
       await destIndex.upsert(vectors);
       if (!nextCursor) {
@@ -322,9 +305,7 @@ async function cloneIndex({
     }
   } catch (error) {
     if (error instanceof Error) {
-      console.error(
-        `Error copying vectors: ${error.message}\n\t${error.stack}`
-      );
+      console.error(`Error copying vectors: ${error.message}\n\t${error.stack}`);
     } else {
       console.error(`Error copying vectors: ${JSON.stringify(error)}`);
     }
