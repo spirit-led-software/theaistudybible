@@ -118,8 +118,7 @@ export const handler: CdkCustomResourceHandler = async (event) => {
 export async function getProjectByName(apiKey: string, projectName: string) {
   const neonClient = Neon(apiKey);
   const listProjectsResponse = (await neonClient.project.listProjects()) as ProjectsResponse;
-  const project = listProjectsResponse.projects.find((project) => project.name === projectName);
-  return project;
+  return listProjectsResponse.projects.find((project) => project.name === projectName);
 }
 
 export async function getBranch(apiKey: string, projectId: string, branchId: string) {
@@ -134,8 +133,7 @@ export async function getBranch(apiKey: string, projectId: string, branchId: str
 export async function getBranchByName(apiKey: string, projectId: string, branchName: string) {
   const neonClient = Neon(apiKey);
   const branches = (await neonClient.branch.listProjectBranches(projectId)) as BranchesResponse;
-  const branch = branches.branches.find((branch) => branch.name === branchName);
-  return branch;
+  return branches.branches.find((branch) => branch.name === branchName);
 }
 
 export async function createBranch(

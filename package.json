@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:all": "pnpm run typecheck && pnpm run -r --parallel typecheck",
     "lint": "pnpm run -r --parallel lint",
+    "lint:fix": "pnpm run -r --parallel lint:fix",
     "format": "pnpm run -r --parallel format",
     "update": "concurrently --names \"Dependency Update,Chromium Layer Update\" -c \"bgYellow,bgBlue\" \"pnpm update -rLf && pnpm sst update && pnpm install -rf\" \"cd lambda-layers/chromium && ./build-layer.sh\" "
   },

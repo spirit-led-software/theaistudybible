@@ -18,9 +18,7 @@ export function getTodaysDateString() {
   const day = date.getDate();
   const dayString = day < 10 ? `0${day}` : day;
 
-  const dateString = `${year}-${monthString}-${dayString}`;
-
-  return dateString;
+  return `${year}-${monthString}-${dayString}`;
 }
 
 /**

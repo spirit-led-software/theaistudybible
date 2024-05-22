@@ -38,12 +38,10 @@ export async function getMaxQueryCountForUser(sessionClaims: JwtPayload) {
   const dbRoles = await db.query.roles.findMany({
     where: (roles, ops) => ops.inArray(roles.id, userRoles)
   });
-  const maxCount = dbRoles.reduce((acc, role) => {
+  return dbRoles.reduce((acc, role) => {
     const queryCount = parseInt(
       role.permissions.find((perm) => perm.startsWith('query:'))?.split(':')[1] ?? '0'
     );
     return Math.max(acc, queryCount);
   }, 0);
-
-  return maxCount;
 }

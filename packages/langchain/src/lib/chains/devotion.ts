@@ -80,7 +80,7 @@ export const getDevotionGeneratorChain = async (): Promise<
   const { prompt, stopSequences } = await getDevoGeneratorPromptInfo({
     formatInstructions: devotionOutputParser.getFormatInstructions()
   });
-  const chain = RunnableSequence.from([
+  return RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
         (input) => `Additional information to support:\n${input.topic}\n${input.bibleReading}`,
@@ -110,8 +110,6 @@ export const getDevotionGeneratorChain = async (): Promise<
         .pipe(devotionOutputParser)
     }
   ]);
-
-  return chain;
 };
 
 export const getBibleReadingChain = async (topic: string, previousDevotions: Devotion[]) => {
@@ -131,7 +129,7 @@ export const getBibleReadingChain = async (topic: string, previousDevotions: Dev
       .map((d) => `<off_limits_bible_reading>\n${d.bibleReading}\n</off_limits_bible_reading>`)
       .join('\n')
   });
-  const chain = RunnableSequence.from([
+  return RunnableSequence.from([
     {
       sourceDocuments: RunnableSequence.from([
         (input: { topic: string }) => input.topic,
@@ -155,8 +153,6 @@ export const getBibleReadingChain = async (topic: string, previousDevotions: Dev
       )
       .pipe(bibleReadingOutputParser)
   ]);
-
-  return chain;
 };
 
 export const getImagePromptChain = () => {

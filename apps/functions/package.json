@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit"
+    "typecheck": "tsc -noEmit",
+    "lint": "eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "@theaistudybible/eslint-config": "workspace:*",

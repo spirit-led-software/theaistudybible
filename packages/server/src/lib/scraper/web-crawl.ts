@@ -126,8 +126,7 @@ export async function getSitemaps(url: string): Promise<string[]> {
     const sitemapLines = lines.filter((line) => line.toLowerCase().includes('sitemap'));
     const sitemapUrls: Set<string> = new Set<string>(
       sitemapLines.map((line) => {
-        const url = line.split(': ')[1].trim();
-        return url;
+        return line.split(': ')[1].trim();
       })
     );
     return Array.from(sitemapUrls);

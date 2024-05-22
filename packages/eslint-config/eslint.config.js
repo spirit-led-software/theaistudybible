@@ -1,6 +1,7 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import prettierPlugin from "eslint-plugin-prettier";
+import sonarjs from "eslint-plugin-sonarjs";
 import path from "path";
 import tsEslint from "typescript-eslint";
 import { fileURLToPath } from "url";
@@ -54,5 +55,14 @@ export default tsEslint.config(
         },
       ],
     },
-  })
+  }),
+  sonarjs.configs.recommended,
+  {
+    rules: {
+      ...Object.keys(sonarjs.rules).reduce((acc, rule) => {
+        acc[`sonarjs/${rule}`] = "warn";
+        return acc;
+      }, {}),
+    },
+  }
 );

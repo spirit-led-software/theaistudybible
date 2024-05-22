@@ -152,8 +152,7 @@ export class UpstashVectorStore extends VectorStore {
       return [];
     }
 
-    const vectors = await this.index.fetch<UpstashQueryMetadata>(ids, options);
-    return vectors;
+    return await this.index.fetch<UpstashQueryMetadata>(ids, options);
   }
 
   async upsert(vectors: Vector<UpstashQueryMetadata>[]) {
@@ -212,13 +211,11 @@ export class UpstashVectorStore extends VectorStore {
       filter?: UpstashVectorStore['FilterType'];
     }
   ) {
-    const queryResult = await this.index.query<UpstashQueryMetadata>({
+    return await this.index.query<UpstashQueryMetadata>({
       vector: query,
       topK: k,
       ...options
     });
-
-    return queryResult;
   }
 
   /**
@@ -337,7 +334,6 @@ export class UpstashVectorStore extends VectorStore {
     embeddings: EmbeddingsInterface,
     dbConfig: UpstashVectorLibArgs
   ): Promise<UpstashVectorStore> {
-    const instance = new this(embeddings, dbConfig);
-    return instance;
+    return new this(embeddings, dbConfig);
   }
 }

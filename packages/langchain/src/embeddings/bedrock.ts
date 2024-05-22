@@ -118,8 +118,7 @@ export class RAIBedrockEmbeddings extends Embeddings {
 
   protected _getEmbeddingsFromResponseBody(response: string): number[][] {
     if (this.provider === 'cohere') {
-      const embeddings = JSON.parse(response).embeddings as number[][];
-      return embeddings;
+      return JSON.parse(response).embeddings as number[][];
     } else if (this.provider === 'amazon') {
       const embedding = JSON.parse(response).embedding as number[];
       return [embedding];

@@ -153,7 +153,7 @@ export const getRAIChatChain = async (options: {
       candidates: queryAnsweringSystems,
       formatInstructions: routerChainOutputParser.getFormatInstructions()
     });
-  const multiRouteChain = RunnableSequence.from([
+  return RunnableSequence.from([
     {
       routingInstructions: RunnableSequence.from([
         routerPrompt,
@@ -167,8 +167,6 @@ export const getRAIChatChain = async (options: {
     },
     branch
   ]);
-
-  return multiRouteChain;
 };
 
 const searchQueryOutputParser = RAIOutputFixingParser.fromParser(
@@ -200,7 +198,7 @@ export async function getDocumentQaChain(options: {
       history,
       formatInstructions: searchQueryOutputParser.getFormatInstructions()
     });
-  const qaChain = RunnableSequence.from([
+  return RunnableSequence.from([
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
@@ -280,6 +278,4 @@ export async function getDocumentQaChain(options: {
       searchQueries: (previousStepResult) => previousStepResult.searchQueries
     }
   ]);
-
-  return qaChain;
 }

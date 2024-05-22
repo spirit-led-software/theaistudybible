@@ -58,7 +58,7 @@ export const getImagePromptChain = async (): Promise<
     });
   const { prompt: promptGeneratorPrompt, stopSequences: promptGeneratorStopSequences } =
     await getImagePromptChainPromptInfo();
-  const chain = RunnableSequence.from([
+  return RunnableSequence.from([
     {
       userPrompt: (input) => input.userPrompt,
       validation: promptValidatorPrompt
@@ -148,6 +148,4 @@ export const getImagePromptChain = async (): Promise<
       searchQueries: (previousStepResult) => previousStepResult.searchQueries
     }
   ]);
-
-  return chain;
 };

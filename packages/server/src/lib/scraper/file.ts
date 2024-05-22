@@ -48,6 +48,5 @@ export async function indexRemoteFile({
 
 export function getFileNameFromUrl(url: string) {
   const parts = url.split('/');
-  const filename = parts[parts.length - 1];
-  return filename;
+  return parts[parts.length - 1];
 }

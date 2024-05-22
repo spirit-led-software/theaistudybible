@@ -7,6 +7,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest watch"

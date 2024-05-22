@@ -273,7 +273,7 @@ async function lambdaHandler(
 
     console.timeEnd('Validating chat');
     // Hacky way to update the chat updated_at field
-    pendingPromises.push(db.update(chats).set({ name: chat.name }));
+    pendingPromises.push(db.update(chats).set({ name: chat.name }).where(eq(chats.id, chat.id)));
 
     console.time('Validating user message');
     const [userMessage] = await db.query.messages

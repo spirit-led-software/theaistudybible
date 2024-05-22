@@ -35,8 +35,9 @@
   ],
   "eslint.workingDirectories": [
     "packages/core",
-    "packages/client",
+    "packages/langchain",
     "packages/server",
+    "packages/infra",
     "apps/api",
     "apps/website",
     "apps/functions"

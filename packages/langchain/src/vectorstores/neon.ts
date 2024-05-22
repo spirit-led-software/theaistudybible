@@ -98,8 +98,7 @@ export class NeonVectorStore extends VectorStore {
     embeddings: Embeddings,
     fields: NeonVectorStoreArgs
   ): Promise<NeonVectorStore> {
-    const neonVectorStore = new NeonVectorStore(embeddings, fields);
-    return neonVectorStore;
+    return new NeonVectorStore(embeddings, fields);
   }
 
   _generateFiltersString(filter?: this['FilterType']): string {
@@ -146,12 +145,11 @@ export class NeonVectorStore extends VectorStore {
   async addVectors(vectors: number[][], documents: Document[]): Promise<void> {
     const rows = vectors.map((embedding, idx) => {
       const embeddingString = `[${embedding.join(',')}]`;
-      const documentRow = {
+      return {
         page_content: documents[idx].pageContent,
         embedding: embeddingString,
         metadata: documents[idx].metadata
       };
-      return documentRow;
     });
 
     const errors: unknown[] = [];
@@ -607,7 +605,6 @@ export class NeonVectorStore extends VectorStore {
     embeddings: Embeddings,
     dbConfig: NeonVectorStoreArgs
   ): Promise<NeonVectorStore> {
-    const instance = await NeonVectorStore.fromConnectionString(embeddings, dbConfig);
-    return instance;
+    return await NeonVectorStore.fromConnectionString(embeddings, dbConfig);
   }
 }

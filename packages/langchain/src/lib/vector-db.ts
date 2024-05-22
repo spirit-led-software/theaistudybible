@@ -8,7 +8,7 @@ export async function getDocumentVectorStore(options?: {
   write?: boolean;
 }) {
   const { verbose, filter, write = false } = options ?? {};
-  const vectorStore = await UpstashVectorStore.fromExistingIndex(
+  return await UpstashVectorStore.fromExistingIndex(
     getEmbeddingsModel({
       inputType: write ? 'search_document' : 'search_query',
       verbose: process.env.IS_LOCAL === 'true' ? true : verbose
@@ -21,5 +21,4 @@ export async function getDocumentVectorStore(options?: {
       filter
     }
   );
-  return vectorStore;
 }
