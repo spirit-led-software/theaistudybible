@@ -13,7 +13,6 @@ import type { StabilityModelInput, StabilityModelOutput } from '@revelationsai/c
 import { getImagePromptChain } from '@revelationsai/langchain/lib/chains/generated-image';
 import { eq } from 'drizzle-orm';
 import { Bucket } from 'sst/node/bucket';
-import { Config } from 'sst/node/config';
 import { db } from './database';
 
 export async function generatedImage(user: User, userPrompt: string): Promise<UserGeneratedImage> {
@@ -105,10 +104,10 @@ export async function generatedImage(user: User, userPrompt: string): Promise<Us
     let imageUrl = new URL(s3Url.split('?')[0]);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - this may not be defined in non-prod-envs
-    if (Config.CDN_URL) {
+    if (process.env.CDN_URL) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore - this may not be defined in non-prod-envs
-      imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
+      imageUrl = new URL(`${process.env.CDN_URL}${imageUrl.pathname}`);
     }
 
     [userGeneratedImage] = await db

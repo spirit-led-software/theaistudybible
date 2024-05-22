@@ -1,7 +1,6 @@
 import {
   API,
   AdminAPI,
-  Auth,
   Buckets,
   CDN,
   ChatAPI,
@@ -9,7 +8,6 @@ import {
   Crons,
   Database,
   DatabaseScripts,
-  GraphQlApi,
   Layers,
   Queues,
   RestAPI,
@@ -34,8 +32,6 @@ export default {
       .stack(CDN)
       .stack(Queues)
       .stack(API)
-      .stack(Auth)
-      .stack(GraphQlApi)
       .stack(ChatAPI)
       .stack(RestAPI)
       .stack(AdminAPI)

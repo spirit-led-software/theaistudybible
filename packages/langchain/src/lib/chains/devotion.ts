@@ -1,6 +1,5 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import envConfig from '@revelationsai/core/configs/environment';
 import type { Devotion } from '@revelationsai/core/model/devotion';
 import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
 import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
@@ -69,12 +68,12 @@ export const getDevotionGeneratorChain = async (): Promise<
   >
 > => {
   const retriever = await getDocumentVectorStore({
-    verbose: envConfig.isLocal,
+    verbose: process.env.IS_LOCAL === 'true',
     filter: "(category = 'bible' AND translation = 'ESV') OR category != 'bible'"
   }).then((store) =>
     store.asRetriever({
       k: 10,
-      verbose: envConfig.isLocal
+      verbose: process.env.IS_LOCAL === 'true'
     })
   );
 
@@ -118,11 +117,11 @@ export const getDevotionGeneratorChain = async (): Promise<
 export const getBibleReadingChain = async (topic: string, previousDevotions: Devotion[]) => {
   const retriever = await getDocumentVectorStore({
     filter: "category = 'bible' AND translation = 'ESV'",
-    verbose: envConfig.isLocal
+    verbose: process.env.IS_LOCAL === 'true'
   }).then((store) =>
     store.asRetriever({
       k: 50,
-      verbose: envConfig.isLocal
+      verbose: process.env.IS_LOCAL === 'true'
     })
   );
 

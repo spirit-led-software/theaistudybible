@@ -2,13 +2,13 @@ import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { indexOperations } from '@revelationsai/core/database/schema';
 import axios from '@revelationsai/core/lib/axios';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import escapeStringRegexp from 'escape-string-regexp';
 import { XMLParser } from 'fast-xml-parser';
 import { Queue } from 'sst/node/queue';
 import { v4 as uuidV4 } from 'uuid';
 import { gunzipSync } from 'zlib';
-import { createIndexOperation, updateIndexOperation } from '../../services/data-source/index-op';
+import { db } from '../database';
 
 export async function indexWebCrawl({
   dataSourceId,
@@ -50,19 +50,22 @@ export async function indexWebCrawl({
     }
     urlRegex = new RegExp(regexString);
 
-    indexOp = await createIndexOperation({
-      status: 'RUNNING',
-      metadata: {
-        ...metadata,
-        succeededUrls: [],
-        failedUrls: [],
-        totalUrls: 0,
-        name,
-        baseUrl,
-        urlRegex: urlRegex.source
-      },
-      dataSourceId
-    });
+    [indexOp] = await db
+      .insert(indexOperations)
+      .values({
+        status: 'RUNNING',
+        metadata: {
+          ...metadata,
+          succeededUrls: [],
+          failedUrls: [],
+          totalUrls: 0,
+          name,
+          baseUrl,
+          urlRegex: urlRegex.source
+        },
+        dataSourceId
+      })
+      .returning();
 
     if (!sitemapUrls) {
       sitemapUrls = await getSitemaps(baseUrl);
@@ -75,28 +78,40 @@ export async function indexWebCrawl({
     }
 
     console.log(`Successfully crawled ${urlCount} urls. Updating index op status.`);
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
-        totalUrls: urlCount
-      })}`
-    });
+    [indexOp] = await db
+      .update(indexOperations)
+      .set({
+        metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
+          totalUrls: urlCount
+        })}`
+      })
+      .where(eq(indexOperations.id, indexOp.id))
+      .returning();
 
     return indexOp;
   } catch (err) {
     console.error(`Error crawling url '${url}':`, err);
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: 'FAILED',
-        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
-          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
-        )}')`
-      });
+      [indexOp] = await db
+        .update(indexOperations)
+        .set({
+          status: 'FAILED',
+          errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+            err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+          )}')`
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning();
       if (urlCount > 0) {
-        indexOp = await updateIndexOperation(indexOp.id, {
-          metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
-            totalUrls: urlCount
-          })}`
-        });
+        [indexOp] = await db
+          .update(indexOperations)
+          .set({
+            metadata: sql`${indexOperations.metadata} || ${JSON.stringify({
+              totalUrls: urlCount
+            })}`
+          })
+          .where(eq(indexOperations.id, indexOp.id))
+          .returning();
       }
     }
     throw err;

@@ -1,11 +1,10 @@
-import { API, Buckets, DatabaseScripts, Layers } from '@revelationsai/infra';
+import { API, Buckets, DatabaseScripts } from '@revelationsai/infra';
 import { dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function RestAPI({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
   dependsOn(Buckets);
 
-  const { argonLayer } = use(Layers);
   const { api } = use(API);
 
   api.addRoutes(stack, {
@@ -90,8 +89,7 @@ export function RestAPI({ stack }: StackContext) {
     // Change user password endpoint
     'POST /users/change-password': {
       function: {
-        handler: 'packages/functions/src/rest/users/change-password/post.handler',
-        layers: [argonLayer]
+        handler: 'packages/functions/src/rest/users/change-password/post.handler'
       }
     },
 

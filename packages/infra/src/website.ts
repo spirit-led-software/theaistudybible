@@ -1,6 +1,5 @@
 import {
   API,
-  Auth,
   COMMON_ENV_VARS,
   ChatAPI,
   Constants,
@@ -14,25 +13,32 @@ import { SvelteKitSite, dependsOn, use, type StackContext } from 'sst/constructs
 export function Website({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { hostedZone, domainName, websiteUrl, authUiUrl, apiUrl } = use(Constants);
+  const { hostedZone, domainName, websiteUrl, apiUrl } = use(Constants);
   const { axiomArm64Layer } = use(Layers);
-  const { neonBranchConfigs, upstashRedisConfigs } = use(Database);
-  const { auth } = use(Auth);
+  const { neonBranch, upstashRedis, upstashVector } = use(Database);
   const { api } = use(API);
   const { chatApiUrl } = use(ChatAPI);
 
   const website = new SvelteKitSite(stack, 'website', {
     path: 'packages/website',
     permissions: [api],
-    bind: [auth, api, ...Object.values(neonBranchConfigs), ...Object.values(upstashRedisConfigs)],
+    bind: [api],
     environment: {
       ...COMMON_ENV_VARS,
+      DATABASE_READWRITE_URL: neonBranch.urls.readWriteUrl,
+      DATABASE_READONLY_URL: neonBranch.urls.readOnlyUrl,
+      UPSTASH_REDIS_URL: upstashRedis.redisUrl,
+      UPSTASH_REDIS_REST_URL: upstashRedis.restUrl,
+      UPSTASH_REDIS_TOKEN: upstashRedis.restToken,
+      UPSTASH_REDIS_READONLY_TOKEN: upstashRedis.readOnlyRestToken,
+      UPSTASH_VECTOR_REST_URL: upstashVector.restUrl,
+      UPSTASH_VECTOR_REST_TOKEN: upstashVector.restToken,
+      UPSTASH_VECTOR_READONLY_REST_TOKEN: upstashVector.readOnlyRestToken,
       AXIOM_TOKEN: process.env.AXIOM_TOKEN!,
       AXIOM_DATASET: process.env.AXIOM_DATASET!,
       PUBLIC_WEBSITE_URL: websiteUrl,
       PUBLIC_API_URL: apiUrl,
-      PUBLIC_CHAT_API_URL: chatApiUrl,
-      PUBLIC_AUTH_URL: authUiUrl
+      PUBLIC_CHAT_API_URL: chatApiUrl
     },
     customDomain: {
       domainName: domainName,

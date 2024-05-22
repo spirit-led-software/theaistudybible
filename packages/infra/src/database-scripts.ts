@@ -1,10 +1,8 @@
-import { Database, Layers } from '@revelationsai/infra';
-import { Script, dependsOn, use, type StackContext } from 'sst/constructs';
+import { Database } from '@revelationsai/infra';
+import { Script, dependsOn, type StackContext } from 'sst/constructs';
 
 export function DatabaseScripts({ stack }: StackContext) {
   dependsOn(Database);
-
-  const { argonLayer } = use(Layers);
 
   const dbMigrationsScript = new Script(stack, 'dbMigrationsScript', {
     onCreate: 'packages/functions/src/database/migrations.handler',
@@ -29,7 +27,6 @@ export function DatabaseScripts({ stack }: StackContext) {
     onUpdate: 'packages/functions/src/database/seed.handler',
     defaults: {
       function: {
-        layers: [argonLayer],
         enableLiveDev: false,
         timeout: '15 minutes'
       }

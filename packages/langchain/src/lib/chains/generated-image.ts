@@ -1,6 +1,5 @@
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { Runnable, RunnableSequence } from '@langchain/core/runnables';
-import envConfig from '@revelationsai/core/configs/environment';
 import { llmCache } from '@revelationsai/langchain/lib/cache';
 import { RAIOutputFixingParser } from '@revelationsai/langchain/output_parsers/rai-output-fixing';
 import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
@@ -41,11 +40,11 @@ export const getImagePromptChain = async (): Promise<
   >
 > => {
   const retriever = await getDocumentVectorStore({
-    verbose: envConfig.isLocal
+    verbose: process.env.IS_LOCAL === 'true'
   }).then((store) =>
     store.asRetriever({
       k: 3,
-      verbose: envConfig.isLocal
+      verbose: process.env.IS_LOCAL === 'true'
     })
   );
 

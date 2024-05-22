@@ -1,4 +1,4 @@
-import { Auth, Constants, DatabaseScripts } from '@revelationsai/infra';
+import { Constants, DatabaseScripts } from '@revelationsai/infra';
 import { CLOUDFRONT_HOSTED_ZONE_ID } from '@revelationsai/infra/constants';
 import { Fn } from 'aws-cdk-lib';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
@@ -19,11 +19,9 @@ export function ChatAPI({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
   const { hostedZone, apiDomainName, domainNamePrefix, websiteUrl } = use(Constants);
-  const { auth } = use(Auth);
 
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
     handler: 'packages/functions/src/chat.handler',
-    bind: [auth],
     memorySize: '3 GB',
     timeout: '5 minutes',
     enableLiveDev: false, // Can't do live dev with streaming

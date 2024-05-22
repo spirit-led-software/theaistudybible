@@ -23,7 +23,6 @@ import { eq } from 'drizzle-orm';
 import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser } from 'langchain/output_parsers';
 import { Bucket } from 'sst/node/bucket';
-import { Config } from 'sst/node/config';
 import { db } from './database';
 
 // 31 topics, one for each day of the month
@@ -171,10 +170,10 @@ export async function generateDevotionImages(devo: Devotion) {
   let imageUrl = new URL(s3Url.split('?')[0]);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - this may not be defined in non-prod-envs
-  if (Config.CDN_URL) {
+  if (process.env.CDN_URL) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - this may not be defined in non-prod-envs
-    imageUrl = new URL(`${Config.CDN_URL}${imageUrl.pathname}`);
+    imageUrl = new URL(`${process.env.CDN_URL}${imageUrl.pathname}`);
   }
 
   const [devoImage] = await db

@@ -5,7 +5,7 @@ import { Api, Function, dependsOn, use, type StackContext } from 'sst/constructs
 export function API({ stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { hostedZone, apiUrl, apiDomainName, websiteUrl, authUiUrl } = use(Constants);
+  const { hostedZone, apiUrl, apiDomainName, websiteUrl } = use(Constants);
   const { chromiumLayer, axiomX86Layer } = use(Layers);
 
   const webpageScraperFunction = new Function(stack, 'webpageScraperFunction', {
@@ -49,7 +49,7 @@ export function API({ stack }: StackContext) {
     },
     cors: {
       allowCredentials: true,
-      allowOrigins: [websiteUrl, authUiUrl],
+      allowOrigins: [websiteUrl],
       allowHeaders: ['Authorization', 'Content-Type'],
       allowMethods: ['ANY'],
       exposeHeaders: ['*']

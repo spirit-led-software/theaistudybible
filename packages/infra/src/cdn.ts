@@ -3,7 +3,7 @@ import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatem
 import { Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { Config, use, type StackContext } from 'sst/constructs';
+import { use, type StackContext } from 'sst/constructs';
 import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './constants';
 
 export function CDN({ app, stack }: StackContext) {
@@ -52,10 +52,9 @@ export function CDN({ app, stack }: StackContext) {
     cdnAaaaRecord.node.addDependency(cdnARecord);
     cdnUrl = `https://${cdnDomainName}`;
 
-    const CDN_URL = new Config.Parameter(stack, 'CDN_URL', {
-      value: cdnUrl
+    app.addDefaultFunctionEnv({
+      CDN_URL: cdnUrl
     });
-    app.addDefaultFunctionBinding([CDN_URL]);
 
     stack.addOutputs({
       CdnUrl: cdnUrl

@@ -53,3 +53,29 @@ export const allModels = {
   ...freeTierModels,
   ...plusTierModels
 } as const;
+
+export const allModelIds = Object.keys(allModels) as (FreeTierModelId | PlusTierModelId)[];
+export type ModelId = (typeof allModelIds)[number];
+
+export const defaultModelId = 'claude-3-haiku-20240307' as const satisfies FreeTierModelId;
+
+export type EmbeddingModelInfo = {
+  id: string;
+  dimensions: number;
+  chunkSize: number;
+  chunkOverlap: number;
+};
+
+export const embeddingModel = {
+  id: 'text-embedding-3-large',
+  dimensions: 3072,
+  chunkSize: 1024,
+  chunkOverlap: 256
+} as const satisfies EmbeddingModelInfo;
+
+export const devEmbeddingModel = {
+  id: 'text-embedding-ada-002',
+  dimensions: 1536,
+  chunkSize: 1024,
+  chunkOverlap: 256
+} as const satisfies EmbeddingModelInfo;

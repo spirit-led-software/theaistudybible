@@ -2,10 +2,12 @@
   "extends": "./packages/tsconfig/tsconfig.json",
   "compilerOptions": {
     "paths": {
+      "@revelationsai/core/*": ["./packages/core/src/*"],
+      "@revelationsai/core": ["./packages/core/src"],
       "@revelationsai/infra/*": ["./packages/infra/src/*"],
       "@revelationsai/infra": ["./packages/infra/src"]
     }
   },
   "include": ["./sst.config.ts", "./drizzle.config.ts", "./codegen.ts"],
-  "exclude": ["./node_modules/**", "./.sst/**", "./apps", "./packages"]
+  "exclude": ["node_modules", ".sst", "./apps", "./packages"]
 }

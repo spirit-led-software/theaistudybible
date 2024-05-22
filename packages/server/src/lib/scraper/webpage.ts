@@ -1,5 +1,4 @@
 import { db } from '@lib/database';
-import config from '@revelationsai/core/configs/revelationsai';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
@@ -8,12 +7,11 @@ import {
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
 import { PuppeteerCoreWebBaseLoader } from '@revelationsai/langchain/document_loaders/puppeteer-core';
-import { sql } from 'drizzle-orm';
+import { getEmbeddingsModelInfo } from '@revelationsai/langchain/lib/llm';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { eq, sql } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { updateDataSource } from '../../services/data-source';
-import { createIndexOperation, updateIndexOperation } from '../../services/data-source/index-op';
-import { getDocumentVectorStore } from '../vector-db';
 
 export async function indexWebPage({
   dataSourceId,
@@ -28,34 +26,45 @@ export async function indexWebPage({
 }): Promise<IndexOperation> {
   let indexOp: IndexOperation | undefined;
   try {
-    indexOp = await createIndexOperation({
-      status: 'RUNNING',
-      metadata: {
-        ...metadata,
-        name,
-        url
-      },
-      dataSourceId
-    });
+    [indexOp] = await db
+      .insert(indexOperations)
+      .values({
+        status: 'RUNNING',
+        metadata: {
+          ...metadata,
+          name,
+          url
+        },
+        dataSourceId
+      })
+      .returning();
 
     console.log(`Started indexing url '${url}'.`);
     await generatePageContentEmbeddings(name, url, dataSourceId, metadata);
 
     console.log(`Successfully indexed url '${url}'. Updating index op status.`);
-    indexOp = await updateIndexOperation(indexOp!.id, {
-      status: 'SUCCEEDED'
-    });
+    [indexOp] = await db
+      .update(indexOperations)
+      .set({
+        status: 'SUCCEEDED'
+      })
+      .where(eq(indexOperations.id, indexOp.id))
+      .returning();
 
     return indexOp;
   } catch (err) {
     console.error(`Error indexing url '${url}':`, err);
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: 'FAILED',
-        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
-          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
-        )}')`
-      });
+      [indexOp] = await db
+        .update(indexOperations)
+        .set({
+          status: 'FAILED',
+          errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+            err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+          )}')`
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning();
     }
     throw err;
   }
@@ -87,9 +96,10 @@ export async function generatePageContentEmbeddings(
         docs = await loader.load();
         console.log(`Loaded ${docs.length} documents from url '${url}'.`);
 
+        const embeddingsModelInfo = getEmbeddingsModelInfo();
         const splitter = new RecursiveCharacterTextSplitter({
-          chunkSize: config.llm.embeddings.chunkSize,
-          chunkOverlap: config.llm.embeddings.chunkOverlap
+          chunkSize: embeddingsModelInfo.chunkSize,
+          chunkOverlap: embeddingsModelInfo.chunkOverlap
         });
         console.log('Splitting documents.');
         docs = await splitter.invoke(docs, {});
@@ -120,9 +130,13 @@ export async function generatePageContentEmbeddings(
       const vectorStore = await getDocumentVectorStore({ write: true });
       const ids = await vectorStore.addDocuments(docs);
       await Promise.all([
-        updateDataSource(dataSourceId, {
-          numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`
-        }),
+        db
+          .update(dataSources)
+          .set({
+            numberOfDocuments: sql`${dataSources.numberOfDocuments} + ${docs.length}`
+          })
+          .where(eq(dataSources.id, dataSourceId))
+          .returning(),
         ...ids.map((sourceDocumentId) =>
           db.insert(dataSourcesToSourceDocuments).values({
             dataSourceId,

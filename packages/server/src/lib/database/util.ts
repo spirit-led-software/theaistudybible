@@ -1,4 +1,3 @@
-import envConfig from '@revelationsai/core/configs/environment';
 import * as schema from '@revelationsai/core/database/schema';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import type { NeonQueryResultHKT } from 'drizzle-orm/neon-serverless';
@@ -14,7 +13,7 @@ export async function transaction<T>(
   const client = readWriteDatabaseConfig.getWsClient();
   try {
     await client.connect();
-    const drizzle = drizzleWs(client, { schema, logger: envConfig.isLocal });
+    const drizzle = drizzleWs(client, { schema, logger: process.env.IS_LOCAL === 'true' });
     return await drizzle.transaction(fn);
   } finally {
     await client.end();

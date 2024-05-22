@@ -1,5 +1,4 @@
 import { Client as NeonClient, neon, neonConfig } from '@neondatabase/serverless';
-import envConfig from '@revelationsai/core/configs/environment';
 import * as schema from '@revelationsai/core/database/schema';
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { drizzle as drizzleHttp } from 'drizzle-orm/neon-http';
@@ -63,7 +62,7 @@ export class RAIDatabaseConfig {
     });
     this.database = drizzleHttp(queryFn, {
       schema,
-      logger: envConfig.isLocal
+      logger: process.env.IS_LOCAL === 'true'
     });
   }
 

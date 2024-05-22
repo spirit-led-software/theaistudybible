@@ -1,8 +1,15 @@
+import { type User } from '@clerk/clerk-sdk-node';
+import { CallbackManager } from '@langchain/core/callbacks/manager';
 import middy from '@middy/core';
-import { aiResponsesToSourceDocuments, userMessages } from '@revelationsai/core/database/schema';
-import type { UpstashVectorStoreDocument } from '@revelationsai/core/langchain/vectorstores/upstash';
+import { createId } from '@paralleldrive/cuid2';
+import {
+  chats,
+  messages,
+  messages as messagesTable,
+  messagesToSourceDocuments
+} from '@revelationsai/core/database/schema';
 import type { Chat } from '@revelationsai/core/model/chat';
-import type { RAIChatMessage } from '@revelationsai/core/model/chat/message';
+import type { Message } from '@revelationsai/core/model/chat/message';
 import {
   freeTierModelIds,
   plusTierModelIds,
@@ -10,32 +17,18 @@ import {
   type PlusTierModelId
 } from '@revelationsai/core/model/llm';
 import { similarityFunctionMapping } from '@revelationsai/core/model/source-document';
-import type { UserWithRoles } from '@revelationsai/core/model/user';
 import { getTimeStringFromSeconds } from '@revelationsai/core/util/date';
+import { getRAIChatChain } from '@revelationsai/langchain/lib/chains/chat';
+import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vectorstores/upstash';
+import { cache } from '@revelationsai/server/lib/cache';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
-import { getRAIChatChain } from '@revelationsai/server/lib/chat/langchain';
 import { db } from '@revelationsai/server/lib/database';
-import {
-  createAiResponse,
-  getAiResponse,
-  getAiResponsesByUserMessageId,
-  updateAiResponse
-} from '@revelationsai/server/services/ai-response/ai-response';
-import { createChat, getChat, updateChat } from '@revelationsai/server/services/chat';
-import { validNonApiHandlerSession } from '@revelationsai/server/services/session';
-import { hasPlusSync, isAdminSync, isObjectOwner } from '@revelationsai/server/services/user';
-import { createUserMessage, getUserMessages } from '@revelationsai/server/services/user/message';
-import {
-  decrementUserQueryCount,
-  getUserQueryCountTtl,
-  incrementUserQueryCount
-} from '@revelationsai/server/services/user/query-count';
+import { clerkClient, getMaxQueryCountForUser, hasRole } from '@revelationsai/server/lib/user';
+import { Ratelimit } from '@upstash/ratelimit';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq } from 'drizzle-orm';
-import { CallbackManager } from 'langchain/callbacks';
 import { Readable } from 'stream';
-import { v4 as uuidV4 } from 'uuid';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
   body: Readable;
@@ -72,7 +65,7 @@ function validateRequest(
 
 function validateModelId(
   providedModelId: string,
-  userWithRoles: UserWithRoles
+  user: User
 ): StreamedAPIGatewayProxyStructuredResultV2 | undefined {
   if (
     !freeTierModelIds.includes(providedModelId as FreeTierModelId) &&
@@ -89,8 +82,8 @@ function validateModelId(
   }
   if (
     plusTierModelIds.includes(providedModelId as PlusTierModelId) &&
-    !hasPlusSync(userWithRoles) &&
-    !isAdminSync(userWithRoles)
+    !hasRole('rc:plus', user) &&
+    !hasRole('admin', user)
   ) {
     return {
       statusCode: 403,
@@ -107,8 +100,8 @@ function validateModelId(
   return undefined;
 }
 
-function getDefaultModelId(userWithRoles: UserWithRoles): FreeTierModelId | PlusTierModelId {
-  return hasPlusSync(userWithRoles) || isAdminSync(userWithRoles)
+function getDefaultModelId(user: User): FreeTierModelId | PlusTierModelId {
+  return hasRole('rc:plus', user) || hasRole('admin', user)
     ? ('claude-3-opus-20240229' satisfies PlusTierModelId)
     : ('claude-3-haiku-20240307' satisfies FreeTierModelId);
 }
@@ -128,25 +121,31 @@ async function postResponseValidationLogic({
   userMessageId: string;
   aiResponseId: string;
   userId: string;
-  lastMessage: RAIChatMessage;
+  lastMessage: Message;
   response: string;
   sourceDocuments: UpstashVectorStoreDocument[];
   searchQueries: string[];
 }): Promise<void> {
-  const aiResponse = await createAiResponse({
-    id: aiResponseId,
-    chatId: chat.id,
-    userMessageId: userMessageId,
-    userId,
-    text: response,
-    modelId,
-    searchQueries
-  });
+  const [aiResponse] = await db
+    .insert(messages)
+    .values({
+      id: aiResponseId,
+      chatId: chat.id,
+      originMessageId: userMessageId,
+      userId,
+      role: 'assistant',
+      content: response,
+      metadata: {
+        modelId,
+        searchQueries
+      }
+    })
+    .returning();
 
   await Promise.all(
     sourceDocuments.map(async (sourceDoc) => {
-      await db.insert(aiResponsesToSourceDocuments).values({
-        aiResponseId: aiResponse.id,
+      await db.insert(messagesToSourceDocuments).values({
+        messageId: aiResponse.id,
         sourceDocumentId: sourceDoc.id.toString(),
         distance: 1 - sourceDoc.score!,
         distanceMetric: similarityFunctionMapping[sourceDoc.similarityFunction!]
@@ -183,7 +182,7 @@ async function lambdaHandler(
     chatId,
     modelId: providedModelId
   }: {
-    messages: RAIChatMessage[];
+    messages: Message[];
     chatId?: string;
     modelId?: string;
   } = JSON.parse(event.body);
@@ -202,9 +201,18 @@ async function lambdaHandler(
     }
 
     console.time('Validating session token');
-    const { isValid, userWithRoles, remainingQueries, maxQueries } =
-      await validNonApiHandlerSession(event.headers.authorization?.split(' ')[1]);
-    if (!isValid) {
+
+    let user: User | null = null;
+    try {
+      const claims = await clerkClient.verifyToken(
+        event.headers.authorization?.split(' ')[1] ?? ''
+      );
+      user = await clerkClient.users.getUser(claims.sub);
+    } catch (error) {
+      console.error(`Error verifying token: ${error}`);
+    }
+
+    if (!user) {
       console.log('Invalid session token');
       return {
         statusCode: 401,
@@ -216,11 +224,14 @@ async function lambdaHandler(
     }
     console.timeEnd('Validating session token');
 
-    if (remainingQueries <= 0) {
-      const ttl = await getUserQueryCountTtl(userWithRoles.id);
-      console.log(
-        `Max query count of ${maxQueries} reached. Try again in ${getTimeStringFromSeconds(ttl)}.`
-      );
+    const maxQueryCount = await getMaxQueryCountForUser(user);
+    const ratelimit = new Ratelimit({
+      redis: cache,
+      limiter: Ratelimit.slidingWindow(maxQueryCount, '3 h')
+    });
+    const ratelimitResult = await ratelimit.limit(user.id);
+    if (!ratelimitResult.success) {
+      console.log('Rate limit exceeded');
       return {
         statusCode: 429,
         headers: {
@@ -228,76 +239,89 @@ async function lambdaHandler(
         },
         body: Readable.from([
           JSON.stringify({
-            error: `You have issued too many requests. Please wait ${getTimeStringFromSeconds(
-              ttl
+            error: `You have issued too many requests for your current plan. Please wait ${getTimeStringFromSeconds(
+              ratelimitResult.remaining
             )} before trying again.`
           })
         ])
       };
     }
-    const incrementQueryCountPromise = incrementUserQueryCount(userWithRoles.id);
-    pendingPromises.push(incrementQueryCountPromise);
 
     if (providedModelId) {
-      const modelIdValidationResponse = validateModelId(providedModelId, userWithRoles);
+      const modelIdValidationResponse = validateModelId(providedModelId, user);
       if (modelIdValidationResponse) {
         return modelIdValidationResponse;
       }
     }
-    const modelId = providedModelId ?? getDefaultModelId(userWithRoles);
+    const modelId = providedModelId ?? getDefaultModelId(user);
 
     console.time('Validating chat');
-    const chat = chatId
-      ? await getChat(chatId).then(async (foundChat) => {
-          if (!foundChat || !isObjectOwner(foundChat, userWithRoles.id)) {
-            return await createChat({
-              userId: userWithRoles.id
-            });
-          }
-          return foundChat;
-        })
-      : await createChat({
-          userId: userWithRoles.id
-        });
+    const [chat] = chatId
+      ? await db.query.chats
+          .findFirst({
+            where: (chats, { eq }) => eq(chats.id, chatId)
+          })
+          .then(async (foundChat) => {
+            if (!foundChat || foundChat.userId !== user.id) {
+              return await db
+                .insert(chats)
+                .values({
+                  userId: user.id
+                })
+                .returning();
+            }
+            return [foundChat];
+          })
+      : await db
+          .insert(chats)
+          .values({
+            userId: user.id
+          })
+          .returning();
 
     console.timeEnd('Validating chat');
     // Hacky way to update the chat updated_at field
-    pendingPromises.push(updateChat(chat.id, { name: chat.name }));
+    pendingPromises.push(db.update(chats).set({ name: chat.name }));
 
     console.time('Validating user message');
-    const userMessage = await getUserMessages({
-      where: and(
-        eq(userMessages.chatId, chat.id),
-        lastMessage.uuid
-          ? eq(userMessages.id, lastMessage.uuid)
-          : and(eq(userMessages.text, lastMessage.content), eq(userMessages.aiId, lastMessage.id))
-      )
-    }).then(async (userMessages) => {
-      const userMessage = userMessages.at(0);
-      if (userMessage) {
-        pendingPromises.push(
-          getAiResponsesByUserMessageId(userMessage.id).then(async (aiResponses) => {
-            await Promise.all(
-              aiResponses.map(async (aiResponse) => {
-                await updateAiResponse(aiResponse.id, {
+    const [userMessage] = await db.query.messages
+      .findMany({
+        where: (messages, { and, eq }) =>
+          and(eq(messages.chatId, chat.id), eq(messages.id, lastMessage.id))
+      })
+      .then(async (userMessages) => {
+        const userMessage = userMessages.at(0);
+        if (userMessage) {
+          pendingPromises.push(
+            db
+              .update(messagesTable)
+              .set({
+                metadata: {
                   regenerated: true
-                });
+                }
               })
-            );
+              .where(
+                and(
+                  eq(messagesTable.originMessageId, userMessage.id),
+                  eq(messagesTable.role, 'assistant')
+                )
+              )
+          );
+          return [userMessage];
+        }
+        return await db
+          .insert(messagesTable)
+          .values({
+            chatId: chat.id,
+            userId: user.id,
+            role: 'user',
+            content: lastMessage.content
           })
-        );
-        return userMessage;
-      }
-      return await createUserMessage({
-        aiId: lastMessage.id,
-        text: lastMessage.content,
-        chatId: chat.id,
-        userId: userWithRoles.id
+          .returning();
       });
-    });
     console.timeEnd('Validating user message');
 
-    const aiResponseId = uuidV4();
+    const aiResponseId = createId();
     const { stream, handlers } = LangChainStream();
 
     const reader = stream.getReader();
@@ -340,7 +364,7 @@ async function lambdaHandler(
     console.time('Creating chat chain');
     const chain = await getRAIChatChain({
       modelId: modelId as FreeTierModelId | PlusTierModelId,
-      user: userWithRoles,
+      user,
       messages,
       callbacks: CallbackManager.fromHandlers(handlers)
     });
@@ -349,7 +373,7 @@ async function lambdaHandler(
 
     const langChainResponsePromise = chain
       .invoke({
-        query: lastMessage.content
+        query: lastMessage.content!
       })
       .then(async (result) => {
         console.log(`LangChain result: ${JSON.stringify(result)}`);
@@ -360,7 +384,7 @@ async function lambdaHandler(
             ? aiRenameChat(chat, [
                 ...messages,
                 {
-                  id: uuidV4(),
+                  id: aiResponseId,
                   role: 'assistant',
                   content: result.text
                 }
@@ -371,7 +395,7 @@ async function lambdaHandler(
             chat,
             userMessageId: userMessage.id,
             aiResponseId,
-            userId: userWithRoles.id,
+            userId: user.id,
             lastMessage,
             response: result.text,
             sourceDocuments,
@@ -382,16 +406,21 @@ async function lambdaHandler(
       })
       .catch(async (err: unknown) => {
         await Promise.all([
-          incrementQueryCountPromise.then(() => {
-            decrementUserQueryCount(userWithRoles.id);
-          }),
-          getAiResponse(aiResponseId).then(async (aiResponse) => {
-            if (aiResponse) {
-              await updateAiResponse(aiResponse.id, {
-                failed: true
-              });
-            }
-          }),
+          ratelimit.resetUsedTokens(user.id),
+          db.query.messages
+            .findFirst({
+              where: (messages, { eq }) => eq(messages.id, aiResponseId)
+            })
+            .then(async (aiResponse) => {
+              if (aiResponse) {
+                await db
+                  .update(messagesTable)
+                  .set({
+                    metadata: { failed: true }
+                  })
+                  .where(eq(messagesTable.id, aiResponse.id));
+              }
+            }),
           ...pendingPromises
         ]);
 

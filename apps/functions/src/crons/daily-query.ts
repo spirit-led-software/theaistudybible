@@ -1,48 +1,58 @@
-import { getTodaysDateString } from '@revelationsai/core/util/date';
-import { generateDiveDeeperQueries } from '@revelationsai/server/lib/devotion';
-import { getDevotionByCreatedDate, updateDevotion } from '@revelationsai/server/services/devotion';
-import type { Handler } from 'aws-lambda';
-import firebase from 'firebase-admin';
-import path from 'path';
+import { db } from "@lib/database";
+import { devotions } from "@revelationsai/core/database/schema";
+import { getTodaysDateString } from "@revelationsai/core/util/date";
+import { generateDiveDeeperQueries } from "@revelationsai/server/lib/devotion";
+import type { Handler } from "aws-lambda";
+import { eq, sql } from "drizzle-orm";
+import firebase from "firebase-admin";
+import path from "path";
 
 export const handler: Handler = async (event) => {
   console.log(event);
 
   const dateString = getTodaysDateString();
-  let devotion = await getDevotionByCreatedDate(dateString);
+  let devotion = await db.query.devotions.findFirst({
+    where: (devotions) =>
+      sql`${devotions.createdAt}::date = ${dateString}::date`,
+  });
 
   if (!devotion || devotion.failed) {
-    throw new Error('No devotion found');
+    throw new Error("No devotion found");
   }
 
   let queries = devotion.diveDeeperQueries;
   if (!queries || queries.length === 0) {
     queries = await generateDiveDeeperQueries(devotion);
-    devotion = await updateDevotion(devotion.id, {
-      diveDeeperQueries: queries
-    });
+    [devotion] = await db
+      .update(devotions)
+      .set({
+        diveDeeperQueries: queries,
+      })
+      .where(eq(devotions.id, devotion.id))
+      .returning();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const serviceAccount = require(path.resolve('firebase-service-account.json'));
+  const serviceAccount = await import(
+    path.resolve("firebase-service-account.json")
+  );
   if (firebase.apps.length === 0) {
     firebase.initializeApp({
-      credential: firebase.credential.cert(serviceAccount)
+      credential: firebase.credential.cert(serviceAccount),
     });
   }
-  await firebase.messaging().sendToTopic('daily-query', {
+  await firebase.messaging().sendToTopic("daily-query", {
     notification: {
-      title: 'Dive Deeper',
-      body: queries[0]
+      title: "Dive Deeper",
+      body: queries[0],
     },
     data: {
-      task: 'chat-query',
-      query: queries[0]
-    }
+      task: "chat-query",
+      query: queries[0],
+    },
   });
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: 'Success' })
+    body: JSON.stringify({ message: "Success" }),
   };
 };

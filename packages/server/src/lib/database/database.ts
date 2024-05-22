@@ -1,16 +1,18 @@
 import { withReplicas } from 'drizzle-orm/pg-core';
-import { Config } from 'sst/node/config';
 import { RAIDatabaseConfig } from './config';
 
 export const readWriteDatabaseConfig = new RAIDatabaseConfig({
-  connectionString: Config.DATABASE_READWRITE_URL,
+  connectionString: process.env.DATABASE_READWRITE_URL,
   readOnly: false
 });
 
 function getDatabase() {
-  if (Config.DATABASE_READWRITE_URL !== Config.DATABASE_READONLY_URL) {
+  if (
+    process.env.DATABASE_READWRITE_URL !== process.env.DATABASE_READONLY_URL &&
+    process.env.DATABASE_READONLY_URL
+  ) {
     const readOnlyDatabaseConfig = new RAIDatabaseConfig({
-      connectionString: Config.DATABASE_READONLY_URL,
+      connectionString: process.env.DATABASE_READONLY_URL,
       readOnly: true
     });
     return withReplicas(readWriteDatabaseConfig.database, [readOnlyDatabaseConfig.database]);

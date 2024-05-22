@@ -4,7 +4,6 @@ import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { BasePromptTemplate } from '@langchain/core/prompts';
 import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
-import envConfig from '@revelationsai/core/configs/environment';
 import type { Message } from '@revelationsai/core/model/chat/message';
 import {
   allModels,
@@ -188,11 +187,11 @@ export async function getDocumentQaChain(options: {
   const { modelId, contextSize, prompt, stopSequences, filter, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
     filter,
-    verbose: envConfig.isLocal
+    verbose: process.env.IS_LOCAL === 'true'
   }).then((store) =>
     store.asRetriever({
       k: contextSize > 32 ? 12 : 5,
-      verbose: envConfig.isLocal
+      verbose: process.env.IS_LOCAL === 'true'
     })
   );
 

@@ -2,11 +2,6 @@ import { LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
 import type { StackContext } from 'sst/constructs';
 
 export function Layers({ stack, app }: StackContext) {
-  const argonLayer = LayerVersion.fromLayerVersionAttributes(stack, 'Argon2Layer', {
-    layerVersionArn: `arn:aws:lambda:${stack.region}:008193302444:layer:argon2-arm64:4`,
-    compatibleRuntimes: [Runtime.NODEJS_20_X, Runtime.NODEJS_18_X]
-  });
-
   // See versions here: https://github.com/axiomhq/axiom-lambda-extension
   const axiomArm64Layer = LayerVersion.fromLayerVersionAttributes(stack, 'AxiomArm64Layer', {
     layerVersionArn: `arn:aws:lambda:${stack.region}:694952825951:layer:axiom-extension-arm64:8`,
@@ -32,7 +27,6 @@ export function Layers({ stack, app }: StackContext) {
   });
 
   return {
-    argonLayer,
     axiomArm64Layer,
     axiomX86Layer,
     chromiumLayer

@@ -3,13 +3,15 @@ import * as schema from '@revelationsai/core/database/schema';
 import type { Handler } from 'aws-lambda';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { migrate } from 'drizzle-orm/neon-http/migrator';
-import { Config } from 'sst/node/config';
 
 export const handler: Handler = async () => {
   try {
-    console.log('Creating database migration client using url: ', Config.DATABASE_READWRITE_URL);
+    console.log(
+      'Creating database migration client using url: ',
+      process.env.DATABASE_READWRITE_URL
+    );
 
-    const migrationClient = drizzle(neon(Config.DATABASE_READWRITE_URL), {
+    const migrationClient = drizzle(neon(process.env.DATABASE_READWRITE_URL), {
       schema,
       logger: {
         logQuery(query, params) {

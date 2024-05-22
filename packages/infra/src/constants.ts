@@ -10,13 +10,9 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
 
-  // Unstructured
+  // AI
   UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
-
-  // OpenAI
   OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
-
-  // Anthropic
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY!,
 
   // Revenue Cat
@@ -25,17 +21,7 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   REVENUECAT_STRIPE_API_KEY: process.env.REVENUECAT_STRIPE_API_KEY!,
   REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET!,
 
-  // Apple Auth
-  APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID!,
-  APPLE_TEAM_ID: process.env.APPLE_TEAM_ID!,
-  APPLE_KEY_ID: process.env.APPLE_KEY_ID!,
-
-  // Google Auth
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
-
-  // Email Auth
-  EMAIL_FROM: process.env.EMAIL_FROM!,
-  EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO!,
+  // Email
   EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST!,
   EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT!,
   EMAIL_SERVER_USERNAME: process.env.EMAIL_SERVER_USERNAME!,
@@ -69,9 +55,6 @@ export function Constants({ stack, app }: StackContext) {
 
   const websiteUrl = app.mode === 'dev' ? 'http://localhost:5173' : `https://${domainName}`;
 
-  const authUiDomainName = `auth.${domainName}`;
-  const authUiUrl = app.mode === 'dev' ? `http://localhost:8910` : `https://${authUiDomainName}`;
-
   const apiDomainName = `api.${domainName}`;
   const apiUrl = `https://${apiDomainName}`;
 
@@ -84,7 +67,6 @@ export function Constants({ stack, app }: StackContext) {
     ...COMMON_ENV_VARS,
     ...LANGSMITH_ENV_VARS(app, stack),
     PUBLIC_WEBSITE_URL: websiteUrl,
-    PUBLIC_AUTH_URL: authUiUrl,
     PUBLIC_API_URL: apiUrl
   });
   app.setDefaultFunctionProps({
@@ -92,7 +74,7 @@ export function Constants({ stack, app }: StackContext) {
     runtime: 'nodejs20.x',
     nodejs: {
       esbuild: {
-        external: ['argon2', '@sparticuz/chromium'],
+        external: ['@sparticuz/chromium'],
         minify: stack.stage === 'prod',
         treeShaking: true,
         target: 'esnext',
@@ -109,8 +91,6 @@ export function Constants({ stack, app }: StackContext) {
     domainName,
     domainNamePrefix,
     websiteUrl,
-    authUiDomainName,
-    authUiUrl,
     apiDomainName,
     apiUrl
   };

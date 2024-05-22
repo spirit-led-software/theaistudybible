@@ -1,12 +1,7 @@
 import { ChatAnthropic } from '@langchain/anthropic';
 import type { BaseCache } from '@langchain/core/caches';
-import { ChatOpenAI } from '@langchain/openai';
-import envConfig from '@revelationsai/core/configs/environment';
-import config from '@revelationsai/core/configs/revelationsai';
-import {
-  RAIBedrockEmbeddings,
-  type RAIBedrockEmbeddingsParams
-} from '@revelationsai/langchain/embeddings/bedrock';
+import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
+import { defaultModelId, devEmbeddingModel, embeddingModel } from '@revelationsai/core/model/llm';
 import { anthropicModelIds, type AnthropicModelId } from '@revelationsai/langchain/types/anthropic';
 import { openAiModelIds, type OpenAiModelId } from '@revelationsai/langchain/types/openai';
 
@@ -20,12 +15,20 @@ export type StandardModelInput = {
   cache?: BaseCache;
 };
 
-export function getEmbeddingsModel(options?: RAIBedrockEmbeddingsParams) {
-  return new RAIBedrockEmbeddings(options);
+export function getEmbeddingsModelInfo() {
+  return process.env.NODE_ENV === 'production' ? embeddingModel : devEmbeddingModel;
+}
+
+export function getEmbeddingsModel({ verbose }: { inputType: string; verbose?: boolean }) {
+  return new OpenAIEmbeddings({
+    model: getEmbeddingsModelInfo().id,
+    apiKey: process.env.OPENAI_API_KEY,
+    verbose
+  });
 }
 
 export function getLanguageModel({
-  modelId = config.llm.chat.defaultModel,
+  modelId = defaultModelId,
   temperature = 0.7,
   maxTokens = 4096,
   stopSequences = [],
@@ -37,21 +40,21 @@ export function getLanguageModel({
   if (openAiModelIds.includes(modelId as OpenAiModelId)) {
     return new ChatOpenAI({
       modelName: modelId as OpenAiModelId,
-      openAIApiKey: config.openai.apiKey,
+      openAIApiKey: process.env.OPENAI_API_KEY,
       streaming: stream,
       stop: stopSequences,
       temperature,
       topP,
       maxTokens,
       cache,
-      verbose: envConfig.isLocal
+      verbose: process.env.IS_LOCAL === 'true'
     });
   }
 
   if (anthropicModelIds.includes(modelId as AnthropicModelId)) {
     return new ChatAnthropic({
       modelName: modelId as AnthropicModelId,
-      anthropicApiKey: config.anthropic.apiKey,
+      anthropicApiKey: process.env.ANTHROPIC_API_KEY,
       streaming: stream,
       stopSequences,
       temperature,
@@ -59,7 +62,7 @@ export function getLanguageModel({
       topK,
       maxTokens,
       cache,
-      verbose: envConfig.isLocal
+      verbose: process.env.IS_LOCAL === 'true'
     });
   }
 

@@ -1,22 +1,18 @@
 {
-  "extends": "@revelationsai/core/tsconfig.json",
+  "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
-    "typeRoots": ["../core/src/types"],
-    "lib": ["dom", "dom.iterable", "ES2021"],
-    "verbatimModuleSyntax": true,
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "ignoreDeprecations": "5.0",
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
     "paths": {
-      "@revelationsai/core": ["../../packages/core/src"],
       "@revelationsai/core/*": ["../../packages/core/src/*"],
-      "@revelationsai/server": ["../../packages/server/src"],
+      "@revelationsai/core": ["../../packages/core/src"],
       "@revelationsai/server/*": ["../../packages/server/src/*"],
+      "@revelationsai/server": ["../../packages/server/src"],
+      "@revelationsai/langchain/*": ["../../packages/langchain/src/*"],
+      "@revelationsai/langchain": ["../../packages/langchain/src"],
       "@lib/database": ["../../packages/server/src/lib/database"],
       "@lib/cache": ["../../packages/server/src/lib/cache"]
     }
   },
-  "include": ["./src/**/*.ts", "../core/src/types/**/*.ts"],
-  "exclude": ["./node_modules/**"]
+  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],
+  "exclude": ["node_modules"]
 }

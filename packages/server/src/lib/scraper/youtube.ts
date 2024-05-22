@@ -1,15 +1,16 @@
+import { YoutubeLoader } from '@langchain/community/document_loaders/web/youtube';
 import { db } from '@lib/database';
-import config from '@revelationsai/core/configs/revelationsai';
-import { dataSourcesToSourceDocuments, indexOperations } from '@revelationsai/core/database/schema';
-import type { DataSource } from '@revelationsai/core/model/data-source';
+import {
+  dataSources,
+  dataSourcesToSourceDocuments,
+  indexOperations
+} from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
-import { sql } from 'drizzle-orm';
-import { YoutubeLoader } from 'langchain/document_loaders/web/youtube';
+import { getEmbeddingsModelInfo } from '@revelationsai/langchain/lib/llm';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { eq, sql } from 'drizzle-orm';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { getDataSourceOrThrow, updateDataSource } from '../../services/data-source';
-import { createIndexOperation, updateIndexOperation } from '../../services/data-source/index-op';
-import { getDocumentVectorStore } from '../vector-db';
 
 export async function indexYoutubeVideo({
   dataSourceId,
@@ -24,10 +25,9 @@ export async function indexYoutubeVideo({
 }) {
   let indexOp: IndexOperation | undefined;
   try {
-    let dataSource: DataSource | undefined;
-
-    [indexOp, dataSource] = await Promise.all([
-      createIndexOperation({
+    [indexOp] = await db
+      .insert(indexOperations)
+      .values({
         status: 'RUNNING',
         metadata: {
           ...metadata,
@@ -35,9 +35,8 @@ export async function indexYoutubeVideo({
           url
         },
         dataSourceId
-      }),
-      getDataSourceOrThrow(dataSourceId)
-    ]);
+      })
+      .returning();
 
     const loader = YoutubeLoader.createFromUrl(url, {
       language: metadata.language ?? 'en',
@@ -45,9 +44,10 @@ export async function indexYoutubeVideo({
     });
     let docs = await loader.load();
 
+    const embeddingsModelInfo = getEmbeddingsModelInfo();
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: config.llm.embeddings.chunkSize,
-      chunkOverlap: config.llm.embeddings.chunkOverlap
+      chunkSize: embeddingsModelInfo.chunkSize,
+      chunkOverlap: embeddingsModelInfo.chunkOverlap
     });
     docs = await splitter.invoke(docs, {});
 
@@ -76,13 +76,20 @@ export async function indexYoutubeVideo({
     const vectorStore = await getDocumentVectorStore({ write: true });
     const ids = await vectorStore.addDocuments(docs);
     console.log(`Successfully indexed youtube video '${url}'.`);
-    [indexOp, dataSource] = await Promise.all([
-      updateIndexOperation(indexOp!.id, {
-        status: 'SUCCEEDED'
-      }),
-      updateDataSource(dataSource.id, {
-        numberOfDocuments: docs.length
-      }),
+    [[indexOp]] = await Promise.all([
+      db
+        .update(indexOperations)
+        .set({
+          status: 'SUCCEEDED'
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning(),
+      db
+        .update(dataSources)
+        .set({
+          numberOfDocuments: docs.length
+        })
+        .returning(),
       ...ids.map((sourceDocumentId) =>
         db.insert(dataSourcesToSourceDocuments).values({
           dataSourceId,
@@ -95,12 +102,16 @@ export async function indexYoutubeVideo({
   } catch (err) {
     console.error(`Error indexing youtube video '${url}':`, err);
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: 'FAILED',
-        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
-          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
-        )}')`
-      });
+      [indexOp] = await db
+        .update(indexOperations)
+        .set({
+          status: 'FAILED',
+          errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+            err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+          )}')`
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning();
     }
     throw err;
   }

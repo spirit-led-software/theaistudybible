@@ -1,12 +1,11 @@
 import nodemailer from 'nodemailer';
-import config from '../configs/revelationsai';
 
 export const emailTransport = nodemailer.createTransport({
-  host: config.email.host,
-  port: config.email.port,
+  host: process.env.EMAIL_SERVER_HOST,
+  port: parseInt(process.env.EMAIL_SERVER_PORT),
   auth: {
-    user: config.email.credentials.username,
-    pass: config.email.credentials.password
+    user: process.env.EMAIL_SERVER_USERNAME,
+    pass: process.env.EMAIL_SERVER_PASSWORD
   },
-  from: config.email.from
+  from: process.env.EMAIL_SERVER_USERNAME
 });

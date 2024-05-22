@@ -5,7 +5,7 @@
   "private": true,
   "main": "tsconfig.json",
   "devDependencies": {
-    "@0no-co/graphqlsp": "^1.12.3",
+    "@types/aws-lambda": "^8.10.138",
     "@types/node": "^20.12.12",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5"

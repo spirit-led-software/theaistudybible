@@ -1,56 +1,51 @@
-import config from '@revelationsai/core/configs/revelationsai';
-import {
-  addRoleToUser,
-  createRole,
-  deleteRole,
-  deleteStripeRoles,
-  getRcRoles,
-  getRoleByName,
-  updateRole
-} from '@revelationsai/server/services/role';
-import { createUser, getUserByEmail, isAdmin } from '@revelationsai/server/services/user';
-import {
-  createUserPassword,
-  updateUserPasswordByUserId
-} from '@revelationsai/server/services/user/password';
-import argon from 'argon2';
+import { createClerkClient } from '@clerk/clerk-sdk-node';
+import { roles } from '@revelationsai/core/database/schema';
+import { db } from '@revelationsai/server/lib/database';
 import type { Handler } from 'aws-lambda';
-import { randomBytes } from 'crypto';
+import { eq } from 'drizzle-orm';
+
+const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+  publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+});
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
-  let admin = await getUserByEmail(config.auth.admin.email);
-  if (!admin) {
-    admin = await createUser({
-      email: config.auth.admin.email
-    });
+  let {
+    data: [admin]
+  } = await clerk.users.getUserList({
+    emailAddress: [process.env.ADMIN_EMAIL]
+  });
 
-    const salt = randomBytes(16).toString('hex');
-    await createUserPassword({
-      userId: admin.id,
-      passwordHash: await argon.hash(`${config.auth.admin.password}${salt}`),
-      salt: Buffer.from(salt, 'hex').toString('base64')
+  if (!admin) {
+    admin = await clerk.users.createUser({
+      emailAddress: [process.env.ADMIN_EMAIL],
+      password: process.env.ADMIN_PASSWORD,
+      firstName: 'Administrator',
+      skipPasswordChecks: true
     });
 
     console.log('Initial admin user created');
   } else {
     console.log('Admin user already existed, updating password.');
-    const salt = randomBytes(16).toString('hex');
-    await updateUserPasswordByUserId(admin.id, {
-      passwordHash: await argon.hash(`${config.auth.admin.password}${salt}`),
-      salt: Buffer.from(salt, 'hex').toString('base64')
+    admin = await clerk.users.updateUser(admin.id, {
+      password: process.env.ADMIN_PASSWORD,
+      skipPasswordChecks: true
     });
   }
 
-  console.log('Adding admin role to admin user');
-  await isAdmin(admin.id).then(async (isAdmin) => {
-    if (!isAdmin) {
-      await addRoleToUser('admin', admin!.id);
-      console.log('Admin role added to admin user');
-    } else {
-      console.log('Admin role already added to admin user');
-    }
-  });
+  if (
+    !admin.publicMetadata.roles ||
+    !Array.isArray(admin.publicMetadata.roles) ||
+    !admin.publicMetadata.roles.includes('admin')
+  ) {
+    console.log('Adding admin role to admin user');
+    await clerk.users.updateUser(admin.id, {
+      publicMetadata: {
+        roles: ['admin']
+      }
+    });
+  }
   console.log('Initial admin user created');
 }
 
@@ -58,44 +53,75 @@ async function createInitialRoles() {
   console.log('Creating initial roles');
 
   console.log('Creating admin role');
-  let adminRole = await getRoleByName('admin');
+  let adminRole = await db.query.roles.findFirst({
+    where: (roles, { eq }) => eq(roles.id, 'admin')
+  });
   if (!adminRole) {
-    adminRole = await createRole({
-      name: 'admin'
-    });
+    [adminRole] = await db
+      .insert(roles)
+      .values({
+        id: 'admin',
+        name: 'Administrators',
+        permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
+      })
+      .returning();
     console.log('Admin role created');
   } else {
     console.log(`Admin role already exists, updating permissions. ${JSON.stringify(adminRole)}`);
-    adminRole = await updateRole(adminRole.id, {
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
-    });
+    [adminRole] = await db
+      .update(roles)
+      .set({
+        permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
+      })
+      .where(eq(roles.id, 'admin'))
+      .returning();
   }
 
   console.log('Creating moderator role');
-  let moderatorRole = await getRoleByName('moderator');
+  let moderatorRole = await db.query.roles.findFirst({
+    where: (roles, { eq }) => eq(roles.id, 'moderator')
+  });
   if (!moderatorRole) {
-    moderatorRole = await createRole({
-      name: 'moderator'
-    });
+    [moderatorRole] = await db
+      .insert(roles)
+      .values({
+        id: 'moderator',
+        name: 'Moderators'
+      })
+      .returning();
     console.log('Moderator role created');
   } else {
-    moderatorRole = await updateRole(moderatorRole.id, {
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
-    });
+    [moderatorRole] = await db
+      .update(roles)
+      .set({
+        permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
+      })
+      .where(eq(roles.id, 'moderator'))
+      .returning();
     console.log('Moderator role already exists');
   }
 
   console.log('Creating default user role');
-  let userRole = await getRoleByName('user');
+  let userRole = await db.query.roles.findFirst({
+    where: (roles, { eq }) => eq(roles.id, 'user')
+  });
   if (!userRole) {
-    userRole = await createRole({
-      name: 'user'
-    });
+    [userRole] = await db
+      .insert(roles)
+      .values({
+        id: 'user',
+        name: 'Users'
+      })
+      .returning();
     console.log('Default user role created');
   } else {
-    userRole = await updateRole(userRole.id, {
-      permissions: ['query:5', 'image:1']
-    });
+    [userRole] = await db
+      .update(roles)
+      .set({
+        permissions: ['query:5', 'image:1']
+      })
+      .where(eq(roles.id, 'user'))
+      .returning();
     console.log('Default user role already exists');
   }
 
@@ -134,10 +160,10 @@ function getQueryCountFromEntitlementLookupKey(lookupKey: string): {
 
 async function createRcEntitlementRoles() {
   const response = await fetch(
-    `https://api.revenuecat.com/v2/projects/${config.revenueCat.projectId}/entitlements?limit=25`,
+    `https://api.revenuecat.com/v2/projects/${process.env.REVENUECAT_PROJECT_ID}/entitlements?limit=25`,
     {
       headers: {
-        Authorization: `Bearer ${config.revenueCat.apiKey}`,
+        Authorization: `Bearer ${process.env.REVENUECAT_API_KEY}`,
         Accept: 'application/json'
       }
     }
@@ -149,27 +175,39 @@ async function createRcEntitlementRoles() {
 
   const entitlements: RCEntitlementsRootObject = await response.json();
   for (const entitlement of entitlements.items) {
-    let role = await getRoleByName(`rc:${entitlement.lookup_key}`);
+    let role = await db.query.roles.findFirst({
+      where: (roles, { eq }) => eq(roles.id, `rc:${entitlement.lookup_key}`)
+    });
     const { queries, images } = getQueryCountFromEntitlementLookupKey(entitlement.lookup_key);
     if (!role) {
-      role = await createRole({
-        name: `rc:${entitlement.lookup_key}`,
-        permissions: [`query:${queries}`, `image:${images}`]
-      });
+      [role] = await db
+        .insert(roles)
+        .values({
+          id: `rc:${entitlement.lookup_key}`,
+          name: `RevenueCat ${entitlement.display_name}`,
+          permissions: [`query:${queries}`, `image:${images}`]
+        })
+        .returning();
       console.log(`Role 'rc:${entitlement.lookup_key}' created`);
     } else {
       console.log(`Role 'rc:${entitlement.lookup_key}' already exists`);
-      role = await updateRole(role.id, {
-        permissions: [`query:${queries}`, `image:${images}`]
-      });
+      [role] = await db
+        .update(roles)
+        .set({
+          permissions: [`query:${queries}`, `image:${images}`]
+        })
+        .where(eq(roles.id, role.id))
+        .returning();
     }
   }
 
-  const existingRcRoles = await getRcRoles();
+  const existingRcRoles = await db.query.roles.findMany({
+    where: (roles, { ilike }) => ilike(roles.id, 'rc:%')
+  });
   for (const role of existingRcRoles) {
     if (!entitlements.items.find((e) => e.lookup_key === role.name.split(':')[1])) {
       console.log(`Role '${role.name}' no longer exists, deleting`);
-      await deleteRole(role.id);
+      await db.delete(roles).where(eq(roles.id, role.id));
     }
   }
 }
@@ -179,7 +217,6 @@ export const handler: Handler = async () => {
     console.log('Creating initial roles and users');
     await createInitialRoles();
     await createRcEntitlementRoles();
-    await deleteStripeRoles();
     await createInitialAdminUser();
 
     console.log('Database seeding complete');

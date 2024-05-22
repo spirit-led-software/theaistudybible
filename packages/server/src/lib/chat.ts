@@ -8,7 +8,10 @@ import { getRenameChainPromptInfo } from '@revelationsai/langchain/lib/prompts/c
 import { eq } from 'drizzle-orm';
 import { db } from './database';
 
-export async function aiRenameChat(chat: Chat, argMessages: Message[]) {
+export async function aiRenameChat(
+  chat: Chat,
+  argMessages: Pick<Message, 'id' | 'role' | 'content'>[]
+) {
   if (chat.customName) {
     throw new Error('Chat has already been named by the user');
   }

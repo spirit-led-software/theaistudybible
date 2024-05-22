@@ -7,7 +7,7 @@ export function AdminAPI({ stack }: StackContext) {
   dependsOn(Buckets);
   dependsOn(Queues);
 
-  const { argonLayer, chromiumLayer, axiomX86Layer } = use(Layers);
+  const { chromiumLayer, axiomX86Layer } = use(Layers);
   const { api } = use(API);
 
   const dataSourceSyncFunction = new Function(stack, 'DataSourceSyncFunction', {
@@ -72,8 +72,7 @@ export function AdminAPI({ stack }: StackContext) {
     // Users
     'POST /admin/users': {
       function: {
-        handler: 'packages/functions/src/rest/admin/users/post.handler',
-        layers: [argonLayer]
+        handler: 'packages/functions/src/rest/admin/users/post.handler'
       }
     },
     'PUT /admin/users/{id}': 'packages/functions/src/rest/admin/users/[id]/put.handler',
@@ -85,8 +84,7 @@ export function AdminAPI({ stack }: StackContext) {
     // Change user password endpoint
     'PUT /admin/users/{id}/password': {
       function: {
-        handler: 'packages/functions/src/rest/admin/users/[id]/password/put.handler',
-        layers: [argonLayer]
+        handler: 'packages/functions/src/rest/admin/users/[id]/password/put.handler'
       }
     },
 
