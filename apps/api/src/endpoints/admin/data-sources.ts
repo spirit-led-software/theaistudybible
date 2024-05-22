@@ -1,10 +1,15 @@
-import { syncDataSource } from '@api/lib/data-source';
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { dataSources, dataSourcesToSourceDocuments, indexOperations } from '@core/database/schema';
-import type { DataSource } from '@core/model/data-source';
 import { zValidator } from '@hono/zod-validator';
-import { getDocumentVectorStore } from '@langchain/lib/vector-db';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import {
+  dataSources,
+  dataSourcesToSourceDocuments,
+  indexOperations
+} from '@revelationsai/core/database/schema';
+import type { DataSource } from '@revelationsai/core/model/data-source';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { syncDataSource } from '@revelationsai/server/lib/data-source';
+import { db } from '@revelationsai/server/lib/database';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -24,7 +29,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const dataSource = await c.var.db.query.dataSources.findFirst({
+    const dataSource = await db.query.dataSources.findFirst({
       where: eq(dataSources.id, id)
     });
     if (!dataSource) {
@@ -36,7 +41,7 @@ export const app = new Hono<{
   .post('/', zValidator('json', upsertDataSourceSchema), async (c) => {
     const data = c.req.valid('json');
 
-    const [dataSource] = await c.var.db.insert(dataSources).values(data).returning();
+    const [dataSource] = await db.insert(dataSources).values(data).returning();
 
     return c.json(
       {
@@ -49,13 +54,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundDataSources, dataSourcesCount] = await Promise.all([
-      c.var.db.query.dataSources.findMany({
+      db.query.dataSources.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(dataSources)
         .where(filter)
@@ -81,7 +86,7 @@ export const app = new Hono<{
   })
   .patch('/:id', zValidator('json', upsertDataSourceSchema), async (c) => {
     const data = c.req.valid('json');
-    const [dataSource] = await c.var.db
+    const [dataSource] = await db
       .update(dataSources)
       .set(data)
       .where(eq(dataSources.id, c.var.dataSource.id))
@@ -94,10 +99,7 @@ export const app = new Hono<{
     );
   })
   .post('/:id/sync', async (c) => {
-    const dataSource = await syncDataSource(c.var.dataSource.id, {
-      env: c.env,
-      vars: c.var
-    });
+    const dataSource = await syncDataSource(c.var.dataSource.id, true);
     return c.json(
       {
         message: 'Sync complete',
@@ -134,23 +136,21 @@ export const app = new Hono<{
       const { cursor, limit } = c.req.valid('query');
 
       const [sourceDocumentIds, sourceDocumentCount] = await Promise.all([
-        c.var.db.query.dataSourcesToSourceDocuments
+        db.query.dataSourcesToSourceDocuments
           .findMany({
             where: eq(dataSourcesToSourceDocuments.dataSourceId, c.var.dataSource.id),
             limit,
             offset: cursor
           })
           .then((res) => res.map((r) => r.sourceDocumentId)),
-        c.var.db
+        db
           .select({ count: count() })
           .from(dataSourcesToSourceDocuments)
           .where(eq(dataSourcesToSourceDocuments.dataSourceId, c.var.dataSource.id))
           .then((res) => res[0].count)
       ]);
 
-      const vectorStore = await getDocumentVectorStore({
-        env: c.env
-      });
+      const vectorStore = await getDocumentVectorStore();
       const sourceDocuments = await vectorStore.index.fetch(sourceDocumentIds, {
         includeMetadata: true
       });
@@ -177,13 +177,13 @@ export const app = new Hono<{
       }
 
       const [foundIndexOperations, indexOperationsCount] = await Promise.all([
-        c.var.db.query.indexOperations.findMany({
+        db.query.indexOperations.findMany({
           where,
           orderBy: sort,
           offset: cursor,
           limit
         }),
-        c.var.db
+        db
           .select({ count: count() })
           .from(indexOperations)
           .where(where)

@@ -21,7 +21,7 @@ export function ChatAPI({ stack, app }: StackContext) {
   const { hostedZone, apiDomainName, domainNamePrefix, websiteUrl } = use(Constants);
 
   const chatApiFunction = new Function(stack, 'chatApiFunction', {
-    handler: 'packages/functions/src/chat.handler',
+    handler: 'apps/functions/src/chat.handler',
     memorySize: '3 GB',
     timeout: '5 minutes',
     enableLiveDev: false, // Can't do live dev with streaming

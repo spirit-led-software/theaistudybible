@@ -1,5 +1,5 @@
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import adapter from 'svelte-kit-sst';
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import adapter from "svelte-kit-sst";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -11,13 +11,12 @@ const config = {
     // See https://kit.svelte.dev/docs/adapters for more information about adapters.
     adapter: adapter(),
     alias: {
-      '@revelationsai/core': '../../packages/core/src',
-      '@revelationsai/server': '../../packages/server/src',
-      '@revelationsai/client': '../../packages/client/src',
-      '@lib/database': './src/lib/server/database',
-      '@lib/cache': './src/lib/server/cache'
-    }
-  }
+      "@revelationsai/core": "../../packages/core/src",
+      "@revelationsai/langchain": "../../packages/langchain/src",
+      "@revelationsai/server": "../../packages/server/src",
+      "@revelationsai/api": "../api/src",
+    },
+  },
 };
 
 export default config;

@@ -1,11 +1,6 @@
-import {
-  addRoleToUser,
-  doesUserHaveRole,
-  getRoleByName,
-  getRolesByUserId,
-  removeRoleFromUser
-} from '@revelationsai/server/services/role';
-import { getUser } from '@revelationsai/server/services/user';
+import { db } from '@revelationsai/server/lib/database';
+import { clerkClient } from '@revelationsai/server/lib/user';
+import { userHasRole } from '@revelationsai/server/src/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
@@ -94,45 +89,63 @@ export const handler = ApiHandler(async (event) => {
     const eventObj = body.event;
     if (eventObj.type === 'INITIAL_PURCHASE' || eventObj.type === 'RENEWAL') {
       console.log('Purchase event: ', eventObj);
-      const user = await getUser(eventObj.app_user_id);
+      const user = await clerkClient.users.getUser(eventObj.app_user_id);
       if (!user) {
         return BadRequestResponse('User not found');
       }
 
       // Remove all existing RC roles
-      await getRolesByUserId(user.id).then(async (roles) => {
-        for (const role of roles!) {
-          if (role.name.startsWith('rc:')) {
-            await removeRoleFromUser(role.name, user.id);
+      const newRoles: string[] = [];
+      const roles = user.publicMetadata.roles;
+      if (roles && Array.isArray(roles)) {
+        for (const role of roles) {
+          if (typeof role === 'string' && !role.startsWith('rc:')) {
+            newRoles.push(role);
           }
         }
-      });
+      }
 
       // Add new RC roles
       for (const entitlementId of eventObj.entitlement_ids) {
-        const role = await getRoleByName(`rc:${entitlementId}`);
+        const role = await db.query.roles.findFirst({
+          where: (roles, { eq }) => eq(roles.id, `rc:${entitlementId}`)
+        });
         if (!role) {
           return BadRequestResponse('Role not found');
         }
-        await doesUserHaveRole(role.name, user.id).then(async (hasRole) => {
-          if (!hasRole) {
-            await addRoleToUser(role.name, user.id);
-          }
-        });
+        if (!userHasRole(role.name, user)) {
+          newRoles.push(role.name);
+        }
       }
+
+      await clerkClient.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          roles: newRoles
+        }
+      });
     } else if (eventObj.type === 'EXPIRATION') {
       console.log('Expiration event: ', eventObj);
-      const user = await getUser(eventObj.app_user_id);
+      const user = await clerkClient.users.getUser(eventObj.app_user_id);
       if (!user) {
         return BadRequestResponse('User not found');
       }
 
       // Remove all RC roles
-      await getRolesByUserId(user.id).then(async (roles) => {
-        for (const role of roles!) {
-          if (role.name.startsWith('rc:')) {
-            await removeRoleFromUser(role.name, user.id);
+      const newRoles: string[] = [];
+      const roles = user.publicMetadata.roles;
+      if (roles && Array.isArray(roles)) {
+        for (const role of roles) {
+          if (typeof role === 'string' && !role.startsWith('rc:')) {
+            newRoles.push(role);
           }
+        }
+      }
+
+      await clerkClient.users.updateUser(user.id, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          roles: newRoles
         }
       });
     } else if (eventObj.type === 'TEST') {

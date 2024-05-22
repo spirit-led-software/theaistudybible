@@ -1,9 +1,10 @@
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { dataSources, dataSourcesToSourceDocuments } from '@core/database/schema';
-import type { DataSource } from '@core/model/data-source';
 import { zValidator } from '@hono/zod-validator';
-import { getDocumentVectorStore } from '@langchain/lib/vector-db';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { dataSources, dataSourcesToSourceDocuments } from '@revelationsai/core/database/schema';
+import type { DataSource } from '@revelationsai/core/model/data-source';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { db } from '@revelationsai/server/lib/database';
 import { count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -18,7 +19,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const dataSource = await c.var.db.query.dataSources.findFirst({
+    const dataSource = await db.query.dataSources.findFirst({
       where: eq(dataSources.id, id)
     });
     if (!dataSource) {
@@ -31,13 +32,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundDataSources, dataSourcesCount] = await Promise.all([
-      c.var.db.query.dataSources.findMany({
+      db.query.dataSources.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(dataSources)
         .where(filter)
@@ -89,23 +90,21 @@ export const app = new Hono<{
       const { cursor, limit } = c.req.valid('query');
 
       const [sourceDocumentIds, sourceDocumentCount] = await Promise.all([
-        c.var.db.query.dataSourcesToSourceDocuments
+        db.query.dataSourcesToSourceDocuments
           .findMany({
             where: eq(dataSourcesToSourceDocuments.dataSourceId, c.var.dataSource.id),
             limit,
             offset: cursor
           })
           .then((res) => res.map((r) => r.sourceDocumentId)),
-        c.var.db
+        db
           .select({ count: count() })
           .from(dataSourcesToSourceDocuments)
           .where(eq(dataSourcesToSourceDocuments.dataSourceId, c.var.dataSource.id))
           .then((res) => res[0].count)
       ]);
 
-      const vectorStore = await getDocumentVectorStore({
-        env: c.env
-      });
+      const vectorStore = await getDocumentVectorStore();
       const sourceDocuments = await vectorStore.index.fetch(sourceDocumentIds, {
         includeMetadata: true
       });

@@ -18,7 +18,7 @@ export function Buckets({ app, stack }: StackContext) {
       indexFile: {
         events: ['object_created'],
         function: {
-          handler: 'packages/functions/src/scraper/file/file.handler',
+          handler: 'apps/functions/src/scraper/file/file.handler',
           retryAttempts: 0
         }
       }

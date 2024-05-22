@@ -36,7 +36,7 @@ export class UpstashVector extends Construct {
     super(scope, id);
 
     const upstashVectorFunction = new Function(this, 'UpstashVectorFunction', {
-      handler: 'packages/functions/src/database/upstash-vector.handler',
+      handler: 'apps/functions/src/database/upstash-vector.handler',
       enableLiveDev: false // No live dev on custom resources
     });
 

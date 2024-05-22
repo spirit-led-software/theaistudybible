@@ -1,13 +1,9 @@
 import { indexOperations } from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
-import { getDataSourceOrThrow } from '@revelationsai/server/services/data-source';
-import {
-  getIndexOperationOrThrow,
-  updateIndexOperation
-} from '@revelationsai/server/services/data-source/index-op';
-import { generatePageContentEmbeddings } from '@revelationsai/server/services/scraper/webpage';
+import { db } from '@revelationsai/server/lib/database';
+import { generatePageContentEmbeddings } from '@revelationsai/server/lib/scraper/webpage';
 import type { SQSHandler } from 'aws-lambda';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 export const consumer: SQSHandler = async (event) => {
   console.log('Received event: ', JSON.stringify(event));
@@ -26,8 +22,19 @@ export const consumer: SQSHandler = async (event) => {
       throw new Error('Missing index op id');
     }
 
-    indexOp = await getIndexOperationOrThrow(indexOpId);
-    const dataSource = await getDataSourceOrThrow(indexOp.dataSourceId);
+    indexOp = await db.query.indexOperations.findFirst({
+      where: (indexOps, { eq }) => eq(indexOps.id, indexOpId)
+    });
+    if (!indexOp) {
+      throw new Error(`Index op not found: ${indexOpId}`);
+    }
+
+    const dataSource = await db.query.dataSources.findFirst({
+      where: (dataSources, { eq }) => eq(dataSources.id, indexOp!.dataSourceId)
+    });
+    if (!dataSource) {
+      throw new Error(`Data source not found: ${indexOp.dataSourceId}`);
+    }
 
     await generatePageContentEmbeddings(
       name,
@@ -37,10 +44,12 @@ export const consumer: SQSHandler = async (event) => {
     );
 
     console.log(`Successfully indexed url '${url}'. Updating index op.`);
-    indexOp = await updateIndexOperation(indexOp.id, {
-      // Remove the url from the failedUrls array if it exists
-      // Add the url to the succeededUrls array
-      metadata: sql`jsonb_set(
+    [indexOp] = await db
+      .update(indexOperations)
+      .set({
+        // Remove the url from the failedUrls array if it exists
+        // Add the url to the succeededUrls array
+        metadata: sql`jsonb_set(
         jsonb_set(
           ${indexOperations.metadata},
           '{failedUrls}',
@@ -57,13 +66,17 @@ export const consumer: SQSHandler = async (event) => {
         ) || jsonb_build_array('${sql.raw(url)}'),
         true
       )`
-    });
+      })
+      .where(eq(indexOperations.id, indexOp.id))
+      .returning();
     indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
   } catch (err) {
     console.error(`Error indexing url '${url}':`, err);
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        metadata: sql`jsonb_set(${indexOperations.metadata}, 
+      [indexOp] = await db
+        .update(indexOperations)
+        .set({
+          metadata: sql`jsonb_set(${indexOperations.metadata}, 
           '{failedUrls}',
           COALESCE(
             ${indexOperations.metadata}->'failedUrls', 
@@ -71,10 +84,12 @@ export const consumer: SQSHandler = async (event) => {
           ) || jsonb_build_array('${sql.raw(url)}'),
           true
         )`,
-        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
-          err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
-        )}')`
-      });
+          errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+            err instanceof Error ? `${err.message}: ${err.stack}` : `Error: ${JSON.stringify(err)}`
+          )}')`
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning();
       indexOp = await checkIfIndexOpIsCompletedAndUpdate(indexOp);
     }
     throw err;
@@ -84,8 +99,10 @@ export const consumer: SQSHandler = async (event) => {
 const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
   try {
     console.log(`Checking if index op is completed: ${indexOp.id}`);
-    return await updateIndexOperation(indexOp.id, {
-      status: sql`CASE
+    return await db
+      .update(indexOperations)
+      .set({
+        status: sql`CASE
         WHEN COALESCE(${indexOperations.metadata}->>'totalUrls', '0')::int <=
           (
             COALESCE(jsonb_array_length(${indexOperations.metadata}->'succeededUrls'), 0) +
@@ -99,7 +116,10 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
           END
         ELSE 'RUNNING'
       END`
-    });
+      })
+      .where(eq(indexOperations.id, indexOp.id))
+      .returning()
+      .then((result) => result[0]);
   } catch (err) {
     console.error('Failed to check if index op is complete:', err);
   }

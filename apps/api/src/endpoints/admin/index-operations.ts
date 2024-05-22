@@ -1,8 +1,9 @@
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { indexOperations } from '@core/database/schema';
-import type { IndexOperation } from '@core/model/data-source/index-op';
 import { zValidator } from '@hono/zod-validator';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { indexOperations } from '@revelationsai/core/database/schema';
+import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
+import { db } from '@revelationsai/server/lib/database';
 import { count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -16,7 +17,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const indexOperation = await c.var.db.query.indexOperations.findFirst({
+    const indexOperation = await db.query.indexOperations.findFirst({
       where: eq(indexOperations.id, id)
     });
 
@@ -31,13 +32,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundIndexOperations, indexOperationsCount] = await Promise.all([
-      c.var.db.query.indexOperations.findMany({
+      db.query.indexOperations.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit
       }),
-      c.var.db.select({ count: count() }).from(indexOperations).where(filter)
+      db.select({ count: count() }).from(indexOperations).where(filter)
     ]);
 
     return c.json(
@@ -69,7 +70,7 @@ export const app = new Hono<{
     async (c) => {
       const data = c.req.valid('json');
 
-      const [indexOperation] = await c.var.db
+      const [indexOperation] = await db
         .update(indexOperations)
         .set(data)
         .where(eq(indexOperations.id, c.req.param('id')))
@@ -84,7 +85,7 @@ export const app = new Hono<{
     }
   )
   .delete('/:id', async (c) => {
-    await c.var.db.delete(indexOperations).where(eq(indexOperations.id, c.req.param('id')));
+    await db.delete(indexOperations).where(eq(indexOperations.id, c.req.param('id')));
     return c.json(
       {
         message: 'Index operation deleted'

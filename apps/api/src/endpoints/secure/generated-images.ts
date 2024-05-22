@@ -1,11 +1,12 @@
-import { generatedImage } from '@api/lib/generated-image';
-import { checkRole } from '@api/lib/user';
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { userGeneratedImages } from '@core/database/schema';
-import type { UserGeneratedImage } from '@core/model/generated-image';
 import { zValidator } from '@hono/zod-validator';
-import { getDocumentVectorStore } from '@langchain/lib/vector-db';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { userGeneratedImages } from '@revelationsai/core/database/schema';
+import type { UserGeneratedImage } from '@revelationsai/core/model/generated-image';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { db } from '@revelationsai/server/lib/database';
+import { generatedImage } from '@revelationsai/server/lib/generated-image';
+import { hasRole } from '@revelationsai/server/lib/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -28,7 +29,7 @@ export const app = new Hono<{
     await next();
   })
   .use('/:id/*', async (c, next) => {
-    const image = await c.var.db.query.userGeneratedImages.findFirst({
+    const image = await db.query.userGeneratedImages.findFirst({
       where: eq(userGeneratedImages.id, c.req.param('id'))
     });
     if (!image) {
@@ -42,7 +43,7 @@ export const app = new Hono<{
 
     if (
       c.var.clerkAuth?.userId !== image.userId &&
-      !checkRole('admin', c.var.clerkAuth?.sessionClaims)
+      !hasRole('admin', c.var.clerkAuth!.sessionClaims!)
     ) {
       return c.json(
         {
@@ -65,12 +66,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const { prompt } = c.req.valid('json');
-      const image = await generatedImage({
-        env: c.env,
-        vars: c.var,
-        userId: c.var.clerkAuth!.userId!,
-        userPrompt: prompt
-      });
+      const image = await generatedImage(c.var.clerkAuth!.userId!, prompt);
 
       return c.json(
         {
@@ -89,13 +85,13 @@ export const app = new Hono<{
     }
 
     const [foundImages, imageCount] = await Promise.all([
-      c.var.db.query.userGeneratedImages.findMany({
+      db.query.userGeneratedImages.findMany({
         where,
         limit,
         offset: cursor,
         orderBy: sort
       }),
-      c.var.db
+      db
         .select({
           count: count()
         })
@@ -118,22 +114,8 @@ export const app = new Hono<{
       200
     );
   })
-  .get('/:id/image', async (c) => {
-    const r2Obj = await c.env.BUCKET.get(`generated-images/${c.var.image.id}.png`);
-    if (!r2Obj) {
-      return c.json(
-        {
-          message: 'Image not found'
-        },
-        404
-      );
-    }
-    c.header('Content-Type', 'image/png');
-    c.header('Content-Length', r2Obj.size.toString());
-    return c.body(r2Obj.body);
-  })
   .delete('/:id', async (c) => {
-    await c.var.db.delete(userGeneratedImages).where(eq(userGeneratedImages.id, c.var.image.id));
+    await db.delete(userGeneratedImages).where(eq(userGeneratedImages.id, c.var.image.id));
     return c.json(
       {
         message: 'Image deleted successfully'
@@ -142,13 +124,10 @@ export const app = new Hono<{
     );
   })
   .get('/:id/source-documents', async (c) => {
-    const sourceDocumentRelations =
-      await c.var.db.query.userGeneratedImagesToSourceDocuments.findMany({
-        where: eq(userGeneratedImages.id, c.var.image.id)
-      });
-    const vectorStore = await getDocumentVectorStore({
-      env: c.env
+    const sourceDocumentRelations = await db.query.userGeneratedImagesToSourceDocuments.findMany({
+      where: eq(userGeneratedImages.id, c.var.image.id)
     });
+    const vectorStore = await getDocumentVectorStore();
     const sourceDocuments = await vectorStore.index.fetch(
       sourceDocumentRelations.map((r) => r.sourceDocumentId),
       {

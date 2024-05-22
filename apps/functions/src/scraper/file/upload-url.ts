@@ -1,11 +1,12 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { validApiHandlerSession } from '@revelationsai/server/services/session';
-import { isAdminSync } from '@revelationsai/server/services/user';
+import { getSessionClaimsFromEvent } from '@revelationsai/functions/lib/user';
+import { hasRole } from '@revelationsai/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import { Bucket } from 'sst/node/bucket';
 import {
   BadRequestResponse,
+  ForbiddenResponse,
   InternalServerErrorResponse,
   OkResponse,
   UnauthorizedResponse
@@ -30,9 +31,12 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
-    const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid || !isAdminSync(userWithRoles)) {
-      return UnauthorizedResponse();
+    const claims = await getSessionClaimsFromEvent(event);
+    if (!claims) {
+      return UnauthorizedResponse('Invalid token');
+    }
+    if (!hasRole('admin', claims)) {
+      return ForbiddenResponse('User does not have permission to index files');
     }
 
     const s3Url = await getSignedUrl(

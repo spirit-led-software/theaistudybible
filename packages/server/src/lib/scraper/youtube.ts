@@ -1,5 +1,4 @@
 import { YoutubeLoader } from '@langchain/community/document_loaders/web/youtube';
-import { db } from '@lib/database';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
@@ -11,6 +10,7 @@ import { getEmbeddingsModelInfo } from '@revelationsai/langchain/lib/llm';
 import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
 import { eq, sql } from 'drizzle-orm';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { db } from '../database';
 
 export async function indexYoutubeVideo({
   dataSourceId,
@@ -82,7 +82,7 @@ export async function indexYoutubeVideo({
         .set({
           status: 'SUCCEEDED'
         })
-        .where(eq(indexOperations.id, indexOp.id))
+        .where(eq(indexOperations.id, indexOp!.id))
         .returning(),
       db
         .update(dataSources)

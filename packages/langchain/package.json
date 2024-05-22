@@ -21,6 +21,7 @@
     "@revelationsai/core": "workspace:*",
     "@langchain/anthropic": "^0.1.21",
     "@langchain/community": "^0.2.0",
+    "@langchain/core": "^0.2.0",
     "@langchain/openai": "^0.0.33",
     "langchain": "^0.2.0",
     "youtube-transcript": "^1.2.1",

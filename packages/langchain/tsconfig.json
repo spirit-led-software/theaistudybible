@@ -1,7 +1,6 @@
 {
   "extends": "@revelationsai/tsconfig",
   "compilerOptions": {
-    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable"],
     "paths": {
       "@revelationsai/core/*": ["../core/src/*"],
       "@revelationsai/core": ["../core/src"],

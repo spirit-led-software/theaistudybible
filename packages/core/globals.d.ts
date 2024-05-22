@@ -44,6 +44,7 @@ declare global {
       // Clerk
       PUBLIC_CLERK_PUBLISHABLE_KEY: string;
       CLERK_SECRET_KEY: string;
+      CLERK_WEBHOOK_SECRET: string;
 
       // Revenue Cat
       REVENUECAT_PROJECT_ID: string;
@@ -70,6 +71,8 @@ declare global {
   interface CustomJwtSessionClaims {
     metadata: {
       roles?: string[];
+      bibleTranslation?: string;
+      stripeCustomerId?: string;
     };
   }
 }

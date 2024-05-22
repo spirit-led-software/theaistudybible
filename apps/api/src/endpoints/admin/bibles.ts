@@ -1,8 +1,9 @@
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { bibles } from '@core/database/schema';
-import type { Bible } from '@core/model/bible';
 import { zValidator } from '@hono/zod-validator';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { bibles } from '@revelationsai/core/database/schema';
+import type { Bible } from '@revelationsai/core/model/bible';
+import { db } from '@revelationsai/server/lib/database';
 import { count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
@@ -14,7 +15,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const bible = await c.var.db.query.bibles.findFirst({
+    const bible = await db.query.bibles.findFirst({
       where: eq(bibles.id, id)
     });
     if (!bible) {
@@ -27,13 +28,13 @@ export const app = new Hono<{
     const { limit, cursor, filter, sort } = c.req.valid('query');
 
     const [foundBibles, bibleCount] = await Promise.all([
-      c.var.db.query.bibles.findMany({
+      db.query.bibles.findMany({
         limit,
         offset: cursor,
         where: filter,
         orderBy: sort
       }),
-      c.var.db
+      db
         .select({
           count: count()
         })
@@ -60,8 +61,7 @@ export const app = new Hono<{
   })
   .delete('/:id', async (c) => {
     const bible = c.get('bible');
-    await c.var.db.delete(bibles).where(eq(bibles.id, bible.id));
-    await c.env.BUCKET.delete(`bibles/${bible.abbreviation}`);
+    await db.delete(bibles).where(eq(bibles.id, bible.id));
     return c.json({ message: 'Bible deleted' }, 200);
   });
 

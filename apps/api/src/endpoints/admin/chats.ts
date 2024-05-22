@@ -1,8 +1,9 @@
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { chats, messages } from '@core/database/schema';
-import { type Chat } from '@core/model/chat';
 import { zValidator } from '@hono/zod-validator';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { chats, messages } from '@revelationsai/core/database/schema';
+import { type Chat } from '@revelationsai/core/model/chat';
+import { db } from '@revelationsai/server/lib/database';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -14,7 +15,7 @@ const app = new Hono<{
   };
 }>()
   .use('/:id/*', async (c, next) => {
-    const chat = await c.var.db.query.chats.findFirst({
+    const chat = await db.query.chats.findFirst({
       where: ({ id }, { eq }) => eq(id, c.req.param('id'))
     });
     if (!chat) {
@@ -32,7 +33,7 @@ const app = new Hono<{
   .post('/', zValidator('json', createInsertSchema(chats)), async (c) => {
     const chatData = c.req.valid('json');
     const chat = (
-      await c.var.db
+      await db
         .insert(chats)
         .values({
           ...chatData,
@@ -52,13 +53,13 @@ const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundChats, chatCount] = await Promise.all([
-      c.var.db.query.chats.findMany({
+      db.query.chats.findMany({
         where: filter,
         limit,
         offset: cursor,
         orderBy: sort
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(chats)
         .where(filter)
@@ -85,7 +86,7 @@ const app = new Hono<{
   .patch('/:id', zValidator('json', createInsertSchema(chats)), async (c) => {
     const chatData = c.req.valid('json');
     const chat = (
-      await c.var.db.update(chats).set(chatData).where(eq(chats.id, c.var.chat!.id)).returning()
+      await db.update(chats).set(chatData).where(eq(chats.id, c.var.chat!.id)).returning()
     )[0];
     return c.json(
       {
@@ -96,7 +97,7 @@ const app = new Hono<{
     );
   })
   .delete('/:id', async (c) => {
-    await c.var.db.delete(chats).where(eq(chats.id, c.var.chat!.id));
+    await db.delete(chats).where(eq(chats.id, c.var.chat!.id));
     return c.json(
       {
         message: 'Chat deleted successfully'
@@ -113,13 +114,13 @@ const app = new Hono<{
     }
 
     const [foundMessages, messageCount] = await Promise.all([
-      c.var.db.query.messages.findMany({
+      db.query.messages.findMany({
         where,
         limit,
         offset: cursor,
         orderBy: sort
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(messages)
         .where(where)

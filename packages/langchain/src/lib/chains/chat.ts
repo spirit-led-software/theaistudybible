@@ -1,4 +1,4 @@
-import type { User } from '@clerk/backend';
+import type { JwtPayload } from '@clerk/types';
 import type { CallbackManager } from '@langchain/core/callbacks/manager';
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
@@ -54,7 +54,7 @@ const routerChainOutputParser = RAIOutputFixingParser.fromParser(
 
 export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;
-  user: User;
+  claims: JwtPayload;
   messages: Message[];
   callbacks: CallbackManager;
 }): Promise<
@@ -67,7 +67,7 @@ export const getRAIChatChain = async (options: {
     }
   >
 > => {
-  const { modelId, user, callbacks } = options;
+  const { modelId, claims, callbacks } = options;
 
   const { contextSize } = allModels[modelId];
   const contextSizeNum = parseInt(contextSize.substring(0, contextSize.indexOf('k')));
@@ -128,14 +128,14 @@ export const getRAIChatChain = async (options: {
   const { prompt: faithQaChainPrompt, stopSequences: faithQaChainStopSequences } =
     await getFaithQaChainPromptInfo({
       history,
-      bibleTranslation: user.publicMetadata.bibleTranslation ?? 'WEB'
+      bibleTranslation: claims.metadata.bibleTranslation ?? 'WEB'
     });
   const faithQaChain = await getDocumentQaChain({
     modelId,
     contextSize: contextSizeNum,
     prompt: faithQaChainPrompt,
     stopSequences: faithQaChainStopSequences,
-    filter: `(category = 'bible' AND translation = '${user.publicMetadata.bibleTranslation ?? 'WEB'}') OR category != 'bible'`,
+    filter: `(category = 'bible' AND translation = '${claims.metadata.bibleTranslation ?? 'WEB'}') OR category != 'bible'`,
     history,
     callbacks
   });

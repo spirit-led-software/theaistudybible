@@ -1,4 +1,5 @@
 import { createClerkClient, type User } from '@clerk/clerk-sdk-node';
+import type { JwtPayload } from '@clerk/types';
 import { db } from '@revelationsai/server/lib/database';
 
 export const clerkClient = createClerkClient({
@@ -6,19 +7,34 @@ export const clerkClient = createClerkClient({
   publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 });
 
-export function hasRole(role: string, user: User): boolean {
+export function hasRole(role: string, sessionClaims: JwtPayload) {
+  if (
+    !sessionClaims ||
+    !sessionClaims.metadata.roles ||
+    !Array.isArray(sessionClaims.metadata.roles)
+  ) {
+    return false;
+  }
+  return sessionClaims.metadata.roles.some((r) => r === role);
+}
+
+export function userHasRole(role: string, user: User) {
   if (!user.publicMetadata.roles || !Array.isArray(user.publicMetadata.roles)) {
     return false;
   }
-  return user.publicMetadata.roles.includes(role) ?? false;
+  return user.publicMetadata.roles.some((r) => r === role);
 }
 
-export async function getMaxQueryCountForUser(user: User) {
-  if (!user.publicMetadata.roles || !Array.isArray(user.publicMetadata.roles)) {
+export async function getMaxQueryCountForUser(sessionClaims: JwtPayload) {
+  if (
+    !sessionClaims ||
+    !sessionClaims.metadata.roles ||
+    !Array.isArray(sessionClaims.metadata.roles)
+  ) {
     return 5;
   }
 
-  const userRoles = user.publicMetadata.roles;
+  const userRoles = sessionClaims.metadata.roles;
   const dbRoles = await db.query.roles.findMany({
     where: (roles, ops) => ops.inArray(roles.id, userRoles)
   });

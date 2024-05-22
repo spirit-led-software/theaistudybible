@@ -1,24 +1,23 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import config from '@revelationsai/core/configs/revelationsai';
-import { dataSourcesToSourceDocuments, indexOperations } from '@revelationsai/core/database/schema';
+import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
+import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/unstructured';
+import {
+  dataSources,
+  dataSourcesToSourceDocuments,
+  indexOperations
+} from '@revelationsai/core/database/schema';
 import type { IndexOperation } from '@revelationsai/core/model/data-source/index-op';
 import type { Metadata } from '@revelationsai/core/types/metadata';
+import { getEmbeddingsModelInfo } from '@revelationsai/langchain/lib/llm';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
 import { db } from '@revelationsai/server/lib/database';
-import { getDocumentVectorStore } from '@revelationsai/server/lib/vector-db';
-import { getDataSourceOrThrow, updateDataSource } from '@revelationsai/server/services/data-source';
-import {
-  createIndexOperation,
-  updateIndexOperation
-} from '@revelationsai/server/services/data-source/index-op';
 import type { S3Handler } from 'aws-lambda';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { mkdtempSync, writeFileSync } from 'fs';
 import type { BaseDocumentLoader } from 'langchain/dist/document_loaders/base';
-import { DocxLoader } from 'langchain/document_loaders/fs/docx';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { UnstructuredLoader } from 'langchain/document_loaders/fs/unstructured';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -95,7 +94,7 @@ export const handler: S3Handler = async (event) => {
       const filePath = join(tmpDir, fileName);
       writeFileSync(filePath, Buffer.from(await blob.arrayBuffer()));
       loader = new UnstructuredLoader(filePath, {
-        apiKey: config.unstructured.apiKey
+        apiKey: process.env.UNSTRUCTURED_API_KEY
       });
       indexOpMetadata = {
         ...indexOpMetadata,
@@ -103,21 +102,31 @@ export const handler: S3Handler = async (event) => {
       };
     }
 
-    let [indexOp, dataSource] = await Promise.all([
-      createIndexOperation({
-        status: 'RUNNING',
-        metadata: indexOpMetadata,
-        dataSourceId
-      }),
-      getDataSourceOrThrow(dataSourceId)
+    let [[indexOp], dataSource] = await Promise.all([
+      db
+        .insert(indexOperations)
+        .values({
+          status: 'RUNNING',
+          metadata: indexOpMetadata,
+          dataSourceId
+        })
+        .returning(),
+      db.query.dataSources.findFirst({
+        where: (dataSources, { eq }) => eq(dataSources.id, dataSourceId)
+      })
     ]);
+
+    if (!dataSource) {
+      throw new Error('Data source not found');
+    }
 
     console.log('Starting load documents');
     let docs = await loader.load();
 
+    const embeddingsModelInfo = getEmbeddingsModelInfo();
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: config.llm.embeddings.chunkSize,
-      chunkOverlap: config.llm.embeddings.chunkOverlap
+      chunkSize: embeddingsModelInfo.chunkSize,
+      chunkOverlap: embeddingsModelInfo.chunkOverlap
     });
     console.log('Starting split documents');
     docs = await splitter.invoke(docs, {});
@@ -126,7 +135,7 @@ export const handler: S3Handler = async (event) => {
     console.log(`Loaded ${docs.length} documents`);
     docs = docs.map((doc) => {
       doc.metadata = {
-        ...dataSource.metadata,
+        ...dataSource!.metadata,
         ...indexOpMetadata,
         ...doc.metadata,
         indexDate: new Date().toISOString(),
@@ -143,13 +152,21 @@ export const handler: S3Handler = async (event) => {
     console.log('Adding documents to vector store');
     const vectorStore = await getDocumentVectorStore({ write: true });
     const ids = await vectorStore.addDocuments(docs);
-    [indexOp, dataSource] = await Promise.all([
-      updateIndexOperation(indexOp!.id, {
-        status: 'SUCCEEDED'
-      }),
-      updateDataSource(dataSourceId, {
-        numberOfDocuments: docs.length
-      }),
+    [[indexOp], [dataSource]] = await Promise.all([
+      db
+        .update(indexOperations)
+        .set({
+          status: 'SUCCEEDED'
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning(),
+      db
+        .update(dataSources)
+        .set({
+          numberOfDocuments: docs.length
+        })
+        .where(eq(dataSources.id, dataSourceId))
+        .returning(),
       ...ids.map((sourceDocumentId) =>
         db.insert(dataSourcesToSourceDocuments).values({
           dataSourceId,
@@ -161,14 +178,18 @@ export const handler: S3Handler = async (event) => {
   } catch (error) {
     console.error('Error indexing file:', error);
     if (indexOp) {
-      indexOp = await updateIndexOperation(indexOp.id, {
-        status: 'FAILED',
-        errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
-          error instanceof Error
-            ? `${error.message}: ${error.stack}`
-            : `Error: ${JSON.stringify(error)}`
-        )}')`
-      });
+      [indexOp] = await db
+        .update(indexOperations)
+        .set({
+          status: 'FAILED',
+          errorMessages: sql`${indexOperations.errorMessages} || jsonb_build_array('${sql.raw(
+            error instanceof Error
+              ? `${error.message}: ${error.stack}`
+              : `Error: ${JSON.stringify(error)}`
+          )}')`
+        })
+        .where(eq(indexOperations.id, indexOp.id))
+        .returning();
     }
 
     throw error;

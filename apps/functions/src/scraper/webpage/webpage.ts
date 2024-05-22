@@ -1,13 +1,13 @@
-import { indexWebPage } from '@revelationsai/server/services/scraper/webpage';
-import { validApiHandlerSession } from '@revelationsai/server/services/session';
-import { isAdmin } from '@revelationsai/server/services/user';
+import { getSessionClaimsFromEvent } from '@revelationsai/functions/lib/user';
+import { indexWebPage } from '@revelationsai/server/lib/scraper/webpage';
+import { hasRole } from '@revelationsai/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
-  UnauthorizedResponse,
   ForbiddenResponse,
+  InternalServerErrorResponse,
   OkResponse,
-  InternalServerErrorResponse
+  UnauthorizedResponse
 } from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
@@ -17,13 +17,12 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
-    const { isValid, userWithRoles } = await validApiHandlerSession();
-    if (!isValid) {
-      return UnauthorizedResponse();
+    const claims = await getSessionClaimsFromEvent(event);
+    if (!claims) {
+      return UnauthorizedResponse('Invalid token');
     }
-
-    if (!(await isAdmin(userWithRoles.id))) {
-      return ForbiddenResponse();
+    if (!hasRole('admin', claims)) {
+      return ForbiddenResponse('User does not have permission to index web pages');
     }
 
     const indexOp = await indexWebPage({

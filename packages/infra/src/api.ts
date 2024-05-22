@@ -9,7 +9,7 @@ export function API({ stack }: StackContext) {
   const { chromiumLayer, axiomX86Layer } = use(Layers);
 
   const webpageScraperFunction = new Function(stack, 'webpageScraperFunction', {
-    handler: 'packages/functions/src/scraper/webpage/webpage.handler',
+    handler: 'apps/functions/src/scraper/webpage/webpage.handler',
     architecture: 'x86_64',
     runtime: 'nodejs18.x',
     layers: [chromiumLayer, axiomX86Layer],
@@ -26,22 +26,22 @@ export function API({ stack }: StackContext) {
     routes: {
       'POST /scraper/web-crawl': {
         function: {
-          handler: 'packages/functions/src/scraper/web-crawl.handler',
+          handler: 'apps/functions/src/scraper/web-crawl.handler',
           timeout: '15 minutes',
           memorySize: '2 GB'
         }
       },
       'POST /scraper/webpage': webpageScraperFunction,
-      'POST /scraper/file/presigned-url': 'packages/functions/src/scraper/file/upload-url.handler',
+      'POST /scraper/file/presigned-url': 'apps/functions/src/scraper/file/upload-url.handler',
       'POST /scraper/file/remote-download':
-        'packages/functions/src/scraper/file/remote-download.handler',
+        'apps/functions/src/scraper/file/remote-download.handler',
 
       // Webhooks
-      'POST /notifications/stripe': 'packages/functions/src/webhooks/stripe.handler',
-      'POST /notifications/revenue-cat': 'packages/functions/src/webhooks/revenue-cat.handler',
+      'POST /webhooks/clerk': 'apps/functions/src/webhooks/clerk.handler',
+      'POST /webhooks/stripe': 'apps/functions/src/webhooks/stripe.handler',
+      'POST /webhooks/revenue-cat': 'apps/functions/src/webhooks/revenue-cat.handler',
 
-      // Vector similarity search
-      'POST /vector-search': 'packages/functions/src/rest/vector-search/post.handler'
+      $default: 'apps/api/src/index.handler'
     },
     customDomain: {
       domainName: apiDomainName,

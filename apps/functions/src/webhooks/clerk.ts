@@ -1,30 +1,27 @@
-import type { Bindings, Variables } from '@api/types';
 import { type WebhookEvent } from '@clerk/clerk-sdk-node';
-import { Hono } from 'hono';
+import { clerkClient } from '@revelationsai/server/lib/user';
+import { ApiHandler } from 'sst/node/api';
 import { Stripe } from 'stripe';
 import { Webhook } from 'svix';
+import { BadRequestResponse, OkResponse } from '../lib/api-responses';
 
-const app = new Hono<{
-  Bindings: Bindings;
-  Variables: Variables;
-}>().post('/', async (c) => {
+export const handler = ApiHandler(async (event) => {
   // Get the Svix headers for verification
-  const svix_id = c.req.header('svix-id');
-  const svix_timestamp = c.req.header('svix-timestamp');
-  const svix_signature = c.req.header('svix-signature');
+  const svix_id = event.headers['svix-id'];
+  const svix_timestamp = event.headers['svix-timestamp'];
+  const svix_signature = event.headers['svix-signature'];
 
   // If there are missing Svix headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return c.json(
-      {
-        message: 'Missing Svix headers'
-      },
-      400
-    );
+    return BadRequestResponse('Missing Svix headers');
+  }
+
+  if (!event.body) {
+    return BadRequestResponse('Missing event body');
   }
 
   // Initiate Svix
-  const wh = new Webhook(c.env.CLERK_WEBHOOK_SECRET);
+  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
   let evt: WebhookEvent;
 
@@ -32,7 +29,7 @@ const app = new Hono<{
   // If successful, the payload will be available from 'evt'
   // If the verification fails, error out and  return error code
   try {
-    evt = wh.verify(await c.req.text(), {
+    evt = wh.verify(event.body, {
       'svix-id': svix_id,
       'svix-timestamp': svix_timestamp,
       'svix-signature': svix_signature
@@ -42,12 +39,7 @@ const app = new Hono<{
     message += err instanceof Error ? err.message : JSON.stringify(err);
     // Console log and return error
     console.log('Webhook failed to verify. Error:', message);
-    return c.json(
-      {
-        message
-      },
-      400
-    );
+    return BadRequestResponse(message);
   }
 
   switch (evt.type) {
@@ -55,7 +47,7 @@ const app = new Hono<{
     case 'user.created': {
       const { id, public_metadata } = evt.data;
 
-      const user = await c.var.clerk.users.updateUserMetadata(id, {
+      const user = await clerkClient.users.updateUserMetadata(id, {
         publicMetadata: {
           ...public_metadata,
           bibleTranslation: 'WEB',
@@ -64,7 +56,7 @@ const app = new Hono<{
       });
 
       if (!public_metadata.stripeCustomerId) {
-        const stripe = new Stripe(c.env.STRIPE_SECRET_KEY);
+        const stripe = new Stripe(process.env.STRIPE_API_KEY);
         const customer = await stripe.customers.create({
           email: user.emailAddresses[0].emailAddress,
           name: `${user.firstName} ${user.lastName}`,
@@ -72,7 +64,7 @@ const app = new Hono<{
             clerkId: user.id
           }
         });
-        await c.var.clerk.users.updateUserMetadata(user.id, {
+        await clerkClient.users.updateUserMetadata(user.id, {
           publicMetadata: {
             ...user.publicMetadata,
             stripeCustomerId: customer.id
@@ -85,31 +77,15 @@ const app = new Hono<{
     case 'user.deleted': {
       const { id } = evt.data;
       if (!id) {
-        return c.json(
-          {
-            message: 'User ID not found in webhook data'
-          },
-          400
-        );
+        return BadRequestResponse('User ID not found in webhook data');
       }
       break;
     }
-    default: {
-      return c.json(
-        {
-          message: 'Webhook event not recognized'
-        },
-        400
-      );
-    }
+    default:
+      BadRequestResponse('Webhook event not recognized');
   }
 
-  return c.json(
-    {
-      message: 'Webhook processed'
-    },
-    200
-  );
+  return OkResponse({
+    message: 'Webhook processed'
+  });
 });
-
-export default app;

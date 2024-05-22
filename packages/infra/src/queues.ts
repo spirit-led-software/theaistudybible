@@ -12,7 +12,7 @@ export function Queues({ app, stack }: StackContext) {
     stack,
     'webpageIndexQueueConsumerFunction',
     {
-      handler: 'packages/functions/src/scraper/webpage/queue.consumer',
+      handler: 'apps/functions/src/scraper/webpage/queue.consumer',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
       timeout: '15 minutes',

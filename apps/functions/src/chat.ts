@@ -1,4 +1,4 @@
-import { type User } from '@clerk/clerk-sdk-node';
+import type { JwtPayload } from '@clerk/types';
 import { CallbackManager } from '@langchain/core/callbacks/manager';
 import middy from '@middy/core';
 import { createId } from '@paralleldrive/cuid2';
@@ -23,12 +23,13 @@ import type { UpstashVectorStoreDocument } from '@revelationsai/langchain/vector
 import { cache } from '@revelationsai/server/lib/cache';
 import { aiRenameChat } from '@revelationsai/server/lib/chat';
 import { db } from '@revelationsai/server/lib/database';
-import { clerkClient, getMaxQueryCountForUser, hasRole } from '@revelationsai/server/lib/user';
+import { getMaxQueryCountForUser, hasRole } from '@revelationsai/server/lib/user';
 import { Ratelimit } from '@upstash/ratelimit';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq } from 'drizzle-orm';
 import { Readable } from 'stream';
+import { getSessionClaimsFromEvent } from './lib/user';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
   body: Readable;
@@ -65,7 +66,7 @@ function validateRequest(
 
 function validateModelId(
   providedModelId: string,
-  user: User
+  claims: JwtPayload
 ): StreamedAPIGatewayProxyStructuredResultV2 | undefined {
   if (
     !freeTierModelIds.includes(providedModelId as FreeTierModelId) &&
@@ -82,8 +83,8 @@ function validateModelId(
   }
   if (
     plusTierModelIds.includes(providedModelId as PlusTierModelId) &&
-    !hasRole('rc:plus', user) &&
-    !hasRole('admin', user)
+    !hasRole('rc:plus', claims) &&
+    !hasRole('admin', claims)
   ) {
     return {
       statusCode: 403,
@@ -100,8 +101,8 @@ function validateModelId(
   return undefined;
 }
 
-function getDefaultModelId(user: User): FreeTierModelId | PlusTierModelId {
-  return hasRole('rc:plus', user) || hasRole('admin', user)
+function getDefaultModelId(claims: JwtPayload): FreeTierModelId | PlusTierModelId {
+  return hasRole('rc:plus', claims) || hasRole('admin', claims)
     ? ('claude-3-opus-20240229' satisfies PlusTierModelId)
     : ('claude-3-haiku-20240307' satisfies FreeTierModelId);
 }
@@ -202,17 +203,8 @@ async function lambdaHandler(
 
     console.time('Validating session token');
 
-    let user: User | null = null;
-    try {
-      const claims = await clerkClient.verifyToken(
-        event.headers.authorization?.split(' ')[1] ?? ''
-      );
-      user = await clerkClient.users.getUser(claims.sub);
-    } catch (error) {
-      console.error(`Error verifying token: ${error}`);
-    }
-
-    if (!user) {
+    const claims = await getSessionClaimsFromEvent(event);
+    if (!claims) {
       console.log('Invalid session token');
       return {
         statusCode: 401,
@@ -224,12 +216,12 @@ async function lambdaHandler(
     }
     console.timeEnd('Validating session token');
 
-    const maxQueryCount = await getMaxQueryCountForUser(user);
+    const maxQueryCount = await getMaxQueryCountForUser(claims);
     const ratelimit = new Ratelimit({
       redis: cache,
       limiter: Ratelimit.slidingWindow(maxQueryCount, '3 h')
     });
-    const ratelimitResult = await ratelimit.limit(user.id);
+    const ratelimitResult = await ratelimit.limit(claims.sub);
     if (!ratelimitResult.success) {
       console.log('Rate limit exceeded');
       return {
@@ -248,12 +240,12 @@ async function lambdaHandler(
     }
 
     if (providedModelId) {
-      const modelIdValidationResponse = validateModelId(providedModelId, user);
+      const modelIdValidationResponse = validateModelId(providedModelId, claims);
       if (modelIdValidationResponse) {
         return modelIdValidationResponse;
       }
     }
-    const modelId = providedModelId ?? getDefaultModelId(user);
+    const modelId = providedModelId ?? getDefaultModelId(claims);
 
     console.time('Validating chat');
     const [chat] = chatId
@@ -262,11 +254,11 @@ async function lambdaHandler(
             where: (chats, { eq }) => eq(chats.id, chatId)
           })
           .then(async (foundChat) => {
-            if (!foundChat || foundChat.userId !== user.id) {
+            if (!foundChat || foundChat.userId !== claims.sub) {
               return await db
                 .insert(chats)
                 .values({
-                  userId: user.id
+                  userId: claims.sub
                 })
                 .returning();
             }
@@ -275,7 +267,7 @@ async function lambdaHandler(
       : await db
           .insert(chats)
           .values({
-            userId: user.id
+            userId: claims.sub
           })
           .returning();
 
@@ -313,7 +305,7 @@ async function lambdaHandler(
           .insert(messagesTable)
           .values({
             chatId: chat.id,
-            userId: user.id,
+            userId: claims.sub,
             role: 'user',
             content: lastMessage.content
           })
@@ -364,7 +356,7 @@ async function lambdaHandler(
     console.time('Creating chat chain');
     const chain = await getRAIChatChain({
       modelId: modelId as FreeTierModelId | PlusTierModelId,
-      user,
+      claims,
       messages,
       callbacks: CallbackManager.fromHandlers(handlers)
     });
@@ -395,7 +387,7 @@ async function lambdaHandler(
             chat,
             userMessageId: userMessage.id,
             aiResponseId,
-            userId: user.id,
+            userId: claims.sub,
             lastMessage,
             response: result.text,
             sourceDocuments,
@@ -406,7 +398,7 @@ async function lambdaHandler(
       })
       .catch(async (err: unknown) => {
         await Promise.all([
-          ratelimit.resetUsedTokens(user.id),
+          ratelimit.resetUsedTokens(claims.sub),
           db.query.messages
             .findFirst({
               where: (messages, { eq }) => eq(messages.id, aiResponseId)

@@ -48,7 +48,7 @@ export const TooManyRequestsResponse = (message?: string): APIGatewayProxyStruct
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? 'Too munknown requests'
+      message: message ?? 'Too munknown requests'
     })
   };
 };
@@ -60,7 +60,7 @@ export const BadRequestResponse = (message?: string): APIGatewayProxyStructuredR
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? 'Bad request'
+      message: message ?? 'Bad request'
     })
   };
 };
@@ -72,7 +72,7 @@ export const UnauthorizedResponse = (message?: string): APIGatewayProxyStructure
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? 'Unauthorized'
+      message: message ?? 'Unauthorized'
     })
   };
 };
@@ -84,7 +84,7 @@ export const ForbiddenResponse = (message?: string): APIGatewayProxyStructuredRe
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? 'Forbidden'
+      message: message ?? 'Forbidden'
     })
   };
 };
@@ -96,7 +96,7 @@ export const NotFoundResponse = (message?: string): APIGatewayProxyStructuredRes
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? 'Not found'
+      message: message ?? 'Not found'
     })
   };
 };
@@ -108,7 +108,7 @@ export const ObjectNotFoundResponse = (identifier: string): APIGatewayProxyStruc
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: `Object ${identifier} not found`
+      message: `Object ${identifier} not found`
     })
   };
 };
@@ -122,7 +122,7 @@ export const InternalServerErrorResponse = (
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      error: message ?? 'Internal server error'
+      message: message ?? 'Internal server error'
     })
   };
 };

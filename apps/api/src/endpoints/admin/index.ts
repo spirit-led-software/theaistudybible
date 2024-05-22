@@ -1,5 +1,5 @@
-import { checkRole } from '@api/lib/user';
-import type { Bindings, Variables } from '@api/types';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { hasRole } from '@revelationsai/server/lib/user';
 import { Hono } from 'hono';
 import bibles from './bibles';
 import chats from './chats';
@@ -12,8 +12,8 @@ export const app = new Hono<{
 }>()
   .use('/*', async (c, next) => {
     if (
-      c.env.ENVIRONMENT !== 'development' &&
-      (!c.var.clerkAuth?.userId || !checkRole('admin', c.var.clerkAuth.sessionClaims))
+      process.env.NODE_ENV !== 'development' &&
+      (!c.var.clerkAuth?.userId || !hasRole('admin', c.var.clerkAuth.sessionClaims))
     ) {
       return c.json(
         {

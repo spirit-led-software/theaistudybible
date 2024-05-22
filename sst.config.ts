@@ -1,6 +1,5 @@
 import {
   API,
-  AdminAPI,
   Buckets,
   CDN,
   ChatAPI,
@@ -10,7 +9,6 @@ import {
   DatabaseScripts,
   Layers,
   Queues,
-  RestAPI,
   Website,
 } from "@revelationsai/infra";
 import type { SSTConfig } from "sst";
@@ -33,8 +31,6 @@ export default {
       .stack(Queues)
       .stack(API)
       .stack(ChatAPI)
-      .stack(RestAPI)
-      .stack(AdminAPI)
       .stack(Website)
       .stack(Crons);
   },

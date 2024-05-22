@@ -1,8 +1,18 @@
-import { PaginationSchema, PaginationSchemaNoDefault } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { bibles, books, chapterHighlights, chapters, verses } from '@core/database/schema';
-import type { Bible, Book, Chapter, Verse } from '@core/model/bible';
 import { zValidator } from '@hono/zod-validator';
+import {
+  PaginationSchema,
+  PaginationSchemaNoDefault
+} from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import {
+  bibles,
+  books,
+  chapterHighlights,
+  chapters,
+  verses
+} from '@revelationsai/core/database/schema';
+import type { Bible, Book, Chapter, Verse } from '@revelationsai/core/model/bible';
+import { db } from '@revelationsai/server/lib/database';
 import { SQL, and, count, eq, inArray, or, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -58,7 +68,7 @@ export const app = new Hono<{
   .use('/:id/*', async (c, next) => {
     const bibleId = c.req.param('id');
 
-    const bible = await c.var.db.query.bibles.findFirst({
+    const bible = await db.query.bibles.findFirst({
       where: or(eq(bibles.id, bibleId), eq(bibles.abbreviation, bibleId))
     });
     if (!bible) {
@@ -71,7 +81,7 @@ export const app = new Hono<{
     const bible = c.get('bible');
     const bookId = c.req.param('bookId');
 
-    const book = await c.var.db.query.books.findFirst({
+    const book = await db.query.books.findFirst({
       where: and(
         eq(books.bibleId, bible.id),
         or(eq(books.id, bookId), eq(books.abbreviation, bookId))
@@ -109,7 +119,7 @@ export const app = new Hono<{
     const bible = c.get('bible');
     const chapterId = c.req.param('chapterId');
 
-    const chapter = await c.var.db.query.chapters.findFirst({
+    const chapter = await db.query.chapters.findFirst({
       where: and(
         eq(chapters.bibleId, bible.id),
         or(eq(chapters.id, chapterId), eq(chapters.abbreviation, chapterId))
@@ -143,7 +153,7 @@ export const app = new Hono<{
     const bible = c.get('bible');
     const verseId = c.req.param('verseId');
 
-    const verse = await c.var.db.query.verses.findFirst({
+    const verse = await db.query.verses.findFirst({
       where: and(
         eq(verses.bibleId, bible.id),
         or(eq(verses.id, verseId), eq(verses.abbreviation, verseId))
@@ -178,13 +188,13 @@ export const app = new Hono<{
     const { cursor, limit, sort, filter } = c.req.valid('query');
 
     const [foundBibles, bibleCount] = await Promise.all([
-      c.var.db.query.bibles.findMany({
+      db.query.bibles.findMany({
         offset: cursor,
         limit,
         orderBy: sort,
         where: filter
       }),
-      c.var.db
+      db
         .select({
           count: count()
         })
@@ -219,7 +229,7 @@ export const app = new Hono<{
     }
 
     const [foundBooks, bookCount] = await Promise.all([
-      c.var.db.query.books.findMany({
+      db.query.books.findMany({
         offset: cursor,
         limit,
         orderBy: sort,
@@ -247,7 +257,7 @@ export const app = new Hono<{
           }
         }
       }),
-      c.var.db
+      db
         .select({
           count: count()
         })
@@ -313,7 +323,7 @@ export const app = new Hono<{
       }
 
       const [foundChapters, chapterCount] = await Promise.all([
-        c.var.db.query.chapters.findMany({
+        db.query.chapters.findMany({
           offset: cursor,
           limit,
           orderBy: sort,
@@ -340,7 +350,7 @@ export const app = new Hono<{
             }
           }
         }),
-        c.var.db
+        db
           .select({
             count: count()
           })
@@ -407,7 +417,7 @@ export const app = new Hono<{
         return c.json({ message: 'Unauthorized' }, 401);
       }
 
-      const highlights = await c.var.db
+      const highlights = await db
         .insert(chapterHighlights)
         .values(
           ids.map((id) => ({
@@ -438,7 +448,7 @@ export const app = new Hono<{
       return c.json({ message: 'Unauthorized' }, 401);
     }
 
-    const highlights = await c.var.db.query.chapterHighlights.findMany({
+    const highlights = await db.query.chapterHighlights.findMany({
       where: and(
         eq(chapterHighlights.chapterId, c.var.chapter.id),
         eq(chapterHighlights.userId, c.var.clerkAuth.userId)
@@ -475,7 +485,7 @@ export const app = new Hono<{
 
       const { ids } = c.req.valid('json');
 
-      const highlights = await c.var.db.query.chapterHighlights.findFirst({
+      const highlights = await db.query.chapterHighlights.findFirst({
         where: and(
           eq(chapterHighlights.chapterId, c.var.chapter.id),
           eq(chapterHighlights.userId, c.var.clerkAuth.userId)
@@ -490,7 +500,7 @@ export const app = new Hono<{
         );
       }
 
-      await c.var.db
+      await db
         .delete(chapterHighlights)
         .where(
           and(
@@ -517,13 +527,13 @@ export const app = new Hono<{
     }
 
     const [foundVerses, verseCount] = await Promise.all([
-      c.var.db.query.verses.findMany({
+      db.query.verses.findMany({
         offset: cursor,
         limit,
         orderBy: sort,
         where
       }),
-      c.var.db
+      db
         .select({
           count: count()
         })

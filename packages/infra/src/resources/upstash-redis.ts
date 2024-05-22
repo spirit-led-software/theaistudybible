@@ -24,7 +24,7 @@ export class UpstashRedis extends Construct {
     super(scope, id);
 
     const upstashRedisFunction = new Function(this, 'UpstashRedisFunction', {
-      handler: 'packages/functions/src/database/upstash-redis.handler',
+      handler: 'apps/functions/src/database/upstash-redis.handler',
       enableLiveDev: false // No live dev on custom resources
     });
 

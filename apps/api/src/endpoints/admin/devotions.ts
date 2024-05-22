@@ -1,12 +1,13 @@
-import { generateDevotion } from '@api/lib/devotion';
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { devotionReactions, devotions } from '@core/database/schema';
-import type { Devotion } from '@core/model/devotion';
-import type { DevotionImage } from '@core/model/devotion/image';
-import type { DevotionReaction } from '@core/model/devotion/reaction';
 import { zValidator } from '@hono/zod-validator';
-import { getDocumentVectorStore } from '@langchain/lib/vector-db';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { devotionReactions, devotions } from '@revelationsai/core/database/schema';
+import type { Devotion } from '@revelationsai/core/model/devotion';
+import type { DevotionImage } from '@revelationsai/core/model/devotion/image';
+import type { DevotionReaction } from '@revelationsai/core/model/devotion/reaction';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { db } from '@revelationsai/server/lib/database';
+import { generateDevotion } from '@revelationsai/server/lib/devotion';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -36,7 +37,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const devotion = await c.var.db.query.devotions.findFirst({
+    const devotion = await db.query.devotions.findFirst({
       where: (devotions, { eq }) => eq(devotions.id, id)
     });
 
@@ -48,7 +49,7 @@ export const app = new Hono<{
     await next();
   })
   .use('/:id/image/*', async (c, next) => {
-    const image = await c.var.db.query.devotionImages.findFirst({
+    const image = await db.query.devotionImages.findFirst({
       where: (devotionImages, { eq }) => eq(devotionImages.devotionId, c.var.devotion.id)
     });
 
@@ -61,7 +62,7 @@ export const app = new Hono<{
   })
   .use('/:id/reactions/:reactionId/*', async (c, next) => {
     const reactionId = c.req.param('reactionId');
-    const reaction = await c.var.db.query.devotionReactions.findFirst({
+    const reaction = await db.query.devotionReactions.findFirst({
       where: (devotionReactions, { and, eq }) =>
         and(
           eq(devotionReactions.devotionId, c.var.devotion.id),
@@ -79,12 +80,7 @@ export const app = new Hono<{
   .post('/', zValidator('json', createDevotionSchema), async (c) => {
     const { topic, bibleReading } = c.req.valid('json');
 
-    const devotion = await generateDevotion({
-      env: c.env,
-      vars: c.var,
-      topic,
-      bibleReading
-    });
+    const devotion = await generateDevotion(topic, bibleReading);
 
     return c.json(
       {
@@ -97,13 +93,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundDevotions, devotionsCount] = await Promise.all([
-      c.var.db.query.devotions.findMany({
+      db.query.devotions.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(devotions)
         .where(filter)
@@ -130,7 +126,7 @@ export const app = new Hono<{
   .patch('/:id', zValidator('json', updateDevotionSchema), async (c) => {
     const data = c.req.valid('json');
 
-    const [devotion] = await c.var.db
+    const [devotion] = await db
       .update(devotions)
       .set(data)
       .where(eq(devotions.id, c.var.devotion.id))
@@ -144,7 +140,7 @@ export const app = new Hono<{
     );
   })
   .delete('/:id', async (c) => {
-    await c.var.db.delete(devotions).where(eq(devotions.id, c.var.devotion.id));
+    await db.delete(devotions).where(eq(devotions.id, c.var.devotion.id));
     return c.json(
       {
         message: 'Devotion deleted'
@@ -164,13 +160,13 @@ export const app = new Hono<{
     }
 
     const [foundReactions, reactionsCount] = await Promise.all([
-      c.var.db.query.devotionReactions.findMany({
+      db.query.devotionReactions.findMany({
         where,
         orderBy: sort,
         offset: cursor,
         limit: limit
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(devotionReactions)
         .where(where)
@@ -191,14 +187,12 @@ export const app = new Hono<{
   })
   .get('/:id/source-documents', async (c) => {
     const devotion = c.var.devotion;
-    const sourceDocumentRelations = await c.var.db.query.devotionsToSourceDocuments.findMany({
+    const sourceDocumentRelations = await db.query.devotionsToSourceDocuments.findMany({
       where: (devotionSourceDocuments, { eq }) =>
         eq(devotionSourceDocuments.devotionId, devotion.id)
     });
 
-    const vectorStore = await getDocumentVectorStore({
-      env: c.env
-    });
+    const vectorStore = await getDocumentVectorStore();
     const sourceDocuments = await vectorStore.index.fetch(
       sourceDocumentRelations.map((r) => r.sourceDocumentId),
       {

@@ -1,14 +1,9 @@
-import config from '@revelationsai/core/configs/revelationsai';
-import {
-  getUser,
-  getUserByStripeCustomerId,
-  updateUser
-} from '@revelationsai/server/services/user';
+import { clerkClient } from '@revelationsai/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
 import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '../lib/api-responses';
 
-const stripe = new Stripe(config.stripe.apiKey, {
+const stripe = new Stripe(process.env.STRIPE_API_KEY, {
   apiVersion: '2023-10-16'
 });
 
@@ -42,7 +37,7 @@ export const handler = ApiHandler(async (event) => {
           return BadRequestResponse('Missing client reference ID');
         }
 
-        const user = await getUser(clientReferenceId);
+        const user = await clerkClient.users.getUser(clientReferenceId);
         if (!user) {
           console.error(`User not found for client reference ID: ${clientReferenceId}`);
           return InternalServerErrorResponse(
@@ -54,9 +49,14 @@ export const handler = ApiHandler(async (event) => {
         if (
           stripeCustomerId &&
           typeof stripeCustomerId === 'string' &&
-          user.stripeCustomerId !== stripeCustomerId
+          user.publicMetadata.stripeCustomerId !== stripeCustomerId
         ) {
-          await updateUser(user.id, { stripeCustomerId });
+          await clerkClient.users.updateUser(user.id, {
+            publicMetadata: {
+              ...user.publicMetadata,
+              stripeCustomerId
+            }
+          });
         }
 
         return OkResponse();
@@ -65,7 +65,13 @@ export const handler = ApiHandler(async (event) => {
         const subscription = stripeEvent.data.object;
         console.log('Subscription created: ', subscription);
 
-        const user = await getUserByStripeCustomerId(subscription.customer.toString());
+        const sr = await stripe.customers.retrieve(subscription.customer.toString());
+        if (sr.deleted) {
+          console.log('Customer is deleted');
+          return BadRequestResponse('Customer is deleted');
+        }
+
+        const user = await clerkClient.users.getUser(sr.metadata.clerkId);
         if (!user) {
           console.error(`User not found for Stripe customer ID: ${subscription.customer}`);
           return InternalServerErrorResponse(

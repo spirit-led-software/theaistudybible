@@ -20,7 +20,7 @@ export function Website({ stack }: StackContext) {
   const { chatApiUrl } = use(ChatAPI);
 
   const website = new SvelteKitSite(stack, 'website', {
-    path: 'packages/website',
+    path: 'apps/website',
     permissions: [api],
     bind: [api],
     environment: {

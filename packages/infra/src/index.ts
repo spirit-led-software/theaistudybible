@@ -1,4 +1,3 @@
-export * from './admin-api';
 export * from './api';
 export * from './buckets';
 export * from './cdn';
@@ -9,5 +8,4 @@ export * from './database';
 export * from './database-scripts';
 export * from './layers';
 export * from './queues';
-export * from './rest-api';
 export * from './website';

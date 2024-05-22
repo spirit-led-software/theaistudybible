@@ -14,7 +14,7 @@ export function Crons({ stack }: StackContext) {
       schedule: 'cron(0 13 * * ? *)',
       job: {
         function: {
-          handler: 'packages/functions/src/crons/daily-devo.handler',
+          handler: 'apps/functions/src/crons/daily-devo.handler',
           copyFiles: [
             {
               from: 'firebase-service-account.json',
@@ -31,7 +31,7 @@ export function Crons({ stack }: StackContext) {
       schedule: 'cron(0 23 * * ? *)',
       job: {
         function: {
-          handler: 'packages/functions/src/crons/daily-query.handler',
+          handler: 'apps/functions/src/crons/daily-query.handler',
           copyFiles: [
             {
               from: 'firebase-service-account.json',
@@ -48,7 +48,7 @@ export function Crons({ stack }: StackContext) {
       schedule: 'cron(0 1 * * ? *)',
       job: {
         function: {
-          handler: 'packages/functions/src/crons/index-op-cleanup.handler',
+          handler: 'apps/functions/src/crons/index-op-cleanup.handler',
           timeout: '15 minutes',
           memorySize: '1 GB'
         }
@@ -56,7 +56,7 @@ export function Crons({ stack }: StackContext) {
     });
 
     const dataSourceSyncCronFunction = new Function(stack, 'DataSourceSyncCronFunction', {
-      handler: 'packages/functions/src/crons/data-source-sync.handler',
+      handler: 'apps/functions/src/crons/data-source-sync.handler',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
       memorySize: '2 GB',

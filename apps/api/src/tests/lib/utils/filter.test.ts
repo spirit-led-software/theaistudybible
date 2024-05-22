@@ -1,5 +1,5 @@
-import { parseFilterString } from '@api/lib/utils/filter';
-import { chats } from '@core/database/schema';
+import { parseFilterString } from '@revelationsai/api/lib/utils/filter';
+import { chats } from '@revelationsai/core/database/schema';
 import { and, eq, ilike, inArray, or } from 'drizzle-orm';
 import { describe, expect, test } from 'vitest';
 

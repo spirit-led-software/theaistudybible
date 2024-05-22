@@ -1,7 +1,6 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import type { User } from '@clerk/backend';
 import {
   userGeneratedImages,
   userGeneratedImagesToSourceDocuments
@@ -15,13 +14,16 @@ import { eq } from 'drizzle-orm';
 import { Bucket } from 'sst/node/bucket';
 import { db } from './database';
 
-export async function generatedImage(user: User, userPrompt: string): Promise<UserGeneratedImage> {
+export async function generatedImage(
+  userId: string,
+  userPrompt: string
+): Promise<UserGeneratedImage> {
   let userGeneratedImage: UserGeneratedImage | undefined;
   try {
     [userGeneratedImage] = await db
       .insert(userGeneratedImages)
       .values({
-        userId: user.id,
+        userId: userId,
         userPrompt
       })
       .returning();

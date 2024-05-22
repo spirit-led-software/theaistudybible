@@ -1,10 +1,11 @@
-import { checkRole } from '@api/lib/user';
-import { PaginationSchema } from '@api/lib/utils/pagination';
-import type { Bindings, Variables } from '@api/types';
-import { messageReactions, messages } from '@core/database/schema';
-import type { Message, MessageReaction } from '@core/model/chat/message';
 import { zValidator } from '@hono/zod-validator';
-import { getDocumentVectorStore } from '@langchain/lib/vector-db';
+import { PaginationSchema } from '@revelationsai/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@revelationsai/api/types';
+import { messageReactions, messages } from '@revelationsai/core/database/schema';
+import type { Message, MessageReaction } from '@revelationsai/core/model/chat/message';
+import { getDocumentVectorStore } from '@revelationsai/langchain/lib/vector-db';
+import { db } from '@revelationsai/server/lib/database';
+import { hasRole } from '@revelationsai/server/lib/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -29,7 +30,7 @@ export const app = new Hono<{
   })
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const message = await c.var.db.query.messages.findFirst({
+    const message = await db.query.messages.findFirst({
       where: eq(messages.id, id)
     });
     if (!message) {
@@ -43,7 +44,7 @@ export const app = new Hono<{
 
     if (
       c.var.clerkAuth?.userId !== message.userId &&
-      !checkRole('admin', c.var.clerkAuth?.sessionClaims)
+      !hasRole('admin', c.var.clerkAuth!.sessionClaims!)
     ) {
       return c.json(
         {
@@ -57,7 +58,7 @@ export const app = new Hono<{
     await next();
   })
   .use('/:id/reaction/*', async (c, next) => {
-    const reaction = await c.var.db.query.messageReactions.findFirst({
+    const reaction = await db.query.messageReactions.findFirst({
       where: eq(messageReactions.messageId, c.var.message!.id)
     });
     if (!reaction) {
@@ -71,7 +72,7 @@ export const app = new Hono<{
 
     if (
       c.var.clerkAuth?.userId !== reaction.userId &&
-      !checkRole('admin', c.var.clerkAuth?.sessionClaims)
+      !hasRole('admin', c.var.clerkAuth!.sessionClaims!)
     ) {
       return c.json(
         {
@@ -94,7 +95,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const message = await c.var.db
+      const message = await db
         .insert(messages)
         // @ts-expect-error - We know this is the correct type
         .values({
@@ -119,13 +120,13 @@ export const app = new Hono<{
     }
 
     const [foundMessages, messagesCount] = await Promise.all([
-      c.var.db.query.messages.findMany({
+      db.query.messages.findMany({
         where,
         orderBy: sort,
         offset: cursor,
         limit: limit
       }),
-      c.var.db
+      db
         .select({ count: count() })
         .from(messages)
         .where(where)
@@ -159,7 +160,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const [message] = await c.var.db
+      const [message] = await db
         .update(messages)
         .set({
           ...data,
@@ -176,7 +177,7 @@ export const app = new Hono<{
     }
   )
   .delete('/:id', async (c) => {
-    await c.var.db.delete(messages).where(eq(messages.id, c.var.message!.id));
+    await db.delete(messages).where(eq(messages.id, c.var.message!.id));
     return c.json(
       {
         message: 'Message deleted successfully'
@@ -195,7 +196,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const reaction = await c.var.db
+      const reaction = await db
         .insert(messageReactions)
         .values({
           ...data,
@@ -230,7 +231,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const reaction = await c.var.db
+      const reaction = await db
         .update(messageReactions)
         .set({
           ...data,
@@ -247,9 +248,7 @@ export const app = new Hono<{
     }
   )
   .delete('/:id/reaction', async (c) => {
-    await c.var.db
-      .delete(messageReactions)
-      .where(eq(messageReactions.messageId, c.var.message!.id));
+    await db.delete(messageReactions).where(eq(messageReactions.messageId, c.var.message!.id));
     return c.json(
       {
         message: 'Message reaction deleted successfully'
@@ -258,12 +257,10 @@ export const app = new Hono<{
     );
   })
   .get('/:id/source-documents', async (c) => {
-    const sourceDocumentRelations = await c.var.db.query.messagesToSourceDocuments.findMany({
+    const sourceDocumentRelations = await db.query.messagesToSourceDocuments.findMany({
       where: eq(messages.id, c.var.message.id)
     });
-    const vectorStore = await getDocumentVectorStore({
-      env: c.env
-    });
+    const vectorStore = await getDocumentVectorStore();
     const sourceDocuments = await vectorStore.index.fetch(
       sourceDocumentRelations.map((r) => r.sourceDocumentId),
       {

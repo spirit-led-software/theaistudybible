@@ -1,9 +1,13 @@
-import { indexRemoteFile } from '@revelationsai/server/services/scraper/file';
+import { getSessionClaimsFromEvent } from '@revelationsai/functions/lib/user';
+import { indexRemoteFile } from '@revelationsai/server/lib/scraper/file';
+import { hasRole } from '@revelationsai/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,
+  ForbiddenResponse,
+  InternalServerErrorResponse,
   OkResponse,
-  InternalServerErrorResponse
+  UnauthorizedResponse
 } from '../../lib/api-responses';
 
 export const handler = ApiHandler(async (event) => {
@@ -16,6 +20,14 @@ export const handler = ApiHandler(async (event) => {
   }
 
   try {
+    const claims = await getSessionClaimsFromEvent(event);
+    if (!claims) {
+      return UnauthorizedResponse('Invalid token');
+    }
+    if (!hasRole('admin', claims)) {
+      return ForbiddenResponse('User does not have permission to index web pages');
+    }
+
     await indexRemoteFile({
       name,
       url,
