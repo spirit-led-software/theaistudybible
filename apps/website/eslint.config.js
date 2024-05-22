@@ -3,6 +3,7 @@
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintConfig from '@theaistudybible/eslint-config';
 import sveltePlugin from 'eslint-plugin-svelte';
+import tailwindPlugin from 'eslint-plugin-tailwindcss';
 import globals from 'globals';
 import path from 'path';
 import svelteParser from 'svelte-eslint-parser';
@@ -54,5 +55,7 @@ export default tseslint.config(
   },
   // Svelte
   // @ts-ignore
-  ...sveltePlugin.configs['flat/recommended']
+  ...sveltePlugin.configs['flat/recommended'],
+  // Tailwind
+  ...tailwindPlugin.configs['flat/recommended']
 );
