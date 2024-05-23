@@ -8,10 +8,9 @@
       "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
       "@theaistudybible/server": ["../../packages/server/src"],
       "@theaistudybible/server/*": ["../../packages/server/src/*"],
-      "@theaistudybible/functions": ["./src"],
-      "@theaistudybible/functions/*": ["./src/*"]
+      "@theaistudybible/api": ["./src"],
+      "@theaistudybible/api/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"]
 }

@@ -18,12 +18,12 @@ import {
 } from '@theaistudybible/core/model/llm';
 import { similarityFunctionMapping } from '@theaistudybible/core/model/source-document';
 import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
-import { cache } from '@theaistudybible/functions/lib/cache';
-import { aiRenameChat } from '@theaistudybible/functions/lib/chat';
 import { getRAIChatChain } from '@theaistudybible/langchain/lib/chains/chat';
 import type { UpstashVectorStoreDocument } from '@theaistudybible/langchain/vectorstores/upstash';
-import { db } from '@theaistudybible/functions/lib/database';
-import { getMaxQueryCountForUser, hasRole } from '@theaistudybible/functions/lib/user';
+import { cache } from '@theaistudybible/server/lib/cache';
+import { aiRenameChat } from '@theaistudybible/server/lib/chat';
+import { db } from '@theaistudybible/server/lib/database';
+import { getMaxQueryCountForUser, hasRole } from '@theaistudybible/server/lib/user';
 import { Ratelimit } from '@upstash/ratelimit';
 import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';

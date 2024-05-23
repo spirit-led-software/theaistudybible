@@ -14,7 +14,9 @@ const config = {
     adapter: adapter(),
     alias: {
       '@theaistudybible/core': '../../packages/core/src',
-      '@theaistudybible/langchain': '../../packages/langchain/src'
+      '@theaistudybible/langchain': '../../packages/langchain/src',
+      '@theaistudybible/server': '../../packages/server/src',
+      '@theaistudybible/api': '../api/src'
     },
     typescript: {
       config: (config) => {

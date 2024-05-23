@@ -1,0 +1,15 @@
+{
+  "extends": "@theaistudybible/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@theaistudybible/core": ["../core/src"],
+      "@theaistudybible/core/*": ["../core/src/*"],
+      "@theaistudybible/langchain": ["../langchain/src"],
+      "@theaistudybible/langchain/*": ["../langchain/src/*"],
+      "@theaistudybible/server": ["./src"],
+      "@theaistudybible/server/*": ["./src/*"]
+    }
+  },
+  "include": ["./src/**/*.ts", "../core/globals.d.ts"],
+  "exclude": ["./node_modules"]
+}

@@ -63,7 +63,7 @@ declare global {
       ADMIN_PASSWORD: string;
 
       // Stripe
-      PUBLIC_STRIPE_PUBLIC_KEY: string;
+      STRIPE_PUBLIC_KEY: string;
       STRIPE_API_KEY: string;
       STRIPE_WEBHOOK_SECRET: string;
     }

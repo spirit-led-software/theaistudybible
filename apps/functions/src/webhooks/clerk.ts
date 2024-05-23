@@ -1,5 +1,5 @@
 import { type WebhookEvent } from '@clerk/clerk-sdk-node';
-import { clerkClient } from '@theaistudybible/functions/lib/user';
+import { clerkClient } from '@theaistudybible/server/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import { Stripe } from 'stripe';
 import { Webhook } from 'svix';
