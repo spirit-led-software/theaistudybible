@@ -1,6 +1,5 @@
-import { db } from '@theaistudybible/server/lib/database';
-import { clerkClient } from '@theaistudybible/server/lib/user';
-import { userHasRole } from '@theaistudybible/server/src/lib/user';
+import { db } from '@theaistudybible/functions/lib/database';
+import { clerkClient, userHasRole } from '@theaistudybible/functions/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import {
   BadRequestResponse,

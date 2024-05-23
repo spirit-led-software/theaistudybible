@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { PUBLIC_API_URL } from '$env/static/public';
+import type { RouterType } from '$lib/server/api';
 import { QueryClient } from '@tanstack/svelte-query';
-import type { RouterType } from '@theaistudybible/api';
 import { hc } from 'hono/client';
 import type { LayoutLoad } from './$types';
 

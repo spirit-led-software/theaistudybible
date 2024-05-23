@@ -1,4 +1,4 @@
-import { clerkClient } from '@theaistudybible/server/lib/user';
+import { clerkClient } from '@theaistudybible/functions/lib/user';
 import { ApiHandler } from 'sst/node/api';
 import Stripe from 'stripe';
 import { BadRequestResponse, InternalServerErrorResponse, OkResponse } from '../lib/api-responses';

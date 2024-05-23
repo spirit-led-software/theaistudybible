@@ -1,21 +1,11 @@
 import { createClerkClient, type User } from '@clerk/clerk-sdk-node';
 import type { JwtPayload } from '@clerk/types';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
 import { db } from './database';
 
 export const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
   publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 });
-
-export async function getSessionClaimsFromEvent(event: APIGatewayProxyEventV2) {
-  try {
-    return await clerkClient.verifyToken(event.headers?.authorization?.split('Bearer ')[1] ?? '');
-  } catch (error) {
-    console.error('Error verifying token:', error);
-    return null;
-  }
-}
 
 export function hasRole(role: string, sessionClaims: JwtPayload) {
   if (

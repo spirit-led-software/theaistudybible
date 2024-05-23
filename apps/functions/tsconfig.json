@@ -6,12 +6,14 @@
       "@theaistudybible/core/*": ["../../packages/core/src/*"],
       "@theaistudybible/langchain": ["../../packages/langchain/src"],
       "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
-      "@theaistudybible/server": ["../../packages/server/src"],
-      "@theaistudybible/server/*": ["../../packages/server/src/*"],
       "@theaistudybible/functions": ["./src"],
       "@theaistudybible/functions/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],
+  "include": [
+    "./src/**/*.ts",
+    "../../packages/core/globals.d.ts",
+    "../../packages/server/src/lib/chat.ts"
+  ],
   "exclude": ["node_modules"]
 }
