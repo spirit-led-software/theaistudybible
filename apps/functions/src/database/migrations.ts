@@ -3,8 +3,9 @@ import * as schema from '@theaistudybible/core/database/schema';
 import type { Handler } from 'aws-lambda';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { migrate } from 'drizzle-orm/neon-http/migrator';
+import { withSentry } from '../lib/sentry';
 
-export const handler: Handler = async () => {
+const lambdaHandler: Handler = async () => {
   try {
     console.log(
       'Creating database migration client using url: ',
@@ -30,3 +31,5 @@ export const handler: Handler = async () => {
     throw e;
   }
 };
+
+export const handler = withSentry(lambdaHandler);

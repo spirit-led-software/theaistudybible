@@ -1,5 +1,4 @@
 import { Buckets, DatabaseScripts, Layers, Queues } from '@theaistudybible/infra';
-import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Cron, Function, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Crons({ stack }: StackContext) {
@@ -7,10 +6,10 @@ export function Crons({ stack }: StackContext) {
   dependsOn(Buckets);
   dependsOn(Queues);
 
-  const { chromiumLayer, axiomX86Layer } = use(Layers);
+  const { chromiumLayer } = use(Layers);
 
   if (stack.stage === 'prod') {
-    new Cron(stack, 'dailyDevoCron', {
+    new Cron(stack, 'DailyDevoCron', {
       schedule: 'cron(0 13 * * ? *)',
       job: {
         function: {
@@ -27,7 +26,7 @@ export function Crons({ stack }: StackContext) {
       }
     });
 
-    new Cron(stack, 'dailyQueryCron', {
+    new Cron(stack, 'DailyQueryCron', {
       schedule: 'cron(0 23 * * ? *)',
       job: {
         function: {
@@ -44,7 +43,7 @@ export function Crons({ stack }: StackContext) {
       }
     });
 
-    new Cron(stack, 'indexOpCleanupCron', {
+    new Cron(stack, 'IndexOpCleanupCron', {
       schedule: 'cron(0 1 * * ? *)',
       job: {
         function: {
@@ -59,14 +58,10 @@ export function Crons({ stack }: StackContext) {
       handler: 'apps/functions/src/crons/data-source-sync.handler',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
+      layers: [chromiumLayer],
       memorySize: '2 GB',
       timeout: '15 minutes'
     });
-    // add layers
-    (dataSourceSyncCronFunction.node.defaultChild as CfnFunction).addPropertyOverride('Layers', [
-      chromiumLayer.layerVersionArn,
-      axiomX86Layer.layerVersionArn
-    ]);
 
     new Cron(stack, 'dataSourceSyncCron', {
       schedule: 'cron(0 2 * * ? *)',

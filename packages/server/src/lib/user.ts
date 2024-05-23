@@ -1,6 +1,6 @@
 import { createClerkClient, type User } from '@clerk/clerk-sdk-node';
 import type { JwtPayload } from '@clerk/types';
-import { db } from '@theaistudybible/server/lib/database';
+import { db } from '@lib/server/database';
 
 export const clerkClient = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,

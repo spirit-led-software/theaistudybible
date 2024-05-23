@@ -9,7 +9,6 @@ declare global {
 
       // Public environment variables
       PUBLIC_CHAT_API_URL: string;
-      PUBLIC_API_URL: string;
       PUBLIC_WEBSITE_URL: string;
 
       // Database
@@ -17,6 +16,10 @@ declare global {
       DATABASE_SEED: 'true' | 'false';
       DATABASE_READONLY_URL: string | undefined;
       DATABASE_READWRITE_URL: string;
+
+      // Upstash console
+      UPSTASH_EMAIL: string;
+      UPSTASH_API_KEY: string;
 
       // Upstash Redis
       UPSTASH_REDIS_URL: string;
@@ -63,7 +66,7 @@ declare global {
       ADMIN_PASSWORD: string;
 
       // Stripe
-      STRIPE_PUBLIC_KEY: string;
+      PUBLIC_STRIPE_PUBLIC_KEY: string;
       STRIPE_API_KEY: string;
       STRIPE_WEBHOOK_SECRET: string;
     }

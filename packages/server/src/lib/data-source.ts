@@ -1,3 +1,4 @@
+import { db } from '@lib/server/database';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
@@ -6,7 +7,6 @@ import {
 import type { DataSource } from '@theaistudybible/core/model/data-source';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { and, eq } from 'drizzle-orm';
-import { db } from './database';
 import { indexRemoteFile } from './scraper/file';
 import { indexWebCrawl } from './scraper/web-crawl';
 import { indexWebPage } from './scraper/webpage';

@@ -1,6 +1,7 @@
 import type { CdkCustomResourceHandler, CdkCustomResourceResponse } from 'aws-lambda';
+import { withSentry } from '../lib/sentry';
 
-export const handler: CdkCustomResourceHandler = async (event) => {
+const lambdaHandler: CdkCustomResourceHandler = async (event) => {
   console.log('Received event from custom resource:', JSON.stringify(event));
 
   const response: CdkCustomResourceResponse = {
@@ -292,3 +293,5 @@ async function createDatabase({
 
   return database;
 }
+
+export const handler = withSentry(lambdaHandler);

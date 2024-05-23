@@ -10,10 +10,10 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@sparticuz/chromium": "^123.0.1",
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
-    "@sparticuz/chromium": "^123.0.1",
     "@types/aws-lambda": "^8.10.138",
     "@types/busboy": "^1.5.4",
     "@types/node": "^20.12.12",
@@ -28,6 +28,7 @@
     "@middy/core": "^5.3.5",
     "@middy/http-cors": "^5.3.5",
     "@middy/http-error-handler": "^5.3.5",
+    "@sentry/aws-serverless": "^8.4.0",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/langchain": "workspace:*",
     "@theaistudybible/server": "workspace:*",

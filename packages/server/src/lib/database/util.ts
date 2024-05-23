@@ -1,9 +1,9 @@
+import { readWriteDatabaseConfig } from '@lib/server/database';
 import * as schema from '@theaistudybible/core/database/schema';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import type { NeonQueryResultHKT } from 'drizzle-orm/neon-serverless';
 import { drizzle as drizzleWs } from 'drizzle-orm/neon-serverless';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
-import { readWriteDatabaseConfig } from './database';
 
 export async function transaction<T>(
   fn: (

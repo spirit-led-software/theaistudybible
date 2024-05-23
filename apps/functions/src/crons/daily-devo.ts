@@ -6,8 +6,9 @@ import type { Handler } from 'aws-lambda';
 import { sql } from 'drizzle-orm';
 import firebase from 'firebase-admin';
 import path from 'path';
+import { withSentry } from '../lib/sentry';
 
-export const handler: Handler = async (event) => {
+const lambdaHandler: Handler = async (event) => {
   console.log(event);
 
   const dateString = getTodaysDateString();
@@ -40,3 +41,5 @@ export const handler: Handler = async (event) => {
     });
   }
 };
+
+export const handler = withSentry(lambdaHandler);

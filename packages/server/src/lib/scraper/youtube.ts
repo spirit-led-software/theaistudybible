@@ -1,4 +1,5 @@
 import { YoutubeLoader } from '@langchain/community/document_loaders/web/youtube';
+import { db } from '@lib/server/database';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
@@ -10,7 +11,6 @@ import { getEmbeddingsModelInfo } from '@theaistudybible/langchain/lib/llm';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { eq, sql } from 'drizzle-orm';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { db } from '../database';
 
 export async function indexYoutubeVideo({
   dataSourceId,

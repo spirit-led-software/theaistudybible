@@ -18,9 +18,9 @@ import { Function, dependsOn, use, type StackContext } from 'sst/constructs';
 export function ChatAPI({ stack, app }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { hostedZone, apiDomainName, domainNamePrefix, websiteUrl } = use(Constants);
+  const { hostedZone, domainNamePrefix, domainName, websiteUrl } = use(Constants);
 
-  const chatApiFunction = new Function(stack, 'chatApiFunction', {
+  const chatApiFunction = new Function(stack, 'ChatApiFunction', {
     handler: 'apps/functions/src/chat.handler',
     memorySize: '3 GB',
     timeout: '5 minutes',
@@ -41,7 +41,7 @@ export function ChatAPI({ stack, app }: StackContext) {
   let chatApiUrl = chatApiFunction.url!;
   // Create cloudfront distribution for non-dev environments
   if (app.stage === 'prod') {
-    const chatApiUrlDistribution = new Distribution(stack, 'chatApiUrlDistribution', {
+    const chatApiUrlDistribution = new Distribution(stack, 'ChatApiUrlDistribution', {
       defaultBehavior: {
         origin: new HttpOrigin(Fn.select(2, Fn.split('/', chatApiUrl))),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -72,15 +72,15 @@ export function ChatAPI({ stack, app }: StackContext) {
           }
         )
       },
-      domainNames: [`chat.${apiDomainName}`],
-      certificate: new Certificate(stack, 'chatApiUrlCertificate', {
-        domainName: `chat.${apiDomainName}`,
+      domainNames: [`chat.${domainName}`],
+      certificate: new Certificate(stack, 'ChatApiUrlCertificate', {
+        domainName: `chat.${domainName}`,
         validation: CertificateValidation.fromDns(hostedZone)
       })
     });
     const chatApiUrlARecord = new ARecord(stack, 'chatApiUrlARecord', {
       zone: hostedZone,
-      recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
+      recordName: `chat${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
       target: RecordTarget.fromAlias({
         bind: () => ({
           dnsName: chatApiUrlDistribution.distributionDomainName,
@@ -88,9 +88,9 @@ export function ChatAPI({ stack, app }: StackContext) {
         })
       })
     });
-    const chatApiUrlAAAARecord = new AaaaRecord(stack, 'chatApiUrlAAAARecord', {
+    const chatApiUrlAAAARecord = new AaaaRecord(stack, 'ChatApiUrlAAAARecord', {
       zone: hostedZone,
-      recordName: `chat.api${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
+      recordName: `chat${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
       target: RecordTarget.fromAlias({
         bind: () => ({
           dnsName: chatApiUrlDistribution.distributionDomainName,

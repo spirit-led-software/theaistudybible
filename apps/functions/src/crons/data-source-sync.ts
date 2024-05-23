@@ -3,8 +3,9 @@ import { syncDataSource } from '@theaistudybible/server/lib/data-source';
 import { db } from '@theaistudybible/server/lib/database';
 import type { Handler } from 'aws-lambda';
 import { eq, not } from 'drizzle-orm';
+import { withSentry } from '../lib/sentry';
 
-export const handler: Handler = async (event) => {
+const lambdaHandler: Handler = async (event) => {
   console.log('Syncing data sources:', event);
 
   const sources = await db.query.dataSources.findMany({
@@ -38,3 +39,5 @@ export const handler: Handler = async (event) => {
     })
   );
 };
+
+export const handler = withSentry(lambdaHandler);

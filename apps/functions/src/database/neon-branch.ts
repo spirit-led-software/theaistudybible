@@ -14,6 +14,7 @@ import {
   type RolePasswordResponse,
   type RolesResponse
 } from 'neon-sdk';
+import { withSentry } from '../lib/sentry';
 
 const Neon = (apiKey: string) =>
   new NeonClient({
@@ -30,7 +31,7 @@ export type NeonConnectionUrl = {
   url: string;
 };
 
-export const handler: CdkCustomResourceHandler = async (event) => {
+const lambdaHandler: CdkCustomResourceHandler = async (event) => {
   console.log('Received event from custom resource:', JSON.stringify(event));
 
   const response: CdkCustomResourceResponse = {
@@ -330,3 +331,5 @@ function getDatabasesFromConnectionUrls(connectionUrls: NeonConnectionUrl[]) {
     readWriteUrl
   };
 }
+
+export const handler = withSentry(lambdaHandler);

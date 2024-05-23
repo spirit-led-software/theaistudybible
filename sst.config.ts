@@ -1,5 +1,4 @@
 import {
-  API,
   Buckets,
   CDN,
   ChatAPI,
@@ -29,7 +28,6 @@ export default {
       .stack(Buckets)
       .stack(CDN)
       .stack(Queues)
-      .stack(API)
       .stack(ChatAPI)
       .stack(Website)
       .stack(Crons);

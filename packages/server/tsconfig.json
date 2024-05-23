@@ -7,7 +7,9 @@
       "@theaistudybible/langchain": ["../langchain/src"],
       "@theaistudybible/langchain/*": ["../langchain/src/*"],
       "@theaistudybible/server": ["./src"],
-      "@theaistudybible/server/*": ["./src/*"]
+      "@theaistudybible/server/*": ["./src/*"],
+      "@lib/server/database": ["./src/lib/database"],
+      "@lib/server/cache": ["./src/lib/cache"]
     }
   },
   "include": ["./src/**/*.ts", "../core/globals.d.ts"],

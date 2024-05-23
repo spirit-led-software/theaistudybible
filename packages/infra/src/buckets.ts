@@ -6,7 +6,7 @@ import { Bucket, dependsOn, type StackContext } from 'sst/constructs';
 export function Buckets({ app, stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const indexFileBucket = new Bucket(stack, 'indexFileBucket', {
+  const indexFileBucket = new Bucket(stack, 'IndexFileBucket', {
     defaults: {
       function: {
         permissions: ['s3'],
@@ -18,7 +18,7 @@ export function Buckets({ app, stack }: StackContext) {
       indexFile: {
         events: ['object_created'],
         function: {
-          handler: 'apps/functions/src/scraper/file/file.handler',
+          handler: 'apps/functions/src/scraper/file.handler',
           retryAttempts: 0
         }
       }

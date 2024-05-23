@@ -1,30 +1,25 @@
 import { DatabaseScripts, Layers } from '@theaistudybible/infra';
-import type { CfnFunction } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib/core';
 import { Function, Queue, dependsOn, use, type StackContext } from 'sst/constructs';
 
 export function Queues({ app, stack }: StackContext) {
   dependsOn(DatabaseScripts);
 
-  const { chromiumLayer, axiomX86Layer } = use(Layers);
+  const { chromiumLayer } = use(Layers);
 
   const webpageIndexQueueConsumerFunction = new Function(
     stack,
-    'webpageIndexQueueConsumerFunction',
+    'WebpageIndexQueueConsumerFunction',
     {
-      handler: 'apps/functions/src/scraper/webpage/queue.consumer',
+      handler: 'apps/functions/src/scraper/webpage-queue.consumer',
       architecture: 'x86_64',
       runtime: 'nodejs18.x',
+      layers: [chromiumLayer],
       timeout: '15 minutes',
       memorySize: '2 GB'
     }
   );
-  // add layers
-  (webpageIndexQueueConsumerFunction.node.defaultChild as CfnFunction).addPropertyOverride(
-    'Layers',
-    [chromiumLayer.layerVersionArn, axiomX86Layer.layerVersionArn]
-  );
-  const webpageIndexQueue = new Queue(stack, 'webpageIndexQueue', {
+  const webpageScraperQueue = new Queue(stack, 'WebpageScraperQueue', {
     cdk: {
       queue: {
         retentionPeriod: Duration.days(1),
@@ -41,13 +36,13 @@ export function Queues({ app, stack }: StackContext) {
       function: webpageIndexQueueConsumerFunction
     }
   });
-  webpageIndexQueue.bind([webpageIndexQueue]);
-  webpageIndexQueue.attachPermissions([webpageIndexQueue]);
+  webpageScraperQueue.bind([webpageScraperQueue]);
+  webpageScraperQueue.attachPermissions([webpageScraperQueue]);
 
-  app.addDefaultFunctionBinding([webpageIndexQueue]);
-  app.addDefaultFunctionPermissions([webpageIndexQueue]);
+  app.addDefaultFunctionBinding([webpageScraperQueue]);
+  app.addDefaultFunctionPermissions([webpageScraperQueue]);
 
   return {
-    webpageIndexQueue
+    webpageScraperQueue
   };
 }

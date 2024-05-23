@@ -1,6 +1,7 @@
 import { CONCURRENT_UPSERT_LIMIT } from '@theaistudybible/langchain/vectorstores/upstash';
 import { Index } from '@upstash/vector';
 import type { CdkCustomResourceHandler, CdkCustomResourceResponse } from 'aws-lambda';
+import { withSentry } from '../lib/sentry';
 
 export type CopyIndexProps = {
   /**
@@ -19,7 +20,7 @@ export type CopyIndexProps = {
   numVectors: number;
 };
 
-export const handler: CdkCustomResourceHandler = async (event) => {
+const lambdaHandler: CdkCustomResourceHandler = async (event) => {
   console.log('Received event from custom resource:', JSON.stringify(event));
 
   const response: CdkCustomResourceResponse = {
@@ -311,3 +312,5 @@ async function cloneIndex({
     }
   }
 }
+
+export const handler = withSentry(lambdaHandler);

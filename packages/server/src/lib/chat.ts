@@ -1,12 +1,12 @@
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
+import { db } from '@lib/server/database';
 import { chats } from '@theaistudybible/core/database/schema';
 import type { Chat } from '@theaistudybible/core/model/chat';
 import type { Message } from '@theaistudybible/core/model/chat/message';
 import { getLanguageModel } from '@theaistudybible/langchain/lib/llm';
 import { getRenameChainPromptInfo } from '@theaistudybible/langchain/lib/prompts/chat';
 import { eq } from 'drizzle-orm';
-import { db } from './database';
 
 export async function aiRenameChat(
   chat: Chat,

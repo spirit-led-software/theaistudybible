@@ -7,7 +7,6 @@ export const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 
 export const COMMON_ENV_VARS: Record<string, string> = {
   // Environment
-  IS_LOCAL: process.env.IS_LOCAL!,
   NODE_ENV: process.env.NODE_ENV!,
 
   // AI
@@ -31,8 +30,13 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   ADMIN_EMAIL: process.env.ADMIN_EMAIL!,
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD!,
 
+  // Clerk
+  PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY!,
+  CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY!,
+  CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET!,
+
   // Stripe
-  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
+  PUBLIC_STRIPE_PUBLIC_KEY: process.env.PUBLIC_STRIPE_PUBLIC_KEY!,
   STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!
 };
@@ -55,9 +59,6 @@ export function Constants({ stack, app }: StackContext) {
 
   const websiteUrl = app.mode === 'dev' ? 'http://localhost:5173' : `https://${domainName}`;
 
-  const apiDomainName = `api.${domainName}`;
-  const apiUrl = `https://${apiDomainName}`;
-
   if (app.stage !== 'prod') {
     app.setDefaultRemovalPolicy('destroy');
   }
@@ -66,8 +67,8 @@ export function Constants({ stack, app }: StackContext) {
   app.addDefaultFunctionEnv({
     ...COMMON_ENV_VARS,
     ...LANGSMITH_ENV_VARS(app, stack),
-    PUBLIC_WEBSITE_URL: websiteUrl,
-    PUBLIC_API_URL: apiUrl
+    PUBLIC_API_URL: `${websiteUrl}/api`,
+    PUBLIC_WEBSITE_URL: websiteUrl
   });
   app.setDefaultFunctionProps({
     timeout: '60 seconds',
@@ -90,8 +91,6 @@ export function Constants({ stack, app }: StackContext) {
     hostedZone,
     domainName,
     domainNamePrefix,
-    websiteUrl,
-    apiDomainName,
-    apiUrl
+    websiteUrl
   };
 }

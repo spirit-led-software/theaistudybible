@@ -1,3 +1,4 @@
+import { db } from '@lib/server/database';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
@@ -11,7 +12,6 @@ import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db
 import { eq, sql } from 'drizzle-orm';
 import type { Document } from 'langchain/document';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { db } from '../database';
 
 export async function indexWebPage({
   dataSourceId,

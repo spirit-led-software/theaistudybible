@@ -25,7 +25,7 @@ export async function indexRemoteFile({
   const s3Client = new S3Client({});
   const putCommandResponse = await s3Client.send(
     new PutObjectCommand({
-      Bucket: Bucket.indexFileBucket.bucketName,
+      Bucket: Bucket.IndexFileBucket.bucketName,
       Key: filename,
       ContentType: contentType,
       Body: downloadResponse.data,

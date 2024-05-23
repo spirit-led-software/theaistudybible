@@ -2,8 +2,9 @@ import { indexOperations } from '@theaistudybible/core/database/schema';
 import { db } from '@theaistudybible/server/lib/database';
 import type { Handler } from 'aws-lambda';
 import { and, eq, lt } from 'drizzle-orm';
+import { withSentry } from '../lib/sentry';
 
-export const handler: Handler = async (event) => {
+const lambdaHandler: Handler = async (event) => {
   console.log('Cleaning up old index ops:', event);
 
   // Get all index ops that are running and older than 1 day
@@ -31,3 +32,5 @@ export const handler: Handler = async (event) => {
     })
   );
 };
+
+export const handler = withSentry(lambdaHandler);

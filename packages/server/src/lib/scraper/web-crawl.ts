@@ -1,4 +1,5 @@
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { db } from '@lib/server/database';
 import { indexOperations } from '@theaistudybible/core/database/schema';
 import axios from '@theaistudybible/core/lib/axios';
 import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
@@ -8,7 +9,6 @@ import { XMLParser } from 'fast-xml-parser';
 import { Queue } from 'sst/node/queue';
 import { v4 as uuidV4 } from 'uuid';
 import { gunzipSync } from 'zlib';
-import { db } from '../database';
 
 export async function indexWebCrawl({
   dataSourceId,
@@ -248,7 +248,7 @@ export async function navigateSitemap(
 async function sendUrlsToQueue(name: string, urls: string[], indexOpId: string) {
   const sqsClient = new SQSClient({});
   const sendMessageCommand = new SendMessageBatchCommand({
-    QueueUrl: Queue.webpageIndexQueue.queueUrl,
+    QueueUrl: Queue.WebpageScraperQueue.queueUrl,
     Entries: urls.map((url) => ({
       Id: uuidV4(),
       MessageBody: JSON.stringify({

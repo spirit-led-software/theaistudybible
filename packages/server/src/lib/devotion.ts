@@ -1,6 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { db } from '@lib/server/database';
 import {
   devotionImages,
   devotions,
@@ -26,7 +27,6 @@ import { eq } from 'drizzle-orm';
 import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser } from 'langchain/output_parsers';
 import { Bucket } from 'sst/node/bucket';
-import { db } from './database';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [

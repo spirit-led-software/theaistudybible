@@ -3,6 +3,7 @@ import { roles } from '@theaistudybible/core/database/schema';
 import { db } from '@theaistudybible/server/lib/database';
 import type { Handler } from 'aws-lambda';
 import { eq } from 'drizzle-orm';
+import { withSentry } from '../lib/sentry';
 
 const clerk = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -212,7 +213,7 @@ async function createRcEntitlementRoles() {
   }
 }
 
-export const handler: Handler = async () => {
+const lambdaHandler: Handler = async () => {
   try {
     console.log('Creating initial roles and users');
     await createInitialRoles();
@@ -225,3 +226,5 @@ export const handler: Handler = async () => {
     throw e;
   }
 };
+
+export const handler = withSentry(lambdaHandler);

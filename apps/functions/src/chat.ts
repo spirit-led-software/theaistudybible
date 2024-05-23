@@ -29,6 +29,7 @@ import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq } from 'drizzle-orm';
 import { Readable } from 'stream';
+import { withSentry } from './lib/sentry';
 import { getSessionClaimsFromEvent } from './lib/user';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
@@ -462,4 +463,4 @@ async function lambdaHandler(
   }
 }
 
-export const handler = middy({ streamifyResponse: true }).handler(lambdaHandler);
+export const handler = withSentry(middy({ streamifyResponse: true }).handler(lambdaHandler));
