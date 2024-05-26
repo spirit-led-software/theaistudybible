@@ -1,4 +1,4 @@
-import Sentry from '@sentry/aws-serverless';
+import * as Sentry from '@sentry/aws-serverless';
 import type { Handler } from 'aws-lambda';
 
 export const withSentry = (handler: Handler) => {

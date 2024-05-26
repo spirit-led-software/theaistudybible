@@ -1,4 +1,4 @@
-/// <reference path="../../.sst/types/index.ts" />
+/// <reference path="../../.sst/types.generated.ts" />
 
 declare global {
   namespace NodeJS {

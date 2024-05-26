@@ -11,20 +11,20 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@sparticuz/chromium": "^123.0.1",
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
-    "@sparticuz/chromium": "^123.0.1",
-    "sst": "2.42.0",
+    "sst": "ion",
     "vitest": "^1.6.0"
   },
   "dependencies": {
     "@langchain/anthropic": "^0.1.21",
-    "@langchain/community": "^0.2.1",
+    "@langchain/community": "^0.2.2",
     "@langchain/core": "^0.2.0",
     "@langchain/openai": "^0.0.33",
     "@theaistudybible/core": "workspace:*",
-    "langchain": "^0.2.0",
+    "langchain": "^0.2.1",
     "youtube-transcript": "^1.2.1",
     "youtubei.js": "^9.4.0"
   }

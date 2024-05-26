@@ -1,0 +1,13 @@
+{
+  "extends": "@theaistudybible/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@theaistudybible/core": ["../core/src"],
+      "@theaistudybible/core/*": ["../core/src/*"],
+      "@theaistudybible/infra": ["./src"],
+      "@theaistudybible/infra/*": ["./src/*"]
+    }
+  },
+  "include": ["./src/**/*.ts", "../core/globals.d.ts"],
+  "exclude": ["node_modules"]
+}

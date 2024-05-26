@@ -13,10 +13,12 @@
   "devDependencies": {
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
-    "@theaistudybible/tsconfig": "workspace:*",
-    "sst": "2.42.0"
+    "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@theaistudybible/core": "workspace:*"
+    "@neondatabase/api-client": "^1.7.0",
+    "@theaistudybible/core": "workspace:*",
+    "@upstash/pulumi": "^0.2.0",
+    "sst": "ion"
   }
 }

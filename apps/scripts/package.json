@@ -1,0 +1,23 @@
+{
+  "name": "@theaistudybible/scripts",
+  "version": "1.0.0",
+  "description": "Scripts for The AI Study Bible",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "scripts": "sst shell tsx index.ts"
+  },
+  "devDependencies": {
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
+    "@types/yargs": "^17.0.32"
+  },
+  "dependencies": {
+    "@theaistudybible/core": "workspace:*",
+    "@theaistudybible/langchain": "workspace:*",
+    "@theaistudybible/server": "workspace:*",
+    "yargs": "^17.7.2",
+    "sst": "ion"
+  }
+}

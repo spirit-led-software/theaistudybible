@@ -1,35 +1,31 @@
-import {
-  Buckets,
-  CDN,
-  ChatAPI,
-  Constants,
-  Crons,
-  Database,
-  DatabaseScripts,
-  Layers,
-  Queues,
-  Website,
-} from "@theaistudybible/infra";
-import type { SSTConfig } from "sst";
+/// <reference path="./.sst/platform/config.d.ts" />
 
-export default {
-  config() {
+export default $config({
+  app(input) {
     return {
       name: "theaistudybible",
-      region: "us-east-1",
+      removal: input?.stage === "production" ? "retain" : "remove",
+      home: "aws",
+      providers: {
+        aws: {
+          region: "us-east-1",
+        },
+      },
     };
   },
-  stacks(app) {
-    app
-      .stack(Constants)
-      .stack(Layers)
-      .stack(Database)
-      .stack(DatabaseScripts)
-      .stack(Buckets)
-      .stack(CDN)
-      .stack(Queues)
-      .stack(ChatAPI)
-      .stack(Website)
-      .stack(Crons);
+  async run() {
+    const constants = await import("@theaistudybible/infra/constants");
+    const buckets = await import("@theaistudybible/infra/buckets");
+    const cdn = await import("@theaistudybible/infra/cdn");
+    const database = await import("@theaistudybible/infra/database");
+
+    return {
+      PublicBucketName: buckets.publicBucket.name,
+      CdnUrl: cdn.cdnUrl,
+      UpstashRedisUrl: database.upstashRedis.endpoint,
+      UpstashRedisRestUrl: database.upstashRedis.endpoint,
+      UpstashVectorRestUrl: database.upstashVector.restUrl,
+      WebsiteUrl: constants.websiteUrl,
+    };
   },
-} satisfies SSTConfig;
+});

@@ -1,69 +1,91 @@
-import { Buckets } from '@theaistudybible/infra';
-import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
-import { Distribution } from 'aws-cdk-lib/aws-cloudfront';
-import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
-import { ARecord, AaaaRecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { use, type StackContext } from 'sst/constructs';
-import { CLOUDFRONT_HOSTED_ZONE_ID, Constants } from './constants';
+import { publicBucket } from './buckets';
+import { domainName, domainNamePrefix, hostedZone } from './constants';
 
-export function CDN({ app, stack }: StackContext) {
-  const { domainName, domainNamePrefix, hostedZone } = use(Constants);
-  const { publicBucket, publicBucketOriginAccessIdentity } = use(Buckets);
+export let cdnDomainName: string | undefined = undefined;
+export let cdnUrl: string | undefined = undefined;
+export let cdn: aws.cloudfront.Distribution | undefined = undefined;
 
-  let cdnDomainName: string | undefined = undefined;
-  let cdnUrl: string | undefined = undefined;
-  let cdn: Distribution | undefined = undefined;
+// Create cloudfront distribution for non-dev environments
+if ($app.stage === 'prod') {
+  cdnDomainName = `cdn.${domainName}`;
 
-  // Create cloudfront distribution for non-dev environments
-  if (stack.stage === 'prod') {
-    cdnDomainName = `cdn.${domainName}`;
-    cdn = new Distribution(stack, 'CDN', {
-      defaultBehavior: {
-        origin: new S3Origin(publicBucket.cdk.bucket, {
-          originAccessIdentity: publicBucketOriginAccessIdentity
+  const cdnCert = new aws.acm.Certificate('CDNCertificate', {
+    domainName: cdnDomainName,
+    validationMethod: 'DNS'
+  });
+
+  const cdnRecords: aws.route53.Record[] = [];
+  cdnCert.domainValidationOptions.apply((domainValidationOptions) => {
+    for (const range of Object.entries(
+      domainValidationOptions.reduce((__obj, dvo) => ({
+        ...__obj,
+        [dvo.domainName]: {
+          name: dvo.resourceRecordName,
+          record: dvo.resourceRecordValue,
+          type: dvo.resourceRecordType
+        }
+      }))
+    ).map(([k, v]) => ({ key: k, value: v }))) {
+      cdnRecords.push(
+        new aws.route53.Record(`cdnCert-${range.key}`, {
+          allowOverwrite: true,
+          name: range.value.name,
+          records: [range.value.record],
+          ttl: 60,
+          type: aws.route53.RecordType[range.value.type as keyof typeof aws.route53.RecordType],
+          zoneId: hostedZone.zoneId
         })
-      },
-      domainNames: [cdnDomainName],
-      certificate: new Certificate(stack, 'CDNCertificate', {
-        domainName: cdnDomainName,
-        validation: CertificateValidation.fromDns(hostedZone)
-      })
-    });
-    const cdnARecord = new ARecord(stack, 'CDNARecord', {
-      zone: hostedZone,
-      recordName: `cdn${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
-      target: RecordTarget.fromAlias({
-        bind: () => ({
-          dnsName: cdn!.distributionDomainName,
-          hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
-        })
-      })
-    });
-    const cdnAaaaRecord = new AaaaRecord(stack, 'CDNAAAARecord', {
-      zone: hostedZone,
-      recordName: `cdn${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
-      target: RecordTarget.fromAlias({
-        bind: () => ({
-          dnsName: cdn!.distributionDomainName,
-          hostedZoneId: CLOUDFRONT_HOSTED_ZONE_ID
-        })
-      })
-    });
-    cdnAaaaRecord.node.addDependency(cdnARecord);
-    cdnUrl = `https://${cdnDomainName}`;
+      );
+    }
+  });
+  new aws.acm.CertificateValidation('example', {
+    certificateArn: cdnCert.arn,
+    validationRecordFqdns: cdnRecords.map((record) => record.fqdn)
+  });
 
-    app.addDefaultFunctionEnv({
-      CDN_URL: cdnUrl
-    });
+  cdn = new aws.cloudfront.Distribution('CDN', {
+    origins: [
+      {
+        domainName: publicBucket.nodes.bucket.bucketRegionalDomainName,
+        originId: 'PublicBucketS3Origin'
+      }
+    ],
+    defaultCacheBehavior: {
+      allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+      cachedMethods: ['GET', 'HEAD', 'OPTIONS'],
+      viewerProtocolPolicy: 'redirect-to-https',
+      targetOriginId: 'PublicBucketS3Origin'
+    },
+    enabled: true,
+    restrictions: {
+      geoRestriction: {
+        restrictionType: 'none'
+      }
+    },
+    aliases: [cdnDomainName],
+    viewerCertificate: {
+      acmCertificateArn: cdnCert.arn
+    }
+  });
+  new aws.route53.Record('CDNARecord', {
+    type: 'A',
+    zoneId: hostedZone.id,
+    name: `cdn${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
+    records: [cdn.domainName]
+  });
+  new aws.route53.Record('CDNAAAARecord', {
+    type: 'AAAA',
+    zoneId: hostedZone.id,
+    name: `cdn${domainNamePrefix ? `.${domainNamePrefix}` : ''}`,
+    records: [cdn.domainName]
+  });
 
-    stack.addOutputs({
-      CdnUrl: cdnUrl
-    });
-  }
+  cdnUrl = `https://${cdnDomainName}`;
 
-  return {
-    cdn,
-    cdnUrl,
-    cdnDomainName
-  };
+  $transform(sst.aws.Function, (args) => {
+    args.environment = $resolve([args.environment]).apply(([environment]) => ({
+      ...environment,
+      CDN_URL: cdnUrl!
+    }));
+  });
 }

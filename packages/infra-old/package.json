@@ -1,0 +1,23 @@
+{
+  "name": "@theaistudybible/infra-old",
+  "version": "1.0.0",
+  "description": "The Infrastructure as Code for The AI Study Bible",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -noEmit",
+    "lint": "eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
+    "aws-cdk-lib": "2.142.1",
+    "sst": "2.42.0"
+  },
+  "dependencies": {
+    "@theaistudybible/core": "workspace:*"
+  }
+}

@@ -8,6 +8,6 @@
       "@theaistudybible/infra": ["./packages/infra/src"]
     }
   },
-  "include": ["./sst.config.ts", "./drizzle.config.ts", "./codegen.ts"],
+  "include": ["./sst.config.ts", "./drizzle.config.ts", "./codegen.ts", "./packages/core/globals.d.ts", "./packages/infra/globals.d.ts"],
   "exclude": ["node_modules", ".sst", "./apps", "./packages"]
 }

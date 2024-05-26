@@ -1,80 +1,71 @@
+import type { EndpointType, Provisioner } from '@neondatabase/api-client';
 import { devEmbeddingModel, embeddingModel } from '@theaistudybible/core/model/llm';
-import { Constants } from '@theaistudybible/infra';
-import { dependsOn, type StackContext } from 'sst/constructs';
+import * as upstash from '@upstash/pulumi';
 import { NeonBranch } from './resources/neon-branch';
-import { UpstashRedis } from './resources/upstash-redis';
 import { UpstashVector } from './resources/upstash-vector';
 
-export function Database({ stack, app }: StackContext) {
-  dependsOn(Constants);
+export const neonBranch = new NeonBranch('NeonBranch', {
+  projectName: $app.name,
+  branchName: $app.stage === 'prod' ? 'main' : $app.stage,
+  roleName: $app.name,
+  endpointOptions: [
+    {
+      type: 'read_write' as EndpointType,
+      provisioner: 'k8s-neonvm' as Provisioner,
+      autoscaling_limit_min_cu: $app.stage === 'prod' ? 0.5 : 0.25,
+      autoscaling_limit_max_cu: $app.stage === 'prod' ? 4 : 1,
+      suspend_timeout_seconds: 0
+    }
+  ],
+  retainOnDelete: $app.stage === 'prod'
+});
+$transform(sst.aws.Function, (args) => {
+  args.environment = $resolve([args.environment]).apply(([environment]) => ({
+    ...environment,
+    DATABASE_READWRITE_URL: neonBranch.readWriteUrl,
+    DATABASE_READONLY_URL: neonBranch.readOnlyUrl
+  }));
+});
 
-  const neonBranch = new NeonBranch(stack, 'NeonBranch', {
-    apiKey: process.env.NEON_API_KEY!,
-    projectName: app.name,
-    branchName: stack.stage === 'prod' ? 'main' : stack.stage,
-    roleName: app.name,
-    endpointOptions: [
-      {
-        type: 'read_write',
-        provisioner: 'k8s-neonvm',
-        autoscaling_limit_min_cu: stack.stage === 'prod' ? 0.5 : 0.25,
-        autoscaling_limit_max_cu: stack.stage === 'prod' ? 4 : 1,
-        suspend_timeout_seconds: 0
-      }
-    ],
-    retainOnDelete: stack.stage === 'prod'
-  });
-  app.addDefaultFunctionEnv({
-    DATABASE_READWRITE_URL: neonBranch.urls.readWriteUrl,
-    DATABASE_READONLY_URL: neonBranch.urls.readOnlyUrl
-  });
-
-  const upstashRedis = new UpstashRedis(stack, 'UpstashRedis', {
-    email: process.env.UPSTASH_EMAIL!,
-    apiKey: process.env.UPSTASH_API_KEY!,
-    name: stack.stage === 'prod' ? 'main' : stack.stage,
-    // @ts-expect-error - Region is a string in SST
-    region: app.region,
-    tls: true,
-    eviction: true,
-    autoUpgrade: true,
-    retainOnDelete: stack.stage === 'prod'
-  });
-  app.addDefaultFunctionEnv({
-    UPSTASH_REDIS_URL: upstashRedis.redisUrl,
-    UPSTASH_REDIS_REST_URL: upstashRedis.restUrl,
+export const upstashRedis = new upstash.RedisDatabase('UpstashRedis', {
+  databaseName: $app.stage === 'prod' ? 'main' : $app.stage,
+  region: $app.providers!.aws.region,
+  tls: true,
+  eviction: true,
+  autoScale: $app.stage === 'prod'
+});
+$transform(sst.aws.Function, (args) => {
+  args.environment = $resolve([args.environment]).apply(([environment]) => ({
+    ...environment,
+    UPSTASH_REDIS_URL: `rediss://${upstashRedis.endpoint}:${upstashRedis.port}`,
+    UPSTASH_REDIS_REST_URL: `https://${upstashRedis.endpoint}`,
     UPSTASH_REDIS_TOKEN: upstashRedis.restToken,
     UPSTASH_REDIS_READONLY_TOKEN: upstashRedis.readOnlyRestToken
-  });
+  }));
+});
 
-  const resolvedEmbeddingModel = stack.stage === 'prod' ? embeddingModel : devEmbeddingModel;
-  const mainIndexName = `main-${embeddingModel.id}`;
-  const indexName =
-    stack.stage === 'prod' ? mainIndexName : `${stack.stage}-${resolvedEmbeddingModel.id}`;
-  const upstashVector = new UpstashVector(stack, 'UpstashVector', {
-    email: process.env.UPSTASH_EMAIL!,
-    apiKey: process.env.UPSTASH_API_KEY!,
-    name: indexName,
-    similarityFunction: 'COSINE',
-    dimensionCount: resolvedEmbeddingModel.dimensions,
-    retainOnDelete: stack.stage === 'prod',
-    copyIndex:
-      stack.stage === 'prod'
-        ? {
-            sourceIndexName: mainIndexName,
-            numVectors: 100
-          }
-        : undefined
-  });
-  app.addDefaultFunctionEnv({
+const resolvedEmbeddingModel = $app.stage === 'prod' ? embeddingModel : devEmbeddingModel;
+const mainIndexName = `main-${embeddingModel.id}`;
+const indexName =
+  $app.stage === 'prod' ? mainIndexName : `${$app.stage}-${resolvedEmbeddingModel.id}`;
+export const upstashVector = new UpstashVector('UpstashVector', {
+  indexName,
+  similarityFunction: 'COSINE',
+  dimensionCount: resolvedEmbeddingModel.dimensions,
+  retainOnDelete: $app.stage === 'prod',
+  copyIndex:
+    $app.stage === 'prod'
+      ? {
+          sourceIndexName: mainIndexName,
+          numVectors: 100
+        }
+      : undefined
+});
+$transform(sst.aws.Function, (args) => {
+  args.environment = $resolve([args.environment]).apply(([environment]) => ({
+    ...environment,
     UPSTASH_VECTOR_REST_URL: upstashVector.restUrl,
     UPSTASH_VECTOR_REST_TOKEN: upstashVector.restToken,
     UPSTASH_VECTOR_READONLY_REST_TOKEN: upstashVector.readOnlyRestToken
-  });
-
-  return {
-    neonBranch,
-    upstashRedis,
-    upstashVector
-  };
-}
+  }));
+});

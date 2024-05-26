@@ -8,6 +8,6 @@
       "@theaistudybible/infra/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "../core/globals.d.ts"],
+  "include": ["./src/**/*.ts", "../core/globals.d.ts", "./globals.d.ts"],
   "exclude": ["node_modules"]
 }

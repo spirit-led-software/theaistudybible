@@ -1,8 +1,3 @@
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { HostedZone } from 'aws-cdk-lib/aws-route53';
-import type { StackContext } from 'sst/constructs';
-import { LANGSMITH_ENV_VARS } from './helpers/langsmith';
-
 export const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
 
 export const COMMON_ENV_VARS: Record<string, string> = {
@@ -41,56 +36,53 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!
 };
 
-const invokeBedrockPolicy = new PolicyStatement({
-  effect: Effect.ALLOW,
-  actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
-  resources: ['*']
+export const LANGSMITH_ENV_VARS: Record<string, string> = {
+  LANGCHAIN_TRACING_V2: 'true',
+  LANGCHAIN_ENDPOINT: 'https://api.smith.langchain.com',
+  LANGCHAIN_API_KEY: process.env.LANGCHAIN_API_KEY!,
+  LANGCHAIN_PROJECT: `${$app.name}-${$app.stage}`,
+  LANGCHAIN_CALLBACKS_BACKGROUND: 'true'
+};
+
+export const hostedZone = await aws.route53.getZone({
+  name: 'theaistudybible.com'
 });
 
-export function Constants({ stack, app }: StackContext) {
-  const hostedZone = HostedZone.fromLookup(stack, 'hostedZone', {
-    domainName: 'theaistudybible.com'
-  });
+export const domainNamePrefix = `${$app.stage !== 'prod' ? `${$app.stage}.test` : ''}`;
+export const domainName = `${domainNamePrefix.length > 0 ? `${domainNamePrefix}.` : ''}${
+  hostedZone.name
+}`;
 
-  const domainNamePrefix = `${stack.stage !== 'prod' ? `${stack.stage}.test` : ''}`;
-  const domainName = `${domainNamePrefix.length > 0 ? `${domainNamePrefix}.` : ''}${
-    hostedZone.zoneName
-  }`;
+export const websiteUrl = $dev ? 'http://localhost:5173' : `https://${domainName}`;
 
-  const websiteUrl = app.mode === 'dev' ? 'http://localhost:5173' : `https://${domainName}`;
-
-  if (app.stage !== 'prod') {
-    app.setDefaultRemovalPolicy('destroy');
-  }
-
-  app.addDefaultFunctionPermissions([invokeBedrockPolicy]);
-  app.addDefaultFunctionEnv({
+$transform(sst.aws.Function, (args) => {
+  args.permissions = $resolve([args.permissions]).apply(([permissions]) => [
+    ...(permissions ?? []),
+    {
+      actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
+      resources: ['*']
+    }
+  ]);
+  args.environment = $resolve([args.environment]).apply(([environment]) => ({
+    ...environment,
     ...COMMON_ENV_VARS,
-    ...LANGSMITH_ENV_VARS(app, stack),
+    ...LANGSMITH_ENV_VARS,
     PUBLIC_API_URL: `${websiteUrl}/api`,
     PUBLIC_WEBSITE_URL: websiteUrl
-  });
-  app.setDefaultFunctionProps({
-    timeout: '60 seconds',
-    runtime: 'nodejs20.x',
-    nodejs: {
-      esbuild: {
-        external: ['@sparticuz/chromium'],
-        minify: stack.stage === 'prod',
-        treeShaking: true,
-        target: 'esnext',
-        format: 'esm'
-      }
-    },
-    architecture: 'arm_64',
-    logRetention: stack.stage === 'prod' ? 'one_week' : 'one_day',
-    tracing: app.mode === 'dev' ? 'active' : 'pass_through'
-  });
-
-  return {
-    hostedZone,
-    domainName,
-    domainNamePrefix,
-    websiteUrl
+  }));
+  args.timeout = '60 seconds';
+  args.runtime = 'nodejs20.x';
+  args.nodejs = {
+    esbuild: {
+      external: ['@sparticuz/chromium'],
+      minify: $app.stage === 'prod',
+      treeShaking: true,
+      target: 'esnext',
+      format: 'esm'
+    }
   };
-}
+  args.architecture = 'arm64';
+  args.logging = {
+    retention: $app.stage === 'prod' ? '1 week' : '1 day'
+  };
+});
