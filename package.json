@@ -14,7 +14,7 @@
     "remove": "sst remove",
     "typecheck": "tsc --noEmit",
     "typecheck:all": "pnpm run typecheck \u0026\u0026 pnpm run -r --parallel typecheck",
-    "update": "concurrently --names \"Dependency Update,Chromium Layer Update\" -c \"bgYellow,bgBlue\" \"pnpm update -rLf \u0026\u0026 pnpm sst update \u0026\u0026 pnpm install -rf\" \"cd lambda-layers/chromium \u0026\u0026 ./build-layer.sh\" "
+    "update": "concurrently --names \"Dependency Update,Chromium Layer Update\" -c \"bgYellow,bgBlue\" \"pnpm update -rLf \u0026\u0026 pnpm sst upgrade \u0026\u0026 pnpm install -rf\" \"cd lambda-layers/chromium \u0026\u0026 ./build-layer.sh\" "
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.138",
@@ -28,12 +28,15 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.582.0",
-    "@aws-sdk/client-s3": "^3.582.0",
-    "@aws-sdk/client-sqs": "^3.582.0",
-    "@aws-sdk/credential-providers": "^3.582.0",
-    "@aws-sdk/s3-request-presigner": "^3.582.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.583.0",
+    "@aws-sdk/client-s3": "^3.583.0",
+    "@aws-sdk/client-sqs": "^3.583.0",
+    "@aws-sdk/credential-providers": "^3.583.0",
+    "@aws-sdk/s3-request-presigner": "^3.583.0",
+    "@neondatabase/api-client": "^1.8.0",
     "@neondatabase/serverless": "^0.9.3",
+    "@pulumi/pulumi": "^3.117.0",
+    "@upstash/pulumi": "^0.2.0",
     "@upstash/vector": "^1.1.1",
     "drizzle-orm": "^0.30.10",
     "drizzle-zod": "^0.5.1",

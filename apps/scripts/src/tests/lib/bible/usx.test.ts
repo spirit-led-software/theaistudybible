@@ -1,4 +1,4 @@
-import { parseUsx } from '@scripts/lib/bible/usx';
+import { parseUsx } from '@theaistudybible/scripts/lib/bible/usx';
 import fs from 'fs';
 import path from 'path';
 import { describe, expect, test } from 'vitest';

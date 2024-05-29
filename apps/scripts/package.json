@@ -23,7 +23,7 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/langchain": "workspace:*",
     "@theaistudybible/server": "workspace:*",
-    "yargs": "^17.7.2",
-    "sst": "ion"
+    "sst": "^3.0.32",
+    "yargs": "^17.7.2"
   }
 }

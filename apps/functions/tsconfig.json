@@ -8,10 +8,10 @@
       "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
       "@theaistudybible/server": ["../../packages/server/src"],
       "@theaistudybible/server/*": ["../../packages/server/src/*"],
-      "@theaistudybible/functions": ["./src"],
-      "@theaistudybible/functions/*": ["./src/*"],
       "@lib/server/database": ["../../packages/server/src/lib/database"],
-      "@lib/server/cache": ["../../packages/server/src/lib/cache"]
+      "@lib/server/cache": ["../../packages/server/src/lib/cache"],
+      "@theaistudybible/functions": ["./src"],
+      "@theaistudybible/functions/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],

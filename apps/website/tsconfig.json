@@ -1,19 +1,34 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "allowJs": true,
     "strict": true,
-    "moduleResolution": "bundler"
-  }
-  // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
-  // except $lib which is handled by https://kit.svelte.dev/docs/configuration#files
-  //
-  // If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
-  // from the referenced tsconfig.json - TypeScript does not merge them in
+    "noEmit": true,
+    "types": ["vinxi/types/client"],
+    "isolatedModules": true,
+    "paths": {
+      "@theaistudybible/core": ["../../packages/core/src"],
+      "@theaistudybible/core/*": ["../../packages/core/src/*"],
+      "@theaistudybible/langchain": ["../../packages/langchain/src"],
+      "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
+      "@theaistudybible/server": ["../../packages/server/src"],
+      "@theaistudybible/server/*": ["../../packages/server/src/*"],
+      "@lib/server/database": ["./src/lib/server/database"],
+      "@lib/server/cache": ["./src/lib/server/cache"],
+      "~/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "./app.config.ts",
+    "./src/**/*.{js,jsx,ts,tsx}",
+    "../../packages/core/globals.d.ts"
+  ],
+  "exclude": ["node_modules", ".output", ".vinxi"]
 }

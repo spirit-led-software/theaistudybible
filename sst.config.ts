@@ -1,5 +1,9 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+import * as upstash from "@upstash/pulumi";
+import { NeonBranch } from "./infra/resources/neon-branch";
+import { UpstashVector } from "./infra/resources/upstash-vector";
+
 export default $config({
   app(input) {
     return {
@@ -14,17 +18,19 @@ export default $config({
     };
   },
   async run() {
-    const constants = await import("@theaistudybible/infra/constants");
-    const buckets = await import("@theaistudybible/infra/buckets");
-    const cdn = await import("@theaistudybible/infra/cdn");
-    const database = await import("@theaistudybible/infra/database");
+    const constants = await import("./infra/constants");
+    await import("./infra/layers");
+    const buckets = await import("./infra/buckets");
+    const cdns = await import("./infra/cdns");
+    const databases = await import("./infra/databases");
+    await import("./infra/crons");
 
     return {
       PublicBucketName: buckets.publicBucket.name,
-      CdnUrl: cdn.cdnUrl,
-      UpstashRedisUrl: database.upstashRedis.endpoint,
-      UpstashRedisRestUrl: database.upstashRedis.endpoint,
-      UpstashVectorRestUrl: database.upstashVector.restUrl,
+      CdnUrl: cdns.cdnUrl,
+      UpstashRedisUrl: databases.upstashRedisUrl,
+      UpstashRedisRestUrl: databases.upstashRedisRestUrl,
+      UpstashVectorRestUrl: databases.upstashVector.restUrl,
       WebsiteUrl: constants.websiteUrl,
     };
   },

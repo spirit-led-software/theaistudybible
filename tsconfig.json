@@ -1,13 +1,18 @@
 {
-  "extends": "./packages/tsconfig/tsconfig.json",
-  "compilerOptions": {
-    "paths": {
-      "@theaistudybible/core/*": ["./packages/core/src/*"],
-      "@theaistudybible/core": ["./packages/core/src"],
-      "@theaistudybible/infra/*": ["./packages/infra/src/*"],
-      "@theaistudybible/infra": ["./packages/infra/src"]
-    }
-  },
-  "include": ["./sst.config.ts", "./drizzle.config.ts", "./codegen.ts", "./packages/core/globals.d.ts", "./packages/infra/globals.d.ts"],
-  "exclude": ["node_modules", ".sst", "./apps", "./packages"]
+    "extends": "./packages/tsconfig/tsconfig.json",
+    "compilerOptions": {
+        "verbatimModuleSyntax": false,
+    },
+    "include": [
+        "./sst.config.ts",
+        "./infra/**/*.ts",
+        "./drizzle.config.ts",
+        "./vitest.workspace.ts",
+        "./.sst/platform/config.d.ts",
+        "./packages/core/globals.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        ".sst"
+    ]
 }

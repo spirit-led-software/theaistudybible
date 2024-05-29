@@ -15,12 +15,12 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/node": "^20.12.12",
     "@types/validator": "^13.11.10",
-    "sst": "ion",
+    "sst": "^3.0.32",
     "vitest": "^1.6.0"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.1.13",
+    "ai": "^3.1.15",
     "axios": "^1.7.2",
     "axios-retry": "^4.3.0"
   }

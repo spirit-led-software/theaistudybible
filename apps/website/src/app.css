@@ -1,59 +1,39 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  :root {
-    --background: 237 39% 100%;
-    --foreground: 237 64% 3%;
-    --muted: 207 8% 87%;
-    --muted-foreground: 207 14% 38%;
-    --popover: 0 0% 99%;
-    --popover-foreground: 237 64% 2%;
-    --card: 0 0% 99%;
-    --card-foreground: 237 64% 2%;
-    --border: 237 10% 94%;
-    --input: 237 10% 94%;
-    --primary: 237 86% 8%;
-    --primary-foreground: 237 0% 100%;
-    --secondary: 207 86% 8%;
-    --secondary-foreground: 182.24 89.33% 70.59%;
-    --accent: 267 86% 8%;
-    --accent-foreground: 305.12 79.61% 59.61%;
-    --destructive: 360 100% 57.79%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 237 86% 8%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 237 34% 0%;
-    --foreground: 237 28% 99%;
-    --muted: 207 8% 13%;
-    --muted-foreground: 207 14% 62%;
-    --popover: 0 0% 1%;
-    --popover-foreground: 0 0% 100%;
-    --card: 0 0% 1%;
-    --card-foreground: 0 0% 100%;
-    --border: 237 10% 10%;
-    --input: 237 10% 10%;
-    --primary: 237 23.41% 12.47%;
-    --primary-foreground: 237 100% 95.94%;
-    --secondary: 207 86% 8%;
-    --secondary-foreground: 182.24 89.33% 70.59%;
-    --accent: 267 86% 8%;
-    --accent-foreground: 305.12 79.61% 59.61%;
-    --destructive: 356.6 100% 68.31%;
-    --destructive-foreground: 0 0% 0%;
-    --ring: 237 86% 8%;
-  }
+body {
+  font-family: Gordita, Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-@layer base {
-  * {
-    @apply border-border;
+a {
+  margin-right: 1rem;
+}
+
+main {
+  text-align: center;
+  padding: 1em;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #335d92;
+  text-transform: uppercase;
+  font-size: 4rem;
+  font-weight: 100;
+  line-height: 1.1;
+  margin: 4rem auto;
+  max-width: 14rem;
+}
+
+p {
+  max-width: 14rem;
+  margin: 2rem auto;
+  line-height: 1.35;
+}
+
+@media (min-width: 480px) {
+  h1 {
+    max-width: none;
   }
-  body {
-    @apply min-h-dvh bg-background text-foreground;
+
+  p {
+    max-width: none;
   }
 }

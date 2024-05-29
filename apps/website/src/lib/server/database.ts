@@ -1,11 +1,10 @@
-import { building } from '$app/environment';
-import { RAIDatabaseConfig } from '@theaistudybible/server/lib/database/config';
-import { withReplicas } from 'drizzle-orm/pg-core';
+import { RAIDatabaseConfig } from "@theaistudybible/server/lib/database/config";
+import { withReplicas } from "drizzle-orm/pg-core";
 
 function getDatabase() {
   const readWriteDatabaseConfig = new RAIDatabaseConfig({
     connectionString: process.env.DATABASE_READWRITE_URL,
-    readOnly: false
+    readOnly: false,
   });
 
   if (
@@ -14,14 +13,13 @@ function getDatabase() {
   ) {
     const readOnlyDatabaseConfig = new RAIDatabaseConfig({
       connectionString: process.env.DATABASE_READONLY_URL,
-      readOnly: true
+      readOnly: true,
     });
-    return withReplicas(readWriteDatabaseConfig.database, [readOnlyDatabaseConfig.database]);
+    return withReplicas(readWriteDatabaseConfig.database, [
+      readOnlyDatabaseConfig.database,
+    ]);
   }
   return readWriteDatabaseConfig.database;
 }
 
-export let db: ReturnType<typeof getDatabase>;
-if (!building) {
-  db = getDatabase();
-}
+export const db = getDatabase();
