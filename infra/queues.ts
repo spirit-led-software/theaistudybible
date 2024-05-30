@@ -11,7 +11,7 @@ export const webpageScraperQueue = new sst.aws.Queue("WebpageScraperQueue", {
 });
 webpageScraperQueue.subscribe(
   {
-    handler: "apps/functions/src/scraper/webpage-queue.consumer",
+    handler: "apps/functions/src/scraper/webpage-queue.handler",
     architecture: "x86_64",
     runtime: "nodejs18.x",
     link: [neonBranch, upstashVector, upstashRedis],

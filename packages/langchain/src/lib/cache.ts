@@ -1,8 +1,9 @@
 import { UpstashRedisCache } from '@langchain/community/caches/upstash_redis';
+import { Resource } from 'sst';
 
 export const llmCache = new UpstashRedisCache({
   config: {
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_TOKEN
+    url: Resource.UpstashRedis.restUrl,
+    token: Resource.UpstashRedis.restToken
   }
 });

@@ -38,8 +38,6 @@ export const upstashRedis = new upstash.RedisDatabase("UpstashRedis", {
   eviction: true,
   autoScale: $app.stage === "prod",
 });
-export const upstashRedisUrl = $interpolate`rediss://${upstashRedis.endpoint}:${upstashRedis.port}`;
-export const upstashRedisRestUrl = $interpolate`https://${upstashRedis.endpoint}`;
 sst.Link.makeLinkable(upstash.RedisDatabase, function () {
   return {
     properties: {

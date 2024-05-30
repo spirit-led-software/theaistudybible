@@ -14,23 +14,10 @@ declare global {
       // Database
       NEON_API_KEY: string;
       DATABASE_SEED: 'true' | 'false';
-      DATABASE_READONLY_URL: string | undefined;
-      DATABASE_READWRITE_URL: string;
 
       // Upstash console
       UPSTASH_EMAIL: string;
       UPSTASH_API_KEY: string;
-
-      // Upstash Redis
-      UPSTASH_REDIS_URL: string;
-      UPSTASH_REDIS_REST_URL: string;
-      UPSTASH_REDIS_TOKEN: string;
-      UPSTASH_REDIS_READONLY_TOKEN: string;
-
-      // Upstash Vector
-      UPSTASH_VECTOR_REST_URL: string;
-      UPSTASH_VECTOR_REST_TOKEN: string;
-      UPSTASH_VECTOR_READONLY_REST_TOKEN: string;
 
       // AI
       UNSTRUCTURED_API_KEY: string;

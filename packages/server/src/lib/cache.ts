@@ -1,6 +1,7 @@
 import { Redis } from '@upstash/redis';
+import { Resource } from 'sst';
 
 export const cache = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_TOKEN
+  url: Resource.UpstashRedis.restUrl,
+  token: Resource.UpstashRedis.restToken
 });

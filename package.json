@@ -4,17 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "sst build",
-    "console": "sst console",
-    "deploy": "sst deploy",
     "dev": "sst dev",
+    "deploy": "sst deploy",
+    "remove": "sst remove",
+    "refresh": "sst refresh",
+    "shell": "sst shell",
     "format": "pnpm run -r --parallel format",
     "lint": "pnpm run -r --parallel lint",
     "lint:fix": "pnpm run -r --parallel lint:fix",
-    "remove": "sst remove",
     "typecheck": "tsc --noEmit",
-    "typecheck:all": "pnpm run typecheck \u0026\u0026 pnpm run -r --parallel typecheck",
-    "update": "concurrently --names \"Dependency Update,Chromium Layer Update\" -c \"bgYellow,bgBlue\" \"pnpm update -rLf \u0026\u0026 pnpm sst upgrade \u0026\u0026 pnpm install -rf\" \"cd lambda-layers/chromium \u0026\u0026 ./build-layer.sh\" "
+    "typecheck:all": "pnpm run typecheck && pnpm run -r --parallel typecheck",
+    "update": "concurrently --names \"Dependency Update,Chromium Layer Update\" -c \"bgYellow,bgBlue\" \"pnpm update -rLf && pnpm sst upgrade && pnpm install -rf\" \"cd lambda-layers/chromium && ./build-layer.sh\" "
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.138",
@@ -41,7 +41,7 @@
     "drizzle-orm": "^0.30.10",
     "drizzle-zod": "^0.5.1",
     "pg": "^8.11.5",
-    "sst": "ion",
+    "sst": "^3.0.32",
     "zod": "^3.23.8"
   },
   "workspaces": [

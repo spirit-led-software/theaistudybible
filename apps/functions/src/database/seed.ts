@@ -1,9 +1,12 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
 import { createClerkClient } from '@clerk/clerk-sdk-node';
+import middy from '@middy/core';
 import { roles } from '@theaistudybible/core/database/schema';
 import { db } from '@theaistudybible/server/lib/database';
-import type { Handler } from 'aws-lambda';
 import { eq } from 'drizzle-orm';
-import { withSentry } from '../lib/sentry';
+import sentryMiddleware from '../lib/sentry/middleware';
 
 const clerk = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
@@ -213,7 +216,7 @@ async function createRcEntitlementRoles() {
   }
 }
 
-const lambdaHandler: Handler = async () => {
+const lambdaHandler = async () => {
   try {
     console.log('Creating initial roles and users');
     await createInitialRoles();
@@ -227,4 +230,4 @@ const lambdaHandler: Handler = async () => {
   }
 };
 
-export const handler = withSentry(lambdaHandler);
+export const handler = middy().use(sentryMiddleware()).handler(lambdaHandler);

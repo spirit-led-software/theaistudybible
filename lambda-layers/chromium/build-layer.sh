@@ -22,6 +22,6 @@ echo "Uploading chromium.zip to S3"
 aws s3 cp chromium.zip "s3://${bucketName}/"
 
 echo "Publishing layer"
-aws lambda publish-layer-version --layer-name chromium --description "Chromium" --content "S3Bucket=${bucketName},S3Key=chromium.zip" --compatible-runtimes "nodejs18.x" --compatible-architectures x86_64 --no-paginate 1>/dev/null
+aws lambda publish-layer-version --layer-name chromium --description "Chromium" --content "S3Bucket=${bucketName},S3Key=chromium.zip" --compatible-runtimes "nodejs" --compatible-architectures x86_64 --no-paginate 1>/dev/null
 
 echo "Done!"

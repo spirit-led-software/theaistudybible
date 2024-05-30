@@ -1,9 +1,5 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
-import * as upstash from "@upstash/pulumi";
-import { NeonBranch } from "./infra/resources/neon-branch";
-import { UpstashVector } from "./infra/resources/upstash-vector";
-
 export default $config({
   app(input) {
     return {
@@ -18,20 +14,26 @@ export default $config({
     };
   },
   async run() {
-    const constants = await import("./infra/constants");
-    await import("./infra/layers");
+    await import("./infra/constants");
+    const layers = await import("./infra/layers");
     const buckets = await import("./infra/buckets");
-    const cdns = await import("./infra/cdns");
+    const cdn = await import("./infra/cdn");
     const databases = await import("./infra/databases");
-    await import("./infra/crons");
+    const crons = await import("./infra/crons");
+    const queues = await import("./infra/queues");
+    const apis = await import("./infra/apis");
+    const website = await import("./infra/website");
 
     return {
+      ApiUrl: apis.apiRouter.url,
+      CdnUrl: cdn.cdnRouter?.url,
+      ChromiumLayer: $interpolate`${layers.chromiumLayer.layerName}:${layers.chromiumLayer.version}`,
+      IndexFileBucketName: buckets.indexFileBucket.name,
       PublicBucketName: buckets.publicBucket.name,
-      CdnUrl: cdns.cdnUrl,
-      UpstashRedisUrl: databases.upstashRedisUrl,
-      UpstashRedisRestUrl: databases.upstashRedisRestUrl,
+      UpstashRedisRestUrl: $interpolate`https://${databases.upstashRedis.endpoint}`,
       UpstashVectorRestUrl: databases.upstashVector.restUrl,
-      WebsiteUrl: constants.websiteUrl,
+      WebpageScraperQueueUrl: queues.webpageScraperQueue.url,
+      WebsiteUrl: website.website?.url,
     };
   },
 });

@@ -15,7 +15,7 @@ import type {
 } from '@theaistudybible/core/types/bedrock';
 import { getImagePromptChain } from '@theaistudybible/langchain/lib/chains/generated-image';
 import { eq } from 'drizzle-orm';
-import { Bucket } from 'sst/node/bucket';
+import { Resource } from 'sst';
 
 export async function generatedImage(
   userId: string,
@@ -84,7 +84,7 @@ export async function generatedImage(
       new PutObjectCommand({
         ACL: 'public-read',
         ContentType: 'image/png',
-        Bucket: Bucket.PublicBucket.bucketName,
+        Bucket: Resource.PublicBucket.name,
         Key: `user-generated-images/${userGeneratedImage.id}.png`
       })
     );

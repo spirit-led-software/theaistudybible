@@ -26,7 +26,7 @@ import { RAIOutputFixingParser } from '@theaistudybible/langchain/output_parsers
 import { eq } from 'drizzle-orm';
 import { XMLBuilder } from 'fast-xml-parser';
 import { CustomListOutputParser } from 'langchain/output_parsers';
-import { Bucket } from 'sst/node/bucket';
+import { Resource } from 'sst';
 
 // 31 topics, one for each day of the month
 const devotionTopics = [
@@ -148,7 +148,7 @@ export async function generateDevotionImages(devo: Devotion) {
     new PutObjectCommand({
       ACL: 'public-read',
       ContentType: 'image/png',
-      Bucket: Bucket.PublicBucket.bucketName,
+      Bucket: Resource.PublicBucket.name,
       Key: `devotion-images/${devo.id}.png`
     })
   );

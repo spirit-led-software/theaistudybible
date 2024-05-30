@@ -244,11 +244,6 @@ export class NeonBranchProvider implements pulumi.dynamic.ResourceProvider {
     endpoints: Endpoint[],
     role: Role
   ) {
-    console.log(
-      `Forming connection urls for databases: ${JSON.stringify(
-        databases
-      )}, endpoints: ${JSON.stringify(endpoints)}, role: ${JSON.stringify(role)}`
-    );
     const connectionUrls: NeonConnectionUrl[] = [];
     for (const database of databases) {
       for (const endpoint of endpoints) {
@@ -368,7 +363,7 @@ export class NeonBranchProvider implements pulumi.dynamic.ResourceProvider {
 }
 
 export class NeonBranch extends pulumi.dynamic.Resource {
-  public declare readonly readOnlyUrl: pulumi.Output<string>;
+  public declare readonly readOnlyUrl: pulumi.Output<string | undefined>;
   public declare readonly readWriteUrl: pulumi.Output<string>;
 
   constructor(

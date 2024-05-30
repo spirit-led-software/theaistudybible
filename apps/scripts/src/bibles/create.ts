@@ -15,7 +15,6 @@ export async function createBible({
   publicationId,
   overwrite,
   generateEmbeddings,
-  embeddingModel,
   openaiApiKey,
   upstashVectorUrl,
   upstashVectorToken

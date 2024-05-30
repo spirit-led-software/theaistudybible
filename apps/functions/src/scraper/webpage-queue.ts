@@ -1,12 +1,16 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
+import middy from '@middy/core';
 import { indexOperations } from '@theaistudybible/core/database/schema';
 import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
 import { db } from '@theaistudybible/server/lib/database';
 import { generatePageContentEmbeddings } from '@theaistudybible/server/lib/scraper/webpage';
-import type { SQSHandler } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 import { eq, sql } from 'drizzle-orm';
-import { withSentry } from '../lib/sentry';
+import sentryMiddleware from '../lib/sentry/middleware';
 
-const handler: SQSHandler = async (event) => {
+const lambdaHandler = async (event: SQSEvent) => {
   console.log('Received event: ', JSON.stringify(event));
   const records = event.Records;
   console.log('Processing event: ', JSON.stringify(records[0]));
@@ -127,4 +131,4 @@ const checkIfIndexOpIsCompletedAndUpdate = async (indexOp: IndexOperation) => {
   return indexOp;
 };
 
-export const consumer = withSentry(handler);
+export const handler = middy().use(sentryMiddleware()).handler(lambdaHandler);

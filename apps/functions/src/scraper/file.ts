@@ -1,7 +1,11 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/unstructured';
+import middy from '@middy/core';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
@@ -12,7 +16,7 @@ import type { Metadata } from '@theaistudybible/core/types/metadata';
 import { getEmbeddingsModelInfo } from '@theaistudybible/langchain/lib/llm';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { db } from '@theaistudybible/server/lib/database';
-import type { S3Handler } from 'aws-lambda';
+import type { S3Event } from 'aws-lambda';
 import { eq, sql } from 'drizzle-orm';
 import { mkdtempSync, writeFileSync } from 'fs';
 import type { BaseDocumentLoader } from 'langchain/dist/document_loaders/base';
@@ -21,11 +25,11 @@ import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { withSentry } from '../lib/sentry';
+import sentryMiddleware from '../lib/sentry/middleware';
 
 const s3Client = new S3Client({});
 
-const lambdaHandler: S3Handler = async (event) => {
+const lambdaHandler = async (event: S3Event) => {
   const records = event.Records;
   const { bucket, object } = records[0].s3;
 
@@ -197,4 +201,4 @@ const lambdaHandler: S3Handler = async (event) => {
   }
 };
 
-export const handler = withSentry(lambdaHandler);
+export const handler = middy().use(sentryMiddleware()).handler(lambdaHandler);

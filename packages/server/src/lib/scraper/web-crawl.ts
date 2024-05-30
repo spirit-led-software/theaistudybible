@@ -6,7 +6,7 @@ import type { IndexOperation } from '@theaistudybible/core/model/data-source/ind
 import { eq, sql } from 'drizzle-orm';
 import escapeStringRegexp from 'escape-string-regexp';
 import { XMLParser } from 'fast-xml-parser';
-import { Queue } from 'sst/node/queue';
+import { Resource } from 'sst';
 import { v4 as uuidV4 } from 'uuid';
 import { gunzipSync } from 'zlib';
 
@@ -248,7 +248,7 @@ export async function navigateSitemap(
 async function sendUrlsToQueue(name: string, urls: string[], indexOpId: string) {
   const sqsClient = new SQSClient({});
   const sendMessageCommand = new SendMessageBatchCommand({
-    QueueUrl: Queue.WebpageScraperQueue.queueUrl,
+    QueueUrl: Resource.WebpageScraperQueue.url,
     Entries: urls.map((url) => ({
       Id: uuidV4(),
       MessageBody: JSON.stringify({

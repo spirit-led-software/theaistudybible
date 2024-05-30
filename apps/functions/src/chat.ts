@@ -1,3 +1,6 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
 import type { JwtPayload } from '@clerk/types';
 import { CallbackManager } from '@langchain/core/callbacks/manager';
 import middy from '@middy/core';
@@ -29,7 +32,7 @@ import { LangChainStream } from 'ai';
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { and, eq } from 'drizzle-orm';
 import { Readable } from 'stream';
-import { withSentry } from './lib/sentry';
+import sentryMiddleware from './lib/sentry/middleware';
 import { getSessionClaimsFromEvent } from './lib/user';
 
 type StreamedAPIGatewayProxyStructuredResultV2 = Omit<APIGatewayProxyStructuredResultV2, 'body'> & {
@@ -158,9 +161,8 @@ async function postResponseValidationLogic({
 
 async function lambdaHandler(
   event: APIGatewayProxyEventV2
-): Promise<StreamedAPIGatewayProxyStructuredResultV2> {
+): Promise<StreamedAPIGatewayProxyStructuredResultV2 | undefined> {
   console.log(`Received Chat Request Event: ${JSON.stringify(event)}`);
-
   const validationResponse = validateRequest(event);
   if (validationResponse) {
     return validationResponse;
@@ -189,6 +191,7 @@ async function lambdaHandler(
     modelId?: string;
   } = JSON.parse(event.body);
 
+  let bodyStream: Readable | undefined = undefined;
   try {
     const lastMessage = messages[messages.length - 1];
     if (!lastMessage || lastMessage.role !== 'user') {
@@ -318,7 +321,7 @@ async function lambdaHandler(
     const { stream, handlers } = LangChainStream();
 
     const reader = stream.getReader();
-    const bodyStream = new Readable({
+    bodyStream = new Readable({
       read() {
         reader
           .read()
@@ -419,14 +422,14 @@ async function lambdaHandler(
 
         if (err instanceof Error) {
           console.error(`Error: ${err.message}\n\t${err.stack}`);
-          bodyStream.push(`Error: ${err.message}`);
-          bodyStream.push(null);
-          bodyStream.destroy(err);
+          bodyStream!.push(`Error: ${err.message}`);
+          bodyStream!.push(null);
+          bodyStream!.destroy(err);
         } else {
           console.error(`Error: ${JSON.stringify(err)}`);
-          bodyStream.push(`Error: ${JSON.stringify(err)}`);
-          bodyStream.push(null);
-          bodyStream.destroy(new Error(JSON.stringify(err)));
+          bodyStream!.push(`Error: ${JSON.stringify(err)}`);
+          bodyStream!.push(null);
+          bodyStream!.destroy(new Error(JSON.stringify(err)));
         }
 
         throw err;
@@ -446,21 +449,29 @@ async function lambdaHandler(
     };
   } catch (error) {
     console.error(`Caught error: ${JSON.stringify(error)}`);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: Readable.from([
-        JSON.stringify({
-          error:
-            error instanceof Error
-              ? `${error.message}: ${error.stack}`
-              : `Error: ${JSON.stringify(error)}`
-        })
-      ])
-    };
+    if (bodyStream) {
+      bodyStream.push(`Error: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
+      bodyStream.push(null);
+      bodyStream.destroy(error instanceof Error ? error : new Error(JSON.stringify(error)));
+    } else {
+      return {
+        statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: Readable.from([
+          JSON.stringify({
+            error:
+              error instanceof Error
+                ? `${error.message}: ${error.stack}`
+                : `Error: ${JSON.stringify(error)}`
+          })
+        ])
+      };
+    }
   }
 }
 
-export const handler = withSentry(middy({ streamifyResponse: true }).handler(lambdaHandler));
+export const handler = middy({ streamifyResponse: true })
+  .use(sentryMiddleware())
+  .handler(lambdaHandler);

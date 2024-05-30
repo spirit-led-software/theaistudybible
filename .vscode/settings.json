@@ -37,8 +37,8 @@
     "packages/core",
     "packages/langchain",
     "packages/server",
-    "packages/infra",
     "apps/api",
+    "apps/scripts",
     "apps/website",
     "apps/functions"
   ],

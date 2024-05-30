@@ -23,6 +23,7 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/langchain": "workspace:*",
     "@theaistudybible/server": "workspace:*",
+    "ora": "^8.0.1",
     "sst": "^3.0.32",
     "yargs": "^17.7.2"
   }

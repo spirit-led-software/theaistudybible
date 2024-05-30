@@ -1,4 +1,4 @@
-export const CLOUDFRONT_HOSTED_ZONE_ID = 'Z2FDTNDATAQYW2';
+export const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
 
 export const COMMON_ENV_VARS: Record<string, string> = {
   // Environment
@@ -33,56 +33,49 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   // Stripe
   PUBLIC_STRIPE_PUBLIC_KEY: process.env.PUBLIC_STRIPE_PUBLIC_KEY!,
   STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
 };
 
 export const LANGSMITH_ENV_VARS: Record<string, string> = {
-  LANGCHAIN_TRACING_V2: 'true',
-  LANGCHAIN_ENDPOINT: 'https://api.smith.langchain.com',
+  LANGCHAIN_TRACING_V2: "true",
+  LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com",
   LANGCHAIN_API_KEY: process.env.LANGCHAIN_API_KEY!,
   LANGCHAIN_PROJECT: `${$app.name}-${$app.stage}`,
-  LANGCHAIN_CALLBACKS_BACKGROUND: 'true'
+  LANGCHAIN_CALLBACKS_BACKGROUND: "true",
 };
 
 export const hostedZone = await aws.route53.getZone({
-  name: 'theaistudybible.com'
+  name: "theaistudybible.com",
 });
 
-export const domainNamePrefix = `${$app.stage !== 'prod' ? `${$app.stage}.test` : ''}`;
-export const domainName = `${domainNamePrefix.length > 0 ? `${domainNamePrefix}.` : ''}${
+export const domainNamePrefix = `${$app.stage !== "prod" ? `${$app.stage}.test` : ""}`;
+export const domainName = `${domainNamePrefix.length > 0 ? `${domainNamePrefix}.` : ""}${
   hostedZone.name
 }`;
-
-export const websiteUrl = $dev ? 'http://localhost:5173' : `https://${domainName}`;
 
 $transform(sst.aws.Function, (args) => {
   args.permissions = $resolve([args.permissions]).apply(([permissions]) => [
     ...(permissions ?? []),
     {
-      actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
-      resources: ['*']
-    }
+      actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      resources: ["*"],
+    },
   ]);
   args.environment = $resolve([args.environment]).apply(([environment]) => ({
     ...environment,
     ...COMMON_ENV_VARS,
     ...LANGSMITH_ENV_VARS,
-    PUBLIC_API_URL: `${websiteUrl}/api`,
-    PUBLIC_WEBSITE_URL: websiteUrl
   }));
-  args.timeout = '60 seconds';
-  args.runtime = 'nodejs20.x';
+  args.timeout = "60 seconds";
+  args.runtime = "nodejs20.x";
   args.nodejs = {
     esbuild: {
-      external: ['@sparticuz/chromium'],
-      minify: $app.stage === 'prod',
+      external: ["@sparticuz/chromium"],
+      minify: $app.stage === "prod",
       treeShaking: true,
-      target: 'esnext',
-      format: 'esm'
-    }
+    },
   };
-  args.architecture = 'arm64';
   args.logging = {
-    retention: $app.stage === 'prod' ? '1 week' : '1 day'
+    retention: $app.stage === "prod" ? "1 week" : "1 day",
   };
 });

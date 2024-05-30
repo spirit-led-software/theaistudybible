@@ -1,0 +1,28 @@
+{
+  "name": "@theaistudybible/api",
+  "version": "1.0.0",
+  "description": "The API for the AI Study Bible",
+  "type": "module",
+  "scripts": {
+    "test": "sst bind vitest",
+    "typecheck": "tsc -noEmit",
+    "lint": "prettier --check . && eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/prettier-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@hono/clerk-auth": "^2.0.0",
+    "@hono/sentry": "^1.1.0",
+    "@hono/zod-validator": "^0.2.1",
+    "@theaistudybible/core": "workspace:*",
+    "@theaistudybible/langchain": "workspace:*",
+    "@theaistudybible/server": "workspace:*",
+    "hono": "^4.4.0",
+    "sst": "^3.0.32"
+  }
+}
