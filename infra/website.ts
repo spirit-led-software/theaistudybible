@@ -1,11 +1,10 @@
+import { apiRouter } from "./apis";
 import { indexFileBucket, publicBucket } from "./buckets";
 import { domainName } from "./constants";
 import { neonBranch, upstashRedis, upstashVector } from "./databases";
 import { webpageScraperQueue } from "./queues";
 
-export let website: sst.aws.SvelteKit | undefined = undefined;
-if (!$dev) {
-  website = new sst.aws.SvelteKit("Website", {
+export let website = new sst.aws.SvelteKit("Website", {
     path: "apps/website",
     link: [
       publicBucket,
@@ -14,6 +13,7 @@ if (!$dev) {
       upstashRedis,
       upstashVector,
       webpageScraperQueue,
+      apiRouter
     ],
     domain: domainName,
     transform: {
@@ -33,4 +33,3 @@ if (!$dev) {
       },
     },
   });
-}
