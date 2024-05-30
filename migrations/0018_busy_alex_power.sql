@@ -1,1 +1,0 @@
-ALTER TABLE "data_sources" ADD COLUMN "url" text NOT NULL;

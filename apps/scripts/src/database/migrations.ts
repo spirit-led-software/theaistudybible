@@ -3,15 +3,14 @@ import * as schema from '@theaistudybible/core/database/schema';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { migrate } from 'drizzle-orm/neon-http/migrator';
 import path from 'path';
+import { Resource } from 'sst';
+import { fileURLToPath } from 'url';
 
-export async function migrations({
-  dbUrl,
-  migrationsDir
-}: {
-  dbUrl: string;
-  migrationsDir: string;
-}) {
-  const migrationClient = drizzle(neon(dbUrl), {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function runDatabaseMigrations() {
+  const migrationClient = drizzle(neon(Resource.NeonBranch.readWriteUrl), {
     schema,
     logger: {
       logQuery(query, params) {
@@ -22,7 +21,7 @@ export async function migrations({
 
   console.log('Running database migrations...');
   await migrate(migrationClient, {
-    migrationsFolder: path.resolve(migrationsDir)
+    migrationsFolder: path.resolve(__dirname, '../../../../migrations')
   });
   console.log('Database migrations complete!');
 }

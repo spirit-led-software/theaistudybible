@@ -13,7 +13,7 @@ export async function transaction<T>(
   const client = readWriteDatabaseConfig.getWsClient();
   try {
     await client.connect();
-    const drizzle = drizzleWs(client, { schema, logger: process.env.IS_LOCAL === 'true' });
+    const drizzle = drizzleWs(client, { schema, logger: process.env.SST_LIVE === 'true' });
     return await drizzle.transaction(fn);
   } finally {
     await client.end();

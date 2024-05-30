@@ -50,7 +50,7 @@ export function getLanguageModel({
       topP,
       maxTokens,
       cache,
-      verbose: process.env.IS_LOCAL === 'true'
+      verbose: process.env.SST_LIVE === 'true'
     });
   }
 
@@ -65,7 +65,7 @@ export function getLanguageModel({
       topK,
       maxTokens,
       cache,
-      verbose: process.env.IS_LOCAL === 'true'
+      verbose: process.env.SST_LIVE === 'true'
     });
   }
 

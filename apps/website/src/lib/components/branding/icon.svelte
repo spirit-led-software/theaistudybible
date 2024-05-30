@@ -4,4 +4,4 @@
   let { ...props }: Omit<HTMLImgAttributes, 'src' | 'alt'> = $props();
 </script>
 
-<img {...props} src="/icon.svg" alt="Logo" />;
+<img {...props} src="/icon.svg" alt="Logo" />

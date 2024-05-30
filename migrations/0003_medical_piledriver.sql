@@ -1,1 +1,0 @@
-ALTER TABLE "devotions" ADD COLUMN "image_caption" text;

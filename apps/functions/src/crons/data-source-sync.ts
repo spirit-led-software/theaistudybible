@@ -1,13 +1,14 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
+import middy from '@middy/core';
 import { dataSources } from '@theaistudybible/core/database/schema';
 import { syncDataSource } from '@theaistudybible/server/lib/data-source';
 import { db } from '@theaistudybible/server/lib/database';
-import type { Handler } from 'aws-lambda';
 import { eq, not } from 'drizzle-orm';
-import { withSentry } from '../lib/sentry';
+import sentryMiddleware from '../lib/sentry/middleware';
 
-const lambdaHandler: Handler = async (event) => {
-  console.log('Syncing data sources:', event);
-
+const lambdaHandler = async () => {
   const sources = await db.query.dataSources.findMany({
     where: not(eq(dataSources.syncSchedule, 'NEVER')),
     limit: Number.MAX_SAFE_INTEGER
@@ -40,4 +41,4 @@ const lambdaHandler: Handler = async (event) => {
   );
 };
 
-export const handler = withSentry(lambdaHandler);
+export const handler = middy().use(sentryMiddleware()).handler(lambdaHandler);

@@ -185,11 +185,11 @@ export async function getDocumentQaChain(options: {
   const { modelId, contextSize, prompt, stopSequences, filter, history, callbacks } = options;
   const qaRetriever = await getDocumentVectorStore({
     filter,
-    verbose: process.env.IS_LOCAL === 'true'
+    verbose: process.env.SST_LIVE === 'true'
   }).then((store) =>
     store.asRetriever({
       k: contextSize > 32 ? 12 : 5,
-      verbose: process.env.IS_LOCAL === 'true'
+      verbose: process.env.SST_LIVE === 'true'
     })
   );
 

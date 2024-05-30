@@ -1,1 +1,0 @@
-ALTER TABLE "devotions" ADD COLUMN "topic" text DEFAULT 'general' NOT NULL;

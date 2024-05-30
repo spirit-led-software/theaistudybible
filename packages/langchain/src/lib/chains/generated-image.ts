@@ -40,11 +40,11 @@ export const getImagePromptChain = async (): Promise<
   >
 > => {
   const retriever = await getDocumentVectorStore({
-    verbose: process.env.IS_LOCAL === 'true'
+    verbose: process.env.SST_LIVE === 'true'
   }).then((store) =>
     store.asRetriever({
       k: 3,
-      verbose: process.env.IS_LOCAL === 'true'
+      verbose: process.env.SST_LIVE === 'true'
     })
   );
 

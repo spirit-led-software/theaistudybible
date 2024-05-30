@@ -1,1 +1,0 @@
-ALTER TABLE "index_operations" ADD COLUMN "error_messages" jsonb DEFAULT '[]'::jsonb NOT NULL;

@@ -5,7 +5,7 @@ import { hc } from 'hono/client';
 import { Resource } from 'sst';
 import type { LayoutLoad } from './$types';
 
-export const load: LayoutLoad = () => {
+export const load: LayoutLoad = ({ fetch }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -13,6 +13,8 @@ export const load: LayoutLoad = () => {
       }
     }
   });
-  const rpcClient = hc<RouterType>(Resource.APIRouter.url);
+  const rpcClient = hc<RouterType>(Resource.APIRouter.url, {
+    fetch
+  });
   return { queryClient, rpcClient };
 };

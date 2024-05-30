@@ -1,16 +1,17 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
+import middy from '@middy/core';
 import { getTodaysDateString } from '@theaistudybible/core/util/date';
 import { toTitleCase } from '@theaistudybible/core/util/string';
 import { db } from '@theaistudybible/server/lib/database';
 import { generateDevotion } from '@theaistudybible/server/lib/devotion';
-import type { Handler } from 'aws-lambda';
 import { sql } from 'drizzle-orm';
 import firebase from 'firebase-admin';
 import path from 'path';
-import { withSentry } from '../lib/sentry';
+import sentryMiddleware from '../lib/sentry/middleware';
 
-const lambdaHandler: Handler = async (event) => {
-  console.log(event);
-
+const lambdaHandler = async () => {
   const dateString = getTodaysDateString();
   let devo = await db.query.devotions.findFirst({
     where: (devotions) => sql`${devotions.createdAt}::date = ${dateString}::date`
@@ -42,4 +43,4 @@ const lambdaHandler: Handler = async (event) => {
   }
 };
 
-export const handler = withSentry(lambdaHandler);
+export const handler = middy().use(sentryMiddleware()).handler(lambdaHandler);

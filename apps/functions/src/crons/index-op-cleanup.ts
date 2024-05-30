@@ -1,12 +1,13 @@
+import './lib/sentry/instrumentation';
+// Sentry instrumentation must be above any other imports
+
+import middy from '@middy/core';
 import { indexOperations } from '@theaistudybible/core/database/schema';
 import { db } from '@theaistudybible/server/lib/database';
-import type { Handler } from 'aws-lambda';
 import { and, eq, lt } from 'drizzle-orm';
-import { withSentry } from '../lib/sentry';
+import sentryMiddleware from '../lib/sentry/middleware';
 
-const lambdaHandler: Handler = async (event) => {
-  console.log('Cleaning up old index ops:', event);
-
+const lambdaHandler = async () => {
   // Get all index ops that are running and older than 1 day
   const indexOps = await db.query.indexOperations.findMany({
     where: and(
@@ -33,4 +34,4 @@ const lambdaHandler: Handler = async (event) => {
   );
 };
 
-export const handler = withSentry(lambdaHandler);
+export const handler = middy().use(sentryMiddleware()).handler(lambdaHandler);

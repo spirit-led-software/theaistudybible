@@ -4,7 +4,7 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       // Environment
-      IS_LOCAL: 'true' | 'false';
+      SST_LIVE: 'true' | 'false';
       NODE_ENV: 'development' | 'production';
 
       // Public environment variables

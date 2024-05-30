@@ -68,12 +68,12 @@ export const getDevotionGeneratorChain = async (): Promise<
   >
 > => {
   const retriever = await getDocumentVectorStore({
-    verbose: process.env.IS_LOCAL === 'true',
+    verbose: process.env.SST_LIVE === 'true',
     filter: "(category = 'bible' AND translation = 'ESV') OR category != 'bible'"
   }).then((store) =>
     store.asRetriever({
       k: 10,
-      verbose: process.env.IS_LOCAL === 'true'
+      verbose: process.env.SST_LIVE === 'true'
     })
   );
 
@@ -115,11 +115,11 @@ export const getDevotionGeneratorChain = async (): Promise<
 export const getBibleReadingChain = async (topic: string, previousDevotions: Devotion[]) => {
   const retriever = await getDocumentVectorStore({
     filter: "category = 'bible' AND translation = 'ESV'",
-    verbose: process.env.IS_LOCAL === 'true'
+    verbose: process.env.SST_LIVE === 'true'
   }).then((store) =>
     store.asRetriever({
       k: 50,
-      verbose: process.env.IS_LOCAL === 'true'
+      verbose: process.env.SST_LIVE === 'true'
     })
   );
 

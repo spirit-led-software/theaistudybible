@@ -21,7 +21,7 @@ export class RAIDatabaseConfig {
     });
     this.database = drizzleHttp(queryFn, {
       schema,
-      logger: process.env.IS_LOCAL === 'true'
+      logger: process.env.SST_LIVE === 'true'
     });
   }
 

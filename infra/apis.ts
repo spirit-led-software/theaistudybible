@@ -10,7 +10,9 @@ export const chatApi = new sst.aws.Function("ChatAPIFunction", {
   timeout: "5 minutes",
   live: false, // Can't do live dev with streaming
   streaming: true,
-  url: true,
+  url: {
+    cors: true,
+  },
   link: [
     indexFileBucket,
     neonBranch,
@@ -25,7 +27,9 @@ export const api = new sst.aws.Function("APIFunction", {
   handler: "apps/api/src/index.handler",
   layers: [chromiumLayer.arn],
   timeout: "5 minutes",
-  url: true,
+  url: {
+    cors: true,
+  },
   link: [
     chatApi,
     indexFileBucket,

@@ -1,10 +1,26 @@
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createBible } from './bibles/create';
 import { clearClerkEnv } from './clerk/clear';
 import { generateClerkMigrationFile, runClerkMigration } from './clerk/migrations';
-import { migrations as runDatabaseMigrations } from './database/migrations';
+import { runDatabaseMigrations } from './database/migrations';
 import { seedDatabase } from './database/seed';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env file
+dotenv.config({
+  path: path.resolve(__dirname, '../.env')
+});
+
+// Load .env file in the root directory
+dotenv.config({
+  path: path.resolve(__dirname, '../../../.env')
+});
 
 yargs(hideBin(process.argv))
   .scriptName('scripts')
@@ -13,47 +29,17 @@ yargs(hideBin(process.argv))
       .command(
         'migrate',
         'Run database migrations',
-        (yargs) =>
-          yargs
-            .option('connection-url', {
-              alias: 'u',
-              type: 'string',
-              description: 'Database connection URL'
-            })
-            .option('migrations-dir', {
-              alias: 'd',
-              type: 'string',
-              description: 'Path to migrations directory'
-            })
-            .demandOption(['connection-url', 'migrations-dir']),
-        (argv) => {
-          runDatabaseMigrations({
-            dbUrl: argv['connection-url'],
-            migrationsDir: argv['migrations-dir']
-          });
+        (yargs) => yargs,
+        () => {
+          runDatabaseMigrations();
         }
       )
       .command(
         'seed',
         'Run database seeding',
-        (yargs) =>
-          yargs
-            .option('connection-url', {
-              alias: 'u',
-              type: 'string',
-              description: 'Database connection URL'
-            })
-            .option('clerk-secret-key', {
-              alias: 's',
-              type: 'string',
-              description: 'Clerk secret key'
-            })
-            .demandOption(['connection-url', 'clerk-secret-key']),
-        (argv) => {
-          seedDatabase({
-            dbUrl: argv['connection-url'],
-            clerkSecretKey: argv['clerk-secret-key']
-          });
+        (yargs) => yargs,
+        () => {
+          seedDatabase();
         }
       )
   )
