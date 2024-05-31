@@ -34,7 +34,6 @@ export let website = new sst.aws.SvelteKit("Website", {
           treeShaking: true,
         },
       }));
-      return args;
     },
   },
 });

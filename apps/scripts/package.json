@@ -10,7 +10,7 @@
     "lint:fix": "prettier --write . && eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "scripts": "sst shell tsx src/index.ts"
+    "scripts": "sst shell -- tsx src/index.ts"
   },
   "devDependencies": {
     "@theaistudybible/eslint-config": "workspace:*",

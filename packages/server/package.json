@@ -16,7 +16,7 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/aws-lambda": "^8.10.138",
     "@types/busboy": "^1.5.4",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.12.13",
     "@types/nodemailer": "^6.4.15",
     "@types/ws": "^8.5.10",
     "vitest": "^1.6.0"
@@ -25,7 +25,7 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/langchain": "workspace:*",
     "@upstash/redis": "^1.31.3",
-    "ai": "^3.1.17",
+    "ai": "^3.1.22",
     "argon2": "^0.40.3",
     "busboy": "^1.6.0",
     "escape-string-regexp": "^5.0.0",

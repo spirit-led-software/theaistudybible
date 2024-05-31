@@ -54,8 +54,7 @@ export const app = new Hono<{
       },
       500
     );
-  })
-  .route('/bibles', bibles)
+  }).route('/bibles', bibles)
   .route('/data-sources', dataSources)
   .route('/devotions', devotions)
   // Secure routes
@@ -65,5 +64,3 @@ export const app = new Hono<{
   // Other routes
   .route('/admin', adminRoutes)
   .route('/webhooks', webhooks);
-
-export type RouterType = typeof app;

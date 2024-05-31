@@ -20,10 +20,10 @@
   "dependencies": {
     "@langchain/anthropic": "^0.1.21",
     "@langchain/community": "^0.2.4",
-    "@langchain/core": "^0.2.2",
-    "@langchain/openai": "^0.0.34",
+    "@langchain/core": "^0.2.5",
+    "@langchain/openai": "^0.1.0",
     "@theaistudybible/core": "workspace:*",
-    "langchain": "^0.2.3",
+    "langchain": "^0.2.4",
     "sst": "^3.0.32",
     "youtube-transcript": "^1.2.1",
     "youtubei.js": "^9.4.0"

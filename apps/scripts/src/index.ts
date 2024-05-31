@@ -139,11 +139,6 @@ yargs(hideBin(process.argv))
       'Create a new bible',
       (yargs) =>
         yargs
-          .option('db-url', {
-            alias: 'u',
-            type: 'string',
-            description: 'Database connection URL'
-          })
           .option('zip-path', {
             alias: 'z',
             type: 'string',

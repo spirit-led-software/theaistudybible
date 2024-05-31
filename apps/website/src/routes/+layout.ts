@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import type { RouterType } from '$lib/server/api';
+import type { RouterType, RpcClient } from '$lib/types/rpc';
 import { QueryClient } from '@tanstack/svelte-query';
 import { hc } from 'hono/client';
 import type { LayoutLoad } from './$types';
@@ -14,6 +14,6 @@ export const load: LayoutLoad = ({ fetch }) => {
   });
   const rpcClient = hc<RouterType>('/api', {
     fetch
-  });
+  }) as unknown as RpcClient;
   return { queryClient, rpcClient };
 };
