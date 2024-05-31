@@ -1,7 +1,5 @@
 import { indexFileBucket, publicBucket } from "./buckets";
-import { domainName } from "./constants";
 import { neonBranch, upstashRedis, upstashVector } from "./databases";
-import { chromiumLayer } from "./layers";
 import { webpageScraperQueue } from "./queues";
 
 export const chatApi = new sst.aws.Function("ChatAPIFunction", {
@@ -10,9 +8,7 @@ export const chatApi = new sst.aws.Function("ChatAPIFunction", {
   timeout: "5 minutes",
   live: false, // Can't do live dev with streaming
   streaming: true,
-  url: {
-    cors: true,
-  },
+  url: true,
   link: [
     indexFileBucket,
     neonBranch,
@@ -21,30 +17,4 @@ export const chatApi = new sst.aws.Function("ChatAPIFunction", {
     upstashVector,
     webpageScraperQueue,
   ],
-});
-
-export const api = new sst.aws.Function("APIFunction", {
-  handler: "apps/api/src/index.handler",
-  layers: [chromiumLayer.arn],
-  timeout: "5 minutes",
-  url: {
-    cors: true,
-  },
-  link: [
-    chatApi,
-    indexFileBucket,
-    neonBranch,
-    publicBucket,
-    upstashRedis,
-    upstashVector,
-    webpageScraperQueue,
-  ],
-});
-
-export const apiRouter = new sst.aws.Router("APIRouter", {
-  domain: `api.${domainName}`,
-  routes: {
-    "/*": api.url,
-    "/chat": chatApi.url,
-  },
 });

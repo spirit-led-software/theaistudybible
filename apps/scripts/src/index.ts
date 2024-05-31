@@ -171,32 +171,14 @@ yargs(hideBin(process.argv))
             type: 'string',
             description: 'Embedding model to use'
           })
-          .option('openai-api-key', {
-            alias: 'k',
-            type: 'string',
-            description: 'OpenAI API key'
-          })
-          .option('upstash-vector-url', {
-            alias: 'v',
-            type: 'string',
-            description: 'Upstash vector URL'
-          })
-          .option('upstash-vector-token', {
-            alias: 't',
-            type: 'string',
-            description: 'Upstash vector token'
-          })
-          .demandOption(['db-url', 'zip-path']),
+          .demandOption(['zip-path']),
       async (argv) => {
         await createBible({
-          dbUrl: argv['db-url'],
           zipPath: argv['zip-path'],
           publicationId: argv['publication-id'],
           overwrite: argv['overwrite'],
           generateEmbeddings: argv['generate-embeddings'],
-          embeddingModel: argv['embedding-model'],
-          openaiApiKey: argv['openai-api-key'],
-          upstashVectorUrl: argv['upstash-vector-url']
+          embeddingModel: argv['embedding-model']
         });
       }
     )

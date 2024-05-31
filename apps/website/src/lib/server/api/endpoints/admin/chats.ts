@@ -1,7 +1,7 @@
+import { PaginationSchema } from '$lib/server/api/lib/utils/pagination';
+import type { Bindings, Variables } from '$lib/server/api/types';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
-import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { chats, messages } from '@theaistudybible/core/database/schema';
 import { type Chat } from '@theaistudybible/core/model/chat';
 import { SQL, and, count, eq } from 'drizzle-orm';

@@ -1,15 +1,18 @@
 {
   "extends": "./packages/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "verbatimModuleSyntax": false
+    "verbatimModuleSyntax": false,
+    "paths": {
+      "sst/components/*": ["./.sst/platform/src/components/*"]
+    }
   },
   "include": [
     "./sst.config.ts",
     "./infra/**/*.ts",
     "./drizzle.config.ts",
     "./vitest.workspace.ts",
-    "./.sst/platform/config.d.ts",
-    "./packages/core/globals.d.ts"
+    "./packages/core/globals.d.ts",
+    "./.sst/platform/config.d.ts"
   ],
   "exclude": ["node_modules", ".sst", "./packages", "./apps"]
 }

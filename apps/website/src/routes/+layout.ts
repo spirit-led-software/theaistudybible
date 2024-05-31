@@ -1,8 +1,7 @@
 import { browser } from '$app/environment';
+import type { RouterType } from '$lib/server/api';
 import { QueryClient } from '@tanstack/svelte-query';
-import type { RouterType } from '@theaistudybible/api';
 import { hc } from 'hono/client';
-import { Resource } from 'sst';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = ({ fetch }) => {
@@ -13,7 +12,7 @@ export const load: LayoutLoad = ({ fetch }) => {
       }
     }
   });
-  const rpcClient = hc<RouterType>(Resource.APIRouter.url, {
+  const rpcClient = hc<RouterType>('/api', {
     fetch
   });
   return { queryClient, rpcClient };

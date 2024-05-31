@@ -1,10 +1,7 @@
+import { PaginationSchema, PaginationSchemaNoDefault } from '$lib/server/api/lib/utils/pagination';
+import type { Bindings, Variables } from '$lib/server/api/types';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
-import {
-  PaginationSchema,
-  PaginationSchemaNoDefault
-} from '@theaistudybible/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@theaistudybible/api/types';
 import {
   bibles,
   books,

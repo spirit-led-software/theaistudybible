@@ -1,7 +1,7 @@
+import { PaginationSchema } from '$lib/server/api/lib/utils/pagination';
+import type { Bindings, Variables } from '$lib/server/api/types';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
-import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { bibles } from '@theaistudybible/core/database/schema';
 import type { Bible } from '@theaistudybible/core/model/bible';
 import { count, eq } from 'drizzle-orm';

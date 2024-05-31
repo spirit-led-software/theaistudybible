@@ -25,8 +25,8 @@ export default $config({
     const website = await import("./infra/website");
 
     return {
-      ApiUrl: apis.apiRouter.url,
-      CdnUrl: cdn.cdnRouter?.url,
+      ChatApiUrl: apis.chatApi.url,
+      CdnUrl: cdn.cdn?.url,
       ChromiumLayer: $interpolate`${layers.chromiumLayer.layerName}:${layers.chromiumLayer.version}`,
       IndexFileBucketName: buckets.indexFileBucket.name,
       PublicBucketName: buckets.publicBucket.name,

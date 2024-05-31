@@ -6,37 +6,24 @@ import { XMLParser } from 'fast-xml-parser';
 import fs from 'fs';
 import JSZip from 'jszip';
 import pg from 'pg';
+import { Resource } from 'sst';
 import type { DBLMetadata, Publication } from '../lib/bible/types';
 import { parseUsx } from '../lib/bible/usx';
 
 export async function createBible({
-  dbUrl,
   zipPath,
   publicationId,
   overwrite,
-  generateEmbeddings,
-  openaiApiKey,
-  upstashVectorUrl,
-  upstashVectorToken
+  generateEmbeddings
 }: {
-  dbUrl: string;
   zipPath: string;
   publicationId?: string;
   overwrite: boolean;
   generateEmbeddings: boolean;
   embeddingModel?: string;
-  openaiApiKey?: string;
-  upstashVectorUrl?: string;
-  upstashVectorToken?: string;
 }) {
-  if (generateEmbeddings && (!openaiApiKey || !upstashVectorUrl || !upstashVectorToken)) {
-    throw new Error(
-      'OpenAI API key and Upstash vector URL and token are required to generate embeddings'
-    );
-  }
-
   const pool = new pg.Pool({
-    connectionString: dbUrl,
+    connectionString: Resource.NeonBranch.readWriteUrl,
     max: 20
   });
   const db = drizzle(pool, {

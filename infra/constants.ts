@@ -68,13 +68,15 @@ $transform(sst.aws.Function, (args) => {
   }));
   args.timeout = "60 seconds";
   args.runtime = "nodejs20.x";
-  args.nodejs = {
+  args.nodejs = $resolve([args.nodejs]).apply(([nodejs]) => ({
+    ...nodejs,
     esbuild: {
+      ...nodejs?.esbuild,
       external: ["@sparticuz/chromium"],
       minify: $app.stage === "prod",
       treeShaking: true,
     },
-  };
+  }));
   args.logging = {
     retention: $app.stage === "prod" ? "1 week" : "1 day",
   };

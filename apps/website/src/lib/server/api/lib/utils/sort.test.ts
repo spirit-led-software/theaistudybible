@@ -1,4 +1,4 @@
-import { parseSortString } from '@theaistudybible/api/lib/utils/sort';
+import { parseSortString } from '$lib/server/api/lib/utils/sort';
 import { chats } from '@theaistudybible/core/database/schema';
 import { asc, desc } from 'drizzle-orm';
 import { describe, expect, test } from 'vitest';

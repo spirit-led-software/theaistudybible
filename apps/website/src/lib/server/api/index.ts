@@ -1,9 +1,8 @@
+import adminRoutes from '$lib/server/api/endpoints/admin';
+import type { Bindings, Variables } from '$lib/server/api/types';
 import { clerkMiddleware } from '@hono/clerk-auth';
 import { sentry } from '@hono/sentry';
-import adminRoutes from '@theaistudybible/api/endpoints/admin';
-import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { Hono } from 'hono';
-import { handle } from 'hono/aws-lambda';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import bibles from './endpoints/public/bibles';
@@ -18,6 +17,7 @@ export const app = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
 }>()
+  .basePath('/api')
   .use('*', logger())
   .use('*', cors())
   .use(
@@ -36,6 +36,7 @@ export const app = new Hono<{
       })(c, next)
   )
   .notFound((c) => {
+    console.error('Route not found');
     return c.json(
       {
         message: 'Route not found'
@@ -53,10 +54,7 @@ export const app = new Hono<{
       },
       500
     );
-  });
-
-const routes = app
-  // Public routes
+  })
   .route('/bibles', bibles)
   .route('/data-sources', dataSources)
   .route('/devotions', devotions)
@@ -67,6 +65,5 @@ const routes = app
   // Other routes
   .route('/admin', adminRoutes)
   .route('/webhooks', webhooks);
-export type RouterType = typeof routes;
 
-export const handler = handle(app);
+export type RouterType = typeof app;

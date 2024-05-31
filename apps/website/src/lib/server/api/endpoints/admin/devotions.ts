@@ -1,18 +1,31 @@
+import { PaginationSchema } from '$lib/server/api/lib/utils/pagination';
+import type { Bindings, Variables } from '$lib/server/api/types';
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
-import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
-import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { devotionReactions, devotions } from '@theaistudybible/core/database/schema';
 import type { Devotion } from '@theaistudybible/core/model/devotion';
 import type { DevotionImage } from '@theaistudybible/core/model/devotion/image';
 import type { DevotionReaction } from '@theaistudybible/core/model/devotion/reaction';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { hasRole } from '@theaistudybible/server/lib/user';
+import { generateDevotion } from '@theaistudybible/server/lib/devotion';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
+import { z } from 'zod';
 
 export const listDevotionsSchema = PaginationSchema(devotions);
+
+export const createDevotionSchema = z
+  .object({
+    topic: z.string().min(1).max(255).optional(),
+    bibleReading: z.string().min(1).max(255).optional()
+  })
+  .optional()
+  .transform((val) => val || {});
+
+export const updateDevotionSchema = createInsertSchema(devotions, {
+  diveDeeperQueries: z.array(z.string()).optional()
+});
 
 export const app = new Hono<{
   Bindings: Bindings;
@@ -61,16 +74,20 @@ export const app = new Hono<{
       return c.json({ message: 'Devotion reaction not found' }, 404);
     }
 
-    if (
-      c.req.method !== 'GET' &&
-      c.var.clerkAuth?.userId !== reaction.userId &&
-      !hasRole('admin', c.var.clerkAuth!.sessionClaims!)
-    ) {
-      return c.json({ message: 'You do not have permission to access this resource.' }, 403);
-    }
-
     c.set('devotionReaction', reaction);
     await next();
+  })
+  .post('/', zValidator('json', createDevotionSchema), async (c) => {
+    const { topic, bibleReading } = c.req.valid('json');
+
+    const devotion = await generateDevotion(topic, bibleReading);
+
+    return c.json(
+      {
+        data: devotion
+      },
+      201
+    );
   })
   .get('/', zValidator('query', listDevotionsSchema), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
@@ -106,45 +123,40 @@ export const app = new Hono<{
       200
     );
   })
-  .post(
-    '/:id/reactions',
-    zValidator(
-      'json',
-      createInsertSchema(devotionReactions).pick({
-        reaction: true,
-        comment: true
-      })
-    ),
-    async (c) => {
-      const data = c.req.valid('json');
+  .patch('/:id', zValidator('json', updateDevotionSchema), async (c) => {
+    const data = c.req.valid('json');
 
-      if (!c.var.clerkAuth?.userId) {
-        return c.json({ message: 'You must be logged in' }, 401);
-      }
+    const [devotion] = await db
+      .update(devotions)
+      .set(data)
+      .where(eq(devotions.id, c.var.devotion.id))
+      .returning();
 
-      const [reaction] = await db
-        .insert(devotionReactions)
-        .values({
-          ...data,
-          devotionId: c.var.devotion.id,
-          userId: c.var.clerkAuth.userId
-        })
-        .returning();
-
-      return c.json(
-        {
-          data: reaction
-        },
-        201
-      );
-    }
-  )
+    return c.json(
+      {
+        data: devotion
+      },
+      200
+    );
+  })
+  .delete('/:id', async (c) => {
+    await db.delete(devotions).where(eq(devotions.id, c.var.devotion.id));
+    return c.json(
+      {
+        message: 'Devotion deleted'
+      },
+      204
+    );
+  })
+  .get('/:id/image', async (c) => {
+    return c.json({ data: c.var.devotionImage }, 200);
+  })
   .get('/:id/reactions', zValidator('query', PaginationSchema(devotionReactions)), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     let where: SQL<unknown> | undefined = eq(devotionReactions.devotionId, c.var.devotion.id);
     if (filter) {
-      where = where ? and(where, eq(devotionReactions.reaction, filter)) : filter;
+      where = and(where, eq(devotionReactions.reaction, filter));
     }
 
     const [foundReactions, reactionsCount] = await Promise.all([
@@ -170,38 +182,8 @@ export const app = new Hono<{
       200
     );
   })
-  .patch(
-    '/:id/reactions/:reactionId',
-    zValidator('json', createInsertSchema(devotionReactions)),
-    async (c) => {
-      const data = c.req.valid('json');
-
-      const [reaction] = await db
-        .update(devotionReactions)
-        .set(data)
-        .where(
-          and(
-            eq(devotionReactions.devotionId, c.var.devotion.id),
-            eq(devotionReactions.id, c.var.devotionReaction.id)
-          )
-        )
-        .returning();
-
-      return c.json(
-        {
-          data: reaction
-        },
-        200
-      );
-    }
-  )
   .get('/:id/reactions/:reactionId', async (c) => {
-    return c.json(
-      {
-        data: c.var.devotionReaction
-      },
-      200
-    );
+    return c.json({ data: c.var.devotionReaction }, 200);
   })
   .get('/:id/source-documents', async (c) => {
     const devotion = c.var.devotion;
