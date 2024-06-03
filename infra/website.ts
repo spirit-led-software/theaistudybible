@@ -2,9 +2,10 @@ import { chatApi } from "./apis";
 import { indexFileBucket, publicBucket } from "./buckets";
 import { COMMON_ENV_VARS, LANGSMITH_ENV_VARS, domainName } from "./constants";
 import { neonBranch, upstashRedis, upstashVector } from "./databases";
+import { chromiumLayer } from "./layers";
 import { webpageScraperQueue } from "./queues";
 
-export let website = new sst.aws.SvelteKit("Website", {
+export let website = new sst.aws.SolidStart("Website", {
   path: "apps/website",
   link: [
     publicBucket,
@@ -25,15 +26,14 @@ export let website = new sst.aws.SvelteKit("Website", {
   domain: domainName,
   transform: {
     server: (args) => {
-      args.nodejs = $resolve([args.nodejs]).apply(([nodejs]) => ({
-        ...nodejs,
+      args.layers = [chromiumLayer.arn];
+      args.nodejs = {
         esbuild: {
-          ...nodejs?.esbuild,
           external: ["@sparticuz/chromium"],
           minify: $app.stage === "prod",
           treeShaking: true,
         },
-      }));
+      };
     },
   },
 });

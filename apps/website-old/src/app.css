@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
     --background: 237 39% 100%;
@@ -26,8 +26,7 @@
     --radius: 0.5rem;
   }
 
-  .dark,
-  [data-kb-theme="dark"] {
+  .dark {
     --background: 237 34% 0%;
     --foreground: 237 28% 99%;
     --muted: 207 8% 13%;
@@ -47,24 +46,14 @@
     --destructive: 356.6 100% 68.31%;
     --destructive-foreground: 0 0% 0%;
     --ring: 237 86% 8%;
-    --radius: 0.5rem;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
-  }
-}
-
-@media (max-width: 640px) {
-  .container {
-    @apply px-4;
   }
 }
