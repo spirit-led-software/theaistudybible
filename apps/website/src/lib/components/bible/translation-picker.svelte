@@ -65,7 +65,7 @@
                     .includes(search.toLowerCase())) as bible}
               <Button
                 href={`/bible/${bible.abbreviation}`}
-                class="flex h-fit w-full items-start justify-start text-wrap"
+                class="flex flex-col h-fit w-full items-start justify-start text-wrap"
               >
                 <p class="text-lg font-bold">
                   {bible.abbreviationLocal} - {bible.nameLocal}

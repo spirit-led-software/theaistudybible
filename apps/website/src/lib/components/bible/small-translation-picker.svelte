@@ -5,15 +5,8 @@
   import ISO6391 from 'iso-639-1';
   import { Check, ChevronsUpDown } from 'lucide-svelte';
   import { Button } from '../ui/button';
-  import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList
-  } from '../ui/command';
-  import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+  import * as Command from '../ui/command';
+  import * as Popover from '../ui/popover';
 
   type Props = {
     bibles: InferResponseType<RpcClient['bibles']['$get']>['data'];
@@ -36,9 +29,10 @@
   );
 </script>
 
-<Popover {open} onOpenChange={() => (open = !open)}>
-  <PopoverTrigger asChild>
+<Popover.Root bind:open>
+  <Popover.Trigger asChild let:builder>
     <Button
+      builders={[builder]}
       variant="outline"
       role="combobox"
       aria-expanded={open}
@@ -47,16 +41,16 @@
       {bible.abbreviationLocal}
       <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
     </Button>
-  </PopoverTrigger>
-  <PopoverContent class="w-[200px] p-0">
-    <Command>
-      <CommandInput placeholder="Search bibles..." />
-      <CommandList>
-        <CommandEmpty>Not Found</CommandEmpty>
+  </Popover.Trigger>
+  <Popover.Content class="w-[200px] p-0">
+    <Command.Root>
+      <Command.Input placeholder="Search bibles..." />
+      <Command.List>
+        <Command.Empty>Not Found</Command.Empty>
         {#each uniqueLanguages as language}
-          <CommandGroup heading={ISO6391.getName(language)} value={language}>
+          <Command.Group heading={ISO6391.getName(language)} value={language}>
             {#each bibles.filter((bible) => bible.languageISO === language) as foundBible}
-              <CommandItem
+              <Command.Item
                 value={foundBible.name}
                 onSelect={async () => {
                   await goto(`/bible/${foundBible.abbreviation}/${chapter.name}`);
@@ -66,15 +60,15 @@
                 <Check
                   class={`mr-2 h-4 w-4 ${foundBible.id === bible.id ? 'opacity-100' : 'opacity-0'}`}
                 />
-                <div class="flex w-full flex-col justify-end text-end">
+                <div class="flex flex-col w-full justify-end text-end">
                   <p class="text-lg font-medium">{foundBible.abbreviationLocal}</p>
                   <p class="text-xs">{foundBible.nameLocal}</p>
                 </div>
-              </CommandItem>
+              </Command.Item>
             {/each}
-          </CommandGroup>
+          </Command.Group>
         {/each}
-      </CommandList>
-    </Command>
-  </PopoverContent>
-</Popover>
+      </Command.List>
+    </Command.Root>
+  </Popover.Content>
+</Popover.Root>

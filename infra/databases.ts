@@ -22,11 +22,11 @@ export const neonBranch = new NeonBranch("NeonBranch", {
   ],
   retainOnDelete: $app.stage === "prod",
 });
-sst.Link.makeLinkable(NeonBranch, function () {
+sst.Link.makeLinkable(NeonBranch, function (b) {
   return {
     properties: {
-      readOnlyUrl: this.readOnlyUrl,
-      readWriteUrl: this.readWriteUrl,
+      readOnlyUrl: b.readOnlyUrl,
+      readWriteUrl: b.readWriteUrl,
     },
   };
 });
@@ -38,13 +38,13 @@ export const upstashRedis = new upstash.RedisDatabase("UpstashRedis", {
   eviction: true,
   autoScale: $app.stage === "prod",
 });
-sst.Link.makeLinkable(upstash.RedisDatabase, function () {
+sst.Link.makeLinkable(upstash.RedisDatabase, function (ur) {
   return {
     properties: {
-      url: $interpolate`rediss://default:${this.password}@${this.endpoint}:${this.port}`,
-      restUrl: $interpolate`https://${this.endpoint}`,
-      restToken: this.restToken,
-      readOnlyRestToken: this.readOnlyRestToken,
+      url: $interpolate`rediss://default:${ur.password}@${ur.endpoint}:${ur.port}`,
+      restUrl: $interpolate`https://${ur.endpoint}`,
+      restToken: ur.restToken,
+      readOnlyRestToken: ur.readOnlyRestToken,
     },
   };
 });
@@ -69,12 +69,12 @@ export const upstashVector = new UpstashVector("UpstashVector", {
         }
       : undefined,
 });
-sst.Link.makeLinkable(UpstashVector, function () {
+sst.Link.makeLinkable(UpstashVector, function (uv) {
   return {
     properties: {
-      restUrl: this.restUrl,
-      restToken: this.restToken,
-      readOnlyRestToken: this.readOnlyRestToken,
+      restUrl: uv.restUrl,
+      restToken: uv.restToken,
+      readOnlyRestToken: uv.readOnlyRestToken,
     },
   };
 });

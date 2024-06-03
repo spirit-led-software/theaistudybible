@@ -1,18 +1,12 @@
-import { env } from '$env/dynamic/public';
 import { Clerk } from '@clerk/clerk-js';
+import { getContext } from 'svelte';
 
 export function useClerk() {
-  const clerk = $state<Clerk>(new Clerk(env.PUBLIC_CLERK_PUBLISHABLE_KEY!, {}));
-
-  return {
-    get clerk() {
-      return clerk;
-    }
-  };
+  return getContext('$$_clerk') as Clerk;
 }
 
 export function useAuth() {
-  const { clerk } = useClerk();
+  const clerk = useClerk();
 
   return {
     get userId() {
@@ -29,7 +23,7 @@ export function useAuth() {
 }
 
 export function useUser() {
-  const { clerk } = useClerk();
+  const clerk = useClerk();
 
   return {
     get user() {

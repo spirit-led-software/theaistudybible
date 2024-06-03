@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { useRpcClient } from '$lib/runes/rpc.svelte';
+  import { useRpcClient } from '$lib/hooks/rpc';
   import type { RpcClient } from '$lib/types/rpc';
   import { createQuery } from '@tanstack/svelte-query';
   import type { InferResponseType } from 'hono/client';
   import { Check } from 'lucide-svelte';
   import { Circle } from 'svelte-loading-spinners';
-  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+  import * as Accordion from '../ui/accordion';
   import { Button } from '../ui/button';
-  import { CommandEmpty, CommandItem } from '../ui/command';
+  import * as Command from '../ui/command';
 
   type Props = {
     bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
@@ -20,9 +19,7 @@
 
   let { bible, book, chapter }: Props = $props();
 
-  let open = $state(false);
-
-  let { rpcClient } = useRpcClient();
+  let rpcClient = useRpcClient();
 
   const query = createQuery({
     queryKey: ['chapters', { bookId: book.id }],
@@ -40,32 +37,28 @@
       if (!response.ok) {
         throw new Error('Failed to fetch chapters');
       }
-      return await response.json();
+      return (await response.json()).data;
     },
     enabled: false
   });
 </script>
 
-<CommandItem value={book.shortName} class="aria-selected:bg-background">
-  <Accordion class="w-full">
-    <AccordionItem value={book.abbreviation} onclick={() => !$query.data && $query.refetch()}>
-      <AccordionTrigger>{book.shortName}</AccordionTrigger>
-      <AccordionContent class="grid grid-cols-3 gap-1">
+<Command.Item value={book.shortName} class="aria-selected:bg-background">
+  <Accordion.Root class="w-full">
+    <Accordion.Item value={book.abbreviation} onclick={() => !$query.data && $query.refetch()}>
+      <Accordion.Trigger>{book.shortName}</Accordion.Trigger>
+      <Accordion.Content class="grid grid-cols-3 gap-1">
         {#if $query.isLoading}
           <div class="col-span-3">
             <Circle size={24} />
           </div>
         {:else if $query.isError}
-          <CommandEmpty>Error</CommandEmpty>
+          <Command.Empty>Error</Command.Empty>
         {:else if $query.data}
-          {#each $query.data.data as foundChapter}
+          {#each $query.data as foundChapter}
             <Button
               variant="outline"
-              onclick={async () => {
-                await goto(
-                  `/bible/${bible.abbreviation}/${book.abbreviation}/${foundChapter.number}`
-                );
-              }}
+              href={`/bible/${bible.abbreviation}/${book.abbreviation}/${foundChapter.number}`}
               class="flex place-items-center justify-center overflow-visible"
             >
               <Check
@@ -76,7 +69,7 @@
             </Button>
           {/each}
         {/if}
-      </AccordionContent>
-    </AccordionItem>
-  </Accordion>
-</CommandItem>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
+</Command.Item>

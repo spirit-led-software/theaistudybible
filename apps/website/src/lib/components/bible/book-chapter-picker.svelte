@@ -3,8 +3,8 @@
   import type { InferResponseType } from 'hono/client';
   import { ChevronsUpDown } from 'lucide-svelte';
   import { Button } from '../ui/button';
-  import { Command, CommandEmpty, CommandInput, CommandList } from '../ui/command';
-  import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+  import * as Command from '../ui/command';
+  import * as Popover from '../ui/popover';
   import ChapterPicker from './chapter-picker.svelte';
 
   type Props = {
@@ -16,14 +16,14 @@
     >['data'];
   };
 
-  let { bible, books, book, chapter }: Props = $props();
-
   let open = $state(false);
+  let { bible, books, book, chapter }: Props = $props();
 </script>
 
-<Popover {open} onOpenChange={() => (open = !open)}>
-  <PopoverTrigger asChild>
+<Popover.Root bind:open>
+  <Popover.Trigger asChild let:builder>
     <Button
+      builders={[builder]}
       variant="outline"
       role="combobox"
       aria-expanded={open}
@@ -33,16 +33,16 @@
       {chapter.number}
       <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
     </Button>
-  </PopoverTrigger>
-  <PopoverContent class="w-[200px] p-0">
-    <Command>
-      <CommandInput placeholder="Search books..." />
-      <CommandList>
-        <CommandEmpty>Not Found</CommandEmpty>
+  </Popover.Trigger>
+  <Popover.Content class="w-[200px] p-0">
+    <Command.Root>
+      <Command.Input placeholder="Search books..." />
+      <Command.List>
+        <Command.Empty>Not Found</Command.Empty>
         {#each books as foundBook}
           <ChapterPicker {bible} book={foundBook} {chapter} />
         {/each}
-      </CommandList>
-    </Command>
-  </PopoverContent>
-</Popover>
+      </Command.List>
+    </Command.Root>
+  </Popover.Content>
+</Popover.Root>

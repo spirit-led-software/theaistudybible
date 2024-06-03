@@ -1,7 +1,9 @@
 <script lang="ts">
+  import { PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
   import NavigationHeader from '$lib/components/nav/header.svelte';
+  import ClerkProvider from '$lib/components/providers/clerk.svelte';
+  import RpcClientProvider from '$lib/components/providers/rpc-client.svelte';
   import { Toaster } from '$lib/components/ui/sonner';
-  import { createRpcClient } from '$lib/runes/rpc.svelte';
   import { QueryClientProvider } from '@tanstack/svelte-query';
   import { ModeWatcher } from 'mode-watcher';
   import { type Snippet } from 'svelte';
@@ -14,17 +16,15 @@
   };
 
   let { data, children }: Props = $props();
-
-  $effect(() => {
-    createRpcClient(data.rpcClient);
-  });
 </script>
 
-<QueryClientProvider client={data.queryClient}>
-  <ModeWatcher />
-  <Toaster />
-  <NavigationHeader />
-  {#if children}
-    {@render children()}
-  {/if}
-</QueryClientProvider>
+<ClerkProvider publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}>
+  <QueryClientProvider client={data.queryClient}>
+    <RpcClientProvider client={data.rpcClient}>
+      <ModeWatcher />
+      <Toaster />
+      <NavigationHeader />
+      {@render children()}
+    </RpcClientProvider>
+  </QueryClientProvider>
+</ClerkProvider>

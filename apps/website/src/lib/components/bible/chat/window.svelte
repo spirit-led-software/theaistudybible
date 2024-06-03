@@ -5,7 +5,7 @@
   import { Separator } from '$lib/components/ui/separator';
   import { useBibleStore } from '$lib/runes/bible.svelte';
   import { useChatStore } from '$lib/runes/chat.svelte';
-  import { useAuth, useUser } from '$lib/runes/clerk.svelte';
+  import { useAuth, useUser } from '$lib/hooks/clerk';
   import { cn } from '$lib/utils';
   import { createId } from '@paralleldrive/cuid2';
   import { useChat } from 'ai/svelte';
@@ -23,7 +23,7 @@
   let lastAiResponseId = $state<string | undefined>(undefined);
 
   const { input, handleSubmit, messages, setMessages, error, isLoading, append } = useChat({
-    api: `${env.PUBLIC_API_URL}/chat`,
+    api: `${env.PUBLIC_CHAT_API_URL}/chat`,
     id: chatId,
     generateId: createId,
     sendExtraMessageFields: true,
@@ -139,9 +139,7 @@
         handleSubmit(e, {
           options: {
             headers: {
-              Authorization: `Bearer ${await getToken({
-                template: 'Testing'
-              })}`
+              Authorization: `Bearer ${await getToken()}`
             }
           }
         });

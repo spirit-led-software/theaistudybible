@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
+  import { useAuth } from '$lib/hooks/clerk';
+  import { useRpcClient } from '$lib/hooks/rpc';
   import { useBibleStore } from '$lib/runes/bible.svelte';
   import { useChatStore } from '$lib/runes/chat.svelte';
-  import { useAuth } from '$lib/runes/clerk.svelte';
-  import { useRpcClient } from '$lib/runes/rpc.svelte';
   import { highlightColors } from '$lib/theme/highlight';
   import type { RpcClient } from '$lib/types/rpc';
   import { createMutation, createQuery } from '@tanstack/svelte-query';
@@ -48,7 +48,7 @@
   let { setQuery } = useChatStore();
   let { userId, getToken } = useAuth();
 
-  const { rpcClient } = useRpcClient();
+  const rpcClient = useRpcClient();
 
   const highlightsQuery = createQuery({
     queryKey: [
