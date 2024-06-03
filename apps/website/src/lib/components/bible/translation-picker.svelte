@@ -7,7 +7,11 @@
   import { Input } from '../ui/input';
   import { H2, P } from '../ui/typeography';
 
-  let { bibles }: { bibles: InferResponseType<RpcClient['bibles']['$get']>['data'] } = $props();
+  type Props = {
+    bibles: InferResponseType<RpcClient['bibles']['$get']>['data'];
+  };
+
+  let { bibles }: Props = $props();
 
   let search = $state('');
 

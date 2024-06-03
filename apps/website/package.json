@@ -27,6 +27,7 @@
     "globals": "^15.3.0",
     "postcss": "^8.4.38",
     "svelte": "5.0.0-next.147",
+    "svelte-awesome-color-picker": "^3.1.0",
     "svelte-check": "^3.8.0",
     "svelte-loading-spinners": "^0.3.6",
     "tailwindcss": "^3.4.3",
@@ -35,6 +36,8 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "@clerk/clerk-js": "^5.5.3",
+    "@clerk/clerk-sdk-node": "^5.0.9",
     "@clerk/themes": "^2.1.8",
     "@hono/clerk-auth": "^2.0.0",
     "@hono/sentry": "^1.1.0",
