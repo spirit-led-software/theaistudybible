@@ -11,48 +11,20 @@
     "allowJs": true,
     "strict": true,
     "noEmit": true,
-    "types": [
-      "vinxi/types/client"
-    ],
+    "types": ["vinxi/types/client"],
     "isolatedModules": true,
     "paths": {
-      "@theaistudybible/core": [
-        "../../packages/core/src"
-      ],
-      "@theaistudybible/core/*": [
-        "../../packages/core/src/*"
-      ],
-      "@theaistudybible/langchain": [
-        "../../packages/langchain/src"
-      ],
-      "@theaistudybible/langchain/*": [
-        "../../packages/langchain/src/*"
-      ],
-      "@theaistudybible/server": [
-        "../../packages/server/src"
-      ],
-      "@theaistudybible/server/*": [
-        "../../packages/server/src/*"
-      ],
-      "@lib/server/database": [
-        "../../packages/server/src/lib/database"
-      ],
-      "@lib/server/cache": [
-        "../../packages/server/src/lib/cache"
-      ],
-      "~/*": [
-        "./src/*"
-      ]
+      "@theaistudybible/core": ["../../packages/core/src"],
+      "@theaistudybible/core/*": ["../../packages/core/src/*"],
+      "@theaistudybible/langchain": ["../../packages/langchain/src"],
+      "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
+      "@theaistudybible/server": ["../../packages/server/src"],
+      "@theaistudybible/server/*": ["../../packages/server/src/*"],
+      "@lib/server/database": ["../../packages/server/src/lib/database"],
+      "@lib/server/cache": ["../../packages/server/src/lib/cache"],
+      "~/*": ["./src/*"]
     }
   },
-  "include": [
-    "./src/**/*",
-    "../../packages/core/globals.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".output",
-    ".vinxi"
-  ]
+  "include": ["./src/**/*", "../../packages/core/globals.d.ts"],
+  "exclude": ["node_modules", "dist", ".output", ".vinxi"]
 }
