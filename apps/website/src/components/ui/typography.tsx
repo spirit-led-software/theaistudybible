@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX, JSXElement } from 'solid-js';
 import { cn } from '~/lib/utils';
 
 export function H1({
@@ -6,7 +6,7 @@ export function H1({
   class: className,
   ...props
 }: {
-  children: JSX.Element;
+  children: JSXElement;
 } & JSX.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h1
@@ -23,7 +23,7 @@ export function H2({
   class: className,
   ...props
 }: {
-  children: JSX.Element;
+  children: JSXElement;
 } & JSX.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
@@ -43,7 +43,7 @@ export function H3({
   class: className,
   ...props
 }: {
-  children: JSX.Element;
+  children: JSXElement;
 } & JSX.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3 {...props} class={cn('scroll-m-20 text-2xl font-semibold tracking-tight', className)}>
@@ -57,7 +57,7 @@ export function H4({
   class: className,
   ...props
 }: {
-  children: JSX.Element;
+  children: JSXElement;
 } & JSX.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h4 {...props} class={cn('scroll-m-20 text-xl font-semibold tracking-tight', className)}>
@@ -71,7 +71,7 @@ export function P({
   class: className,
   ...props
 }: {
-  children: JSX.Element;
+  children: JSXElement;
 } & JSX.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p {...props} class={cn('leading-7 [&:not(:first-child)]:mt-6', className)}>

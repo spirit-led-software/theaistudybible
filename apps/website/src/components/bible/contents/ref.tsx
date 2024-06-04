@@ -9,7 +9,7 @@ export default function RefContent({
   style,
   attrs,
   props,
-  className,
+  class: className,
   bible
 }: {
   content: TextContent;
@@ -18,7 +18,7 @@ export default function RefContent({
   attrs: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
-  className?: string;
+  class?: string;
   bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
 }) {
   const { loc } = attrs;

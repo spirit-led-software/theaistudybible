@@ -304,7 +304,7 @@ export default function ReaderContent({
                 </ContextMenuItem>
               ))}
               <ContextMenuSeparator />
-              <HexColorPicker color={color} onChange={setColor} class="w-full" />
+              {/* <HexColorPicker color={color} onChange={setColor} class="w-full" /> */}
               <input
                 placeholder={'Hex color'}
                 onChange={(e) => {

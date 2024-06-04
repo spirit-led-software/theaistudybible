@@ -54,26 +54,31 @@ export const domainName = `${domainNamePrefix.length > 0 ? `${domainNamePrefix}.
 }`;
 
 $transform(sst.aws.Function, (args) => {
-  args.permissions = [
+  args.permissions = $output(args.permissions).apply((permissions) => [
+    ...(permissions ?? []),
     {
       actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
       resources: ["*"],
     },
-  ];
-  args.environment = {
+  ]);
+  args.environment = $output(args.environment).apply((environment) => ({
+    ...environment,
     ...COMMON_ENV_VARS,
     ...LANGSMITH_ENV_VARS,
-  };
+  }));
   args.timeout = "60 seconds";
   args.runtime = "nodejs20.x";
-  args.nodejs = {
+  args.nodejs = $output(args.nodejs).apply((nodejs) => ({
+    ...nodejs,
     esbuild: {
+      ...nodejs?.esbuild,
       external: ["@sparticuz/chromium"],
       minify: $app.stage === "prod",
       treeShaking: true,
     },
-  };
-  args.logging = {
-    retention: $app.stage === "prod" ? "1 week" : "1 day",
-  };
+  }));
+  args.logging = $output(args.logging).apply((logging) => ({
+    ...logging,
+    retention: $app.stage === "prod" ? ("1 week" as const) : ("1 day" as const),
+  }));
 });

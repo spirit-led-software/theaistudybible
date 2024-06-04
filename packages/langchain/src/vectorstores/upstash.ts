@@ -3,8 +3,8 @@ import type { EmbeddingsInterface } from '@langchain/core/embeddings';
 import { AsyncCaller, type AsyncCallerParams } from '@langchain/core/utils/async_caller';
 import { chunkArray } from '@langchain/core/utils/chunk_array';
 import { VectorStore } from '@langchain/core/vectorstores';
+import { createId } from '@paralleldrive/cuid2';
 import { Index as UpstashIndex, type Vector } from '@upstash/vector';
-import { v4 as uuidV4 } from 'uuid';
 
 export type UpstashVectorSimilarityFunction = 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
 
@@ -121,7 +121,7 @@ export class UpstashVectorStore extends VectorStore {
     documents: DocumentInterface[],
     options?: { ids?: string[] }
   ) {
-    const documentIds = options?.ids ?? Array.from({ length: vectors.length }, () => uuidV4());
+    const documentIds = options?.ids ?? Array.from({ length: vectors.length }, () => createId());
 
     const upstashVectors = vectors.map((vector, index) => {
       const metadata: UpstashQueryMetadata = {

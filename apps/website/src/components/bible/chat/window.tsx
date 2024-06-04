@@ -17,12 +17,12 @@ import { H3, P } from '../../ui/typography';
 export default function ChatWindow() {
   const { user, isSignedIn } = useUser();
   const { getToken } = useAuth();
-  const { chatApi } = usePublicResources();
+  const resources = usePublicResources();
   const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
 
   const { input, setInput, handleSubmit, messages, setMessages, error, isLoading, append } =
     useChat({
-      api: `${chatApi.url}/chat`,
+      api: `${resources().apiUrl}/chat`,
       id: chatStore.chatId,
       generateId: createId,
       sendExtraMessageFields: true,
@@ -64,7 +64,7 @@ export default function ChatWindow() {
       {
         options: {
           headers: {
-            Authorization: `Bearer ${await getToken()}`
+            Authorization: `Bearer ${await getToken()()}`
           }
         }
       }
@@ -108,7 +108,7 @@ export default function ChatWindow() {
           <ChevronDown size={20} />
         </Button>
       </div>
-      {isSignedIn ? (
+      {isSignedIn() ? (
         <>
           <div class="relative flex-1 flex-col-reverse space-y-2 overflow-y-auto whitespace-pre-wrap">
             {messages()?.map((message) => (
@@ -117,8 +117,8 @@ export default function ChatWindow() {
                 <div class="flex w-full place-items-start space-x-4 px-2 py-3">
                   {message.role === 'user' ? (
                     <Avatar>
-                      <AvatarImage src={user!.imageUrl!} />
-                      <AvatarFallback>{user?.fullName}</AvatarFallback>
+                      <AvatarImage src={user()!.imageUrl!} />
+                      <AvatarFallback>{user()?.fullName}</AvatarFallback>
                     </Avatar>
                   ) : (
                     <div class="flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2">
@@ -141,9 +141,7 @@ export default function ChatWindow() {
               handleSubmit(e, {
                 options: {
                   headers: {
-                    Authorization: `Bearer ${await getToken({
-                      template: 'Testing'
-                    })}`
+                    Authorization: `Bearer ${await getToken()()}`
                   }
                 }
               });

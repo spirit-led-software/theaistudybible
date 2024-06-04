@@ -78,7 +78,7 @@ export function getEnvironmentVariable(name: string): string | undefined {
   // https://github.com/hwchase17/langchainjs/issues/1412
   try {
     return typeof process !== 'undefined' ? process.env?.[name] : undefined;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 }

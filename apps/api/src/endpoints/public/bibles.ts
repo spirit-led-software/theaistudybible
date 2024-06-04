@@ -1,18 +1,18 @@
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
+import { PaginationSchema, PaginationSchemaNoDefault } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import {
-  bibles,
-  books,
-  chapterHighlights,
-  chapters,
-  verses
+    bibles,
+    books,
+    chapterHighlights,
+    chapters,
+    verses
 } from '@theaistudybible/core/database/schema';
 import type { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
 import { SQL, and, count, eq, inArray, or, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { PaginationSchema, PaginationSchemaNoDefault } from '~/lib/server/api/lib/utils/pagination';
-import type { Bindings, Variables } from '~/lib/server/api/types';
 
 export const app = new Hono<{
   Bindings: Bindings;

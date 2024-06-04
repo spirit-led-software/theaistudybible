@@ -1,11 +1,12 @@
 import { defineConfig } from '@solidjs/start/config';
+import { searchForWorkspaceRoot } from 'vite';
 import { cjsInterop } from 'vite-plugin-cjs-interop';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
-    preset: 'aws-lambda-streaming'
+    preset: 'aws-lambda'
   },
   vite: {
     plugins: [
@@ -16,7 +17,7 @@ export default defineConfig({
     ],
     server: {
       fs: {
-        allow: ['./tailwind.config.ts']
+        allow: [searchForWorkspaceRoot(process.cwd())]
       }
     }
   }

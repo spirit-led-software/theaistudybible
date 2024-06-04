@@ -1,6 +1,6 @@
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { hasRole } from '@theaistudybible/server/lib/user';
 import { Hono } from 'hono';
-import type { Bindings, Variables } from '~/lib/server/api/types';
 import bibles from './bibles';
 import chats from './chats';
 import dataSources from './data-sources';

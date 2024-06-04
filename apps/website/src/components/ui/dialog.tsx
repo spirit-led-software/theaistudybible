@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@kobalte/core/dialog';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
-import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js';
+import type { Component, ComponentProps, JSXElement, ValidComponent } from 'solid-js';
 import { splitProps } from 'solid-js';
 import { cn } from '~/lib/utils';
 
@@ -37,7 +37,7 @@ const DialogOverlay = <T extends ValidComponent = 'div'>(
 
 type DialogContentProps = DialogPrimitive.DialogContentProps & {
   class?: string | undefined;
-  children?: JSX.Element;
+  children?: JSXElement;
 };
 
 const DialogContent = <T extends ValidComponent = 'div'>(

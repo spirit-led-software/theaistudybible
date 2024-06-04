@@ -19,7 +19,7 @@ import { db } from '@theaistudybible/server/lib/database';
 import type { S3Event } from 'aws-lambda';
 import { eq, sql } from 'drizzle-orm';
 import { mkdtempSync, writeFileSync } from 'fs';
-import type { BaseDocumentLoader } from 'langchain/dist/document_loaders/base';
+import type { BaseDocumentLoader } from 'langchain/document_loaders/base';
 import { JSONLoader } from 'langchain/document_loaders/fs/json';
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';

@@ -14,7 +14,7 @@ export default function Contents({
   chapter,
   contents,
   highlights,
-  className = ''
+  class: className
 }: {
   bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
   book: InferResponseType<RpcClient['bibles'][':id']['books'][':bookId']['$get']>['data'];
@@ -24,7 +24,7 @@ export default function Contents({
     id: string;
     color: string;
   }[];
-  className?: string;
+  class?: string;
 }) {
   return (
     <>

@@ -1,7 +1,7 @@
+import { parseFilterString } from '@theaistudybible/api/lib/utils/filter';
 import { chats } from '@theaistudybible/core/database/schema';
 import { and, eq, ilike, inArray, or } from 'drizzle-orm';
 import { describe, expect, test } from 'vitest';
-import { parseFilterString } from '~/lib/server/api/lib/utils/filter';
 
 describe('Filter string test suite', () => {
   test('Test filter string 1', () => {

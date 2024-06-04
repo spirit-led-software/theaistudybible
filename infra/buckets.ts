@@ -21,11 +21,7 @@ export const publicBucket = new sst.aws.Bucket("PublicBucket", {
             principals: [
               {
                 type: "AWS",
-                identifiers: [
-                  $interpolate`arn:${
-                    aws.getPartitionOutput().partition
-                  }:iam::cloudfront:user/CloudFront Origin Access Identity ${publicBucketAccess.id}`,
-                ],
+                identifiers: [publicBucketAccess.iamArn],
               },
             ],
             actions: ["s3:GetObject"],

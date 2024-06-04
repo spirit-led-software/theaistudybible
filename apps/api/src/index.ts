@@ -1,10 +1,11 @@
 import { clerkMiddleware } from '@hono/clerk-auth';
 import { sentry } from '@hono/sentry';
+import adminRoutes from '@theaistudybible/api/endpoints/admin';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { Hono } from 'hono';
+import { handle } from 'hono/aws-lambda';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import adminRoutes from '~/lib/server/api/endpoints/admin';
-import type { Bindings, Variables } from '~/lib/server/api/types';
 import bibles from './endpoints/public/bibles';
 import dataSources from './endpoints/public/data-sources';
 import devotions from './endpoints/public/devotions';
@@ -65,3 +66,5 @@ export const app = new Hono<{
   // Other routes
   .route('/admin', adminRoutes)
   .route('/webhooks', webhooks);
+
+  export const handler = handle(app);

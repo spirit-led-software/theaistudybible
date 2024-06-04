@@ -1,6 +1,6 @@
 import * as AccordionPrimitive from '@kobalte/core/accordion';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
-import { JSX, splitProps, type ValidComponent } from 'solid-js';
+import { splitProps, type JSXElement, type ValidComponent } from 'solid-js';
 import { cn } from '~/lib/utils';
 
 const Accordion = AccordionPrimitive.Root;
@@ -18,7 +18,7 @@ const AccordionItem = <T extends ValidComponent = 'div'>(
 
 type AccordionTriggerProps = AccordionPrimitive.AccordionTriggerProps & {
   class?: string | undefined;
-  children?: JSX.Element;
+  children?: JSXElement;
 };
 
 const AccordionTrigger = <T extends ValidComponent = 'button'>(
@@ -54,7 +54,7 @@ const AccordionTrigger = <T extends ValidComponent = 'button'>(
 
 type AccordionContentProps = AccordionPrimitive.AccordionContentProps & {
   class?: string | undefined;
-  children?: JSX.Element;
+  children?: JSXElement;
 };
 
 const AccordionContent = <T extends ValidComponent = 'div'>(

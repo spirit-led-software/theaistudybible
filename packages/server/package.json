@@ -10,6 +10,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@clerk/types": "^4.5.1",
     "@sparticuz/chromium": "^123.0.1",
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
@@ -22,27 +23,26 @@
     "vitest": "^1.6.0"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.588.0",
+    "@aws-sdk/client-s3": "^3.588.0",
+    "@aws-sdk/client-sqs": "^3.588.0",
+    "@aws-sdk/s3-request-presigner": "^3.588.0",
+    "@clerk/clerk-sdk-node": "^5.0.9",
+    "@langchain/community": "^0.2.5",
+    "@langchain/core": "^0.2.5",
+    "@neondatabase/serverless": "^0.9.3",
+    "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/langchain": "workspace:*",
     "@upstash/redis": "^1.31.3",
-    "ai": "^3.1.25",
-    "argon2": "^0.40.3",
-    "busboy": "^1.6.0",
+    "drizzle-orm": "^0.31.1",
     "escape-string-regexp": "^5.0.0",
     "fast-xml-parser": "^4.4.0",
     "firebase-admin": "^12.1.1",
-    "lambda-stream": "^0.5.0",
+    "langchain": "^0.2.4",
     "mammoth": "^1.7.2",
-    "openai": "^4.47.3",
     "pdf-parse": "^1.1.1",
-    "pug": "^3.0.3",
-    "puppeteer-core": "^22.10.0",
     "sst": "ion",
-    "stripe": "^15.9.0",
-    "uuid": "^9.0.1",
-    "validator": "^13.12.0",
-    "web-streams-polyfill": "^4.0.0",
-    "ws": "^8.17.0",
-    "zlib": "^1.0.5"
+    "ws": "^8.17.0"
   }
 }

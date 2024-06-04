@@ -1,11 +1,12 @@
-import type { JSX } from 'solid-js';
+import { Show, type JSXElement } from 'solid-js';
 import { useAuth } from '~/hooks/clerk';
 
 export type SignedOutProps = {
-  children: JSX.Element;
+  children: JSXElement;
 };
 
 export default function SignedOut(props: SignedOutProps) {
   const { isSignedIn } = useAuth();
-  return !isSignedIn ? props.children : null;
+
+  return <Show when={!isSignedIn()}>{props.children}</Show>;
 }

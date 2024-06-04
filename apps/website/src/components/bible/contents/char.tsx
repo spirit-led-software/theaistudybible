@@ -9,7 +9,7 @@ import Contents from './contents';
 export default function CharContent({
   content,
   style,
-  className,
+  class: className,
   bible,
   book,
   chapter,
@@ -18,7 +18,7 @@ export default function CharContent({
 }: {
   content: CharContentType;
   style: string;
-  className?: string;
+  class?: string;
   bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
   book: InferResponseType<RpcClient['bibles'][':id']['books'][':bookId']['$get']>['data'];
   chapter: InferResponseType<RpcClient['bibles'][':id']['chapters'][':chapterId']['$get']>['data'];

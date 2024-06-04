@@ -1,5 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { userGeneratedImages } from '@theaistudybible/core/database/schema';
 import type { UserGeneratedImage } from '@theaistudybible/core/model/generated-image';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
@@ -8,8 +10,6 @@ import { hasRole } from '@theaistudybible/server/lib/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { PaginationSchema } from '~/lib/server/api/lib/utils/pagination';
-import type { Bindings, Variables } from '~/lib/server/api/types';
 
 export const app = new Hono<{
   Bindings: Bindings;

@@ -8,7 +8,7 @@ export default function TextContent({
   style,
   props,
   highlights,
-  className
+  class: className
 }: {
   content: TextContentType;
   style: string;
@@ -18,7 +18,7 @@ export default function TextContent({
     id: string;
     color: string;
   }[];
-  className?: string;
+  class?: string;
 }) {
   const highlightColor = highlights?.find(({ id }) => id === content.id)?.color;
   const selected = createMemo(() =>

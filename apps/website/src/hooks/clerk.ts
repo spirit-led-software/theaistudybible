@@ -10,28 +10,32 @@ export function useClerk() {
 }
 
 export function useAuth() {
-  const clerk = useClerk();
+  const clerk = useContext(ClerkContext);
+  if (!clerk) {
+    throw new Error('useAuth must be used within a ClerkProvider');
+  }
+
   return {
-    get getToken() {
+    getToken: () => {
       let getToken = clerk().session?.getToken;
       if (!getToken) {
         getToken = () => Promise.reject(new Error('Not signed in'));
       }
       return getToken;
     },
-    userId: clerk().session?.user?.id,
-    isSignedIn: !!clerk().session?.user?.id
+    userId: () => clerk().session?.user?.id,
+    isSignedIn: () => !!clerk().session
   };
 }
 
 export function useUser() {
-  const clerk = useClerk();
+  const clerk = useContext(ClerkContext);
+  if (!clerk) {
+    throw new Error('useUser must be used within a ClerkProvider');
+  }
+
   return {
-    get user() {
-      return clerk().user;
-    },
-    get isSignedIn() {
-      return !!clerk().user;
-    }
+    user: () => clerk().user,
+    isSignedIn: () => !!clerk().user
   };
 }

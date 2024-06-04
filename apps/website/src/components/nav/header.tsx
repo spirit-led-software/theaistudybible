@@ -68,7 +68,7 @@ export default function NavigationHeader() {
           <Button as={SignIn} />
         </SignedOut>
         <ClerkLoading>
-          <Spinner variant="secondary" size="sm" />
+          <Spinner variant="default" size="sm" />
         </ClerkLoading>
       </div>
     </header>

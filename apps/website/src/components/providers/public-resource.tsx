@@ -1,20 +1,21 @@
-import { JSX, createContext } from 'solid-js';
-import type { Resource } from 'sst';
+import { createContext, createMemo, type Accessor, type JSXElement } from 'solid-js';
 
 export type PublicResources = {
-  chatApi: typeof Resource.ChatAPIFunction;
+  apiUrl: string;
 };
 
-export const PublicResourceContext = createContext<PublicResources | null>(null);
+export const PublicResourceContext = createContext<Accessor<PublicResources>>();
 
 export type PublicEnvProviderProps = {
-  children: JSX.Element;
+  children: JSXElement;
   resources: PublicResources;
 };
 
 export function PublicResourceProvider(props: PublicEnvProviderProps) {
+  const resources = createMemo(() => props.resources);
+
   return (
-    <PublicResourceContext.Provider value={props.resources}>
+    <PublicResourceContext.Provider value={resources}>
       {props.children}
     </PublicResourceContext.Provider>
   );

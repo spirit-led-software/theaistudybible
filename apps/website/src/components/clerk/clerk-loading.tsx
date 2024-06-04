@@ -1,11 +1,13 @@
-import type { JSX } from 'solid-js';
+import { Show, type JSXElement } from 'solid-js';
 import { useClerk } from '~/hooks/clerk';
 
 export type ClerkLoadingProps = {
-  children: JSX.Element;
+  children: JSXElement;
 };
 
 export default function ClerkLoading(props: ClerkLoadingProps) {
   const clerk = useClerk();
-  return clerk().loaded ? null : props.children;
+  const loaded = () => clerk().loaded;
+
+  return <Show when={!loaded()}>{props.children}</Show>;
 }

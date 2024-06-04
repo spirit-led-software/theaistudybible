@@ -1,13 +1,13 @@
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
 import { indexOperations } from '@theaistudybible/core/database/schema';
 import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
 import { count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { PaginationSchema } from '~/lib/server/api/lib/utils/pagination';
-import type { Bindings, Variables } from '~/lib/server/api/types';
 
 export const app = new Hono<{
   Bindings: Bindings;

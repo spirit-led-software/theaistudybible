@@ -5,7 +5,7 @@ import DrawerPrimitive, {
   type LabelProps,
   type OverlayProps
 } from '@corvu/drawer';
-import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js';
+import type { Component, ComponentProps, JSXElement, ValidComponent } from 'solid-js';
 import { splitProps } from 'solid-js';
 import { cn } from '~/lib/utils';
 
@@ -38,7 +38,7 @@ const DrawerOverlay = <T extends ValidComponent = 'div'>(
   );
 };
 
-type DrawerContentProps = ContentProps & { class?: string; children?: JSX.Element };
+type DrawerContentProps = ContentProps & { class?: string; children?: JSXElement };
 
 const DrawerContent = <T extends ValidComponent = 'div'>(
   props: DynamicProps<T, DrawerContentProps>

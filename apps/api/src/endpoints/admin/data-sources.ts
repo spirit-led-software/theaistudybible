@@ -1,15 +1,25 @@
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
-import { dataSources, dataSourcesToSourceDocuments } from '@theaistudybible/core/database/schema';
+import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
+import type { Bindings, Variables } from '@theaistudybible/api/types';
+import {
+    dataSources,
+    dataSourcesToSourceDocuments,
+    indexOperations
+} from '@theaistudybible/core/database/schema';
 import type { DataSource } from '@theaistudybible/core/model/data-source';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { count, eq } from 'drizzle-orm';
+import { syncDataSource } from '@theaistudybible/server/lib/data-source';
+import { SQL, and, count, eq } from 'drizzle-orm';
+import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { PaginationSchema } from '~/lib/server/api/lib/utils/pagination';
-import type { Bindings, Variables } from '~/lib/server/api/types';
 
 export const listDataSourcesSchema = PaginationSchema(dataSources);
+
+export const upsertDataSourceSchema = createInsertSchema(dataSources, {
+  metadata: z.record(z.string(), z.any())
+});
 
 export const app = new Hono<{
   Bindings: Bindings;
@@ -27,6 +37,18 @@ export const app = new Hono<{
     }
     c.set('dataSource', dataSource);
     await next();
+  })
+  .post('/', zValidator('json', upsertDataSourceSchema), async (c) => {
+    const data = c.req.valid('json');
+
+    const [dataSource] = await db.insert(dataSources).values(data).returning();
+
+    return c.json(
+      {
+        data: dataSource
+      },
+      201
+    );
   })
   .get('/', zValidator('query', listDataSourcesSchema), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
@@ -58,6 +80,30 @@ export const app = new Hono<{
     return c.json(
       {
         data: c.var.dataSource
+      },
+      200
+    );
+  })
+  .patch('/:id', zValidator('json', upsertDataSourceSchema), async (c) => {
+    const data = c.req.valid('json');
+    const [dataSource] = await db
+      .update(dataSources)
+      .set(data)
+      .where(eq(dataSources.id, c.var.dataSource.id))
+      .returning();
+    return c.json(
+      {
+        data: dataSource
+      },
+      200
+    );
+  })
+  .post('/:id/sync', async (c) => {
+    const dataSource = await syncDataSource(c.var.dataSource.id, true);
+    return c.json(
+      {
+        message: 'Sync complete',
+        data: dataSource
       },
       200
     );
@@ -114,6 +160,41 @@ export const app = new Hono<{
           data: sourceDocuments,
           nextCursor: sourceDocumentIds.length < limit ? undefined : cursor + limit,
           count: sourceDocumentCount
+        },
+        200
+      );
+    }
+  )
+  .get(
+    '/:id/index-operations',
+    zValidator('query', PaginationSchema(indexOperations)),
+    async (c) => {
+      const { cursor, limit, filter, sort } = c.req.valid('query');
+
+      let where: SQL<unknown> | undefined = eq(indexOperations.dataSourceId, c.var.dataSource.id);
+      if (filter) {
+        where = and(where, filter);
+      }
+
+      const [foundIndexOperations, indexOperationsCount] = await Promise.all([
+        db.query.indexOperations.findMany({
+          where,
+          orderBy: sort,
+          offset: cursor,
+          limit
+        }),
+        db
+          .select({ count: count() })
+          .from(indexOperations)
+          .where(where)
+          .then((res) => res[0].count)
+      ]);
+
+      return c.json(
+        {
+          data: foundIndexOperations,
+          nextCursor: foundIndexOperations.length < limit ? undefined : cursor + limit,
+          count: indexOperationsCount
         },
         200
       );

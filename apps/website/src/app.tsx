@@ -7,7 +7,10 @@ import { Resource } from 'sst';
 import { getCookie } from 'vinxi/http';
 import NavigationHeader from './components/nav/header';
 import { ClerkProvider } from './components/providers/clerk';
-import { PublicResourceProvider } from './components/providers/public-resource';
+import {
+  PublicResourceProvider,
+  type PublicResources
+} from './components/providers/public-resource';
 import { Toaster } from './components/ui/toast';
 
 import './app.css';
@@ -21,8 +24,8 @@ function getServerCookies() {
 function getPublicResources() {
   'use server';
   return {
-    chatApi: Resource.ChatAPIFunction
-  };
+    apiUrl: Resource.APIRouter.url
+  } satisfies PublicResources;
 }
 
 function getClerkPublishableKey() {
@@ -39,18 +42,22 @@ export default function App() {
     }
   });
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
+  const publicResources = getPublicResources();
+  const clerkPublishableKey = getClerkPublishableKey();
 
   return (
-    <PublicResourceProvider resources={getPublicResources()}>
-      <ClerkProvider publishableKey={getClerkPublishableKey()}>
-        <QueryClientProvider client={queryClient}>
+    <PublicResourceProvider resources={publicResources}>
+      <QueryClientProvider client={queryClient}>
+        <ClerkProvider publishableKey={clerkPublishableKey}>
           <Router
             root={(props) => (
               <>
                 <ColorModeScript storageType={storageManager.type} />
                 <ColorModeProvider storageManager={storageManager}>
-                  <NavigationHeader />
-                  <Suspense>{props.children}</Suspense>
+                  <Suspense>
+                    <NavigationHeader />
+                    {props.children}
+                  </Suspense>
                   <Toaster />
                 </ColorModeProvider>
               </>
@@ -58,8 +65,8 @@ export default function App() {
           >
             <FileRoutes />
           </Router>
-        </QueryClientProvider>
-      </ClerkProvider>
+        </ClerkProvider>
+      </QueryClientProvider>
     </PublicResourceProvider>
   );
 }

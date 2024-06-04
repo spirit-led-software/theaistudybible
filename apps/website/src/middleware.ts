@@ -1,3 +1,5 @@
+'use server';
+
 import { createMiddleware } from '@solidjs/start/middleware';
 import { getCookie } from 'vinxi/http';
 import { clerk } from './lib/server/clerk';
@@ -14,7 +16,7 @@ export default createMiddleware({
             claims
           };
         } catch (e) {
-          console.warn('Failed to verify session token:', e);
+          console.debug('Failed to verify session token:', e);
         }
       }
     }
