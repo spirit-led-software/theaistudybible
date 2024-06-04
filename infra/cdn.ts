@@ -16,7 +16,7 @@ export const cdn = new sst.aws.Cdn("CDN", {
       originId: "S3Origin",
       domainName: publicBucket.nodes.bucket.bucketRegionalDomainName,
       s3OriginConfig: {
-        originAccessIdentity: publicBucketAccess.id,
+        originAccessIdentity: $interpolate`origin-access-identity/cloudfront/${publicBucketAccess.id}`,
       },
     },
   ],

@@ -20,8 +20,8 @@
       "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
       "@theaistudybible/server": ["../../packages/server/src"],
       "@theaistudybible/server/*": ["../../packages/server/src/*"],
-      "@lib/server/database": ["../../packages/server/src/lib/database"],
-      "@lib/server/cache": ["../../packages/server/src/lib/cache"],
+      "@lib/server/database": ["./src/lib/server/database"],
+      "@lib/server/cache": ["./src/lib/server/cache"],
       "~/*": ["./src/*"]
     }
   },

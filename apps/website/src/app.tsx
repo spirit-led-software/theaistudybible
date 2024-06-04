@@ -25,6 +25,11 @@ function getPublicResources() {
   };
 }
 
+function getClerkPublishableKey() {
+  'use server';
+  return process.env.PUBLIC_CLERK_PUBLISHABLE_KEY;
+}
+
 export default function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -37,7 +42,7 @@ export default function App() {
 
   return (
     <PublicResourceProvider resources={getPublicResources()}>
-      <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+      <ClerkProvider publishableKey={getClerkPublishableKey()}>
         <QueryClientProvider client={queryClient}>
           <Router
             root={(props) => (

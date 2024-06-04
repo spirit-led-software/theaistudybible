@@ -1,10 +1,7 @@
 {
   "extends": "./packages/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "verbatimModuleSyntax": false,
-    "paths": {
-      "sst/components/*": ["./.sst/platform/src/components/*"]
-    }
+    "verbatimModuleSyntax": false
   },
   "include": [
     "./sst.config.ts",

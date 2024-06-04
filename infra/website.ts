@@ -19,9 +19,6 @@ export let website = new sst.aws.SolidStart("Website", {
   environment: {
     ...COMMON_ENV_VARS,
     ...LANGSMITH_ENV_VARS,
-    ORIGIN: domainName,
-    PROTOCOL_HEADER: "x-forwarded-proto",
-    HOST_HEADER: "x-forwarded-host",
   },
   domain: domainName,
   transform: {

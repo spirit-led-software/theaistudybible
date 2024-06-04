@@ -1,4 +1,3 @@
-import { OriginAccessIdentity } from "sst/components/aws/providers/origin-access-identity";
 import { neonBranch, upstashRedis, upstashVector } from "./databases";
 
 export const indexFileBucket = new sst.aws.Bucket("IndexFileBucket");
@@ -12,10 +11,7 @@ indexFileBucket.subscribe(
   }
 );
 
-export const publicBucketAccess = new OriginAccessIdentity(
-  "PublicBucketAccess",
-  {}
-);
+export const publicBucketAccess = new aws.cloudfront.OriginAccessIdentity("PublicBucketAccess");
 export const publicBucket = new sst.aws.Bucket("PublicBucket", {
   transform: {
     policy: (policyArgs) => {
