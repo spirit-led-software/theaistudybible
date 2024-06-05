@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import Stripe from 'stripe';
 import type { Bindings, Variables } from '../../types';
 
-const stripe = new Stripe(process.env.STRIPE_API_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const app = new Hono<{
   Bindings: Bindings;

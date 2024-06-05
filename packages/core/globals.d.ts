@@ -7,10 +7,6 @@ declare global {
       SST_LIVE: 'true' | 'false';
       NODE_ENV: 'development' | 'production';
 
-      // Public environment variables
-      PUBLIC_CHAT_API_URL: string;
-      PUBLIC_WEBSITE_URL: string;
-
       // Database
       NEON_API_KEY: string;
       DATABASE_SEED: 'true' | 'false';
@@ -32,7 +28,7 @@ declare global {
       LANGCHAIN_CALLBACKS_BACKGROUND: 'true' | 'false';
 
       // Clerk
-      PUBLIC_CLERK_PUBLISHABLE_KEY: string;
+      CLERK_PUBLISHABLE_KEY: string;
       CLERK_SECRET_KEY: string;
       CLERK_WEBHOOK_SECRET: string;
 
@@ -53,8 +49,8 @@ declare global {
       ADMIN_PASSWORD: string;
 
       // Stripe
-      PUBLIC_STRIPE_PUBLIC_KEY: string;
-      STRIPE_API_KEY: string;
+      STRIPE_PUBLIC_KEY: string;
+      STRIPE_SECRET_KEY: string;
       STRIPE_WEBHOOK_SECRET: string;
     }
   }

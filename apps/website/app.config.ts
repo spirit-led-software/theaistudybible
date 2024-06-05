@@ -8,17 +8,29 @@ export default defineConfig({
   server: {
     preset: 'aws-lambda'
   },
-  vite: {
-    plugins: [
-      tsconfigPaths(),
-      cjsInterop({
-        dependencies: ['@clerk/clerk-js']
-      })
-    ],
-    server: {
-      fs: {
-        allow: [searchForWorkspaceRoot(process.cwd())]
+  vite: () => {
+    console.log('VITE_ENV', JSON.stringify(process.env, null, 2));
+    return {
+      define: {
+        ...Object.entries(process.env).reduce(
+          (acc, [key, value]) => {
+            acc[`import.meta.env.${key}`] = value ? JSON.stringify(value) : undefined;
+            return acc;
+          },
+          {} as Record<string, string | undefined>
+        )
+      },
+      plugins: [
+        tsconfigPaths(),
+        cjsInterop({
+          dependencies: ['@clerk/clerk-js']
+        })
+      ],
+      server: {
+        fs: {
+          allow: [searchForWorkspaceRoot(process.cwd())]
+        }
       }
-    }
+    };
   }
 });

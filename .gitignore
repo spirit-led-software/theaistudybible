@@ -33,3 +33,5 @@ changes.txt
 
 # GraphQL Codegen
 __generated__
+
+.turbo

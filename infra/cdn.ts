@@ -29,3 +29,10 @@ export const cdn = new sst.aws.Cdn("CDN", {
     },
   ],
 });
+sst.Link.makeLinkable(sst.aws.Cdn, function (c) {
+  return {
+    properties: {
+      url: c.url,
+    },
+  };
+});

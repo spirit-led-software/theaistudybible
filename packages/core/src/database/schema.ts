@@ -1,5 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
-import { type FunctionCall, type JSONValue, type ToolCall } from 'ai';
+import type { FunctionCall, JSONValue, ToolCall } from 'ai';
 import { relations } from 'drizzle-orm';
 import {
   boolean,

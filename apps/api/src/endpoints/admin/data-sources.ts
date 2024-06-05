@@ -3,9 +3,9 @@ import { db } from '@lib/server/database';
 import { PaginationSchema } from '@theaistudybible/api/lib/utils/pagination';
 import type { Bindings, Variables } from '@theaistudybible/api/types';
 import {
-    dataSources,
-    dataSourcesToSourceDocuments,
-    indexOperations
+  dataSources,
+  dataSourcesToSourceDocuments,
+  indexOperations
 } from '@theaistudybible/core/database/schema';
 import type { DataSource } from '@theaistudybible/core/model/data-source';
 import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';

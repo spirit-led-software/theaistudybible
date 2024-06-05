@@ -1,16 +1,14 @@
 import { createMutation, createQuery } from '@tanstack/solid-query';
+import { Bible, Book, Chapter, ChapterHighlight } from '@theaistudybible/core/model/bible';
 import type { Content } from '@theaistudybible/core/types/bible';
-import type { InferResponseType } from 'hono/client';
 import { Check, Copy, MessageSquare } from 'lucide-solid';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 import { Button } from '~/components/ui/button';
 import { showToast } from '~/components/ui/toast';
 import { useAuth } from '~/hooks/clerk';
-import { useRpcClient } from '~/hooks/rpc';
 import { bibleStore, setBibleStore } from '~/lib/stores/bible';
 import { setChatStore } from '~/lib/stores/chat';
 import { highlightColors } from '~/lib/theme/highlight';
-import type { RpcClient } from '~/types/rpc';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -21,27 +19,25 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger
 } from '../../ui/context-menu';
-import Contents from './contents';
-import './contents.css';
+import Contents from '../contents/contents';
+import '../contents/contents.css';
+import { deleteHighlights, getHighlights, updateHighlights } from './server';
 
-export default function ReaderContent({
-  bible,
-  book,
-  chapter,
-  chapterHighlights,
-  contents
-}: {
-  bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
-  book: InferResponseType<RpcClient['bibles'][':id']['books'][':bookId']['$get']>['data'];
-  chapter: InferResponseType<RpcClient['bibles'][':id']['chapters'][':chapterId']['$get']>['data'];
-  chapterHighlights?: InferResponseType<
-    RpcClient['bibles'][':id']['chapters'][':chapterId']['highlights']['$get'],
-    200
-  >['data'];
+export type ReaderContentProps = {
+  bible: Bible;
+  book: Book;
+  chapter: Chapter;
+  chapterHighlights?: ChapterHighlight[];
   contents: Content[];
-}) {
-  const { userId, getToken } = useAuth();
-  const rpcClient = useRpcClient();
+};
+
+export const getHighlightsQueryOptions = ({ chapterId }: { chapterId: string }) => ({
+  queryKey: ['highlights', { chapterId }],
+  queryFn: () => getHighlights({ chapterId })
+});
+
+export default function ReaderContent({ bible, book, chapter, contents }: ReaderContentProps) {
+  const { userId } = useAuth();
 
   const [color, setColor] = createSignal<string>('#FFD700');
   const [customColorError, setCustomColorError] = createSignal<string>('');
@@ -53,98 +49,26 @@ export default function ReaderContent({
     }
   }, [customColorError]);
 
-  const highlightsQuery = createQuery(() => ({
-    queryKey: [
-      'chapter-highlights',
-      {
-        bibleId: bible.id,
-        chapterId: chapter.id,
-        userId
-      }
-    ],
-    queryFn: async () => {
-      const res = await rpcClient.bibles[':id'].chapters[':chapterId'].highlights.$get(
-        {
-          param: {
-            id: bible.id.toString(),
-            chapterId: chapter.id.toString()
-          }
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${await getToken()}`
-          }
-        }
-      );
-      if (res.ok) {
-        return await res.json();
-      }
-      throw new Error('Failed to fetch highlights');
-    },
-    initialData: {
-      data: chapterHighlights
-    },
-    enabled: false
-  }));
+  const highlightsQuery = createQuery(() => getHighlightsQueryOptions({ chapterId: chapter.id }));
 
   const addHighlightsMutation = createMutation(() => ({
-    mutationFn: async ({ highlightedIds, color }: { highlightedIds: string[]; color?: string }) => {
-      const res = await rpcClient.bibles[':id'].chapters[':chapterId'].highlights.$post(
-        {
-          param: {
-            id: bible.id.toString(),
-            chapterId: chapter.id.toString()
-          },
-          json: {
-            ids: highlightedIds,
-            color
-          }
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${await getToken()}`
-          }
-        }
-      );
-      if (res.ok) {
-        return await res.json();
-      }
-      throw new Error('Failed to save highlights');
-    },
-    onSettled: async () => {
-      await highlightsQuery.refetch();
-    },
+    mutationFn: ({
+      color = '#FFD700',
+      highlightedIds
+    }: {
+      color?: string;
+      highlightedIds: string[];
+    }) => updateHighlights({ chapterId: chapter.id, color, highlightedIds }),
+    onSettled: () => highlightsQuery.refetch(),
     onError: () => {
       showToast({ title: 'Failed to save highlights', variant: 'error' });
     }
   }));
 
   const deleteHighlightsMutation = createMutation(() => ({
-    mutationFn: async ({ highlightedIds }: { highlightedIds: string[] }) => {
-      const res = await rpcClient.bibles[':id'].chapters[':chapterId'].highlights.$delete(
-        {
-          param: {
-            id: bible.id.toString(),
-            chapterId: chapter.id.toString()
-          },
-          json: {
-            ids: highlightedIds
-          }
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${await getToken()}`
-          }
-        }
-      );
-      if (res.ok) {
-        return await res.json();
-      }
-      throw new Error('Failed to delete highlights');
-    },
-    onSettled: async () => {
-      await highlightsQuery.refetch();
-    },
+    mutationFn: ({ highlightedIds }: { highlightedIds: string[] }) =>
+      deleteHighlights({ chapterId: chapter.id, highlightedIds }),
+    onSettled: () => highlightsQuery.refetch(),
     onError: () => {
       showToast({ title: 'Failed to delete highlights', variant: 'error' });
     }
@@ -179,9 +103,9 @@ export default function ReaderContent({
       id: string;
       color: string;
     }[];
-    if (highlightsQuery.data?.data) {
+    if (highlightsQuery.data) {
       highlights = highlights.concat(
-        highlightsQuery.data.data.map((hl) => ({
+        highlightsQuery.data.map((hl) => ({
           id: hl.id,
           color: hl.color
         }))

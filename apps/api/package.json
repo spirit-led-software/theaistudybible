@@ -2,6 +2,7 @@
   "name": "@theaistudybible/api",
   "version": "1.0.0",
   "description": "The AI Study Bible API",
+  "type": "module",
   "main": "src/index.ts",
   "scripts": {
     "test": "sst bind vitest",

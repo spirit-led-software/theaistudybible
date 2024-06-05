@@ -4,25 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "sst dev",
+    "dev": "turbo dev",
     "deploy": "sst deploy",
     "remove": "sst remove",
     "refresh": "sst refresh",
     "db:generate": "sst shell -- drizzle-kit generate",
     "db:studio": "sst shell -- drizzle-kit studio",
-    "scripts": "cd apps/scripts && sst shell -- tsx src/index.ts",
-    "format": "pnpm run -r --parallel format",
-    "lint": "pnpm run -r --parallel lint",
-    "lint:fix": "pnpm run -r --parallel lint:fix",
-    "typecheck": "tsc --noEmit",
-    "typecheck:all": "pnpm run typecheck && pnpm run -r --parallel typecheck",
-    "update": "concurrently --names \"Dependency Update,Chromium Layer Update,LLRT Layer Update\" -c \"bgYellow,bgBlue,bgRed\" \"pnpm update -rLf && pnpm sst upgrade && pnpm install -rf\" \"cd lambda-layers/chromium && ./build-layer.sh\" \"cd lambda-layers/llrt && ./build-layer.sh\" "
+    "scripts": "cd apps/scripts && sst shell -- bun run src/index.ts",
+    "format": "turbo format",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "typecheck": "turbo typecheck",
+    "update": "concurrently --names \"Dependency Update,Chromium Layer Update,LLRT Layer Update\" -c \"bgYellow,bgBlue,bgRed\" \"bun update && bunx sst upgrade && bun install -f\" \"cd lambda-layers/chromium && ./build-layer.sh\" \"cd lambda-layers/llrt && ./build-layer.sh\" "
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.138",
     "@types/node": "^20.14.1",
     "concurrently": "^8.2.2",
     "drizzle-kit": "0.22.2",
+    "turbo": "^2.0.1",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },
@@ -41,5 +41,6 @@
     "@clerk/shared",
     "@upstash/pulumi",
     "protobufjs"
-  ]
+  ],
+  "packageManager": "bun@1.1.12"
 }

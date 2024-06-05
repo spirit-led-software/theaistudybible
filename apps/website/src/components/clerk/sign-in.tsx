@@ -1,16 +1,21 @@
 import type { SignInProps } from '@clerk/clerk-js/dist/types/ui/types';
-import { onMount } from 'solid-js';
+import { createEffect, onCleanup } from 'solid-js';
 import { useClerk } from '~/hooks/clerk';
 
-export default function SignInButton(props: SignInProps) {
+export default function SignIn(props: SignInProps) {
   const clerk = useClerk();
   let divRef: HTMLDivElement | undefined;
 
-  onMount(() => {
+  createEffect(() => {
     if (divRef) {
-      clerk().mountSignIn(divRef, props);
+      clerk()?.mountSignIn(divRef, props);
+    }
+  });
+  onCleanup(() => {
+    if (divRef) {
+      clerk()?.unmountSignIn(divRef);
     }
   });
 
-  return <div id="clerk-sign-in-button" ref={divRef} />;
+  return <div id="clerk-sign-in" ref={divRef} />;
 }

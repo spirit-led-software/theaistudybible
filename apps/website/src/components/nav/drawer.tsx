@@ -32,26 +32,9 @@ export const NavigationDrawer = () => {
           <div class="block w-full max-w-none px-5">
             <A href="/bible" class="w-full">
               <div class="flex w-full place-items-center justify-between">
-                <div class="flex flex-col gap-1.5 p-4">
-                  <div class="text-lg font-semibold leading-none tracking-tight">Bible</div>
-                  <div class="text-sm text-muted-foreground">
-                    <A href="/bible">Bible</A>
-                  </div>
-                </div>
-                <div class="h-2 w-[100px] rounded-full bg-muted" />
+                <div class="text-lg font-semibold leading-none tracking-tight">Bible</div>
               </div>
             </A>
-            {/* <A href="/chat" class="w-full">
-              <div class="flex w-full place-items-center justify-between">
-                <div class="flex flex-col gap-1.5 p-4">
-                  <div class="text-lg font-semibold leading-none tracking-tight">Chat</div>
-                  <div class="text-sm text-muted-foreground">
-                    <A href="/chat">Chat</A>
-                  </div>
-                </div>
-                <div class="h-2 w-[100px] rounded-full bg-muted" />
-              </div>
-            </A> */}
           </div>
         </div>
       </DrawerContent>

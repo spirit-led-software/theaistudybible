@@ -1,6 +1,11 @@
 export const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
 
-export const COMMON_ENV_VARS: Record<string, string> = {
+export const PUBLIC_ENV_VARS = {
+  CLERK_PUBLISHABLE_KEY: process.env.CLERK_PUBLISHABLE_KEY!,
+  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
+} as const;
+
+export const SECRET_ENV_VARS = {
   // Environment
   NODE_ENV: process.env.NODE_ENV!,
 
@@ -26,15 +31,13 @@ export const COMMON_ENV_VARS: Record<string, string> = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD!,
 
   // Clerk
-  PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY!,
   CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY!,
   CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET!,
 
   // Stripe
-  PUBLIC_STRIPE_PUBLIC_KEY: process.env.PUBLIC_STRIPE_PUBLIC_KEY!,
-  STRIPE_API_KEY: process.env.STRIPE_API_KEY!,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
-};
+} as const;
 
 export const LANGSMITH_ENV_VARS: Record<string, string> = {
   LANGCHAIN_TRACING_V2: "true",
@@ -63,7 +66,8 @@ $transform(sst.aws.Function, (args) => {
   ]);
   args.environment = $output(args.environment).apply((environment) => ({
     ...environment,
-    ...COMMON_ENV_VARS,
+    ...PUBLIC_ENV_VARS,
+    ...SECRET_ENV_VARS,
     ...LANGSMITH_ENV_VARS,
   }));
   args.timeout = "60 seconds";

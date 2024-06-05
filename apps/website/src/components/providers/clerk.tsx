@@ -1,21 +1,30 @@
-import { Clerk } from '@clerk/clerk-js';
-import { createContext, onMount, type Accessor, type JSXElement } from 'solid-js';
+import type { Clerk } from '@clerk/clerk-js';
+import {
+  createContext,
+  createSignal,
+  onCleanup,
+  onMount,
+  type Accessor,
+  type JSXElement
+} from 'solid-js';
 
-export const ClerkContext = createContext<Accessor<Clerk>>();
+export const ClerkContext = createContext<Accessor<Clerk | undefined>>();
 
 export function ClerkProvider(props: { publishableKey: string; children: JSXElement }) {
-  const clerk = () => new Clerk(props.publishableKey);
+  const [clerk, setClerk] = createSignal<Clerk | undefined>();
+  let unsub: ReturnType<Clerk['addListener']>;
 
-  onMount(() => {
-    console.info('Loading Clerk');
-    clerk()
-      .load()
-      .finally(() => {
-        console.info('Clerk loaded');
-      })
-      .catch((e) => {
-        console.error('Failed to load Clerk', e);
-      });
+  onMount(async () => {
+    console.log(`Loading Clerk: ${props.publishableKey}`);
+    const { Clerk } = await import('@clerk/clerk-js');
+    const clerk = new Clerk(props.publishableKey);
+    await clerk.load();
+    setClerk(clerk);
+    unsub = clerk.addListener(() => setClerk(clerk));
+  });
+  onCleanup(() => {
+    unsub?.();
+    setClerk(undefined);
   });
 
   return <ClerkContext.Provider value={clerk}>{props.children}</ClerkContext.Provider>;

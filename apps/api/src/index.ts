@@ -18,7 +18,6 @@ export const app = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
 }>()
-  .basePath('/api')
   .use('*', logger())
   .use('*', cors())
   .use(
@@ -32,7 +31,7 @@ export const app = new Hono<{
     '*',
     async (c, next) =>
       await clerkMiddleware({
-        publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY,
+        publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
         secretKey: process.env.CLERK_SECRET_KEY
       })(c, next)
   )
@@ -67,4 +66,4 @@ export const app = new Hono<{
   .route('/admin', adminRoutes)
   .route('/webhooks', webhooks);
 
-  export const handler = handle(app);
+export const handler = handle(app);

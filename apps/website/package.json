@@ -36,7 +36,7 @@
     "@kobalte/core": "^0.13.3",
     "@paralleldrive/cuid2": "^2.2.2",
     "@solidjs/router": "^0.13.5",
-    "@solidjs/start": "^1.0.1",
+    "@solidjs/start": "^1.0.0",
     "@tanstack/solid-query": "^5.40.1",
     "@theaistudybible/api": "workspace:*",
     "@theaistudybible/core": "workspace:*",

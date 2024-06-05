@@ -11,8 +11,7 @@
       "@lib/server/database": ["../../packages/server/src/lib/database"],
       "@lib/server/cache": ["../../packages/server/src/lib/cache"],
       "@theaistudybible/api": ["./src"],
-      "@theaistudybible/api/*": ["./src/*"],
-      
+      "@theaistudybible/api/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],

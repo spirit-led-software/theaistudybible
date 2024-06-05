@@ -17,14 +17,14 @@ export function useAuth() {
 
   return {
     getToken: () => {
-      let getToken = clerk().session?.getToken;
+      let getToken = clerk()?.session?.getToken;
       if (!getToken) {
         getToken = () => Promise.reject(new Error('Not signed in'));
       }
       return getToken;
     },
-    userId: () => clerk().session?.user?.id,
-    isSignedIn: () => !!clerk().session
+    userId: () => clerk()?.session?.user?.id,
+    isSignedIn: () => !!clerk()?.session
   };
 }
 
@@ -35,7 +35,7 @@ export function useUser() {
   }
 
   return {
-    user: () => clerk().user,
-    isSignedIn: () => !!clerk().user
+    user: () => clerk()?.user,
+    isSignedIn: () => !!clerk()?.user
   };
 }

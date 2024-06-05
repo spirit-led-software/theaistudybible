@@ -1,8 +1,18 @@
 import { A } from '@solidjs/router';
+import { Bible } from '@theaistudybible/core/model/bible';
 import type { TextContent } from '@theaistudybible/core/types/bible';
-import type { InferResponseType } from 'hono/client';
 import { cn } from '~/lib/utils';
-import type { RpcClient } from '~/types/rpc';
+
+export type RefContentProps = {
+  content: TextContent;
+  style: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  attrs: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props: any;
+  class?: string;
+  bible: Bible;
+};
 
 export default function RefContent({
   content,
@@ -11,16 +21,7 @@ export default function RefContent({
   props,
   class: className,
   bible
-}: {
-  content: TextContent;
-  style: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  attrs: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: any;
-  class?: string;
-  bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
-}) {
+}: RefContentProps) {
   const { loc } = attrs;
   const [bookAbbr, chapterAndVerse] = loc.split(' ');
   const [chapter, verse] = chapterAndVerse.split(':');
@@ -35,7 +36,7 @@ export default function RefContent({
       data-verse-id={content.verseId}
       data-verse-number={content.verseNumber}
       {...props}
-      className={cn(style, `hover:underline`, className)}
+      class={cn(style, `hover:underline`, className)}
       href={link}
     >
       {content.text}

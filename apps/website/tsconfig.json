@@ -1,6 +1,7 @@
 {
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
+    "verbatimModuleSyntax": false,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "tasks": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "outputs": [
+                ".vinxi/**",
+                ".output/**"
+            ]
+        },
+        "format": {},
+        "lint": {},
+        "lint:fix": {},
+        "typecheck": {},
+        "dev": {
+            "persistent": true,
+            "cache": false
+        }
+    }
+}

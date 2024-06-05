@@ -1,4 +1,4 @@
-import { type WebhookEvent } from '@clerk/clerk-sdk-node';
+import type { WebhookEvent } from '@clerk/clerk-sdk-node';
 import { Hono } from 'hono';
 import { Stripe } from 'stripe';
 import { Webhook } from 'svix';

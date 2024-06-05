@@ -1,12 +1,23 @@
 import { A } from '@solidjs/router';
+import { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
 import type { Content } from '@theaistudybible/core/types/bible';
-import type { InferResponseType } from 'hono/client';
 import { cn } from '~/lib/utils';
-import type { RpcClient } from '~/types/rpc';
 import CharContent from './char';
 import NoteContent from './note';
 import RefContent from './ref';
 import TextContent from './text';
+
+export type ContentsProps = {
+  bible: Bible;
+  book: Book;
+  chapter: Chapter;
+  contents: Content[];
+  highlights?: {
+    id: string;
+    color: string;
+  }[];
+  class?: string;
+};
 
 export default function Contents({
   bible,
@@ -15,17 +26,7 @@ export default function Contents({
   contents,
   highlights,
   class: className
-}: {
-  bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
-  book: InferResponseType<RpcClient['bibles'][':id']['books'][':bookId']['$get']>['data'];
-  chapter: InferResponseType<RpcClient['bibles'][':id']['chapters'][':chapterId']['$get']>['data'];
-  contents: Content[];
-  highlights?: {
-    id: string;
-    color: string;
-  }[];
-  class?: string;
-}) {
+}: ContentsProps) {
   return (
     <>
       {contents.map((content) => {

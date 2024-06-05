@@ -55,7 +55,7 @@ export function cleanseValue(value: string): any {
   // Any other value is parsed as JSON
   try {
     return JSON.parse(value);
-  } catch (e) {
+  } catch {
     return value;
   }
 }

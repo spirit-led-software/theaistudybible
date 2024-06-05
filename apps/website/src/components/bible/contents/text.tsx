@@ -3,13 +3,7 @@ import { createMemo } from 'solid-js';
 import { bibleStore, setBibleStore } from '~/lib/stores/bible';
 import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/lib/utils';
 
-export default function TextContent({
-  content,
-  style,
-  props,
-  highlights,
-  class: className
-}: {
+export type TextContentProps = {
   content: TextContentType;
   style: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,7 +13,15 @@ export default function TextContent({
     color: string;
   }[];
   class?: string;
-}) {
+};
+
+export default function TextContent({
+  content,
+  style,
+  props,
+  highlights,
+  class: className
+}: TextContentProps) {
   const highlightColor = highlights?.find(({ id }) => id === content.id)?.color;
   const selected = createMemo(() =>
     bibleStore.selectedVerseInfos.some((i) => i.contentIds.includes(content.id))

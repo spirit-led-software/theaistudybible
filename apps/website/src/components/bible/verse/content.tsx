@@ -2,7 +2,7 @@ import type { InferResponseType } from 'hono/client';
 import type { RpcClient } from '~/types/rpc';
 import { H2 } from '../../ui/typography';
 import '../contents/contents.css';
-import ReaderContent from '../contents/reader-content';
+import ReaderContent from '../reader-content';
 
 export default function VerseContent({
   bible,

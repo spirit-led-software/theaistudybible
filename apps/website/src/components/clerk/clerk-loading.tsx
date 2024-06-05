@@ -7,7 +7,7 @@ export type ClerkLoadingProps = {
 
 export default function ClerkLoading(props: ClerkLoadingProps) {
   const clerk = useClerk();
-  const loaded = () => clerk().loaded;
+  const loaded = () => clerk()?.loaded ?? false;
 
   return <Show when={!loaded()}>{props.children}</Show>;
 }

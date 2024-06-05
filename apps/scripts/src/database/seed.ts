@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 
 const clerk = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY,
-  publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY
 });
 
 async function createInitialAdminUser() {

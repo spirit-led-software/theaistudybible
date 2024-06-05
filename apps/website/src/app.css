@@ -27,7 +27,7 @@
   }
 
   .dark,
-  [data-kb-theme="dark"] {
+  [data-kb-theme='dark'] {
     --background: 237 34% 0%;
     --foreground: 237 28% 99%;
     --muted: 207 8% 13%;
@@ -56,10 +56,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-screen bg-background text-foreground;
     font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+      'rlig' 1,
+      'calt' 1;
+  }
+  #app {
+    @apply min-h-screen;
   }
 }
 

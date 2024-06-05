@@ -1,5 +1,5 @@
 import type { UserButtonProps } from '@clerk/clerk-js/dist/types/ui/types';
-import { onMount } from 'solid-js';
+import { onCleanup, onMount } from 'solid-js';
 import { useClerk } from '~/hooks/clerk';
 
 export default function UserButton(props: UserButtonProps) {
@@ -8,7 +8,12 @@ export default function UserButton(props: UserButtonProps) {
 
   onMount(() => {
     if (divRef) {
-      clerk().mountUserButton(divRef, props);
+      clerk()?.mountUserButton(divRef, props);
+    }
+  });
+  onCleanup(() => {
+    if (divRef) {
+      clerk()?.unmountUserButton(divRef);
     }
   });
 

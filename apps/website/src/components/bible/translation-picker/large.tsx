@@ -1,17 +1,13 @@
 import { A } from '@solidjs/router';
-import type { InferResponseType } from 'hono/client';
+import { Bible } from '@theaistudybible/core/model/bible';
 import ISO6391 from 'iso-639-1';
 import { Search } from 'lucide-solid';
 import { createMemo, createSignal } from 'solid-js';
-import type { RpcClient } from '~/types/rpc';
-import { Button } from '../ui/button';
-import { H2, P } from '../ui/typography';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { H2, P } from '../../ui/typography';
 
-export default function TranslationPicker({
-  bibles
-}: {
-  bibles: InferResponseType<RpcClient['bibles']['$get']>['data'];
-}) {
+export default function LargeTranslationPicker({ bibles }: { bibles: Bible[] }) {
   const [search, setSearch] = createSignal('');
 
   const filteredBibles = createMemo(() =>
@@ -37,7 +33,7 @@ export default function TranslationPicker({
       <div class="w-full md:w-3/4 lg:w-1/2">
         <div class="mt-10 flex w-full place-items-center">
           <Search class="m-0 rounded-l-lg border border-r-0 p-2" size={40} />
-          <input
+          <Input
             type="search"
             placeholder="Search translations"
             value={search()}
@@ -64,19 +60,16 @@ export default function TranslationPicker({
                   )
                   .map((bible) => (
                     <Button
-                      class="flex h-fit w-full items-start justify-start text-wrap"
-                      as={() => (
-                        <A
-                          href={`/bible/${bible.abbreviation}`}
-                          class="flex flex-col place-items-start justify-start text-start"
-                        >
-                          <p class="text-lg font-bold">
-                            {bible.abbreviationLocal} - {bible.nameLocal}
-                          </p>
-                          <p class="text-xs text-accent-foreground">{bible.description}</p>
-                        </A>
-                      )}
-                    />
+                      class="flex h-fit w-full flex-col items-start justify-start text-wrap text-start"
+                      as={A}
+                      target="_self" // Prevent soft navigation
+                      href={`/bible/${bible.abbreviation}`}
+                    >
+                      <p class="text-lg font-bold">
+                        {bible.abbreviationLocal} - {bible.nameLocal}
+                      </p>
+                      <p class="text-xs text-accent-foreground">{bible.description}</p>
+                    </Button>
                   ))}
               </div>
             </div>

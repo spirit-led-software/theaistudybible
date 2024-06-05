@@ -1,10 +1,20 @@
+import { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
 import type { NoteContent as NoteContentType } from '@theaistudybible/core/types/bible';
-import type { InferResponseType } from 'hono/client';
 import { NotepadTextIcon } from 'lucide-solid';
 import { Button } from '~/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import type { RpcClient } from '~/types/rpc';
 import Contents from './contents';
+
+export type NoteContentProps = {
+  bible: Bible;
+  book: Book;
+  chapter: Chapter;
+  content: NoteContentType;
+  highlights?: {
+    id: string;
+    color: string;
+  }[];
+};
 
 export default function NoteContent({
   bible,
@@ -12,16 +22,7 @@ export default function NoteContent({
   chapter,
   content,
   highlights
-}: {
-  bible: InferResponseType<RpcClient['bibles'][':id']['$get']>['data'];
-  book: InferResponseType<RpcClient['bibles'][':id']['books'][':bookId']['$get']>['data'];
-  chapter: InferResponseType<RpcClient['bibles'][':id']['chapters'][':chapterId']['$get']>['data'];
-  content: NoteContentType;
-  highlights?: {
-    id: string;
-    color: string;
-  }[];
-}) {
+}: NoteContentProps) {
   return (
     <Popover placement="top">
       <PopoverTrigger class="mx-1 px-2 py-0" as={Button} variant="ghost" size="sm">
