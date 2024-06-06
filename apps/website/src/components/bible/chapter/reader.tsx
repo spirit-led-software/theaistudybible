@@ -2,7 +2,8 @@ import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
 import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '../../ui/button';
+import { cn } from '~/lib/utils';
+import { buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import ChatButton from '../chat/button';
 import ChatWindow from '../chat/window';
@@ -15,17 +16,13 @@ export type ChapterReaderProps = {
   chapterNum: number;
 };
 
-export const chapterReaderQueryOptions = ({
-  bibleAbbr,
-  bookAbbr,
-  chapterNum
-}: ChapterReaderProps) => ({
-  queryKey: ['chapter-reader-window', { bibleAbbr, bookAbbr, chapterNum }],
-  queryFn: () => getChapterReaderData({ bibleAbbr, bookAbbr, chapterNum })
+export const chapterReaderQueryOptions = (props: ChapterReaderProps) => ({
+  queryKey: ['chapter-reader-window', props],
+  queryFn: () => getChapterReaderData(props)
 });
 
-export default function ChapterReader({ bibleAbbr, bookAbbr, chapterNum }: ChapterReaderProps) {
-  const query = createQuery(() => chapterReaderQueryOptions({ bibleAbbr, bookAbbr, chapterNum }));
+export default function ChapterReader(props: ChapterReaderProps) {
+  const query = createQuery(() => chapterReaderQueryOptions(props));
 
   return (
     <QueryBoundary query={query}>
@@ -40,19 +37,12 @@ export default function ChapterReader({ bibleAbbr, bookAbbr, chapterNum }: Chapt
             <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
               <Tooltip placement="right">
                 <TooltipTrigger
-                  as={() => (
-                    <Button
-                      class="my-auto h-20 w-10 rounded-r-2xl"
-                      as={() => (
-                        <A
-                          href={`/bible/${bible.abbreviation}/${chapter.previous?.abbreviation.split('.')[0]}/${chapter.previous?.number}`}
-                        >
-                          <ChevronLeft size={20} class="shrink-0" />
-                        </A>
-                      )}
-                    />
-                  )}
-                />
+                  as={A}
+                  class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-r-2xl')}
+                  href={`/bible/${bible.abbreviation}/${chapter.previous?.abbreviation.split('.')[0]}/${chapter.previous?.number}`}
+                >
+                  <ChevronLeft size={20} class="shrink-0" />
+                </TooltipTrigger>
                 <TooltipContent>
                   <p>{chapter.previous.name}</p>
                 </TooltipContent>
@@ -63,19 +53,12 @@ export default function ChapterReader({ bibleAbbr, bookAbbr, chapterNum }: Chapt
             <div class="fixed bottom-1/3 right-0 top-1/3 flex flex-col place-items-center justify-center">
               <Tooltip placement="left">
                 <TooltipTrigger
-                  as={() => (
-                    <Button
-                      class="my-auto h-20 w-10 rounded-l-2xl"
-                      as={() => (
-                        <A
-                          href={`/bible/${bible.abbreviation}/${chapter.next?.abbreviation.split('.')[0]}/${chapter.next?.number}`}
-                        >
-                          <ChevronRight size={20} class="shrink-0" />
-                        </A>
-                      )}
-                    />
-                  )}
-                />
+                  as={A}
+                  class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-l-2xl')}
+                  href={`/bible/${bible.abbreviation}/${chapter.next?.abbreviation.split('.')[0]}/${chapter.next?.number}`}
+                >
+                  <ChevronRight size={20} class="shrink-0" />
+                </TooltipTrigger>
                 <TooltipContent>
                   <p>{chapter.next.name}</p>
                 </TooltipContent>

@@ -39,14 +39,6 @@ export const SECRET_ENV_VARS = {
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
 } as const;
 
-export const LANGSMITH_ENV_VARS: Record<string, string> = {
-  LANGCHAIN_TRACING_V2: "true",
-  LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com",
-  LANGCHAIN_API_KEY: process.env.LANGCHAIN_API_KEY!,
-  LANGCHAIN_PROJECT: `${$app.name}-${$app.stage}`,
-  LANGCHAIN_CALLBACKS_BACKGROUND: "true",
-};
-
 export const hostedZone = await aws.route53.getZone({
   name: "theaistudybible.com",
 });
@@ -68,10 +60,9 @@ $transform(sst.aws.Function, (args) => {
     ...environment,
     ...PUBLIC_ENV_VARS,
     ...SECRET_ENV_VARS,
-    ...LANGSMITH_ENV_VARS,
   }));
-  args.timeout = "60 seconds";
-  args.runtime = "nodejs20.x";
+  args.timeout = args.timeout ?? "60 seconds";
+  args.runtime = args.runtime ?? "nodejs20.x";
   args.nodejs = $output(args.nodejs).apply((nodejs) => ({
     ...nodejs,
     esbuild: {

@@ -9,11 +9,16 @@ export type ChapterContentProps = {
   chapter: Chapter;
 };
 
-export default function ChapterContent({ bible, book, chapter }: ChapterContentProps) {
+export default function ChapterContent(props: ChapterContentProps) {
   return (
     <>
-      <H2 class="text-center">{chapter.name}</H2>
-      <ReaderContent bible={bible} book={book} chapter={chapter} contents={chapter.content} />
+      <H2 class="text-center">{props.chapter.name}</H2>
+      <ReaderContent
+        bible={props.bible}
+        book={props.book}
+        chapter={props.chapter}
+        contents={props.chapter.content}
+      />
     </>
   );
 }

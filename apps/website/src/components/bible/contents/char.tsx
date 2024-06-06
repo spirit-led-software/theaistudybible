@@ -1,8 +1,10 @@
 import { A } from '@solidjs/router';
 import { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
 import type { CharContent as CharContentType } from '@theaistudybible/core/types/bible';
+import type { Accessor } from 'solid-js';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
+import type { HighlightInfo } from '~/types/bible';
 import Contents from './contents';
 
 export type CharContentProps = {
@@ -12,45 +14,32 @@ export type CharContentProps = {
   bible: Bible;
   book: Book;
   chapter: Chapter;
-  highlights?: {
-    id: string;
-    color: string;
-  }[];
+  highlights?: Accessor<HighlightInfo[]>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
 };
 
-export default function CharContent({
-  content,
-  style,
-  class: className,
-  bible,
-  book,
-  chapter,
-  highlights,
-  props
-}: CharContentProps) {
+export default function CharContent(props: CharContentProps) {
   const CharContent = (
     <span
-      key={content.id}
-      id={content.id}
-      data-type={content.type}
-      data-verse-id={content.verseId}
-      data-verse-number={content.verseNumber}
+      id={props.content.id}
+      data-type={props.content.type}
+      data-verse-id={props.content.verseId}
+      data-verse-number={props.content.verseNumber}
       {...props}
-      class={cn(style, className)}
+      class={cn(props.style, props.class)}
     >
       <Contents
-        bible={bible}
-        book={book}
-        chapter={chapter}
-        contents={content.contents}
-        highlights={highlights}
+        bible={props.bible}
+        book={props.book}
+        chapter={props.chapter}
+        contents={props.content.contents}
+        highlights={props.highlights}
       />
     </span>
   );
 
-  const strongsNumber = content.attrs?.strong;
+  const strongsNumber = props.content.attrs?.strong;
   if (strongsNumber) {
     const language = strongsNumber.startsWith('H') ? 'hebrew' : 'greek';
     const number = strongsNumber.slice(1);

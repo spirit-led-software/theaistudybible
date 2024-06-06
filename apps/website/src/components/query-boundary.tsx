@@ -40,9 +40,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
           </div>
         )}
       >
-        <Switch
-          fallback={<div class="flex h-full w-full items-center justify-center">Loading...</div>}
-        >
+        <Switch>
           <Match when={!props.query.isFetching && !props.query.data}>
             <div class="flex h-full w-full items-center justify-center">Data not found</div>
           </Match>

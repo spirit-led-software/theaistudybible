@@ -1,11 +1,6 @@
 import { apiRouter } from "./apis";
 import { indexFileBucket, publicBucket } from "./buckets";
-import {
-  LANGSMITH_ENV_VARS,
-  PUBLIC_ENV_VARS,
-  SECRET_ENV_VARS,
-  domainName,
-} from "./constants";
+import { PUBLIC_ENV_VARS, SECRET_ENV_VARS, domainName } from "./constants";
 import { neonBranch, upstashRedis, upstashVector } from "./databases";
 import { chromiumLayer } from "./layers";
 import { webpageScraperQueue } from "./queues";
@@ -23,7 +18,6 @@ export let website = new sst.aws.SolidStart("Website", {
   ],
   environment: {
     ...SECRET_ENV_VARS,
-    ...LANGSMITH_ENV_VARS,
     ...Object.entries(PUBLIC_ENV_VARS).reduce(
       (acc, [key, value]) => {
         acc[`VITE_${key}`] = value;

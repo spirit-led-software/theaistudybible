@@ -52,77 +52,56 @@ async function createInitialRoles() {
   console.log('Creating initial roles');
 
   console.log('Creating admin role');
-  let adminRole = await db.query.roles.findFirst({
-    where: (roles, { eq }) => eq(roles.id, 'admin')
-  });
-  if (!adminRole) {
-    [adminRole] = await db
-      .insert(roles)
-      .values({
-        id: 'admin',
+  await db
+    .insert(roles)
+    .values({
+      id: 'admin',
+      name: 'Administrators',
+      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
+    })
+    .onConflictDoUpdate({
+      target: [roles.id],
+      set: {
         name: 'Administrators',
         permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
-      })
-      .returning();
-    console.log('Admin role created');
-  } else {
-    console.log(`Admin role already exists, updating permissions. ${JSON.stringify(adminRole)}`);
-    [adminRole] = await db
-      .update(roles)
-      .set({
-        permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
-      })
-      .where(eq(roles.id, 'admin'))
-      .returning();
-  }
+      }
+    });
+  console.log('Admin role created');
 
   console.log('Creating moderator role');
-  let moderatorRole = await db.query.roles.findFirst({
-    where: (roles, { eq }) => eq(roles.id, 'moderator')
-  });
-  if (!moderatorRole) {
-    [moderatorRole] = await db
-      .insert(roles)
-      .values({
-        id: 'moderator',
-        name: 'Moderators'
-      })
-      .returning();
-    console.log('Moderator role created');
-  } else {
-    [moderatorRole] = await db
-      .update(roles)
-      .set({
+  await db
+    .insert(roles)
+    .values({
+      id: 'moderator',
+      name: 'Moderators',
+      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
+    })
+    .onConflictDoUpdate({
+      target: [roles.id],
+      set: {
+        name: 'Moderators',
         permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`]
-      })
-      .where(eq(roles.id, 'moderator'))
-      .returning();
-    console.log('Moderator role already exists');
-  }
+      }
+    });
+  console.log('Moderator role created');
 
   console.log('Creating default user role');
-  let userRole = await db.query.roles.findFirst({
-    where: (roles, { eq }) => eq(roles.id, 'user')
-  });
-  if (!userRole) {
-    [userRole] = await db
-      .insert(roles)
-      .values({
-        id: 'user',
-        name: 'Users'
-      })
-      .returning();
-    console.log('Default user role created');
-  } else {
-    [userRole] = await db
-      .update(roles)
-      .set({
+  await db
+    .insert(roles)
+    .values({
+      id: 'user',
+      name: 'Users',
+      permissions: ['query:5', 'image:1']
+    })
+    .onConflictDoUpdate({
+      target: [roles.id],
+      set: {
+        name: 'Users',
         permissions: ['query:5', 'image:1']
-      })
-      .where(eq(roles.id, 'user'))
-      .returning();
-    console.log('Default user role already exists');
-  }
+      }
+    })
+    .returning();
+  console.log('Default user role created');
 
   console.log('Initial roles created');
 }

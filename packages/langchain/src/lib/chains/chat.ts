@@ -3,7 +3,7 @@ import type { CallbackManager } from '@langchain/core/callbacks/manager';
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { BasePromptTemplate } from '@langchain/core/prompts';
-import { Runnable, RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
+import { RunnableBranch, RunnableSequence } from '@langchain/core/runnables';
 import type { Message } from '@theaistudybible/core/model/chat/message';
 import {
   allModels,
@@ -55,18 +55,9 @@ const routerChainOutputParser = RAIOutputFixingParser.fromParser(
 export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;
   claims: JwtPayload;
-  messages: Message[];
-  callbacks: CallbackManager;
-}): Promise<
-  Runnable<
-    { query: string },
-    {
-      text: string;
-      sourceDocuments?: UpstashVectorStoreDocument[];
-      searchQueries?: string[];
-    }
-  >
-> => {
+  messages: Pick<Message, 'id' | 'role' | 'content' | 'createdAt'>[];
+  callbacks?: CallbackManager;
+}) => {
   const { modelId, claims, callbacks } = options;
 
   const { contextSize } = allModels[modelId];
@@ -87,20 +78,18 @@ export const getRAIChatChain = async (options: {
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
-    {
-      text: identityChainPrompt
-        .pipe(
-          getLanguageModel({
-            modelId,
-            stream: true,
-            stopSequences: identityChainStopSequences
-          })
-        )
-        .pipe(new StringOutputParser())
-        .withConfig({
-          callbacks
+    identityChainPrompt
+      .pipe(
+        getLanguageModel({
+          modelId,
+          stream: true,
+          stopSequences: identityChainStopSequences
         })
-    }
+      )
+      .pipe(new StringOutputParser())
+      .withConfig({
+        callbacks
+      })
   ]);
 
   const { prompt: historyChainPrompt, stopSequences: historyChainStopSequences } =
@@ -109,20 +98,18 @@ export const getRAIChatChain = async (options: {
     {
       query: (input) => input.routingInstructions.next_inputs.query
     },
-    {
-      text: historyChainPrompt
-        .pipe(
-          getLanguageModel({
-            modelId,
-            stream: true,
-            stopSequences: historyChainStopSequences
-          })
-        )
-        .pipe(new StringOutputParser())
-        .withConfig({
-          callbacks
+    historyChainPrompt
+      .pipe(
+        getLanguageModel({
+          modelId,
+          stream: true,
+          stopSequences: historyChainStopSequences
         })
-    }
+      )
+      .pipe(new StringOutputParser())
+      .withConfig({
+        callbacks
+      })
   ]);
 
   const { prompt: faithQaChainPrompt, stopSequences: faithQaChainStopSequences } =
@@ -178,7 +165,7 @@ export async function getDocumentQaChain(options: {
   contextSize: number;
   prompt: BasePromptTemplate;
   stopSequences?: string[];
-  callbacks: CallbackManager;
+  callbacks?: CallbackManager;
   filter?: string;
   history: [MessageType, MessageContent][];
 }) {
@@ -261,21 +248,17 @@ export async function getDocumentQaChain(options: {
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       query: (previousStepResult) => previousStepResult.query
     },
-    {
-      text: prompt
-        .pipe(
-          getLanguageModel({
-            modelId,
-            stream: true,
-            stopSequences
-          })
-        )
-        .pipe(new StringOutputParser())
-        .withConfig({
-          callbacks
-        }),
-      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
-      searchQueries: (previousStepResult) => previousStepResult.searchQueries
-    }
+    prompt
+      .pipe(
+        getLanguageModel({
+          modelId,
+          stream: true,
+          stopSequences
+        })
+      )
+      .pipe(new StringOutputParser())
+      .withConfig({
+        callbacks
+      })
   ]);
 }

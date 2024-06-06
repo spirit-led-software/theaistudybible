@@ -4,6 +4,7 @@ import type { Content } from '@theaistudybible/core/types/bible';
 import { Check, Copy, MessageSquare } from 'lucide-solid';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
 import { showToast } from '~/components/ui/toast';
 import { useAuth } from '~/hooks/clerk';
 import { bibleStore, setBibleStore } from '~/lib/stores/bible';
@@ -13,6 +14,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuPortal,
   ContextMenuSeparator,
   ContextMenuSub,
   ContextMenuSubContent,
@@ -39,15 +41,16 @@ export const getHighlightsQueryOptions = ({ chapterId }: { chapterId: string }) 
 export default function ReaderContent({ bible, book, chapter, contents }: ReaderContentProps) {
   const { userId } = useAuth();
 
-  const [color, setColor] = createSignal<string>('#FFD700');
-  const [customColorError, setCustomColorError] = createSignal<string>('');
+  const [color, setColor] = createSignal<string>();
+  const [customColorError, setCustomColorError] = createSignal<string>();
   createEffect(() => {
-    if (customColorError()) {
+    const err = customColorError();
+    if (err) {
       setTimeout(() => {
         setCustomColorError('');
       }, 5000);
     }
-  }, [customColorError]);
+  });
 
   const highlightsQuery = createQuery(() => getHighlightsQueryOptions({ chapterId: chapter.id }));
 
@@ -79,7 +82,7 @@ export default function ReaderContent({ bible, book, chapter, contents }: Reader
   );
 
   const selectedText = createMemo(() =>
-    bibleStore.selectedVerseInfos
+    [...bibleStore.selectedVerseInfos]
       .sort((a, b) => a.number - b.number)
       .flatMap((info, index, array) => {
         let text = '';
@@ -125,7 +128,6 @@ export default function ReaderContent({ bible, book, chapter, contents }: Reader
         ({ id }) => !(deleteHighlightsMutation.variables?.highlightedIds.includes(id) ?? false)
       );
     }
-
     return highlights;
   });
 
@@ -138,131 +140,138 @@ export default function ReaderContent({ bible, book, chapter, contents }: Reader
             book={book}
             chapter={chapter}
             contents={contents}
-            highlights={highlights()}
+            highlights={highlights}
           />
         </div>
       </ContextMenuTrigger>
-      <ContextMenuContent class="w-64">
-        <ContextMenuItem
-          disabled={!selectedText()}
-          onSelect={() => {
-            navigator.clipboard.writeText(selectedText());
-            showToast({
-              title: (
-                <div class="flex w-full place-items-center">
-                  <Check size={16} />
-                  <span class="ml-2">Copied to clipboard</span>
-                </div>
-              )
-            });
-          }}
-        >
-          <div class="flex w-full place-items-center justify-between">
-            Copy
-            <Copy size={16} />
-          </div>
-        </ContextMenuItem>
-        <ContextMenuItem
-          disabled={!selectedText()}
-          onSelect={() => {
-            setBibleStore('chatOpen', true);
-            setChatStore(
-              'query',
-              `Please explain the following passage from ${book.shortName} ${chapter.number}:\n${selectedText()}`
-            );
-          }}
-        >
-          <div class="flex w-full place-items-center justify-between">
-            Explain
-            <MessageSquare size={16} />
-          </div>
-        </ContextMenuItem>
-        {highlights().length > 0 &&
-        selectedIds().every((id) => highlights().some((hl) => hl.id === id)) ? (
+      <ContextMenuPortal>
+        <ContextMenuContent class="w-64">
           <ContextMenuItem
-            disabled={
-              !userId ||
-              !selectedIds.length ||
-              addHighlightsMutation.isPending ||
-              deleteHighlightsMutation.isPending
-            }
-            onSelect={() =>
-              deleteHighlightsMutation.mutate({
-                highlightedIds: selectedIds()
-              })
-            }
+            disabled={!selectedText()}
+            onSelect={() => {
+              navigator.clipboard.writeText(selectedText());
+              showToast({
+                title: (
+                  <div class="flex w-full place-items-center">
+                    <Check size={16} />
+                    <span class="ml-2">Copied to clipboard</span>
+                  </div>
+                )
+              });
+            }}
           >
-            <div class="flex w-full place-items-center justify-between">Remove Highlight</div>
+            <div class="flex w-full place-items-center justify-between">
+              Copy
+              <Copy size={16} />
+            </div>
           </ContextMenuItem>
-        ) : (
-          <ContextMenuSub>
-            <ContextMenuSubTrigger
+          <ContextMenuItem
+            disabled={!selectedText()}
+            onSelect={() => {
+              setBibleStore('chatOpen', true);
+              setChatStore(
+                'query',
+                `Please explain the following passage from ${book.shortName} ${chapter.number}:\n${selectedText()}`
+              );
+            }}
+          >
+            <div class="flex w-full place-items-center justify-between">
+              Explain
+              <MessageSquare size={16} />
+            </div>
+          </ContextMenuItem>
+          {highlights().length > 0 &&
+          selectedIds().every((id) => highlights().some((hl) => hl.id === id)) ? (
+            <ContextMenuItem
               disabled={
-                !userId ||
-                !selectedIds.length ||
+                !userId() ||
+                !selectedIds().length ||
                 addHighlightsMutation.isPending ||
                 deleteHighlightsMutation.isPending
               }
+              onSelect={() =>
+                deleteHighlightsMutation.mutate({
+                  highlightedIds: selectedIds()
+                })
+              }
             >
-              Highlight
-            </ContextMenuSubTrigger>
-            <ContextMenuSubContent class="w-52 overflow-visible">
-              {highlightColors.map((color) => (
-                <ContextMenuItem
-                  onSelect={() =>
-                    addHighlightsMutation.mutate({
-                      highlightedIds: selectedIds(),
-                      color: color.hex
-                    })
-                  }
-                >
-                  <div class="flex w-full place-items-center justify-between">
-                    {color.name}
-                    <div
-                      class={`h-4 w-4 rounded-full`}
-                      style={{
-                        'background-color': color.hex
-                      }}
-                    />
-                  </div>
-                </ContextMenuItem>
-              ))}
-              <ContextMenuSeparator />
-              {/* <HexColorPicker color={color} onChange={setColor} class="w-full" /> */}
-              <input
-                placeholder={'Hex color'}
-                onChange={(e) => {
-                  setCustomColorError('');
-
-                  const value = e.target.value;
-                  if (/^#[0-9A-F]{6}$/i.test(value)) {
-                    setColor(value);
-                  } else {
-                    setCustomColorError('Invalid hex color');
-                  }
-                }}
-                class="mt-2 w-full"
-              />
-              <div
-                class={`h-5 text-xs text-red-500 ${customColorError() ? 'opacity-100' : 'opacity-0'}`}
-              >
-                {customColorError()}
-              </div>
-              <Button
-                class="w-full"
-                onClick={() =>
-                  addHighlightsMutation.mutate({
-                    highlightedIds: selectedIds(),
-                    color: color()
-                  })
+              <div class="flex w-full place-items-center justify-between">Remove Highlight</div>
+            </ContextMenuItem>
+          ) : (
+            <ContextMenuSub overlap>
+              <ContextMenuSubTrigger
+                disabled={
+                  !userId() ||
+                  !selectedIds().length ||
+                  addHighlightsMutation.isPending ||
+                  deleteHighlightsMutation.isPending
                 }
+                as={Button}
+                variant="ghost"
+                class="w-full"
               >
-                Save
-              </Button>
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        )}
-      </ContextMenuContent>
+                Highlight
+              </ContextMenuSubTrigger>
+              <ContextMenuPortal>
+                <ContextMenuSubContent class="w-52 overflow-visible">
+                  {highlightColors.map((color) => (
+                    <ContextMenuItem
+                      onSelect={() =>
+                        addHighlightsMutation.mutate({
+                          highlightedIds: selectedIds(),
+                          color: color.hex
+                        })
+                      }
+                    >
+                      <div class="flex w-full place-items-center justify-between">
+                        {color.name}
+                        <div
+                          class={`h-4 w-4 rounded-full`}
+                          style={{
+                            'background-color': color.hex
+                          }}
+                        />
+                      </div>
+                    </ContextMenuItem>
+                  ))}
+                  <ContextMenuSeparator />
+                  {/* <HexColorPicker color={color} onChange={setColor} class="w-full" /> */}
+                  <Input
+                    placeholder={'Hex color'}
+                    onKeyUp={(e) => {
+                      const value = e.currentTarget.value;
+                      if (/^#[0-9A-F]{6}$/i.test(value)) {
+                        setCustomColorError('');
+                        setColor(value);
+                      } else {
+                        setCustomColorError('Invalid hex color');
+                      }
+                    }}
+                    class="mt-2 w-full"
+                  />
+                  <div
+                    class={`h-5 text-xs text-red-500 ${customColorError() ? 'opacity-100' : 'opacity-0'}`}
+                  >
+                    {customColorError()}
+                  </div>
+                  <Button
+                    class="w-full"
+                    disabled={!color() || !!customColorError()}
+                    onClick={() =>
+                      addHighlightsMutation.mutate({
+                        highlightedIds: selectedIds(),
+                        color: color()
+                      })
+                    }
+                  >
+                    Save
+                  </Button>
+                </ContextMenuSubContent>
+              </ContextMenuPortal>
+            </ContextMenuSub>
+          )}
+        </ContextMenuContent>
+      </ContextMenuPortal>
     </ContextMenu>
   );
 }

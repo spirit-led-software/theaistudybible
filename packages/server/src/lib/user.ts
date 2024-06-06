@@ -43,5 +43,5 @@ export async function getMaxQueryCountForUser(sessionClaims: JwtPayload) {
       role.permissions.find((perm) => perm.startsWith('query:'))?.split(':')[1] ?? '0'
     );
     return Math.max(acc, queryCount);
-  }, 0);
+  }, 5);
 }

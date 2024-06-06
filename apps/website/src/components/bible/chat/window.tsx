@@ -3,11 +3,10 @@ import { useChat } from 'ai/solid';
 import { ChevronDown, Send } from 'lucide-solid';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 import Icon from '~/components/branding/icon';
-import { SignIn } from '~/components/clerk';
+import { SignInButton } from '~/components/clerk';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Separator } from '~/components/ui/separator';
 import { useAuth, useUser } from '~/hooks/clerk';
-import { usePublicResources } from '~/hooks/public-resource';
 import { bibleStore, setBibleStore } from '~/lib/stores/bible';
 import { chatStore, setChatStore } from '~/lib/stores/chat';
 import { Button } from '../../ui/button';
@@ -17,12 +16,11 @@ import { H3, P } from '../../ui/typography';
 export default function ChatWindow() {
   const { user, isSignedIn } = useUser();
   const { getToken } = useAuth();
-  const resources = usePublicResources();
   const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
 
   const { input, setInput, handleSubmit, messages, setMessages, error, isLoading, append } =
     useChat({
-      api: `${resources().apiUrl}/chat`,
+      api: `${import.meta.env.VITE_API_URL}/chat`,
       id: chatStore.chatId,
       generateId: createId,
       sendExtraMessageFields: true,
@@ -35,6 +33,9 @@ export default function ChatWindow() {
         if (aiResponseId) {
           setLastAiResponseId(aiResponseId);
         }
+      },
+      onError: (err) => {
+        console.error(err);
       }
     });
 
@@ -173,7 +174,7 @@ export default function ChatWindow() {
               variant={'link'}
               class="px-0 capitalize text-accent-foreground"
               disabled={isLoading()}
-              as={SignIn}
+              as={SignInButton}
             />
             to chat
           </P>

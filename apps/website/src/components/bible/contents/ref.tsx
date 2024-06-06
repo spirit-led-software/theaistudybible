@@ -14,32 +14,25 @@ export type RefContentProps = {
   bible: Bible;
 };
 
-export default function RefContent({
-  content,
-  style,
-  attrs,
-  props,
-  class: className,
-  bible
-}: RefContentProps) {
-  const { loc } = attrs;
+export default function RefContent(props: RefContentProps) {
+  const { loc } = props.attrs;
   const [bookAbbr, chapterAndVerse] = loc.split(' ');
   const [chapter, verse] = chapterAndVerse.split(':');
-  let link = `/bible/${bible.abbreviation}/${bookAbbr}/${chapter}`;
+  let link = `/bible/${props.bible.abbreviation}/${bookAbbr}/${chapter}`;
   if (verse) {
     link += `/${verse}`;
   }
   return (
     <A
-      id={content.id}
-      data-type={content.type}
-      data-verse-id={content.verseId}
-      data-verse-number={content.verseNumber}
+      id={props.content.id}
+      data-type={props.content.type}
+      data-verse-id={props.content.verseId}
+      data-verse-number={props.content.verseNumber}
       {...props}
-      class={cn(style, `hover:underline`, className)}
+      class={cn(props.style, `hover:underline`, props.class)}
       href={link}
     >
-      {content.text}
+      {props.content.text}
     </A>
   );
 }

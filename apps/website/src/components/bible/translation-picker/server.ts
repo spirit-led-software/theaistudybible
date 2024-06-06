@@ -1,7 +1,7 @@
 import { db } from '@lib/server/database';
 import { SmallTranslationPickerProps } from './small';
 
-export async function getSmallData({
+export async function getSmallPickerData({
   bibleAbbr,
   bookAbbr,
   chapterNum

@@ -1,38 +1,32 @@
 import type { TextContent as TextContentType } from '@theaistudybible/core/types/bible';
-import { createMemo } from 'solid-js';
+import { createMemo, type Accessor } from 'solid-js';
 import { bibleStore, setBibleStore } from '~/lib/stores/bible';
 import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/lib/utils';
+import type { HighlightInfo } from '~/types/bible';
 
 export type TextContentProps = {
   content: TextContentType;
   style: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
-  highlights?: {
-    id: string;
-    color: string;
-  }[];
+  highlights?: Accessor<HighlightInfo[]>;
   class?: string;
 };
 
-export default function TextContent({
-  content,
-  style,
-  props,
-  highlights,
-  class: className
-}: TextContentProps) {
-  const highlightColor = highlights?.find(({ id }) => id === content.id)?.color;
+export default function TextContent(props: TextContentProps) {
+  const highlightColor = createMemo(
+    () => props.highlights?.().find(({ id }) => id === props.content.id)?.color
+  );
   const selected = createMemo(() =>
-    bibleStore.selectedVerseInfos.some((i) => i.contentIds.includes(content.id))
+    bibleStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))
   );
 
   const handleClick = () => {
     setBibleStore('selectedVerseInfos', (prev) => {
-      if (prev.find(({ id }) => id === content.verseId)) {
-        return prev.filter(({ id }) => id !== content.verseId);
+      if (prev.find(({ id }) => id === props.content.verseId)) {
+        return prev.filter(({ id }) => id !== props.content.verseId);
       }
-      const contentIds = gatherElementIdsByVerseId(content.verseId);
+      const contentIds = gatherElementIdsByVerseId(props.content.verseId);
       const text = contentIds
         .map((id) => document.getElementById(id)?.textContent)
         .join('')
@@ -40,8 +34,8 @@ export default function TextContent({
       return [
         ...prev,
         {
-          id: content.verseId,
-          number: content.verseNumber,
+          id: props.content.verseId,
+          number: props.content.verseNumber,
           contentIds,
           text
         }
@@ -49,33 +43,36 @@ export default function TextContent({
     });
   };
 
-  let backgroundColor = 'transparent';
-  if (highlightColor) {
-    const rgb = hexToRgb(highlightColor);
-    if (rgb) {
-      backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.60)`;
+  const bgColor = createMemo(() => {
+    const hlColor = highlightColor();
+    if (hlColor) {
+      const rgb = hexToRgb(hlColor);
+      if (rgb) {
+        return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.50)`;
+      }
     }
-  }
+    return 'transparent';
+  });
 
   return (
     <span
-      id={content.id}
-      data-type={content.type}
-      data-verse-id={content.verseId}
-      data-verse-number={content.verseNumber}
+      id={props.content.id}
+      data-type={props.content.type}
+      data-verse-id={props.content.verseId}
+      data-verse-number={props.content.verseNumber}
       {...props}
-      className={cn(
-        style,
+      class={cn(
+        props.style,
         `cursor-pointer ${selected() ? 'underline underline-offset-4' : ''}`,
-        className
+        props.class
       )}
       style={{
-        backgroundColor,
+        'background-color': bgColor(),
         transition: 'all 1s ease'
       }}
       onClick={handleClick}
     >
-      {content.text}
+      {props.content.text}
     </span>
   );
 }

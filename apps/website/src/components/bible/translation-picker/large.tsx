@@ -7,11 +7,11 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { H2, P } from '../../ui/typography';
 
-export default function LargeTranslationPicker({ bibles }: { bibles: Bible[] }) {
+export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
   const [search, setSearch] = createSignal('');
 
   const filteredBibles = createMemo(() =>
-    bibles.filter(
+    props.bibles.filter(
       (bible) =>
         bible.name.toLowerCase().includes(search().toLowerCase()) ||
         bible.abbreviation.toLowerCase().includes(search().toLowerCase())
@@ -51,7 +51,7 @@ export default function LargeTranslationPicker({ bibles }: { bibles: Bible[] }) 
             <div class="flex w-full flex-col space-y-2">
               <div class="text-lg font-bold">{ISO6391.getName(language)}</div>
               <div class="flex w-full flex-col space-y-2">
-                {bibles
+                {props.bibles
                   .filter((bible) => bible.languageISO === language)
                   .filter(
                     (bible) =>

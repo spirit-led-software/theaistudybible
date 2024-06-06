@@ -38,6 +38,7 @@
     "@solidjs/router": "^0.13.5",
     "@solidjs/start": "^1.0.0",
     "@tanstack/solid-query": "^5.40.1",
+    "@tanstack/solid-query-devtools": "^5.40.1",
     "@theaistudybible/api": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/langchain": "workspace:*",

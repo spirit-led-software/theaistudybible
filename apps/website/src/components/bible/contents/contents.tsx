@@ -1,7 +1,9 @@
 import { A } from '@solidjs/router';
 import { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
 import type { Content } from '@theaistudybible/core/types/bible';
+import { Accessor } from 'solid-js';
 import { cn } from '~/lib/utils';
+import { HighlightInfo } from '~/types/bible';
 import CharContent from './char';
 import NoteContent from './note';
 import RefContent from './ref';
@@ -12,26 +14,16 @@ export type ContentsProps = {
   book: Book;
   chapter: Chapter;
   contents: Content[];
-  highlights?: {
-    id: string;
-    color: string;
-  }[];
+  highlights?: Accessor<HighlightInfo[]>;
   class?: string;
 };
 
-export default function Contents({
-  bible,
-  book,
-  chapter,
-  contents,
-  highlights,
-  class: className
-}: ContentsProps) {
+export default function Contents(props: ContentsProps) {
   return (
     <>
-      {contents.map((content) => {
+      {props.contents.map((content) => {
         const { style, ...attrs } = content.attrs || {};
-        const props = Object.entries(attrs).reduce(
+        const addProps = Object.entries(attrs).reduce(
           (acc, [key, value]) => {
             if (key.startsWith('data-')) {
               return {
@@ -53,9 +45,9 @@ export default function Contents({
               <TextContent
                 content={content}
                 style={style}
-                props={props}
-                highlights={highlights}
-                class={className}
+                props={addProps}
+                highlights={props.highlights}
+                class={props.class}
               />
             );
           }
@@ -65,9 +57,9 @@ export default function Contents({
                 content={content}
                 style={style}
                 attrs={attrs}
-                props={props}
-                class={className}
-                bible={bible}
+                props={addProps}
+                class={props.class}
+                bible={props.bible}
               />
             );
           }
@@ -76,9 +68,9 @@ export default function Contents({
               <A
                 id={content.id}
                 data-type={content.type}
-                {...props}
-                class={cn(style, 'hover:underline', className)}
-                href={`/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}/${content.number}`}
+                {...addProps}
+                class={cn(style, 'hover:underline', props.class)}
+                href={`/bible/${props.bible.abbreviation}/${props.book.abbreviation}/${props.chapter.number}/${content.number}`}
               >
                 {content.number}
               </A>
@@ -89,24 +81,29 @@ export default function Contents({
               <CharContent
                 content={content}
                 style={style}
-                class={className}
-                bible={bible}
-                book={book}
-                chapter={chapter}
-                highlights={highlights}
-                props={props}
+                class={props.class}
+                bible={props.bible}
+                book={props.book}
+                chapter={props.chapter}
+                highlights={props.highlights}
+                props={addProps}
               />
             );
           }
           case 'para': {
             return (
-              <p id={content.id} data-type={content.type} {...props} class={cn(style, className)}>
+              <p
+                id={content.id}
+                data-type={content.type}
+                {...addProps}
+                class={cn(style, props.class)}
+              >
                 <Contents
-                  bible={bible}
-                  book={book}
-                  chapter={chapter}
+                  bible={props.bible}
+                  book={props.book}
+                  chapter={props.chapter}
                   contents={content.contents}
-                  highlights={highlights}
+                  highlights={props.highlights}
                 />
               </p>
             );
@@ -114,11 +111,11 @@ export default function Contents({
           case 'note': {
             return (
               <NoteContent
-                bible={bible}
-                book={book}
-                chapter={chapter}
+                bible={props.bible}
+                book={props.book}
+                chapter={props.chapter}
                 content={content}
-                highlights={highlights}
+                highlights={props.highlights}
               />
             );
           }

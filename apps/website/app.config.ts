@@ -9,7 +9,6 @@ export default defineConfig({
     preset: 'aws-lambda'
   },
   vite: () => {
-    console.log('VITE_ENV', JSON.stringify(process.env, null, 2));
     return {
       define: {
         ...Object.entries(process.env).reduce(

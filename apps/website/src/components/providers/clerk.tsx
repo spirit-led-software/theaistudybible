@@ -15,7 +15,7 @@ export function ClerkProvider(props: { publishableKey: string; children: JSXElem
   let unsub: ReturnType<Clerk['addListener']>;
 
   onMount(async () => {
-    console.log(`Loading Clerk: ${props.publishableKey}`);
+    console.log('Loading Clerk');
     const { Clerk } = await import('@clerk/clerk-js');
     const clerk = new Clerk(props.publishableKey);
     await clerk.load();

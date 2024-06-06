@@ -1,6 +1,5 @@
 import { db } from '@lib/server/database';
 import { BookPickerProps } from './book';
-import { ChapterPickerProps } from './chapter';
 
 export async function getBookPickerData({ bibleAbbr, bookAbbr, chapterNum }: BookPickerProps) {
   'use server';
@@ -23,7 +22,9 @@ export async function getBookPickerData({ bibleAbbr, bookAbbr, chapterNum }: Boo
     db.query.bibles.findFirst({
       where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
       with: {
-        books: true
+        books: {
+          orderBy: (books, { asc }) => asc(books.number)
+        }
       }
     })
   ]);
@@ -43,39 +44,36 @@ export async function getBookPickerData({ bibleAbbr, bookAbbr, chapterNum }: Boo
   };
 }
 
-export async function getChapterPickerData({
-  bibleAbbr,
-  bookAbbr,
-  chapterNum
-}: ChapterPickerProps) {
+export type GetChapterPickerDataProps = {
+  bibleAbbr: string;
+  bookAbbr: string;
+};
+
+export async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDataProps) {
   'use server';
-  const [bibleBookChapters, chapter] = await Promise.all([
-    db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
-      with: {
-        books: {
-          limit: 1,
-          where: (books, { eq }) => eq(books.abbreviation, bookAbbr),
-          with: {
-            chapters: true
+  const bibleBookChapters = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    with: {
+      books: {
+        limit: 1,
+        where: (books, { eq }) => eq(books.abbreviation, bookAbbr),
+        with: {
+          chapters: {
+            orderBy: (chapters, { asc }) => asc(chapters.number),
+            columns: {
+              content: false
+            }
           }
         }
       }
-    }),
-    db.query.chapters.findFirst({
-      where: (chapters, { eq }) => eq(chapters.number, chapterNum)
-    })
-  ]);
+    }
+  });
 
   const book = bibleBookChapters?.books[0];
 
-  if (!bibleBookChapters || !book || !chapter) {
+  if (!book) {
     throw new Error('Insufficient data');
   }
 
-  return {
-    bible: bibleBookChapters,
-    book,
-    chapter
-  };
+  return book;
 }

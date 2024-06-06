@@ -2,7 +2,6 @@ import { useNavigate } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import ISO6391 from 'iso-639-1';
 import { Check, ChevronsUpDown } from 'lucide-solid';
-import { createSignal } from 'solid-js';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import {
@@ -14,7 +13,7 @@ import {
   CommandList
 } from '../../ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
-import { getSmallData } from './server';
+import { getSmallPickerData } from './server';
 
 export type SmallTranslationPickerProps = {
   bibleAbbr: string;
@@ -22,26 +21,14 @@ export type SmallTranslationPickerProps = {
   chapterNum: number;
 };
 
-export const smallTranslationPickerQueryOptions = ({
-  bibleAbbr,
-  bookAbbr,
-  chapterNum
-}: SmallTranslationPickerProps) => ({
-  queryKey: ['small-translation-picker', { bibleAbbr, bookAbbr, chapterNum }],
-  queryFn: () => getSmallData({ bibleAbbr, bookAbbr, chapterNum })
+export const smallTranslationPickerQueryOptions = (props: SmallTranslationPickerProps) => ({
+  queryKey: ['small-translation-picker', props],
+  queryFn: () => getSmallPickerData(props)
 });
 
-export default function SmallTranslationPicker({
-  bibleAbbr,
-  bookAbbr,
-  chapterNum
-}: SmallTranslationPickerProps) {
-  const query = createQuery(() =>
-    smallTranslationPickerQueryOptions({ bibleAbbr, bookAbbr, chapterNum })
-  );
-
+export default function SmallTranslationPicker(props: SmallTranslationPickerProps) {
+  const query = createQuery(() => smallTranslationPickerQueryOptions(props));
   const navigate = useNavigate();
-  const [open, setOpen] = createSignal(false);
 
   const uniqueLanguages = query.data?.bibles.reduce((acc, bible) => {
     if (!acc.some((language) => language === bible.languageISO)) {
@@ -52,21 +39,17 @@ export default function SmallTranslationPicker({
 
   return (
     <QueryBoundary query={query}>
-      {({ bible, chapter, bibles }) => (
-        <Popover open={open()} onOpenChange={setOpen}>
+      {({ bible, book, chapter, bibles }) => (
+        <Popover>
           <PopoverTrigger
-            as={() => (
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open()}
-                class="w-[200px] justify-between"
-              >
-                {bible.abbreviationLocal}
-                <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            )}
-          />
+            as={Button}
+            variant="outline"
+            role="combobox"
+            class="w-[200px] justify-between"
+          >
+            {bible.abbreviationLocal}
+            <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </PopoverTrigger>
           <PopoverContent class="w-[200px] p-0">
             <Command>
               <CommandInput placeholder="Search bibles..." />
@@ -80,7 +63,9 @@ export default function SmallTranslationPicker({
                         <CommandItem
                           value={foundBible.name}
                           onSelect={() => {
-                            navigate(`/bible/${foundBible.abbreviation}/${chapter.name}`);
+                            navigate(
+                              `/bible/${foundBible.abbreviation}/${book.abbreviation}/${chapter.number}`
+                            );
                           }}
                           class="flex w-full items-center justify-between"
                         >
