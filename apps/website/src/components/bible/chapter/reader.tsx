@@ -5,8 +5,6 @@ import { QueryBoundary } from '~/components/query-boundary';
 import { cn } from '~/lib/utils';
 import { buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
-import ChatButton from '../chat/button';
-import ChatWindow from '../chat/window';
 import ChapterContent from './content';
 import { getChapterReaderData } from './server';
 
@@ -29,10 +27,6 @@ export default function ChapterReader(props: ChapterReaderProps) {
       {({ bible, book, chapter }) => (
         <div class="mt-10">
           <ChapterContent bible={bible} book={book} chapter={chapter} />
-          <div class="fixed bottom-0 left-0 right-0 flex place-items-center justify-center">
-            <ChatButton />
-          </div>
-          <ChatWindow />
           {chapter.previous && (
             <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
               <Tooltip placement="right">

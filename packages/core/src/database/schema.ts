@@ -96,7 +96,7 @@ export const messages = pgTable(
     function_call: jsonb('function_call').$type<string | FunctionCall>().default({}),
     data: jsonb('data').$type<JSONValue>(),
     tool_calls: jsonb('tool_calls').$type<string | ToolCall[]>().default([]),
-    annotations: jsonb('annotations').$type<JSONValue>(),
+    annotations: jsonb('annotations').$type<JSONValue[]>(),
 
     // Custom fields
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),

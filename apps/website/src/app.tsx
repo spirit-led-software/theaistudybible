@@ -37,14 +37,16 @@ export default function App() {
             <ColorModeProvider storageManager={storageManager}>
               <Suspense
                 fallback={
-                  <div class="flex h-dvh w-full items-center justify-center">
+                  <div class="flex h-dvh w-full flex-col items-center justify-center">
                     <Spinner />
                   </div>
                 }
               >
-                <div class="flex min-h-dvh w-full flex-col">
-                  <NavigationHeader />
-                  {props.children}
+                <div class="flex min-h-screen w-full flex-col">
+                  <div class="flex flex-1 flex-col">
+                    <NavigationHeader />
+                    <main class="flex flex-grow flex-col overflow-y-auto">{props.children}</main>
+                  </div>
                 </div>
               </Suspense>
               <Toaster />

@@ -17,11 +17,11 @@
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/yargs": "^17.0.32",
-    "vitest": "^1.6.0",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.0.9",
+    "@clerk/clerk-sdk-node": "^5.0.10",
     "@neondatabase/serverless": "^0.9.3",
     "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/core": "workspace:*",
@@ -34,7 +34,7 @@
     "jszip": "^3.10.1",
     "ora": "^8.0.1",
     "pg": "^8.12.0",
-    "sst": "ion",
+    "sst": "^3.0.32",
     "yargs": "^17.7.2",
     "zod": "^3.23.8"
   }

@@ -66,6 +66,34 @@ export function H4({
   );
 }
 
+export function H5({
+  children,
+  class: className,
+  ...props
+}: {
+  children: JSXElement;
+} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+  return (
+    <h5 {...props} class={cn('scroll-m-20 text-lg font-semibold tracking-tight', className)}>
+      {children}
+    </h5>
+  );
+}
+
+export function H6({
+  children,
+  class: className,
+  ...props
+}: {
+  children: JSXElement;
+} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+  return (
+    <h6 {...props} class={cn('scroll-m-20 text-base font-semibold tracking-tight', className)}>
+      {children}
+    </h6>
+  );
+}
+
 export function P({
   children,
   class: className,

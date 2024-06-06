@@ -1,26 +1,82 @@
+import { db } from '@lib/server/database';
 import { createId } from '@paralleldrive/cuid2';
+import { createInfiniteQuery } from '@tanstack/solid-query';
 import { useChat } from 'ai/solid';
 import { ChevronDown, Send } from 'lucide-solid';
 import { createEffect, createMemo, createSignal } from 'solid-js';
-import Icon from '~/components/branding/icon';
-import { SignInButton } from '~/components/clerk';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
 import { Separator } from '~/components/ui/separator';
-import { useAuth, useUser } from '~/hooks/clerk';
+import { useAuth } from '~/hooks/clerk';
 import { bibleStore, setBibleStore } from '~/lib/stores/bible';
 import { chatStore, setChatStore } from '~/lib/stores/chat';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { H3, P } from '../../ui/typography';
+import MessageUI from './message';
+
+const getChatMessages = async ({
+  chatId,
+  limit,
+  offset
+}: {
+  chatId: string;
+  limit: number;
+  offset: number;
+}) => {
+  'use server';
+  const messages = await db.query.messages.findMany({
+    where: (messages, { eq, and, sql }) =>
+      and(
+        eq(messages.chatId, chatId),
+        sql`${messages.metadata}->>'failed' IS NULL OR ${messages.metadata}->>'failed' = 'false'`,
+        sql`${messages.metadata}->>'regenerated' IS NULL OR ${messages.metadata}->>'regenerated' = 'false'`
+      ),
+    limit,
+    offset,
+    orderBy: (messages, { desc }) => desc(messages.createdAt)
+  });
+
+  return {
+    messages,
+    nextCursor: messages.length ? offset + messages.length : undefined
+  };
+};
 
 export default function ChatWindow() {
-  const { user, isSignedIn } = useUser();
   const { getToken } = useAuth();
   const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
+  const [offset, setOffset] = createSignal(0);
+
+  const query = createInfiniteQuery(() => ({
+    queryKey: ['chat-messages', { chatId: chatStore.chatId, limit: 10, offset: offset() }],
+    queryFn: ({ pageParam }) =>
+      chatStore.chatId
+        ? getChatMessages({ chatId: chatStore.chatId, limit: 10, offset: pageParam })
+        : { messages: [], nextCursor: undefined },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor
+  }));
+  createEffect(() => {
+    if (query.data) {
+      setMessages(
+        query.data.pages
+          .flatMap((page) => page.messages)
+          .map((message) => ({
+            ...message,
+            content: message.content ?? '',
+            tool_call_id: message.tool_call_id ?? undefined,
+            name: message.name ?? undefined,
+            function_call: message.function_call ?? undefined,
+            tool_calls: message.tool_calls ?? undefined,
+            annotations: message.annotations ?? undefined
+          }))
+      );
+    }
+  });
 
   const { input, setInput, handleSubmit, messages, setMessages, error, isLoading, append } =
     useChat({
-      api: `${import.meta.env.VITE_API_URL}/chat`,
+      api: '/api/chat',
       id: chatStore.chatId,
       generateId: createId,
       sendExtraMessageFields: true,
@@ -109,64 +165,51 @@ export default function ChatWindow() {
           <ChevronDown size={20} />
         </Button>
       </div>
-      {isSignedIn() ? (
-        <>
-          <div class="relative flex-1 flex-col-reverse space-y-2 overflow-y-auto whitespace-pre-wrap">
-            {messages()?.map((message) => (
-              <div class="flex w-full flex-col">
-                <Separator orientation="horizontal" class="w-full" />
-                <div class="flex w-full place-items-start space-x-4 px-2 py-3">
-                  {message.role === 'user' ? (
-                    <Avatar>
-                      <AvatarImage src={user()!.imageUrl!} />
-                      <AvatarFallback>{user()?.fullName}</AvatarFallback>
-                    </Avatar>
-                  ) : (
-                    <div class="flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2">
-                      <Icon width={50} height={50} class="flex-shrink-0" />
-                    </div>
-                  )}
-                  <p>{message.content}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <form
-            class="relative flex w-full px-2 py-2"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!input) {
-                setAlert('Please type a message');
-                return;
-              }
-              handleSubmit(e, {
-                options: {
-                  headers: {
-                    Authorization: `Bearer ${await getToken()()}`
-                  }
+      <SignedIn>
+        <div class="relative flex-1 flex-col-reverse space-y-2 overflow-y-auto whitespace-pre-wrap">
+          {messages()?.map((message) => (
+            <div class="flex w-full flex-col">
+              <Separator orientation="horizontal" class="w-full" />
+              <MessageUI message={message} />
+            </div>
+          ))}
+        </div>
+        <form
+          class="relative flex w-full px-2 py-2"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!input) {
+              setAlert('Please type a message');
+              return;
+            }
+            handleSubmit(e, {
+              options: {
+                headers: {
+                  Authorization: `Bearer ${await getToken()()}`
                 }
-              });
-            }}
-          >
-            {alert() && (
-              <div class="absolute -top-10 left-1 right-1 z-50 mx-auto my-1 flex max-h-24 place-items-center justify-center overflow-clip">
-                <p class="truncate rounded-xl bg-destructive p-2 text-destructive-foreground">
-                  {alert()}
-                </p>
-              </div>
-            )}
-            <Input
-              placeholder="Type a message"
-              value={input()}
-              onChange={(e) => setInput(e.currentTarget?.value ?? '')}
-              class="rounded-r-none"
-            />
-            <Button type="submit" class="rounded-l-none">
-              <Send size={20} />
-            </Button>
-          </form>
-        </>
-      ) : (
+              }
+            });
+          }}
+        >
+          {alert() && (
+            <div class="absolute -top-10 left-1 right-1 z-50 mx-auto my-1 flex max-h-24 place-items-center justify-center overflow-clip">
+              <p class="truncate rounded-xl bg-destructive p-2 text-destructive-foreground">
+                {alert()}
+              </p>
+            </div>
+          )}
+          <Input
+            placeholder="Type a message"
+            value={input()}
+            onChange={(e) => setInput(e.currentTarget?.value ?? '')}
+            class="rounded-r-none"
+          />
+          <Button type="submit" class="rounded-l-none">
+            <Send size={20} />
+          </Button>
+        </form>
+      </SignedIn>
+      <SignedOut>
         <div class="flex h-full w-full flex-col place-items-center justify-center">
           <P>
             Please{' '}
@@ -179,7 +222,7 @@ export default function ChatWindow() {
             to chat
           </P>
         </div>
-      )}
+      </SignedOut>
     </div>
   );
 }

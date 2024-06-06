@@ -13,18 +13,18 @@
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
-    "@types/node": "^20.14.1",
+    "@types/node": "^20.14.2",
     "@types/nodemailer": "^6.4.15",
     "@types/validator": "^13.11.10",
     "vitest": "^1.6.0"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.1.25",
+    "ai": "^3.1.30",
     "axios": "^1.7.2",
     "axios-retry": "^4.4.0",
     "drizzle-orm": "^0.31.1",
     "nodemailer": "^6.9.13",
-    "sst": "ion"
+    "sst": "^3.0.32"
   }
 }

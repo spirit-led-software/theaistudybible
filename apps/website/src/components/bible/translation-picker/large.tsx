@@ -62,7 +62,6 @@ export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
                     <Button
                       class="flex h-fit w-full flex-col items-start justify-start text-wrap text-start"
                       as={A}
-                      target="_self" // Prevent soft navigation
                       href={`/bible/${bible.abbreviation}`}
                     >
                       <p class="text-lg font-bold">

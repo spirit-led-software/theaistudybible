@@ -14,13 +14,17 @@ export function ClerkProvider(props: { publishableKey: string; children: JSXElem
   const [clerk, setClerk] = createSignal<Clerk | undefined>();
   let unsub: ReturnType<Clerk['addListener']>;
 
-  onMount(async () => {
-    console.log('Loading Clerk');
-    const { Clerk } = await import('@clerk/clerk-js');
-    const clerk = new Clerk(props.publishableKey);
-    await clerk.load();
-    setClerk(clerk);
-    unsub = clerk.addListener(() => setClerk(clerk));
+  onMount(() => {
+    const loadClerk = async () => {
+      console.log('Loading Clerk');
+      const { Clerk } = await import('@clerk/clerk-js');
+      const clerk = new Clerk(props.publishableKey);
+      await clerk.load();
+      setClerk(clerk);
+      unsub = clerk.addListener(() => setClerk(clerk));
+      console.log('Clerk loaded');
+    };
+    loadClerk();
   });
   onCleanup(() => {
     unsub?.();

@@ -3,7 +3,7 @@ import { Logger } from 'drizzle-orm';
 import { withReplicas } from 'drizzle-orm/pg-core';
 import { Resource } from 'sst';
 
-const logger: boolean | Logger = import.meta.env.DEV && {
+const logger: boolean | Logger = import.meta.env.DEBUG_QUERIES && {
   logQuery: (query, params) => {
     console.log('===========================================================');
     console.log('Drizzle SQL Query');

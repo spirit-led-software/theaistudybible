@@ -4,6 +4,8 @@ import { Show } from 'solid-js';
 import { BookPicker } from '~/components/bible/chapter-picker';
 import { bookPickerQueryOptions } from '~/components/bible/chapter-picker/book';
 import ChapterReader, { chapterReaderQueryOptions } from '~/components/bible/chapter/reader';
+import ChatButton from '~/components/bible/chat/button';
+import ChatWindow from '~/components/bible/chat/window';
 import { SmallTranslationPicker } from '~/components/bible/translation-picker';
 import { smallTranslationPickerQueryOptions } from '~/components/bible/translation-picker/small';
 
@@ -46,6 +48,10 @@ export default function ChapterPage() {
             chapterNum={parseInt(params.chapterNum)}
           />
         </Show>
+        <div class="fixed bottom-0 left-0 right-0 flex place-items-center justify-center">
+          <ChatButton />
+        </div>
+        <ChatWindow />
       </div>
     </div>
   );

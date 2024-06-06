@@ -1,4 +1,3 @@
-import { apiRouter } from "./apis";
 import { indexFileBucket, publicBucket } from "./buckets";
 import { PUBLIC_ENV_VARS, SECRET_ENV_VARS, domainName } from "./constants";
 import { neonBranch, upstashRedis, upstashVector } from "./databases";
@@ -14,7 +13,6 @@ export let website = new sst.aws.SolidStart("Website", {
     upstashRedis,
     upstashVector,
     webpageScraperQueue,
-    apiRouter,
   ],
   environment: {
     ...SECRET_ENV_VARS,
@@ -25,7 +23,6 @@ export let website = new sst.aws.SolidStart("Website", {
       },
       {} as Record<string, string>
     ),
-    VITE_API_URL: apiRouter.url,
   },
   domain: domainName,
   transform: {
@@ -34,6 +31,7 @@ export let website = new sst.aws.SolidStart("Website", {
         ...(layers ?? []),
         chromiumLayer.arn,
       ]);
+      args.streaming = true;
       args.nodejs = $output(args.nodejs).apply((nodejs) => ({
         ...nodejs,
         esbuild: {

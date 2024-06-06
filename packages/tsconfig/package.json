@@ -6,7 +6,7 @@
   "main": "tsconfig.json",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.138",
-    "@types/node": "^20.14.1",
+    "@types/node": "^20.14.2",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5"
   }

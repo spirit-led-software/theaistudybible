@@ -1,9 +1,9 @@
-import type { app } from '@theaistudybible/api';
 import type { ClientResponse, hc } from 'hono/client';
+import type { app } from '~/lib/server/api';
 
 export type RouterType = typeof app;
 
-export type RpcClient = ReturnType<typeof hc<RouterType>>;
+export type RpcClient = ReturnType<typeof hc<RouterType>>['api'];
 
 export type Route = keyof RpcClient;
 

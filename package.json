@@ -15,13 +15,14 @@
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
     "typecheck": "turbo typecheck",
-    "update": "concurrently --names \"Dependency Update,Chromium Layer Update,LLRT Layer Update\" -c \"bgYellow,bgBlue,bgRed\" \"bun update && bunx sst upgrade && bun install -f\" \"cd lambda-layers/chromium && ./build-layer.sh\" \"cd lambda-layers/llrt && ./build-layer.sh\" "
+    "update": "concurrently --names \"Dependency Update,Chromium Layer Update,LLRT Layer Update\" -c \"bgYellow,bgBlue,bgRed\" \"pnpm update -rLf && pnpm sst upgrade && pnpm install -rf\" \"cd lambda-layers/chromium && ./build-layer.sh\" \"cd lambda-layers/llrt && ./build-layer.sh\" "
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.138",
     "@types/node": "^20.14.2",
+    "bun": "^1.1.12",
     "concurrently": "^8.2.2",
-    "drizzle-kit": "^0.22.2",
+    "drizzle-kit": "^0.22.4",
     "turbo": "^2.0.1",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
@@ -31,16 +32,12 @@
     "@pulumi/pulumi": "^3.119.0",
     "@upstash/pulumi": "^0.2.0",
     "@upstash/vector": "^1.1.2",
-    "sst": "ion"
+    "sst": "^3.0.32"
   },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "trustedDependencies": [
-    "@clerk/shared",
-    "@upstash/pulumi",
-    "protobufjs"
-  ],
-  "packageManager": "bun@1.1.12"
+  "packageManager": "pnpm@9.1.4",
+  "pnpm": {
+    "overrides": {
+      "nitropack": "npm:nitropack-nightly@latest"
+    }
+  }
 }
