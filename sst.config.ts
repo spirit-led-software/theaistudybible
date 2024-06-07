@@ -21,7 +21,7 @@ export default $config({
     const databases = await import("./infra/databases");
     await import("./infra/crons");
     const queues = await import("./infra/queues");
-    const website = await import("./infra/website");
+    const web = await import("./infra/web");
 
     return {
       CdnUrl: cdn.cdn.url,
@@ -31,7 +31,7 @@ export default $config({
       UpstashRedisRestUrl: $interpolate`https://${databases.upstashRedis.endpoint}`,
       UpstashVectorRestUrl: databases.upstashVector.restUrl,
       WebpageScraperQueueUrl: queues.webpageScraperQueue.url,
-      WebsiteUrl: website.website.url,
+      WebsiteUrl: web.webApp.url,
     };
   },
 });

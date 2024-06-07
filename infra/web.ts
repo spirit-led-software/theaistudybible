@@ -4,8 +4,8 @@ import { neonBranch, upstashRedis, upstashVector } from "./databases";
 import { chromiumLayer } from "./layers";
 import { webpageScraperQueue } from "./queues";
 
-export let website = new sst.aws.SolidStart("Website", {
-  path: "apps/website",
+export let webApp = new sst.aws.SolidStart("Website", {
+  path: "apps/web",
   link: [
     publicBucket,
     indexFileBucket,
