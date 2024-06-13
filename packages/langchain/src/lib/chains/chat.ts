@@ -1,5 +1,5 @@
 import type { JwtPayload } from '@clerk/types';
-import type { CallbackManager } from '@langchain/core/callbacks/manager';
+import type { Callbacks } from '@langchain/core/callbacks/manager';
 import type { MessageContent, MessageType } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { BasePromptTemplate } from '@langchain/core/prompts';
@@ -38,16 +38,8 @@ const routerChainOutputParser = RAIOutputFixingParser.fromParser(
       destination: z
         .string()
         .optional()
-        .describe(
-          'The name of the question answering system to use. This can just be "DEFAULT" without the quotes if you do not know which system is best.'
-        )
-        .default('DEFAULT'),
-      next_inputs: z
-        .object({
-          query: z.string().describe('The query to be fed into the next model.').min(1)
-        })
-        .describe('The input to be fed into the next model.')
-        .required()
+        .describe('OPTIONAL: The name of the question answering system to use.')
+        .default('DEFAULT')
     })
   )
 );
@@ -56,8 +48,19 @@ export const getRAIChatChain = async (options: {
   modelId: FreeTierModelId | PlusTierModelId;
   claims: JwtPayload;
   messages: Pick<Message, 'id' | 'role' | 'content' | 'createdAt'>[];
-  callbacks?: CallbackManager;
-}) => {
+  callbacks?: Callbacks;
+}): Promise<
+  RunnableSequence<
+    {
+      query: string;
+    },
+    {
+      text: string;
+      sourceDocuments?: UpstashVectorStoreDocument[];
+      searchQueries?: string[];
+    }
+  >
+> => {
   const { modelId, claims, callbacks } = options;
 
   const { contextSize } = allModels[modelId];
@@ -76,40 +79,38 @@ export const getRAIChatChain = async (options: {
     getIdentityChainPromptInfo({ history });
   const identityChain = RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query
+      query: (input) => input.input
     },
-    identityChainPrompt
-      .pipe(
+    {
+      text: RunnableSequence.from([
+        identityChainPrompt,
         getLanguageModel({
           modelId,
           stream: true,
           stopSequences: identityChainStopSequences
-        })
-      )
-      .pipe(new StringOutputParser())
-      .withConfig({
-        callbacks
-      })
+        }),
+        new StringOutputParser()
+      ])
+    }
   ]);
 
   const { prompt: historyChainPrompt, stopSequences: historyChainStopSequences } =
     getHistoryChainPromptInfo({ history });
   const chatHistoryChain = RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query
+      query: (input) => input.input
     },
-    historyChainPrompt
-      .pipe(
+    {
+      text: RunnableSequence.from([
+        historyChainPrompt,
         getLanguageModel({
           modelId,
           stream: true,
           stopSequences: historyChainStopSequences
-        })
-      )
-      .pipe(new StringOutputParser())
-      .withConfig({
-        callbacks
-      })
+        }),
+        new StringOutputParser()
+      ])
+    }
   ]);
 
   const { prompt: faithQaChainPrompt, stopSequences: faithQaChainStopSequences } =
@@ -165,11 +166,11 @@ export async function getDocumentQaChain(options: {
   contextSize: number;
   prompt: BasePromptTemplate;
   stopSequences?: string[];
-  callbacks?: CallbackManager;
+  callbacks?: Callbacks;
   filter?: string;
   history: [MessageType, MessageContent][];
 }) {
-  const { modelId, contextSize, prompt, stopSequences, filter, history, callbacks } = options;
+  const { modelId, contextSize, prompt, stopSequences, filter, history } = options;
   const qaRetriever = await getDocumentVectorStore({
     filter,
     verbose: process.env.SST_LIVE === 'true'
@@ -187,7 +188,7 @@ export async function getDocumentQaChain(options: {
     });
   return RunnableSequence.from([
     {
-      query: (input) => input.routingInstructions.next_inputs.query
+      query: (input) => input.input
     },
     {
       searchQueries: searchQueryPrompt
@@ -205,7 +206,7 @@ export async function getDocumentQaChain(options: {
         const searchQueries = previousStepResult.searchQueries;
         const sourceDocuments = await Promise.all(
           searchQueries.map(async (query) => {
-            return (await qaRetriever.getRelevantDocuments(query)) as UpstashVectorStoreDocument[];
+            return (await qaRetriever.invoke(query)) as UpstashVectorStoreDocument[];
           })
         );
         return sourceDocuments
@@ -248,17 +249,18 @@ export async function getDocumentQaChain(options: {
       searchQueries: (previousStepResult) => previousStepResult.searchQueries,
       query: (previousStepResult) => previousStepResult.query
     },
-    prompt
-      .pipe(
+    {
+      text: RunnableSequence.from([
+        prompt,
         getLanguageModel({
           modelId,
           stream: true,
           stopSequences
-        })
-      )
-      .pipe(new StringOutputParser())
-      .withConfig({
-        callbacks
-      })
+        }),
+        new StringOutputParser()
+      ]),
+      sourceDocuments: (previousStepResult) => previousStepResult.sourceDocuments,
+      searchQueries: (previousStepResult) => previousStepResult.searchQueries
+    }
   ]);
 }

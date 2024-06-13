@@ -1,15 +1,20 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
-import { Router } from '@solidjs/router';
+import { Meta, MetaProvider, Title } from '@solidjs/meta';
+import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import { Suspense, isServer } from 'solid-js/web';
+import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
-import './app.css';
 import NavigationHeader from './components/nav/header';
 import { ClerkProvider } from './components/providers/clerk';
+import { Button } from './components/ui/button';
 import { Spinner } from './components/ui/spinner';
 import { Toaster } from './components/ui/toast';
+import { H1, H4 } from './components/ui/typography';
+
+import './app.css';
+import { BibleProvider } from './components/providers/bible';
 
 export function getServerCookies() {
   'use server';
@@ -32,26 +37,50 @@ export default function App() {
       <SolidQueryDevtools />
       <Router
         root={(props) => (
-          <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
-            <ColorModeScript storageType={storageManager.type} />
-            <ColorModeProvider storageManager={storageManager}>
-              <Suspense
-                fallback={
-                  <div class="flex h-dvh w-full flex-col items-center justify-center">
-                    <Spinner />
-                  </div>
-                }
-              >
-                <div class="flex min-h-screen w-full flex-col">
-                  <div class="flex flex-1 flex-col">
-                    <NavigationHeader />
-                    <main class="flex flex-grow flex-col overflow-y-auto">{props.children}</main>
-                  </div>
-                </div>
-              </Suspense>
-              <Toaster />
-            </ColorModeProvider>
-          </ClerkProvider>
+          <MetaProvider>
+            <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+              <ColorModeScript storageType={storageManager.type} />
+              <ColorModeProvider storageManager={storageManager}>
+                <BibleProvider>
+                  <Title>The AI Study Bible</Title>
+                  <Meta name="description">
+                    The AI Study Bible is a digital study Bible that uses artificial intelligence to
+                    help you study the Bible.
+                  </Meta>
+                  <ErrorBoundary
+                    fallback={(err, reset) => (
+                      <div class="flex h-dvh w-full flex-col items-center justify-center space-y-2">
+                        <H1>Error</H1>
+                        <H4 class="max-w-sm text-center">{err.message}</H4>
+                        <div class="flex space-x-2">
+                          <Button onClick={reset}>Retry</Button>
+                          <Button as={A} href="/">
+                            Go Home Instead
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  >
+                    <Suspense
+                      fallback={
+                        <div class="flex h-dvh w-full flex-col items-center justify-center">
+                          <Spinner />
+                        </div>
+                      }
+                    >
+                      <div class="flex min-h-dvh w-full flex-col">
+                        <div class="flex flex-1 flex-col">
+                          <NavigationHeader />
+                          <main>{props.children}</main>
+                        </div>
+                      </div>
+                    </Suspense>
+                  </ErrorBoundary>
+                  <Toaster />
+                </BibleProvider>
+              </ColorModeProvider>
+            </ClerkProvider>
+          </MetaProvider>
         )}
       >
         <FileRoutes />

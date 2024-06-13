@@ -3,7 +3,6 @@ import { useColorMode } from '@kobalte/core';
 import { A } from '@solidjs/router';
 import { createMemo } from 'solid-js';
 import { useWindowSize } from '~/hooks/window-size';
-import { resolvedTailwindConfig } from '~/lib/theme/tailwind';
 import Logo from '../branding/logo';
 import LogoSmall from '../branding/logo-small';
 import { ClerkLoading, SignInButton, SignedIn, SignedOut, UserButton } from '../clerk';
@@ -14,9 +13,7 @@ import { NavigationDrawer } from './drawer';
 export default function NavigationHeader() {
   const { colorMode } = useColorMode();
   const windowSize = useWindowSize();
-  const smallWindow = createMemo(
-    () => windowSize().width < parseInt(resolvedTailwindConfig.theme.screens.md.split('px')[0])
-  );
+  const smallWindow = createMemo(() => windowSize().width < 768);
 
   return (
     <nav class="flex h-20 items-center justify-between border-b border-b-border py-6 pl-2 pr-4">

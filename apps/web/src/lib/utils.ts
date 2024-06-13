@@ -27,3 +27,31 @@ export function hexToRgb(hex: string) {
       }
     : null;
 }
+
+export const formVerseString = (verseNumbers: number[]) => {
+  if (verseNumbers.length === 0) {
+    return '';
+  }
+
+  let verseString = '';
+  let start = verseNumbers[0];
+  let end = verseNumbers[0];
+  for (let i = 1; i < verseNumbers.length; i++) {
+    if (verseNumbers[i] === end + 1) {
+      end = verseNumbers[i];
+    } else {
+      if (start === end) {
+        verseString += `${start}, `;
+      } else {
+        verseString += `${start}-${end}, `;
+      }
+      start = end = verseNumbers[i];
+    }
+  }
+  if (start === end) {
+    verseString += `${start}`;
+  } else {
+    verseString += `${start}-${end}`;
+  }
+  return verseString;
+};

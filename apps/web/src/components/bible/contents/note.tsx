@@ -1,4 +1,3 @@
-import { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
 import type { NoteContent as NoteContentType } from '@theaistudybible/core/types/bible';
 import { NotepadTextIcon } from 'lucide-solid';
 import { Accessor } from 'solid-js';
@@ -8,9 +7,6 @@ import { HighlightInfo } from '~/types/bible';
 import Contents from './contents';
 
 export type NoteContentProps = {
-  bible: Bible;
-  book: Book;
-  chapter: Chapter;
   content: NoteContentType;
   highlights?: Accessor<HighlightInfo[]>;
 };
@@ -22,14 +18,7 @@ export default function NoteContent(props: NoteContentProps) {
         <NotepadTextIcon size={12} />
       </PopoverTrigger>
       <PopoverContent class="eb-container w-52 p-2">
-        <Contents
-          bible={props.bible}
-          book={props.book}
-          chapter={props.chapter}
-          contents={props.content.contents}
-          highlights={props.highlights}
-          class="text-sm"
-        />
+        <Contents contents={props.content.contents} highlights={props.highlights} class="text-sm" />
       </PopoverContent>
     </Popover>
   );

@@ -1,15 +1,15 @@
-import type { Message } from 'ai/solid';
+import type { Message as AIMessage } from 'ai/solid';
 import Icon from '~/components/branding/icon';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Markdown } from '~/components/ui/markdown';
 import { useUser } from '~/hooks/clerk';
 
-export default function Message({ message }: { message: Message }) {
+export const Message = (props: { message: AIMessage }) => {
   const { user } = useUser();
 
   return (
-    <div class="flex w-full place-items-start space-x-4 px-2 py-3">
-      {message.role === 'user' ? (
+    <div class="flex w-full place-items-center space-x-2 p-2">
+      {props.message.role === 'user' ? (
         <Avatar>
           <AvatarImage src={user()!.imageUrl!} />
           <AvatarFallback>{user()?.fullName}</AvatarFallback>
@@ -19,7 +19,7 @@ export default function Message({ message }: { message: Message }) {
           <Icon width={50} height={50} class="flex-shrink-0" />
         </div>
       )}
-      <Markdown>{message.content}</Markdown>
+      <Markdown>{props.message.content}</Markdown>
     </div>
   );
-}
+};

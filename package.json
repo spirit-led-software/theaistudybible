@@ -22,8 +22,8 @@
     "@types/node": "^20.14.2",
     "bun": "^1.1.12",
     "concurrently": "^8.2.2",
-    "drizzle-kit": "^0.22.4",
-    "turbo": "^2.0.1",
+    "drizzle-kit": "^0.22.7",
+    "turbo": "^2.0.3",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },
@@ -32,7 +32,7 @@
     "@pulumi/pulumi": "^3.119.0",
     "@upstash/pulumi": "^0.2.0",
     "@upstash/vector": "^1.1.2",
-    "sst": "^3.0.32"
+    "sst": "^3.0.33"
   },
   "packageManager": "pnpm@9.1.4",
   "pnpm": {

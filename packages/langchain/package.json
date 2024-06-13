@@ -22,7 +22,7 @@
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.592.0",
     "@langchain/anthropic": "^0.2.1",
-    "@langchain/community": "^0.2.7",
+    "@langchain/community": "^0.2.9",
     "@langchain/core": "^0.2.6",
     "@langchain/openai": "^0.1.2",
     "@neondatabase/serverless": "^0.9.3",
@@ -31,11 +31,11 @@
     "@types/ws": "^8.5.10",
     "fast-xml-parser": "^4.4.0",
     "langchain": "^0.2.5",
-    "puppeteer-core": "^22.10.0",
-    "sst": "^3.0.32",
+    "puppeteer-core": "^22.10.1",
+    "sst": "^3.0.33",
     "ws": "^8.17.0",
     "youtube-transcript": "^1.2.1",
-    "youtubei.js": "^9.4.0",
+    "youtubei.js": "^10.0.0",
     "zod": "^3.23.8"
   }
 }

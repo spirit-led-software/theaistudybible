@@ -57,12 +57,12 @@ export const Markdown = (props: { children: string }) => {
             }
           >
             <Match when={props.ordered}>
-              <ol start={props.start ?? undefined} class="list-inside list-decimal">
+              <ol start={props.start ?? undefined} class="list-outside list-decimal">
                 {props.children}
               </ol>
             </Match>
             <Match when={!props.ordered}>
-              <ul class="list-inside list-disc">{props.children}</ul>
+              <ul class="list-outside list-disc">{props.children}</ul>
             </Match>
           </Switch>
         ),

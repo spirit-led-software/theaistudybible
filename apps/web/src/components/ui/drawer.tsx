@@ -6,7 +6,7 @@ import DrawerPrimitive, {
   type OverlayProps
 } from '@corvu/drawer';
 import type { Component, ComponentProps, JSXElement, ValidComponent } from 'solid-js';
-import { splitProps } from 'solid-js';
+import { Show, splitProps } from 'solid-js';
 import { cn } from '~/lib/utils';
 
 const Drawer = DrawerPrimitive;
@@ -38,7 +38,11 @@ const DrawerOverlay = <T extends ValidComponent = 'div'>(
   );
 };
 
-type DrawerContentProps = ContentProps & { class?: string; children?: JSXElement };
+type DrawerContentProps = ContentProps & {
+  class?: string;
+  children?: JSXElement;
+  overlay?: boolean;
+};
 
 const DrawerContent = <T extends ValidComponent = 'div'>(
   props: DynamicProps<T, DrawerContentProps>
@@ -46,7 +50,9 @@ const DrawerContent = <T extends ValidComponent = 'div'>(
   const [, rest] = splitProps(props as DrawerContentProps, ['class', 'children']);
   return (
     <DrawerPortal>
-      <DrawerOverlay />
+      <Show when={props.overlay ?? true}>
+        <DrawerOverlay />
+      </Show>
       <DrawerPrimitive.Content
         class={cn(
           'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background after:absolute after:inset-x-0 after:top-full after:h-1/2 after:bg-inherit data-[transitioning]:transition-transform data-[transitioning]:duration-300 md:select-none',

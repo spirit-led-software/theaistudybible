@@ -1,109 +1,102 @@
-import type { JSX, JSXElement } from 'solid-js';
+import { splitProps, type JSX, type JSXElement } from 'solid-js';
 import { cn } from '~/lib/utils';
 
-export function H1({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+export function H1(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLHeadingElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
     <h1
-      {...props}
-      class={cn('scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl', className)}
+      {...rest}
+      class={cn('scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl', props.class)}
     >
-      {children}
+      {props.children}
     </h1>
   );
 }
 
-export function H2({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+export function H2(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLHeadingElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
     <h2
-      {...props}
+      {...rest}
       class={cn(
         'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0',
-        className
+        props.class
       )}
     >
-      {children}
+      {props.children}
     </h2>
   );
 }
 
-export function H3({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+export function H3(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLHeadingElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
-    <h3 {...props} class={cn('scroll-m-20 text-2xl font-semibold tracking-tight', className)}>
-      {children}
+    <h3 {...rest} class={cn('scroll-m-20 text-2xl font-semibold tracking-tight', props.class)}>
+      {props.children}
     </h3>
   );
 }
 
-export function H4({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+export function H4(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLHeadingElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
-    <h4 {...props} class={cn('scroll-m-20 text-xl font-semibold tracking-tight', className)}>
-      {children}
+    <h4 {...rest} class={cn('scroll-m-20 text-xl font-semibold tracking-tight', props.class)}>
+      {props.children}
     </h4>
   );
 }
 
-export function H5({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+export function H5(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLHeadingElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
-    <h5 {...props} class={cn('scroll-m-20 text-lg font-semibold tracking-tight', className)}>
-      {children}
+    <h5 {...rest} class={cn('scroll-m-20 text-lg font-semibold tracking-tight', props.class)}>
+      {props.children}
     </h5>
   );
 }
 
-export function H6({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLHeadingElement>) {
+export function H6(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLHeadingElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
-    <h6 {...props} class={cn('scroll-m-20 text-base font-semibold tracking-tight', className)}>
-      {children}
+    <h6 {...rest} class={cn('scroll-m-20 text-base font-semibold tracking-tight', props.class)}>
+      {props.children}
     </h6>
   );
 }
 
-export function P({
-  children,
-  class: className,
-  ...props
-}: {
-  children: JSXElement;
-} & JSX.HTMLAttributes<HTMLParagraphElement>) {
+export function P(
+  props: {
+    children: JSXElement;
+  } & JSX.HTMLAttributes<HTMLParagraphElement>
+) {
+  const [, rest] = splitProps(props, ['children', 'class']);
   return (
-    <p {...props} class={cn('leading-7 [&:not(:first-child)]:mt-6', className)}>
-      {children}
+    <p {...rest} class={cn('leading-7 [&:not(:first-child)]:mt-6', props.class)}>
+      {props.children}
     </p>
   );
 }

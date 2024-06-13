@@ -1,7 +1,9 @@
 import type { CreateQueryResult } from '@tanstack/solid-query';
 import type { JSX } from 'solid-js';
 import { ErrorBoundary, Match, Suspense, Switch } from 'solid-js';
+import { Button } from './ui/button';
 import { Spinner } from './ui/spinner';
+import { H1, H6 } from './ui/typography';
 
 export interface QueryBoundaryProps<T = unknown> {
   query: CreateQueryResult<T, Error>;
@@ -50,16 +52,17 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
               reset();
             })
           ) : (
-            <div>
-              <div class="error">{err.message}</div>
-              <button
+            <div class="flex flex-1 flex-col place-items-center justify-center space-x-2">
+              <H1>Error</H1>
+              <H6 class="max-w-sm">{err.message}</H6>
+              <Button
                 onClick={async () => {
                   await props.query.refetch();
                   reset();
                 }}
               >
-                retry
-              </button>
+                Retry
+              </Button>
             </div>
           )
         }

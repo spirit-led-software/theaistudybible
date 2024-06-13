@@ -1,7 +1,14 @@
 import { A } from '@solidjs/router';
-import { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
-import type { Content } from '@theaistudybible/core/types/bible';
-import { Accessor } from 'solid-js';
+import type {
+  CharContent as CharContentType,
+  Content,
+  NoteContent as NoteContentType,
+  OwningContent,
+  TextContent as TextContentType,
+  VerseContent
+} from '@theaistudybible/core/types/bible';
+import { Accessor, For, Match, Switch } from 'solid-js';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { cn } from '~/lib/utils';
 import { HighlightInfo } from '~/types/bible';
 import CharContent from './char';
@@ -10,18 +17,17 @@ import RefContent from './ref';
 import TextContent from './text';
 
 export type ContentsProps = {
-  bible: Bible;
-  book: Book;
-  chapter: Chapter;
   contents: Content[];
   highlights?: Accessor<HighlightInfo[]>;
   class?: string;
 };
 
 export default function Contents(props: ContentsProps) {
+  const [bibleReaderStore] = useBibleReaderStore();
+
   return (
-    <>
-      {props.contents.map((content) => {
+    <For each={props.contents}>
+      {(content) => {
         const { style, ...attrs } = content.attrs || {};
         const addProps = Object.entries(attrs).reduce(
           (acc, [key, value]) => {
@@ -39,59 +45,47 @@ export default function Contents(props: ContentsProps) {
           {} as Record<string, string>
         );
 
-        switch (content.type) {
-          case 'text': {
-            return (
+        return (
+          <Switch>
+            <Match when={content.type === 'text'}>
               <TextContent
-                content={content}
+                content={content as TextContentType}
                 style={style}
                 props={addProps}
                 highlights={props.highlights}
                 class={props.class}
               />
-            );
-          }
-          case 'ref': {
-            return (
+            </Match>
+            <Match when={content.type === 'ref'}>
               <RefContent
-                content={content}
+                content={content as TextContentType}
                 style={style}
                 attrs={attrs}
                 props={addProps}
                 class={props.class}
-                bible={props.bible}
               />
-            );
-          }
-          case 'verse': {
-            return (
+            </Match>
+            <Match when={content.type === 'verse'}>
               <A
                 id={content.id}
                 data-type={content.type}
                 {...addProps}
                 class={cn(style, 'hover:underline', props.class)}
-                href={`/bible/${props.bible.abbreviation}/${props.book.abbreviation}/${props.chapter.number}/${content.number}`}
+                href={`/bible/${bibleReaderStore.bible!.abbreviation}/${bibleReaderStore.book!.abbreviation}/${bibleReaderStore.chapter!.number}/${(content as VerseContent).number}`}
               >
-                {content.number}
+                {(content as VerseContent).number}
               </A>
-            );
-          }
-          case 'char': {
-            return (
+            </Match>
+            <Match when={content.type === 'char'}>
               <CharContent
-                content={content}
+                content={content as CharContentType}
                 style={style}
                 class={props.class}
-                bible={props.bible}
-                book={props.book}
-                chapter={props.chapter}
                 highlights={props.highlights}
                 props={addProps}
               />
-            );
-          }
-          case 'para': {
-            return (
+            </Match>
+            <Match when={content.type === 'para'}>
               <p
                 id={content.id}
                 data-type={content.type}
@@ -99,32 +93,17 @@ export default function Contents(props: ContentsProps) {
                 class={cn(style, props.class)}
               >
                 <Contents
-                  bible={props.bible}
-                  book={props.book}
-                  chapter={props.chapter}
-                  contents={content.contents}
+                  contents={(content as OwningContent).contents}
                   highlights={props.highlights}
                 />
               </p>
-            );
-          }
-          case 'note': {
-            return (
-              <NoteContent
-                bible={props.bible}
-                book={props.book}
-                chapter={props.chapter}
-                content={content}
-                highlights={props.highlights}
-              />
-            );
-          }
-          default: {
-            console.error('Unknown content type', content);
-            return null;
-          }
-        }
-      })}
-    </>
+            </Match>
+            <Match when={content.type === 'note'}>
+              <NoteContent content={content as NoteContentType} highlights={props.highlights} />
+            </Match>
+          </Switch>
+        );
+      }}
+    </For>
   );
 }

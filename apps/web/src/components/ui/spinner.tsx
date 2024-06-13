@@ -8,10 +8,11 @@ const spinnerVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-primary border-b-transparent',
-        destructive: 'border-destructive border-b-transparent',
+        default: 'border-foreground border-b-transparent',
+        primary: 'border-primary border-b-transparent',
         secondary: 'border-secondary border-b-transparent',
-        accent: 'border-accent border-b-transparent'
+        accent: 'border-accent border-b-transparent',
+        destructive: 'border-destructive border-b-transparent'
       },
       size: {
         default: 'h-12 w-12',

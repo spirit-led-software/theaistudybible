@@ -1,11 +1,15 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
+import { Show, createEffect } from 'solid-js';
+import { useBibleStore } from '~/components/providers/bible';
+import { BibleReaderProvider } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
+import { H1 } from '~/components/ui/typography';
 import { cn } from '~/lib/utils';
 import { buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
-import ChapterContent from './content';
+import { ReaderContent } from '../reader';
 import { getChapterReaderData } from './server';
 
 export type ChapterReaderProps = {
@@ -15,51 +19,68 @@ export type ChapterReaderProps = {
 };
 
 export const chapterReaderQueryOptions = (props: ChapterReaderProps) => ({
-  queryKey: ['chapter-reader-window', props],
+  queryKey: ['chapter-reader', props],
   queryFn: () => getChapterReaderData(props)
 });
 
 export default function ChapterReader(props: ChapterReaderProps) {
   const query = createQuery(() => chapterReaderQueryOptions(props));
 
+  const [, setBibleStore] = useBibleStore();
+  createEffect(() => {
+    if (query.data) {
+      setBibleStore('bible', query.data.bible);
+      setBibleStore('book', query.data.book);
+      setBibleStore('chapter', query.data.chapter);
+      setBibleStore('verse', undefined);
+    }
+  });
+
   return (
     <QueryBoundary query={query}>
-      {({ bible, book, chapter }) => (
-        <div class="mt-10">
-          <ChapterContent bible={bible} book={book} chapter={chapter} />
-          {chapter.previous && (
-            <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
-              <Tooltip placement="right">
-                <TooltipTrigger
-                  as={A}
-                  class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-r-2xl')}
-                  href={`/bible/${bible.abbreviation}/${chapter.previous?.abbreviation.split('.')[0]}/${chapter.previous?.number}`}
-                >
-                  <ChevronLeft size={20} class="shrink-0" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{chapter.previous.name}</p>
-                </TooltipContent>
-              </Tooltip>
+      {(data) => (
+        <BibleReaderProvider bible={data.bible} book={data.book} chapter={data.chapter}>
+          <div class="mt-10">
+            <div class="flex w-full justify-center">
+              <H1 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+                {data.chapter.name}
+              </H1>
             </div>
-          )}
-          {chapter.next && (
-            <div class="fixed bottom-1/3 right-0 top-1/3 flex flex-col place-items-center justify-center">
-              <Tooltip placement="left">
-                <TooltipTrigger
-                  as={A}
-                  class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-l-2xl')}
-                  href={`/bible/${bible.abbreviation}/${chapter.next?.abbreviation.split('.')[0]}/${chapter.next?.number}`}
-                >
-                  <ChevronRight size={20} class="shrink-0" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{chapter.next.name}</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-        </div>
+            <ReaderContent contents={data.chapter.content} />
+            <Show when={data.chapter.previous}>
+              <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
+                <Tooltip placement="right">
+                  <TooltipTrigger
+                    as={A}
+                    class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-r-2xl')}
+                    href={`/bible/${data.bible.abbreviation}/${data.chapter.previous!.abbreviation.split('.')[0]}/${data.chapter.previous!.number}`}
+                  >
+                    <ChevronLeft size={20} class="shrink-0" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{data.chapter.previous!.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </Show>
+            <Show when={data.chapter.next}>
+              <div class="fixed bottom-1/3 right-0 top-1/3 flex flex-col place-items-center justify-center">
+                <Tooltip placement="left">
+                  <TooltipTrigger
+                    as={A}
+                    class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-l-2xl')}
+                    href={`/bible/${data.bible.abbreviation}/${data.chapter.next!.abbreviation.split('.')[0]}/${data.chapter.next!.number}`}
+                  >
+                    <ChevronRight size={20} class="shrink-0" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{data.chapter.next!.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </Show>
+          </div>
+        </BibleReaderProvider>
       )}
     </QueryBoundary>
   );

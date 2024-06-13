@@ -1,6 +1,6 @@
 import type { TextContent as TextContentType } from '@theaistudybible/core/types/bible';
 import { createMemo, type Accessor } from 'solid-js';
-import { bibleStore, setBibleStore } from '~/lib/stores/bible';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/lib/utils';
 import type { HighlightInfo } from '~/types/bible';
 
@@ -14,15 +14,16 @@ export type TextContentProps = {
 };
 
 export default function TextContent(props: TextContentProps) {
+  const [bibleReaderStore, setBibleReaderStore] = useBibleReaderStore();
   const highlightColor = createMemo(
     () => props.highlights?.().find(({ id }) => id === props.content.id)?.color
   );
   const selected = createMemo(() =>
-    bibleStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))
+    bibleReaderStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))
   );
 
   const handleClick = () => {
-    setBibleStore('selectedVerseInfos', (prev) => {
+    setBibleReaderStore('selectedVerseInfos', (prev) => {
       if (prev.find(({ id }) => id === props.content.verseId)) {
         return prev.filter(({ id }) => id !== props.content.verseId);
       }
@@ -63,7 +64,7 @@ export default function TextContent(props: TextContentProps) {
       {...props}
       class={cn(
         props.style,
-        `cursor-pointer ${selected() ? 'underline underline-offset-4' : ''}`,
+        `cursor-pointer ${selected() ? 'underline decoration-accent-foreground underline-offset-4' : ''}`,
         props.class
       )}
       style={{

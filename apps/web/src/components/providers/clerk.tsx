@@ -1,4 +1,4 @@
-import type { Clerk } from '@clerk/clerk-js';
+import { Clerk } from '@clerk/clerk-js';
 import {
   createContext,
   createSignal,
@@ -17,7 +17,6 @@ export function ClerkProvider(props: { publishableKey: string; children: JSXElem
   onMount(() => {
     const loadClerk = async () => {
       console.log('Loading Clerk');
-      const { Clerk } = await import('@clerk/clerk-js');
       const clerk = new Clerk(props.publishableKey);
       await clerk.load();
       setClerk(clerk);

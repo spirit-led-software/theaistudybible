@@ -29,12 +29,12 @@
     "@theaistudybible/server": "workspace:*",
     "@xmldom/xmldom": "^0.8.10",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.31.1",
+    "drizzle-orm": "^0.31.2",
     "fast-xml-parser": "^4.4.0",
     "jszip": "^3.10.1",
     "ora": "^8.0.1",
     "pg": "^8.12.0",
-    "sst": "^3.0.32",
+    "sst": "^3.0.33",
     "yargs": "^17.7.2",
     "zod": "^3.23.8"
   }

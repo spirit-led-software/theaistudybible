@@ -1,9 +1,10 @@
-import tailwindcssAnimate from 'tailwindcss-animate';
+const tailwindcssAnimate = require('tailwindcss-animate');
 
-/**@type {import("tailwindcss").Config} */
+/** @type {import("tailwindcss").Config} */
 export default {
   darkMode: ['class', '[data-kb-theme="dark"]'],
   content: ['./src/**/*.{ts,tsx}'],
+  plugins: [tailwindcssAnimate],
   theme: {
     container: {
       center: true,
@@ -72,20 +73,20 @@ export default {
       },
       keyframes: {
         'accordion-down': {
-          from: { height: 0 },
+          from: { height: '0' },
           to: { height: 'var(--kb-accordion-content-height)' }
         },
         'accordion-up': {
           from: { height: 'var(--kb-accordion-content-height)' },
-          to: { height: 0 }
+          to: { height: '0' }
         },
         'content-show': {
-          from: { opacity: 0, transform: 'scale(0.96)' },
-          to: { opacity: 1, transform: 'scale(1)' }
+          from: { opacity: '0', transform: 'scale(0.96)' },
+          to: { opacity: '1', transform: 'scale(1)' }
         },
         'content-hide': {
-          from: { opacity: 1, transform: 'scale(1)' },
-          to: { opacity: 0, transform: 'scale(0.96)' }
+          from: { opacity: '1', transform: 'scale(1)' },
+          to: { opacity: '0', transform: 'scale(0.96)' }
         }
       },
       animation: {
@@ -95,6 +96,5 @@ export default {
         'content-hide': 'content-hide 0.2s ease-out'
       }
     }
-  },
-  plugins: [tailwindcssAnimate]
+  }
 };

@@ -1,6 +1,7 @@
 import { A } from '@solidjs/router';
-import { Bible } from '@theaistudybible/core/model/bible';
 import type { TextContent } from '@theaistudybible/core/types/bible';
+import { createMemo } from 'solid-js';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { cn } from '~/lib/utils';
 
 export type RefContentProps = {
@@ -11,17 +12,21 @@ export type RefContentProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
   class?: string;
-  bible: Bible;
 };
 
 export default function RefContent(props: RefContentProps) {
-  const { loc } = props.attrs;
-  const [bookAbbr, chapterAndVerse] = loc.split(' ');
-  const [chapter, verse] = chapterAndVerse.split(':');
-  let link = `/bible/${props.bible.abbreviation}/${bookAbbr}/${chapter}`;
-  if (verse) {
-    link += `/${verse}`;
-  }
+  const [bibleReaderStore] = useBibleReaderStore();
+
+  const link = createMemo(() => {
+    const [bookAbbr, chapterAndVerse] = props.attrs.loc.split(' ');
+    const [chapter, verse] = chapterAndVerse.split(':');
+    let link = `/bible/${bibleReaderStore.bible!.abbreviation}/${bookAbbr}/${chapter}`;
+    if (verse) {
+      link += `/${verse}`;
+    }
+    return link;
+  });
+
   return (
     <A
       id={props.content.id}
@@ -30,7 +35,7 @@ export default function RefContent(props: RefContentProps) {
       data-verse-number={props.content.verseNumber}
       {...props}
       class={cn(props.style, `hover:underline`, props.class)}
-      href={link}
+      href={link()}
     >
       {props.content.text}
     </A>
