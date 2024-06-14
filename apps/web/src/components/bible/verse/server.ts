@@ -1,27 +1,26 @@
 import { db } from '@lib/server/database';
-import { VerseReaderProps } from './reader';
 
-export const getVerseReaderData = async ({
-  bibleAbbr,
-  bookAbbr,
-  chapterNum,
-  verseNum
-}: VerseReaderProps) => {
+export const getVerseReaderData = async (props: {
+  bibleAbbr: string;
+  bookAbbr: string;
+  chapterNum: number;
+  verseNum: number;
+}) => {
   'use server';
   const bibleBookChapterVerse = await db.query.bibles.findFirst({
-    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     with: {
       books: {
         limit: 1,
-        where: (books, { eq }) => eq(books.abbreviation, bookAbbr),
+        where: (books, { eq }) => eq(books.abbreviation, props.bookAbbr),
         with: {
           chapters: {
             limit: 1,
-            where: (chapters, { eq }) => eq(chapters.number, chapterNum),
+            where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
             with: {
               verses: {
                 limit: 1,
-                where: (verses, { eq }) => eq(verses.number, verseNum),
+                where: (verses, { eq }) => eq(verses.number, props.verseNum),
                 with: {
                   previous: true,
                   next: true

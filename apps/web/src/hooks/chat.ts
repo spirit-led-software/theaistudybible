@@ -87,11 +87,12 @@ export const useChat = (props: UseChatProps) => {
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextCursor
   }));
-  const newMessages = createMemo(
-    () =>
-      query.data?.pages
-        .flatMap((page) => page.messages)
-        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+
+  createEffect(() => {
+    const newMessages =
+      [...(query.data?.pages ?? [])]
+        .flatMap((page) => [...page.messages])
+        .reverse()
         .map((message) => ({
           ...message,
           content: message.content ?? '',
@@ -100,13 +101,8 @@ export const useChat = (props: UseChatProps) => {
           function_call: message.function_call ?? undefined,
           tool_calls: message.tool_calls ?? undefined,
           annotations: message.annotations ?? undefined
-        })) ?? []
-  );
-  createEffect(() => {
-    const newMessagesValue = newMessages();
-    if (newMessagesValue && newMessagesValue !== useChatReturn.messages()) {
-      useChatReturn.setMessages(newMessagesValue);
-    }
+        })) ?? [];
+    useChatReturn.setMessages(newMessages);
   });
 
   createEffect(() => {
@@ -148,8 +144,13 @@ export const useChat = (props: UseChatProps) => {
     }
   });
 
+  createEffect(() => {
+    console.log('Messages:', JSON.stringify(useChatReturn.messages(), null, 2));
+  });
+
   return {
     ...useChatReturn,
+    query,
     id: chatId,
     setId: setChatId
   };

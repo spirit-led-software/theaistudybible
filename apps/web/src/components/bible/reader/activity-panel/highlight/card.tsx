@@ -1,0 +1,145 @@
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { createSignal } from 'solid-js';
+import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { DrawerClose } from '~/components/ui/drawer';
+import { showToast } from '~/components/ui/toast';
+import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
+import { P } from '~/components/ui/typography';
+import { HighlightColorPicker } from './color-picker';
+import { deleteHighlights, updateHighlights } from './server';
+
+export const HighlightCard = () => {
+  const [bibleReaderStore] = useBibleReaderStore();
+
+  const qc = useQueryClient();
+
+  const addHighlightsMutation = createMutation(() => ({
+    mutationFn: ({
+      color = '#FFD700',
+      highlightedIds
+    }: {
+      color?: string;
+      highlightedIds: string[];
+    }) => updateHighlights({ chapterId: bibleReaderStore.chapter!.id, color, highlightedIds }),
+    onSettled: () =>
+      qc.invalidateQueries({
+        queryKey: ['highlights', { chapterId: bibleReaderStore.chapter!.id }]
+      }),
+    onError: () => {
+      showToast({
+        title: 'Failed to save highlights',
+        variant: 'error'
+      });
+    }
+  }));
+
+  const deleteHighlightsMutation = createMutation(() => ({
+    mutationFn: ({ highlightedIds }: { highlightedIds: string[] }) =>
+      deleteHighlights({ chapterId: bibleReaderStore.chapter!.id, highlightedIds }),
+    onSettled: () =>
+      qc.invalidateQueries({
+        queryKey: ['highlights', { chapterId: bibleReaderStore.chapter!.id }]
+      }),
+    onError: () => {
+      showToast({
+        title: 'Failed to delete highlights',
+        variant: 'error'
+      });
+    }
+  }));
+
+  const [tgValue, setTgValue] = createSignal<string | undefined>();
+  const [customColor, setCustomColor] = createSignal<string>();
+
+  return (
+    <Card>
+      <SignedIn>
+        <CardHeader>
+          <CardTitle>Highlight</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ToggleGroup class="grid grid-cols-4 grid-rows-2" onChange={(value) => setTgValue(value)}>
+            <ColorItem title="Pink" hex="#FFC0CB" />
+            <ColorItem title="Blue" hex="#ADD8E6" />
+            <ColorItem title="Green" hex="#90EE90" />
+            <ColorItem title="Yellow" hex="#FFFF00" />
+            <ColorItem title="Orange" hex="#FFA500" />
+            <ColorItem title="Purple" hex="#DDA0DD" />
+            <ColorItem title="Red" hex="#FF6347" />
+            <HighlightColorPicker setColor={setCustomColor} />
+          </ToggleGroup>
+        </CardContent>
+        <CardFooter class="flex justify-end gap-2">
+          <DrawerClose as={Button} variant="outline">
+            Close
+          </DrawerClose>
+          <Button
+            variant="destructive"
+            onClick={() =>
+              deleteHighlightsMutation.mutate({
+                highlightedIds: bibleReaderStore.selectedIds
+              })
+            }
+          >
+            Reset
+          </Button>
+          <Button
+            disabled={!tgValue()}
+            onClick={() =>
+              addHighlightsMutation.mutate({
+                highlightedIds: bibleReaderStore.selectedIds,
+                color: tgValue() === 'custom' ? customColor() : tgValue()
+              })
+            }
+          >
+            Save
+          </Button>
+        </CardFooter>
+      </SignedIn>
+      <SignedOut>
+        <CardHeader />
+        <CardContent class="flex w-full flex-1 flex-col place-items-center justify-center pt-6">
+          <div class="flex h-full w-full flex-col place-items-center justify-center">
+            <P class="text-lg">
+              Please{' '}
+              <SignInButton
+                variant={'link'}
+                class="px-0 text-lg capitalize text-accent-foreground"
+              />{' '}
+              to highlight
+            </P>
+          </div>
+        </CardContent>
+        <CardFooter class="flex justify-end">
+          <DrawerClose as={Button} variant="outline">
+            Close
+          </DrawerClose>
+        </CardFooter>
+      </SignedOut>
+    </Card>
+  );
+};
+
+type ColorItemProps = {
+  title: string;
+  hex: string;
+};
+
+const ColorItem = (props: ColorItemProps) => {
+  return (
+    <ToggleGroupItem value={props.hex} class="flex justify-center sm:justify-start">
+      <span class="flex items-center space-x-2">
+        <span
+          class={`h-4 w-4 rounded-full`}
+          style={{
+            'background-color': props.hex
+          }}
+        />
+        <span class="hidden sm:flex">{props.title}</span>
+      </span>
+    </ToggleGroupItem>
+  );
+};

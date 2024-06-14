@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.10",
+    "@langchain/community": "^0.2.9",
+    "@langchain/core": "^0.2.6",
     "@neondatabase/serverless": "^0.9.3",
     "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/core": "workspace:*",
@@ -32,6 +34,7 @@
     "drizzle-orm": "^0.31.2",
     "fast-xml-parser": "^4.4.0",
     "jszip": "^3.10.1",
+    "langchain": "^0.2.5",
     "ora": "^8.0.1",
     "pg": "^8.12.0",
     "sst": "^3.0.33",

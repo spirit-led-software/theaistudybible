@@ -1,12 +1,14 @@
 import { createSocialShare } from '@solid-primitives/share';
+import { Copy } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { DrawerClose } from '~/components/ui/drawer';
 import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
 import { showToast } from '~/components/ui/toast';
 import { P } from '~/components/ui/typography';
-import { EmailShareButton, FacebookShareButton, XShareButton } from './share-buttons';
+import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
 
 export const ShareCard = () => {
   const [brStore] = useBibleReaderStore();
@@ -37,8 +39,10 @@ export const ShareCard = () => {
         </TextField>
       </CardContent>
       <CardFooter class="justify-end space-x-2">
+        <DrawerClose as={Button} variant="outline">
+          Close
+        </DrawerClose>
         <Button
-          variant="outline"
           onClick={() => {
             if (shareInputRef) {
               navigator.clipboard.writeText(shareInputRef.value);
@@ -48,7 +52,7 @@ export const ShareCard = () => {
             }
           }}
         >
-          Copy
+          <Copy />
         </Button>
         <Switch>
           <Match when={navigator.share}>

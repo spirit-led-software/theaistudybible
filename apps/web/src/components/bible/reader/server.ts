@@ -8,8 +8,20 @@ export async function getHighlights({ chapterId }: { chapterId: string }) {
     return [];
   }
 
-  return await db.query.chapterHighlights.findMany({
-    where: (chapterHighlights, { and, eq }) =>
-      and(eq(chapterHighlights.chapterId, chapterId), eq(chapterHighlights.userId, userId))
-  });
+  return await db.query.chapters
+    .findFirst({
+      where: (chapters, { eq }) => eq(chapters.id, chapterId),
+      with: {
+        verses: {
+          with: {
+            highlights: {
+              where: (highlights, { eq }) => eq(highlights.userId, userId)
+            }
+          }
+        }
+      }
+    })
+    .then((chapter) => {
+      return chapter?.verses.flatMap((verse) => verse.highlights) || [];
+    });
 }

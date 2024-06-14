@@ -1,9 +1,9 @@
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { db } from '@lib/server/database';
-import { createId } from '@paralleldrive/cuid2';
 import { indexOperations } from '@theaistudybible/core/database/schema';
 import axios from '@theaistudybible/core/lib/axios';
 import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
+import { createId } from '@theaistudybible/core/util/id';
 import { eq, sql } from 'drizzle-orm';
 import escapeStringRegexp from 'escape-string-regexp';
 import { XMLParser } from 'fast-xml-parser';

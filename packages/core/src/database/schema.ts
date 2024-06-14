@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2';
 import type { FunctionCall, JSONValue, ToolCall } from 'ai';
 import { relations } from 'drizzle-orm';
 import {
@@ -16,6 +15,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import type { Content } from '../types/bible';
 import type { Metadata } from '../types/metadata';
+import { createId } from '../util/id';
 
 export const roles = pgTable('roles', {
   id: text('id').primaryKey().notNull(),
@@ -30,7 +30,7 @@ export const chats = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `chat_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     name: text('name').notNull().default('New Chat'),
@@ -56,7 +56,7 @@ export const shareChatOptions = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `sc_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     chatId: text('chat_id')
@@ -85,7 +85,7 @@ export const messages = pgTable(
     // Fields required by the ai sdk
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `msg_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     tool_call_id: text('tool_call_id'),
     content: text('content'),
@@ -166,7 +166,7 @@ export const messageReactions = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `mr_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     messageId: text('message_id')
@@ -222,12 +222,24 @@ export const messagesToSourceDocuments = pgTable(
   }
 );
 
+export const messagesToSourceDocumentsRelations = relations(
+  messagesToSourceDocuments,
+  ({ one }) => {
+    return {
+      message: one(messages, {
+        fields: [messagesToSourceDocuments.messageId],
+        references: [messages.id]
+      })
+    };
+  }
+);
+
 export const userGeneratedImages = pgTable(
   'user_generated_images',
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `uge_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     userId: text('user_id').notNull(),
@@ -266,7 +278,7 @@ export const userGeneratedImagesReactions = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `uger_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     userGeneratedImageId: text('user_generated_image_id')
@@ -327,12 +339,24 @@ export const userGeneratedImagesToSourceDocuments = pgTable(
   }
 );
 
+export const userGeneratedImagesToSourceDocumentsRelations = relations(
+  userGeneratedImagesToSourceDocuments,
+  ({ one }) => {
+    return {
+      userGeneratedImage: one(userGeneratedImages, {
+        fields: [userGeneratedImagesToSourceDocuments.userGeneratedImageId],
+        references: [userGeneratedImages.id]
+      })
+    };
+  }
+);
+
 export const devotions = pgTable(
   'devotions',
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `devo_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     topic: text('topic').notNull().default('general'),
@@ -363,7 +387,7 @@ export const devotionReactions = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `dr_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     devotionId: text('devotion_id')
@@ -397,7 +421,7 @@ export const devotionImages = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `di_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     devotionId: text('devotion_id')
@@ -454,12 +478,24 @@ export const devotionsToSourceDocuments = pgTable(
   }
 );
 
+export const devotionsToSourceDocumentsRelations = relations(
+  devotionsToSourceDocuments,
+  ({ one }) => {
+    return {
+      devotion: one(devotions, {
+        fields: [devotionsToSourceDocuments.devotionId],
+        references: [devotions.id]
+      })
+    };
+  }
+);
+
 export const dataSources = pgTable(
   'data_sources',
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `ds_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     name: text('name').notNull(),
@@ -513,12 +549,24 @@ export const dataSourcesToSourceDocuments = pgTable(
   }
 );
 
+export const dataSourcesToSourceDocumentsRelations = relations(
+  dataSourcesToSourceDocuments,
+  ({ one }) => {
+    return {
+      dataSource: one(dataSources, {
+        fields: [dataSourcesToSourceDocuments.dataSourceId],
+        references: [dataSources.id]
+      })
+    };
+  }
+);
+
 export const indexOperations = pgTable(
   'index_operations',
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `idxo_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     status: text('status', {
@@ -554,7 +602,7 @@ export const bibles = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `bible_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     abbreviation: text('abbreviation').notNull().unique(),
@@ -587,7 +635,7 @@ export const books = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `book_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     bibleId: text('bible_id')
@@ -638,7 +686,7 @@ export const chapters = pgTable(
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `chap_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     bibleId: text('bible_id')
@@ -688,16 +736,17 @@ export const chaptersRelations = relations(chapters, ({ one, many }) => {
       relationName: 'next'
     }),
     verses: many(verses),
-    chapterHighlights: many(chapterHighlights)
+    bookmarks: many(chapterBookmarks),
+    chaptersToSourceDocuments: many(chaptersToSourceDocuments)
   };
 });
 
-export const chapterHighlights = pgTable(
-  'chapter_highlights',
+export const chapterBookmarks = pgTable(
+  'chapter_bookmarks',
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `cbm_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     chapterId: text('chapter_id')
@@ -706,32 +755,64 @@ export const chapterHighlights = pgTable(
         onUpdate: 'cascade'
       })
       .notNull(),
-    userId: text('user_id').notNull(),
-    color: text('color').notNull()
+    userId: text('user_id').notNull()
   },
   (table) => {
     return {
-      chapterIdIdx: index('chapter_highlights_chapter_id').on(table.chapterId),
-      userIdIdx: index('chapter_highlights_user_id').on(table.userId)
+      chapterIdIdx: index('chapter_bookmarks_chapter_id').on(table.chapterId),
+      userIdIdx: index('chapter_bookmarks_user_id').on(table.userId)
     };
   }
 );
 
-export const chapterHighlightsRelations = relations(chapterHighlights, ({ one }) => {
+export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) => {
   return {
     chapter: one(chapters, {
-      fields: [chapterHighlights.chapterId],
+      fields: [chapterBookmarks.chapterId],
       references: [chapters.id]
     })
   };
 });
+
+export const chaptersToSourceDocuments = pgTable(
+  'chapters_to_source_documents',
+  {
+    chapterId: text('chapter_id')
+      .notNull()
+      .references(() => chapters.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    sourceDocumentId: text('source_document_id').notNull()
+  },
+  (table) => {
+    return {
+      chapterSourceDocumentKey: uniqueIndex('chapter_source_document_key').on(
+        table.chapterId,
+        table.sourceDocumentId
+      )
+    };
+  }
+);
+
+export const chaptersToSourceDocumentsRelations = relations(
+  chaptersToSourceDocuments,
+  ({ one }) => {
+    return {
+      chapter: one(chapters, {
+        fields: [chaptersToSourceDocuments.chapterId],
+        references: [chapters.id]
+      })
+    };
+  }
+);
 
 export const verses = pgTable(
   'verses',
   {
     id: text('id')
       .primaryKey()
-      .$defaultFn(() => createId()),
+      .$defaultFn(() => `ver_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     bibleId: text('bible_id')
@@ -766,7 +847,7 @@ export const verses = pgTable(
   }
 );
 
-export const versesRelations = relations(verses, ({ one }) => {
+export const versesRelations = relations(verses, ({ one, many }) => {
   return {
     bible: one(bibles, {
       fields: [verses.bibleId],
@@ -789,6 +870,41 @@ export const versesRelations = relations(verses, ({ one }) => {
       fields: [verses.nextId],
       references: [verses.id],
       relationName: 'next'
+    }),
+    highlights: many(verseHighlights)
+  };
+});
+
+export const verseHighlights = pgTable(
+  'verse_highlights',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `vh_${createId()}`),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    verseId: text('verse_id')
+      .references(() => verses.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    userId: text('user_id').notNull(),
+    color: text('color').notNull()
+  },
+  (table) => {
+    return {
+      verseIdIdx: index('verse_highlights_verse_id').on(table.verseId),
+      userIdIdx: index('chapter_highlights_user_id').on(table.userId)
+    };
+  }
+);
+
+export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => {
+  return {
+    verse: one(verses, {
+      fields: [verseHighlights.verseId],
+      references: [verses.id]
     })
   };
 });

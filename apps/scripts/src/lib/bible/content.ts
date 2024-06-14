@@ -1,6 +1,6 @@
 import type { Content } from '@theaistudybible/core/types/bible';
 
-export async function contentsToText(contents: Content[]) {
+export function contentsToText(contents: Content[]) {
   let string = '';
   for (const content of contents) {
     switch (content.type) {
@@ -8,13 +8,13 @@ export async function contentsToText(contents: Content[]) {
         string += content.text;
         break;
       case 'ref':
-        console.log('Ignoring ref content');
+        console.debug('Ignoring ref content');
         break;
       case 'verse':
-        string += `${content.number} `;
+        string += content.number.toString();
         break;
       case 'note':
-        console.log('Ignoring note content');
+        console.debug('Ignoring note content');
         break;
       case 'char':
         string += contentsToText(content.contents);

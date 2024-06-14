@@ -1,5 +1,6 @@
 import * as schema from '@theaistudybible/core/database/schema';
 import type { Verse } from '@theaistudybible/core/model/bible';
+import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { XMLParser } from 'fast-xml-parser';
@@ -7,6 +8,7 @@ import fs from 'fs';
 import JSZip from 'jszip';
 import pg from 'pg';
 import { Resource } from 'sst';
+import { generateChapterEmbeddings } from '../lib/bible/embeddings';
 import type { DBLMetadata, Publication } from '../lib/bible/types';
 import { parseUsx } from '../lib/bible/usx';
 
@@ -80,8 +82,41 @@ export async function createBible({
           `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`
         );
       }
+
       console.log(`Bible ${abbreviation} already exists. Deleting...`);
-      await db.delete(schema.bibles).where(eq(schema.bibles.id, bible.id));
+      const sourceDocIds = await db.query.bibles
+        .findFirst({
+          where: (bibles, { eq }) => eq(bibles.id, bible!.id),
+          columns: {
+            id: true
+          },
+          with: {
+            chapters: {
+              columns: {
+                id: true
+              },
+              with: {
+                chaptersToSourceDocuments: {
+                  columns: {
+                    sourceDocumentId: true
+                  }
+                }
+              }
+            }
+          }
+        })
+        .then(
+          (bible) =>
+            bible?.chapters
+              .map((chapter) => chapter.chaptersToSourceDocuments.map((c) => c.sourceDocumentId))
+              .flat() ?? []
+        );
+
+      const vectorStore = await getDocumentVectorStore({ write: true });
+      await Promise.all([
+        db.delete(schema.bibles).where(eq(schema.bibles.id, bible.id)),
+        vectorStore.delete(sourceDocIds)
+      ]);
     }
 
     [bible] = await db
@@ -186,7 +221,13 @@ export async function createBible({
 
       if (generateEmbeddings) {
         console.log(`Generating embeddings for ${bookInfo.abbreviation}...`);
-        // TODO: Implement embeddings generation
+        for (const chapter of newChapters) {
+          await generateChapterEmbeddings({
+            chapter,
+            book,
+            bible
+          });
+        }
       }
 
       console.log(

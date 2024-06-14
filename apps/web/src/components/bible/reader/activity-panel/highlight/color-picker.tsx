@@ -24,11 +24,11 @@ export const HighlightColorPicker = (props: HighlightColorPickerProps) => {
                   <ToggleGroupItem
                     {...props()}
                     value="custom"
-                    class="flex w-full justify-center md:justify-start"
+                    class="flex w-full justify-center sm:justify-start"
                   >
                     <span class="flex items-center space-x-2">
                       <ColorPicker.Swatch value={api().value} class="h-4 w-4 rounded-full" />
-                      <span class="hidden md:flex">Custom</span>
+                      <span class="hidden sm:flex">Custom</span>
                     </span>
                   </ToggleGroupItem>
                 )}

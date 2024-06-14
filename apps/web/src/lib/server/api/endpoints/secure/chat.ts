@@ -3,7 +3,6 @@ import { zValidator } from '@hono/zod-validator';
 import { ConsoleCallbackHandler } from '@langchain/core/tracers/console';
 import { cache } from '@lib/server/cache';
 import { db } from '@lib/server/database';
-import { createId } from '@paralleldrive/cuid2';
 import {
   chats,
   messages,
@@ -18,6 +17,7 @@ import {
 } from '@theaistudybible/core/model/llm';
 import { similarityFunctionMapping } from '@theaistudybible/core/model/source-document';
 import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
+import { createId } from '@theaistudybible/core/util/id';
 import { getRAIChatChain } from '@theaistudybible/langchain/lib/chains/chat';
 import { UpstashVectorStoreDocument } from '@theaistudybible/langchain/vectorstores/upstash';
 import { aiRenameChat } from '@theaistudybible/server/lib/chat';

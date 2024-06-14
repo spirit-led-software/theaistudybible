@@ -1,10 +1,10 @@
-import { createId } from '@paralleldrive/cuid2';
 import type {
   CharContent,
   Content,
   NoteContent,
   OwningContent
 } from '@theaistudybible/core/types/bible';
+import { createId } from '@theaistudybible/core/util/id';
 import { DOMParser } from '@xmldom/xmldom';
 
 export const ignoredElements = [
@@ -126,9 +126,9 @@ export function parseUsx(xmlString: string) {
 
   const state: ParserState = {
     chapterNumber: 0,
-    chapterId: createId(),
+    chapterId: `chap_${createId()}`,
     verseNumber: 0,
-    verseId: createId(),
+    verseId: `ver_${createId()}`,
     contents: {}
   };
 
@@ -156,7 +156,7 @@ export function parseUsx(xmlString: string) {
       if (chapterNumber !== state.chapterNumber + 1) {
         throw new Error(`Chapter ${chapterNumber} isn't +1 previous ${state.chapterNumber}`);
       }
-      const id = createId();
+      const id = `chap_${createId()}`;
       state.chapterNumber = chapterNumber;
       state.chapterId = id;
       state.verseNumber = 0;
@@ -173,7 +173,7 @@ export function parseUsx(xmlString: string) {
     if (child.nodeName === 'para') {
       const obj = {
         type: 'para',
-        id: createId(),
+        id: `para_${createId()}`,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
               (acc, { name: key }) => {
@@ -229,7 +229,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
 
       addContent(state, {
         type: 'text',
-        id: createId(),
+        id: `txt_${createId()}`,
         verseId: state.verseId,
         verseNumber: state.verseNumber,
         text: text.replaceAll('\n', ''),
@@ -269,7 +269,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
         throw new Error(`Verse ${verseNumber} isn't +1 previous ${state.verseNumber}`);
       }
 
-      const id = createId();
+      const id = `ver_${createId()}`;
       state.verseNumber = verseNumber;
       state.verseId = id;
       state.contents[state.chapterNumber].verseContents[state.verseNumber] = { id, contents: [] };
@@ -301,7 +301,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     if (element.nodeName === 'char') {
       const char = {
         type: element.nodeName as 'char',
-        id: createId(),
+        id: `char_${createId()}`,
         verseId: state.verseId,
         verseNumber: state.verseNumber,
         attrs: element.attributes
@@ -345,7 +345,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     if (element.nodeName === 'note') {
       const char = {
         type: element.nodeName as 'note',
-        id: createId(),
+        id: `note_${createId()}`,
         verseId: state.verseId,
         verseNumber: state.verseNumber,
         attrs: element.attributes
@@ -389,7 +389,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     if (element.nodeName === 'ref') {
       addContent(state, {
         type: 'ref',
-        id: createId(),
+        id: `ref_${createId()}`,
         verseId: state.verseId,
         verseNumber: state.verseNumber,
         text: element.textContent ?? '',

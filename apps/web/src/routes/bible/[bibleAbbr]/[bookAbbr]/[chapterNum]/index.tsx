@@ -1,11 +1,8 @@
 import { RouteDefinition, useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
-import { Show } from 'solid-js';
-import { BookPicker } from '~/components/bible/chapter-picker';
-import { bookPickerQueryOptions } from '~/components/bible/chapter-picker/book';
 import ChapterReader, { chapterReaderQueryOptions } from '~/components/bible/chapter/reader';
-import { SmallTranslationPicker } from '~/components/bible/translation-picker';
-import { smallTranslationPickerQueryOptions } from '~/components/bible/translation-picker/small';
+import { bookPickerQueryOptions } from '~/components/bible/reader/menu/chapter-picker/book';
+import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/menu/translation-picker/small';
 
 export const route: RouteDefinition = {
   load: async ({ params }) => {
@@ -15,8 +12,8 @@ export const route: RouteDefinition = {
     const qc = useQueryClient();
     await Promise.all([
       qc.prefetchQuery(chapterReaderQueryOptions({ bibleAbbr, bookAbbr, chapterNum })),
-      qc.prefetchQuery(bookPickerQueryOptions({ bibleAbbr, bookAbbr, chapterNum })),
-      qc.prefetchQuery(smallTranslationPickerQueryOptions({ bibleAbbr, bookAbbr, chapterNum }))
+      qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
+      qc.prefetchQuery(smallTranslationPickerQueryOptions())
     ]);
   }
 };
@@ -25,28 +22,12 @@ export default function ChapterPage() {
   const params = useParams();
 
   return (
-    <div class="relative flex flex-1 flex-col justify-center px-16 py-5 md:px-20 lg:px-36 xl:px-48">
-      <div class="flex flex-col">
-        <div class="flex w-full space-x-2">
-          <BookPicker
-            bibleAbbr={params.bibleAbbr}
-            bookAbbr={params.bookAbbr}
-            chapterNum={parseInt(params.chapterNum)}
-          />
-          <SmallTranslationPicker
-            bibleAbbr={params.bibleAbbr}
-            bookAbbr={params.bookAbbr}
-            chapterNum={parseInt(params.chapterNum)}
-          />
-        </div>
-        <Show when={params.chapterNum} keyed>
-          <ChapterReader
-            bibleAbbr={params.bibleAbbr}
-            bookAbbr={params.bookAbbr}
-            chapterNum={parseInt(params.chapterNum)}
-          />
-        </Show>
-      </div>
+    <div class="relative flex flex-1 flex-col px-16 py-5 md:px-20 lg:px-36 xl:px-48">
+      <ChapterReader
+        bibleAbbr={() => params.bibleAbbr}
+        bookAbbr={() => params.bookAbbr}
+        chapterNum={() => parseInt(params.chapterNum)}
+      />
     </div>
   );
 }

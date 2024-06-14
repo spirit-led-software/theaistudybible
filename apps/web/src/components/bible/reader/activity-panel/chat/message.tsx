@@ -8,7 +8,7 @@ export const Message = (props: { message: AIMessage }) => {
   const { user } = useUser();
 
   return (
-    <div class="flex w-full place-items-center space-x-2 p-2">
+    <div class="flex w-full place-items-center space-x-2 py-1 pl-5">
       {props.message.role === 'user' ? (
         <Avatar>
           <AvatarImage src={user()!.imageUrl!} />

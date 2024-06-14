@@ -1,6 +1,6 @@
 {
-  "id": "92c4248a-763f-4580-abf9-8c8339e539c6",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "972edf9d-ffc3-4b3a-883d-57f4b368f51f",
+  "prevId": "92c4248a-763f-4580-abf9-8c8339e539c6",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -460,6 +460,64 @@
           "tableTo": "books",
           "columnsFrom": [
             "book_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.chapters_to_source_documents": {
+      "name": "chapters_to_source_documents",
+      "schema": "",
+      "columns": {
+        "chapter_id": {
+          "name": "chapter_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_document_id": {
+          "name": "source_document_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "chapter_source_document_key": {
+          "name": "chapter_source_document_key",
+          "columns": [
+            {
+              "expression": "chapter_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "source_document_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "chapters_to_source_documents_chapter_id_chapters_id_fk": {
+          "name": "chapters_to_source_documents_chapter_id_chapters_id_fk",
+          "tableFrom": "chapters_to_source_documents",
+          "tableTo": "chapters",
+          "columnsFrom": [
+            "chapter_id"
           ],
           "columnsTo": [
             "id"

@@ -2,10 +2,16 @@ import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import type { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
 import { Check } from 'lucide-solid';
-import { QueryBoundary } from '../../query-boundary';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
-import { Button } from '../../ui/button';
-import { CommandItem } from '../../ui/command';
+import { For } from 'solid-js';
+import { QueryBoundary } from '~/components/query-boundary';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '~/components/ui/accordion';
+import { Button } from '~/components/ui/button';
+import { CommandItem } from '~/components/ui/command';
 import { GetChapterPickerDataProps, getChapterPickerData } from './server';
 
 export type ChapterPickerProps = {
@@ -40,8 +46,8 @@ export default function ChapterPicker(props: ChapterPickerProps) {
           <AccordionContent class="grid grid-cols-3 gap-1">
             <QueryBoundary query={query}>
               {(book) => (
-                <>
-                  {book.chapters.map((foundChapter) => (
+                <For each={book.chapters}>
+                  {(foundChapter) => (
                     <Button
                       variant="outline"
                       as={A}
@@ -54,8 +60,8 @@ export default function ChapterPicker(props: ChapterPickerProps) {
                       />
                       {foundChapter.number}
                     </Button>
-                  ))}
-                </>
+                  )}
+                </For>
               )}
             </QueryBoundary>
           </AccordionContent>

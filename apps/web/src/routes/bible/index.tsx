@@ -2,7 +2,7 @@ import { db } from '@lib/server/database';
 import { Title } from '@solidjs/meta';
 import { Navigate, RouteDefinition } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { LargeTranslationPicker } from '~/components/bible/translation-picker';
+import { LargeTranslationPicker } from '~/components/bible/reader/menu/translation-picker';
 import { useBibleStore } from '~/components/providers/bible';
 import { QueryBoundary } from '~/components/query-boundary';
 

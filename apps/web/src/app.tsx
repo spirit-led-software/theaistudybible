@@ -4,7 +4,7 @@ import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
+import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import NavigationHeader from './components/nav/header';
 import { ClerkProvider } from './components/providers/clerk';
@@ -68,12 +68,12 @@ export default function App() {
                         </div>
                       }
                     >
-                      <div class="flex min-h-dvh w-full flex-col">
-                        <div class="flex flex-1 flex-col">
+                      <main class="flex min-h-dvh w-full flex-col">
+                        <Show when={props.location.pathname !== '/'}>
                           <NavigationHeader />
-                          <main>{props.children}</main>
-                        </div>
-                      </div>
+                        </Show>
+                        {props.children}
+                      </main>
                     </Suspense>
                   </ErrorBoundary>
                   <Toaster />

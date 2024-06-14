@@ -8,7 +8,7 @@ import LogoSmall from '../branding/logo-small';
 import { ClerkLoading, SignInButton, SignedIn, SignedOut, UserButton } from '../clerk';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
-import { NavigationDrawer } from './drawer';
+import { NavigationSheet } from './sheet';
 
 export default function NavigationHeader() {
   const { colorMode } = useColorMode();
@@ -18,7 +18,7 @@ export default function NavigationHeader() {
   return (
     <nav class="flex h-20 items-center justify-between border-b border-b-border py-6 pl-2 pr-4">
       <div class="flex w-1/3 justify-start md:hidden">
-        <NavigationDrawer />
+        <NavigationSheet />
       </div>
       <div class="flex w-1/3 justify-center md:justify-start">
         <A href="/">
@@ -29,6 +29,9 @@ export default function NavigationHeader() {
         <div class="flex w-full place-items-center justify-center">
           <Button as={A} href="/bible" variant={'ghost'}>
             Bible
+          </Button>
+          <Button as={A} href="/chat" variant={'ghost'}>
+            Chat
           </Button>
         </div>
       </div>

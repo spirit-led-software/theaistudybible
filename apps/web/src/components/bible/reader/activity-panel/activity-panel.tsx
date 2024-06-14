@@ -1,9 +1,10 @@
-import { Highlighter, MessageCircle, Share } from 'lucide-solid';
+import { Highlighter, Menu, MessageCircle, Share, X } from 'lucide-solid';
 import {
   Accessor,
   JSXElement,
   Match,
   Setter,
+  Show,
   Switch,
   createContext,
   createMemo,
@@ -16,9 +17,10 @@ import { Button } from '~/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '~/components/ui/drawer';
 import { Separator } from '~/components/ui/separator';
 import { H6 } from '~/components/ui/typography';
-import { ChatCard } from './chat/chat-card';
-import { HighlightCard } from './highlight/highlight-card';
-import { ShareCard } from './share/share-card';
+import { ChatCard } from './chat/card';
+import { HighlightCard } from './highlight/card';
+import { ReferencesCard } from './references/references-card';
+import { ShareCard } from './share/card';
 
 export type ActivityPanelContextValue = {
   value: Accessor<string | undefined>;
@@ -51,30 +53,56 @@ export const useActivityPanel = () => {
   return context;
 };
 
-export const ActivityPanelButtons = () => {
+export const ActivityPanelChatButton = () => {
   const [brStore] = useBibleReaderStore();
+  const { value, setValue } = useActivityPanel();
+  const open = createMemo(() => !brStore.selectedIds.length && !value());
+
+  return (
+    <div
+      class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
+    >
+      <div class="flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1">
+        <Button size="sm" onClick={() => setValue('chat')}>
+          <MessageCircle />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export const ActivityPanelButtons = () => {
+  const [brStore, setBrStore] = useBibleReaderStore();
   const { value, setValue } = useActivityPanel();
   const open = createMemo(() => !!brStore.selectedIds.length && !value());
 
   return (
     <div
-      class={`fixed bottom-0 left-1/4 right-1/4 flex place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
+      class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
       <div class="flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1">
-        <H6 class="px-1 text-primary-foreground">
+        <H6 class="text-nowrap px-1 text-sm text-primary-foreground">
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="sm" onClick={() => setValue('share')}>
-          <Share />
+        <Button size="icon" onClick={() => setValue('share')}>
+          <Share size={20} />
         </Button>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="sm" onClick={() => setValue('highlight')}>
-          <Highlighter />
+        <Button size="icon" onClick={() => setValue('highlight')}>
+          <Highlighter size={20} />
         </Button>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="sm" onClick={() => setValue('chat')}>
-          <MessageCircle />
+        <Button size="icon" onClick={() => setValue('references')}>
+          <Menu size={20} />
+        </Button>
+        <Separator orientation="vertical" class="bg-primary-foreground" />
+        <Button size="icon" onClick={() => setValue('chat')}>
+          <MessageCircle size={20} />
+        </Button>
+        <Separator orientation="vertical" class="bg-primary-foreground" />
+        <Button size="icon" onClick={() => setBrStore('selectedVerseInfos', [])}>
+          <X size={20} />
         </Button>
       </div>
     </div>
@@ -99,16 +127,21 @@ export const ActivityPanelContent = () => {
       closeOnOutsidePointer={false}
     >
       <DrawerContent overlay={false} class="w-full max-w-2xl justify-self-center shadow-lg">
-        <div class="mx-auto flex max-h-[600px] w-full flex-col p-4">
-          <DrawerHeader class="mb-2">
-            <DrawerTitle class="text-center">{brStore.selectedTitle}</DrawerTitle>
-          </DrawerHeader>
+        <div class="mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col p-4">
+          <Show when={value() !== 'chat'}>
+            <DrawerHeader class="mb-2">
+              <DrawerTitle class="text-center">{brStore.selectedTitle}</DrawerTitle>
+            </DrawerHeader>
+          </Show>
           <Switch>
             <Match when={value() === 'share'}>
               <ShareCard />
             </Match>
             <Match when={value() === 'highlight'}>
               <HighlightCard />
+            </Match>
+            <Match when={value() === 'references'}>
+              <ReferencesCard />
             </Match>
             <Match when={value() === 'chat'}>
               <ChatCard />

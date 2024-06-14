@@ -25,13 +25,12 @@ CREATE TABLE IF NOT EXISTS "books" (
 	"long_name" text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "chapter_highlights" (
+CREATE TABLE IF NOT EXISTS "chapter_bookmarks" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"chapter_id" text NOT NULL,
-	"user_id" text NOT NULL,
-	"color" text NOT NULL
+	"user_id" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "chapters" (
@@ -209,6 +208,15 @@ CREATE TABLE IF NOT EXISTS "user_generated_images_to_source_documents" (
 	"distance_metric" text DEFAULT 'cosine' NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "verse_highlights" (
+	"id" text PRIMARY KEY NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"verse_id" text NOT NULL,
+	"user_id" text NOT NULL,
+	"color" text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "verses" (
 	"id" text PRIMARY KEY NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -231,7 +239,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "chapter_highlights" ADD CONSTRAINT "chapter_highlights_chapter_id_chapters_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapters"("id") ON DELETE cascade ON UPDATE cascade;
+ ALTER TABLE "chapter_bookmarks" ADD CONSTRAINT "chapter_bookmarks_chapter_id_chapters_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapters"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -333,6 +341,12 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
+ ALTER TABLE "verse_highlights" ADD CONSTRAINT "verse_highlights_verse_id_verses_id_fk" FOREIGN KEY ("verse_id") REFERENCES "public"."verses"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
  ALTER TABLE "verses" ADD CONSTRAINT "verses_bible_id_bibles_id_fk" FOREIGN KEY ("bible_id") REFERENCES "public"."bibles"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
@@ -350,35 +364,37 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "bibles_abbreviation" ON "bibles" ("abbreviation");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "bibles_language_iso" ON "bibles" ("language_iso");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "bibles_country_isos" ON "bibles" ("country_isos");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "books_abbreviation" ON "books" ("abbreviation");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "books_short_name" ON "books" ("short_name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "books_long_name" ON "books" ("long_name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "chapter_highlights_chapter_id" ON "chapter_highlights" ("chapter_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "chapter_highlights_user_id" ON "chapter_highlights" ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "chapters_name" ON "chapters" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "chat_name" ON "chats" ("name");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "data_sources_name_key" ON "data_sources" ("name");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "data_sources_type" ON "data_sources" ("type");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "data_source_source_document_key" ON "data_sources_to_source_documents" ("data_source_id","source_document_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "devotion_images_devotion_id" ON "devotion_images" ("devotion_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "devotion_reactions_devotion_id" ON "devotion_reactions" ("devotion_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "devotions_created_at_idx" ON "devotions" ("created_at");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "devotion_source_document_key" ON "devotions_to_source_documents" ("devotion_id","source_document_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "index_operation_status" ON "index_operations" ("status");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "message_reaction_key" ON "message_reactions" ("message_id","user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "role" ON "messages" ("role");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "content" ON "messages" ("content");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "chat_id" ON "messages" ("chat_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "user_id" ON "messages" ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "origin_message_id" ON "messages" ("origin_message_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "anonymous" ON "messages" ("anonymous");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "message_source_document_key" ON "messages_to_source_documents" ("message_id","source_document_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "chat_share_options_chat_id" ON "share_chat_options" ("chat_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "user_generated_images_user_id" ON "user_generated_images" ("user_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "user_generated_images_message_id" ON "user_generated_images" ("message_id");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "user_generated_image_reaction_key" ON "user_generated_images_reactions" ("user_generated_image_id","user_id");--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS "user_generated_image_source_document_key" ON "user_generated_images_to_source_documents" ("user_generated_image_id","source_document_id");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "verses_name" ON "verses" ("name");
+CREATE INDEX IF NOT EXISTS "bibles_abbreviation" ON "bibles" USING btree ("abbreviation");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "bibles_language_iso" ON "bibles" USING btree ("language_iso");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "bibles_country_isos" ON "bibles" USING btree ("country_isos");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "books_abbreviation" ON "books" USING btree ("abbreviation");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "books_short_name" ON "books" USING btree ("short_name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "books_long_name" ON "books" USING btree ("long_name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chapter_bookmarks_chapter_id" ON "chapter_bookmarks" USING btree ("chapter_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chapter_bookmarks_user_id" ON "chapter_bookmarks" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chapters_name" ON "chapters" USING btree ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chat_name" ON "chats" USING btree ("name");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "data_sources_name_key" ON "data_sources" USING btree ("name");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "data_sources_type" ON "data_sources" USING btree ("type");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "data_source_source_document_key" ON "data_sources_to_source_documents" USING btree ("data_source_id","source_document_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "devotion_images_devotion_id" ON "devotion_images" USING btree ("devotion_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "devotion_reactions_devotion_id" ON "devotion_reactions" USING btree ("devotion_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "devotions_created_at_idx" ON "devotions" USING btree ("created_at");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "devotion_source_document_key" ON "devotions_to_source_documents" USING btree ("devotion_id","source_document_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "index_operation_status" ON "index_operations" USING btree ("status");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "message_reaction_key" ON "message_reactions" USING btree ("message_id","user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "role" ON "messages" USING btree ("role");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "content" ON "messages" USING btree ("content");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chat_id" ON "messages" USING btree ("chat_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "user_id" ON "messages" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "origin_message_id" ON "messages" USING btree ("origin_message_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "anonymous" ON "messages" USING btree ("anonymous");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "message_source_document_key" ON "messages_to_source_documents" USING btree ("message_id","source_document_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chat_share_options_chat_id" ON "share_chat_options" USING btree ("chat_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "user_generated_images_user_id" ON "user_generated_images" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "user_generated_images_message_id" ON "user_generated_images" USING btree ("message_id");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "user_generated_image_reaction_key" ON "user_generated_images_reactions" USING btree ("user_generated_image_id","user_id");--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "user_generated_image_source_document_key" ON "user_generated_images_to_source_documents" USING btree ("user_generated_image_id","source_document_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "verse_highlights_verse_id" ON "verse_highlights" USING btree ("verse_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "chapter_highlights_user_id" ON "verse_highlights" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "verses_name" ON "verses" USING btree ("name");

@@ -1,7 +1,7 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
-import { Show, createEffect } from 'solid-js';
+import { Accessor, Show, createEffect } from 'solid-js';
 import { useBibleStore } from '~/components/providers/bible';
 import { BibleReaderProvider } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
@@ -9,21 +9,32 @@ import { H1 } from '~/components/ui/typography';
 import { Button } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
+import { BibleReaderMenu } from '../reader/menu';
 import { getVerseReaderData } from './server';
 
 export type VerseReaderProps = {
+  bibleAbbr: Accessor<string>;
+  bookAbbr: Accessor<string>;
+  chapterNum: Accessor<number>;
+  verseNum: Accessor<number>;
+};
+
+const getVerseReaderQueryOptions = (props: {
   bibleAbbr: string;
   bookAbbr: string;
   chapterNum: number;
   verseNum: number;
-};
-
-const getVerseReaderQueryOptions = (props: VerseReaderProps) => ({
+}) => ({
   queryKey: ['verse-reader', props],
   queryFn: () => getVerseReaderData(props)
 });
 
-export default function VerseReader(props: VerseReaderProps) {
+export default function VerseReader(props: {
+  bibleAbbr: string;
+  bookAbbr: string;
+  chapterNum: number;
+  verseNum: number;
+}) {
   const query = createQuery(() => getVerseReaderQueryOptions(props));
 
   const [, setBibleStore] = useBibleStore();
@@ -45,8 +56,13 @@ export default function VerseReader(props: VerseReaderProps) {
           chapter={data.chapter}
           verse={data.verse}
         >
+          <BibleReaderMenu />
           <div class="mt-10">
-            <H1 class="text-center">{data.verse.name}</H1>
+            <div class="flex w-full justify-center">
+              <H1 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+                {data.verse.name}
+              </H1>
+            </div>
             <ReaderContent contents={data.verse.content} />
             <Show when={data.verse.previous}>
               <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">

@@ -1,12 +1,17 @@
 import { createQuery } from '@tanstack/solid-query';
 import type { Content } from '@theaistudybible/core/types/bible';
 import { createMemo } from 'solid-js';
-import Contents from '../contents/contents';
-import { ActivityPanel, ActivityPanelButtons, ActivityPanelContent } from './activity-panel';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
+import {
+  ActivityPanel,
+  ActivityPanelButtons,
+  ActivityPanelChatButton,
+  ActivityPanelContent
+} from './activity-panel';
+import Contents from './contents/contents';
 import { getHighlights } from './server';
 
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
-import '../contents/contents.css';
+import './contents/contents.css';
 
 export type ReaderContentProps = {
   contents: Content[];
@@ -46,6 +51,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
         <Contents contents={props.contents} highlights={highlights} />
       </div>
       <ActivityPanel>
+        <ActivityPanelChatButton />
         <ActivityPanelButtons />
         <ActivityPanelContent />
       </ActivityPanel>

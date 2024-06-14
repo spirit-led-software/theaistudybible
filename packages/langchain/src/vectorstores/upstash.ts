@@ -3,7 +3,7 @@ import type { EmbeddingsInterface } from '@langchain/core/embeddings';
 import { AsyncCaller, type AsyncCallerParams } from '@langchain/core/utils/async_caller';
 import { chunkArray } from '@langchain/core/utils/chunk_array';
 import { VectorStore } from '@langchain/core/vectorstores';
-import { createId } from '@paralleldrive/cuid2';
+import { createId } from '@theaistudybible/core/util/id';
 import { Index as UpstashIndex, type Vector } from '@upstash/vector';
 
 export type UpstashVectorSimilarityFunction = 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
@@ -179,7 +179,11 @@ export class UpstashVectorStore extends VectorStore {
       return;
     }
 
-    await this.index.delete(ids);
+    const chunks = chunkArray(ids, CONCURRENT_UPSERT_LIMIT);
+    const batchRequests = chunks.map((chunk) =>
+      this.caller.call(async () => this.index.delete(chunk))
+    );
+    await Promise.all(batchRequests);
   }
 
   /**

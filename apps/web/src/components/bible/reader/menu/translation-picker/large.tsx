@@ -3,9 +3,9 @@ import { Bible } from '@theaistudybible/core/model/bible';
 import ISO6391 from 'iso-639-1';
 import { Search } from 'lucide-solid';
 import { createMemo, createSignal } from 'solid-js';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { H2, P } from '../../ui/typography';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { H2, P } from '~/components/ui/typography';
 
 export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
   const [search, setSearch] = createSignal('');
