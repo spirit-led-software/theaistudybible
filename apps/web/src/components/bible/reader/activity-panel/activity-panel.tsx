@@ -1,4 +1,4 @@
-import { Highlighter, Menu, MessageCircle, Share, X } from 'lucide-solid';
+import { Highlighter, MessageCircle, Share, TextSearch, X } from 'lucide-solid';
 import {
   Accessor,
   JSXElement,
@@ -94,7 +94,7 @@ export const ActivityPanelButtons = () => {
         </Button>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Button size="icon" onClick={() => setValue('references')}>
-          <Menu size={20} />
+          <TextSearch size={20} />
         </Button>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Button size="icon" onClick={() => setValue('chat')}>

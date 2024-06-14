@@ -11,7 +11,8 @@ export function contentsToText(contents: Content[]) {
         console.debug('Ignoring ref content');
         break;
       case 'verse':
-        string += content.number.toString();
+        // string += content.number.toString();
+        console.debug('Ignoring verse content');
         break;
       case 'note':
         console.debug('Ignoring note content');
