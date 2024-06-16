@@ -1,17 +1,9 @@
 import { db } from '@lib/server/database';
-import { chapterHighlights } from '@theaistudybible/core/database/schema';
+import { verseHighlights } from '@theaistudybible/core/database/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '~/lib/server/clerk';
 
-export async function updateHighlights({
-  chapterId,
-  color,
-  highlightedIds
-}: {
-  chapterId: string;
-  color: string;
-  highlightedIds: string[];
-}) {
+export async function updateHighlights({ color, verseIds }: { color: string; verseIds: string[] }) {
   'use server';
   const { isSignedIn, userId } = auth();
   if (!isSignedIn) {
@@ -19,17 +11,16 @@ export async function updateHighlights({
   }
 
   await db
-    .insert(chapterHighlights)
+    .insert(verseHighlights)
     .values(
-      highlightedIds.map((id) => ({
-        id,
+      verseIds.map((id) => ({
         color,
         userId,
-        chapterId
+        verseId: id
       }))
     )
     .onConflictDoUpdate({
-      target: [chapterHighlights.id],
+      target: [verseHighlights.id],
       set: {
         color
       }
@@ -37,13 +28,7 @@ export async function updateHighlights({
     .returning();
 }
 
-export async function deleteHighlights({
-  chapterId,
-  highlightedIds
-}: {
-  chapterId: string;
-  highlightedIds: string[];
-}) {
+export async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
   'use server';
   const { isSignedIn, userId } = auth();
   if (!isSignedIn) {
@@ -51,12 +36,6 @@ export async function deleteHighlights({
   }
 
   await db
-    .delete(chapterHighlights)
-    .where(
-      and(
-        eq(chapterHighlights.chapterId, chapterId),
-        eq(chapterHighlights.userId, userId),
-        inArray(chapterHighlights.id, highlightedIds)
-      )
-    );
+    .delete(verseHighlights)
+    .where(and(eq(verseHighlights.userId, userId), inArray(verseHighlights.verseId, verseIds)));
 }

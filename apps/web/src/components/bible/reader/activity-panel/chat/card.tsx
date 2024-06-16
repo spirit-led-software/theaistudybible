@@ -5,10 +5,10 @@ import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
-import { Input } from '~/components/ui/input';
 import { Separator } from '~/components/ui/separator';
+import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
 import { P } from '~/components/ui/typography';
 import { useChat } from '~/hooks/chat';
 import { useAuth } from '~/hooks/clerk';
@@ -33,6 +33,14 @@ export const ChatCard = () => {
     setBrStore('chatId', id());
   });
 
+  createEffect(() => {
+    if (brStore.selectedText) {
+      setInput(
+        `Please explain the following passage from ${brStore.selectedTitle}:\n"${brStore.selectedText}"`
+      );
+    }
+  });
+
   const [alert, setAlert] = createSignal<string | undefined>(undefined);
 
   createEffect(() => {
@@ -54,21 +62,19 @@ export const ChatCard = () => {
   const messagesReversed = createMemo(() => [...(messages() ?? [])].reverse());
 
   return (
-    <Card class="flex w-full flex-1 flex-col overflow-y-auto border-none">
+    <Card class="flex w-full flex-1 flex-col overflow-y-auto">
       <SignedIn>
-        <CardHeader>
-          <CardTitle class="flex justify-between">
-            <ChatSelector />
-            <DrawerClose as={Button} variant="outline">
-              Close
-            </DrawerClose>
-          </CardTitle>
+        <CardHeader class="flex w-full flex-row items-center justify-between space-x-4 space-y-0">
+          <ChatSelector />
+          <DrawerClose as={Button} variant="outline">
+            Close
+          </DrawerClose>
         </CardHeader>
-        <CardContent class="flex w-full flex-1 flex-col overflow-y-auto">
+        <CardContent class="flex w-full flex-1 flex-col overflow-y-auto border-t p-0">
           <QueryBoundary query={query}>
             {() => (
               <>
-                <div class="flex grow flex-col-reverse space-y-2 overflow-y-auto whitespace-pre-wrap rounded-xl border border-border">
+                <div class="flex grow flex-col-reverse space-y-2 overflow-y-auto whitespace-pre-wrap border-b">
                   {messagesReversed().map((message) => (
                     <div class="flex w-full flex-col">
                       <Message message={message} />
@@ -103,15 +109,28 @@ export const ChatCard = () => {
                       </p>
                     </div>
                   )}
-                  <Input
-                    placeholder="Type a message"
-                    value={input()}
-                    onChange={(e) => setInput(e.currentTarget?.value ?? '')}
-                    class="rounded-r-none"
-                  />
-                  <Button type="submit" class="rounded-l-none">
-                    <Send size={20} />
-                  </Button>
+                  <div class="flex w-full items-center rounded-full border px-3 py-2">
+                    <TextField class="flex flex-1 p-3">
+                      <TextFieldTextArea
+                        placeholder="Type a message"
+                        value={input()}
+                        onChange={(e: { currentTarget: HTMLTextAreaElement | undefined }) =>
+                          setInput(e.currentTarget?.value ?? '')
+                        }
+                        class="h-fit min-h-fit w-full resize-none border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                        autoResize
+                      />
+                    </TextField>
+                    <Button
+                      type="submit"
+                      size="icon"
+                      variant="outline"
+                      class="rounded-full"
+                      disabled={isLoading()}
+                    >
+                      <Send size={20} />
+                    </Button>
+                  </div>
                 </form>
               </>
             )}

@@ -1,14 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
 import { db } from '@lib/server/database';
-import {
-  bibles,
-  books,
-  chapterHighlights,
-  chapters,
-  verses
-} from '@theaistudybible/core/database/schema';
+import { bibles, books, chapters, verses } from '@theaistudybible/core/database/schema';
 import type { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import { SQL, and, count, eq, inArray, or, sql } from 'drizzle-orm';
+import { SQL, and, count, eq, or, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { PaginationSchema, PaginationSchemaNoDefault } from '~/lib/server/api/lib/utils/pagination';
@@ -389,127 +383,6 @@ export const app = new Hono<{
       return c.json(
         {
           data: includeContent ? c.var.chapter : rest
-        },
-        200
-      );
-    }
-  )
-  .post(
-    '/:id/chapters/:chapterId/highlights',
-    zValidator(
-      'json',
-      z.object({
-        color: z
-          .string()
-          .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Invalid color format')
-          .optional()
-          .default('#FFD700'),
-        ids: z.array(z.string())
-      })
-    ),
-    async (c) => {
-      const { color, ids } = c.req.valid('json');
-
-      if (!c.var.clerkAuth?.userId) {
-        return c.json({ message: 'Unauthorized' }, 401);
-      }
-
-      const highlights = await db
-        .insert(chapterHighlights)
-        .values(
-          ids.map((id) => ({
-            id,
-            color,
-            userId: c.var.clerkAuth!.userId!,
-            chapterId: c.var.chapter.id
-          }))
-        )
-        .onConflictDoUpdate({
-          target: [chapterHighlights.id],
-          set: {
-            color
-          }
-        })
-        .returning();
-
-      return c.json(
-        {
-          data: highlights
-        },
-        200
-      );
-    }
-  )
-  .get('/:id/chapters/:chapterId/highlights', async (c) => {
-    if (!c.var.clerkAuth?.userId) {
-      return c.json({ message: 'Unauthorized' }, 401);
-    }
-
-    const highlights = await db.query.chapterHighlights.findMany({
-      where: and(
-        eq(chapterHighlights.chapterId, c.var.chapter.id),
-        eq(chapterHighlights.userId, c.var.clerkAuth.userId)
-      )
-    });
-    if (!highlights) {
-      return c.json(
-        {
-          message: 'No highlights found'
-        },
-        404
-      );
-    }
-
-    return c.json(
-      {
-        data: highlights
-      },
-      200
-    );
-  })
-  .delete(
-    '/:id/chapters/:chapterId/highlights',
-    zValidator(
-      'json',
-      z.object({
-        ids: z.array(z.string())
-      })
-    ),
-    async (c) => {
-      if (!c.var.clerkAuth?.userId) {
-        return c.json({ message: 'Unauthorized' }, 401);
-      }
-
-      const { ids } = c.req.valid('json');
-
-      const highlights = await db.query.chapterHighlights.findFirst({
-        where: and(
-          eq(chapterHighlights.chapterId, c.var.chapter.id),
-          eq(chapterHighlights.userId, c.var.clerkAuth.userId)
-        )
-      });
-      if (!highlights) {
-        return c.json(
-          {
-            message: 'No highlights found'
-          },
-          404
-        );
-      }
-
-      await db
-        .delete(chapterHighlights)
-        .where(
-          and(
-            eq(chapterHighlights.chapterId, c.var.chapter.id),
-            eq(chapterHighlights.userId, c.var.clerkAuth.userId),
-            inArray(chapterHighlights.id, ids)
-          )
-        );
-
-      return c.json(
-        {
-          message: 'Highlights deleted'
         },
         200
       );

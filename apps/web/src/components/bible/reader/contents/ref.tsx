@@ -15,12 +15,12 @@ export type RefContentProps = {
 };
 
 export default function RefContent(props: RefContentProps) {
-  const [bibleReaderStore] = useBibleReaderStore();
+  const [brStore] = useBibleReaderStore();
 
   const link = createMemo(() => {
     const [bookAbbr, chapterAndVerse] = props.attrs.loc.split(' ');
     const [chapter, verse] = chapterAndVerse.split(':');
-    let link = `/bible/${bibleReaderStore.bible!.abbreviation}/${bookAbbr}/${chapter}`;
+    let link = `/bible/${brStore.bible.abbreviation}/${bookAbbr}/${chapter}`;
     if (verse) {
       link += `/${verse}`;
     }

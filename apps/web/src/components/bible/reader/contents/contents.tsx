@@ -23,7 +23,7 @@ export type ContentsProps = {
 };
 
 export default function Contents(props: ContentsProps) {
-  const [bibleReaderStore] = useBibleReaderStore();
+  const [brStore] = useBibleReaderStore();
 
   return (
     <For each={props.contents}>
@@ -71,7 +71,7 @@ export default function Contents(props: ContentsProps) {
                 data-type={content.type}
                 {...addProps}
                 class={cn(style, 'hover:underline', props.class)}
-                href={`/bible/${bibleReaderStore.bible!.abbreviation}/${bibleReaderStore.book!.abbreviation}/${bibleReaderStore.chapter!.number}/${(content as VerseContent).number}`}
+                href={`/bible/${brStore.bible!.abbreviation}/${brStore.book!.abbreviation}/${brStore.chapter!.number}/${(content as VerseContent).number}`}
               >
                 {(content as VerseContent).number}
               </A>

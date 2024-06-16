@@ -888,7 +888,8 @@ export const verseHighlights = pgTable(
         onDelete: 'cascade',
         onUpdate: 'cascade'
       })
-      .notNull(),
+      .notNull()
+      .unique(),
     userId: text('user_id').notNull(),
     color: text('color').notNull()
   },

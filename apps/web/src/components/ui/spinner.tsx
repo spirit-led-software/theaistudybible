@@ -10,9 +10,13 @@ const spinnerVariants = cva(
       variant: {
         default: 'border-foreground border-b-transparent',
         primary: 'border-primary border-b-transparent',
+        'primary-foreground': 'border-primary-foreground border-b-transparent',
         secondary: 'border-secondary border-b-transparent',
+        'secondary-foreground': 'border-secondary-foreground border-b-transparent',
         accent: 'border-accent border-b-transparent',
-        destructive: 'border-destructive border-b-transparent'
+        'accent-foreground': 'border-accent-foreground border-b-transparent',
+        destructive: 'border-destructive border-b-transparent',
+        'destructive-foreground': 'border-destructive-foreground border-b-transparent'
       },
       size: {
         default: 'h-12 w-12',

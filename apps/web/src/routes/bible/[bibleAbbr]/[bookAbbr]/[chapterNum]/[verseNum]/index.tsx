@@ -3,14 +3,22 @@ import { useQueryClient } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 import { bookPickerQueryOptions } from '~/components/bible/reader/menu/chapter-picker/book';
 import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/menu/translation-picker/small';
-import VerseReader from '~/components/bible/verse/reader';
+import VerseReader, { getVerseReaderQueryOptions } from '~/components/bible/verse/reader';
 
 export const route: RouteDefinition = {
   load: async ({ params }) => {
-    const { bibleAbbr } = params;
+    const { bibleAbbr, bookAbbr, chapterNum, verseNum } = params;
 
     const qc = useQueryClient();
     await Promise.all([
+      qc.prefetchQuery(
+        getVerseReaderQueryOptions({
+          bibleAbbr,
+          bookAbbr,
+          chapterNum: parseInt(chapterNum),
+          verseNum: parseInt(verseNum)
+        })
+      ),
       qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
       qc.prefetchQuery(smallTranslationPickerQueryOptions())
     ]);

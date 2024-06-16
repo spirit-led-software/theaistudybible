@@ -11,6 +11,14 @@ export function gatherElementIdsByVerseId(id: string) {
   return Array.from(new Set(Array.from(els).map((el) => el.id)));
 }
 
+export function gatherElementIdsAndVerseNumberByVerseId(id: string) {
+  const els = document.querySelectorAll(`[data-verse-id="${id}"][data-type="text"]`);
+  return {
+    ids: Array.from(new Set(Array.from(els).map((el) => el.id))),
+    verseNumber: els[0].getAttribute('data-verse-number')
+  };
+}
+
 export function hexToRgb(hex: string) {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
   const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;

@@ -14,16 +14,16 @@ export type TextContentProps = {
 };
 
 export default function TextContent(props: TextContentProps) {
-  const [bibleReaderStore, setBibleReaderStore] = useBibleReaderStore();
+  const [brStore, setBrStore] = useBibleReaderStore();
   const highlightColor = createMemo(
-    () => props.highlights?.().find(({ id }) => id === props.content.id)?.color
+    () => props.highlights?.().find(({ verseId }) => verseId === props.content.verseId)?.color
   );
   const selected = createMemo(() =>
-    bibleReaderStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))
+    brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))
   );
 
   const handleClick = () => {
-    setBibleReaderStore('selectedVerseInfos', (prev) => {
+    setBrStore('selectedVerseInfos', (prev) => {
       if (prev.find(({ id }) => id === props.content.verseId)) {
         return prev.filter(({ id }) => id !== props.content.verseId);
       }

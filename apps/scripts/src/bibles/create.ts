@@ -219,17 +219,6 @@ export async function createBible({
         .returning();
       newChapters = newChapters.sort((a, b) => a.number - b.number);
 
-      if (generateEmbeddings) {
-        console.log(`Generating embeddings for ${bookInfo.abbreviation}...`);
-        for (const chapter of newChapters) {
-          await generateChapterEmbeddings({
-            chapter,
-            book,
-            bible
-          });
-        }
-      }
-
       console.log(
         `${bookInfo.abbreviation}: Inserted ${newChapters.length} chapters. Inserting verses...`
       );
@@ -252,6 +241,16 @@ export async function createBible({
           )
           .returning();
         newVerses = newVerses.concat(createdVerses.sort((a, b) => a.number - b.number));
+
+        if (generateEmbeddings) {
+          console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
+          await generateChapterEmbeddings({
+            verses: createdVerses,
+            chapter,
+            book,
+            bible
+          });
+        }
       }
       console.log(`${bookInfo.abbreviation}: Inserted ${newVerses.length} verses`);
 

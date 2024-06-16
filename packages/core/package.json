@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.1.31",
+    "ai": "^3.1.35",
     "axios": "^1.7.2",
     "axios-retry": "^4.4.0",
     "drizzle-orm": "^0.31.2",

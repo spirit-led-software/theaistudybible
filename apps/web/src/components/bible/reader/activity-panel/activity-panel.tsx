@@ -16,10 +16,11 @@ import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '~/components/ui/drawer';
 import { Separator } from '~/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { H6 } from '~/components/ui/typography';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';
-import { ReferencesCard } from './references/references-card';
+import { ReferencesCard } from './references/card';
 import { ShareCard } from './share/card';
 
 export type ActivityPanelContextValue = {
@@ -85,25 +86,50 @@ export const ActivityPanelButtons = () => {
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="icon" onClick={() => setValue('share')}>
-          <Share size={20} />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" onClick={() => setValue('share')}>
+              <Share size={20} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Share Selection</TooltipContent>
+        </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="icon" onClick={() => setValue('highlight')}>
-          <Highlighter size={20} />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" onClick={() => setValue('highlight')}>
+              <Highlighter size={20} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Highlight Selection</TooltipContent>
+        </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="icon" onClick={() => setValue('references')}>
-          <TextSearch size={20} />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" onClick={() => setValue('references')}>
+              <TextSearch size={20} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Find References</TooltipContent>
+        </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="icon" onClick={() => setValue('chat')}>
-          <MessageCircle size={20} />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" onClick={() => setValue('chat')}>
+              <MessageCircle size={20} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Explain</TooltipContent>
+        </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Button size="icon" onClick={() => setBrStore('selectedVerseInfos', [])}>
-          <X size={20} />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button size="icon" onClick={() => setBrStore('selectedVerseInfos', [])}>
+              <X size={20} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Clear Selection</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );

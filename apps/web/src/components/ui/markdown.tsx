@@ -4,7 +4,7 @@ import { Dynamic } from 'solid-js/web';
 import SolidMarkedMarkdown from 'solid-marked/component';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
-import { H1, H2, H3, H4, H5, H6, P } from './typography';
+import * as Typography from './typography';
 
 export const Markdown = (props: { children: string }) => {
   return (
@@ -12,36 +12,11 @@ export const Markdown = (props: { children: string }) => {
       builtins={{
         Root: (props): JSXElement => <div class="p-5">{props.children}</div>,
         Heading: (props): JSXElement => (
-          <A href={`#${props.id}`}>
-            <Switch
-              fallback={
-                <Dynamic component={`h${props.depth}`} id={props.id}>
-                  {props.children}
-                </Dynamic>
-              }
-            >
-              <Match when={props.depth === 1}>
-                <H1 id={props.id}>{props.children}</H1>
-              </Match>
-              <Match when={props.depth === 2}>
-                <H2 id={props.id}>{props.children}</H2>
-              </Match>
-              <Match when={props.depth === 3}>
-                <H3 id={props.id}>{props.children}</H3>
-              </Match>
-              <Match when={props.depth === 4}>
-                <H4 id={props.id}>{props.children}</H4>
-              </Match>
-              <Match when={props.depth === 5}>
-                <H5 id={props.id}>{props.children}</H5>
-              </Match>
-              <Match when={props.depth === 6}>
-                <H6 id={props.id}>{props.children}</H6>
-              </Match>
-            </Switch>
-          </A>
+          <Dynamic component={Typography[`H${props.depth}`]} id={props.id} class="mt-6 first:mt-0">
+            <A href={`#${props.id}`}>{props.children}</A>
+          </Dynamic>
         ),
-        Paragraph: (props): JSXElement => <P>{props.children}</P>,
+        Paragraph: (props): JSXElement => <Typography.P>{props.children}</Typography.P>,
         Blockquote: (props): JSXElement => (
           <blockquote class="border-l-4 border-gray-400 pl-4">{props.children}</blockquote>
         ),

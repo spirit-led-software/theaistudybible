@@ -1,8 +1,9 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import type { Bible, Book, Chapter } from '@theaistudybible/core/model/bible';
+import type { Book } from '@theaistudybible/core/model/bible';
 import { Check } from 'lucide-solid';
 import { For } from 'solid-js';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import {
   Accordion,
@@ -15,9 +16,7 @@ import { CommandItem } from '~/components/ui/command';
 import { GetChapterPickerDataProps, getChapterPickerData } from './server';
 
 export type ChapterPickerProps = {
-  bible: Bible;
   book: Book;
-  chapter: Chapter;
 };
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
@@ -26,12 +25,13 @@ export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => (
 });
 
 export default function ChapterPicker(props: ChapterPickerProps) {
+  const [brStore] = useBibleReaderStore();
+
   const query = createQuery(() => ({
     ...chapterPickerQueryOptions({
-      bibleAbbr: props.bible.abbreviation,
+      bibleAbbr: brStore.bible.abbreviation,
       bookAbbr: props.book.abbreviation
-    }),
-    enabled: false
+    })
   }));
 
   return (
@@ -47,16 +47,17 @@ export default function ChapterPicker(props: ChapterPickerProps) {
             <QueryBoundary query={query}>
               {(book) => (
                 <For each={book.chapters}>
-                  {(foundChapter) => (
+                  {(foundChapter, idx) => (
                     <Button
+                      data-index={idx()}
                       variant="outline"
                       as={A}
-                      href={`/bible/${props.bible.abbreviation}/${book.abbreviation}/${foundChapter.number}`}
+                      href={`/bible/${brStore.bible.abbreviation}/${book.abbreviation}/${foundChapter.number}`}
                       class="flex place-items-center justify-center overflow-visible"
                     >
                       <Check
                         size={10}
-                        class={`mr-1 h-4 w-4 flex-shrink-0 ${foundChapter.id === props.chapter.id ? '' : 'hidden'}`}
+                        class={`mr-1 h-4 w-4 flex-shrink-0 ${foundChapter.id === brStore.chapter.id ? '' : 'hidden'}`}
                       />
                       {foundChapter.number}
                     </Button>

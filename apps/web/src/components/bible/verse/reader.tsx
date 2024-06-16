@@ -1,7 +1,7 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
-import { Accessor, Show, createEffect } from 'solid-js';
+import { Accessor, Show, createDeferred } from 'solid-js';
 import { useBibleStore } from '~/components/providers/bible';
 import { BibleReaderProvider } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
@@ -19,7 +19,7 @@ export type VerseReaderProps = {
   verseNum: Accessor<number>;
 };
 
-const getVerseReaderQueryOptions = (props: {
+export const getVerseReaderQueryOptions = (props: {
   bibleAbbr: string;
   bookAbbr: string;
   chapterNum: number;
@@ -38,7 +38,7 @@ export default function VerseReader(props: {
   const query = createQuery(() => getVerseReaderQueryOptions(props));
 
   const [, setBibleStore] = useBibleStore();
-  createEffect(() => {
+  createDeferred(() => {
     if (query.data) {
       setBibleStore('bible', query.data.bible);
       setBibleStore('book', query.data.book);

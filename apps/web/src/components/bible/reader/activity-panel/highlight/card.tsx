@@ -1,10 +1,11 @@
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { createSignal } from 'solid-js';
+import { Match, Switch, createSignal } from 'solid-js';
 import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
+import { Spinner } from '~/components/ui/spinner';
 import { showToast } from '~/components/ui/toast';
 import { ToggleGroup, ToggleGroupItem } from '~/components/ui/toggle-group';
 import { P } from '~/components/ui/typography';
@@ -12,21 +13,16 @@ import { HighlightColorPicker } from './color-picker';
 import { deleteHighlights, updateHighlights } from './server';
 
 export const HighlightCard = () => {
-  const [bibleReaderStore] = useBibleReaderStore();
+  const [brStore] = useBibleReaderStore();
 
   const qc = useQueryClient();
 
   const addHighlightsMutation = createMutation(() => ({
-    mutationFn: ({
-      color = '#FFD700',
-      highlightedIds
-    }: {
-      color?: string;
-      highlightedIds: string[];
-    }) => updateHighlights({ chapterId: bibleReaderStore.chapter!.id, color, highlightedIds }),
+    mutationFn: ({ color = '#FFD700', verseIds }: { color?: string; verseIds: string[] }) =>
+      updateHighlights({ verseIds, color }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['highlights', { chapterId: bibleReaderStore.chapter!.id }]
+        queryKey: ['highlights', { chapterId: brStore.chapter.id }]
       }),
     onError: () => {
       showToast({
@@ -37,11 +33,10 @@ export const HighlightCard = () => {
   }));
 
   const deleteHighlightsMutation = createMutation(() => ({
-    mutationFn: ({ highlightedIds }: { highlightedIds: string[] }) =>
-      deleteHighlights({ chapterId: bibleReaderStore.chapter!.id, highlightedIds }),
+    mutationFn: ({ verseIds }: { verseIds: string[] }) => deleteHighlights({ verseIds }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['highlights', { chapterId: bibleReaderStore.chapter!.id }]
+        queryKey: ['highlights', { chapterId: brStore.chapter.id }]
       }),
     onError: () => {
       showToast({
@@ -78,24 +73,33 @@ export const HighlightCard = () => {
           </DrawerClose>
           <Button
             variant="destructive"
+            disabled={addHighlightsMutation.isPending || deleteHighlightsMutation.isPending}
             onClick={() =>
               deleteHighlightsMutation.mutate({
-                highlightedIds: bibleReaderStore.selectedIds
+                verseIds: brStore.selectedVerseInfos.map((v) => v.id)
               })
             }
           >
-            Reset
+            <Switch fallback={'Reset'}>
+              <Match when={deleteHighlightsMutation.isPending}>
+                <Spinner size="sm" variant="destructive-foreground" />
+              </Match>
+            </Switch>
           </Button>
           <Button
-            disabled={!tgValue()}
+            disabled={!tgValue() || addHighlightsMutation.isPending}
             onClick={() =>
               addHighlightsMutation.mutate({
-                highlightedIds: bibleReaderStore.selectedIds,
+                verseIds: brStore.selectedVerseInfos.map((v) => v.id),
                 color: tgValue() === 'custom' ? customColor() : tgValue()
               })
             }
           >
-            Save
+            <Switch fallback={'Save'}>
+              <Match when={addHighlightsMutation.isPending}>
+                <Spinner size="sm" variant="primary-foreground" />
+              </Match>
+            </Switch>
           </Button>
         </CardFooter>
       </SignedIn>

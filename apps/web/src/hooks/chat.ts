@@ -72,6 +72,10 @@ export const useChat = (props: UseChatProps) => {
       }
       return useChatProps.onResponse?.(response);
     },
+    onFinish: (message) => {
+      query.refetch();
+      return useChatProps.onFinish?.(message);
+    },
     onError: (err) => {
       console.error(err);
       return useChatProps.onError?.(err);
@@ -142,10 +146,6 @@ export const useChat = (props: UseChatProps) => {
     if (query) {
       appendQuery()(query);
     }
-  });
-
-  createEffect(() => {
-    console.log('Messages:', JSON.stringify(useChatReturn.messages(), null, 2));
   });
 
   return {

@@ -1,7 +1,8 @@
 import { createQuery } from '@tanstack/solid-query';
 import type { Content } from '@theaistudybible/core/types/bible';
-import { createMemo } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
+import { createEffect, createMemo } from 'solid-js';
+import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';
+import { HighlightInfo } from '~/types/bible';
 import {
   ActivityPanel,
   ActivityPanelButtons,
@@ -11,33 +12,63 @@ import {
 import Contents from './contents/contents';
 import { getHighlights } from './server';
 
+import { useSearchParams } from '@solidjs/router';
+import { gatherElementIdsAndVerseNumberByVerseId } from '~/lib/utils';
 import './contents/contents.css';
 
 export type ReaderContentProps = {
   contents: Content[];
 };
 
-export const getHighlightsQueryOptions = ({ chapterId }: { chapterId: string }) => ({
-  queryKey: ['highlights', { chapterId }],
-  queryFn: () => getHighlights({ chapterId })
+export const getHighlightsQueryOptions = (props: { chapterId: string }) => ({
+  queryKey: ['highlights', props],
+  queryFn: () => getHighlights(props)
 });
 
 export const ReaderContent = (props: ReaderContentProps) => {
-  const [bibleReaderStore] = useBibleReaderStore();
+  const [brStore, setBrStore] = useBibleReaderStore();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  createEffect(() => {
+    const verseIdsParam = searchParams.verseIds;
+    if (verseIdsParam) {
+      const verseIds = verseIdsParam.split(',');
+      setBrStore('selectedVerseInfos', (prev) => {
+        const newSelectedVerseInfos: SelectedVerseInfo[] = verseIds.map((id) => {
+          const contents = gatherElementIdsAndVerseNumberByVerseId(id);
+          const text = contents.ids
+            .map((id) => document.getElementById(id)?.textContent)
+            .join('')
+            .trim();
+          return {
+            id,
+            number: parseInt(contents.verseNumber!),
+            contentIds: contents.ids,
+            text
+          };
+        });
+
+        return [...prev, ...newSelectedVerseInfos];
+      });
+      setSearchParams({ verseIds: undefined });
+      document.getElementById(verseIds[0])?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+  });
 
   const highlightsQuery = createQuery(() =>
-    getHighlightsQueryOptions({ chapterId: bibleReaderStore.chapter!.id })
+    getHighlightsQueryOptions({ chapterId: brStore.chapter!.id })
   );
 
   const highlights = createMemo(() => {
-    let highlights = [] as {
-      id: string;
-      color: string;
-    }[];
+    let highlights = [] as HighlightInfo[];
     if (highlightsQuery.data) {
       highlights = highlights.concat(
         highlightsQuery.data.map((hl) => ({
           id: hl.id,
+          verseId: hl.verseId,
           color: hl.color
         }))
       );

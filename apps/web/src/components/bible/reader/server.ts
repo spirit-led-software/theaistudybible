@@ -11,8 +11,14 @@ export async function getHighlights({ chapterId }: { chapterId: string }) {
   return await db.query.chapters
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
+      columns: {
+        id: true
+      },
       with: {
         verses: {
+          columns: {
+            id: true
+          },
           with: {
             highlights: {
               where: (highlights, { eq }) => eq(highlights.userId, userId)

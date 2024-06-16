@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 
 const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
@@ -24,46 +25,57 @@ const getChats = async ({ offset, limit }: { offset: number; limit: number }) =>
 };
 
 export const ChatSelector = () => {
-  const [bibleReaderStore, setBibleReaderStore] = useBibleReaderStore();
+  const [brStore, setBrStore] = useBibleReaderStore();
   const chatsQuery = createQuery(() => ({
     queryKey: ['chats', { offset: 0, limit: 10 }],
     queryFn: () => getChats({ offset: 0, limit: 10 })
   }));
 
-  const [value, setValue] = createSignal<Chat | null>(null);
+  const [value, setValue] = createSignal<Chat | null>(
+    chatsQuery.data?.find((chat) => chat.id === brStore.chatId) ?? null
+  );
   createEffect(() => {
-    setBibleReaderStore('chatId', () => value()?.id);
+    setValue(() => chatsQuery.data?.find((chat) => chat.id === brStore.chatId) ?? null);
+  });
+  createEffect(() => {
+    setBrStore('chatId', () => value()?.id);
   });
 
   return (
     <QueryBoundary query={chatsQuery}>
       {(chats) => (
-        <div class="flex space-x-2">
+        <div class="flex flex-1 items-center space-x-2">
           <Select<Chat | null>
             value={value()}
             onChange={setValue}
             options={chats}
             optionValue="id"
             optionTextValue="name"
-            optionDisabled={(chat) => chat.id === bibleReaderStore.chatId}
+            optionDisabled={(chat) => chat.id === brStore.chatId}
             placeholder="Chat"
             itemComponent={(props) => (
               <SelectItem item={props.item}>{props.item.rawValue?.name ?? 'Chat'}</SelectItem>
             )}
+            class="w-full"
           >
-            <SelectTrigger class="w-fit max-w-full">
+            <SelectTrigger class="max-w-full flex-1">
               <SelectValue<Chat>>{(state) => state.selectedOption()?.name}</SelectValue>
             </SelectTrigger>
             <SelectContent />
           </Select>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setValue(null);
-            }}
-          >
-            <PenBox size={15} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setValue(null);
+                }}
+              >
+                <PenBox size={15} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>New Chat</TooltipContent>
+          </Tooltip>
         </div>
       )}
     </QueryBoundary>
