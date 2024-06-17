@@ -1,7 +1,8 @@
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import { JSXElement, createContext, createEffect, splitProps, useContext } from 'solid-js';
+import { JSXElement, createComputed, createContext, on, splitProps, useContext } from 'solid-js';
 import { SetStoreFunction, Store, createStore } from 'solid-js/store';
 import { formVerseString } from '~/lib/utils';
+import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {
   id: string;
@@ -16,8 +17,6 @@ export type BibleReaderStore = {
   chapter: Chapter;
   verse?: Verse;
   chatId?: string;
-  chatOpen: boolean;
-  chatQuery?: string;
   selectedVerseInfos: SelectedVerseInfo[];
   selectedIds: string[];
   selectedTitle: string;
@@ -37,8 +36,6 @@ export type BibleReaderProviderProps = {
   chapter: Chapter;
   verse?: Verse;
   chatId?: string;
-  chatOpen?: boolean;
-  chatQuery?: string;
   selectedVerseInfos?: SelectedVerseInfo[];
   children: JSXElement;
 };
@@ -51,38 +48,25 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     book: others.book,
     chapter: others.chapter,
     verse: others.verse,
-    chatOpen: others.chatOpen ?? false,
     selectedVerseInfos: others.selectedVerseInfos ?? [],
-    selectedIds: [],
-    selectedTitle: '',
-    selectedText: ''
-  });
-
-  createEffect(() => {
-    setStore(
-      'selectedIds',
-      store.selectedVerseInfos.flatMap((info) => info.contentIds)
-    );
-  });
-
-  createEffect(() => {
-    if (store.selectedVerseInfos.length === 0) {
-      setStore('selectedTitle', '');
-    }
-
-    const verseNumbers = Array.from(
-      new Set(store.selectedVerseInfos.map((info) => info.number).sort((a, b) => a - b))
-    );
-    setStore(
-      'selectedTitle',
-      `${store.book.shortName} ${store.chapter.number}:${formVerseString(verseNumbers)} (${store.bible.abbreviationLocal})`
-    );
-  });
-
-  createEffect(() => {
-    setStore(
-      'selectedText',
-      [...store.selectedVerseInfos]
+    get selectedIds(): string[] {
+      return this.selectedVerseInfos.flatMap((info: SelectedVerseInfo) => info.contentIds);
+    },
+    get selectedTitle(): string {
+      if (this.selectedVerseInfos.length === 0) {
+        return '';
+      }
+      const verseNumbers = Array.from(
+        new Set<number>(
+          [...store.selectedVerseInfos]
+            .map((info: SelectedVerseInfo) => info.number)
+            .sort((a: number, b: number) => a - b)
+        )
+      );
+      return `${store.book.shortName} ${store.chapter.number}:${formVerseString(verseNumbers)} (${store.bible.abbreviationLocal})`;
+    },
+    get selectedText() {
+      return [...this.selectedVerseInfos]
         .sort((a, b) => a.number - b.number)
         .flatMap((info, index, array) => {
           let text = '';
@@ -98,9 +82,43 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
           return text;
         })
         .join('')
-        .trim()
-    );
+        .trim();
+    }
   });
+
+  const [, setBibleStore] = useBibleStore();
+  createComputed(
+    on(
+      () => store.bible,
+      () => {
+        setBibleStore('bible', store.bible);
+      }
+    )
+  );
+  createComputed(
+    on(
+      () => store.book,
+      () => {
+        setBibleStore('book', store.book);
+      }
+    )
+  );
+  createComputed(
+    on(
+      () => store.chapter,
+      () => {
+        setBibleStore('chapter', store.chapter);
+      }
+    )
+  );
+  createComputed(
+    on(
+      () => store.verse,
+      () => {
+        setBibleStore('verse', store.verse);
+      }
+    )
+  );
 
   return (
     <BibleReaderContext.Provider value={[store, setStore]}>

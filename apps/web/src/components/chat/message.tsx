@@ -10,8 +10,8 @@ export const Message = (props: { message: AIMessage }) => {
   return (
     <div class="flex w-full place-items-center space-x-2 py-1 pl-5">
       {props.message.role === 'user' ? (
-        <Avatar>
-          <AvatarImage src={user()!.imageUrl!} />
+        <Avatar fallbackDelay={1000}>
+          <AvatarImage src={user()?.imageUrl} />
           <AvatarFallback>{user()?.fullName}</AvatarFallback>
         </Avatar>
       ) : (

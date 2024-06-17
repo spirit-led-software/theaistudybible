@@ -1,9 +1,39 @@
 import { UseChatOptions, useChat as useAIChat } from '@ai-sdk/solid';
 import { db } from '@lib/server/database';
-import { createInfiniteQuery } from '@tanstack/solid-query';
+import { createInfiniteQuery, createQuery } from '@tanstack/solid-query';
 import { Prettify } from '@theaistudybible/core/types/util';
-import { Accessor, createEffect, createMemo, createSignal, splitProps } from 'solid-js';
+import { createId } from '@theaistudybible/core/util/id';
+import {
+  Accessor,
+  createComputed,
+  createEffect,
+  createMemo,
+  createSignal,
+  splitProps
+} from 'solid-js';
 import { useAuth } from './clerk';
+
+export const getChatQueryProps = (chatId?: string) => ({
+  queryKey: ['chat', { chatId }],
+  queryFn: async () => (chatId ? await getChat(chatId) : null)
+});
+
+const getChat = async (chatId: string) => {
+  'use server';
+  return await db.query.chats.findFirst({
+    where: (chats, { eq }) => eq(chats.id, chatId)
+  });
+};
+
+export const getChatMessagesQueryProps = (chatId?: string) => ({
+  queryKey: ['chat-messages', { chatId }],
+  queryFn: async ({ pageParam }: { pageParam: number }) =>
+    chatId
+      ? await getChatMessages({ chatId, limit: 10, offset: pageParam })
+      : ({ messages: [], nextCursor: undefined } as Awaited<ReturnType<typeof getChatMessages>>),
+  initialPageParam: 0,
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor
+});
 
 const getChatMessages = async ({
   chatId,
@@ -34,7 +64,7 @@ const getChatMessages = async ({
 };
 
 export type UseChatProps = Prettify<
-  | (Omit<UseChatOptions, 'id'> & {
+  | (Omit<UseChatOptions, 'id' | 'generateId' | 'sendExtraMessageFields'> & {
       id?: Accessor<string | undefined>;
       initQuery?: Accessor<string | undefined>;
       setInitQuery?: (query: string | undefined) => void;
@@ -47,20 +77,16 @@ export const useChat = (props: UseChatProps) => {
 
   const { getToken } = useAuth();
   const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
-  const [offset, setOffset] = createSignal(0);
 
   const [chatId, setChatId] = createSignal<string | undefined>(local.id?.());
-  createEffect(() => {
-    const id = local.id?.();
-    if (chatId() !== id) {
-      setChatId(id);
-      setOffset(0);
-    }
+  createComputed(() => {
+    setChatId(local.id?.());
   });
 
   const useChatReturn = useAIChat({
     ...useChatProps,
-    id: chatId(),
+    generateId: createId,
+    sendExtraMessageFields: true,
     onResponse: (response) => {
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId) {
@@ -73,7 +99,10 @@ export const useChat = (props: UseChatProps) => {
       return useChatProps.onResponse?.(response);
     },
     onFinish: (message) => {
-      query.refetch();
+      setTimeout(() => {
+        chatQuery.refetch();
+        messagesQuery.refetch();
+      }, 5 * 1000);
       return useChatProps.onFinish?.(message);
     },
     onError: (err) => {
@@ -82,19 +111,13 @@ export const useChat = (props: UseChatProps) => {
     }
   });
 
-  const query = createInfiniteQuery(() => ({
-    queryKey: ['chat-messages', { chatId: chatId(), limit: 10, offset: offset() }],
-    queryFn: ({ pageParam }) =>
-      chatId()
-        ? getChatMessages({ chatId: chatId()!, limit: 10, offset: pageParam })
-        : { messages: [], nextCursor: undefined },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor
-  }));
+  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+
+  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
 
   createEffect(() => {
     const newMessages =
-      [...(query.data?.pages ?? [])]
+      [...(messagesQuery.data?.pages ?? [])]
         .flatMap((page) => [...page.messages])
         .reverse()
         .map((message) => ({
@@ -150,8 +173,8 @@ export const useChat = (props: UseChatProps) => {
 
   return {
     ...useChatReturn,
-    query,
-    id: chatId,
-    setId: setChatId
+    chatQuery,
+    messagesQuery,
+    id: chatId
   };
 };

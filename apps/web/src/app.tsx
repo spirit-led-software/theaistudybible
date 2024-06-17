@@ -8,13 +8,14 @@ import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import NavigationHeader from './components/nav/header';
 import { ClerkProvider } from './components/providers/clerk';
+import { AppContextProvider } from './components/providers/context';
 import { Button } from './components/ui/button';
 import { Spinner } from './components/ui/spinner';
 import { Toaster } from './components/ui/toast';
 import { H1, H4 } from './components/ui/typography';
+import { cn } from './lib/utils';
 
 import './app.css';
-import { BibleProvider } from './components/providers/bible';
 
 export function getServerCookies() {
   'use server';
@@ -41,7 +42,7 @@ export default function App() {
             <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
-                <BibleProvider>
+                <AppContextProvider>
                   <Title>The AI Study Bible</Title>
                   <Meta name="description">
                     The AI Study Bible is a digital study Bible that uses artificial intelligence to
@@ -68,7 +69,13 @@ export default function App() {
                         </div>
                       }
                     >
-                      <main class="flex min-h-dvh w-full flex-col">
+                      <main
+                        id="main"
+                        class={cn(
+                          'flex min-h-dvh w-full flex-col',
+                          `${props.location.pathname.startsWith('/chat') ? 'h-dvh' : ''}`
+                        )}
+                      >
                         <Show when={props.location.pathname !== '/'}>
                           <NavigationHeader />
                         </Show>
@@ -77,7 +84,7 @@ export default function App() {
                     </Suspense>
                   </ErrorBoundary>
                   <Toaster />
-                </BibleProvider>
+                </AppContextProvider>
               </ColorModeProvider>
             </ClerkProvider>
           </MetaProvider>

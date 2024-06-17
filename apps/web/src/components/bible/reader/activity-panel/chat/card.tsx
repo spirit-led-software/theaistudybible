@@ -1,4 +1,3 @@
-import { createId } from '@theaistudybible/core/util/id';
 import { Send } from 'lucide-solid';
 import { createEffect, createMemo, createSignal } from 'solid-js';
 import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
@@ -12,21 +11,16 @@ import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
 import { P } from '~/components/ui/typography';
 import { useChat } from '~/hooks/chat';
 import { useAuth } from '~/hooks/clerk';
-import { Message } from './message';
+import { Message } from '../../../../chat/message';
 import { ChatSelector } from './selector';
 
 export const ChatCard = () => {
   const { getToken } = useAuth();
-
   const [brStore, setBrStore] = useBibleReaderStore();
 
-  const { input, setInput, handleSubmit, messages, error, isLoading, id, query } = useChat({
+  const { input, setInput, handleSubmit, messages, error, isLoading, id, messagesQuery } = useChat({
     api: '/api/chat',
-    id: () => brStore.chatId,
-    generateId: createId,
-    sendExtraMessageFields: true,
-    initQuery: () => brStore.chatQuery,
-    setInitQuery: (query: string | undefined) => setBrStore('chatQuery', query)
+    id: () => brStore.chatId
   });
 
   createEffect(() => {
@@ -48,7 +42,7 @@ export const ChatCard = () => {
     if (errorValue) {
       setAlert(errorValue.message);
     }
-  }, [error]);
+  });
 
   createEffect(() => {
     const alertValue = alert();
@@ -71,7 +65,7 @@ export const ChatCard = () => {
           </DrawerClose>
         </CardHeader>
         <CardContent class="flex w-full flex-1 flex-col overflow-y-auto border-t p-0">
-          <QueryBoundary query={query}>
+          <QueryBoundary query={messagesQuery}>
             {() => (
               <>
                 <div class="flex grow flex-col-reverse space-y-2 overflow-y-auto whitespace-pre-wrap border-b">
@@ -109,15 +103,15 @@ export const ChatCard = () => {
                       </p>
                     </div>
                   )}
-                  <div class="flex w-full items-center rounded-full border px-3 py-2">
-                    <TextField class="flex flex-1 p-3">
+                  <div class="flex w-full items-center rounded-full border py-2 pl-5 pr-1">
+                    <TextField class="flex flex-1 items-center">
                       <TextFieldTextArea
                         placeholder="Type a message"
                         value={input()}
                         onChange={(e: { currentTarget: HTMLTextAreaElement | undefined }) =>
                           setInput(e.currentTarget?.value ?? '')
                         }
-                        class="h-fit min-h-fit w-full resize-none border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                        class="max-h-24 min-h-[20px] w-full resize-none border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
                         autoResize
                       />
                     </TextField>

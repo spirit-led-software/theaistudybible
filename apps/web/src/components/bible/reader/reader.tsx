@@ -50,7 +50,12 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
         return [...prev, ...newSelectedVerseInfos];
       });
-      setSearchParams({ verseIds: undefined });
+      setSearchParams(
+        { verseIds: undefined },
+        {
+          replace: true
+        }
+      );
       document.getElementById(verseIds[0])?.scrollIntoView({
         behavior: 'smooth',
         block: 'center'

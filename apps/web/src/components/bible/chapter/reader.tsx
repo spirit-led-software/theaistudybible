@@ -1,8 +1,7 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
-import { Show, createDeferred } from 'solid-js';
-import { useBibleStore } from '~/components/providers/bible';
+import { Show } from 'solid-js';
 import { BibleReaderProvider } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { H1 } from '~/components/ui/typography';
@@ -36,16 +35,6 @@ export default function ChapterReader(props: ChapterReaderProps) {
       chapterNum: props.chapterNum
     })
   );
-
-  const [, setBibleStore] = useBibleStore();
-  createDeferred(() => {
-    if (query.data) {
-      setBibleStore('bible', query.data.bible);
-      setBibleStore('book', query.data.book);
-      setBibleStore('chapter', query.data.chapter);
-      setBibleStore('verse', undefined);
-    }
-  });
 
   return (
     <QueryBoundary query={query}>
