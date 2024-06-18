@@ -7,7 +7,9 @@ import VerseReader, { getVerseReaderQueryOptions } from '~/components/bible/vers
 
 export const route: RouteDefinition = {
   load: async ({ params }) => {
-    const { bibleAbbr, bookAbbr, chapterNum, verseNum } = params;
+    const { bibleAbbr, bookAbbr } = params;
+    const chapterNum = parseInt(params.chapterNum);
+    const verseNum = parseInt(params.verseNum);
 
     const qc = useQueryClient();
     await Promise.all([
@@ -15,8 +17,8 @@ export const route: RouteDefinition = {
         getVerseReaderQueryOptions({
           bibleAbbr,
           bookAbbr,
-          chapterNum: parseInt(chapterNum),
-          verseNum: parseInt(verseNum)
+          chapterNum,
+          verseNum
         })
       ),
       qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
@@ -29,7 +31,7 @@ export default function ChapterPage() {
   const params = useParams();
 
   return (
-    <div class="relative flex h-full w-full flex-col justify-center px-16 py-5 md:px-20 lg:px-36 xl:px-48">
+    <div class="relative flex flex-1 flex-col items-center">
       <Show when={params.verseNum} keyed>
         <VerseReader
           bibleAbbr={params.bibleAbbr}

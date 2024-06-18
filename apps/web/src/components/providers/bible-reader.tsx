@@ -58,17 +58,17 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       }
       const verseNumbers = Array.from(
         new Set<number>(
-          [...store.selectedVerseInfos]
+          store.selectedVerseInfos
             .map((info: SelectedVerseInfo) => info.number)
-            .sort((a: number, b: number) => a - b)
+            .toSorted((a: number, b: number) => a - b)
         )
       );
       return `${store.book.shortName} ${store.chapter.number}:${formVerseString(verseNumbers)} (${store.bible.abbreviationLocal})`;
     },
     get selectedText() {
-      return [...this.selectedVerseInfos]
-        .sort((a, b) => a.number - b.number)
-        .flatMap((info, index, array) => {
+      return this.selectedVerseInfos
+        .toSorted((a: SelectedVerseInfo, b: SelectedVerseInfo) => a.number - b.number)
+        .flatMap((info: SelectedVerseInfo, index: number, array: SelectedVerseInfo[]) => {
           let text = '';
           const prev = array[index - 1];
           if (prev && prev.number + 1 !== info.number) {

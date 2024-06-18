@@ -23,7 +23,7 @@ export default function ChapterPage() {
   const params = useParams();
 
   return (
-    <div class="relative flex flex-1 flex-col px-16 py-5 md:px-20 lg:px-36 xl:px-48">
+    <div class="relative flex flex-1 flex-col items-center">
       <Show when={params.chapterNum} keyed>
         <ChapterReader
           bibleAbbr={params.bibleAbbr}

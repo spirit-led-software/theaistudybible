@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '~/components/ui/select';
+import { Spinner } from '~/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 
 const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
@@ -31,7 +32,7 @@ export const ChatSelector = () => {
   }));
 
   return (
-    <QueryBoundary query={chatsQuery}>
+    <QueryBoundary query={chatsQuery} loadingFallback={<Spinner size="sm" />}>
       {(chats) => (
         <div class="flex flex-1 items-center space-x-2">
           <Select<Chat | null>

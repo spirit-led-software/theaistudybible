@@ -3,6 +3,7 @@ import { A } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { Menu, X } from 'lucide-solid';
 import { For } from 'solid-js';
+import { auth } from '~/lib/server/clerk';
 import { cn } from '~/lib/utils';
 import { QueryBoundary } from '../query-boundary';
 import { Button, buttonVariants } from '../ui/button';
@@ -17,7 +18,13 @@ import {
 
 const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
+  const { userId } = auth();
+  if (!userId) {
+    throw new Error('User is not authenticated');
+  }
+
   const chats = await db.query.chats.findMany({
+    where: (chats, { eq }) => eq(chats.userId, userId),
     orderBy: (chats, { desc }) => desc(chats.updatedAt),
     offset,
     limit

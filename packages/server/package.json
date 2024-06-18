@@ -17,16 +17,16 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/aws-lambda": "^8.10.138",
     "@types/busboy": "^1.5.4",
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.3",
     "@types/nodemailer": "^6.4.15",
     "@types/ws": "^8.5.10",
     "vitest": "^1.6.0"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.596.0",
-    "@aws-sdk/client-s3": "^3.596.0",
-    "@aws-sdk/client-sqs": "^3.596.0",
-    "@aws-sdk/s3-request-presigner": "^3.596.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.598.0",
+    "@aws-sdk/client-s3": "^3.598.0",
+    "@aws-sdk/client-sqs": "^3.598.0",
+    "@aws-sdk/s3-request-presigner": "^3.598.0",
     "@clerk/clerk-sdk-node": "^5.0.11",
     "@langchain/community": "^0.2.11",
     "@langchain/core": "^0.2.6",
@@ -40,9 +40,9 @@
     "fast-xml-parser": "^4.4.0",
     "firebase-admin": "^12.1.1",
     "langchain": "^0.2.5",
-    "mammoth": "^1.7.2",
+    "mammoth": "^1.8.0",
     "pdf-parse": "^1.1.1",
     "sst": "^3.0.33",
-    "ws": "^8.17.0"
+    "ws": "^8.17.1"
   }
 }

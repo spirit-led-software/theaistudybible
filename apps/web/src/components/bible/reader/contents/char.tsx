@@ -36,7 +36,7 @@ export default function CharContent(props: CharContentProps) {
     const strongsLink = `https://biblehub.com/strongs/${language}/${number}.htm`;
     return (
       <Tooltip placement="bottom">
-        <TooltipTrigger>{CharContent}</TooltipTrigger>
+        <TooltipTrigger as="span">{CharContent}</TooltipTrigger>
         <TooltipContent class="flex w-fit justify-center indent-0">
           <div class="w-full text-center">
             <h6 class="font-bold">Strong{"'"}s</h6>

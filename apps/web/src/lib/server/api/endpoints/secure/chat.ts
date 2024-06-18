@@ -183,7 +183,7 @@ const app = new Hono<{
       } else {
         // Hacky way to update the chat updated_at field
         pendingPromises.push(
-          db.update(chats).set({ name: chat.name }).where(eq(chats.id, chat.id))
+          db.update(chats).set({ name: chat.name }).where(eq(chats.id, chat.id)).execute()
         );
       }
 
@@ -210,6 +210,7 @@ const app = new Hono<{
                     eq(messagesTable.role, 'assistant')
                   )
                 )
+                .execute()
             );
             return [userMessage];
           }
@@ -281,15 +282,16 @@ const app = new Hono<{
 
               if ('searchQueries' in chunk) {
                 pendingPromises.push(
-                  createAiResponsePromise.then(async () =>
-                    db
-                      .update(messagesTable)
-                      .set({
-                        metadata: sql`metadata || ${{
-                          searchQueries: chunk.searchQueries
-                        }}`
-                      })
-                      .where(eq(messagesTable.id, aiResponseId))
+                  createAiResponsePromise.then(
+                    async () =>
+                      await db
+                        .update(messagesTable)
+                        .set({
+                          metadata: sql`metadata || ${{
+                            searchQueries: chunk.searchQueries
+                          }}`
+                        })
+                        .where(eq(messagesTable.id, aiResponseId))
                   )
                 );
               }

@@ -19,11 +19,11 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "8.10.138",
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.3",
     "bun": "^1.1.13",
     "concurrently": "^8.2.2",
     "drizzle-kit": "^0.22.7",
-    "turbo": "^2.0.3",
+    "turbo": "^2.0.4",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },

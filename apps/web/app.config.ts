@@ -1,7 +1,6 @@
 import { defineConfig } from '@solidjs/start/config';
 import devtools from 'solid-devtools/vite';
 import { searchForWorkspaceRoot } from 'vite';
-import { cjsInterop } from 'vite-plugin-cjs-interop';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -12,16 +11,10 @@ export default defineConfig({
     compatibilityDate: '2024-06-13'
   },
   vite: {
-    plugins: [
-      tsconfigPaths(),
-      cjsInterop({
-        dependencies: ['@clerk/clerk-js']
-      }),
-      VitePWA(),
-      devtools({
-        autoname: true
-      })
-    ],
+    plugins: [tsconfigPaths(), VitePWA(), devtools()],
+    ssr: {
+      noExternal: ['@clerk/clerk-js']
+    },
     server: {
       fs: {
         allow: [searchForWorkspaceRoot(process.cwd())]

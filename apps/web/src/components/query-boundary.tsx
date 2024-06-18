@@ -67,13 +67,13 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
           )
         }
       >
-        <Switch>
+        <Switch fallback={props.notFoundFallback}>
           <Match when={!props.query.isFetching && !props.query.data}>
             {props.notFoundFallback ?? (
               <div class="flex h-full w-full items-center justify-center">Data not found</div>
             )}
           </Match>
-          <Match when={props.query.data}>
+          <Match when={props.query.data} keyed>
             {props.children(props.query.data as Exclude<T, null | false | undefined>)}
           </Match>
         </Switch>
