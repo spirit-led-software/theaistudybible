@@ -87,46 +87,40 @@ export const ActivityPanelButtons = () => {
         </H6>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon" onClick={() => setValue('share')}>
-              <Share size={20} />
-            </Button>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('share')}>
+            <Share size={20} />
           </TooltipTrigger>
           <TooltipContent>Share Selection</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon" onClick={() => setValue('highlight')}>
-              <Highlighter size={20} />
-            </Button>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('highlight')}>
+            <Highlighter size={20} />
           </TooltipTrigger>
           <TooltipContent>Highlight Selection</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon" onClick={() => setValue('references')}>
-              <TextSearch size={20} />
-            </Button>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('references')}>
+            <TextSearch size={20} />
           </TooltipTrigger>
           <TooltipContent>Find References</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon" onClick={() => setValue('chat')}>
-              <MessageCircle size={20} />
-            </Button>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('chat')}>
+            <MessageCircle size={20} />
           </TooltipTrigger>
           <TooltipContent>Explain</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
-          <TooltipTrigger>
-            <Button size="icon" onClick={() => setBrStore('selectedVerseInfos', [])}>
-              <X size={20} />
-            </Button>
+          <TooltipTrigger
+            as={Button}
+            size="icon"
+            onClick={() => setBrStore('selectedVerseInfos', [])}
+          >
+            <X size={20} />
           </TooltipTrigger>
           <TooltipContent>Clear Selection</TooltipContent>
         </Tooltip>

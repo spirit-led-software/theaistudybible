@@ -5,7 +5,8 @@ import { Accessor, Show } from 'solid-js';
 import { BibleReaderProvider } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { H1 } from '~/components/ui/typography';
-import { Button } from '../../ui/button';
+import { cn } from '~/lib/utils';
+import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
 import { BibleReaderMenu } from '../reader/menu';
@@ -54,23 +55,28 @@ export default function VerseReader(props: {
                 </H1>
               </div>
               <ReaderContent contents={data.verse.content} />
+              <div class="flex w-full flex-col items-center">
+                <Button
+                  as={A}
+                  href={`/bible/${data.bible.abbreviation}/${data.book.abbreviation}/${data.chapter.number}`}
+                  variant="outline"
+                >
+                  More from {data.book.shortName} {data.chapter.number}
+                </Button>
+              </div>
               <Show when={data.verse.previous}>
                 <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
                   <Tooltip placement="right">
                     <TooltipTrigger
-                      as={() => (
-                        <Button
-                          class="my-auto h-20 w-10 rounded-r-2xl"
-                          as={A}
-                          href={
-                            `/bible/${data.bible.abbreviation}/${data.verse.previous!.abbreviation.split('.')[0]}` +
-                            `/${data.verse.previous!.abbreviation.split('.')[1]}/${data.verse.previous!.number}`
-                          }
-                        >
-                          <ChevronLeft size={20} class="shrink-0" />
-                        </Button>
-                      )}
-                    />
+                      as={A}
+                      class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-r-2xl')}
+                      href={
+                        `/bible/${data.bible.abbreviation}/${data.verse.previous!.abbreviation.split('.')[0]}` +
+                        `/${data.verse.previous!.abbreviation.split('.')[1]}/${data.verse.previous!.number}`
+                      }
+                    >
+                      <ChevronLeft size={20} class="shrink-0" />
+                    </TooltipTrigger>
                     <TooltipContent>
                       <p>{data.verse.previous!.name}</p>
                     </TooltipContent>
@@ -81,19 +87,15 @@ export default function VerseReader(props: {
                 <div class="fixed bottom-1/3 right-0 top-1/3 flex flex-col place-items-center justify-center">
                   <Tooltip placement="left">
                     <TooltipTrigger
-                      as={() => (
-                        <Button
-                          class="my-auto h-20 w-10 rounded-l-2xl"
-                          as={A}
-                          href={
-                            `/bible/${data.bible.abbreviation}/${data.verse.next!.abbreviation.split('.')[0]}` +
-                            `/${data.verse.next!.abbreviation.split('.')[1]}/${data.verse.next!.number}`
-                          }
-                        >
-                          <ChevronRight size={20} class="shrink-0" />
-                        </Button>
-                      )}
-                    />
+                      as={A}
+                      class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-l-2xl')}
+                      href={
+                        `/bible/${data.bible.abbreviation}/${data.verse.next!.abbreviation.split('.')[0]}` +
+                        `/${data.verse.next!.abbreviation.split('.')[1]}/${data.verse.next!.number}`
+                      }
+                    >
+                      <ChevronRight size={20} class="shrink-0" />
+                    </TooltipTrigger>
                     <TooltipContent>
                       <p>{data.verse.next!.name}</p>
                     </TooltipContent>

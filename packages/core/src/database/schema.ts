@@ -774,6 +774,40 @@ export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) =
   };
 });
 
+export const chapterNotes = pgTable(
+  'chapter_notes',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `cn_${createId()}`),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    chapterId: text('chapter_id')
+      .references(() => chapters.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    userId: text('user_id').notNull(),
+    content: text('content').notNull()
+  },
+  (table) => {
+    return {
+      chapterIdIdx: index('chapter_notes_chapter_id').on(table.chapterId),
+      userIdIdx: index('chapter_notes_user_id').on(table.userId)
+    };
+  }
+);
+
+export const chapterNotesRelations = relations(chapterNotes, ({ one }) => {
+  return {
+    chapter: one(chapters, {
+      fields: [chapterNotes.chapterId],
+      references: [chapters.id]
+    })
+  };
+});
+
 export const chaptersToSourceDocuments = pgTable(
   'chapters_to_source_documents',
   {
@@ -871,7 +905,9 @@ export const versesRelations = relations(verses, ({ one, many }) => {
       references: [verses.id],
       relationName: 'next'
     }),
-    highlights: many(verseHighlights)
+    highlights: many(verseHighlights),
+    bookmarks: many(verseBookmarks),
+    notes: many(verseNotes)
   };
 });
 
@@ -905,6 +941,73 @@ export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => 
   return {
     verse: one(verses, {
       fields: [verseHighlights.verseId],
+      references: [verses.id]
+    })
+  };
+});
+
+export const verseBookmarks = pgTable(
+  'verse_bookmarks',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `vb_${createId()}`),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    verseId: text('verse_id')
+      .references(() => verses.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    userId: text('user_id').notNull()
+  },
+  (table) => {
+    return {
+      verseIdIdx: index('verse_bookmarks_verse_id').on(table.verseId),
+      userIdIdx: index('verse_bookmarks_user_id').on(table.userId)
+    };
+  }
+);
+
+export const verseBookmarksRelations = relations(verseBookmarks, ({ one }) => {
+  return {
+    verse: one(verses, {
+      fields: [verseBookmarks.verseId],
+      references: [verses.id]
+    })
+  };
+});
+
+export const verseNotes = pgTable(
+  'verse_notes',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `vn_${createId()}`),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    verseId: text('verse_id')
+      .references(() => verses.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
+      .notNull(),
+    userId: text('user_id').notNull(),
+    content: text('content').notNull()
+  },
+  (table) => {
+    return {
+      verseIdIdx: index('verse_notes_verse_id').on(table.verseId),
+      userIdIdx: index('verse_notes_user_id').on(table.userId)
+    };
+  }
+);
+
+export const verseNotesRelations = relations(verseNotes, ({ one }) => {
+  return {
+    verse: one(verses, {
+      fields: [verseNotes.verseId],
       references: [verses.id]
     })
   };

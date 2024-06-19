@@ -1,37 +1,8 @@
 import { Document } from '@langchain/core/documents';
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import type { Content } from '@theaistudybible/core/types/bible';
 import { Metadata } from '@theaistudybible/core/types/metadata';
+import { contentsToText } from '@theaistudybible/core/util/bible';
 import { getEmbeddingsModelInfo } from '@theaistudybible/langchain/lib/llm';
-
-export const contentsToText = (contents: Content[]) => {
-  let string = '';
-  for (const content of contents) {
-    switch (content.type) {
-      case 'text':
-        string += content.text;
-        break;
-      case 'ref':
-        console.debug('Ignoring ref content');
-        break;
-      case 'verse':
-        string += `${content.number} `;
-        break;
-      case 'note':
-        console.debug('Ignoring note content');
-        break;
-      case 'char':
-        string += contentsToText(content.contents);
-        break;
-      case 'para':
-        string += contentsToText(content.contents);
-        break;
-      default:
-        throw new Error('Unhandled content type');
-    }
-  }
-  return string;
-};
 
 export const versesToDocs = ({
   bible,

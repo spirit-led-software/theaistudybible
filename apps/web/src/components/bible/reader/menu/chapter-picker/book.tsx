@@ -24,7 +24,7 @@ export default function BookPicker() {
         as={Button}
         variant="outline"
         role="combobox"
-        class="w-[200px] justify-between"
+        class="justify-between text-nowrap"
       >
         {brStore.book.shortName} {brStore.chapter.number}
         <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />

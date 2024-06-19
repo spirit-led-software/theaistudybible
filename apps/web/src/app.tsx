@@ -3,6 +3,7 @@ import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
+import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import NavigationHeader from './components/nav/header';
@@ -37,7 +38,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <SolidQueryDevtools /> */}
+      <SolidQueryDevtools />
       <Router
         root={(props) => (
           <MetaProvider>

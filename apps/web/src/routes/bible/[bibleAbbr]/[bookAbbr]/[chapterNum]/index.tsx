@@ -6,12 +6,12 @@ import { bookPickerQueryOptions } from '~/components/bible/reader/menu/chapter-p
 import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/menu/translation-picker/small';
 
 export const route: RouteDefinition = {
-  load: async ({ params }) => {
+  load: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const chapterNum = parseInt(params.chapterNum);
 
     const qc = useQueryClient();
-    await Promise.all([
+    Promise.all([
       qc.prefetchQuery(chapterReaderQueryOptions({ bibleAbbr, bookAbbr, chapterNum })),
       qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
       qc.prefetchQuery(smallTranslationPickerQueryOptions())

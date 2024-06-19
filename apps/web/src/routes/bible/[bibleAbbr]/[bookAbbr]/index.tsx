@@ -11,10 +11,10 @@ export type BookRedirectUrlParams = {
 };
 
 export const route: RouteDefinition = {
-  load: async ({ params }) => {
+  load: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const qc = useQueryClient();
-    await qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookAbbr }));
+    qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookAbbr }));
   }
 };
 

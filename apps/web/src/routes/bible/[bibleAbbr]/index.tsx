@@ -10,10 +10,10 @@ export type BibleRedirectUrlParams = {
 };
 
 export const route: RouteDefinition = {
-  load: async ({ params }) => {
+  load: ({ params }) => {
     const { bibleAbbr } = params;
     const qc = useQueryClient();
-    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
+    qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
   }
 };
 

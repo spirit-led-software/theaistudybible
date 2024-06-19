@@ -6,13 +6,13 @@ import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/me
 import VerseReader, { getVerseReaderQueryOptions } from '~/components/bible/verse/reader';
 
 export const route: RouteDefinition = {
-  load: async ({ params }) => {
+  load: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const chapterNum = parseInt(params.chapterNum);
     const verseNum = parseInt(params.verseNum);
 
     const qc = useQueryClient();
-    await Promise.all([
+    Promise.all([
       qc.prefetchQuery(
         getVerseReaderQueryOptions({
           bibleAbbr,

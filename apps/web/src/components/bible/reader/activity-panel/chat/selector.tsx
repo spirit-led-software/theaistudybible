@@ -54,15 +54,14 @@ export const ChatSelector = () => {
             <SelectContent />
           </Select>
           <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setBrStore('chatId', undefined);
-                }}
-              >
-                <PenBox size={15} />
-              </Button>
+            <TooltipTrigger
+              as={Button}
+              variant="ghost"
+              onClick={() => {
+                setBrStore('chatId', undefined);
+              }}
+            >
+              <PenBox size={15} />
             </TooltipTrigger>
             <TooltipContent>New Chat</TooltipContent>
           </Tooltip>

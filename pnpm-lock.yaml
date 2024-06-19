@@ -65,10 +65,10 @@ importers:
         version: 4.6.0
       '@langchain/community':
         specifier: ^0.2.11
-        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
+        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
       '@langchain/core':
         specifier: ^0.2.6
-        version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
+        version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
       '@middy/core':
         specifier: ^5.4.0
         version: 5.4.0
@@ -107,7 +107,7 @@ importers:
         version: 12.1.1(encoding@0.1.13)
       langchain:
         specifier: ^0.2.5
-        version: 0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)
+        version: 0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)
       mammoth:
         specifier: ^1.8.0
         version: 1.8.0
@@ -156,7 +156,7 @@ importers:
         version: 5.0.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@langchain/community':
         specifier: ^0.2.11
-        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2)(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1)(google-auth-library@9.11.0)(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
+        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2)(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1)(google-auth-library@9.11.0)(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
       '@langchain/core':
         specifier: ^0.2.6
         version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0)
@@ -271,10 +271,10 @@ importers:
         version: 0.13.3(solid-js@1.8.17)
       '@langchain/community':
         specifier: ^0.2.11
-        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
+        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
       '@langchain/core':
         specifier: ^0.2.6
-        version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
+        version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
@@ -349,7 +349,7 @@ importers:
         version: 3.1.2
       langchain:
         specifier: ^0.2.5
-        version: 0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)
+        version: 0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)
       lucide-solid:
         specifier: ^0.395.0
         version: 0.395.0(solid-js@1.8.17)
@@ -522,7 +522,7 @@ importers:
         version: 0.2.1(encoding@0.1.13)(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0))(openai@4.51.0(encoding@0.1.13))
       '@langchain/community':
         specifier: ^0.2.11
-        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0)
+        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0)
       '@langchain/core':
         specifier: ^0.2.6
         version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0))(openai@4.51.0(encoding@0.1.13))
@@ -619,7 +619,7 @@ importers:
         version: 5.0.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@langchain/community':
         specifier: ^0.2.11
-        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
+        version: 0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)
       '@langchain/core':
         specifier: ^0.2.6
         version: 0.2.6(langchain@0.2.5(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
@@ -5284,7 +5284,6 @@ packages:
 
   bun@1.1.13:
     resolution: {integrity: sha512-yrujTLEspzQJfh7hd2xkYM5skQsjBwVm/wq0cyYBkR5x4FRveOUqeAqtFOPH4aHvsDgwVN+dO0uIrlvE7dDsDQ==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -10376,10 +10375,10 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/client-sso-oidc': 3.598.0
       '@aws-sdk/client-sts': 3.598.0
       '@aws-sdk/core': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/middleware-host-header': 3.598.0
       '@aws-sdk/middleware-logger': 3.598.0
       '@aws-sdk/middleware-recursion-detection': 3.598.0
@@ -10476,10 +10475,10 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/client-sso-oidc': 3.598.0
       '@aws-sdk/client-sts': 3.598.0
       '@aws-sdk/core': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/middleware-host-header': 3.598.0
       '@aws-sdk/middleware-logger': 3.598.0
       '@aws-sdk/middleware-recursion-detection': 3.598.0
@@ -10532,7 +10531,7 @@ snapshots:
       '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/client-sts': 3.598.0
       '@aws-sdk/core': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/middleware-bucket-endpoint': 3.598.0
       '@aws-sdk/middleware-expect-continue': 3.598.0
       '@aws-sdk/middleware-flexible-checksums': 3.598.0
@@ -10591,10 +10590,10 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/client-sso-oidc': 3.598.0
       '@aws-sdk/client-sts': 3.598.0
       '@aws-sdk/core': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/middleware-host-header': 3.598.0
       '@aws-sdk/middleware-logger': 3.598.0
       '@aws-sdk/middleware-recursion-detection': 3.598.0
@@ -10611,6 +10610,51 @@ snapshots:
       '@smithy/hash-node': 3.0.1
       '@smithy/invalid-dependency': 3.0.1
       '@smithy/md5-js': 3.0.1
+      '@smithy/middleware-content-length': 3.0.1
+      '@smithy/middleware-endpoint': 3.0.2
+      '@smithy/middleware-retry': 3.0.5
+      '@smithy/middleware-serde': 3.0.1
+      '@smithy/middleware-stack': 3.0.1
+      '@smithy/node-config-provider': 3.1.1
+      '@smithy/node-http-handler': 3.0.1
+      '@smithy/protocol-http': 4.0.1
+      '@smithy/smithy-client': 3.1.3
+      '@smithy/types': 3.1.0
+      '@smithy/url-parser': 3.0.1
+      '@smithy/util-base64': 3.0.0
+      '@smithy/util-body-length-browser': 3.0.0
+      '@smithy/util-body-length-node': 3.0.0
+      '@smithy/util-defaults-mode-browser': 3.0.5
+      '@smithy/util-defaults-mode-node': 3.0.5
+      '@smithy/util-endpoints': 2.0.2
+      '@smithy/util-middleware': 3.0.1
+      '@smithy/util-retry': 3.0.1
+      '@smithy/util-utf8': 3.0.0
+      tslib: 2.6.3
+    transitivePeerDependencies:
+      - aws-crt
+
+  '@aws-sdk/client-sso-oidc@3.598.0':
+    dependencies:
+      '@aws-crypto/sha256-browser': 5.2.0
+      '@aws-crypto/sha256-js': 5.2.0
+      '@aws-sdk/client-sts': 3.598.0
+      '@aws-sdk/core': 3.598.0
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/middleware-host-header': 3.598.0
+      '@aws-sdk/middleware-logger': 3.598.0
+      '@aws-sdk/middleware-recursion-detection': 3.598.0
+      '@aws-sdk/middleware-user-agent': 3.598.0
+      '@aws-sdk/region-config-resolver': 3.598.0
+      '@aws-sdk/types': 3.598.0
+      '@aws-sdk/util-endpoints': 3.598.0
+      '@aws-sdk/util-user-agent-browser': 3.598.0
+      '@aws-sdk/util-user-agent-node': 3.598.0
+      '@smithy/config-resolver': 3.0.2
+      '@smithy/core': 2.2.2
+      '@smithy/fetch-http-handler': 3.0.3
+      '@smithy/hash-node': 3.0.1
+      '@smithy/invalid-dependency': 3.0.1
       '@smithy/middleware-content-length': 3.0.1
       '@smithy/middleware-endpoint': 3.0.2
       '@smithy/middleware-retry': 3.0.5
@@ -10815,7 +10859,7 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/client-sso-oidc': 3.598.0
       '@aws-sdk/core': 3.598.0
       '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/middleware-host-header': 3.598.0
@@ -10860,7 +10904,7 @@ snapshots:
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
-      '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/client-sso-oidc': 3.598.0
       '@aws-sdk/core': 3.598.0
       '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
       '@aws-sdk/middleware-host-header': 3.598.0
@@ -11000,7 +11044,7 @@ snapshots:
       - aws-crt
     optional: true
 
-  '@aws-sdk/credential-provider-ini@3.598.0(@aws-sdk/client-sts@3.598.0)':
+  '@aws-sdk/credential-provider-ini@3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)':
     dependencies:
       '@aws-sdk/client-sts': 3.598.0
       '@aws-sdk/credential-provider-env': 3.598.0
@@ -11017,7 +11061,6 @@ snapshots:
     transitivePeerDependencies:
       - '@aws-sdk/client-sso-oidc'
       - aws-crt
-    optional: true
 
   '@aws-sdk/credential-provider-node@3.478.0':
     dependencies:
@@ -11034,6 +11077,26 @@ snapshots:
       tslib: 2.6.3
     transitivePeerDependencies:
       - aws-crt
+
+  '@aws-sdk/credential-provider-node@3.598.0':
+    dependencies:
+      '@aws-sdk/credential-provider-env': 3.598.0
+      '@aws-sdk/credential-provider-http': 3.598.0
+      '@aws-sdk/credential-provider-ini': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-process': 3.598.0
+      '@aws-sdk/credential-provider-sso': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)
+      '@aws-sdk/credential-provider-web-identity': 3.598.0(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/types': 3.598.0
+      '@smithy/credential-provider-imds': 3.1.1
+      '@smithy/property-provider': 3.1.1
+      '@smithy/shared-ini-file-loader': 3.1.1
+      '@smithy/types': 3.1.0
+      tslib: 2.6.3
+    transitivePeerDependencies:
+      - '@aws-sdk/client-sso-oidc'
+      - '@aws-sdk/client-sts'
+      - aws-crt
+    optional: true
 
   '@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)':
     dependencies:
@@ -11058,7 +11121,7 @@ snapshots:
     dependencies:
       '@aws-sdk/credential-provider-env': 3.598.0
       '@aws-sdk/credential-provider-http': 3.598.0
-      '@aws-sdk/credential-provider-ini': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-ini': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/credential-provider-process': 3.598.0
       '@aws-sdk/credential-provider-sso': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)
       '@aws-sdk/credential-provider-web-identity': 3.598.0(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
@@ -11074,11 +11137,11 @@ snapshots:
       - aws-crt
     optional: true
 
-  '@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0)':
+  '@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)':
     dependencies:
       '@aws-sdk/credential-provider-env': 3.598.0
       '@aws-sdk/credential-provider-http': 3.598.0
-      '@aws-sdk/credential-provider-ini': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-ini': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@aws-sdk/credential-provider-process': 3.598.0
       '@aws-sdk/credential-provider-sso': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)
       '@aws-sdk/credential-provider-web-identity': 3.598.0(@aws-sdk/client-sts@3.598.0)
@@ -11092,7 +11155,6 @@ snapshots:
       - '@aws-sdk/client-sso-oidc'
       - '@aws-sdk/client-sts'
       - aws-crt
-    optional: true
 
   '@aws-sdk/credential-provider-process@3.468.0':
     dependencies:
@@ -11147,7 +11209,6 @@ snapshots:
     transitivePeerDependencies:
       - '@aws-sdk/client-sso-oidc'
       - aws-crt
-    optional: true
 
   '@aws-sdk/credential-provider-web-identity@3.468.0':
     dependencies:
@@ -11400,13 +11461,12 @@ snapshots:
 
   '@aws-sdk/token-providers@3.598.0(@aws-sdk/client-sso-oidc@3.598.0)':
     dependencies:
-      '@aws-sdk/client-sso-oidc': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/client-sso-oidc': 3.598.0
       '@aws-sdk/types': 3.598.0
       '@smithy/property-provider': 3.1.1
       '@smithy/shared-ini-file-loader': 3.1.1
       '@smithy/types': 3.1.0
       tslib: 2.6.3
-    optional: true
 
   '@aws-sdk/types@3.468.0':
     dependencies:
@@ -12996,7 +13056,7 @@ snapshots:
       - langchain
       - openai
 
-  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
+  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
     dependencies:
       '@langchain/core': 0.2.6(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
       '@langchain/openai': 0.1.3(encoding@0.1.13)(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))
@@ -13017,10 +13077,10 @@ snapshots:
       '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0(@aws-sdk/client-sts@3.598.0))(@aws-sdk/client-sts@3.598.0)
       '@google-cloud/storage': 7.11.2(encoding@0.1.13)
       '@neondatabase/serverless': 0.9.3
-      '@smithy/eventstream-codec': 3.1.0
-      '@smithy/protocol-http': 4.0.1
-      '@smithy/signature-v4': 3.1.0
-      '@smithy/util-utf8': 3.0.0
+      '@smithy/eventstream-codec': 2.2.0
+      '@smithy/protocol-http': 3.3.0
+      '@smithy/signature-v4': 2.3.0
+      '@smithy/util-utf8': 2.3.0
       '@upstash/ratelimit': 1.2.1
       '@upstash/redis': 1.31.5
       '@upstash/vector': 1.1.2
@@ -13046,7 +13106,7 @@ snapshots:
       - peggy
       - pyodide
 
-  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
+  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
     dependencies:
       '@langchain/core': 0.2.6(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
       '@langchain/openai': 0.1.3(encoding@0.1.13)(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))
@@ -13064,13 +13124,13 @@ snapshots:
       '@aws-sdk/client-bedrock-runtime': 3.598.0
       '@aws-sdk/client-lambda': 3.598.0
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@google-cloud/storage': 7.11.2(encoding@0.1.13)
       '@neondatabase/serverless': 0.9.3
-      '@smithy/eventstream-codec': 3.1.0
-      '@smithy/protocol-http': 4.0.1
-      '@smithy/signature-v4': 3.1.0
-      '@smithy/util-utf8': 3.0.0
+      '@smithy/eventstream-codec': 2.2.0
+      '@smithy/protocol-http': 3.3.0
+      '@smithy/signature-v4': 2.3.0
+      '@smithy/util-utf8': 2.3.0
       '@upstash/ratelimit': 1.2.1
       '@upstash/redis': 1.31.5
       '@upstash/vector': 1.1.2
@@ -13096,7 +13156,7 @@ snapshots:
       - peggy
       - pyodide
 
-  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0)':
+  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0)':
     dependencies:
       '@langchain/core': 0.2.6(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0))(openai@4.51.0(encoding@0.1.13))
       '@langchain/openai': 0.1.3(encoding@0.1.13)(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0(@aws-sdk/client-sts@3.598.0))(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1)(youtubei.js@10.0.0))
@@ -13114,13 +13174,13 @@ snapshots:
       '@aws-sdk/client-bedrock-runtime': 3.598.0
       '@aws-sdk/client-lambda': 3.598.0
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       '@google-cloud/storage': 7.11.2(encoding@0.1.13)
       '@neondatabase/serverless': 0.9.3
-      '@smithy/eventstream-codec': 3.1.0
-      '@smithy/protocol-http': 4.0.1
-      '@smithy/signature-v4': 3.1.0
-      '@smithy/util-utf8': 3.0.0
+      '@smithy/eventstream-codec': 2.2.0
+      '@smithy/protocol-http': 3.3.0
+      '@smithy/signature-v4': 2.3.0
+      '@smithy/util-utf8': 2.3.0
       '@upstash/ratelimit': 1.2.1
       '@upstash/redis': 1.31.5
       '@upstash/vector': 1.1.2
@@ -13147,7 +13207,7 @@ snapshots:
       - peggy
       - pyodide
 
-  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
+  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2(encoding@0.1.13))(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(encoding@0.1.13)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1(encoding@0.1.13))(google-auth-library@9.11.0(encoding@0.1.13))(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
     dependencies:
       '@langchain/core': 0.2.6(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0(encoding@0.1.13))
       '@langchain/openai': 0.1.3(encoding@0.1.13)(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(encoding@0.1.13)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0(encoding@0.1.13))(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))
@@ -13165,13 +13225,13 @@ snapshots:
       '@aws-sdk/client-bedrock-runtime': 3.598.0
       '@aws-sdk/client-lambda': 3.598.0
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-node': 3.598.0
       '@google-cloud/storage': 7.11.2(encoding@0.1.13)
       '@neondatabase/serverless': 0.9.3
-      '@smithy/eventstream-codec': 3.1.0
-      '@smithy/protocol-http': 4.0.1
-      '@smithy/signature-v4': 3.1.0
-      '@smithy/util-utf8': 3.0.0
+      '@smithy/eventstream-codec': 2.2.0
+      '@smithy/protocol-http': 3.3.0
+      '@smithy/signature-v4': 2.3.0
+      '@smithy/util-utf8': 2.3.0
       '@upstash/ratelimit': 1.2.1
       '@upstash/redis': 1.31.5
       '@upstash/vector': 1.1.2
@@ -13197,7 +13257,7 @@ snapshots:
       - peggy
       - pyodide
 
-  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2)(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@3.1.0)(@smithy/protocol-http@4.0.1)(@smithy/signature-v4@3.1.0)(@smithy/util-utf8@3.0.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1)(google-auth-library@9.11.0)(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
+  '@langchain/community@0.2.11(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-bedrock-runtime@3.598.0)(@aws-sdk/client-lambda@3.598.0)(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(@google-cloud/storage@7.11.2)(@neondatabase/serverless@0.9.3)(@smithy/eventstream-codec@2.2.0)(@smithy/protocol-http@3.3.0)(@smithy/signature-v4@2.3.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@1.2.1)(@upstash/redis@1.31.5)(@upstash/vector@1.1.2)(axios@1.7.2)(crypto-js@4.2.0)(fast-xml-parser@4.4.0)(firebase-admin@12.1.1)(google-auth-library@9.11.0)(ignore@5.3.1)(ioredis@5.4.1)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(pg@8.12.0)(ws@8.17.1)(youtube-transcript@1.2.1)':
     dependencies:
       '@langchain/core': 0.2.6(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))(openai@4.51.0)
       '@langchain/openai': 0.1.3(langchain@0.2.3(@aws-sdk/client-s3@3.598.0)(@aws-sdk/credential-provider-node@3.598.0)(axios@1.7.2)(fast-xml-parser@4.4.0)(ignore@5.3.1)(ioredis@5.4.1)(mammoth@1.8.0)(openai@4.51.0)(pdf-parse@1.1.1)(ws@8.17.1)(youtube-transcript@1.2.1))
@@ -13215,13 +13275,13 @@ snapshots:
       '@aws-sdk/client-bedrock-runtime': 3.598.0
       '@aws-sdk/client-lambda': 3.598.0
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-node': 3.598.0
       '@google-cloud/storage': 7.11.2(encoding@0.1.13)
       '@neondatabase/serverless': 0.9.3
-      '@smithy/eventstream-codec': 3.1.0
-      '@smithy/protocol-http': 4.0.1
-      '@smithy/signature-v4': 3.1.0
-      '@smithy/util-utf8': 3.0.0
+      '@smithy/eventstream-codec': 2.2.0
+      '@smithy/protocol-http': 3.3.0
+      '@smithy/signature-v4': 2.3.0
+      '@smithy/util-utf8': 2.3.0
       '@upstash/ratelimit': 1.2.1
       '@upstash/redis': 1.31.5
       '@upstash/vector': 1.1.2
@@ -18893,7 +18953,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -18926,7 +18986,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -18960,7 +19020,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-node': 3.598.0
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -18993,7 +19053,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-node': 3.598.0
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -19059,7 +19119,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -19092,7 +19152,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sts@3.598.0)
+      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0)
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -19126,7 +19186,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-node': 3.598.0
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1
@@ -19159,7 +19219,7 @@ snapshots:
       zod-to-json-schema: 3.23.1(zod@3.23.8)
     optionalDependencies:
       '@aws-sdk/client-s3': 3.598.0
-      '@aws-sdk/credential-provider-node': 3.598.0(@aws-sdk/client-sso-oidc@3.598.0)(@aws-sdk/client-sts@3.598.0(@aws-sdk/client-sso-oidc@3.598.0))
+      '@aws-sdk/credential-provider-node': 3.598.0
       axios: 1.7.2
       fast-xml-parser: 4.4.0
       ignore: 5.3.1

@@ -16,17 +16,16 @@ export const ChatMenu = () => {
         <H6 class="max-w-md justify-self-center truncate">{chatStore.chat?.name ?? 'New Chat'}</H6>
         <div class="flex justify-end">
           <Tooltip>
-            <TooltipTrigger>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  setChatStore('chat', undefined);
-                  navigate('/chat');
-                }}
-              >
-                <PenBox />
-              </Button>
+            <TooltipTrigger
+              as={Button}
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                setChatStore('chat', undefined);
+                navigate('/chat');
+              }}
+            >
+              <PenBox />
             </TooltipTrigger>
             <TooltipContent>New Chat</TooltipContent>
           </Tooltip>

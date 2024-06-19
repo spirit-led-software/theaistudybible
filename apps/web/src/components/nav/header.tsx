@@ -9,6 +9,7 @@ import { ClerkLoading, SignInButton, SignedIn, SignedOut, UserButton } from '../
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { NavigationDrawer } from './drawer';
+import { Menu } from './menu';
 
 export default function NavigationHeader() {
   const { colorMode } = useColorMode();
@@ -27,12 +28,7 @@ export default function NavigationHeader() {
       </div>
       <div class="hidden w-1/3 justify-center md:flex">
         <div class="flex w-full place-items-center justify-center">
-          <Button as={A} href="/bible" variant={'ghost'}>
-            Bible
-          </Button>
-          <Button as={A} href="/chat" variant={'ghost'}>
-            Chat
-          </Button>
+          <Menu orientation="horizontal" />
         </div>
       </div>
       <div class="flex w-1/3 justify-end">

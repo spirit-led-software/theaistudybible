@@ -41,7 +41,7 @@ export default function SmallTranslationPicker() {
             as={Button}
             variant="outline"
             role="combobox"
-            class="w-[200px] justify-between"
+            class="justify-between text-nowrap"
           >
             {brStore.bible.abbreviationLocal}
             <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
