@@ -6,8 +6,8 @@
   "include": [
     "./sst.config.ts",
     "./infra/**/*.ts",
-    "./drizzle.config.ts",
-    "./vitest.workspace.ts",
+    "drizzle.config.js",
+    "vitest.workspace.js",
     "./packages/core/globals.d.ts",
     "./.sst/platform/config.d.ts"
   ],
