@@ -1,16 +1,19 @@
-import { neon } from '@neondatabase/serverless';
 import * as schema from '@theaistudybible/core/database/schema';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { migrate } from 'drizzle-orm/neon-http/migrator';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import path from 'path';
-import { Resource } from 'sst';
+import { Pool } from 'pg';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function runDatabaseMigrations() {
-  const migrationClient = drizzle(neon(Resource.NeonBranch.readWriteUrl), {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 1
+  });
+  const migrationClient = drizzle(pool, {
     schema,
     logger: {
       logQuery(query, params) {

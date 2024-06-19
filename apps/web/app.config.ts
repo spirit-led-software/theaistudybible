@@ -5,13 +5,15 @@ import { cjsInterop } from 'vite-plugin-cjs-interop';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+const workspaceRoot = searchForWorkspaceRoot(process.cwd());
+
 export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
-    preset: 'aws-lambda-streaming',
-    compatibilityDate: '2024-06-13'
+    preset: 'bun'
   },
   vite: {
+    envDir: workspaceRoot,
     plugins: [
       tsconfigPaths(),
       cjsInterop({
@@ -22,7 +24,7 @@ export default defineConfig({
     ],
     server: {
       fs: {
-        allow: [searchForWorkspaceRoot(process.cwd())]
+        allow: [workspaceRoot]
       }
     }
   }

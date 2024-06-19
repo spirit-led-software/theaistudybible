@@ -4,10 +4,8 @@
     "paths": {
       "@theaistudybible/core": ["../../packages/core/src"],
       "@theaistudybible/core/*": ["../../packages/core/src/*"],
-      "@theaistudybible/ai": ["../../packages/ai/src"],
-      "@theaistudybible/ai/*": ["../../packages/ai/src/*"],
-      "@theaistudybible/scripts": ["./src"],
-      "@theaistudybible/scripts/*": ["./src/*"]
+      "@theaistudybible/ai": ["./src"],
+      "@theaistudybible/ai/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],

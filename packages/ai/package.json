@@ -1,5 +1,6 @@
 {
-  "name": "@theaistudybible/core",
+  "name": "@theaistudybible/ai",
+  "description": "The AI Study Bible AI",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -12,17 +13,12 @@
   "devDependencies": {
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
-    "@theaistudybible/tsconfig": "workspace:*",
-    "@types/nodemailer": "^6.4.15",
-    "vitest": "^1.6.0"
+    "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.600.0",
-    "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.1.37",
-    "axios": "^1.7.2",
-    "axios-retry": "^4.4.0",
-    "drizzle-orm": "^0.31.2",
-    "nodemailer": "^6.9.13"
+    "@qdrant/js-client-rest": "^1.9.0",
+    "@theaistudybible/core": "workspace:*",
+    "ai": "^3.2.1",
+    "openai": "^4.52.0"
   }
 }

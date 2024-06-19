@@ -1,7 +1,7 @@
+import { vectorDatabase } from '@theaistudybible/ai/lib/vector-store';
 import { chaptersToSourceDocuments } from '@theaistudybible/core/database/schema';
+import { db } from '@theaistudybible/core/lib/database';
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { db } from '@theaistudybible/server/lib/database';
 import { versesToDocs } from './content';
 
 export const generateChapterEmbeddings = async ({
@@ -21,14 +21,12 @@ export const generateChapterEmbeddings = async ({
     chapter,
     verses
   });
-
-  const vectorStore = await getDocumentVectorStore({ write: true });
-  const ids = await vectorStore.addDocuments(docs);
+  await vectorDatabase.addDocuments(docs);
   await db.insert(chaptersToSourceDocuments).values(
-    ids.map((id) => ({
+    docs.map((doc) => ({
       chapterId: chapter.id,
-      sourceDocumentId: id
+      sourceDocumentId: doc.id
     }))
   );
-  console.log(`Successfully added ${ids.length} documents to vector store for ${chapter.name}`);
+  console.log(`Successfully added ${docs.length} documents to vector store for ${chapter.name}`);
 };

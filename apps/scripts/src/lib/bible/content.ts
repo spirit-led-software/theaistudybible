@@ -1,8 +1,8 @@
-import { Document } from '@langchain/core/documents';
+import { embeddingsModelInfo } from '@theaistudybible/ai/lib/embeddings';
+import type { Document } from '@theaistudybible/ai/types/document';
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import { Metadata } from '@theaistudybible/core/types/metadata';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { getEmbeddingsModelInfo } from '@theaistudybible/langchain/lib/llm';
+import { createId } from '@theaistudybible/core/util/id';
 
 export const versesToDocs = ({
   bible,
@@ -15,9 +15,9 @@ export const versesToDocs = ({
   chapter: Chapter;
   verses: Verse[];
 }) => {
-  const { chunkSize, chunkOverlap } = getEmbeddingsModelInfo();
+  const { chunkSize, chunkOverlap } = embeddingsModelInfo;
 
-  const docs: Document<Metadata>[] = [];
+  const docs: Document[] = [];
   for (let i = 0; i < verses.length; i++) {
     const verse = verses[i];
     let verseStart = verse.number;
@@ -51,7 +51,8 @@ export const versesToDocs = ({
     const verseRange = `${verseStart}-${verseEnd - 1}`;
     const name = `${book.shortName} ${chapter.number}:${verseRange} (${bible.abbreviationLocal})`;
     docs.push({
-      pageContent: `${currentPageContent} - ${name}`,
+      id: createId(),
+      content: `${currentPageContent} - ${name}`,
       metadata: {
         type: 'bible',
         translation: bible.abbreviation,

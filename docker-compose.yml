@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=theaistudybible
+      - POSTGRES_PASSWORD=theaistudybible
+      - POSTGRES_DB=theaistudybible
+
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    ports:
+      - 6379:6379
+
+  qdrant:
+    image: qdrant/qdrant:v1.9.5
+    ports:
+      - 6333:6333
+    environment:
+      - QDRANT__SERVICE__API_KEY=theaistudybible
+
+  minio:
+    image: minio/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=theaistudybible
+      - MINIO_ROOT_PASSWORD=theaistudybible
+    command: server /data --console-address ":9001"

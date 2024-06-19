@@ -18,12 +18,8 @@
     "paths": {
       "@theaistudybible/core": ["../../packages/core/src"],
       "@theaistudybible/core/*": ["../../packages/core/src/*"],
-      "@theaistudybible/langchain": ["../../packages/langchain/src"],
-      "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
-      "@theaistudybible/server": ["../../packages/server/src"],
-      "@theaistudybible/server/*": ["../../packages/server/src/*"],
-      "@lib/server/database": ["./src/lib/server/database"],
-      "@lib/server/cache": ["./src/lib/server/cache"],
+      "@theaistudybible/ai": ["../../packages/ai/src"],
+      "@theaistudybible/ai/*": ["../../packages/ai/src/*"],
       "~/*": ["./src/*"]
     }
   },

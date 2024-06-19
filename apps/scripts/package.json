@@ -10,7 +10,7 @@
     "lint:fix": "prettier --write . && eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "scripts": "sst shell -- bun run src/index.ts"
+    "scripts": "bun run src/index.ts"
   },
   "devDependencies": {
     "@theaistudybible/eslint-config": "workspace:*",
@@ -22,22 +22,16 @@
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.0.11",
-    "@langchain/community": "^0.2.11",
-    "@langchain/core": "^0.2.6",
-    "@neondatabase/serverless": "^0.9.3",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
-    "@theaistudybible/langchain": "workspace:*",
-    "@theaistudybible/server": "workspace:*",
     "@xmldom/xmldom": "^0.8.10",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
     "fast-xml-parser": "^4.4.0",
     "jszip": "^3.10.1",
-    "langchain": "^0.2.5",
     "ora": "^8.0.1",
     "pg": "^8.12.0",
-    "sst": "^3.0.33",
     "yargs": "^17.7.2",
     "zod": "^3.23.8"
   }

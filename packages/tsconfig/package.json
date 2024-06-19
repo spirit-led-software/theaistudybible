@@ -5,8 +5,7 @@
   "private": true,
   "main": "tsconfig.json",
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.138",
-    "@types/node": "^20.14.3",
+    "@types/bun": "latest",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5"
   }
