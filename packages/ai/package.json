@@ -16,9 +16,13 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^0.0.21",
+    "@ai-sdk/openai": "^0.0.32",
     "@qdrant/js-client-rest": "^1.9.0",
     "@theaistudybible/core": "workspace:*",
     "ai": "^3.2.1",
-    "openai": "^4.52.0"
+    "drizzle-orm": "^0.31.2",
+    "openai": "^4.52.0",
+    "zod": "^3.23.8"
   }
 }

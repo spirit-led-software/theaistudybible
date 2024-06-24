@@ -1,5 +1,5 @@
-import { db } from '@lib/server/database';
-import { clerkClient, userHasRole } from '@theaistudybible/server/lib/user';
+import { db } from '@theaistudybible/core/database';
+import { clerkClient, userHasRole } from '@theaistudybible/core/user';
 import { Hono } from 'hono';
 import type { Bindings, Variables } from '../../types';
 

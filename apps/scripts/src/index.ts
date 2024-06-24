@@ -1,24 +1,8 @@
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createBible } from './bibles/create';
 import { runDatabaseMigrations } from './database/migrations';
 import { seedDatabase } from './database/seed';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Load .env file
-dotenv.config({
-  path: path.resolve(__dirname, '../.env')
-});
-
-// Load .env file in the root directory
-dotenv.config({
-  path: path.resolve(__dirname, '../../../.env')
-});
 
 yargs(hideBin(process.argv))
   .scriptName('scripts')

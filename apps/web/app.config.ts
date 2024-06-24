@@ -14,10 +14,11 @@ export default defineConfig({
   },
   vite: {
     envDir: workspaceRoot,
+    envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
       cjsInterop({
-        dependencies: ['@clerk/clerk-js']
+        dependencies: ['@clerk/clerk-js', 'pg']
       }),
       VitePWA(),
       devtools()

@@ -36,7 +36,7 @@ declare global {
       ADMIN_PASSWORD: string;
 
       // Clerk
-      CLERK_PUBLISHABLE_KEY: string;
+      PUBLIC_CLERK_PUBLISHABLE_KEY: string;
       CLERK_SECRET_KEY: string;
       CLERK_WEBHOOK_SECRET: string;
 
@@ -47,7 +47,7 @@ declare global {
       REVENUECAT_WEBHOOK_SECRET: string;
 
       // Stripe
-      STRIPE_PUBLIC_KEY: string;
+      PUBLIC_STRIPE_PUBLIC_KEY: string;
       STRIPE_SECRET_KEY: string;
       STRIPE_WEBHOOK_SECRET: string;
     }

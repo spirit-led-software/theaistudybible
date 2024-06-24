@@ -1,5 +1,5 @@
-import { db } from '@lib/server/database';
 import { createMutation, createQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { chapterBookmarks } from '@theaistudybible/core/database/schema';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';

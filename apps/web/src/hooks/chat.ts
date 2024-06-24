@@ -1,19 +1,11 @@
-import { UseChatOptions, useChat as useAIChat } from '@ai-sdk/solid';
-import { db } from '@lib/server/database';
 import { createInfiniteQuery, createQuery } from '@tanstack/solid-query';
+import { UseChatOptions, useChat as useAIChat } from '@theaistudybible/ai/solid';
+import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
 import { createId } from '@theaistudybible/core/util/id';
-import {
-  Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  mergeProps,
-  on,
-  splitProps
-} from 'solid-js';
+import { isNull } from 'drizzle-orm';
+import { Accessor, createEffect, createSignal, mergeProps, on, splitProps } from 'solid-js';
 import { auth } from '~/lib/server/clerk';
-import { useAuth } from './clerk';
 
 const getChat = async (chatId: string) => {
   'use server';
@@ -45,12 +37,12 @@ const getChatMessages = async ({
     throw new Error('User is not authenticated');
   }
   const messages = await db.query.messages.findMany({
-    where: (messages, { eq, and, sql }) =>
+    where: (messages, { eq, and, or, ne }) =>
       and(
         eq(messages.userId, userId),
         eq(messages.chatId, chatId),
-        sql`${messages.metadata}->>'failed' IS NULL OR ${messages.metadata}->>'failed' = 'false'`,
-        sql`${messages.metadata}->>'regenerated' IS NULL OR ${messages.metadata}->>'regenerated' = 'false'`
+        eq(messages.regenerated, false),
+        or(isNull(messages.finishReason), ne(messages.finishReason, 'error'))
       ),
     limit,
     offset,
@@ -74,8 +66,12 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
 });
 
 export type UseChatProps = Prettify<
-  | (Omit<UseChatOptions, 'id' | 'generateId' | 'sendExtraMessageFields' | 'api'> & {
+  | (Omit<
+      UseChatOptions,
+      'api' | 'id' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'
+    > & {
       id?: Accessor<string | undefined>;
+      modelId?: Accessor<string | undefined>;
       initQuery?: Accessor<string | undefined>;
       setInitQuery?: (query: string | undefined) => void;
     })
@@ -83,27 +79,42 @@ export type UseChatProps = Prettify<
 >;
 
 export const useChat = (props: UseChatProps) => {
-  const [local, useChatProps] = splitProps(props ?? {}, ['id', 'initQuery', 'setInitQuery']);
+  const [local, useChatProps] = splitProps(props ?? {}, [
+    'id',
+    'modelId',
+    'initQuery',
+    'setInitQuery'
+  ]);
 
-  const { getToken } = useAuth();
   const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
+
+  const [modelId, setModelId] = createSignal<string | undefined>(local.modelId?.());
+  createEffect(() => {
+    setModelId(local.modelId?.());
+  });
 
   const [chatId, setChatId] = createSignal<string | undefined>(local.id?.());
   createEffect(() => {
     setChatId(local.id?.());
   });
 
-  const useChatReturn = useAIChat({
+  const useChatResult = useAIChat({
     ...useChatProps,
     api: '/api/chat',
-    generateId: createId,
+    generateId: () => `msg_${createId()}`,
     sendExtraMessageFields: true,
+    maxToolRoundtrips: 5,
+    body: {
+      ...useChatProps.body,
+      modelId: modelId(),
+      chatId: chatId()
+    },
     onResponse: (response) => {
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId) {
         setChatId(newChatId);
       }
-      const aiResponseId = response.headers.get('x-ai-response-id');
+      const aiResponseId = response.headers.get('x-response-id');
       if (aiResponseId) {
         setLastAiResponseId(aiResponseId);
       }
@@ -125,8 +136,8 @@ export const useChat = (props: UseChatProps) => {
     on(
       () => messagesQuery.data,
       (data) => {
-        if (!useChatReturn.isLoading()) {
-          useChatReturn.setMessages(
+        if (!useChatResult.isLoading()) {
+          useChatResult.setMessages(
             data?.pages
               ?.flatMap((page) => [...page.messages])
               .toReversed()
@@ -134,10 +145,8 @@ export const useChat = (props: UseChatProps) => {
                 ...message,
                 content: message.content ?? '',
                 tool_call_id: message.tool_call_id ?? undefined,
-                name: message.name ?? undefined,
-                function_call: message.function_call ?? undefined,
-                tool_calls: message.tool_calls ?? undefined,
-                annotations: message.annotations ?? undefined
+                annotations: message.annotations ?? undefined,
+                toolInvocations: message.toolInvocations ?? undefined
               })) ?? []
           );
         }
@@ -146,12 +155,12 @@ export const useChat = (props: UseChatProps) => {
   );
 
   createEffect(
-    on([useChatReturn.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
-      if (useChatReturn.messages() && lastAiResponseId && !isLoading) {
-        useChatReturn.setMessages([
-          ...useChatReturn.messages()!.slice(0, -1),
+    on([useChatResult.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
+      if (useChatResult.messages() && lastAiResponseId && !isLoading) {
+        useChatResult.setMessages([
+          ...useChatResult.messages()!.slice(0, -1),
           {
-            ...useChatReturn.messages()!.at(-1)!,
+            ...useChatResult.messages()!.at(-1)!,
             id: lastAiResponseId
           }
         ]);
@@ -163,30 +172,18 @@ export const useChat = (props: UseChatProps) => {
   createEffect(
     on(props?.initQuery ?? (() => undefined), async (query) => {
       if (query) {
-        useChatReturn.append(
-          {
-            role: 'user',
-            content: query
-          },
-          {
-            options: {
-              headers: {
-                Authorization: `Bearer ${await getToken()()}`
-              }
-            }
-          }
-        );
+        useChatResult.append({
+          role: 'user',
+          content: query
+        });
         local.setInitQuery?.(undefined);
       }
     })
   );
 
-  const isLoading = createMemo(() => messagesQuery.isLoading || useChatReturn.isLoading());
-
-  return mergeProps(useChatReturn, {
+  return mergeProps(useChatResult, {
     chatQuery,
     messagesQuery,
-    id: chatId,
-    isLoading
+    id: chatId
   });
 };

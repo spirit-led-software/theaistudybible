@@ -1,13 +1,11 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import { userGeneratedImages } from '@theaistudybible/core/database/schema';
 import type { UserGeneratedImage } from '@theaistudybible/core/model/generated-image';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { generatedImage } from '@theaistudybible/server/lib/generated-image';
-import { hasRole } from '@theaistudybible/server/lib/user';
+import { hasRole } from '@theaistudybible/core/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { z } from 'zod';
 import { PaginationSchema } from '~/lib/server/api/lib/utils/pagination';
 import type { Bindings, Variables } from '~/lib/server/api/types';
 
@@ -56,26 +54,26 @@ export const app = new Hono<{
     c.set('image', image);
     await next();
   })
-  .post(
-    '/',
-    zValidator(
-      'json',
-      z.object({
-        prompt: z.string().min(1).max(255)
-      })
-    ),
-    async (c) => {
-      const { prompt } = c.req.valid('json');
-      const image = await generatedImage(c.var.clerkAuth!.userId!, prompt);
+  // .post(
+  //   '/',
+  //   zValidator(
+  //     'json',
+  //     z.object({
+  //       prompt: z.string().min(1).max(255)
+  //     })
+  //   ),
+  //   async (c) => {
+  //     const { prompt } = c.req.valid('json');
+  //     const image = await generateImage(c.var.clerkAuth!.userId!, prompt);
 
-      return c.json(
-        {
-          data: image
-        },
-        200
-      );
-    }
-  )
+  //     return c.json(
+  //       {
+  //         data: image
+  //       },
+  //       200
+  //     );
+  //   }
+  // )
   .get('/', zValidator('query', PaginationSchema(userGeneratedImages)), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
@@ -127,12 +125,8 @@ export const app = new Hono<{
     const sourceDocumentRelations = await db.query.userGeneratedImagesToSourceDocuments.findMany({
       where: eq(userGeneratedImages.id, c.var.image.id)
     });
-    const vectorStore = await getDocumentVectorStore();
-    const sourceDocuments = await vectorStore.index.fetch(
-      sourceDocumentRelations.map((r) => r.sourceDocumentId),
-      {
-        includeMetadata: true
-      }
+    const sourceDocuments = await vectorStore.getDocuments(
+      sourceDocumentRelations.map((r) => r.sourceDocumentId)
     );
     return c.json(
       {

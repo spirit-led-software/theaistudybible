@@ -39,6 +39,7 @@ export default tsEslint.config(
       '@typescript-eslint': tsEslint.plugin
     },
     rules: {
+      '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/triple-slash-reference': 'off',
       '@typescript-eslint/consistent-type-exports': 'error',
       '@typescript-eslint/no-import-type-side-effects': 'error'

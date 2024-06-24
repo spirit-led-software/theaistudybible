@@ -1,4 +1,4 @@
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 
 export async function getChapterReaderData(props: {
   bibleAbbr: string;

@@ -1,11 +1,10 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import { devotionReactions, devotions } from '@theaistudybible/core/database/schema';
 import type { Devotion } from '@theaistudybible/core/model/devotion';
 import type { DevotionImage } from '@theaistudybible/core/model/devotion/image';
 import type { DevotionReaction } from '@theaistudybible/core/model/devotion/reaction';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { generateDevotion } from '@theaistudybible/server/lib/devotion';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -77,18 +76,18 @@ export const app = new Hono<{
     c.set('devotionReaction', reaction);
     await next();
   })
-  .post('/', zValidator('json', createDevotionSchema), async (c) => {
-    const { topic, bibleReading } = c.req.valid('json');
+  // .post('/', zValidator('json', createDevotionSchema), async (c) => {
+  //   const { topic, bibleReading } = c.req.valid('json');
 
-    const devotion = await generateDevotion(topic, bibleReading);
+  //   const devotion = await generateDevotion(topic, bibleReading);
 
-    return c.json(
-      {
-        data: devotion
-      },
-      201
-    );
-  })
+  //   return c.json(
+  //     {
+  //       data: devotion
+  //     },
+  //     201
+  //   );
+  // })
   .get('/', zValidator('query', listDevotionsSchema), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
@@ -192,11 +191,10 @@ export const app = new Hono<{
         eq(devotionSourceDocuments.devotionId, devotion.id)
     });
 
-    const vectorStore = await getDocumentVectorStore();
-    const sourceDocuments = await vectorStore.index.fetch(
+    const sourceDocuments = await vectorStore.getDocuments(
       sourceDocumentRelations.map((r) => r.sourceDocumentId),
       {
-        includeMetadata: true
+        withMetadata: true
       }
     );
 

@@ -1,8 +1,8 @@
-import { embeddingsModelInfo } from '@theaistudybible/ai/lib/embeddings';
+import { embeddingsModelInfo } from '@theaistudybible/ai/embeddings';
 import type { Document } from '@theaistudybible/ai/types/document';
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { createId } from '@theaistudybible/core/util/id';
+import { v4 as uuidV4 } from 'uuid';
 
 export const versesToDocs = ({
   bible,
@@ -51,7 +51,7 @@ export const versesToDocs = ({
     const verseRange = `${verseStart}-${verseEnd - 1}`;
     const name = `${book.shortName} ${chapter.number}:${verseRange} (${bible.abbreviationLocal})`;
     docs.push({
-      id: createId(),
+      id: uuidV4(),
       content: `${currentPageContent} - ${name}`,
       metadata: {
         type: 'bible',

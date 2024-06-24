@@ -1,6 +1,6 @@
-import { db } from '@lib/server/database';
 import { A } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { Menu, X } from 'lucide-solid';
 import { For } from 'solid-js';
 import { auth } from '~/lib/server/clerk';

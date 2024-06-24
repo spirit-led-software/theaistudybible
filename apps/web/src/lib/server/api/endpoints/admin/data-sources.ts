@@ -1,13 +1,12 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import {
   dataSources,
   dataSourcesToSourceDocuments,
   indexOperations
 } from '@theaistudybible/core/database/schema';
 import type { DataSource } from '@theaistudybible/core/model/data-source';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { syncDataSource } from '@theaistudybible/server/lib/data-source';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -98,16 +97,16 @@ export const app = new Hono<{
       200
     );
   })
-  .post('/:id/sync', async (c) => {
-    const dataSource = await syncDataSource(c.var.dataSource.id, true);
-    return c.json(
-      {
-        message: 'Sync complete',
-        data: dataSource
-      },
-      200
-    );
-  })
+  // .post('/:id/sync', async (c) => {
+  //   const dataSource = await syncDataSource(c.var.dataSource.id, true);
+  //   return c.json(
+  //     {
+  //       message: 'Sync complete',
+  //       data: dataSource
+  //     },
+  //     200
+  //   );
+  // })
   .get(
     '/:id/source-documents',
     zValidator(
@@ -150,9 +149,8 @@ export const app = new Hono<{
           .then((res) => res[0].count)
       ]);
 
-      const vectorStore = await getDocumentVectorStore();
-      const sourceDocuments = await vectorStore.index.fetch(sourceDocumentIds, {
-        includeMetadata: true
+      const sourceDocuments = await vectorStore.getDocuments(sourceDocumentIds, {
+        withMetadata: true
       });
 
       return c.json(

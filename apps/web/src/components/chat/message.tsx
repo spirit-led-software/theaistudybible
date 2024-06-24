@@ -1,7 +1,11 @@
+import { A } from '@solidjs/router';
+import { DocumentWithScore } from '@theaistudybible/ai/types/document';
 import type { Message as AIMessage } from 'ai/solid';
-import Icon from '~/components/branding/icon';
+import { For, Match, Show, Switch } from 'solid-js';
 import { Markdown } from '~/components/ui/markdown';
 import { useUser } from '~/hooks/clerk';
+import Icon from '../branding/icon';
+import { H6 } from '../ui/typography';
 
 export type MessageProps = {
   message: AIMessage;
@@ -21,7 +25,35 @@ export const Message = (props: MessageProps) => {
           </div>
         )}
       </div>
-      <Markdown>{props.message.content}</Markdown>
+      <Show when={props.message.content} keyed>
+        {(content) => <Markdown>{content}</Markdown>}
+      </Show>
+      <Show when={props.message.toolInvocations?.length}>
+        <For each={props.message.toolInvocations}>
+          {(toolInvocation) => (
+            <Switch>
+              <Match when={toolInvocation.toolName === 'vectorDatabase'}>
+                <div class="flex flex-col">
+                  <H6>References</H6>
+                  <Show when={'result' in toolInvocation && toolInvocation.result} keyed>
+                    {(result: DocumentWithScore[]) => (
+                      <ul class="list-inside list-disc">
+                        <For each={result}>
+                          {(doc) => (
+                            <li class="list-item">
+                              <A href={doc.metadata!.url}>{doc.metadata!.name}</A>
+                            </li>
+                          )}
+                        </For>
+                      </ul>
+                    )}
+                  </Show>
+                </div>
+              </Match>
+            </Switch>
+          )}
+        </For>
+      </Show>
     </div>
   );
 };

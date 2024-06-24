@@ -1,5 +1,5 @@
-import { db } from '@lib/server/database';
 import { createQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { Chat } from '@theaistudybible/core/model/chat';
 import { PenBox } from 'lucide-solid';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';

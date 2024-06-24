@@ -1,6 +1,6 @@
-import { db } from '@lib/server/database';
 import { Navigate, RouteDefinition, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { books, chapters } from '@theaistudybible/core/database/schema';
 import { asc } from 'drizzle-orm';
 import { QueryBoundary } from '~/components/query-boundary';

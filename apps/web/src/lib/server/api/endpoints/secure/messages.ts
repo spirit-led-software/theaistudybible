@@ -1,9 +1,9 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import { messageReactions, messages } from '@theaistudybible/core/database/schema';
 import type { Message, MessageReaction } from '@theaistudybible/core/model/chat/message';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
-import { hasRole } from '@theaistudybible/server/lib/user';
+import { hasRole } from '@theaistudybible/core/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -260,12 +260,8 @@ export const app = new Hono<{
     const sourceDocumentRelations = await db.query.messagesToSourceDocuments.findMany({
       where: eq(messages.id, c.var.message.id)
     });
-    const vectorStore = await getDocumentVectorStore();
-    const sourceDocuments = await vectorStore.index.fetch(
-      sourceDocumentRelations.map((r) => r.sourceDocumentId),
-      {
-        includeMetadata: true
-      }
+    const sourceDocuments = await vectorStore.getDocuments(
+      sourceDocumentRelations.map((r) => r.sourceDocumentId)
     );
     return c.json(
       {

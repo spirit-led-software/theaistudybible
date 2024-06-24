@@ -1,6 +1,6 @@
-import { vectorDatabase } from '@theaistudybible/ai/lib/vector-store';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import * as schema from '@theaistudybible/core/database/schema';
-import { db } from '@theaistudybible/core/lib/database';
 import type { Verse } from '@theaistudybible/core/model/bible';
 import { eq } from 'drizzle-orm';
 import { XMLParser } from 'fast-xml-parser';
@@ -103,7 +103,7 @@ export async function createBible({
 
     await Promise.all([
       db.delete(schema.bibles).where(eq(schema.bibles.id, bible.id)),
-      vectorDatabase.deleteDocuments(sourceDocIds)
+      sourceDocIds.length && vectorStore.deleteDocuments(sourceDocIds)
     ]);
   }
 

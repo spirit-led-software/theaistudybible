@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import { dataSources, dataSourcesToSourceDocuments } from '@theaistudybible/core/database/schema';
 import type { DataSource } from '@theaistudybible/core/model/data-source';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
 import { count, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -104,10 +104,7 @@ export const app = new Hono<{
           .then((res) => res[0].count)
       ]);
 
-      const vectorStore = await getDocumentVectorStore();
-      const sourceDocuments = await vectorStore.index.fetch(sourceDocumentIds, {
-        includeMetadata: true
-      });
+      const sourceDocuments = await vectorStore.getDocuments(sourceDocumentIds);
 
       return c.json(
         {

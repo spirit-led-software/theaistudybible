@@ -1,4 +1,4 @@
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 
 export const getVerseReaderData = async (props: {
   bibleAbbr: string;

@@ -1,7 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 import { indexOperations } from '@theaistudybible/core/database/schema';
-import type { IndexOperation } from '@theaistudybible/core/model/data-source/index-op';
+import type { IndexOperation } from '@theaistudybible/core/src/model/data-source/index-operation';
 import { count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';

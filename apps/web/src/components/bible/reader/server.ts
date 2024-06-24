@@ -1,4 +1,4 @@
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 import { auth } from '~/lib/server/clerk';
 
 export async function getHighlights({ chapterId }: { chapterId: string }) {

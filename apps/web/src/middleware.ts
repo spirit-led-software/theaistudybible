@@ -1,18 +1,18 @@
-import { cache } from '@lib/server/cache';
 import { createMiddleware } from '@solidjs/start/middleware';
+import { cache } from '@theaistudybible/core/cache';
 import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
-import { Ratelimit } from '@upstash/ratelimit';
+import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import { getCookie, getRequestIP } from 'vinxi/http';
 import { clerk } from './lib/server/clerk';
 
-const ratelimit = new Ratelimit({
-  redis: cache,
-  limiter: Ratelimit.slidingWindow(1200, '5 m')
+const ratelimit = new RateLimiterRedis({
+  storeClient: cache,
+  points: 1200,
+  duration: 5 * 60
 });
 
 export default createMiddleware({
   onRequest: [
-    // @ts-expect-error - Doesn't accept Promise<void | Response> though it should
     async ({ nativeEvent }) => {
       const ip = getRequestIP(nativeEvent);
       if (!ip) {
@@ -26,18 +26,38 @@ export default createMiddleware({
           }
         );
       } else {
-        const ratelimitResult = await ratelimit.limit(ip);
-        if (!ratelimitResult.success) {
-          return Response.json(
-            {
-              message: `You have issued too many requests. Please wait ${getTimeStringFromSeconds(
-                ratelimitResult.remaining
-              )} before trying again.`
-            },
-            {
-              status: 429
-            }
-          );
+        try {
+          await ratelimit.consume(ip);
+        } catch (ratelimitResult) {
+          if (ratelimitResult instanceof RateLimiterRes) {
+            return Response.json(
+              {
+                message: `You have issued too many requests. Please wait ${getTimeStringFromSeconds(
+                  ratelimitResult.msBeforeNext / 1000
+                )} before trying again.`
+              },
+              {
+                status: 429,
+                headers: {
+                  'Retry-After': (ratelimitResult.msBeforeNext / 1000).toString(),
+                  'X-RateLimit-Limit': ratelimit.points.toString(),
+                  'X-RateLimit-Remaining': ratelimitResult.remainingPoints.toString(),
+                  'X-RateLimit-Reset': new Date(
+                    Date.now() + ratelimitResult.msBeforeNext
+                  ).toISOString()
+                }
+              }
+            );
+          } else {
+            return Response.json(
+              {
+                message: 'An error occurred. Please try again later.'
+              },
+              {
+                status: 500
+              }
+            );
+          }
         }
       }
     },

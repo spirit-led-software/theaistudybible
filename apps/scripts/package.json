@@ -9,13 +9,13 @@
     "lint": "prettier --check . && eslint .",
     "lint:fix": "prettier --write . && eslint .",
     "format": "prettier --write .",
-    "test": "vitest run",
-    "scripts": "bun run src/index.ts"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
+    "@types/uuid": "^10.0.0",
     "@types/yargs": "^17.0.32",
     "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.6.0"
@@ -32,6 +32,7 @@
     "jszip": "^3.10.1",
     "ora": "^8.0.1",
     "pg": "^8.12.0",
+    "uuid": "^10.0.0",
     "yargs": "^17.7.2",
     "zod": "^3.23.8"
   }

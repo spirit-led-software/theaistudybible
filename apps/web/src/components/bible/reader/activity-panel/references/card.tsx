@@ -1,6 +1,6 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { getDocumentVectorStore } from '@theaistudybible/langchain/lib/vector-db';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
 import { For } from 'solid-js';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
@@ -13,12 +13,10 @@ import { cn } from '~/lib/utils';
 
 const getReferences = async (text: string) => {
   'use server';
-  const vectorStore = await getDocumentVectorStore();
-  const docs = await vectorStore.similaritySearch(text, 5);
-  return docs.map((doc) => ({
-    pageContent: doc.pageContent,
-    metadata: doc.metadata
-  }));
+  return await vectorStore.searchDocuments(text, {
+    withMetadata: true,
+    limit: 5
+  });
 };
 
 export const ReferencesCard = () => {
@@ -62,19 +60,19 @@ export const ReferencesCard = () => {
                       <span class="font-bold">{idx() + 1}.</span>
                       <div class="flex w-full flex-col space-y-2">
                         <H6>
-                          {reference.metadata.name
-                            .replace(`(${brStore.bible.abbreviationLocal})`, '')
+                          {reference
+                            .metadata!.name.replace(`(${brStore.bible.abbreviationLocal})`, '')
                             .trim()}
                           :
                         </H6>
                         <p class="line-clamp-3 truncate text-wrap">
-                          {reference.pageContent.replace(`- ${reference.metadata.name}`, '').trim()}
+                          {reference.content.replace(`- ${reference.metadata!.name}`, '').trim()}
                         </p>
                       </div>
                     </div>
                     <DrawerClose
                       as={A}
-                      href={`${reference.metadata.url}?verseIds=${encodeURIComponent(reference.metadata.verseIds.join(','))}`}
+                      href={`${reference.metadata!.url}?verseIds=${encodeURIComponent(reference.metadata!.verseIds.join(','))}`}
                       class={cn(buttonVariants({ variant: 'link' }), 'text-accent-foreground')}
                     >
                       Read More

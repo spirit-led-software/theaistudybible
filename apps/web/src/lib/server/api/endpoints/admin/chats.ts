@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 import { chats, messages } from '@theaistudybible/core/database/schema';
 import type { Chat } from '@theaistudybible/core/model/chat';
 import { SQL, and, count, eq } from 'drizzle-orm';

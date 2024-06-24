@@ -42,7 +42,7 @@ export default function App() {
       <Router
         root={(props) => (
           <MetaProvider>
-            <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+            <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
                 <AppContextProvider>

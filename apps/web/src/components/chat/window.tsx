@@ -3,10 +3,8 @@ import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useChat } from '~/hooks/chat';
-import { useAuth } from '~/hooks/clerk';
 import { cn } from '~/lib/utils';
 import { useChatStore } from '../providers/chat';
-import { QueryBoundary } from '../query-boundary';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
@@ -20,7 +18,6 @@ export type ChatWindowProps = {
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const { getToken } = useAuth();
   const [, setChatStore] = useChatStore();
 
   const useChatResult = useChat({
@@ -69,67 +66,54 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </Button>
       </Show>
       <div class="flex grow flex-col-reverse items-center space-y-2 overflow-y-auto border-b">
-        <Show
-          when={!useChatResult.isLoading()}
+        <div ref={setStartOfMessagesRef} class="h-10 w-full shrink-0" />
+        <For
+          each={messagesReversed}
           fallback={
             <div class="flex h-full w-full items-center justify-center">
-              <Spinner />
+              <H5>No messages yet</H5>
             </div>
           }
         >
-          <div ref={setStartOfMessagesRef} class="h-10 w-full shrink-0" />
-          <QueryBoundary query={useChatResult.messagesQuery}>
-            {() => (
-              <For
-                each={messagesReversed}
-                fallback={
-                  <div class="flex h-full w-full items-center justify-center">
-                    <H5>No messages yet</H5>
-                  </div>
-                }
-              >
-                {(message, idx) => (
-                  <div
-                    data-index={idx()}
-                    class={cn(
-                      'flex w-full max-w-2xl flex-col',
-                      idx() === messagesReversed.length - 1 ? 'border-t-0' : 'border-t'
-                    )}
-                  >
-                    <Message message={message} />
-                  </div>
-                )}
-              </For>
-            )}
-          </QueryBoundary>
-          <div class="flex h-10 w-full shrink-0 items-end justify-center">
-            <Switch>
-              <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
-                <Spinner size="sm" />
-              </Match>
-              <Match when={useChatResult.messagesQuery.hasNextPage}>
-                <div class="flex flex-col items-center justify-center">
-                  <Button
-                    variant="link"
-                    size="icon"
-                    class="flex flex-col items-center justify-center"
-                    onClick={() => {
-                      if (
-                        useChatResult.messagesQuery.hasNextPage &&
-                        !useChatResult.messagesQuery.isFetchingNextPage
-                      ) {
-                        useChatResult.messagesQuery.fetchNextPage();
-                      }
-                    }}
-                  >
-                    <ChevronUp />
-                    More
-                  </Button>
-                </div>
-              </Match>
-            </Switch>
-          </div>
-        </Show>
+          {(message, idx) => (
+            <div
+              data-index={idx()}
+              class={cn(
+                'flex w-full max-w-2xl flex-col',
+                idx() === messagesReversed.length - 1 ? 'border-t-0' : 'border-t'
+              )}
+            >
+              <Message message={message} />
+            </div>
+          )}
+        </For>
+        <div class="flex h-10 w-full shrink-0 items-end justify-center">
+          <Switch>
+            <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
+              <Spinner size="sm" />
+            </Match>
+            <Match when={useChatResult.messagesQuery.hasNextPage}>
+              <div class="flex flex-col items-center justify-center">
+                <Button
+                  variant="link"
+                  size="icon"
+                  class="flex flex-col items-center justify-center"
+                  onClick={() => {
+                    if (
+                      useChatResult.messagesQuery.hasNextPage &&
+                      !useChatResult.messagesQuery.isFetchingNextPage
+                    ) {
+                      useChatResult.messagesQuery.fetchNextPage();
+                    }
+                  }}
+                >
+                  <ChevronUp />
+                  More
+                </Button>
+              </div>
+            </Match>
+          </Switch>
+        </div>
       </div>
       <form
         class="relative flex w-full items-center justify-center px-2 py-2"
@@ -139,16 +123,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             showToast({ title: 'Please type a message', variant: 'error', duration: 3000 });
             return;
           }
-          useChatResult.handleSubmit(e, {
-            options: {
-              body: {
-                chatId: useChatResult.id()
-              },
-              headers: {
-                Authorization: `Bearer ${await getToken()()}`
-              }
-            }
-          });
+          useChatResult.handleSubmit(e);
         }}
       >
         <div class="flex w-full max-w-2xl items-center rounded-full border py-2 pl-5 pr-1">
@@ -156,9 +131,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             <TextFieldTextArea
               placeholder="Type a message"
               value={useChatResult.input()}
-              onChange={(e: { currentTarget: HTMLTextAreaElement | undefined }) =>
-                useChatResult.setInput(e.currentTarget?.value ?? '')
-              }
+              onChange={useChatResult.handleInputChange}
               class="max-h-24 min-h-[20px] w-full resize-none items-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
               autoResize
             />

@@ -1,5 +1,5 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 import { bibles } from '@theaistudybible/core/database/schema';
 import type { Bible } from '@theaistudybible/core/model/bible';
 import { count, eq } from 'drizzle-orm';

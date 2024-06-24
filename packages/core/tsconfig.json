@@ -6,6 +6,6 @@
       "@theaistudybible/core/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "globals.d.ts"],
+  "include": ["./src/**/*.ts", "globals.d.ts", "src/lib/email.ts"],
   "exclude": ["./node_modules/**"]
 }

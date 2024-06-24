@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator';
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 import { chats, messages } from '@theaistudybible/core/database/schema';
 import type { Chat } from '@theaistudybible/core/model/chat';
-import { hasRole } from '@theaistudybible/server/lib/user';
+import { hasRole } from '@theaistudybible/core/user';
 import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';

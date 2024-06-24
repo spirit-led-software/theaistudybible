@@ -1,4 +1,4 @@
-import { clerkClient } from '@theaistudybible/server/lib/user';
+import { clerkClient } from '@theaistudybible/core/user';
 import { Hono } from 'hono';
 import Stripe from 'stripe';
 import type { Bindings, Variables } from '../../types';

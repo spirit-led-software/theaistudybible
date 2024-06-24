@@ -1,6 +1,6 @@
-import OpenAI from 'openai';
-import { Document, DocumentWithEmbeddings } from '../types/document';
-import { openai } from './openai';
+import { EmbeddingModel } from 'ai';
+import { registry } from './provider-registry';
+import { Document, DocumentWithEmbedding } from './types/document';
 
 export type EmbeddingModelInfo = {
   id: string;
@@ -12,49 +12,47 @@ export type EmbeddingModelInfo = {
 export const embeddingsModelInfo: EmbeddingModelInfo =
   process.env.NODE_ENV === 'production'
     ? {
-        id: 'text-embedding-3-large',
+        id: 'openai:text-embedding-3-large',
         dimensions: 3072,
         chunkSize: 1024,
         chunkOverlap: 256
       }
     : {
-        id: 'text-embedding-ada-002',
+        id: 'openai:text-embedding-ada-002',
         dimensions: 1536,
         chunkSize: 1024,
         chunkOverlap: 256
       };
 
 export class Embeddings {
-  private readonly embeddings: OpenAI.Embeddings;
+  private readonly embeddings: EmbeddingModel<string>;
 
   constructor() {
-    this.embeddings = new OpenAI.Embeddings(openai);
+    this.embeddings = registry.textEmbeddingModel(embeddingsModelInfo.id);
   }
 
   async embedQuery(query: string) {
-    const response = await this.embeddings.create({
-      model: embeddingsModelInfo.id,
-      input: query
+    const response = await this.embeddings.doEmbed({
+      values: [query]
     });
 
-    return response.data[0].embedding;
+    return response.embeddings[0];
   }
 
   async embedDocuments(docs: Document[]) {
-    let result: DocumentWithEmbeddings[] = [];
+    let result: DocumentWithEmbedding[] = [];
 
     const chunkSize = 25;
     for (let i = 0; i < docs.length; i += chunkSize) {
       const chunk = docs.slice(i, i + chunkSize);
-      const embeddingResponse = await this.embeddings.create({
-        model: embeddingsModelInfo.id,
-        input: chunk.map((d) => d.content)
+      const embeddingResponse = await this.embeddings.doEmbed({
+        values: chunk.map((d) => d.content)
       });
 
       result = result.concat(
-        embeddingResponse.data.map((d, index) => ({
+        embeddingResponse.embeddings.map((d, index) => ({
           ...chunk[index],
-          embedding: d.embedding
+          embedding: d
         }))
       );
     }

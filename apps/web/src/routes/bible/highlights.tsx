@@ -1,6 +1,6 @@
-import { db } from '@lib/server/database';
 import { A, RouteDefinition } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { contentsToText } from '@theaistudybible/core/util/bible';
 import { For, Match, Switch } from 'solid-js';
 import { SignIn, SignedIn, SignedOut } from '~/components/clerk';

@@ -1,4 +1,5 @@
-import type { FunctionCall, JSONValue, ToolCall } from 'ai';
+import type { LanguageModelV1FinishReason } from '@ai-sdk/provider';
+import type { JSONValue, ToolInvocation } from 'ai';
 import { relations } from 'drizzle-orm';
 import {
   boolean,
@@ -87,29 +88,21 @@ export const messages = pgTable(
       .primaryKey()
       .$defaultFn(() => `msg_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    tool_call_id: text('tool_call_id'),
     content: text('content'),
+    tool_call_id: text('tool_call_id'),
     role: text('role', {
-      enum: ['system', 'user', 'assistant', 'function', 'data', 'tool']
+      enum: ['system', 'user', 'assistant', 'data']
     }).notNull(),
-    name: text('name'),
-    function_call: jsonb('function_call').$type<string | FunctionCall>().default({}),
     data: jsonb('data').$type<JSONValue>(),
-    tool_calls: jsonb('tool_calls').$type<string | ToolCall[]>().default([]),
     annotations: jsonb('annotations').$type<JSONValue[]>(),
+    toolInvocations: jsonb('tool_invocations').$type<ToolInvocation[] | undefined>(),
 
     // Custom fields
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-    metadata: jsonb('metadata')
-      .$type<
-        Metadata & {
-          failed?: boolean;
-          regenerated?: boolean;
-          modelId?: string;
-          searchQueries?: string[];
-        }
-      >()
-      .default({}),
+    finishReason: text('finish_reason').$type<LanguageModelV1FinishReason>(),
+    regenerated: boolean('regenerated').notNull().default(false),
+    modelId: text('model_id'),
+    searchQueries: jsonb('search_queries').$type<string[]>(),
     anonymous: boolean('anonymous').notNull().default(false),
 
     // Relations fields
@@ -150,7 +143,7 @@ export const messagesRelations = relations(messages, ({ one, many }) => {
     originMessage: one(messages, {
       fields: [messages.originMessageId],
       references: [messages.id],
-      relationName: 'originMessage'
+      relationName: 'responses'
     }),
     responses: many(messages, {
       relationName: 'responses'

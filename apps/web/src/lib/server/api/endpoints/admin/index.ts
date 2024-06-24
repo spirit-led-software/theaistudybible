@@ -1,11 +1,10 @@
-import { hasRole } from '@theaistudybible/server/lib/user';
+import { hasRole } from '@theaistudybible/core/user';
 import { Hono } from 'hono';
 import type { Bindings, Variables } from '~/lib/server/api/types';
 import bibles from './bibles';
 import chats from './chats';
 import dataSources from './data-sources';
 import devotions from './devotions';
-import scraper from './scraper';
 
 export const app = new Hono<{
   Bindings: Bindings;
@@ -28,7 +27,6 @@ export const app = new Hono<{
   .route('/bibles', bibles)
   .route('/chats', chats)
   .route('/data-sources', dataSources)
-  .route('/devotions', devotions)
-  .route('/scraper', scraper);
+  .route('/devotions', devotions);
 
 export default app;

@@ -1,4 +1,4 @@
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 import { verseHighlights } from '@theaistudybible/core/database/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import { auth } from '~/lib/server/clerk';
@@ -20,7 +20,7 @@ export async function updateHighlights({ color, verseIds }: { color: string; ver
       }))
     )
     .onConflictDoUpdate({
-      target: [verseHighlights.id],
+      target: [verseHighlights.verseId],
       set: {
         color
       }

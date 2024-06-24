@@ -32,7 +32,7 @@ export const app = new Hono<{
     '*',
     async (c, next) =>
       await clerkMiddleware({
-        publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+        publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY,
         secretKey: process.env.CLERK_SECRET_KEY
       })(c, next)
   )

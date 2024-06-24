@@ -1,4 +1,4 @@
-import { db } from '@lib/server/database';
+import { db } from '@theaistudybible/core/database';
 
 export async function getBookPickerData(bibleId: string) {
   'use server';

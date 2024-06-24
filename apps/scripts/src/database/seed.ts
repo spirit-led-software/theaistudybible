@@ -1,6 +1,7 @@
 import { createClerkClient } from '@clerk/clerk-sdk-node';
+import { vectorStore } from '@theaistudybible/ai/vector-store';
+import { db } from '@theaistudybible/core/database';
 import { roles } from '@theaistudybible/core/database/schema';
-import { db } from '@theaistudybible/core/lib/database';
 import { eq } from 'drizzle-orm';
 
 const clerk = createClerkClient({
@@ -196,6 +197,7 @@ export const seedDatabase = async () => {
     await createInitialRoles();
     await createRcEntitlementRoles();
     await createInitialAdminUser();
+    await vectorStore.initialize();
 
     console.log('Database seeding complete');
   } catch (e) {
