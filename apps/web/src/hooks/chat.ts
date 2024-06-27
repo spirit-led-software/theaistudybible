@@ -1,5 +1,5 @@
+import { UseChatOptions, useChat as useAIChat } from '@ai-sdk/solid';
 import { createInfiniteQuery, createQuery } from '@tanstack/solid-query';
-import { UseChatOptions, useChat as useAIChat } from '@theaistudybible/ai/solid';
 import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
 import { createId } from '@theaistudybible/core/util/id';
@@ -98,9 +98,10 @@ export const useChat = (props: UseChatProps) => {
     setChatId(local.id?.());
   });
 
-  const useChatResult = useAIChat({
+  const useChatResult = useAIChat(() => ({
     ...useChatProps,
     api: '/api/chat',
+    id: chatId(),
     generateId: () => `msg_${createId()}`,
     sendExtraMessageFields: true,
     maxToolRoundtrips: 5,
@@ -121,13 +122,15 @@ export const useChat = (props: UseChatProps) => {
       return useChatProps.onResponse?.(response);
     },
     onFinish: (message) => {
+      chatQuery.refetch();
+      messagesQuery.refetch();
       return useChatProps.onFinish?.(message);
     },
     onError: (err) => {
       console.error(err);
       return useChatProps.onError?.(err);
     }
-  });
+  }));
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
 
@@ -170,7 +173,7 @@ export const useChat = (props: UseChatProps) => {
   );
 
   createEffect(
-    on(props?.initQuery ?? (() => undefined), async (query) => {
+    on(props?.initQuery ?? (() => undefined), (query) => {
       if (query) {
         useChatResult.append({
           role: 'user',

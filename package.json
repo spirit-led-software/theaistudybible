@@ -18,7 +18,7 @@
     "db:studio": "bun --env-file=.env drizzle-kit studio"
   },
   "devDependencies": {
-    "bun": "^1.1.16",
+    "bun": "^1.1.17",
     "drizzle-kit": "^0.22.7",
     "turbo": "^2.0.5",
     "vitest": "^1.6.0"
@@ -27,7 +27,7 @@
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "bun@1.1.14",
+  "packageManager": "bun@1.1.17",
   "trustedDependencies": [
     "@clerk/shared",
     "browser-tabs-lock",

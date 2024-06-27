@@ -20,9 +20,9 @@
     "@ai-sdk/openai": "^0.0.33",
     "@qdrant/js-client-rest": "^1.9.0",
     "@theaistudybible/core": "workspace:*",
-    "ai": "^3.2.8",
+    "ai": "^3.2.10",
     "drizzle-orm": "^0.31.2",
-    "openai": "^4.52.0",
+    "openai": "^4.52.1",
     "zod": "^3.23.8"
   }
 }

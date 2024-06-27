@@ -5,6 +5,7 @@ import { For, Match, Show, Switch } from 'solid-js';
 import { Markdown } from '~/components/ui/markdown';
 import { useUser } from '~/hooks/clerk';
 import Icon from '../branding/icon';
+import { Button } from '../ui/button';
 import { H6 } from '../ui/typography';
 
 export type MessageProps = {
@@ -34,14 +35,21 @@ export const Message = (props: MessageProps) => {
             <Switch>
               <Match when={toolInvocation.toolName === 'vectorDatabase'}>
                 <div class="flex flex-col">
-                  <H6>References</H6>
+                  <H6>Sources</H6>
                   <Show when={'result' in toolInvocation && toolInvocation.result} keyed>
                     {(result: DocumentWithScore[]) => (
-                      <ul class="list-inside list-disc">
+                      <ul class="list-inside list-none">
                         <For each={result}>
                           {(doc) => (
                             <li class="list-item">
-                              <A href={doc.metadata!.url}>{doc.metadata!.name}</A>
+                              <Button
+                                as={A}
+                                href={doc.metadata!.url}
+                                variant="link"
+                                class="h-fit p-0"
+                              >
+                                {doc.metadata!.name}
+                              </Button>
                             </li>
                           )}
                         </For>
