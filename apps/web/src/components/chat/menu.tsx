@@ -4,6 +4,7 @@ import { useChatStore } from '../providers/chat';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
+import { ModelSelector } from './model-selector';
 import { ChatSidebar } from './sidebar';
 
 export const ChatMenu = () => {
@@ -15,6 +16,7 @@ export const ChatMenu = () => {
       <div class="flex w-full max-w-2xl items-center justify-between px-3 py-1">
         <H6 class="max-w-md justify-self-center truncate">{chatStore.chat?.name ?? 'New Chat'}</H6>
         <div class="flex justify-end">
+          <ModelSelector />
           <Tooltip>
             <TooltipTrigger
               as={Button}

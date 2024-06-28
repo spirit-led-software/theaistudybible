@@ -2,13 +2,13 @@ import { A, RouteDefinition } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { For, Match, Switch } from 'solid-js';
+import { For, Match, Switch, createMemo } from 'solid-js';
 import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
-import { H2 } from '~/components/ui/typography';
+import { H2, H6 } from '~/components/ui/typography';
 import { auth } from '~/lib/server/clerk';
 
 const getHighlights = async ({ limit, offset }: { limit: number; offset: number }) => {
@@ -67,6 +67,10 @@ export const route: RouteDefinition = {
 const HighlightsPage = () => {
   const query = createInfiniteQuery(() => getHighlightsQueryOptions());
 
+  const highlights = createMemo(() => {
+    return query.data?.pages.flatMap((page) => page.highlights) || [];
+  });
+
   return (
     <div class="flex h-full w-full flex-col items-center justify-center p-5">
       <SignedIn>
@@ -74,24 +78,33 @@ const HighlightsPage = () => {
           Your Highlighted Verses
         </H2>
         <QueryBoundary query={query}>
-          {({ pages }) => (
+          {() => (
             <div class="mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
-              <For each={pages}>
-                {(page) => (
-                  <For each={page.highlights}>
-                    {(highlight) => (
-                      <A
-                        href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.abbreviation}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
-                      >
-                        <Card class="h-full w-full">
-                          <CardHeader>
-                            <CardTitle class="text-center">{highlight.verse.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent>{contentsToText(highlight.verse.content)}</CardContent>
-                        </Card>
+              <For
+                each={highlights()}
+                fallback={
+                  <div class="flex h-full w-full flex-col items-center justify-center p-5">
+                    <H6 class="text-center">
+                      No highlights yet, get{' '}
+                      <A href="/bible" class="hover:underline">
+                        reading
                       </A>
-                    )}
-                  </For>
+                      !
+                    </H6>
+                  </div>
+                }
+              >
+                {(highlight) => (
+                  <A
+                    href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.abbreviation}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
+                  >
+                    <Card class="h-full w-full">
+                      <CardHeader>
+                        <CardTitle class="text-center">{highlight.verse.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent>{contentsToText(highlight.verse.content)}</CardContent>
+                    </Card>
+                  </A>
                 )}
               </For>
               <div class="flex w-full justify-center lg:col-span-3">

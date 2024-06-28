@@ -3,7 +3,6 @@ import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useChat } from '~/hooks/chat';
-import { cn } from '~/lib/utils';
 import { useChatStore } from '../providers/chat';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
@@ -18,10 +17,11 @@ export type ChatWindowProps = {
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const [, setChatStore] = useChatStore();
+  const [chatStore, setChatStore] = useChatStore();
 
   const useChatResult = useChat({
-    id: () => props.chatId
+    id: () => props.chatId,
+    modelId: () => chatStore.modelId
   });
   createEffect(
     on(
@@ -76,14 +76,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
           }
         >
           {(message, idx) => (
-            <div
-              data-index={idx()}
-              class={cn(
-                'flex w-full max-w-2xl flex-col',
-                idx() === messagesReversed.length - 1 ? 'border-t-0' : 'border-t'
-              )}
-            >
-              <Message message={message} />
+            <div data-index={idx()} class="flex w-full max-w-2xl flex-col">
+              <Message
+                previousMessage={messagesReversed[idx() + 1]}
+                message={message}
+                addToolResult={useChatResult.addToolResult}
+              />
             </div>
           )}
         </For>

@@ -1,71 +1,74 @@
+import { anthropic } from '@ai-sdk/anthropic';
+import { openai } from '@ai-sdk/openai';
+
 export type ModelInfo = {
-  id: string;
+  id: Parameters<typeof openai>[0] | Parameters<typeof anthropic>[0];
   provider: 'openai' | 'anthropic';
   name: string;
   description: string;
-  contextSize: `${number}k`;
+  contextSize: number;
   link: string;
   tier: 'free' | 'plus';
 };
 
 export const freeTierModels: ModelInfo[] = [
   {
-    id: 'gpt-3.5-turbo',
-    name: 'GPT-3.5 Turbo',
-    description: 'A large language model trained by OpenAI',
-    contextSize: '16k',
-    provider: 'openai',
-    link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
-    tier: 'free'
-  },
-  {
     id: 'claude-3-haiku-20240307',
     name: 'Claude-3 Haiku',
     description: 'A large language model trained by Anthropic',
-    contextSize: '100k',
+    contextSize: 100_000,
     provider: 'anthropic',
     link: 'https://www.anthropic.com/news/claude-3-family',
+    tier: 'free'
+  },
+  {
+    id: 'gpt-3.5-turbo',
+    name: 'GPT-3.5 Turbo',
+    description: 'A large language model trained by OpenAI',
+    contextSize: 16_000,
+    provider: 'openai',
+    link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
     tier: 'free'
   }
 ];
 export type FreeTierModelId = (typeof freeTierModels)[number]['id'];
-export const freeTierModelIds = Object.keys(freeTierModels) as FreeTierModelId[];
+export const freeTierModelIds = freeTierModels.map((model) => model.id) as FreeTierModelId[];
 
 export const plusTierModels: ModelInfo[] = [
   {
     id: 'gpt-4o',
     name: 'GPT-4o',
     description: 'A large language model trained by OpenAI',
-    contextSize: '128k',
+    contextSize: 128_000,
     provider: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
     tier: 'plus'
   },
   {
-    id: 'claude-3-opus-20240229',
-    name: 'Claude-3 Opus',
+    id: 'claude-3-5-sonnet-20240620',
+    name: 'Claude-3.5 Sonnet',
     description: 'A large language model trained by Anthropic',
-    contextSize: '200k',
+    contextSize: 200_000,
     provider: 'anthropic',
-    link: 'https://www.anthropic.com/news/claude-3-family',
+    link: 'https://www.anthropic.com/news/claude-3-5-sonnet',
     tier: 'plus'
   }
 ];
 export type PlusTierModelId = (typeof plusTierModels)[number]['id'];
-export const plusTierModelIds = Object.keys(plusTierModels) as PlusTierModelId[];
+export const plusTierModelIds = plusTierModels.map((model) => model.id) as PlusTierModelId[];
 
-export const allModels = {
-  ...freeTierModels,
-  ...plusTierModels
-};
+export const allModels = [...freeTierModels, ...plusTierModels];
 
-export const allModelIds = Object.keys(allModels) as (FreeTierModelId | PlusTierModelId)[];
+export const allModelIds = allModels.map((model) => model.id) as (
+  | FreeTierModelId
+  | PlusTierModelId
+)[];
 export type ModelId = (typeof allModelIds)[number];
 
 export const defaultModel = freeTierModels[0];
 
 export type EmbeddingModelInfo = {
-  id: string;
+  id: Parameters<(typeof openai)['embedding']>[0];
   dimensions: number;
   chunkSize: number;
   chunkOverlap: number;

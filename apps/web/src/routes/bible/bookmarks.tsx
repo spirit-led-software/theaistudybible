@@ -2,13 +2,13 @@ import { A, RouteDefinition } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { For, Match, Switch } from 'solid-js';
+import { For, Match, Switch, createMemo } from 'solid-js';
 import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
-import { H2 } from '~/components/ui/typography';
+import { H2, H6 } from '~/components/ui/typography';
 import { auth } from '~/lib/server/clerk';
 
 const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
@@ -95,6 +95,10 @@ export const route: RouteDefinition = {
 const BookmarksPage = () => {
   const query = createInfiniteQuery(() => getBookmarksQueryOptions());
 
+  const bookmarks = createMemo(() => {
+    return query.data?.pages.flatMap((page) => page.bookmarks) || [];
+  });
+
   return (
     <div class="flex h-full w-full flex-col items-center justify-center p-5">
       <SignedIn>
@@ -102,44 +106,53 @@ const BookmarksPage = () => {
           Your Bookmarks
         </H2>
         <QueryBoundary query={query}>
-          {({ pages }) => (
-            <div class="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-3">
-              <For each={pages}>
-                {(page) => (
-                  <For each={page.bookmarks}>
-                    {(bookmark) => (
-                      <Switch>
-                        <Match when={'verse' in bookmark && bookmark.verse} keyed>
-                          {(verse) => (
-                            <A
-                              href={`/bible/${verse.bible.abbreviation}/${verse.book.abbreviation}/${verse.chapter.number}/${verse.number}`}
-                            >
-                              <Card class="h-full w-full">
-                                <CardHeader>
-                                  <CardTitle class="text-center">{verse.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent>{contentsToText(verse.content)}</CardContent>
-                              </Card>
-                            </A>
-                          )}
-                        </Match>
-                        <Match when={'chapter' in bookmark && bookmark.chapter} keyed>
-                          {(chapter) => (
-                            <A
-                              href={`/bible/${chapter.bible.abbreviation}/${chapter.book.abbreviation}/${chapter.number}`}
-                            >
-                              <Card class="h-full w-full">
-                                <CardHeader>
-                                  <CardTitle class="text-center">{chapter.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent>Click to view</CardContent>
-                              </Card>
-                            </A>
-                          )}
-                        </Match>
-                      </Switch>
-                    )}
-                  </For>
+          {() => (
+            <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
+              <For
+                each={bookmarks()}
+                fallback={
+                  <div class="flex h-full w-full flex-col items-center justify-center p-5">
+                    <H6 class="text-center">
+                      No bookmarks yet, get{' '}
+                      <A href="/bible" class="hover:underline">
+                        reading
+                      </A>
+                      !
+                    </H6>
+                  </div>
+                }
+              >
+                {(bookmark) => (
+                  <Switch>
+                    <Match when={'verse' in bookmark && bookmark.verse} keyed>
+                      {(verse) => (
+                        <A
+                          href={`/bible/${verse.bible.abbreviation}/${verse.book.abbreviation}/${verse.chapter.number}/${verse.number}`}
+                        >
+                          <Card class="h-full w-full">
+                            <CardHeader>
+                              <CardTitle class="text-center">{verse.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>{contentsToText(verse.content)}</CardContent>
+                          </Card>
+                        </A>
+                      )}
+                    </Match>
+                    <Match when={'chapter' in bookmark && bookmark.chapter} keyed>
+                      {(chapter) => (
+                        <A
+                          href={`/bible/${chapter.bible.abbreviation}/${chapter.book.abbreviation}/${chapter.number}`}
+                        >
+                          <Card class="h-full w-full">
+                            <CardHeader>
+                              <CardTitle class="text-center">{chapter.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>Click to view</CardContent>
+                          </Card>
+                        </A>
+                      )}
+                    </Match>
+                  </Switch>
                 )}
               </For>
               <div class="flex w-full justify-center lg:col-span-3">

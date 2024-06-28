@@ -114,8 +114,6 @@ const app = new Hono<{
       const pendingPromises: Promise<unknown>[] = []; // promises to wait for before closing the stream
       const { messages, chatId, modelId: providedModelId } = await c.req.valid('json');
 
-      const lastMessage = messages[messages.length - 1];
-
       const claims = c.var.clerkAuth!.sessionClaims!;
       const maxQueryCount = await getMaxQueryCountForUser(claims);
       const ratelimit = new RateLimiterRedis({
@@ -163,7 +161,6 @@ const app = new Hono<{
       }
       const modelId = providedModelId ?? getDefaultModelId(claims);
 
-      console.time('Validating chat');
       const [chat] = chatId
         ? await db.query.chats
             .findFirst({
@@ -187,7 +184,6 @@ const app = new Hono<{
             })
             .returning();
 
-      console.timeEnd('Validating chat');
       if (!chat.customName) {
         pendingPromises.push(renameChat(chat.id, messages));
       } else {
@@ -197,47 +193,56 @@ const app = new Hono<{
         );
       }
 
-      console.time('Validating user message');
-      const [userMessage] = await db.query.messages
+      const lastMessage = messages[messages.length - 1];
+      if (!lastMessage) {
+        return c.json(
+          {
+            message: 'You must provide at least one message'
+          },
+          400
+        );
+      }
+
+      const lastUserMessage = messages.findLast((m) => m.role === 'user');
+      if (!lastUserMessage) {
+        return c.json(
+          {
+            message: 'No user message found'
+          },
+          400
+        );
+      }
+
+      await db.query.messages
         .findFirst({
           where: (messages, { eq }) => eq(messages.id, lastMessage.id)
         })
-        .then(async (userMessage) => {
-          if (userMessage) {
+        .then(async (message) => {
+          if (message) {
             pendingPromises.push(
               db
                 .update(messagesTable)
-                .set({
-                  regenerated: true
-                })
-                .where(
-                  and(
-                    eq(messagesTable.originMessageId, userMessage.id),
-                    eq(messagesTable.role, 'assistant')
-                  )
-                )
+                .set(lastMessage)
+                .where(and(eq(messagesTable.id, message.id)))
                 .execute()
             );
-            return [userMessage];
+            return [message];
           }
           return await db
             .insert(messagesTable)
             .values({
-              id: lastMessage.id,
+              ...lastMessage,
               chatId: chat.id,
-              userId: claims.sub,
-              role: lastMessage.role,
-              content: lastMessage.content,
-              toolInvocations: lastMessage.toolInvocations as unknown as ToolInvocation[]
+              userId: claims.sub
             })
             .returning()
             .execute();
         });
-      console.timeEnd('Validating user message');
 
       const streamText = await createChatChain({
         modelId,
         chatId: chat.id,
+        userMessageId: lastUserMessage.id,
         userId: claims.sub,
         sessionClaims: claims
       });
@@ -251,7 +256,7 @@ const app = new Hono<{
       return new StreamingTextResponse(aiStream, {
         headers: {
           'X-Chat-ID': chat.id,
-          'X-User-Message-ID': userMessage.id,
+          'X-User-Message-ID': lastUserMessage.id,
           'X-Response-ID': responseId
         }
       });

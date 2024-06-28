@@ -1,4 +1,4 @@
-import { A, Navigate } from '@solidjs/router';
+import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
 import { Show } from 'solid-js';
@@ -38,7 +38,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
 
   return (
     <div class="flex max-w-2xl flex-col items-center px-10 py-5">
-      <QueryBoundary query={query} notFoundFallback={<Navigate href="/not-found" />}>
+      <QueryBoundary query={query}>
         {({ bible, book, chapter }) => (
           <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
             <BibleReaderMenu />
