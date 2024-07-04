@@ -1,29 +1,36 @@
 import { createVisibilityObserver } from '@solid-primitives/intersection-observer';
-import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
+import { ChevronDown, ChevronUp, PenBox, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { Message } from '~/components/chat/message';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
+import { useChatStore } from '~/components/providers/chat';
 import { Button } from '~/components/ui/button';
 import { CardContent, CardHeader } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { Spinner } from '~/components/ui/spinner';
 import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
 import { showToast } from '~/components/ui/toast';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { H5 } from '~/components/ui/typography';
 import { useChat } from '~/hooks/chat';
-import { ChatSelector } from './selector';
 
 export const ChatWindow = () => {
-  const [brStore, setBrStore] = useBibleReaderStore();
+  const [brStore] = useBibleReaderStore();
+  const [chatStore, setChatStore] = useChatStore();
 
   const useChatResult = useChat({
-    id: () => brStore.chatId
+    id: () => chatStore.chat?.id,
+    modelId: () => chatStore.modelId
   });
-
-  createEffect(() => {
-    setBrStore('chatId', useChatResult.id());
-  });
+  createEffect(
+    on(
+      () => useChatResult.chatQuery.data,
+      (chat) => {
+        setChatStore('chat', chat ?? undefined);
+      }
+    )
+  );
 
   createEffect(() => {
     if (brStore.selectedText) {
@@ -56,7 +63,18 @@ export const ChatWindow = () => {
   return (
     <>
       <CardHeader class="flex w-full flex-row items-center justify-between space-x-4 space-y-0">
-        <ChatSelector />
+        <Tooltip>
+          <TooltipTrigger
+            as={Button}
+            variant="ghost"
+            onClick={() => {
+              setChatStore('chat', undefined);
+            }}
+          >
+            <PenBox size={20} />
+          </TooltipTrigger>
+          <TooltipContent>New Chat</TooltipContent>
+        </Tooltip>
         <DrawerClose as={Button} variant="outline">
           Close
         </DrawerClose>
@@ -77,14 +95,18 @@ export const ChatWindow = () => {
           <For
             each={messagesReversed}
             fallback={
-              <div class="flex h-full w-full items-center justify-center">
+              <div class="flex h-full min-h-52 w-full items-center justify-center">
                 <H5>No messages yet</H5>
               </div>
             }
           >
-            {(message) => (
+            {(message, idx) => (
               <div class="flex w-full flex-col">
-                <Message message={message} />
+                <Message
+                  previousMessage={messagesReversed[idx() + 1]}
+                  message={message}
+                  addToolResult={useChatResult.addToolResult}
+                />
               </div>
             )}
           </For>

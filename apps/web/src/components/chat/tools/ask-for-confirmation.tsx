@@ -2,10 +2,11 @@ import { useChat } from '@ai-sdk/solid';
 import { askForConfirmationTool } from '@theaistudybible/ai/chat/tools';
 import { toCapitalizedCase } from '@theaistudybible/core/util/string';
 import { ToolInvocation } from 'ai';
+import { MessageCircleWarning } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { z } from 'zod';
 import { Button } from '~/components/ui/button';
-import { H6 } from '~/components/ui/typography';
+import { H5 } from '~/components/ui/typography';
 
 export type AskForConfirmationToolProps = {
   toolInvocation: ToolInvocation;
@@ -15,7 +16,10 @@ export type AskForConfirmationToolProps = {
 export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
   return (
     <div class="flex w-full flex-col">
-      <H6>Confirm Action</H6>
+      <H5 class="flex items-center">
+        <MessageCircleWarning class="mr-2" size={18} />
+        Confirm Action
+      </H5>
       <Show
         when={
           'result' in props.toolInvocation &&

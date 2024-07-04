@@ -15,7 +15,7 @@ const compat = new FlatCompat({
 
 export default tsEslint.config(
   {
-    ignores: ['**/node_modules/**', '**/*.config.{js,ts,mjs,cjs}', '**/sst-env.d.ts']
+    ignores: ['**/node_modules/**', '**/*.config.{js,ts,mjs,cjs}']
   },
   eslint.configs.recommended,
   // typescript eslint
@@ -39,6 +39,7 @@ export default tsEslint.config(
       '@typescript-eslint': tsEslint.plugin
     },
     rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/triple-slash-reference': 'off',
       '@typescript-eslint/consistent-type-exports': 'error',

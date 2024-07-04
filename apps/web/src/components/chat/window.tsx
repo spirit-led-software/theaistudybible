@@ -80,6 +80,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               <Message
                 previousMessage={messagesReversed[idx() + 1]}
                 message={message}
+                nextMessage={messagesReversed[idx() - 1]}
                 addToolResult={useChatResult.addToolResult}
               />
             </div>

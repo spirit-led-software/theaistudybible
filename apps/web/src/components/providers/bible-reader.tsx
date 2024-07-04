@@ -1,7 +1,7 @@
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
 import { JSXElement, createComputed, createContext, on, splitProps, useContext } from 'solid-js';
 import { SetStoreFunction, Store, createStore } from 'solid-js/store';
-import { formVerseString } from '~/lib/utils';
+import { formNumberSequenceString } from '~/lib/utils';
 import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {
@@ -16,7 +16,6 @@ export type BibleReaderStore = {
   book: Book;
   chapter: Chapter;
   verse?: Verse;
-  chatId?: string;
   selectedVerseInfos: SelectedVerseInfo[];
   selectedIds: string[];
   selectedTitle: string;
@@ -35,7 +34,6 @@ export type BibleReaderProviderProps = {
   book: Book;
   chapter: Chapter;
   verse?: Verse;
-  chatId?: string;
   selectedVerseInfos?: SelectedVerseInfo[];
   children: JSXElement;
 };
@@ -63,7 +61,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
             .toSorted((a: number, b: number) => a - b)
         )
       );
-      return `${store.book.shortName} ${store.chapter.number}:${formVerseString(verseNumbers)} (${store.bible.abbreviationLocal})`;
+      return `${store.book.shortName} ${store.chapter.number}:${formNumberSequenceString(verseNumbers)} (${store.bible.abbreviationLocal})`;
     },
     get selectedText() {
       return this.selectedVerseInfos

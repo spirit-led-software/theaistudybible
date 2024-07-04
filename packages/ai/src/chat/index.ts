@@ -7,7 +7,7 @@ import {
 } from '@theaistudybible/core/database/schema';
 import { Message } from '@theaistudybible/core/src/model/chat/message';
 import { createId } from '@theaistudybible/core/src/util/id';
-import { convertToCoreMessages, generateObject, streamText } from 'ai';
+import { StreamData, convertToCoreMessages, generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { defaultModel } from '../models';
@@ -48,11 +48,20 @@ export type CreateChatChainOptions = {
   userMessageId: string;
   userId: string;
   sessionClaims: JwtPayload;
+  maxTokens?: number;
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
   return async (messages: Pick<Message, 'role' | 'content'>[]) => {
+    const streamData = new StreamData();
     const responseId = `msg_${createId()}`;
+
+    // @ts-ignore
+    messages = convertToCoreMessages(messages);
+    // Fix weird issue where some messages are empty
+    messages = messages.filter((message) => (message.content?.length ?? 0) > 0);
+
+    console.log('Final messages:', JSON.stringify(messages, null, 2));
 
     return {
       streamTextResult: await streamText({
@@ -61,18 +70,23 @@ export const createChatChain = (options: CreateChatChainOptions) => {
 
 You must use the vector database tool to fetch relevant resources for your answer. You must only answer the query using these resources. If you don't know the answer, say: "I don't know". Don't make up an answer.
 
-The user's favorite bible translation is ${options.sessionClaims.metadata.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.`,
+The user's favorite bible translation is ${options.sessionClaims.metadata.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.
+
+You must format your response in valid markdown.`,
         // @ts-ignore
-        messages: convertToCoreMessages(messages),
+        messages,
         tools: tools({ userId: options.userId }),
+        maxTokens: options.maxTokens,
         onFinish: async (event) => {
           await db.insert(messagesTable).values({
             id: responseId,
             role: 'assistant',
             content: event.text,
-            finishReason: event.finishReason,
             toolInvocations: event.toolCalls,
-            modelId: options.modelId,
+            finishReason: event.finishReason,
+            data: {
+              modelId: options.modelId
+            },
             originMessageId: options.userMessageId,
             userId: options.userId,
             chatId: options.chatId
@@ -105,6 +119,7 @@ The user's favorite bible translation is ${options.sessionClaims.metadata.bibleT
           }
         }
       }),
+      streamData,
       responseId
     };
   };

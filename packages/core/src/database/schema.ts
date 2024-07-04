@@ -21,7 +21,10 @@ import { createId } from '../util/id';
 export const roles = pgTable('roles', {
   id: text('id').primaryKey().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
   name: text('name').notNull(),
   permissions: jsonb('permissions').notNull().default([]).$type<string[]>()
 });
@@ -59,7 +62,10 @@ export const shareChatOptions = pgTable(
       .primaryKey()
       .$defaultFn(() => `sc_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     chatId: text('chat_id')
       .notNull()
       .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' })
@@ -95,15 +101,16 @@ export const messages = pgTable(
     }).notNull(),
     data: jsonb('data').$type<JSONValue>(),
     annotations: jsonb('annotations').$type<JSONValue[]>(),
-    toolInvocations: jsonb('tool_invocations').$type<ToolInvocation[] | undefined>(),
+    toolInvocations: jsonb('tool_invocations').$type<ToolInvocation[]>(),
+    finishReason: text('finish_reason').$type<LanguageModelV1FinishReason>(),
 
     // Custom fields
-    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-    finishReason: text('finish_reason').$type<LanguageModelV1FinishReason>(),
-    regenerated: boolean('regenerated').notNull().default(false),
-    modelId: text('model_id'),
-    searchQueries: jsonb('search_queries').$type<string[]>(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     anonymous: boolean('anonymous').notNull().default(false),
+    regenerated: boolean('regenerated').notNull().default(false),
 
     // Relations fields
     chatId: text('chat_id')
@@ -161,7 +168,10 @@ export const messageReactions = pgTable(
       .primaryKey()
       .$defaultFn(() => `mr_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     messageId: text('message_id')
       .notNull()
       .references(() => messages.id, {
@@ -234,7 +244,10 @@ export const userGeneratedImages = pgTable(
       .primaryKey()
       .$defaultFn(() => `uge_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     userId: text('user_id').notNull(),
     messageId: text('message_id').references(() => messages.id, {
       onDelete: 'cascade',
@@ -273,7 +286,10 @@ export const userGeneratedImagesReactions = pgTable(
       .primaryKey()
       .$defaultFn(() => `uger_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     userGeneratedImageId: text('user_generated_image_id')
       .notNull()
       .references(() => userGeneratedImages.id, {
@@ -351,7 +367,10 @@ export const devotions = pgTable(
       .primaryKey()
       .$defaultFn(() => `devo_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     topic: text('topic').notNull().default('general'),
     bibleReading: text('bible_reading').notNull(),
     summary: text('summary').notNull(),
@@ -382,7 +401,10 @@ export const devotionReactions = pgTable(
       .primaryKey()
       .$defaultFn(() => `dr_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     devotionId: text('devotion_id')
       .notNull()
       .references(() => devotions.id, {
@@ -416,7 +438,10 @@ export const devotionImages = pgTable(
       .primaryKey()
       .$defaultFn(() => `di_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     devotionId: text('devotion_id')
       .notNull()
       .references(() => devotions.id, {
@@ -490,7 +515,10 @@ export const dataSources = pgTable(
       .primaryKey()
       .$defaultFn(() => `ds_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     name: text('name').notNull(),
     url: text('url').notNull(),
     type: text('type', {
@@ -561,7 +589,10 @@ export const indexOperations = pgTable(
       .primaryKey()
       .$defaultFn(() => `idxo_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     status: text('status', {
       enum: ['FAILED', 'SUCCEEDED', 'RUNNING', 'COMPLETED']
     }).notNull(),
@@ -597,7 +628,10 @@ export const bibles = pgTable(
       .primaryKey()
       .$defaultFn(() => `bible_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     abbreviation: text('abbreviation').notNull().unique(),
     abbreviationLocal: text('abbreviation_local').notNull(),
     name: text('name').notNull(),
@@ -630,7 +664,10 @@ export const books = pgTable(
       .primaryKey()
       .$defaultFn(() => `book_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     bibleId: text('bible_id')
       .references(() => bibles.id, {
         onDelete: 'cascade',
@@ -681,7 +718,10 @@ export const chapters = pgTable(
       .primaryKey()
       .$defaultFn(() => `chap_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     bibleId: text('bible_id')
       .references(() => bibles.id, {
         onDelete: 'cascade',
@@ -741,7 +781,10 @@ export const chapterBookmarks = pgTable(
       .primaryKey()
       .$defaultFn(() => `cbm_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     chapterId: text('chapter_id')
       .references(() => chapters.id, {
         onDelete: 'cascade',
@@ -774,7 +817,10 @@ export const chapterNotes = pgTable(
       .primaryKey()
       .$defaultFn(() => `cn_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     chapterId: text('chapter_id')
       .references(() => chapters.id, {
         onDelete: 'cascade',
@@ -841,7 +887,10 @@ export const verses = pgTable(
       .primaryKey()
       .$defaultFn(() => `ver_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     bibleId: text('bible_id')
       .references(() => bibles.id, {
         onDelete: 'cascade',
@@ -911,7 +960,10 @@ export const verseHighlights = pgTable(
       .primaryKey()
       .$defaultFn(() => `vh_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     verseId: text('verse_id')
       .references(() => verses.id, {
         onDelete: 'cascade',
@@ -946,7 +998,10 @@ export const verseBookmarks = pgTable(
       .primaryKey()
       .$defaultFn(() => `vb_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     verseId: text('verse_id')
       .references(() => verses.id, {
         onDelete: 'cascade',
@@ -979,7 +1034,10 @@ export const verseNotes = pgTable(
       .primaryKey()
       .$defaultFn(() => `vn_${createId()}`),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
     verseId: text('verse_id')
       .references(() => verses.id, {
         onDelete: 'cascade',

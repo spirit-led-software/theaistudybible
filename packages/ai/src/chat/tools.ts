@@ -121,9 +121,9 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
       chapterNumber: z.number().describe('The number of the chapter the verse is from.'),
-      verseNumber: z.number().describe('The number of the verse to bookmark.')
+      verseNumbers: z.array(z.number().describe('The number of the verse to bookmark.'))
     }),
-    execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumber }) => {
+    execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers }) => {
       const queryResult = await db.query.bibles.findFirst({
         columns: {
           id: true,
@@ -152,7 +152,7 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
                       id: true,
                       number: true
                     },
-                    where: (verses, { eq }) => eq(verses.number, verseNumber)
+                    where: (verses, { inArray }) => inArray(verses.number, verseNumbers)
                   }
                 }
               }
@@ -164,21 +164,23 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
       const bible = queryResult;
       const book = bible?.books[0];
       const chapter = book?.chapters[0];
-      const verse = chapter?.verses[0];
+      const verses = chapter?.verses;
 
-      if (!verse) {
+      if (!verses?.length) {
         return {
           status: 'error',
-          message: 'Verse not found'
+          message: 'Verse(s) not found'
         } as const;
       }
 
       await db
         .insert(verseBookmarks)
-        .values({
-          userId: options.userId,
-          verseId: verse.id
-        })
+        .values(
+          verses.map((verse) => ({
+            userId: options.userId,
+            verseId: verse.id
+          }))
+        )
         .onConflictDoNothing();
 
       return {
@@ -187,7 +189,7 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
         bible: bible!,
         book: book!,
         chapter: chapter!,
-        verse: verse!
+        verses: verses!
       } as const;
     }
   });
@@ -199,9 +201,9 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
-      chapterNumber: z.number().describe('The number of the chapter the verse is from.')
+      chapterNumbers: z.array(z.number().describe('The number of the chapter the verse is from.'))
     }),
-    execute: async ({ bibleAbbr, bookName, chapterNumber }) => {
+    execute: async ({ bibleAbbr, bookName, chapterNumbers }) => {
       const queryResult = await db.query.bibles.findFirst({
         columns: {
           id: true,
@@ -223,7 +225,7 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
                   id: true,
                   number: true
                 },
-                where: (chapters, { eq }) => eq(chapters.number, chapterNumber)
+                where: (chapters, { inArray }) => inArray(chapters.number, chapterNumbers)
               }
             }
           }
@@ -232,21 +234,23 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
 
       const bible = queryResult;
       const book = bible?.books[0];
-      const chapter = book?.chapters[0];
+      const chapters = book?.chapters;
 
-      if (!chapter) {
+      if (!chapters?.length) {
         return {
           status: 'error',
-          message: 'Chapter not found'
+          message: 'Chapter(s) not found'
         } as const;
       }
 
       await db
         .insert(chapterBookmarks)
-        .values({
-          userId: options.userId,
-          chapterId: chapter.id
-        })
+        .values(
+          chapters.map((chapter) => ({
+            userId: options.userId,
+            chapterId: chapter.id
+          }))
+        )
         .onConflictDoNothing();
 
       return {
@@ -254,7 +258,7 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
         message: 'Chapter bookmarked',
         bible: bible!,
         book: book!,
-        chapter: chapter!
+        chapters: chapters!
       } as const;
     }
   });

@@ -1,9 +1,13 @@
 import { anthropic } from '@ai-sdk/anthropic';
+import { mistral } from '@ai-sdk/mistral';
 import { openai } from '@ai-sdk/openai';
 
 export type ModelInfo = {
-  id: Parameters<typeof openai>[0] | Parameters<typeof anthropic>[0];
-  provider: 'openai' | 'anthropic';
+  id:
+    | Parameters<typeof openai>[0]
+    | Parameters<typeof anthropic>[0]
+    | Parameters<typeof mistral>[0];
+  provider: 'openai' | 'anthropic' | 'mistral';
   name: string;
   description: string;
   contextSize: number;
@@ -12,15 +16,6 @@ export type ModelInfo = {
 };
 
 export const freeTierModels: ModelInfo[] = [
-  {
-    id: 'claude-3-haiku-20240307',
-    name: 'Claude-3 Haiku',
-    description: 'A large language model trained by Anthropic',
-    contextSize: 100_000,
-    provider: 'anthropic',
-    link: 'https://www.anthropic.com/news/claude-3-family',
-    tier: 'free'
-  },
   {
     id: 'gpt-3.5-turbo',
     name: 'GPT-3.5 Turbo',

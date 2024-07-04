@@ -1,10 +1,12 @@
 import { A } from '@solidjs/router';
 import { bookmarkChapterTool, bookmarkVerseTool } from '@theaistudybible/ai/chat/tools';
 import { ToolInvocation } from 'ai';
-import { Show } from 'solid-js';
+import { Bookmark } from 'lucide-solid';
+import { For, Match, Show, Switch } from 'solid-js';
 import { z } from 'zod';
 import { Button } from '~/components/ui/button';
-import { H6 } from '~/components/ui/typography';
+import { H5, H6 } from '~/components/ui/typography';
+import { formNumberSequenceString } from '~/lib/utils';
 
 export type BookmarkToolProps = {
   toolInvocation: ToolInvocation;
@@ -13,7 +15,10 @@ export type BookmarkToolProps = {
 export const BookmarkTool = (props: BookmarkToolProps) => {
   return (
     <div class="flex w-full flex-col">
-      <H6 class="font-bold">Bookmark</H6>
+      <H5 class="flex items-center">
+        <Bookmark class="mr-2" size={18} />
+        Bookmark
+      </H5>
       <Show
         when={
           props.toolInvocation.args as z.infer<
@@ -24,10 +29,27 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
         keyed
       >
         {(toolArgs) => (
-          <p>
-            {toolArgs.bookName} {toolArgs.chapterNumber}
-            {'verseNumber' in toolArgs && `:${toolArgs.verseNumber}`} ({toolArgs.bibleAbbr})
-          </p>
+          <Switch>
+            <Match when={'chapterNumbers' in toolArgs && toolArgs} keyed>
+              {(toolArgs) => (
+                <For each={toolArgs.chapterNumbers}>
+                  {(chapterNumber) => (
+                    <span class="text-sm">
+                      {toolArgs.bookName} {chapterNumber}
+                    </span>
+                  )}
+                </For>
+              )}
+            </Match>
+            <Match when={'verseNumbers' in toolArgs && toolArgs} keyed>
+              {(toolArgs) => (
+                <span class="text-sm">
+                  {toolArgs.bookName} {toolArgs.chapterNumber}:
+                  {formNumberSequenceString(toolArgs.verseNumbers)}
+                </span>
+              )}
+            </Match>
+          </Switch>
         )}
       </Show>
       <Show
@@ -43,32 +65,71 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
         keyed
       >
         {(result) => (
-          <span>
-            <strong>Result: </strong>
+          <div class="mt-1 flex flex-col">
+            <H6>Result</H6>
             <Show
               when={result.status === 'error' && result}
               fallback={
-                <span>
-                  Success!
+                <div class="flex flex-col text-sm">
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
-                      <Button
-                        as={A}
-                        href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}${'verse' in successResult && `/${successResult.verse.number}`}`}
-                        variant="link"
-                        class="ml-2 h-fit p-0 text-accent-foreground"
-                      >
-                        View
-                      </Button>
+                      <Switch>
+                        <Match when={'verses' in successResult && successResult} keyed>
+                          {(successResult) => (
+                            <div class="flex items-center space-x-2">
+                              <span>
+                                {successResult.book.shortName} {successResult.chapter.number}:
+                                {formNumberSequenceString(
+                                  successResult.verses.map((verse) => verse.number)
+                                )}
+                              </span>
+                              <Button
+                                as={A}
+                                href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
+                                variant="link"
+                                class="h-fit p-0 text-accent-foreground"
+                              >
+                                View
+                              </Button>
+                            </div>
+                          )}
+                        </Match>
+                        <Match when={'chapters' in successResult && successResult} keyed>
+                          {(successResult) => (
+                            <For each={successResult.chapters}>
+                              {(chapter) => (
+                                <div class="flex items-center space-x-2">
+                                  <span>
+                                    {successResult.book.shortName} {chapter.number}
+                                  </span>
+                                  <Button
+                                    as={A}
+                                    href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${chapter.number}`}
+                                    variant="link"
+                                    class="h-fit p-0 text-accent-foreground"
+                                  >
+                                    View
+                                  </Button>
+                                </div>
+                              )}
+                            </For>
+                          )}
+                        </Match>
+                      </Switch>
                     )}
                   </Show>
-                </span>
+                </div>
               }
               keyed
             >
-              {(failedResult) => <span>Failed - {failedResult.message}</span>}
+              {(failedResult) => (
+                <div class="flex flex-col">
+                  <span>Failed</span>
+                  <span>{failedResult.message}</span>
+                </div>
+              )}
             </Show>
-          </span>
+          </div>
         )}
       </Show>
     </div>

@@ -57,10 +57,15 @@ const getChatMessages = async ({
 
 export const getChatMessagesQueryProps = (chatId?: string) => ({
   queryKey: ['chat-messages', { chatId }],
-  queryFn: async ({ pageParam }: { pageParam: number }) =>
-    chatId
-      ? await getChatMessages({ chatId, limit: 10, offset: pageParam })
-      : ({ messages: [], nextCursor: undefined } as Awaited<ReturnType<typeof getChatMessages>>),
+  queryFn: async ({ pageParam }: { pageParam: number }) => {
+    if (chatId) {
+      return await getChatMessages({ chatId, limit: 10, offset: pageParam });
+    }
+    return {
+      messages: [],
+      nextCursor: undefined
+    } satisfies Awaited<ReturnType<typeof getChatMessages>>;
+  },
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor
 });
@@ -86,8 +91,6 @@ export const useChat = (props: UseChatProps) => {
     'setInitQuery'
   ]);
 
-  const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
-
   const [modelId, setModelId] = createSignal<string | undefined>(local.modelId?.());
   createEffect(() => {
     setModelId(local.modelId?.());
@@ -97,6 +100,8 @@ export const useChat = (props: UseChatProps) => {
   createEffect(() => {
     setChatId(local.id?.());
   });
+
+  const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
 
   const useChatResult = useAIChat(() => ({
     ...useChatProps,

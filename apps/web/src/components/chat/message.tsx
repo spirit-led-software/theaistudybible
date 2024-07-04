@@ -1,4 +1,6 @@
 import { useChat } from '@ai-sdk/solid';
+import { A } from '@solidjs/router';
+import { allModels } from '@theaistudybible/ai/models';
 import type { Message as AIMessage } from 'ai/solid';
 import { Match, Show, Switch } from 'solid-js';
 import { Markdown } from '~/components/ui/markdown';
@@ -10,6 +12,7 @@ import { Tools } from './tools';
 
 export type MessageProps = {
   previousMessage?: AIMessage;
+  nextMessage?: AIMessage;
   message: AIMessage;
   addToolResult: ReturnType<typeof useChat>['addToolResult'];
 };
@@ -58,6 +61,40 @@ export const Message = (props: MessageProps) => {
         >
           {(toolInvocations) => (
             <Tools toolInvocations={toolInvocations} addToolResult={props.addToolResult} />
+          )}
+        </Show>
+        <Show when={props.message.data} keyed>
+          {(data) => (
+            <>
+              <Show
+                when={
+                  props.message.role !== props.nextMessage?.role &&
+                  'modelId' in (data as any) &&
+                  (data as any).modelId
+                }
+                keyed
+              >
+                {(modelId) => {
+                  const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
+                  if (!modelInfo) {
+                    return null;
+                  }
+
+                  return (
+                    <Tooltip>
+                      <TooltipTrigger
+                        as={A}
+                        href={modelInfo.link}
+                        class="mt-2 w-fit rounded-full border p-2 text-xs text-gray-500"
+                      >
+                        {modelInfo.name}
+                      </TooltipTrigger>
+                      <TooltipContent>{modelInfo.description}</TooltipContent>
+                    </Tooltip>
+                  );
+                }}
+              </Show>
+            </>
           )}
         </Show>
       </div>

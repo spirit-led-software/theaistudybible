@@ -1,6 +1,7 @@
 import { A } from '@solidjs/router';
 import { vectorStoreTool } from '@theaistudybible/ai/chat/tools';
 import { ToolInvocation } from 'ai';
+import { Search } from 'lucide-solid';
 import { For, Show } from 'solid-js';
 import { z } from 'zod';
 import {
@@ -10,7 +11,7 @@ import {
   AccordionTrigger
 } from '~/components/ui/accordion';
 import { Button } from '~/components/ui/button';
-import { H6 } from '~/components/ui/typography';
+import { H5 } from '~/components/ui/typography';
 
 export type VectorStoreToolProps = {
   toolInvocation: ToolInvocation;
@@ -19,7 +20,10 @@ export type VectorStoreToolProps = {
 export const VectorStoreTool = (props: VectorStoreToolProps) => {
   return (
     <div class="flex w-full flex-col pr-5">
-      <H6>Search for Sources</H6>
+      <H5 class="flex items-center">
+        <Search class="mr-2" size={18} />
+        Search for Sources
+      </H5>
       <Show
         when={props.toolInvocation.args as z.infer<(typeof vectorStoreTool)['parameters']>}
         keyed

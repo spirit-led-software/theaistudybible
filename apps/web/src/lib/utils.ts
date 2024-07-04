@@ -36,24 +36,24 @@ export function hexToRgb(hex: string) {
     : null;
 }
 
-export const formVerseString = (verseNumbers: number[]) => {
-  if (verseNumbers.length === 0) {
+export const formNumberSequenceString = (numbers: number[]) => {
+  if (numbers.length === 0) {
     return '';
   }
 
   let verseString = '';
-  let start = verseNumbers[0];
-  let end = verseNumbers[0];
-  for (let i = 1; i < verseNumbers.length; i++) {
-    if (verseNumbers[i] === end + 1) {
-      end = verseNumbers[i];
+  let start = numbers[0];
+  let end = numbers[0];
+  for (let i = 1; i < numbers.length; i++) {
+    if (numbers[i] === end + 1) {
+      end = numbers[i];
     } else {
       if (start === end) {
         verseString += `${start}, `;
       } else {
         verseString += `${start}-${end}, `;
       }
-      start = end = verseNumbers[i];
+      start = end = numbers[i];
     }
   }
   if (start === end) {

@@ -1,11 +1,12 @@
 import { A } from '@solidjs/router';
 import { highlightVerseTool } from '@theaistudybible/ai/chat/tools';
 import { ToolInvocation } from 'ai';
+import { Highlighter } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { z } from 'zod';
 import { buttonVariants } from '~/components/ui/button';
-import { H6 } from '~/components/ui/typography';
-import { cn, formVerseString } from '~/lib/utils';
+import { H5, H6 } from '~/components/ui/typography';
+import { cn, formNumberSequenceString } from '~/lib/utils';
 
 export type HighlightVerseToolProps = {
   toolInvocation: ToolInvocation;
@@ -14,7 +15,10 @@ export type HighlightVerseToolProps = {
 export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
   return (
     <div class="flex w-full flex-col">
-      <H6>Highlight Verse</H6>
+      <H5 class="flex items-center">
+        <Highlighter class="mr-2" size={18} />
+        Highlight Verse
+      </H5>
       <Show
         when={
           props.toolInvocation.args as z.infer<ReturnType<typeof highlightVerseTool>['parameters']>
@@ -22,13 +26,13 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
         keyed
       >
         {(toolArgs) => (
-          <div class="flex items-center">
-            <span class="text-sm">
-              {toolArgs.bookName} {toolArgs.chapterNumber}:{formVerseString(toolArgs.verseNumbers)}{' '}
-              ({toolArgs.bibleAbbr})
+          <div class="flex items-center space-x-2 text-sm">
+            <span>
+              {toolArgs.bookName} {toolArgs.chapterNumber}:
+              {formNumberSequenceString(toolArgs.verseNumbers)} ({toolArgs.bibleAbbr})
             </span>
             <div
-              class="ml-2 inline-flex h-4 w-4 shrink-0 rounded-full"
+              class="h-4 w-4 shrink-0 rounded-full"
               style={{
                 'background-color': toolArgs.color || '#FFD700'
               }}
@@ -46,32 +50,43 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
         keyed
       >
         {(result) => (
-          <span class="text-sm">
+          <div class="mt-2 flex w-full flex-col">
+            <H6>Result</H6>
             <Show
               when={result.status === 'error' && result}
               fallback={
-                <span>
-                  Success!
+                <div class="flex flex-col text-sm">
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
-                      <A
-                        href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
-                        class={cn(
-                          buttonVariants({ variant: 'link' }),
-                          'ml-2 h-fit p-0 text-accent-foreground'
-                        )}
-                      >
-                        View
-                      </A>
+                      <div class="flex items-center space-x-2">
+                        <span>
+                          {successResult.book.shortName} {successResult.chapter.number}:
+                          {formNumberSequenceString(successResult.verses.map((v) => v.number))}
+                        </span>
+                        <A
+                          href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
+                          class={cn(
+                            buttonVariants({ variant: 'link' }),
+                            'h-fit p-0 text-accent-foreground'
+                          )}
+                        >
+                          View
+                        </A>
+                      </div>
                     )}
                   </Show>
-                </span>
+                </div>
               }
               keyed
             >
-              {(failedResult) => <span>Failed - {failedResult.message}</span>}
+              {(failedResult) => (
+                <div class="flex flex-col text-sm">
+                  <span>Failed</span>
+                  <span>{failedResult.message}</span>
+                </div>
+              )}
             </Show>
-          </span>
+          </div>
         )}
       </Show>
     </div>

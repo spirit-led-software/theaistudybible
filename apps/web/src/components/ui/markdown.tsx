@@ -36,7 +36,7 @@ export const Markdown = (props: { children: string }) => {
           </Dynamic>
         ),
         ListItem: (props): JSXElement => (
-          <li class="is-list group">
+          <li class="is-list group list-item">
             <Show when={props.checked != null} fallback={props.children}>
               <Checkbox checked={props.checked ?? undefined} />
               {props.children}

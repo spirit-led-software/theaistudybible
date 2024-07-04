@@ -1,12 +1,13 @@
 import { useChat } from '@ai-sdk/solid';
 import { toCapitalizedCase } from '@theaistudybible/core/util/string';
 import { ToolInvocation } from 'ai';
+import { Palette } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 import { ColorItem } from '~/components/bible/reader/activity-panel/highlight/color-item';
 import { HighlightColorPicker } from '~/components/bible/reader/activity-panel/highlight/color-picker';
 import { Button } from '~/components/ui/button';
 import { ToggleGroup } from '~/components/ui/toggle-group';
-import { H6 } from '~/components/ui/typography';
+import { H5 } from '~/components/ui/typography';
 
 export type AskForHighlightColorToolProps = {
   toolInvocation: ToolInvocation;
@@ -19,7 +20,10 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
 
   return (
     <div class="flex w-full flex-col">
-      <H6>Select Highlight Color</H6>
+      <H5 class="flex items-center">
+        <Palette class="mr-2" size={18} />
+        Select Highlight Color
+      </H5>
       <Show
         when={
           'result' in props.toolInvocation &&
@@ -77,7 +81,7 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
             <span class="text-sm">{toCapitalizedCase(result.status)}</span>
             <Show when={result.color}>
               <div
-                class="ml-2 inline-flex h-4 w-4 shrink-0 rounded-full"
+                class="h-4 w-4 shrink-0 rounded-full"
                 style={{
                   'background-color': result.color
                 }}
