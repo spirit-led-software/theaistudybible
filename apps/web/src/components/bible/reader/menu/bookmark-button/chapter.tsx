@@ -20,7 +20,7 @@ const addBookmark = async (chapterId: string) => {
     throw new Error('Not signed in');
   }
 
-  return await db.insert(chapterBookmarks).values({ chapterId, userId }).onConflictDoNothing();
+  await db.insert(chapterBookmarks).values({ chapterId, userId }).onConflictDoNothing();
 };
 
 const deleteBookmark = async (chapterId: string) => {
@@ -30,16 +30,20 @@ const deleteBookmark = async (chapterId: string) => {
     throw new Error('Not signed in');
   }
 
-  return await db
+  await db
     .delete(chapterBookmarks)
     .where(and(eq(chapterBookmarks.userId, userId), eq(chapterBookmarks.chapterId, chapterId)));
 };
 
 const getBookmark = async (chapterId: string) => {
   'use server';
-
+  const { userId } = auth();
+  if (!userId) {
+    return null;
+  }
   return await db.query.chapterBookmarks.findFirst({
-    where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.chapterId, chapterId)
+    where: (chapterBookmarks, { and, eq }) =>
+      and(eq(chapterBookmarks.userId, userId), eq(chapterBookmarks.chapterId, chapterId))
   });
 };
 

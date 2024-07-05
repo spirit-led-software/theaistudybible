@@ -2,7 +2,10 @@ import { createClerkClient } from '@clerk/clerk-sdk-node';
 import { JwtPayload } from '@clerk/types';
 import { getRequestEvent } from 'solid-js/web';
 
-export const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+export const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+  publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+});
 
 export type AuthResult =
   | {
@@ -25,11 +28,11 @@ export function auth(): AuthResult {
 
   const { locals } = event;
 
-  if (locals.auth?.userId && locals.auth.claims) {
+  if (locals.auth?.userId && locals.auth.sessionClaims) {
     return {
       isSignedIn: true,
       userId: locals.auth.userId,
-      claims: locals.auth.claims
+      claims: locals.auth.sessionClaims
     };
   } else {
     return {

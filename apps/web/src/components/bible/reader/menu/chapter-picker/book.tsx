@@ -1,4 +1,5 @@
 import { createQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
@@ -7,7 +8,24 @@ import { Button } from '~/components/ui/button';
 import { Command, CommandEmpty, CommandInput, CommandList } from '~/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import ChapterPicker from './chapter';
-import { getBookPickerData } from './server';
+
+async function getBookPickerData(bibleId: string) {
+  'use server';
+  const bibleBooks = await db.query.bibles.findFirst({
+    where: (bibles, { or, eq }) => or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
+    with: {
+      books: {
+        orderBy: (books, { asc }) => asc(books.number)
+      }
+    }
+  });
+
+  if (!bibleBooks) {
+    throw new Error('Insufficient data');
+  }
+
+  return bibleBooks.books;
+}
 
 export const bookPickerQueryOptions = (bibleId: string) => ({
   queryKey: ['book-picker', { bibleId }],

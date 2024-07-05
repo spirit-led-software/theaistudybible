@@ -1,4 +1,4 @@
-import { BookOpen, Bookmark, Highlighter, MessageCircle } from 'lucide-solid';
+import { BookOpen, Bookmark, Highlighter, MessageCircle, Notebook } from 'lucide-solid';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -36,6 +36,13 @@ export const Menu = (props: MenuProps) => {
               Highlights
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your highlights</NavigationMenuDescription>
+          </NavigationMenuLink>
+          <NavigationMenuLink href="/bible/notes">
+            <NavigationMenuLabel class="flex items-center gap-2">
+              <Notebook />
+              Notes
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>View your notes</NavigationMenuDescription>
           </NavigationMenuLink>
           <NavigationMenuLink href="/bible/bookmarks">
             <NavigationMenuLabel class="flex items-center gap-2">

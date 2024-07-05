@@ -37,9 +37,14 @@ const deleteBookmark = async (verseId: string) => {
 
 const getBookmark = async (verseId: string) => {
   'use server';
+  const { userId } = auth();
+  if (!userId) {
+    return null;
+  }
 
   return await db.query.verseBookmarks.findFirst({
-    where: (verseBookmarks, { eq }) => eq(verseBookmarks.verseId, verseId)
+    where: (verseBookmarks, { and, eq }) =>
+      and(eq(verseBookmarks.userId, userId), eq(verseBookmarks.verseId, verseId))
   });
 };
 

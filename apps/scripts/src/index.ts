@@ -1,29 +1,19 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createBible } from './bibles/create';
-import { runDatabaseMigrations } from './database/migrations';
 import { seedDatabase } from './database/seed';
 
 yargs(hideBin(process.argv))
   .scriptName('scripts')
   .command('db', 'Database commands', (yargs) =>
-    yargs
-      .command(
-        'migrate',
-        'Run database migrations',
-        (yargs) => yargs,
-        () => {
-          runDatabaseMigrations();
-        }
-      )
-      .command(
-        'seed',
-        'Run database seeding',
-        (yargs) => yargs,
-        () => {
-          seedDatabase();
-        }
-      )
+    yargs.command(
+      'seed',
+      'Run database seeding',
+      (yargs) => yargs,
+      () => {
+        seedDatabase();
+      }
+    )
   )
   .command('bibles', 'Bible commands', (yargs) =>
     yargs.command(

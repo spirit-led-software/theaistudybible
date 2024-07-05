@@ -76,7 +76,6 @@ export type UseChatProps = Prettify<
       'api' | 'id' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'
     > & {
       id?: Accessor<string | undefined>;
-      modelId?: Accessor<string | undefined>;
       initQuery?: Accessor<string | undefined>;
       setInitQuery?: (query: string | undefined) => void;
     })
@@ -84,17 +83,7 @@ export type UseChatProps = Prettify<
 >;
 
 export const useChat = (props: UseChatProps) => {
-  const [local, useChatProps] = splitProps(props ?? {}, [
-    'id',
-    'modelId',
-    'initQuery',
-    'setInitQuery'
-  ]);
-
-  const [modelId, setModelId] = createSignal<string | undefined>(local.modelId?.());
-  createEffect(() => {
-    setModelId(local.modelId?.());
-  });
+  const [local, useChatProps] = splitProps(props ?? {}, ['id', 'initQuery', 'setInitQuery']);
 
   const [chatId, setChatId] = createSignal<string | undefined>(local.id?.());
   createEffect(() => {
@@ -112,7 +101,6 @@ export const useChat = (props: UseChatProps) => {
     maxToolRoundtrips: 5,
     body: {
       ...useChatProps.body,
-      modelId: modelId(),
       chatId: chatId()
     },
     onResponse: (response) => {

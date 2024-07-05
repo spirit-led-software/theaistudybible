@@ -20,8 +20,7 @@ export const ChatWindow = () => {
   const [chatStore, setChatStore] = useChatStore();
 
   const useChatResult = useChat({
-    id: () => chatStore.chat?.id,
-    modelId: () => chatStore.modelId
+    id: () => chatStore.chat?.id
   });
   createEffect(
     on(
@@ -32,13 +31,18 @@ export const ChatWindow = () => {
     )
   );
 
-  createEffect(() => {
-    if (brStore.selectedText) {
-      useChatResult.setInput(
-        `Please explain the following passage from ${brStore.selectedTitle}:\n"${brStore.selectedText}"`
-      );
-    }
-  });
+  createEffect(
+    on(
+      [() => brStore.selectedText, () => brStore.selectedTitle],
+      ([selectedText, selectedTitle]) => {
+        if (selectedText && selectedTitle) {
+          useChatResult.setInput(
+            `Please explain the following passage from ${selectedTitle}:\n"${selectedText}"`
+          );
+        }
+      }
+    )
+  );
 
   createEffect(
     on(useChatResult.error, (error) => {
@@ -62,7 +66,7 @@ export const ChatWindow = () => {
 
   return (
     <>
-      <CardHeader class="flex w-full flex-row items-center justify-between space-x-4 space-y-0">
+      <CardHeader class="flex w-full flex-row items-center justify-between space-x-4 border-b shadow-sm">
         <Tooltip>
           <TooltipTrigger
             as={Button}
@@ -79,7 +83,7 @@ export const ChatWindow = () => {
           Close
         </DrawerClose>
       </CardHeader>
-      <CardContent class="relative flex w-full flex-1 flex-col overflow-y-auto border-t p-0">
+      <CardContent class="relative flex w-full flex-1 flex-col overflow-y-auto p-0">
         <Show when={!startOfMessagesVisible() && !useChatResult.isLoading()}>
           <Button
             variant="outline"
@@ -90,7 +94,7 @@ export const ChatWindow = () => {
             <ChevronDown />
           </Button>
         </Show>
-        <div class="flex grow flex-col-reverse space-y-2 overflow-y-auto border-b">
+        <div class="flex grow flex-col-reverse overflow-y-auto">
           <div ref={setStartOfMessagesRef} class="h-5 w-full shrink-0" />
           <For
             each={messagesReversed}
@@ -110,7 +114,7 @@ export const ChatWindow = () => {
               </div>
             )}
           </For>
-          <div class="flex h-5 w-full shrink-0 items-end justify-center">
+          <div class="flex w-full items-end justify-center">
             <Switch>
               <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
                 <Spinner size="sm" />
@@ -139,7 +143,7 @@ export const ChatWindow = () => {
           </div>
         </div>
         <form
-          class="relative flex w-full px-2 py-2"
+          class="relative flex w-full border-t px-2 py-2"
           onSubmit={async (e) => {
             e.preventDefault();
             if (!useChatResult.input()) {

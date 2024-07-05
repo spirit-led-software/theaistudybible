@@ -23,7 +23,7 @@ export const Message = (props: MessageProps) => {
   return (
     <div
       class={cn(
-        'flex w-full space-x-4 py-2 pl-5',
+        'flex w-full space-x-4 py-4 pl-5',
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t'
       )}
     >
@@ -65,7 +65,7 @@ export const Message = (props: MessageProps) => {
         </Show>
         <Show when={props.message.data} keyed>
           {(data) => (
-            <>
+            <div class="flex justify-end">
               <Show
                 when={
                   props.message.role !== props.nextMessage?.role &&
@@ -94,7 +94,7 @@ export const Message = (props: MessageProps) => {
                   );
                 }}
               </Show>
-            </>
+            </div>
           )}
         </Show>
       </div>

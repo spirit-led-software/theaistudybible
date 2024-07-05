@@ -1,5 +1,6 @@
 import { useNavigate } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import ISO6391 from 'iso-639-1';
 import { Check, ChevronsUpDown } from 'lucide-solid';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
@@ -14,7 +15,11 @@ import {
   CommandList
 } from '~/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import { getSmallPickerData } from './server';
+
+async function getSmallPickerData() {
+  'use server';
+  return await db.query.bibles.findMany();
+}
 
 export const smallTranslationPickerQueryOptions = () => ({
   queryKey: ['small-translation-picker'],

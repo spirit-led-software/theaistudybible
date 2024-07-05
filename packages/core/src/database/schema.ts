@@ -795,6 +795,10 @@ export const chapterBookmarks = pgTable(
   },
   (table) => {
     return {
+      userChapterUniqueIdx: uniqueIndex('chapter_bookmarks_user_chapter_unique').on(
+        table.userId,
+        table.chapterId
+      ),
       chapterIdIdx: index('chapter_bookmarks_chapter_id').on(table.chapterId),
       userIdIdx: index('chapter_bookmarks_user_id').on(table.userId)
     };
@@ -969,15 +973,15 @@ export const verseHighlights = pgTable(
         onDelete: 'cascade',
         onUpdate: 'cascade'
       })
-      .notNull()
-      .unique(),
+      .notNull(),
     userId: text('user_id').notNull(),
     color: text('color').notNull()
   },
   (table) => {
     return {
+      userVerseIdx: index('verse_highlights_user_verse_unique').on(table.userId, table.verseId),
       verseIdIdx: index('verse_highlights_verse_id').on(table.verseId),
-      userIdIdx: index('chapter_highlights_user_id').on(table.userId)
+      userIdIdx: index('verse_highlights_user_id').on(table.userId)
     };
   }
 );
@@ -1012,6 +1016,10 @@ export const verseBookmarks = pgTable(
   },
   (table) => {
     return {
+      userVerseUniqueIdx: uniqueIndex('verse_bookmarks_user_verse_unique').on(
+        table.userId,
+        table.verseId
+      ),
       verseIdIdx: index('verse_bookmarks_verse_id').on(table.verseId),
       userIdIdx: index('verse_bookmarks_user_id').on(table.userId)
     };

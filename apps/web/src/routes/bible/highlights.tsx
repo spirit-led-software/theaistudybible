@@ -2,8 +2,9 @@ import { A, RouteDefinition } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { For, Match, Switch, createMemo } from 'solid-js';
-import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
+import { createEffect, For, Match, Switch } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
+import { SignedIn, SignedOut, SignIn } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -15,7 +16,10 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
   'use server';
   const { userId } = auth();
   if (!userId) {
-    throw new Error('Not signed in');
+    return {
+      highlights: [],
+      nextCursor: undefined
+    };
   }
   const highlights = await db.query.verseHighlights.findMany({
     where: (verseHighlights, { eq }) => eq(verseHighlights.userId, userId),
@@ -67,8 +71,11 @@ export const route: RouteDefinition = {
 const HighlightsPage = () => {
   const query = createInfiniteQuery(() => getHighlightsQueryOptions());
 
-  const highlights = createMemo(() => {
-    return query.data?.pages.flatMap((page) => page.highlights) || [];
+  const [highlights, setHighlights] = createStore(
+    query.data?.pages.flatMap((page) => page.highlights) || []
+  );
+  createEffect(() => {
+    setHighlights(reconcile(query.data?.pages.flatMap((page) => page.highlights) || []));
   });
 
   return (
@@ -81,7 +88,7 @@ const HighlightsPage = () => {
           {() => (
             <div class="mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
               <For
-                each={highlights()}
+                each={highlights}
                 fallback={
                   <div class="flex h-full w-full flex-col items-center justify-center p-5">
                     <H6 class="text-center">

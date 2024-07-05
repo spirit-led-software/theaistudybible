@@ -8,22 +8,23 @@ import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Markdown } from '~/components/ui/markdown';
 import { Spinner } from '~/components/ui/spinner';
-import { H2, H6 } from '~/components/ui/typography';
+import { H2, H6, P } from '~/components/ui/typography';
 import { auth } from '~/lib/server/clerk';
 
-const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
+const getNotes = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
   const { userId } = auth();
   if (!userId) {
     return {
-      bookmarks: [],
+      notes: [],
       nextCursor: undefined
     };
   }
-  const [verseBookmarks, chapterBookmarks] = await Promise.all([
-    db.query.verseBookmarks.findMany({
-      where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, userId),
+  const [verseNotes, chapterNotes] = await Promise.all([
+    db.query.verseNotes.findMany({
+      where: (verseNotes, { eq }) => eq(verseNotes.userId, userId),
       with: {
         verse: {
           with: {
@@ -48,8 +49,8 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
       limit,
       offset
     }),
-    db.query.chapterBookmarks.findMany({
-      where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, userId),
+    db.query.chapterNotes.findMany({
+      where: (chapterNotes, { eq }) => eq(chapterNotes.userId, userId),
       with: {
         chapter: {
           columns: {
@@ -74,53 +75,51 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
     })
   ]);
 
-  const bookmarks = [...verseBookmarks, ...chapterBookmarks];
+  const notes = [...verseNotes, ...chapterNotes];
 
   return {
-    bookmarks,
-    nextCursor: bookmarks.length === limit ? offset + limit : undefined
+    notes,
+    nextCursor: notes.length === limit ? offset + limit : undefined
   };
 };
 
-const getBookmarksQueryOptions = () => ({
-  queryKey: ['bookmarks'],
-  queryFn: ({ pageParam }: { pageParam: number }) => getBookmarks({ limit: 9, offset: pageParam }),
+const getNotesQueryOptions = () => ({
+  queryKey: ['notes'],
+  queryFn: ({ pageParam }: { pageParam: number }) => getNotes({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor
 });
 
 export const route: RouteDefinition = {
   load: () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+    qc.prefetchInfiniteQuery(getNotesQueryOptions());
   }
 };
 
-const BookmarksPage = () => {
-  const query = createInfiniteQuery(() => getBookmarksQueryOptions());
+const NotesPage = () => {
+  const query = createInfiniteQuery(() => getNotesQueryOptions());
 
-  const [bookmarks, setBookmarks] = createStore(
-    query.data?.pages.flatMap((page) => page.bookmarks) || []
-  );
+  const [notes, setNotes] = createStore(query.data?.pages.flatMap((page) => page.notes) || []);
   createEffect(() => {
-    setBookmarks(reconcile(query.data?.pages.flatMap((page) => page.bookmarks) || []));
+    setNotes(reconcile(query.data?.pages.flatMap((page) => page.notes) || []));
   });
 
   return (
     <div class="flex h-full w-full flex-col items-center justify-center p-5">
       <SignedIn>
         <H2 class="inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
-          Your Bookmarks
+          Your Notes
         </H2>
         <QueryBoundary query={query}>
           {() => (
             <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
               <For
-                each={bookmarks}
+                each={notes}
                 fallback={
                   <div class="flex h-full w-full flex-col items-center justify-center p-5">
                     <H6 class="text-center">
-                      No bookmarks yet, get{' '}
+                      No notes yet, get{' '}
                       <A href="/bible" class="hover:underline">
                         reading
                       </A>
@@ -129,9 +128,9 @@ const BookmarksPage = () => {
                   </div>
                 }
               >
-                {(bookmark) => (
+                {(note) => (
                   <Switch>
-                    <Match when={'verse' in bookmark && bookmark.verse} keyed>
+                    <Match when={'verse' in note && note.verse} keyed>
                       {(verse) => (
                         <A
                           href={`/bible/${verse.bible.abbreviation}/${verse.book.abbreviation}/${verse.chapter.number}/${verse.number}`}
@@ -140,12 +139,25 @@ const BookmarksPage = () => {
                             <CardHeader>
                               <CardTitle class="text-center">{verse.name}</CardTitle>
                             </CardHeader>
-                            <CardContent>{contentsToText(verse.content)}</CardContent>
+                            <CardContent>
+                              <div class="flex flex-col space-y-4">
+                                <div class="flex flex-col space-y-1">
+                                  <H6>Content</H6>
+                                  <P>{contentsToText(verse.content)}</P>
+                                </div>
+                                <div class="flex flex-col space-y-1">
+                                  <H6>Note</H6>
+                                  <div class="whitespace-pre-wrap rounded-lg bg-background p-5">
+                                    <Markdown>{note.content}</Markdown>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
                           </Card>
                         </A>
                       )}
                     </Match>
-                    <Match when={'chapter' in bookmark && bookmark.chapter} keyed>
+                    <Match when={'chapter' in note && note.chapter} keyed>
                       {(chapter) => (
                         <A
                           href={`/bible/${chapter.bible.abbreviation}/${chapter.book.abbreviation}/${chapter.number}`}
@@ -154,7 +166,20 @@ const BookmarksPage = () => {
                             <CardHeader>
                               <CardTitle class="text-center">{chapter.name}</CardTitle>
                             </CardHeader>
-                            <CardContent>Click to view</CardContent>
+                            <CardContent>
+                              <div class="flex flex-col space-y-4">
+                                <div class="flex flex-col space-y-1">
+                                  <H6>Content</H6>
+                                  <P>Click to view</P>
+                                </div>
+                                <div class="flex flex-col space-y-1">
+                                  <H6>Note</H6>
+                                  <div class="whitespace-pre-wrap rounded-lg bg-background p-5">
+                                    <Markdown>{note.content}</Markdown>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
                           </Card>
                         </A>
                       )}
@@ -189,4 +214,4 @@ const BookmarksPage = () => {
   );
 };
 
-export default BookmarksPage;
+export default NotesPage;

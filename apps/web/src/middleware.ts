@@ -2,7 +2,7 @@ import { createMiddleware } from '@solidjs/start/middleware';
 import { cache } from '@theaistudybible/core/cache';
 import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
-import { getCookie, getRequestIP } from 'vinxi/http';
+import { getRequestIP } from 'vinxi/http';
 import { clerk } from './lib/server/clerk';
 
 const ratelimit = new RateLimiterRedis({
@@ -61,19 +61,22 @@ export default createMiddleware({
         }
       }
     },
-    async ({ locals, nativeEvent }) => {
-      const sessionToken = getCookie(nativeEvent, '__session');
-      if (sessionToken) {
-        try {
-          const claims = await clerk.verifyToken(sessionToken);
-          locals.auth = {
-            userId: claims.sub,
-            claims
-          };
-        } catch {
-          // Do nothing
-        }
+    async ({ request, locals }) => {
+      const requestState = await clerk.authenticateRequest(request);
+
+      const locationHeader = requestState.headers.get('location');
+      if (locationHeader) {
+        return new Response(null, {
+          status: 307,
+          headers: requestState.headers
+        });
       }
+
+      if (requestState.status === 'handshake') {
+        throw new Error('Clerk: Unexpected handshake without redirect');
+      }
+
+      locals.auth = requestState.toAuth();
     }
   ]
 });

@@ -1,24 +1,56 @@
+import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import type { Content } from '@theaistudybible/core/types/bible';
 import { createEffect, createMemo } from 'solid-js';
 import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';
+import { auth } from '~/lib/server/clerk';
+import { gatherElementIdsAndVerseNumberByVerseId } from '~/lib/utils';
 import { HighlightInfo } from '~/types/bible';
 import {
   ActivityPanel,
+  ActivityPanelAlwaysOpenButtons,
   ActivityPanelButtons,
-  ActivityPanelChatButton,
   ActivityPanelContent
 } from './activity-panel';
 import Contents from './contents/contents';
-import { getHighlights } from './server';
 
-import { useSearchParams } from '@solidjs/router';
-import { gatherElementIdsAndVerseNumberByVerseId } from '~/lib/utils';
 import './contents/contents.css';
 
 export type ReaderContentProps = {
   contents: Content[];
 };
+
+async function getHighlights({ chapterId }: { chapterId: string }) {
+  'use server';
+  const { isSignedIn, userId } = auth();
+  if (!isSignedIn) {
+    return [];
+  }
+
+  return await db.query.chapters
+    .findFirst({
+      where: (chapters, { eq }) => eq(chapters.id, chapterId),
+      columns: {
+        id: true
+      },
+      with: {
+        verses: {
+          columns: {
+            id: true
+          },
+          with: {
+            highlights: {
+              where: (highlights, { eq }) => eq(highlights.userId, userId)
+            }
+          }
+        }
+      }
+    })
+    .then((chapter) => {
+      return chapter?.verses.flatMap((verse) => verse.highlights) || [];
+    });
+}
 
 export const getHighlightsQueryOptions = (props: { chapterId: string }) => ({
   queryKey: ['highlights', props],
@@ -68,17 +100,16 @@ export const ReaderContent = (props: ReaderContentProps) => {
   );
 
   const highlights = createMemo(() => {
-    let highlights = [] as HighlightInfo[];
-    if (highlightsQuery.data) {
-      highlights = highlights.concat(
-        highlightsQuery.data.map((hl) => ({
-          id: hl.id,
-          verseId: hl.verseId,
-          color: hl.color
-        }))
-      );
-    }
-    return highlights;
+    return (
+      highlightsQuery.data?.map(
+        (hl) =>
+          ({
+            id: hl.id,
+            verseId: hl.verseId,
+            color: hl.color
+          }) satisfies HighlightInfo
+      ) || []
+    );
   });
 
   return (
@@ -87,7 +118,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
         <Contents contents={props.contents} highlights={highlights} />
       </div>
       <ActivityPanel>
-        <ActivityPanelChatButton />
+        <ActivityPanelAlwaysOpenButtons />
         <ActivityPanelButtons />
         <ActivityPanelContent />
       </ActivityPanel>

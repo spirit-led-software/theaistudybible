@@ -17,11 +17,10 @@ export type ChatWindowProps = {
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const [chatStore, setChatStore] = useChatStore();
+  const [, setChatStore] = useChatStore();
 
   const useChatResult = useChat({
-    id: () => props.chatId,
-    modelId: () => chatStore.modelId
+    id: () => props.chatId
   });
   createEffect(
     on(
@@ -65,8 +64,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
           <ChevronDown />
         </Button>
       </Show>
-      <div class="flex grow flex-col-reverse items-center space-y-2 overflow-y-auto border-b">
-        <div ref={setStartOfMessagesRef} class="h-10 w-full shrink-0" />
+      <div class="flex grow flex-col-reverse items-center overflow-y-auto">
+        <div ref={setStartOfMessagesRef} class="h-5 w-full shrink-0" />
         <For
           each={messagesReversed}
           fallback={
@@ -86,7 +85,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             </div>
           )}
         </For>
-        <div class="flex h-10 w-full shrink-0 items-end justify-center">
+        <div class="flex w-full items-end justify-center">
           <Switch>
             <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
               <Spinner size="sm" />
@@ -115,7 +114,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </div>
       </div>
       <form
-        class="relative flex w-full items-center justify-center px-2 py-2"
+        class="relative flex w-full items-center justify-center border-t px-2 py-2"
         onSubmit={async (e) => {
           e.preventDefault();
           if (!useChatResult.input()) {

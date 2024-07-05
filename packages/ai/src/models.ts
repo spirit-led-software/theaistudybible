@@ -38,15 +38,6 @@ export const plusTierModels: ModelInfo[] = [
     provider: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
     tier: 'plus'
-  },
-  {
-    id: 'claude-3-5-sonnet-20240620',
-    name: 'Claude-3.5 Sonnet',
-    description: 'A large language model trained by Anthropic',
-    contextSize: 200_000,
-    provider: 'anthropic',
-    link: 'https://www.anthropic.com/news/claude-3-5-sonnet',
-    tier: 'plus'
   }
 ];
 export type PlusTierModelId = (typeof plusTierModels)[number]['id'];

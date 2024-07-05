@@ -1,4 +1,5 @@
-import { Clerk } from '@clerk/clerk-js';
+import type { Clerk } from '@clerk/clerk-js';
+import { useNavigate } from '@solidjs/router';
 import {
   createContext,
   createSignal,
@@ -11,20 +12,24 @@ import {
 export const ClerkContext = createContext<Accessor<Clerk | undefined>>();
 
 export function ClerkProvider(props: { publishableKey: string; children: JSXElement }) {
+  const navigate = useNavigate();
   const [clerk, setClerk] = createSignal<Clerk | undefined>();
+
   let unsub: ReturnType<Clerk['addListener']>;
 
-  onMount(() => {
-    const loadClerk = async () => {
-      console.log('Loading Clerk');
-      const clerk = new Clerk(props.publishableKey);
-      await clerk.load();
-      setClerk(clerk);
-      unsub = clerk.addListener(() => setClerk(clerk));
-      console.log('Clerk loaded');
-    };
-    loadClerk();
+  onMount(async () => {
+    console.log('Loading Clerk');
+    const { Clerk } = await import('@clerk/clerk-js');
+    const clerk = new Clerk(props.publishableKey);
+    await clerk.load({
+      routerPush: (to, metadata) => navigate(to, { state: metadata }),
+      routerReplace: (to, metadata) => navigate(to, { replace: true, state: metadata })
+    });
+    setClerk(clerk);
+    unsub = clerk.addListener(() => setClerk(clerk));
+    console.log('Clerk loaded');
   });
+
   onCleanup(() => {
     unsub?.();
     setClerk(undefined);

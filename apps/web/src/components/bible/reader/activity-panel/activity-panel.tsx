@@ -1,4 +1,4 @@
-import { Highlighter, MessageCircle, Share, TextSearch, X } from 'lucide-solid';
+import { Highlighter, MessageCircle, Notebook, Share, TextSearch, X } from 'lucide-solid';
 import {
   Accessor,
   JSXElement,
@@ -18,8 +18,10 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '~/components/u
 import { Separator } from '~/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { H6 } from '~/components/ui/typography';
+import { BookmarkButton } from './bookmark/button';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';
+import { NotesCard } from './notes/card';
 import { ReferencesCard } from './references/card';
 import { ShareCard } from './share/card';
 
@@ -54,7 +56,7 @@ export const useActivityPanel = () => {
   return context;
 };
 
-export const ActivityPanelChatButton = () => {
+export const ActivityPanelAlwaysOpenButtons = () => {
   const [brStore] = useBibleReaderStore();
   const { value, setValue } = useActivityPanel();
   const open = createMemo(() => !brStore.selectedIds.length && !value());
@@ -64,9 +66,19 @@ export const ActivityPanelChatButton = () => {
       class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
       <div class="flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1">
-        <Button size="sm" onClick={() => setValue('chat')}>
-          <MessageCircle />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger as={Button} size="sm" onClick={() => setValue('chat')}>
+            <MessageCircle />
+          </TooltipTrigger>
+          <TooltipContent>Chat</TooltipContent>
+        </Tooltip>
+        <Separator orientation="vertical" class="bg-primary-foreground" />
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('notes')}>
+            <Notebook size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Take Notes</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );
@@ -90,15 +102,24 @@ export const ActivityPanelButtons = () => {
           <TooltipTrigger as={Button} size="icon" onClick={() => setValue('share')}>
             <Share size={20} />
           </TooltipTrigger>
-          <TooltipContent>Share Selection</TooltipContent>
+          <TooltipContent>Share</TooltipContent>
         </Tooltip>
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
           <TooltipTrigger as={Button} size="icon" onClick={() => setValue('highlight')}>
             <Highlighter size={20} />
           </TooltipTrigger>
-          <TooltipContent>Highlight Selection</TooltipContent>
+          <TooltipContent>Highlight</TooltipContent>
         </Tooltip>
+        <Separator orientation="vertical" class="bg-primary-foreground" />
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('notes')}>
+            <Notebook size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Take Notes</TooltipContent>
+        </Tooltip>
+        <Separator orientation="vertical" class="bg-primary-foreground" />
+        <BookmarkButton />
         <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
           <TooltipTrigger as={Button} size="icon" onClick={() => setValue('references')}>
@@ -145,6 +166,7 @@ export const ActivityPanelContent = () => {
         }
       }}
       closeOnOutsidePointer={false}
+      snapPoints={[0, 0.2, 1]}
     >
       <DrawerContent overlay={false} class="w-full max-w-2xl justify-self-center shadow-lg">
         <div class="mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col p-4">
@@ -159,6 +181,9 @@ export const ActivityPanelContent = () => {
             </Match>
             <Match when={value() === 'highlight'}>
               <HighlightCard />
+            </Match>
+            <Match when={value() === 'notes'}>
+              <NotesCard />
             </Match>
             <Match when={value() === 'references'}>
               <ReferencesCard />

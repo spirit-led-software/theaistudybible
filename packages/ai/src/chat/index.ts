@@ -72,7 +72,7 @@ You must use the vector database tool to fetch relevant resources for your answe
 
 The user's favorite bible translation is ${options.sessionClaims.metadata.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.
 
-You must format your response in valid markdown.`,
+You must format your response in valid markdown syntax.`,
         // @ts-ignore
         messages,
         tools: tools({ userId: options.userId }),
