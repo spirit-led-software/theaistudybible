@@ -1,5 +1,6 @@
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
+import { db } from '@theaistudybible/core/database';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
 import { Accessor, Show } from 'solid-js';
 import { BibleReaderProvider } from '~/components/providers/bible-reader';
@@ -10,13 +11,53 @@ import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
 import { BibleReaderMenu } from '../reader/menu';
-import { getVerseReaderData } from './server';
 
-export type VerseReaderProps = {
-  bibleAbbr: Accessor<string>;
-  bookAbbr: Accessor<string>;
-  chapterNum: Accessor<number>;
-  verseNum: Accessor<number>;
+const getVerseReaderData = async (props: {
+  bibleAbbr: string;
+  bookAbbr: string;
+  chapterNum: number;
+  verseNum: number;
+}) => {
+  'use server';
+  const bibleBookChapterVerse = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
+    with: {
+      books: {
+        limit: 1,
+        where: (books, { eq }) => eq(books.abbreviation, props.bookAbbr),
+        with: {
+          chapters: {
+            limit: 1,
+            where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
+            with: {
+              verses: {
+                limit: 1,
+                where: (verses, { eq }) => eq(verses.number, props.verseNum),
+                with: {
+                  previous: true,
+                  next: true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+  const book = bibleBookChapterVerse?.books[0];
+  const chapter = book?.chapters[0];
+  const verse = chapter?.verses[0];
+
+  if (!bibleBookChapterVerse || !book || !chapter || !verse) {
+    throw new Error('Insufficient data');
+  }
+
+  return {
+    bible: bibleBookChapterVerse,
+    book,
+    chapter,
+    verse
+  };
 };
 
 export const getVerseReaderQueryOptions = (props: {
@@ -28,6 +69,13 @@ export const getVerseReaderQueryOptions = (props: {
   queryKey: ['verse-reader', props],
   queryFn: () => getVerseReaderData(props)
 });
+
+export type VerseReaderProps = {
+  bibleAbbr: Accessor<string>;
+  bookAbbr: Accessor<string>;
+  chapterNum: Accessor<number>;
+  verseNum: Accessor<number>;
+};
 
 export default function VerseReader(props: {
   bibleAbbr: string;

@@ -1,5 +1,6 @@
+import { writeClipboard } from '@solid-primitives/clipboard';
 import { createSocialShare } from '@solid-primitives/share';
-import { Copy } from 'lucide-solid';
+import { Check, Copy } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
@@ -7,7 +8,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/componen
 import { DrawerClose } from '~/components/ui/drawer';
 import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
 import { showToast } from '~/components/ui/toast';
-import { P } from '~/components/ui/typography';
 import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
 
 export const ShareCard = () => {
@@ -45,9 +45,18 @@ export const ShareCard = () => {
         <Button
           onClick={() => {
             if (shareInputRef) {
-              navigator.clipboard.writeText(shareInputRef.value);
+              writeClipboard([
+                new ClipboardItem({
+                  'text/plain': new Blob([shareInputRef.value], { type: 'text/plain' })
+                })
+              ]);
               showToast({
-                title: <P>Copied to clipboard</P>
+                title: (
+                  <div class="flex items-center gap-2">
+                    <Check />
+                    Copied to clipboard
+                  </div>
+                )
               });
             }
           }}

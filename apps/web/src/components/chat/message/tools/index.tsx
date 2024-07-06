@@ -1,7 +1,7 @@
 import { useChat } from '@ai-sdk/solid';
 import { ToolInvocation } from 'ai';
 import { For, Match, Show, Switch } from 'solid-js';
-import { H6 } from '../../ui/typography';
+import { H6 } from '../../../ui/typography';
 import { AskForConfirmationTool } from './ask-for-confirmation';
 import { AskForHighlightColorTool } from './ask-for-highlight-color';
 import { BookmarkTool } from './bookmark';
