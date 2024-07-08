@@ -1,4 +1,4 @@
-import { useNavigate } from '@solidjs/router';
+import { useLocation, useNavigate } from '@solidjs/router';
 import { PenBox } from 'lucide-solid';
 import { useChatStore } from '../providers/chat';
 import { Button } from '../ui/button';
@@ -8,6 +8,7 @@ import { ChatSidebar } from './sidebar';
 
 export const ChatMenu = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [chatStore, setChatStore] = useChatStore();
 
   return (
@@ -22,7 +23,10 @@ export const ChatMenu = () => {
               variant="ghost"
               onClick={() => {
                 setChatStore('chat', undefined);
-                navigate('/chat');
+
+                if (location.pathname.startsWith('/chat')) {
+                  navigate('/chat');
+                }
               }}
             >
               <PenBox />

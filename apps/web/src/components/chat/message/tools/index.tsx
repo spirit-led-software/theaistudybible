@@ -6,11 +6,13 @@ import { AskForConfirmationTool } from './ask-for-confirmation';
 import { AskForHighlightColorTool } from './ask-for-highlight-color';
 import { BookmarkTool } from './bookmark';
 import { HighlightVerseTool } from './highlight-verse';
+import { GenerateImageTool } from './image';
 import { VectorStoreTool } from './vector-store';
 
 export type ToolsProps = {
   toolInvocations: ToolInvocation[];
   addToolResult: ReturnType<typeof useChat>['addToolResult'];
+  isLoading: boolean;
 };
 
 export const Tools = (props: ToolsProps) => {
@@ -55,8 +57,11 @@ export const Tools = (props: ToolsProps) => {
             >
               <BookmarkTool toolInvocation={toolInvocation} />
             </Match>
+            <Match when={toolInvocation.toolName === 'generateImage'}>
+              <GenerateImageTool toolInvocation={toolInvocation} isLoading={props.isLoading} />
+            </Match>
             <Match when={toolInvocation.toolName === 'vectorStore'}>
-              <VectorStoreTool toolInvocation={toolInvocation} />
+              <VectorStoreTool toolInvocation={toolInvocation} isLoading={props.isLoading} />
             </Match>
           </Switch>
         </div>

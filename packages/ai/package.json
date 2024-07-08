@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@clerk/types": "^4.6.1",
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*"
@@ -19,12 +20,14 @@
     "@ai-sdk/anthropic": "^0.0.27",
     "@ai-sdk/mistral": "^0.0.20",
     "@ai-sdk/openai": "^0.0.34",
+    "@aws-sdk/client-s3": "^3.609.0",
     "@qdrant/js-client-rest": "^1.10.0",
     "@theaistudybible/core": "workspace:*",
     "ai": "^3.2.16",
     "drizzle-orm": "^0.31.2",
     "js-tiktoken": "^1.0.12",
     "openai": "^4.52.3",
+    "rate-limiter-flexible": "^5.0.3",
     "tiktoken": "^1.0.15",
     "zod": "^3.23.8"
   }

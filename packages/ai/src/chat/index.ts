@@ -61,8 +61,6 @@ export const createChatChain = (options: CreateChatChainOptions) => {
     // Fix weird issue where some messages are empty
     messages = messages.filter((message) => (message.content?.length ?? 0) > 0);
 
-    console.log('Final messages:', JSON.stringify(messages, null, 2));
-
     return {
       streamTextResult: await streamText({
         model: registry.languageModel(options.modelId),
@@ -75,7 +73,10 @@ The user's favorite bible translation is ${options.sessionClaims.metadata.bibleT
 You must format your response in valid markdown syntax.`,
         // @ts-ignore
         messages,
-        tools: tools({ userId: options.userId }),
+        tools: tools({
+          userId: options.userId,
+          sessionClaims: options.sessionClaims
+        }),
         maxTokens: options.maxTokens,
         onFinish: async (event) => {
           await db.insert(messagesTable).values({

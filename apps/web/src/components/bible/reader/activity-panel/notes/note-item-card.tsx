@@ -2,11 +2,17 @@ import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { chapterNotes, verseNotes } from '@theaistudybible/core/database/schema';
-import { ChapterNote, VerseNote } from '@theaistudybible/core/model/bible';
+import {
+  Bible,
+  Book,
+  Chapter,
+  ChapterNote,
+  Verse,
+  VerseNote
+} from '@theaistudybible/core/model/bible';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { createSignal, Show } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import {
@@ -67,10 +73,13 @@ const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) 
 
 export type NoteItemCardProps = {
   note: ChapterNote | VerseNote;
+  bible: Bible;
+  book: Book;
+  chapter: Omit<Chapter, 'content'>;
+  verse?: Omit<Verse, 'content'>;
+  showViewButton?: boolean;
 };
 export const NoteItemCard = (props: NoteItemCardProps) => {
-  const [brStore] = useBibleReaderStore();
-
   const [isEditingNote, setIsEditingNote] = createSignal(false);
   const [editNoteContent, setEditNoteContent] = createSignal(props.note.content);
   const [showPreview, setShowPreview] = createSignal(false);
@@ -85,15 +94,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
       }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: [
-          'notes',
-          {
-            chapterId: brStore.chapter.id,
-            verseIds: brStore.verse
-              ? [brStore.verse.id]
-              : brStore.selectedVerseInfos.map((v) => v.id)
-          }
-        ]
+        queryKey: ['notes']
       })
   }));
 
@@ -105,33 +106,17 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
       }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: [
-          'notes',
-          {
-            chapterId: brStore.chapter.id,
-            verseIds: brStore.verse
-              ? [brStore.verse.id]
-              : brStore.selectedVerseInfos.map((v) => v.id)
-          }
-        ]
+        queryKey: ['notes']
       })
   }));
 
   return (
-    <Card>
+    <Card class="transition-all">
       <CardHeader>
         <CardTitle>
-          {'verseId' in props.note
-            ? `${brStore.book.shortName} ${brStore.chapter.number}:${
-                brStore.verse
-                  ? brStore.verse.number
-                  : brStore.selectedVerseInfos.find(
-                      (v) =>
-                        // @ts-ignore
-                        v.id === props.note.verseId!
-                    )?.number
-              }`
-            : `${brStore.book.shortName} ${brStore.chapter.number}`}
+          {props.verse
+            ? `${props.book.shortName} ${props.chapter.number}:${props.verse.number}`
+            : `${props.book.shortName} ${props.chapter.number}`}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -232,6 +217,14 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             </DialogContent>
           </Dialog>
           <Button onClick={() => setIsEditingNote(!isEditingNote())}>Edit</Button>
+          <Show when={props.showViewButton}>
+            <Button
+              as={A}
+              href={`/bible/${props.bible.abbreviation}/${props.book.abbreviation}/${props.chapter.number}${props.verse ? `/${props.verse.number}` : ''}`}
+            >
+              View
+            </Button>
+          </Show>
         </Show>
       </CardFooter>
     </Card>

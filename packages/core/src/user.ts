@@ -45,3 +45,24 @@ export async function getMaxQueryCountForUser(sessionClaims: JwtPayload) {
     return Math.max(acc, queryCount);
   }, 5);
 }
+
+export async function getMaxImageCountForUser(sessionClaims: JwtPayload) {
+  if (
+    !sessionClaims ||
+    !sessionClaims.metadata.roles ||
+    !Array.isArray(sessionClaims.metadata.roles)
+  ) {
+    return 5;
+  }
+
+  const userRoles = sessionClaims.metadata.roles;
+  const dbRoles = await db.query.roles.findMany({
+    where: (roles, ops) => ops.inArray(roles.id, userRoles)
+  });
+  return dbRoles.reduce((acc, role) => {
+    const queryCount = parseInt(
+      role.permissions.find((perm) => perm.startsWith('image:'))?.split(':')[1] ?? '0'
+    );
+    return Math.max(acc, queryCount);
+  }, 5);
+}

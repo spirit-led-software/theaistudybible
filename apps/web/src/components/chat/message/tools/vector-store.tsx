@@ -11,10 +11,12 @@ import {
   AccordionTrigger
 } from '~/components/ui/accordion';
 import { Button } from '~/components/ui/button';
-import { H5 } from '~/components/ui/typography';
+import { Spinner } from '~/components/ui/spinner';
+import { H5, H6 } from '~/components/ui/typography';
 
 export type VectorStoreToolProps = {
   toolInvocation: ToolInvocation;
+  isLoading: boolean;
 };
 
 export const VectorStoreTool = (props: VectorStoreToolProps) => {
@@ -42,6 +44,12 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
             </AccordionItem>
           </Accordion>
         )}
+      </Show>
+      <Show when={props.isLoading}>
+        <div class="mt-2 flex w-full flex-col">
+          <H6>Searching</H6>
+          <Spinner size="sm" />
+        </div>
       </Show>
       <Show
         when={

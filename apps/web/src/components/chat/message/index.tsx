@@ -20,6 +20,7 @@ export type MessageProps = {
   nextMessage?: AIMessage;
   message: AIMessage;
   addToolResult: ReturnType<typeof useChat>['addToolResult'];
+  isLoading: boolean;
 };
 
 export const Message = (props: MessageProps) => {
@@ -65,7 +66,11 @@ export const Message = (props: MessageProps) => {
           keyed
         >
           {(toolInvocations) => (
-            <Tools toolInvocations={toolInvocations} addToolResult={props.addToolResult} />
+            <Tools
+              toolInvocations={toolInvocations}
+              addToolResult={props.addToolResult}
+              isLoading={props.isLoading && !props.nextMessage}
+            />
           )}
         </Show>
         <div class="flex items-center gap-2 py-2">

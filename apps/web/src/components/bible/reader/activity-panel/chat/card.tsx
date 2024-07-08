@@ -1,15 +1,24 @@
+import { ChatWindow } from '~/components/chat/window';
 import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
+import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { P } from '~/components/ui/typography';
-import { ChatWindow } from './window';
 
 export const ChatCard = () => {
+  const [brStore] = useBibleReaderStore();
+
   return (
     <Card class="flex w-full flex-1 flex-col overflow-y-auto">
       <SignedIn>
-        <ChatWindow />
+        <ChatWindow
+          initInput={
+            brStore.selectedTitle && brStore.selectedText
+              ? `Please explain the following passage from ${brStore.selectedTitle}:\n\n${brStore.selectedText}`
+              : undefined
+          }
+        />
       </SignedIn>
       <SignedOut>
         <CardHeader />

@@ -1,13 +1,24 @@
 import { A, RouteDefinition } from '@solidjs/router';
-import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
+import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
+import { chapterBookmarks, verseBookmarks } from '@theaistudybible/core/database/schema';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { For, Match, Switch, createEffect } from 'solid-js';
+import { and, eq } from 'drizzle-orm';
+import { For, Match, Show, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
+import { TransitionGroup } from 'solid-transition-group';
 import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '~/components/ui/dialog';
 import { Spinner } from '~/components/ui/spinner';
 import { H2, H6 } from '~/components/ui/typography';
 import { auth } from '~/lib/server/clerk';
@@ -82,6 +93,24 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
   };
 };
 
+const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
+  'use server';
+  const { userId } = auth();
+  if (!userId) {
+    throw new Error('Not signed in');
+  }
+
+  if (props.type === 'verse') {
+    await db
+      .delete(verseBookmarks)
+      .where(and(eq(verseBookmarks.userId, userId), eq(verseBookmarks.id, props.bookmarkId)));
+  } else {
+    await db
+      .delete(chapterBookmarks)
+      .where(and(eq(chapterBookmarks.userId, userId), eq(chapterBookmarks.id, props.bookmarkId)));
+  }
+};
+
 const getBookmarksQueryOptions = () => ({
   queryKey: ['bookmarks'],
   queryFn: ({ pageParam }: { pageParam: number }) => getBookmarks({ limit: 9, offset: pageParam }),
@@ -97,13 +126,18 @@ export const route: RouteDefinition = {
 };
 
 const BookmarksPage = () => {
-  const query = createInfiniteQuery(() => getBookmarksQueryOptions());
+  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
+
+  const deleteBookmarkMutation = createMutation(() => ({
+    mutationFn: (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => deleteBookmark(props),
+    onSettled: () => bookmarksQuery.refetch()
+  }));
 
   const [bookmarks, setBookmarks] = createStore(
-    query.data?.pages.flatMap((page) => page.bookmarks) || []
+    bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || []
   );
   createEffect(() => {
-    setBookmarks(reconcile(query.data?.pages.flatMap((page) => page.bookmarks) || []));
+    setBookmarks(reconcile(bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || []));
   });
 
   return (
@@ -112,75 +146,98 @@ const BookmarksPage = () => {
         <H2 class="inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
           Your Bookmarks
         </H2>
-        <QueryBoundary query={query}>
-          {() => (
-            <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
-              <For
-                each={bookmarks}
-                fallback={
-                  <div class="flex h-full w-full flex-col items-center justify-center p-5">
-                    <H6 class="text-center">
-                      No bookmarks yet, get{' '}
-                      <A href="/bible" class="hover:underline">
-                        reading
-                      </A>
-                      !
-                    </H6>
-                  </div>
-                }
-              >
-                {(bookmark) => (
+        <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
+          <QueryBoundary query={bookmarksQuery}>
+            {() => (
+              <TransitionGroup name="card-item">
+                <For
+                  each={bookmarks}
+                  fallback={
+                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all">
+                      <H6 class="text-center">
+                        No bookmarks yet, get{' '}
+                        <A href="/bible" class="hover:underline">
+                          reading
+                        </A>
+                        !
+                      </H6>
+                    </div>
+                  }
+                >
+                  {(bookmark, idx) => (
+                    <Card data-index={idx()} class="h-full w-full transition-all">
+                      <CardHeader>
+                        <CardTitle>
+                          {'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <Show
+                        when={'verse' in bookmark && bookmark.verse}
+                        fallback={<CardContent />}
+                        keyed
+                      >
+                        {(verse) => <CardContent>{contentsToText(verse.content)}</CardContent>}
+                      </Show>
+                      <CardFooter class="flex justify-end gap-2">
+                        <Dialog>
+                          <DialogTrigger as={Button} variant="outline">
+                            Delete
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you sure you want to delete this bookmark?
+                              </DialogTitle>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button
+                                variant="destructive"
+                                onClick={() => {
+                                  deleteBookmarkMutation.mutate({
+                                    type: 'verse' in bookmark ? 'verse' : 'chapter',
+                                    bookmarkId: bookmark.id
+                                  });
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          as={A}
+                          href={
+                            'verse' in bookmark
+                              ? `/bible/${bookmark.verse.bible.abbreviation}/${bookmark.verse.book.abbreviation}/${bookmark.verse.chapter.number}/${bookmark.verse.number}`
+                              : `/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.abbreviation}/${bookmark.chapter.number}`
+                          }
+                        >
+                          View
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  )}
+                </For>
+                <div class="flex w-full justify-center lg:col-span-3">
                   <Switch>
-                    <Match when={'verse' in bookmark && bookmark.verse} keyed>
-                      {(verse) => (
-                        <A
-                          href={`/bible/${verse.bible.abbreviation}/${verse.book.abbreviation}/${verse.chapter.number}/${verse.number}`}
-                        >
-                          <Card class="h-full w-full">
-                            <CardHeader>
-                              <CardTitle class="text-center">{verse.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent>{contentsToText(verse.content)}</CardContent>
-                          </Card>
-                        </A>
-                      )}
+                    <Match when={bookmarksQuery.isFetchingNextPage}>
+                      <Spinner size="sm" />
                     </Match>
-                    <Match when={'chapter' in bookmark && bookmark.chapter} keyed>
-                      {(chapter) => (
-                        <A
-                          href={`/bible/${chapter.bible.abbreviation}/${chapter.book.abbreviation}/${chapter.number}`}
-                        >
-                          <Card class="h-full w-full">
-                            <CardHeader>
-                              <CardTitle class="text-center">{chapter.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent>Click to view</CardContent>
-                          </Card>
-                        </A>
-                      )}
+                    <Match when={bookmarksQuery.hasNextPage}>
+                      <Button
+                        onClick={() => {
+                          bookmarksQuery.fetchNextPage();
+                        }}
+                      >
+                        Load more
+                      </Button>
                     </Match>
                   </Switch>
-                )}
-              </For>
-              <div class="flex w-full justify-center lg:col-span-3">
-                <Switch>
-                  <Match when={query.isFetchingNextPage}>
-                    <Spinner size="sm" />
-                  </Match>
-                  <Match when={query.hasNextPage}>
-                    <Button
-                      onClick={() => {
-                        query.fetchNextPage();
-                      }}
-                    >
-                      Load more
-                    </Button>
-                  </Match>
-                </Switch>
-              </div>
-            </div>
-          )}
-        </QueryBoundary>
+                </div>
+              </TransitionGroup>
+            )}
+          </QueryBoundary>
+        </div>
       </SignedIn>
       <SignedOut>
         <SignIn />

@@ -770,6 +770,7 @@ export const chaptersRelations = relations(chapters, ({ one, many }) => {
     }),
     verses: many(verses),
     bookmarks: many(chapterBookmarks),
+    notes: many(chapterNotes),
     chaptersToSourceDocuments: many(chaptersToSourceDocuments)
   };
 });
@@ -795,7 +796,7 @@ export const chapterBookmarks = pgTable(
   },
   (table) => {
     return {
-      userChapterUniqueIdx: uniqueIndex('chapter_bookmarks_user_chapter_unique').on(
+      userChapterKey: uniqueIndex('chapter_bookmarks_user_chapter_key').on(
         table.userId,
         table.chapterId
       ),
@@ -979,7 +980,7 @@ export const verseHighlights = pgTable(
   },
   (table) => {
     return {
-      userVerseIdx: index('verse_highlights_user_verse_unique').on(table.userId, table.verseId),
+      userVerseKey: uniqueIndex('verse_highlights_user_verse_key').on(table.userId, table.verseId),
       verseIdIdx: index('verse_highlights_verse_id').on(table.verseId),
       userIdIdx: index('verse_highlights_user_id').on(table.userId)
     };
@@ -1016,10 +1017,7 @@ export const verseBookmarks = pgTable(
   },
   (table) => {
     return {
-      userVerseUniqueIdx: uniqueIndex('verse_bookmarks_user_verse_unique').on(
-        table.userId,
-        table.verseId
-      ),
+      userVerseKey: uniqueIndex('verse_bookmarks_user_verse_key').on(table.userId, table.verseId),
       verseIdIdx: index('verse_bookmarks_verse_id').on(table.verseId),
       userIdIdx: index('verse_bookmarks_user_id').on(table.userId)
     };

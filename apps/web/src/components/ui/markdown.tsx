@@ -24,7 +24,12 @@ export const Markdown = (props: { children: string }) => {
           <blockquote class="border-l-4 border-gray-400 pl-4">{props.children}</blockquote>
         ),
         Image: (props): JSXElement => (
-          <img src={props.url} alt={props.alt ?? props.title ?? undefined} />
+          <img
+            src={props.url}
+            alt={props.alt ?? props.title ?? undefined}
+            loading="lazy"
+            class="rounded-md"
+          />
         ),
         List: (props): JSXElement => (
           <Dynamic

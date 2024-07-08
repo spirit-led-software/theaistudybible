@@ -1,6 +1,9 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      // Make everything else undefined
+      [key: string]: undefined;
+
       // Environment
       NODE_ENV: 'development' | 'production';
 
@@ -19,6 +22,7 @@ declare global {
       S3_ENDPOINT: string;
       S3_ACCESS_KEY: string;
       S3_SECRET_KEY: string;
+      S3_BUCKET_PUBLIC_URL: string;
 
       // AI
       UNSTRUCTURED_API_KEY: string;

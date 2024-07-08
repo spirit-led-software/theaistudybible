@@ -59,12 +59,14 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply min-h-screen bg-background text-foreground;
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
   }
+
   #app {
     @apply min-h-screen;
   }
@@ -74,4 +76,16 @@
   .container {
     @apply px-4;
   }
+}
+
+.card-item-enter-active,
+.card-item-exit-active {
+  @apply transition-all duration-200;
+}
+.card-item-enter,
+.card-item-exit-to {
+  @apply scale-0 opacity-0;
+}
+.card-item-enter-to {
+  @apply scale-100 opacity-100;
 }

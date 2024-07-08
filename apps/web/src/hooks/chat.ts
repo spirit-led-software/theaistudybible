@@ -1,10 +1,10 @@
 import { UseChatOptions, useChat as useAIChat } from '@ai-sdk/solid';
-import { createInfiniteQuery, createQuery } from '@tanstack/solid-query';
+import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
 import { createId } from '@theaistudybible/core/util/id';
 import { isNull } from 'drizzle-orm';
-import { Accessor, createEffect, createSignal, mergeProps, on, splitProps } from 'solid-js';
+import { Accessor, createEffect, createSignal, mergeProps, on } from 'solid-js';
 import { auth } from '~/lib/server/clerk';
 
 const getChat = async (chatId: string) => {
@@ -13,13 +13,20 @@ const getChat = async (chatId: string) => {
   if (!userId) {
     throw new Error('User is not authenticated');
   }
-  return await db.query.chats.findFirst({
+  const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, userId))
   });
+
+  return chat ?? null;
 };
 export const getChatQueryProps = (chatId?: string) => ({
-  queryKey: ['chat', { chatId }],
-  queryFn: async () => (chatId ? await getChat(chatId) : null)
+  queryKey: ['chat', { chatId: chatId ?? null }],
+  queryFn: async () => {
+    if (chatId) {
+      return await getChat(chatId);
+    }
+    return null;
+  }
 });
 
 const getChatMessages = async ({
@@ -56,7 +63,7 @@ const getChatMessages = async ({
 };
 
 export const getChatMessagesQueryProps = (chatId?: string) => ({
-  queryKey: ['chat-messages', { chatId }],
+  queryKey: ['chat-messages', { chatId: chatId ?? null }],
   queryFn: async ({ pageParam }: { pageParam: number }) => {
     if (chatId) {
       return await getChatMessages({ chatId, limit: 10, offset: pageParam });
@@ -71,36 +78,32 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
 });
 
 export type UseChatProps = Prettify<
-  | (Omit<
-      UseChatOptions,
-      'api' | 'id' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'
-    > & {
-      id?: Accessor<string | undefined>;
-      initQuery?: Accessor<string | undefined>;
+  | (Omit<UseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'> & {
+      initQuery?: string;
       setInitQuery?: (query: string | undefined) => void;
     })
   | undefined
 >;
 
-export const useChat = (props: UseChatProps) => {
-  const [local, useChatProps] = splitProps(props ?? {}, ['id', 'initQuery', 'setInitQuery']);
+export const useChat = (props: Accessor<UseChatProps>) => {
+  const qc = useQueryClient();
 
-  const [chatId, setChatId] = createSignal<string | undefined>(local.id?.());
+  const [chatId, setChatId] = createSignal<string | undefined>(props()?.id);
   createEffect(() => {
-    setChatId(local.id?.());
+    setChatId(props()?.id);
   });
 
   const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
 
   const useChatResult = useAIChat(() => ({
-    ...useChatProps,
+    ...props(),
     api: '/api/chat',
     id: chatId(),
     generateId: () => `msg_${createId()}`,
     sendExtraMessageFields: true,
     maxToolRoundtrips: 5,
     body: {
-      ...useChatProps.body,
+      ...props()?.body,
       chatId: chatId()
     },
     onResponse: (response) => {
@@ -112,16 +115,19 @@ export const useChat = (props: UseChatProps) => {
       if (aiResponseId) {
         setLastAiResponseId(aiResponseId);
       }
-      return useChatProps.onResponse?.(response);
+      return props()?.onResponse?.(response);
     },
     onFinish: (message) => {
       chatQuery.refetch();
       messagesQuery.refetch();
-      return useChatProps.onFinish?.(message);
+      qc.refetchQueries({
+        queryKey: ['chats']
+      });
+      return props()?.onFinish?.(message);
     },
     onError: (err) => {
       console.error(err);
-      return useChatProps.onError?.(err);
+      return props()?.onError?.(err);
     }
   }));
 
@@ -166,15 +172,18 @@ export const useChat = (props: UseChatProps) => {
   );
 
   createEffect(
-    on(props?.initQuery ?? (() => undefined), (query) => {
-      if (query) {
-        useChatResult.append({
-          role: 'user',
-          content: query
-        });
-        local.setInitQuery?.(undefined);
+    on(
+      () => props()?.initQuery,
+      (query) => {
+        if (query) {
+          useChatResult.append({
+            role: 'user',
+            content: query
+          });
+          props()?.setInitQuery?.(undefined);
+        }
       }
-    })
+    )
   );
 
   return mergeProps(useChatResult, {

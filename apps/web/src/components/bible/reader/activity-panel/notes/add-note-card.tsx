@@ -82,7 +82,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
   }));
 
   return (
-    <Card>
+    <Card class="transition-all">
       <CardHeader>
         <CardTitle>Add Note</CardTitle>
       </CardHeader>

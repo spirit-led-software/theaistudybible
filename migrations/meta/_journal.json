@@ -57,6 +57,13 @@
       "when": 1720190230319,
       "tag": "0007_steady_rhino",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1720272079635,
+      "tag": "0008_goofy_mister_fear",
+      "breakpoints": true
     }
   ]
 }

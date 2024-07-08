@@ -1,11 +1,21 @@
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { JwtPayload } from '@clerk/types';
+import { cache } from '@theaistudybible/core/cache';
 import { db } from '@theaistudybible/core/database';
 import {
   chapterBookmarks,
+  userGeneratedImages,
   verseBookmarks,
   verseHighlights
 } from '@theaistudybible/core/database/schema';
+import { createId } from '@theaistudybible/core/src/util/id';
+import { s3 } from '@theaistudybible/core/storage';
+import { getMaxImageCountForUser } from '@theaistudybible/core/user';
+import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
 import { tool } from 'ai';
+import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import { z } from 'zod';
+import { openai } from '../provider-registry';
 import { vectorStore } from '../vector-store';
 
 export const askForConfirmationTool = tool({
@@ -290,7 +300,107 @@ export const vectorStoreTool = tool({
   }
 });
 
-export const tools = (options: { userId: string }) => ({
+export const generateImageTool = (props: { userId: string; sessionClaims: JwtPayload }) =>
+  tool({
+    description:
+      'Generate an image from a text prompt. You must use the vector store search tool to fetch relevant resources to make your prompt more detailed. This tool does not require confirmation.',
+    parameters: z.object({
+      prompt: z
+        .string()
+        .describe(
+          'The text prompt that will be used to generate the image. This prompt must be detailed enough to make it accurate according to the vector store search results.'
+        )
+        .min(1)
+        .max(1000),
+      size: z
+        .enum(['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'])
+        .optional()
+        .default('512x512')
+        .describe('The size of the generated image. More detailed images need a larger size.')
+    }),
+    execute: async ({ prompt, size }) => {
+      const maxImageCount = await getMaxImageCountForUser(props.sessionClaims);
+      const ratelimit = new RateLimiterRedis({
+        storeClient: cache,
+        points: maxImageCount,
+        duration: 3 * 60 * 60
+      });
+      try {
+        await ratelimit.consume(props.userId);
+      } catch (ratelimitResult) {
+        if (ratelimitResult instanceof RateLimiterRes) {
+          return {
+            message: `You have issued too many requests for your current plan. Please wait ${getTimeStringFromSeconds(
+              ratelimitResult.msBeforeNext / 1000
+            )} before trying again, or upgrade your plan.`
+          } as const;
+        } else {
+          return {
+            status: 'error',
+            message: 'An error occurred while rate limiting. Please try again later.'
+          } as const;
+        }
+      }
+
+      try {
+        const generateImageResponse = await openai.images.generate({
+          prompt,
+          model: 'dall-e-3',
+          size
+        });
+
+        const getImageResponse = await fetch(generateImageResponse.data[0].url!);
+        if (!getImageResponse.ok) {
+          return {
+            status: 'error',
+            message: 'Could not download generated image. Please try again later.'
+          } as const;
+        }
+
+        const id = `uge_${createId()}`;
+        const key = `generated-images/${id}.png`;
+        const image = Buffer.from(await getImageResponse.arrayBuffer());
+        const putObjectResult = await s3.send(
+          new PutObjectCommand({
+            Bucket: process.env.S3_BUCKET!,
+            Key: key,
+            Body: image
+          })
+        );
+        if (putObjectResult.$metadata.httpStatusCode !== 200) {
+          return {
+            status: 'error',
+            message: 'Could not upload generated image to storage. Please try again later.'
+          } as const;
+        }
+
+        const [generatedImage] = await db
+          .insert(userGeneratedImages)
+          .values({
+            id,
+            url: `${process.env.S3_BUCKET_PUBLIC_URL}/${key}`,
+            userPrompt: prompt,
+            prompt: generateImageResponse.data[0].revised_prompt,
+            userId: props.userId
+          })
+          .returning();
+
+        return {
+          status: 'success',
+          message: 'Image generated',
+          image: generatedImage
+        } as const;
+      } catch (error) {
+        console.error(JSON.stringify(error, null, 2));
+        return {
+          status: 'error',
+          message: 'An unknown error occurred. Please try again later.'
+        } as const;
+      }
+    }
+  });
+
+export const tools = (options: { userId: string; sessionClaims: JwtPayload }) => ({
   askForConfirmation: askForConfirmationTool,
   askForHighlightColor: askForHighlightColorTool,
   highlightVerse: highlightVerseTool({
@@ -301,6 +411,10 @@ export const tools = (options: { userId: string }) => ({
   }),
   bookmarkChapter: bookmarkChapterTool({
     userId: options.userId
+  }),
+  generateImage: generateImageTool({
+    userId: options.userId,
+    sessionClaims: options.sessionClaims
   }),
   vectorStore: vectorStoreTool
 });

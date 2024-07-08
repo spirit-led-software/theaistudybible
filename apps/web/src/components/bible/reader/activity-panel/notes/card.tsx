@@ -1,9 +1,10 @@
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
-import { ChapterNote, VerseNote } from '@theaistudybible/core/model/bible';
+import { Prettify } from '@theaistudybible/core/types/util';
 import { Plus } from 'lucide-solid';
 import { createEffect, createSignal, For, Show } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
+import { Transition, TransitionGroup } from 'solid-transition-group';
 import { SignedIn, SignedOut, SignInButton } from '~/components/clerk';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
@@ -30,33 +31,56 @@ const getNotes = async (props: {
     };
   }
 
+  let notes = [];
   if (props.verseIds?.length) {
-    const notes = await db.query.verseNotes.findMany({
+    notes = await db.query.verseNotes.findMany({
       where: (verseNotes, { and, eq, inArray }) =>
         and(eq(verseNotes.userId, userId), inArray(verseNotes.verseId, props.verseIds!)),
       orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
       offset: props.offset,
-      limit: props.limit
+      limit: props.limit,
+      with: {
+        verse: {
+          columns: {
+            content: false
+          },
+          with: {
+            book: true,
+            chapter: {
+              columns: {
+                content: false
+              }
+            },
+            bible: true
+          }
+        }
+      }
     });
-
-    return {
-      notes,
-      nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined
-    };
   } else {
-    const notes = await db.query.chapterNotes.findMany({
+    notes = await db.query.chapterNotes.findMany({
       where: (chapterNotes, { and, eq }) =>
         and(eq(chapterNotes.userId, userId), eq(chapterNotes.chapterId, props.chapterId)),
       orderBy: (chapterNotes, { desc }) => desc(chapterNotes.updatedAt),
       offset: props.offset,
-      limit: props.limit
+      limit: props.limit,
+      with: {
+        chapter: {
+          columns: {
+            content: false
+          },
+          with: {
+            book: true,
+            bible: true
+          }
+        }
+      }
     });
-
-    return {
-      notes,
-      nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined
-    };
   }
+
+  return {
+    notes,
+    nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined
+  };
 };
 
 export const NotesCard = () => {
@@ -81,15 +105,14 @@ export const NotesCard = () => {
     initialPageParam: 0
   }));
 
-  const [notes, setNotes] = createStore(
-    query.data?.pages.flatMap((page) => page.notes as (ChapterNote | VerseNote)[]) || []
+  type NoteType = Prettify<Awaited<ReturnType<typeof getNotes>>['notes']>[number];
+  const [notes, setNotes] = createStore<NoteType[]>(
+    // @ts-ignore Types are messed up for some reason
+    query.data?.pages.flatMap((page) => page.notes) || []
   );
   createEffect(() => {
-    setNotes(
-      reconcile(
-        query.data?.pages.flatMap((page) => page.notes as (ChapterNote | VerseNote)[]) || []
-      )
-    );
+    // @ts-ignore Types are messed up for some reason
+    setNotes(reconcile(query.data?.pages.flatMap((page) => page.notes) || []));
   });
 
   const [isAddingNote, setIsAddingNote] = createSignal(false);
@@ -108,22 +131,35 @@ export const NotesCard = () => {
         </CardHeader>
         <CardContent class="overflow-y-auto py-4">
           <div class="grid grid-cols-1 gap-2">
-            <Show when={isAddingNote()}>
-              <AddNoteCard
-                onAdd={() => setIsAddingNote(false)}
-                onCancel={() => setIsAddingNote(false)}
-              />
-            </Show>
-            <For
-              each={notes}
-              fallback={
-                <div class="flex h-full w-full flex-col items-center justify-center p-5">
-                  <H5>No notes</H5>
-                </div>
-              }
-            >
-              {(note) => <NoteItemCard note={note} />}
-            </For>
+            <Transition name="card-item">
+              <Show when={isAddingNote()}>
+                <AddNoteCard
+                  onAdd={() => setIsAddingNote(false)}
+                  onCancel={() => setIsAddingNote(false)}
+                />
+              </Show>
+            </Transition>
+            <TransitionGroup name="card-item">
+              <For
+                each={notes}
+                fallback={
+                  <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all">
+                    <H5>No notes</H5>
+                  </div>
+                }
+              >
+                {(note, idx) => (
+                  <NoteItemCard
+                    data-index={idx()}
+                    note={note}
+                    bible={'verse' in note ? note.verse.bible : note.chapter.bible}
+                    book={'verse' in note ? note.verse.book : note.chapter.book}
+                    chapter={'verse' in note ? note.verse.chapter : note.chapter}
+                    verse={'verse' in note ? note.verse : undefined}
+                  />
+                )}
+              </For>
+            </TransitionGroup>
           </div>
         </CardContent>
         <CardFooter class="flex justify-end gap-2 border-t pt-4">

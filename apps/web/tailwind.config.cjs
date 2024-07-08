@@ -1,10 +1,8 @@
-const tailwindcssAnimate = require('tailwindcss-animate');
-
 /** @type {import("tailwindcss").Config} */
 export default {
   darkMode: ['class', '[data-kb-theme="dark"]'],
   content: ['./src/**/*.{ts,tsx}'],
-  plugins: [tailwindcssAnimate],
+  plugins: [require('tailwindcss-animate')],
   theme: {
     container: {
       center: true,

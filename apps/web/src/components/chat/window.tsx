@@ -14,19 +14,29 @@ import { Message } from './message';
 
 export type ChatWindowProps = {
   chatId?: string;
+  initInput?: string;
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const [, setChatStore] = useChatStore();
+  const [chatStore, setChatStore] = useChatStore();
 
-  const useChatResult = useChat({
-    id: () => props.chatId
-  });
+  const useChatResult = useChat(() => ({
+    id: props.chatId ?? chatStore.chat?.id
+  }));
   createEffect(
     on(
       () => useChatResult.chatQuery.data,
       (chat) => {
         setChatStore('chat', chat ?? undefined);
+      }
+    )
+  );
+
+  createEffect(
+    on(
+      () => props.initInput,
+      (initInput) => {
+        useChatResult.setInput(initInput ?? '');
       }
     )
   );
@@ -69,7 +79,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         <For
           each={messagesReversed}
           fallback={
-            <div class="flex h-full w-full items-center justify-center">
+            <div class="flex h-full w-full items-center justify-center p-20">
               <H5>No messages yet</H5>
             </div>
           }
@@ -81,6 +91,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 message={message}
                 nextMessage={messagesReversed[idx() - 1]}
                 addToolResult={useChatResult.addToolResult}
+                isLoading={useChatResult.isLoading()}
               />
             </div>
           )}
@@ -95,7 +106,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 <Button
                   variant="link"
                   size="icon"
-                  class="flex flex-col items-center justify-center"
+                  class="flex h-fit flex-col items-center justify-center py-4"
                   onClick={() => {
                     if (
                       useChatResult.messagesQuery.hasNextPage &&
