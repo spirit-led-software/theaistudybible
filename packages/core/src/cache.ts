@@ -6,5 +6,6 @@ export const cache = new Redis({
   host: redisUrl.hostname,
   port: parseInt(redisUrl.port),
   username: redisUrl.username,
-  password: redisUrl.password
+  password: redisUrl.password,
+  maxRetriesPerRequest: null
 });

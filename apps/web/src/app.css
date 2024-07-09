@@ -53,9 +53,7 @@
     --ring: 237 86% 8%;
     --radius: 0.5rem;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -66,10 +64,10 @@
       'rlig' 1,
       'calt' 1;
   }
+}
 
-  #app {
-    @apply min-h-screen;
-  }
+#app {
+  @apply min-h-screen;
 }
 
 @media (max-width: 640px) {

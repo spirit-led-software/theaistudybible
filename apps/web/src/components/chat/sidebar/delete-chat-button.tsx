@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from '~/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { auth } from '~/lib/server/clerk';
 
 const deleteChat = async (chatId: string) => {
@@ -26,11 +27,11 @@ const deleteChat = async (chatId: string) => {
   await db.delete(chats).where(and(eq(chats.userId, userId), eq(chats.id, chatId)));
 };
 
-export type DeleteChatDialogProps = {
+export type DeleteChatButtonProps = {
   chat: Chat;
 };
 
-export const DeleteChatDialog = (props: DeleteChatDialogProps) => {
+export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const [chatStore, setChatStore] = useChatStore();
   const navigate = useNavigate();
 
@@ -45,9 +46,16 @@ export const DeleteChatDialog = (props: DeleteChatDialogProps) => {
 
   return (
     <Dialog>
-      <DialogTrigger as={Button} variant="ghost" size="icon">
-        <Trash size={16} />
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          as={(props: any) => (
+            <DialogTrigger {...props} as={Button} variant="ghost" size="icon">
+              <Trash size={16} />
+            </DialogTrigger>
+          )}
+        />
+        <TooltipContent>Delete chat</TooltipContent>
+      </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you sure you want to delete this chat?</DialogTitle>

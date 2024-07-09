@@ -38,15 +38,27 @@ async function getChapterReaderData(props: {
     }
   });
 
-  const book = bibleBookChapter?.books[0];
-  const chapter = book?.chapters[0];
+  if (!bibleBookChapter) {
+    throw new Error('Bible not found');
+  }
+  const { books, ...bible } = bibleBookChapter;
 
-  if (!bibleBookChapter || !book || !chapter) {
-    throw new Error('Insufficient data');
+  if (!books.at(0)) {
+    throw new Error('Book not found');
+  }
+  const { chapters, ...book } = books[0];
+
+  if (!chapters.at(0)) {
+    throw new Error('Chapter not found');
+  }
+  const chapter = chapters[0];
+
+  if (!bible || !book || !chapter) {
+    throw new Error('Insufficient chapter reader data');
   }
 
   return {
-    bible: bibleBookChapter,
+    bible,
     book,
     chapter
   };

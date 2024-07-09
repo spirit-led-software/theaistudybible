@@ -45,7 +45,7 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
           </Accordion>
         )}
       </Show>
-      <Show when={props.isLoading}>
+      <Show when={props.isLoading && !('result' in props.toolInvocation)}>
         <div class="mt-2 flex w-full flex-col">
           <H6>Searching</H6>
           <Spinner size="sm" />

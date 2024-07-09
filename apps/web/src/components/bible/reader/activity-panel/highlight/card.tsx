@@ -63,7 +63,7 @@ export const HighlightCard = () => {
       updateHighlights({ verseIds, color }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['highlights', { chapterId: brStore.chapter.id }]
+        queryKey: ['highlights']
       }),
     onError: () => {
       showToast({
@@ -77,7 +77,7 @@ export const HighlightCard = () => {
     mutationFn: ({ verseIds }: { verseIds: string[] }) => deleteHighlights({ verseIds }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['highlights', { chapterId: brStore.chapter.id }]
+        queryKey: ['highlights']
       }),
     onError: () => {
       showToast({

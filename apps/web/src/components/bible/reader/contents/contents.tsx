@@ -1,30 +1,22 @@
-import { A } from '@solidjs/router';
-import type {
-  CharContent as CharContentType,
-  Content,
-  NoteContent as NoteContentType,
-  OwningContent,
-  TextContent as TextContentType,
-  VerseContent
-} from '@theaistudybible/core/types/bible';
-import { Accessor, For, Match, Switch } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
+import { VerseNote } from '@theaistudybible/core/model/bible';
+import type { Content } from '@theaistudybible/core/types/bible';
+import { For, Match, Switch } from 'solid-js';
 import { cn } from '~/lib/utils';
 import { HighlightInfo } from '~/types/bible';
 import CharContent from './char';
 import NoteContent from './note';
 import RefContent from './ref';
 import TextContent from './text';
+import { VerseContent } from './verse';
 
 export type ContentsProps = {
   contents: Content[];
-  highlights?: Accessor<HighlightInfo[]>;
+  highlights?: HighlightInfo[];
+  notes?: VerseNote[];
   class?: string;
 };
 
 export default function Contents(props: ContentsProps) {
-  const [brStore] = useBibleReaderStore();
-
   return (
     <For each={props.contents}>
       {(content) => {
@@ -47,59 +39,69 @@ export default function Contents(props: ContentsProps) {
 
         return (
           <Switch>
-            <Match when={content.type === 'text'}>
-              <TextContent
-                content={content as TextContentType}
-                style={style}
-                props={addProps}
-                highlights={props.highlights}
-                class={props.class}
-              />
-            </Match>
-            <Match when={content.type === 'ref'}>
-              <RefContent
-                content={content as TextContentType}
-                style={style}
-                attrs={attrs}
-                props={addProps}
-                class={props.class}
-              />
-            </Match>
-            <Match when={content.type === 'verse'}>
-              <A
-                id={content.id}
-                data-type={content.type}
-                {...addProps}
-                class={cn(style, 'hover:underline', props.class)}
-                href={`/bible/${brStore.bible!.abbreviation}/${brStore.book!.abbreviation}/${brStore.chapter!.number}/${(content as VerseContent).number}`}
-              >
-                {(content as VerseContent).number}
-              </A>
-            </Match>
-            <Match when={content.type === 'char'}>
-              <CharContent
-                content={content as CharContentType}
-                style={style}
-                class={props.class}
-                highlights={props.highlights}
-                props={addProps}
-              />
-            </Match>
-            <Match when={content.type === 'para'}>
-              <p
-                id={content.id}
-                data-type={content.type}
-                {...addProps}
-                class={cn(style, props.class)}
-              >
-                <Contents
-                  contents={(content as OwningContent).contents}
+            <Match when={content.type === 'text' && content} keyed>
+              {(content) => (
+                <TextContent
+                  content={content}
+                  style={style}
+                  props={addProps}
                   highlights={props.highlights}
+                  class={props.class}
                 />
-              </p>
+              )}
             </Match>
-            <Match when={content.type === 'note'}>
-              <NoteContent content={content as NoteContentType} highlights={props.highlights} />
+            <Match when={content.type === 'ref' && content} keyed>
+              {(content) => (
+                <RefContent
+                  content={content}
+                  style={style}
+                  attrs={attrs}
+                  props={addProps}
+                  class={props.class}
+                />
+              )}
+            </Match>
+            <Match when={content.type === 'verse' && content} keyed>
+              {(content) => (
+                <VerseContent
+                  content={content}
+                  style={style}
+                  class={props.class}
+                  notes={props.notes}
+                  props={addProps}
+                />
+              )}
+            </Match>
+            <Match when={content.type === 'char' && content} keyed>
+              {(content) => (
+                <CharContent
+                  content={content}
+                  style={style}
+                  class={props.class}
+                  highlights={props.highlights}
+                  notes={props.notes}
+                  props={addProps}
+                />
+              )}
+            </Match>
+            <Match when={content.type === 'para' && content} keyed>
+              {(content) => (
+                <p
+                  id={content.id}
+                  data-type={content.type}
+                  {...addProps}
+                  class={cn(style, props.class)}
+                >
+                  <Contents
+                    contents={content.contents}
+                    highlights={props.highlights}
+                    notes={props.notes}
+                  />
+                </p>
+              )}
+            </Match>
+            <Match when={content.type === 'note' && content} keyed>
+              {(content) => <NoteContent content={content} />}
             </Match>
           </Switch>
         );

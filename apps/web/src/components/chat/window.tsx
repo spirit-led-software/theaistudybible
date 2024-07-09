@@ -5,10 +5,17 @@ import { createStore, reconcile } from 'solid-js/store';
 import { useChat } from '~/hooks/chat';
 import { useChatStore } from '../providers/chat';
 import { Button } from '../ui/button';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from '../ui/carousel';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
 import { showToast } from '../ui/toast';
-import { H5 } from '../ui/typography';
+import { H5, H6 } from '../ui/typography';
 import { ChatMenu } from './menu';
 import { Message } from './message';
 
@@ -24,12 +31,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
     id: props.chatId ?? chatStore.chat?.id
   }));
   createEffect(
-    on(
-      () => useChatResult.chatQuery.data,
-      (chat) => {
-        setChatStore('chat', chat ?? undefined);
-      }
-    )
+    on(useChatResult.chat, (chat) => {
+      setChatStore('chat', chat ?? undefined);
+    })
   );
 
   createEffect(
@@ -57,7 +61,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   );
   createEffect(
     on(useChatResult.messages, (messages) =>
-      setMessagesReversed(reconcile(messages?.toReversed() ?? [], { merge: true }))
+      setMessagesReversed(reconcile(messages?.toReversed() ?? []))
     )
   );
 
@@ -75,6 +79,40 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </Button>
       </Show>
       <div class="flex grow flex-col-reverse items-center overflow-y-auto">
+        <Show
+          when={
+            !useChatResult.isLoading() &&
+            !useChatResult.followUpSuggestionsQuery.isFetching &&
+            useChatResult.followUpSuggestions.length
+          }
+        >
+          <div class="flex w-full max-w-2xl flex-col gap-2 pb-2 animate-in fade-in zoom-in">
+            <H6 class="text-center">Follow-up Questions</H6>
+            <Carousel class="overflow-x-hidden">
+              <CarouselContent>
+                <For each={useChatResult.followUpSuggestions}>
+                  {(suggestion) => (
+                    <CarouselItem class="flex justify-center">
+                      <Button
+                        class="mx-2 h-full w-full text-wrap rounded-full"
+                        onClick={() =>
+                          useChatResult.append({
+                            role: 'user',
+                            content: suggestion
+                          })
+                        }
+                      >
+                        {suggestion}
+                      </Button>
+                    </CarouselItem>
+                  )}
+                </For>
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </div>
+        </Show>
         <div ref={setStartOfMessagesRef} class="h-5 w-full shrink-0" />
         <For
           each={messagesReversed}
@@ -125,7 +163,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </div>
       </div>
       <form
-        class="relative flex w-full items-center justify-center border-t px-2 py-2"
+        class="relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2"
         onSubmit={async (e) => {
           e.preventDefault();
           if (!useChatResult.input()) {
@@ -136,13 +174,17 @@ export const ChatWindow = (props: ChatWindowProps) => {
         }}
       >
         <div class="flex w-full max-w-2xl items-center rounded-full border py-2 pl-5 pr-1">
-          <TextField class="flex flex-1 items-center">
+          <TextField
+            class="flex flex-1 items-center"
+            value={useChatResult.input()}
+            onChange={useChatResult.setInput}
+            autoCapitalize="sentences"
+          >
             <TextFieldTextArea
               placeholder="Type a message"
-              value={useChatResult.input()}
-              onChange={useChatResult.handleInputChange}
-              class="max-h-24 min-h-[20px] w-full resize-none items-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+              class="flex max-h-24 min-h-[20px] w-full resize-none items-center justify-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
               autoResize
+              autofocus
             />
           </TextField>
           <Switch

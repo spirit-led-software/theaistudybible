@@ -4,7 +4,7 @@ import { chats } from '@theaistudybible/core/database/schema';
 import { Chat } from '@theaistudybible/core/model/chat';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
-import { createSignal } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { useChatStore } from '~/components/providers/chat';
 import { Button } from '~/components/ui/button';
 import {
@@ -21,6 +21,7 @@ import {
   TextFieldInput,
   TextFieldLabel
 } from '~/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { auth } from '~/lib/server/clerk';
 
 const editChat = async (props: { chatId: string; name: string }) => {
@@ -38,11 +39,11 @@ const editChat = async (props: { chatId: string; name: string }) => {
     .where(and(eq(chats.userId, userId), eq(chats.id, props.chatId)));
 };
 
-export type EditChatDialogProps = {
+export type EditChatButtonProps = {
   chat: Chat;
 };
 
-export const EditChatDialog = (props: EditChatDialogProps) => {
+export const EditChatButton = (props: EditChatButtonProps) => {
   const [chatStore] = useChatStore();
 
   const qc = useQueryClient();
@@ -65,12 +66,22 @@ export const EditChatDialog = (props: EditChatDialogProps) => {
   }));
 
   const [nameValue, setNameValue] = createSignal(props.chat.name);
+  createEffect(() => {
+    setNameValue(props.chat.name);
+  });
 
   return (
     <Dialog>
-      <DialogTrigger as={Button} variant="ghost" size="icon">
-        <Pencil size={16} />
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger
+          as={(props: any) => (
+            <DialogTrigger {...props} as={Button} variant="ghost" size="icon">
+              <Pencil size={16} />
+            </DialogTrigger>
+          )}
+        />
+        <TooltipContent>Edit Chat</TooltipContent>
+      </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Chat</DialogTitle>

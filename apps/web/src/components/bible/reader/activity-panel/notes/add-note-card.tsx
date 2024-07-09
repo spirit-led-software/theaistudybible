@@ -69,15 +69,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
     mutationFn: (props: { chapterId: string; verseId?: string; content: string }) => addNote(props),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: [
-          'notes',
-          {
-            chapterId: brStore.chapter.id,
-            verseIds: brStore.verse
-              ? [brStore.verse.id]
-              : brStore.selectedVerseInfos.map((v) => v.id)
-          }
-        ]
+        queryKey: ['notes']
       })
   }));
 

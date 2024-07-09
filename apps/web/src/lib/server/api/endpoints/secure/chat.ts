@@ -44,7 +44,10 @@ const app = new Hono<{
         messages: z
           .array(
             createSelectSchema(messages, {
-              createdAt: z.string().transform((v) => new Date(v)),
+              createdAt: z
+                .string()
+                .optional()
+                .transform((v) => (v ? new Date(v) : undefined)),
               toolInvocations: z
                 .array(z.any())
                 .optional()

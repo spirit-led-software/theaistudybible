@@ -111,7 +111,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
   }));
 
   return (
-    <Card class="transition-all">
+    <Card class="flex h-full max-h-[400px] w-full flex-col transition-all">
       <CardHeader>
         <CardTitle>
           {props.verse
@@ -119,8 +119,15 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             : `${props.book.shortName} ${props.chapter.number}`}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <Show when={isEditingNote()} fallback={<Markdown>{props.note.content}</Markdown>}>
+      <CardContent class="flex grow flex-col overflow-y-auto">
+        <Show
+          when={isEditingNote()}
+          fallback={
+            <div class="overflow-y-auto whitespace-pre-wrap rounded-lg border bg-background p-2">
+              <Markdown>{props.note.content}</Markdown>
+            </div>
+          }
+        >
           <TextField
             value={editNoteContent()}
             onChange={setEditNoteContent}

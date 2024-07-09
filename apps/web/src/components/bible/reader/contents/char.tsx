@@ -1,6 +1,6 @@
 import { A } from '@solidjs/router';
+import { VerseNote } from '@theaistudybible/core/model/bible';
 import type { CharContent as CharContentType } from '@theaistudybible/core/types/bible';
-import type { Accessor } from 'solid-js';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
 import type { HighlightInfo } from '~/types/bible';
@@ -10,7 +10,8 @@ export type CharContentProps = {
   content: CharContentType;
   style: string;
   class?: string;
-  highlights?: Accessor<HighlightInfo[]>;
+  highlights?: HighlightInfo[];
+  notes?: VerseNote[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
 };
@@ -25,7 +26,11 @@ export default function CharContent(props: CharContentProps) {
       {...props}
       class={cn(props.style, props.class)}
     >
-      <Contents contents={props.content.contents} highlights={props.highlights} />
+      <Contents
+        contents={props.content.contents}
+        highlights={props.highlights}
+        notes={props.notes}
+      />
     </span>
   );
 

@@ -1,5 +1,5 @@
 import type { TextContent as TextContentType } from '@theaistudybible/core/types/bible';
-import { createMemo, type Accessor } from 'solid-js';
+import { createMemo } from 'solid-js';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/lib/utils';
 import type { HighlightInfo } from '~/types/bible';
@@ -9,14 +9,14 @@ export type TextContentProps = {
   style: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
-  highlights?: Accessor<HighlightInfo[]>;
+  highlights?: HighlightInfo[];
   class?: string;
 };
 
 export default function TextContent(props: TextContentProps) {
   const [brStore, setBrStore] = useBibleReaderStore();
   const highlightColor = createMemo(
-    () => props.highlights?.().find(({ verseId }) => verseId === props.content.verseId)?.color
+    () => props.highlights?.find(({ verseId }) => verseId === props.content.verseId)?.color
   );
   const selected = createMemo(() =>
     brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))

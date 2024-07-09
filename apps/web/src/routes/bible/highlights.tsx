@@ -123,7 +123,7 @@ const HighlightsPage = () => {
                 <For
                   each={highlights}
                   fallback={
-                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all">
+                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3">
                       <H6 class="text-center">
                         No highlights yet, get{' '}
                         <A href="/bible" class="hover:underline">
@@ -135,7 +135,7 @@ const HighlightsPage = () => {
                   }
                 >
                   {(highlight, idx) => (
-                    <Card data-index={idx()} class="h-full w-full transition-all">
+                    <Card data-index={idx()} class="flex h-full w-full flex-col transition-all">
                       <CardHeader class="flex flex-row items-center justify-between">
                         <CardTitle>{highlight.verse.name}</CardTitle>
                         <div
@@ -145,7 +145,9 @@ const HighlightsPage = () => {
                           }}
                         />
                       </CardHeader>
-                      <CardContent>{contentsToText(highlight.verse.content)}</CardContent>
+                      <CardContent class="flex grow flex-col">
+                        {contentsToText(highlight.verse.content)}
+                      </CardContent>
                       <CardFooter class="flex justify-end gap-2">
                         <Dialog>
                           <DialogTrigger as={Button} variant="outline">

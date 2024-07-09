@@ -153,7 +153,7 @@ const BookmarksPage = () => {
                 <For
                   each={bookmarks}
                   fallback={
-                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all">
+                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3">
                       <H6 class="text-center">
                         No bookmarks yet, get{' '}
                         <A href="/bible" class="hover:underline">
@@ -165,7 +165,7 @@ const BookmarksPage = () => {
                   }
                 >
                   {(bookmark, idx) => (
-                    <Card data-index={idx()} class="h-full w-full transition-all">
+                    <Card data-index={idx()} class="flex h-full w-full flex-col transition-all">
                       <CardHeader>
                         <CardTitle>
                           {'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name}
@@ -173,12 +173,16 @@ const BookmarksPage = () => {
                       </CardHeader>
                       <Show
                         when={'verse' in bookmark && bookmark.verse}
-                        fallback={<CardContent />}
+                        fallback={<CardContent class="flex grow flex-col" />}
                         keyed
                       >
-                        {(verse) => <CardContent>{contentsToText(verse.content)}</CardContent>}
+                        {(verse) => (
+                          <CardContent class="flex grow flex-col">
+                            {contentsToText(verse.content)}
+                          </CardContent>
+                        )}
                       </Show>
-                      <CardFooter class="flex justify-end gap-2">
+                      <CardFooter class="flex items-end justify-end gap-2">
                         <Dialog>
                           <DialogTrigger as={Button} variant="outline">
                             Delete

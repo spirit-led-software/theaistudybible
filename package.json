@@ -1,8 +1,15 @@
 {
   "name": "theaistudybible",
   "version": "1.0.0",
+  "devDependencies": {
+    "bun": "^1.1.17",
+    "concurrently": "^8.2.2",
+    "drizzle-kit": "^0.22.8",
+    "turbo": "^2.0.6",
+    "vitest": "^1.6.0"
+  },
+  "packageManager": "bun@1.1.17",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "bun --env-file=.env turbo build",
     "dev": "concurrently -n \"docker-compose,turbo,drizzle-studio\" -c \"blue,yellow,red\" \"docker compose up\" \"bun --env-file=.env turbo dev\" \"bun run db:studio\"",
@@ -17,18 +24,6 @@
     "db:seed": "bun --env-file=.env run ./apps/scripts/src/index.ts db seed",
     "db:studio": "bun --env-file=.env drizzle-kit studio"
   },
-  "devDependencies": {
-    "bun": "^1.1.17",
-    "concurrently": "^8.2.2",
-    "drizzle-kit": "^0.22.8",
-    "turbo": "^2.0.6",
-    "vitest": "^1.6.0"
-  },
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "packageManager": "bun@1.1.17",
   "trustedDependencies": [
     "@clerk/shared",
     "browser-tabs-lock",
@@ -36,5 +31,10 @@
     "core-js",
     "esbuild",
     "protobufjs"
+  ],
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
   ]
 }

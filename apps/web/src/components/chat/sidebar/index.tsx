@@ -21,8 +21,8 @@ import {
 import { Spinner } from '../../ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { H6 } from '../../ui/typography';
-import { DeleteChatDialog } from './delete-chat-dialog';
-import { EditChatDialog } from './edit-chat-dialog';
+import { DeleteChatButton } from './delete-chat-button';
+import { EditChatButton } from './edit-chat-button';
 
 const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
@@ -128,8 +128,8 @@ export const ChatSidebar = () => {
                           </div>
                         </SheetClose>
                         <div class="invisible flex group-hover:visible">
-                          <EditChatDialog chat={chat} />
-                          <DeleteChatDialog chat={chat} />
+                          <EditChatButton chat={chat} />
+                          <DeleteChatButton chat={chat} />
                         </div>
                       </div>
                     )}

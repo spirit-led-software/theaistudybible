@@ -31,7 +31,7 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
           </div>
         )}
       </Show>
-      <Show when={props.isLoading}>
+      <Show when={props.isLoading && !('result' in props.toolInvocation)}>
         <div class="mt-2 flex w-full flex-col">
           <H6>Generating</H6>
           <Spinner size="sm" />

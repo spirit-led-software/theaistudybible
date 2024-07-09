@@ -2,7 +2,8 @@ import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import type { Content } from '@theaistudybible/core/types/bible';
-import { createEffect, createMemo } from 'solid-js';
+import { createEffect } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
 import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';
 import { auth } from '~/lib/server/clerk';
 import { gatherElementIdsAndVerseNumberByVerseId } from '~/lib/utils';
@@ -17,11 +18,7 @@ import Contents from './contents/contents';
 
 import './contents/contents.css';
 
-export type ReaderContentProps = {
-  contents: Content[];
-};
-
-async function getHighlights({ chapterId }: { chapterId: string }) {
+async function getHighlights(chapterId: string) {
   'use server';
   const { isSignedIn, userId } = auth();
   if (!isSignedIn) {
@@ -52,10 +49,40 @@ async function getHighlights({ chapterId }: { chapterId: string }) {
     });
 }
 
-export const getHighlightsQueryOptions = (props: { chapterId: string }) => ({
-  queryKey: ['highlights', props],
-  queryFn: () => getHighlights(props)
-});
+async function getNotes(chapterId: string) {
+  'use server';
+  const { isSignedIn, userId } = auth();
+  if (!isSignedIn) {
+    return [];
+  }
+
+  return await db.query.chapters
+    .findFirst({
+      where: (chapters, { eq }) => eq(chapters.id, chapterId),
+      columns: {
+        id: true
+      },
+      with: {
+        verses: {
+          columns: {
+            id: true
+          },
+          with: {
+            notes: {
+              where: (notes, { eq }) => eq(notes.userId, userId)
+            }
+          }
+        }
+      }
+    })
+    .then((chapter) => {
+      return chapter?.verses.flatMap((verse) => verse.notes) || [];
+    });
+}
+
+export type ReaderContentProps = {
+  contents: Content[];
+};
 
 export const ReaderContent = (props: ReaderContentProps) => {
   const [brStore, setBrStore] = useBibleReaderStore();
@@ -95,27 +122,48 @@ export const ReaderContent = (props: ReaderContentProps) => {
     }
   });
 
-  const highlightsQuery = createQuery(() =>
-    getHighlightsQueryOptions({ chapterId: brStore.chapter!.id })
+  const highlightsQuery = createQuery(() => ({
+    queryKey: ['highlights', { chapterId: brStore.chapter.id }],
+    queryFn: () => getHighlights(brStore.chapter.id)
+  }));
+  const [highlights, setHighlights] = createStore(
+    highlightsQuery.data?.map(
+      (hl) =>
+        ({
+          id: hl.id,
+          verseId: hl.verseId,
+          color: hl.color
+        }) satisfies HighlightInfo
+    ) || []
   );
-
-  const highlights = createMemo(() => {
-    return (
-      highlightsQuery.data?.map(
-        (hl) =>
-          ({
-            id: hl.id,
-            verseId: hl.verseId,
-            color: hl.color
-          }) satisfies HighlightInfo
-      ) || []
+  createEffect(() => {
+    setHighlights(
+      reconcile(
+        highlightsQuery.data?.map(
+          (hl) =>
+            ({
+              id: hl.id,
+              verseId: hl.verseId,
+              color: hl.color
+            }) satisfies HighlightInfo
+        ) || []
+      )
     );
+  });
+
+  const notesQuery = createQuery(() => ({
+    queryKey: ['notes', { chapterId: brStore.chapter.id }],
+    queryFn: () => getNotes(brStore.chapter.id)
+  }));
+  const [notes, setNotes] = createStore(notesQuery.data || []);
+  createEffect(() => {
+    setNotes(reconcile(notesQuery.data || []));
   });
 
   return (
     <>
       <div class="eb-container mb-20 mt-5 w-full select-none">
-        <Contents contents={props.contents} highlights={highlights} />
+        <Contents contents={props.contents} highlights={highlights} notes={notes} />
       </div>
       <ActivityPanel>
         <ActivityPanelAlwaysOpenButtons />

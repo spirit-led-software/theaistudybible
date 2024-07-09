@@ -104,7 +104,7 @@ const NotesPage = () => {
                 <For
                   each={notes}
                   fallback={
-                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all">
+                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3">
                       <H6 class="text-center">
                         No notes yet, get{' '}
                         <A href="/bible" class="hover:underline">

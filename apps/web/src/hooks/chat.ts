@@ -1,10 +1,16 @@
 import { UseChatOptions, useChat as useAIChat } from '@ai-sdk/solid';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
+import { freeTierModels } from '@theaistudybible/ai/models';
+import { registry } from '@theaistudybible/ai/provider-registry';
 import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
 import { createId } from '@theaistudybible/core/util/id';
+import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
-import { Accessor, createEffect, createSignal, mergeProps, on } from 'solid-js';
+import { Accessor, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
+import { z } from 'zod';
+import { getValidMessages } from '~/lib/server/api/lib/chat';
 import { auth } from '~/lib/server/clerk';
 
 const getChat = async (chatId: string) => {
@@ -77,6 +83,52 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor
 });
 
+const getChatSuggestions = async (chatId: string) => {
+  'use server';
+  const { userId } = auth();
+  if (!userId) {
+    throw new Error('User is not authenticated');
+  }
+
+  const modelInfo = freeTierModels[0];
+  const messages = await getValidMessages({
+    chatId,
+    userId,
+    maxTokens: modelInfo.contextSize
+  });
+  const { object } = await generateObject({
+    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    schema: z.object({
+      suggestions: z
+        .array(
+          z
+            .string()
+            .describe(
+              'A follow up question the user may ask given the chat history. Questions must be short and concise.'
+            )
+        )
+        .length(3)
+    }),
+    system: `You must generate a list of follow up questions that the user may ask a chatbot that is an expert on Christian faith and theology, given the messages provided. 
+
+These questions must drive the conversation forward and be thought-provoking.`,
+    // @ts-ignore
+    messages: convertToCoreMessages(messages)
+  });
+
+  return object.suggestions;
+};
+
+export const getChatSuggestionsQueryProps = (chatId?: string) => ({
+  queryKey: ['chat-suggestions', { chatId: chatId ?? null }],
+  queryFn: async () => {
+    if (chatId) {
+      return await getChatSuggestions(chatId);
+    }
+    return [];
+  }
+});
+
 export type UseChatProps = Prettify<
   | (Omit<UseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'> & {
       initQuery?: string;
@@ -120,6 +172,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     onFinish: (message) => {
       chatQuery.refetch();
       messagesQuery.refetch();
+      followUpSuggestionsQuery.refetch();
       qc.refetchQueries({
         queryKey: ['chats']
       });
@@ -132,6 +185,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   }));
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+  const chat = createMemo(() => chatQuery.data);
 
   const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
   createEffect(
@@ -155,6 +209,19 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       }
     )
   );
+
+  const followUpSuggestionsQuery = createQuery(() => ({
+    ...getChatSuggestionsQueryProps(chatId()),
+    // Reduce LLM calls by setting this as never stale
+    gcTime: Infinity,
+    staleTime: Infinity
+  }));
+  const [followUpSuggestions, setFollowUpSuggestions] = createStore(
+    followUpSuggestionsQuery.data ?? []
+  );
+  createEffect(() => {
+    setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data ?? []));
+  });
 
   createEffect(
     on([useChatResult.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
@@ -187,8 +254,11 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   );
 
   return mergeProps(useChatResult, {
-    chatQuery,
+    id: chatId,
     messagesQuery,
-    id: chatId
+    chatQuery,
+    chat,
+    followUpSuggestionsQuery,
+    followUpSuggestions
   });
 };
