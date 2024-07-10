@@ -17,18 +17,19 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.27",
-    "@ai-sdk/mistral": "^0.0.20",
-    "@ai-sdk/openai": "^0.0.34",
-    "@aws-sdk/client-s3": "^3.609.0",
+    "@ai-sdk/anthropic": "^0.0.29",
+    "@ai-sdk/mistral": "^0.0.22",
+    "@ai-sdk/openai": "^0.0.36",
+    "@aws-sdk/client-s3": "^3.613.0",
     "@qdrant/js-client-rest": "^1.10.0",
     "@theaistudybible/core": "workspace:*",
-    "ai": "^3.2.16",
-    "drizzle-orm": "^0.31.2",
+    "ai": "^3.2.19",
+    "drizzle-orm": "^0.32.0",
     "js-tiktoken": "^1.0.12",
-    "openai": "^4.52.3",
+    "openai": "^4.52.5",
     "rate-limiter-flexible": "^5.0.3",
     "tiktoken": "^1.0.15",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.1"
   }
 }

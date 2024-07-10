@@ -6,7 +6,7 @@ import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/me
 import VerseReader, { getVerseReaderQueryOptions } from '~/components/bible/verse/reader';
 
 export const route: RouteDefinition = {
-  load: ({ params }) => {
+  preload: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const chapterNum = parseInt(params.chapterNum);
     const verseNum = parseInt(params.verseNum);

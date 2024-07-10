@@ -17,7 +17,7 @@ const biblesQueryOptions = {
 };
 
 export const route: RouteDefinition = {
-  load: async () => {
+  preload: async () => {
     const qc = useQueryClient();
     await qc.prefetchQuery(biblesQueryOptions);
   }

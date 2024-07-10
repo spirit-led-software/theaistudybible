@@ -20,6 +20,8 @@
       "@theaistudybible/core/*": ["../../packages/core/src/*"],
       "@theaistudybible/ai": ["../../packages/ai/src"],
       "@theaistudybible/ai/*": ["../../packages/ai/src/*"],
+      "@theaistudybible/tasks": ["../tasks/src"],
+      "@theaistudybible/tasks/*": ["../tasks/src/*"],
       "~/*": ["./src/*"]
     }
   },

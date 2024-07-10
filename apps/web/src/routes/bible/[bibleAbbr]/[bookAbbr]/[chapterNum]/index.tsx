@@ -6,7 +6,7 @@ import { bookPickerQueryOptions } from '~/components/bible/reader/menu/chapter-p
 import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/menu/translation-picker/small';
 
 export const route: RouteDefinition = {
-  load: ({ params }) => {
+  preload: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const chapterNum = parseInt(params.chapterNum);
 

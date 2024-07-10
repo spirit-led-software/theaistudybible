@@ -77,7 +77,7 @@ const getNotesQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  load: () => {
+  preload: () => {
     const qc = useQueryClient();
     qc.prefetchInfiniteQuery(getNotesQueryOptions());
   }

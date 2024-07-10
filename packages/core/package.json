@@ -15,15 +15,15 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.11.6",
-    "vitest": "^1.6.0"
+    "vitest": "^2.0.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/client-s3": "^3.613.0",
     "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.2.10",
+    "ai": "^3.2.19",
     "axios": "^1.7.2",
     "axios-retry": "^4.4.1",
-    "drizzle-orm": "^0.31.2",
+    "drizzle-orm": "^0.32.0",
     "nodemailer": "^6.9.14"
   }
 }

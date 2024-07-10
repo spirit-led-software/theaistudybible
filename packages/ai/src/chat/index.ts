@@ -5,8 +5,8 @@ import {
   messages as messagesTable,
   messagesToSourceDocuments
 } from '@theaistudybible/core/database/schema';
-import { Message } from '@theaistudybible/core/src/model/chat/message';
-import { createId } from '@theaistudybible/core/src/util/id';
+import { Message } from '@theaistudybible/core/model/chat/message';
+import { createId } from '@theaistudybible/core/util/id';
 import { StreamData, convertToCoreMessages, generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';

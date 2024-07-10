@@ -11,7 +11,7 @@ export type BookRedirectUrlParams = {
 };
 
 export const route: RouteDefinition = {
-  load: ({ params }) => {
+  preload: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const qc = useQueryClient();
     qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookAbbr }));

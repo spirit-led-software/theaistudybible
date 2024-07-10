@@ -5,7 +5,7 @@ import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { getChatMessagesQueryProps, getChatQueryProps } from '~/hooks/chat';
 
 export const route: RouteDefinition = {
-  load: ({ params }) => {
+  preload: ({ params }) => {
     const { id } = params;
     const qc = useQueryClient();
     Promise.all([

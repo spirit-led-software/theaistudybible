@@ -7,7 +7,7 @@ export const clerkClient = createClerkClient({
   publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 });
 
-export function hasRole(role: string, sessionClaims: JwtPayload) {
+export function hasRole(role: string, sessionClaims?: JwtPayload) {
   if (
     !sessionClaims ||
     !sessionClaims.metadata.roles ||
@@ -25,7 +25,7 @@ export function userHasRole(role: string, user: User) {
   return user.publicMetadata.roles.some((r) => r === role);
 }
 
-export async function getMaxQueryCountForUser(sessionClaims: JwtPayload) {
+export async function getMaxQueryCountForUser(sessionClaims?: JwtPayload) {
   if (
     !sessionClaims ||
     !sessionClaims.metadata.roles ||
@@ -46,7 +46,7 @@ export async function getMaxQueryCountForUser(sessionClaims: JwtPayload) {
   }, 5);
 }
 
-export async function getMaxImageCountForUser(sessionClaims: JwtPayload) {
+export async function getMaxImageCountForUser(sessionClaims?: JwtPayload) {
   if (
     !sessionClaims ||
     !sessionClaims.metadata.roles ||

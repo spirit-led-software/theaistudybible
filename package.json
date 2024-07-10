@@ -2,11 +2,11 @@
   "name": "theaistudybible",
   "version": "1.0.0",
   "devDependencies": {
-    "bun": "^1.1.17",
+    "bun": "^1.1.18",
     "concurrently": "^8.2.2",
-    "drizzle-kit": "^0.22.8",
+    "drizzle-kit": "^0.23.0",
     "turbo": "^2.0.6",
-    "vitest": "^1.6.0"
+    "vitest": "^2.0.2"
   },
   "packageManager": "bun@1.1.17",
   "private": true,
@@ -30,11 +30,13 @@
     "bun",
     "core-js",
     "esbuild",
+    "msgpackr-extract",
     "protobufjs"
   ],
   "type": "module",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "tools/*"
   ]
 }
