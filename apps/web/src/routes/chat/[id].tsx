@@ -1,8 +1,8 @@
 import { RouteDefinition, useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
+import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
 import { ChatWindow } from '~/components/chat/window';
-import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
-import { getChatMessagesQueryProps, getChatQueryProps } from '~/hooks/chat';
+import { getChatMessagesQueryProps, getChatQueryProps } from '~/hooks/use-chat';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {

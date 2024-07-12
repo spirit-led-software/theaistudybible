@@ -1,16 +1,15 @@
 import { A, RouteDefinition } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
-import { For, Match, Switch, createEffect } from 'solid-js';
+import { auth, SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { createEffect, For, Match, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 import { NoteItemCard } from '~/components/bible/reader/activity-panel/notes/note-item-card';
-import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Spinner } from '~/components/ui/spinner';
 import { H2, H6 } from '~/components/ui/typography';
-import { auth } from '~/lib/server/clerk';
 
 const getNotes = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';

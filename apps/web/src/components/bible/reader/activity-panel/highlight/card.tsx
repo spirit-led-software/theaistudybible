@@ -1,9 +1,9 @@
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { verseHighlights } from '@theaistudybible/core/database/schema';
+import { auth, SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { and, eq, inArray } from 'drizzle-orm';
-import { Match, Switch, createSignal } from 'solid-js';
-import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
+import { createSignal, Match, Switch } from 'solid-js';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
@@ -12,14 +12,13 @@ import { Spinner } from '~/components/ui/spinner';
 import { showToast } from '~/components/ui/toast';
 import { ToggleGroup } from '~/components/ui/toggle-group';
 import { P } from '~/components/ui/typography';
-import { auth } from '~/lib/server/clerk';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
 async function updateHighlights({ color, verseIds }: { color: string; verseIds: string[] }) {
   'use server';
-  const { isSignedIn, userId } = auth();
-  if (!isSignedIn) {
+  const { userId } = auth();
+  if (!userId) {
     throw new Error('Not signed in');
   }
 
@@ -43,8 +42,8 @@ async function updateHighlights({ color, verseIds }: { color: string; verseIds: 
 
 async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
   'use server';
-  const { isSignedIn, userId } = auth();
-  if (!isSignedIn) {
+  const { userId } = auth();
+  if (!userId) {
     throw new Error('Not signed in');
   }
 
@@ -150,7 +149,8 @@ export const HighlightCard = () => {
           <div class="flex h-full w-full flex-col place-items-center justify-center">
             <P class="text-lg">
               Please{' '}
-              <SignInButton
+              <Button
+                as={SignInButton}
                 variant={'link'}
                 class="px-0 text-lg capitalize text-accent-foreground"
               />{' '}

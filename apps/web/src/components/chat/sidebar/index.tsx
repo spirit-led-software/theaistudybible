@@ -1,11 +1,11 @@
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
+import { auth } from 'clerk-solidjs';
 import day from 'dayjs';
 import { Clock } from 'lucide-solid';
 import { For, Match, Switch, createEffect, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { auth } from '~/lib/server/clerk';
 import { cn } from '~/lib/utils';
 import { useChatStore } from '../../providers/chat';
 import { QueryBoundary } from '../../query-boundary';

@@ -1,4 +1,7 @@
+import { A } from '@solidjs/router';
 import { BookOpen, Bookmark, Highlighter, MessageCircle, Notebook } from 'lucide-solid';
+import { Show } from 'solid-js';
+import { useIsAdmin } from '~/hooks/use-is-admin';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -15,6 +18,8 @@ export type MenuProps = {
 };
 
 export const Menu = (props: MenuProps) => {
+  const isAdmin = useIsAdmin();
+
   return (
     <NavigationMenu orientation={props.orientation} class="w-full">
       <NavigationMenuItem>
@@ -70,6 +75,11 @@ export const Menu = (props: MenuProps) => {
           </NavigationMenuLink>
         </NavigationMenuContent>
       </NavigationMenuItem>
+      <Show when={isAdmin()}>
+        <NavigationMenuTrigger as={A} href="/admin">
+          Admin
+        </NavigationMenuTrigger>
+      </Show>
     </NavigationMenu>
   );
 };

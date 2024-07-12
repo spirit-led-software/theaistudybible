@@ -1,12 +1,13 @@
 import { A } from '@solidjs/router';
 import { highlightVerseTool } from '@theaistudybible/ai/chat/tools';
+import { formNumberSequenceString } from '@theaistudybible/core/util/number';
 import { ToolInvocation } from 'ai';
 import { Highlighter } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { z } from 'zod';
 import { buttonVariants } from '~/components/ui/button';
 import { H5, H6 } from '~/components/ui/typography';
-import { cn, formNumberSequenceString } from '~/lib/utils';
+import { cn } from '~/lib/utils';
 
 export type HighlightVerseToolProps = {
   toolInvocation: ToolInvocation;

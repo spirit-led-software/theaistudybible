@@ -1,9 +1,9 @@
 import { A, Navigate } from '@solidjs/router';
+import { useAuth } from 'clerk-solidjs';
 import Icon from '~/components/branding/icon';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { H1, H2, P } from '~/components/ui/typography';
-import { useAuth } from '~/hooks/clerk';
 
 export default function HomePage() {
   const { isSignedIn } = useAuth();

@@ -3,11 +3,11 @@ import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/s
 import { db } from '@theaistudybible/core/database';
 import { verseHighlights } from '@theaistudybible/core/database/schema';
 import { contentsToText } from '@theaistudybible/core/util/bible';
+import { auth, SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
 import { and, eq } from 'drizzle-orm';
 import { createEffect, For, Match, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
-import { SignedIn, SignedOut, SignIn } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
@@ -21,7 +21,6 @@ import {
 } from '~/components/ui/dialog';
 import { Spinner } from '~/components/ui/spinner';
 import { H2, H6 } from '~/components/ui/typography';
-import { auth } from '~/lib/server/clerk';
 
 const getHighlights = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';

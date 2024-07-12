@@ -1,14 +1,13 @@
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { verseBookmarks } from '@theaistudybible/core/database/schema';
+import { auth, useAuth } from 'clerk-solidjs';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useAuth } from '~/hooks/clerk';
-import { auth } from '~/lib/server/clerk';
 
 const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
   'use server';

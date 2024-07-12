@@ -2,7 +2,7 @@ import { createVisibilityObserver } from '@solid-primitives/intersection-observe
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { useChat } from '~/hooks/chat';
+import { useChat } from '~/hooks/use-chat';
 import { useChatStore } from '../providers/chat';
 import { Button } from '../ui/button';
 import {
@@ -88,7 +88,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         >
           <div class="flex w-full max-w-2xl flex-col gap-2 pb-2 animate-in fade-in zoom-in">
             <H6 class="text-center">Follow-up Questions</H6>
-            <Carousel class="overflow-x-hidden">
+            <Carousel class="overflow-x-clip md:overflow-x-visible">
               <CarouselContent>
                 <For each={useChatResult.followUpSuggestions}>
                   {(suggestion) => (

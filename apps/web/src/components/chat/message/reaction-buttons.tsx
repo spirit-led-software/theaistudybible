@@ -1,10 +1,10 @@
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { messageReactions } from '@theaistudybible/core/database/schema';
+import { auth } from 'clerk-solidjs';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
 import { createSignal } from 'solid-js';
-import { auth } from '~/lib/server/clerk';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';

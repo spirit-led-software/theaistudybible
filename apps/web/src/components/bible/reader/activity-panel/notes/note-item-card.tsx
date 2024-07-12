@@ -10,6 +10,7 @@ import {
   Verse,
   VerseNote
 } from '@theaistudybible/core/model/bible';
+import { auth } from 'clerk-solidjs';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { createSignal, Show } from 'solid-js';
@@ -31,7 +32,6 @@ import {
   TextFieldTextArea
 } from '~/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { auth } from '~/lib/server/clerk';
 
 const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
   'use server';

@@ -1,11 +1,11 @@
 import { dark } from '@clerk/themes';
 import { useColorMode } from '@kobalte/core';
+import { useWindowSize } from '@solid-primitives/resize-observer';
 import { A } from '@solidjs/router';
+import { ClerkLoading, SignedIn, SignedOut, SignInButton, UserButton } from 'clerk-solidjs';
 import { createMemo } from 'solid-js';
-import { useWindowSize } from '~/hooks/window-size';
 import Logo from '../branding/logo';
 import LogoSmall from '../branding/logo-small';
-import { ClerkLoading, SignInButton, SignedIn, SignedOut, UserButton } from '../clerk';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { NavigationDrawer } from './drawer';
@@ -13,8 +13,8 @@ import { Menu } from './menu';
 
 export default function NavigationHeader() {
   const { colorMode } = useColorMode();
-  const windowSize = useWindowSize();
-  const smallWindow = createMemo(() => windowSize().width < 768);
+  const size = useWindowSize();
+  const smallWindow = createMemo(() => size.width < 768);
 
   return (
     <nav class="flex h-20 items-center justify-between border-b border-b-border py-6 pl-2 pr-4">

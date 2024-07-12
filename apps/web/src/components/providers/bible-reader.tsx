@@ -1,7 +1,7 @@
 import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
+import { formNumberSequenceString } from '@theaistudybible/core/util/number';
 import { JSXElement, createComputed, createContext, on, splitProps, useContext } from 'solid-js';
 import { SetStoreFunction, Store, createStore } from 'solid-js/store';
-import { formNumberSequenceString } from '~/lib/utils';
 import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {

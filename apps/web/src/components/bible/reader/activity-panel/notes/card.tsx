@@ -1,18 +1,17 @@
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
+import { auth, SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { Plus } from 'lucide-solid';
 import { createEffect, createSignal, For, Show } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { Transition, TransitionGroup } from 'solid-transition-group';
-import { SignedIn, SignedOut, SignInButton } from '~/components/clerk';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { H5, P } from '~/components/ui/typography';
-import { auth } from '~/lib/server/clerk';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 
@@ -174,7 +173,8 @@ export const NotesCard = () => {
           <div class="flex h-full w-full flex-col place-items-center justify-center">
             <P class="text-lg">
               Please{' '}
-              <SignInButton
+              <Button
+                as={SignInButton}
                 variant={'link'}
                 class="px-0 text-lg capitalize text-accent-foreground"
               />{' '}

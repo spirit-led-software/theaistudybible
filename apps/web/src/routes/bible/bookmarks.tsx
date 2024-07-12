@@ -3,11 +3,11 @@ import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/s
 import { db } from '@theaistudybible/core/database';
 import { chapterBookmarks, verseBookmarks } from '@theaistudybible/core/database/schema';
 import { contentsToText } from '@theaistudybible/core/util/bible';
+import { auth, SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
 import { and, eq } from 'drizzle-orm';
-import { For, Match, Show, Switch, createEffect } from 'solid-js';
+import { createEffect, For, Match, Show, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
-import { SignIn, SignedIn, SignedOut } from '~/components/clerk';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
@@ -21,7 +21,6 @@ import {
 } from '~/components/ui/dialog';
 import { Spinner } from '~/components/ui/spinner';
 import { H2, H6 } from '~/components/ui/typography';
-import { auth } from '~/lib/server/clerk';
 
 const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';

@@ -2,6 +2,7 @@ import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { chats } from '@theaistudybible/core/database/schema';
 import { Chat } from '@theaistudybible/core/model/chat';
+import { auth } from 'clerk-solidjs';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';
@@ -22,7 +23,6 @@ import {
   TextFieldLabel
 } from '~/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { auth } from '~/lib/server/clerk';
 
 const editChat = async (props: { chatId: string; name: string }) => {
   'use server';

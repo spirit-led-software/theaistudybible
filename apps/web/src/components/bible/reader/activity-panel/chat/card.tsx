@@ -1,5 +1,5 @@
+import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { ChatWindow } from '~/components/chat/window';
-import { SignInButton, SignedIn, SignedOut } from '~/components/clerk';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '~/components/ui/card';
@@ -26,8 +26,12 @@ export const ChatCard = () => {
           <div class="flex h-full w-full flex-col place-items-center justify-center">
             <P>
               Please{' '}
-              <SignInButton variant={'link'} class="px-0 capitalize text-accent-foreground" /> to
-              chat
+              <Button
+                as={SignInButton}
+                variant={'link'}
+                class="px-0 capitalize text-accent-foreground"
+              />{' '}
+              to chat
             </P>
           </div>
         </CardContent>

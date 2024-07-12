@@ -1,12 +1,12 @@
 import { A } from '@solidjs/router';
 import { bookmarkChapterTool, bookmarkVerseTool } from '@theaistudybible/ai/chat/tools';
+import { formNumberSequenceString } from '@theaistudybible/core/util/number';
 import { ToolInvocation } from 'ai';
 import { Bookmark } from 'lucide-solid';
 import { For, Match, Show, Switch } from 'solid-js';
 import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { H5, H6 } from '~/components/ui/typography';
-import { formNumberSequenceString } from '~/lib/utils';
 
 export type BookmarkToolProps = {
   toolInvocation: ToolInvocation;

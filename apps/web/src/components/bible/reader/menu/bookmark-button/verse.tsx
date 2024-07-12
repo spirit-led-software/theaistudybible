@@ -1,17 +1,15 @@
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { verseBookmarks } from '@theaistudybible/core/database/schema';
+import { auth, SignedIn, SignedOut, useAuth } from 'clerk-solidjs';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
-import { SignedIn, SignedOut } from '~/components/clerk';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Spinner } from '~/components/ui/spinner';
 import { showToast } from '~/components/ui/toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useAuth } from '~/hooks/clerk';
-import { auth } from '~/lib/server/clerk';
 
 const addBookmark = async (verseId: string) => {
   'use server';
@@ -42,21 +40,23 @@ const getBookmark = async (verseId: string) => {
     return null;
   }
 
-  return await db.query.verseBookmarks.findFirst({
+  const bookmark = await db.query.verseBookmarks.findFirst({
     where: (verseBookmarks, { and, eq }) =>
       and(eq(verseBookmarks.userId, userId), eq(verseBookmarks.verseId, verseId))
   });
+
+  return bookmark ?? null;
 };
 
 export const getVerseBookmarkQueryOptions = ({
   userId,
   verseId
 }: {
-  userId?: string;
+  userId?: string | null;
   verseId: string;
 }) => ({
   queryKey: ['bookmark', { verseId, userId }],
-  queryFn: async () => (await getBookmark(verseId)) || null
+  queryFn: async () => await getBookmark(verseId)
 });
 
 export const VerseBookmarkButton = () => {
