@@ -1,5 +1,7 @@
 {
   "name": "@theaistudybible/core",
+  "description": "The AI Study Bible Core",
+  "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {

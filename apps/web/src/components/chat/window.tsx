@@ -144,7 +144,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 <Button
                   variant="link"
                   size="icon"
-                  class="flex h-fit flex-col items-center justify-center py-4"
+                  class="flex h-fit flex-col items-center justify-center py-4 text-foreground"
                   onClick={() => {
                     if (
                       useChatResult.messagesQuery.hasNextPage &&

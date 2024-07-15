@@ -8,7 +8,7 @@ import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { ClerkProvider } from 'clerk-solidjs';
 import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
-import NavigationHeader from './components/nav/header';
+import NavigationHeader from './components/navigation/header';
 import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/toast';
 import { H1, H4 } from './components/ui/typography';
@@ -17,6 +17,7 @@ import { ChatProvider } from './contexts/chat';
 import { cn } from './utils';
 
 import './app.css';
+import { DevotionProvider } from './contexts/devotion';
 
 export function getServerCookies() {
   'use server';
@@ -44,7 +45,7 @@ export default function App() {
             <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
-                <MultiProvider values={[BibleProvider, ChatProvider]}>
+                <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
                   <Title>The AI Study Bible</Title>
                   <Meta name="description">
                     The AI Study Bible is a digital study Bible that uses artificial intelligence to

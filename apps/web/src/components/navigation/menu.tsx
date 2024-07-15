@@ -1,5 +1,5 @@
 import { A } from '@solidjs/router';
-import { BookOpen, Bookmark, Highlighter, MessageCircle, Notebook } from 'lucide-solid';
+import { BookOpen, Bookmark, Highlighter, Lightbulb, MessageCircle, Notebook } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { useIsAdmin } from '~/hooks/use-is-admin';
 import {
@@ -75,8 +75,25 @@ export const Menu = (props: MenuProps) => {
           </NavigationMenuLink>
         </NavigationMenuContent>
       </NavigationMenuItem>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger class="justify-between">
+          Devos
+          <NavigationMenuIcon />
+        </NavigationMenuTrigger>
+        <NavigationMenuContent class="w-56">
+          <NavigationMenuLink href="/devotion">
+            <NavigationMenuLabel class="flex items-center gap-2">
+              <Lightbulb />
+              Devotions
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>
+              Stir up your spirit with today's devotion
+            </NavigationMenuDescription>
+          </NavigationMenuLink>
+        </NavigationMenuContent>
+      </NavigationMenuItem>
       <Show when={isAdmin()}>
-        <NavigationMenuTrigger as={A} href="/admin">
+        <NavigationMenuTrigger as={A} href="/admin" class="justify-start">
           Admin
         </NavigationMenuTrigger>
       </Show>

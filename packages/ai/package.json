@@ -1,6 +1,7 @@
 {
   "name": "@theaistudybible/ai",
   "description": "The AI Study Bible AI",
+  "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {

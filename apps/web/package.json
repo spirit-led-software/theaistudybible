@@ -1,7 +1,8 @@
 {
   "name": "@theaistudybible/web",
-  "version": "1.0.0",
   "description": "The AI Study Bible Web App",
+  "private": true,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
