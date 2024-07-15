@@ -1,5 +1,5 @@
 import { APIEvent } from '@solidjs/start/server';
-import { app } from '~/lib/server/api';
+import { app } from '~/server/api';
 
 export const DELETE = ({ request }: APIEvent) => app.fetch(request);
 export const GET = ({ request }: APIEvent) => app.fetch(request);

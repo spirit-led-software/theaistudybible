@@ -2,8 +2,8 @@ import { A } from '@solidjs/router';
 import { VerseNote } from '@theaistudybible/core/model/bible';
 import type { CharContent as CharContentType } from '@theaistudybible/core/types/bible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { cn } from '~/lib/utils';
 import type { HighlightInfo } from '~/types/bible';
+import { cn } from '~/utils';
 import Contents from './contents';
 
 export type CharContentProps = {

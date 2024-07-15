@@ -7,7 +7,7 @@ import { Show } from 'solid-js';
 import { z } from 'zod';
 import { buttonVariants } from '~/components/ui/button';
 import { H5, H6 } from '~/components/ui/typography';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 export type HighlightVerseToolProps = {
   toolInvocation: ToolInvocation;

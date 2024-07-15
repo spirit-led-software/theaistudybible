@@ -1,5 +1,5 @@
 import { Show } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { ChapterBookmarkButton, VerseBookmarkButton } from './bookmark-button';
 import { BookPicker } from './chapter-picker';
 import { SmallTranslationPicker } from './translation-picker';

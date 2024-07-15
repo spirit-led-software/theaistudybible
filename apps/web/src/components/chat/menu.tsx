@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from '@solidjs/router';
 import { PenBox } from 'lucide-solid';
-import { useChatStore } from '../providers/chat';
+import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';

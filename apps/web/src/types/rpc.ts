@@ -1,5 +1,5 @@
 import type { ClientResponse, hc } from 'hono/client';
-import type { app } from '~/lib/server/api';
+import type { app } from '~/server/api';
 
 export type RouterType = typeof app;
 

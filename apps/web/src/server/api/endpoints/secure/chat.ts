@@ -9,13 +9,13 @@ import { eq } from 'drizzle-orm';
 import { createSelectSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import type { Bindings, Variables } from '~/lib/server/api/types';
+import type { Bindings, Variables } from '~/server/api/types';
 import {
   getDefaultModelId,
   getValidMessages,
   rateLimitChat,
   validateModelId
-} from '../../lib/chat';
+} from '../../utils/chat';
 
 const maxResponseTokens = 4096;
 

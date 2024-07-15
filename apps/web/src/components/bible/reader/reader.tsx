@@ -5,9 +5,9 @@ import type { Content } from '@theaistudybible/core/types/bible';
 import { auth } from 'clerk-solidjs/server';
 import { createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';
-import { gatherElementIdsAndVerseNumberByVerseId } from '~/lib/utils';
+import { SelectedVerseInfo, useBibleReaderStore } from '~/contexts/bible-reader';
 import { HighlightInfo } from '~/types/bible';
+import { gatherElementIdsAndVerseNumberByVerseId } from '~/utils';
 import {
   ActivityPanel,
   ActivityPanelAlwaysOpenButtons,

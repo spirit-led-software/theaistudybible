@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useChat } from '~/hooks/use-chat';
-import { useChatStore } from '../providers/chat';
+import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
 import {
   Carousel,

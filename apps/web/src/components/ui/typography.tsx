@@ -1,5 +1,5 @@
 import { splitProps, type JSX, type JSXElement } from 'solid-js';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 export function H1(
   props: {

@@ -4,7 +4,6 @@ import { db } from '@theaistudybible/core/database';
 import type { Book } from '@theaistudybible/core/model/bible';
 import { Check } from 'lucide-solid';
 import { For } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import {
   Accordion,
@@ -14,6 +13,7 @@ import {
 } from '~/components/ui/accordion';
 import { Button } from '~/components/ui/button';
 import { CommandItem } from '~/components/ui/command';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 
 export type ChapterPickerProps = {
   book: Book;

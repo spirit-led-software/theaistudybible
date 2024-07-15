@@ -6,8 +6,8 @@ import day from 'dayjs';
 import { Clock } from 'lucide-solid';
 import { For, Match, Switch, createEffect, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { cn } from '~/lib/utils';
-import { useChatStore } from '../../providers/chat';
+import { cn } from '~/utils';
+import { useChatStore } from '../../../contexts/chat';
 import { QueryBoundary } from '../../query-boundary';
 import { Button, buttonVariants } from '../../ui/button';
 import {

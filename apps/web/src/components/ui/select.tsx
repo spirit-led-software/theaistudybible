@@ -4,7 +4,7 @@ import { splitProps } from 'solid-js';
 import { PolymorphicProps } from '@kobalte/core/polymorphic';
 import * as SelectPrimitive from '@kobalte/core/select';
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 const Select = SelectPrimitive.Root;
 const SelectValue = SelectPrimitive.Value;

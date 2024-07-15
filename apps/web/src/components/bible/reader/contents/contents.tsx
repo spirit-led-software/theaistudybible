@@ -1,8 +1,8 @@
 import { VerseNote } from '@theaistudybible/core/model/bible';
 import type { Content } from '@theaistudybible/core/types/bible';
 import { For, Match, Switch } from 'solid-js';
-import { cn } from '~/lib/utils';
 import { HighlightInfo } from '~/types/bible';
+import { cn } from '~/utils';
 import CharContent from './char';
 import NoteContent from './note';
 import RefContent from './ref';

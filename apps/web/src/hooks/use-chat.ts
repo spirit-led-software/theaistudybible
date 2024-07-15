@@ -11,7 +11,7 @@ import { isNull } from 'drizzle-orm';
 import { Accessor, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
-import { getValidMessages } from '~/lib/server/api/lib/chat';
+import { getValidMessages } from '~/server/api/utils/chat';
 
 const getChat = async (chatId: string) => {
   'use server';

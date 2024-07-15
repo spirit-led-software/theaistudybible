@@ -9,8 +9,8 @@ import { SQL, and, count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { PaginationSchema } from '~/lib/server/api/lib/utils/pagination';
-import type { Bindings, Variables } from '~/lib/server/api/types';
+import type { Bindings, Variables } from '~/server/api/types';
+import { PaginationSchema } from '~/server/api/utils/pagination';
 
 export const listDevotionsSchema = PaginationSchema(devotions);
 

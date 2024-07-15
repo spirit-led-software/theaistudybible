@@ -3,7 +3,6 @@ import { createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import ISO6391 from 'iso-639-1';
 import { Check, ChevronsUpDown } from 'lucide-solid';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import {
@@ -15,6 +14,7 @@ import {
   CommandList
 } from '~/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 
 async function getSmallPickerData() {
   'use server';

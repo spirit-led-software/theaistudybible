@@ -6,7 +6,6 @@ import { Chat } from '@theaistudybible/core/model/chat';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { Trash } from 'lucide-solid';
-import { useChatStore } from '~/components/providers/chat';
 import { Button } from '~/components/ui/button';
 import {
   Dialog,
@@ -17,6 +16,7 @@ import {
   DialogTrigger
 } from '~/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { useChatStore } from '~/contexts/chat';
 
 const deleteChat = async (chatId: string) => {
   'use server';

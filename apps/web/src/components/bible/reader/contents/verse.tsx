@@ -3,12 +3,12 @@ import { VerseNote } from '@theaistudybible/core/model/bible';
 import { VerseContent as VerseContentType } from '@theaistudybible/core/types/bible';
 import { Notebook } from 'lucide-solid';
 import { For, Show } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Markdown } from '~/components/ui/markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { H5 } from '~/components/ui/typography';
-import { cn } from '~/lib/utils';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { cn } from '~/utils';
 
 export type VerseContentProps = {
   content: VerseContentType;

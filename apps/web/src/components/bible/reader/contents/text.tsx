@@ -1,8 +1,8 @@
 import type { TextContent as TextContentType } from '@theaistudybible/core/types/bible';
 import { createMemo } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
-import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/lib/utils';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import type { HighlightInfo } from '~/types/bible';
+import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/utils';
 
 export type TextContentProps = {
   content: TextContentType;

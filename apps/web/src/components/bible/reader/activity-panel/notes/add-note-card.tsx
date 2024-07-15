@@ -6,7 +6,6 @@ import { contentsToText } from '@theaistudybible/core/util/bible';
 import { auth } from 'clerk-solidjs/server';
 import { HelpCircle } from 'lucide-solid';
 import { createSignal, Show } from 'solid-js';
-import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
@@ -26,6 +25,7 @@ import {
 } from '~/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { P } from '~/components/ui/typography';
+import { SelectedVerseInfo, useBibleReaderStore } from '~/contexts/bible-reader';
 
 const addNote = async (props: { chapterId: string; verseId?: string; content: string }) => {
   'use server';

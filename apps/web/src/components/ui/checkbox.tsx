@@ -3,7 +3,7 @@ import { splitProps, ValidComponent } from 'solid-js';
 import * as CheckboxPrimitive from '@kobalte/core/checkbox';
 import { PolymorphicProps } from '@kobalte/core/polymorphic';
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 type CheckboxRootProps = CheckboxPrimitive.CheckboxRootProps & { class?: string | undefined };
 

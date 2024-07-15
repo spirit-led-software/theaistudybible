@@ -2,7 +2,7 @@ import { A } from '@solidjs/router';
 import { JSXElement, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import SolidMarkedMarkdown from 'solid-marked/component';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
 import * as Typography from './typography';

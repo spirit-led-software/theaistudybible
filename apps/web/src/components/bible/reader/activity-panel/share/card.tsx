@@ -2,12 +2,12 @@ import { writeClipboard } from '@solid-primitives/clipboard';
 import { createSocialShare } from '@solid-primitives/share';
 import { Check, Copy } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
 import { showToast } from '~/components/ui/toast';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
 
 export const ShareCard = () => {

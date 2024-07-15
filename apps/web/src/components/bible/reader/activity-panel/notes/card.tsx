@@ -7,12 +7,12 @@ import { Plus } from 'lucide-solid';
 import { createEffect, createSignal, For, Show } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { Transition, TransitionGroup } from 'solid-transition-group';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { H5, P } from '~/components/ui/typography';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 

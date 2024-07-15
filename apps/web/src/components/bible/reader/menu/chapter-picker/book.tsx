@@ -2,11 +2,11 @@ import { createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Command, CommandEmpty, CommandInput, CommandList } from '~/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import ChapterPicker from './chapter';
 
 async function getBookPickerData(bibleId: string) {

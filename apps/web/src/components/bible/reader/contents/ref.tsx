@@ -1,8 +1,8 @@
 import { A } from '@solidjs/router';
 import type { TextContent } from '@theaistudybible/core/types/bible';
 import { createMemo } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
-import { cn } from '~/lib/utils';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { cn } from '~/utils';
 
 export type RefContentProps = {
   content: TextContent;

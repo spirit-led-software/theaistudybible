@@ -2,14 +2,14 @@ import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { vectorStore } from '@theaistudybible/ai/vector-store';
 import { For } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button, buttonVariants } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { Skeleton } from '~/components/ui/skeleton';
 import { H6 } from '~/components/ui/typography';
-import { cn } from '~/lib/utils';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { cn } from '~/utils';
 
 const getReferences = async (text: string) => {
   'use server';

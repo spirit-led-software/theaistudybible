@@ -4,7 +4,7 @@ import { splitProps } from 'solid-js';
 import { PolymorphicProps } from '@kobalte/core/polymorphic';
 import * as SkeletonPrimitive from '@kobalte/core/skeleton';
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 type SkeletonRootProps<T extends ValidComponent = 'div'> =
   SkeletonPrimitive.SkeletonRootProps<T> & { class?: string | undefined };

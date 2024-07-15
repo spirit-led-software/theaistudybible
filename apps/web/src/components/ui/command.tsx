@@ -3,7 +3,7 @@ import * as CommandPrimitive from 'cmdk-solid';
 import type { Component, ComponentProps, ParentProps, VoidProps } from 'solid-js';
 import { splitProps } from 'solid-js';
 import { Dialog, DialogContent } from '~/components/ui/dialog';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 const Command: Component<ParentProps<CommandPrimitive.CommandRootProps>> = (props) => {
   const [local, others] = splitProps(props, ['class']);

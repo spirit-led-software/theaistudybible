@@ -1,10 +1,10 @@
 import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { ChatWindow } from '~/components/chat/window';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
 import { P } from '~/components/ui/typography';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 
 export const ChatCard = () => {
   const [brStore] = useBibleReaderStore();

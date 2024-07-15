@@ -45,6 +45,7 @@
     "@kobalte/core": "^0.13.3",
     "@paralleldrive/cuid2": "^2.2.2",
     "@solid-primitives/clipboard": "^1.5.10",
+    "@solid-primitives/context": "^0.2.3",
     "@solid-primitives/intersection-observer": "^2.1.6",
     "@solid-primitives/keyed": "^1.2.2",
     "@solid-primitives/resize-observer": "^2.0.26",

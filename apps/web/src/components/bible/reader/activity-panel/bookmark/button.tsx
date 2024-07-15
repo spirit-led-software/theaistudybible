@@ -5,10 +5,10 @@ import { useAuth } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { QueryBoundary } from '~/components/query-boundary';
 import { Button } from '~/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 
 const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
   'use server';

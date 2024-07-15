@@ -12,12 +12,12 @@ import {
   splitProps,
   useContext
 } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '~/components/ui/drawer';
 import { Separator } from '~/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
 import { H6 } from '~/components/ui/typography';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { BookmarkButton } from './bookmark/button';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';

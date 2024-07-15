@@ -1,4 +1,5 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
+import { MultiProvider } from '@solid-primitives/context';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
@@ -8,11 +9,12 @@ import { ClerkProvider } from 'clerk-solidjs';
 import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import NavigationHeader from './components/nav/header';
-import { AppContextProvider } from './components/providers/context';
 import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/toast';
 import { H1, H4 } from './components/ui/typography';
-import { cn } from './lib/utils';
+import { BibleProvider } from './contexts/bible';
+import { ChatProvider } from './contexts/chat';
+import { cn } from './utils';
 
 import './app.css';
 
@@ -42,7 +44,7 @@ export default function App() {
             <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
-                <AppContextProvider>
+                <MultiProvider values={[BibleProvider, ChatProvider]}>
                   <Title>The AI Study Bible</Title>
                   <Meta name="description">
                     The AI Study Bible is a digital study Bible that uses artificial intelligence to
@@ -78,7 +80,7 @@ export default function App() {
                     </Suspense>
                   </ErrorBoundary>
                   <Toaster />
-                </AppContextProvider>
+                </MultiProvider>
               </ColorModeProvider>
             </ClerkProvider>
           </MetaProvider>

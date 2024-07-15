@@ -5,8 +5,8 @@ import type { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bi
 import { SQL, and, count, eq, or, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { PaginationSchema, PaginationSchemaNoDefault } from '~/lib/server/api/lib/utils/pagination';
-import type { Bindings, Variables } from '~/lib/server/api/types';
+import type { Bindings, Variables } from '~/server/api/types';
+import { PaginationSchema, PaginationSchemaNoDefault } from '~/server/api/utils/pagination';
 
 export const app = new Hono<{
   Bindings: Bindings;

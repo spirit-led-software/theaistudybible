@@ -5,7 +5,6 @@ import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { createSignal, Match, Switch } from 'solid-js';
-import { useBibleReaderStore } from '~/components/providers/bible-reader';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { DrawerClose } from '~/components/ui/drawer';
@@ -13,6 +12,7 @@ import { Spinner } from '~/components/ui/spinner';
 import { showToast } from '~/components/ui/toast';
 import { ToggleGroup } from '~/components/ui/toggle-group';
 import { P } from '~/components/ui/typography';
+import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 

@@ -15,14 +15,16 @@ const modelInfo = plusTierModels[0];
 export const getBibleReading = async (topic: string) => {
   const { text: bibleReading } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
-    system: `Your goal is to search the vector store to find a bible reading for a given topic. You can only use Bible readings
-found in the vector store.
-`,
+    system: `Your goal is to search the vector store to find a bible reading for a given topic. You must only use Bible readings
+found in the vector store. 
+
+Your output will be the bible reading AS-IS in the format:
+"<text>" - <book> <chapter>:<verse> (<translation>)`,
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: {
       vectorStore: bibleVectorStoreTool
     },
-    toolChoice: 'required'
+    maxToolRoundtrips: 5
   });
 
   return bibleReading;
@@ -46,7 +48,7 @@ ${bibleReading}`,
     tools: {
       vectorStore: vectorStoreTool
     },
-    toolChoice: 'required'
+    maxToolRoundtrips: 5
   });
 
   return summary;
@@ -76,7 +78,7 @@ Write a reflection of the passage.`,
     tools: {
       vectorStore: vectorStoreTool
     },
-    toolChoice: 'required'
+    maxToolRoundtrips: 5
   });
 
   return reflection;
@@ -107,7 +109,8 @@ ${summary}
 Reflection:
 ${reflection}
 
-Write a closing prayer.`
+Write a closing prayer.`,
+    maxToolRoundtrips: 5
   });
 
   return prayer;
@@ -117,8 +120,8 @@ export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     system: `You must generate a prompt that will generate an accurate image to represent the devotional. You must use the vector store to search
-for relevant resources to make your prompt extremely accurate. You must only use
-the information from the vector store in your prompt. Your prompt must be 200 words or less.`,
+for relevant resources to make your prompt extremely accurate. You must only use the information from the vector store in your prompt. 
+Your prompt must be 200 words or less.`,
     prompt: `Here is the devotional:
 Topic: ${devotion.topic}
 Reading: ${devotion.bibleReading}
@@ -130,7 +133,7 @@ Generate a prompt that will generate an accurate image to represent the devotion
     tools: {
       vectorStore: vectorStoreTool
     },
-    toolChoice: 'required'
+    maxToolRoundtrips: 5
   });
 
   return imagePrompt;
@@ -199,6 +202,8 @@ export const generateDevotion = async () => {
     summary,
     reflection
   });
+
+  console.log(JSON.stringify({ topic, bibleReading, summary, reflection, prayer }));
 
   const [devotion] = await db
     .insert(devotions)

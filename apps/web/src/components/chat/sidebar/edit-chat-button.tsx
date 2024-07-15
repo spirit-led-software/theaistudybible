@@ -6,7 +6,6 @@ import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';
-import { useChatStore } from '~/components/providers/chat';
 import { Button } from '~/components/ui/button';
 import {
   Dialog,
@@ -23,6 +22,7 @@ import {
   TextFieldLabel
 } from '~/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+import { useChatStore } from '~/contexts/chat';
 
 const editChat = async (props: { chatId: string; name: string }) => {
   'use server';

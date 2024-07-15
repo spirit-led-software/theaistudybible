@@ -3,7 +3,7 @@ import { JSX, splitProps, ValidComponent } from 'solid-js';
 import { PolymorphicProps } from '@kobalte/core';
 import * as NavigationMenuPrimitive from '@kobalte/core/navigation-menu';
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 const NavigationMenuItem = NavigationMenuPrimitive.Menu;
 

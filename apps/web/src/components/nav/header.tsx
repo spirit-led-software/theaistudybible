@@ -12,7 +12,7 @@ import {
   UserButton
 } from 'clerk-solidjs';
 import { createMemo, createSignal } from 'solid-js';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 import Logo from '../branding/logo';
 import LogoSmall from '../branding/logo-small';
 import { Button } from '../ui/button';

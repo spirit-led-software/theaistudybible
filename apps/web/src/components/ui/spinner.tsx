@@ -1,7 +1,7 @@
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
 import { splitProps } from 'solid-js';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 const spinnerVariants = cva(
   'border-solid border-2 border-b-transparent rounded-full inline-block box-border animate-spin duration-300 ease-linear repeat-infinite',

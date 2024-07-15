@@ -7,7 +7,7 @@ import { useUser } from 'clerk-solidjs';
 import { Check, Copy } from 'lucide-solid';
 import { Match, Show, Switch } from 'solid-js';
 import { Markdown } from '~/components/ui/markdown';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 import Icon from '../../branding/icon';
 import { Button } from '../../ui/button';
 import { showToast } from '../../ui/toast';

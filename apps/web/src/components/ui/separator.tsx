@@ -4,7 +4,7 @@ import { splitProps } from 'solid-js';
 import { PolymorphicProps } from '@kobalte/core/polymorphic';
 import * as SeparatorPrimitive from '@kobalte/core/separator';
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 type SeparatorRootProps<T extends ValidComponent = 'hr'> =
   SeparatorPrimitive.SeparatorRootProps<T> & { class?: string | undefined };

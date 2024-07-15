@@ -1,7 +1,7 @@
 import * as AccordionPrimitive from '@kobalte/core/accordion';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import { splitProps, type JSXElement, type ValidComponent } from 'solid-js';
-import { cn } from '~/lib/utils';
+import { cn } from '~/utils';
 
 const Accordion = AccordionPrimitive.Root;
 

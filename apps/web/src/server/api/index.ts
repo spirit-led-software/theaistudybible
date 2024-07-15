@@ -3,7 +3,7 @@ import { sentry } from '@hono/sentry';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import type { Bindings, Variables } from '~/lib/server/api/types';
+import type { Bindings, Variables } from '~/server/api/types';
 import adminRoutes from './endpoints/admin';
 import bibles from './endpoints/public/bibles';
 import dataSources from './endpoints/public/data-sources';
