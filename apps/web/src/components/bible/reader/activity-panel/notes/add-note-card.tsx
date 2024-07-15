@@ -3,7 +3,7 @@ import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { chapterNotes, verseNotes } from '@theaistudybible/core/database/schema';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { auth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { HelpCircle } from 'lucide-solid';
 import { createSignal, Show } from 'solid-js';
 import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';

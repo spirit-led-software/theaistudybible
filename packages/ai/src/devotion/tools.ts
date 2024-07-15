@@ -7,9 +7,7 @@ export const bibleVectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('Search terms or phrases that will be used to find relevant bible passages.')
-      .min(1)
-      .max(4)
+      .describe('1 to 4 search terms or phrases that will be used to find relevant bible passages.')
   }),
   execute: async ({ terms }) => {
     const maxDocs = 12;
@@ -18,9 +16,14 @@ export const bibleVectorStoreTool = tool({
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
             filter: {
-              must: {
-                type: 'bible'
-              }
+              must: [
+                {
+                  key: 'type',
+                  match: {
+                    text: 'bible'
+                  }
+                }
+              ]
             },
             limit: maxDocs / terms.length,
             withMetadata: true,
@@ -39,9 +42,7 @@ export const vectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('Search terms or phrases that will be used to find relevant resources.')
-      .min(1)
-      .max(4)
+      .describe('1 to 4 search terms or phrases that will be used to find relevant resources.')
   }),
   execute: async ({ terms }) => {
     const maxDocs = 12;

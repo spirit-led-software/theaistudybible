@@ -1,7 +1,8 @@
 import { A, RouteDefinition } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
-import { auth, SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { createEffect, For, Match, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';

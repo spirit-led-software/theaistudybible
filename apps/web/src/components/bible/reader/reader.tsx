@@ -2,7 +2,7 @@ import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import type { Content } from '@theaistudybible/core/types/bible';
-import { auth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { SelectedVerseInfo, useBibleReaderStore } from '~/components/providers/bible-reader';
@@ -52,7 +52,7 @@ async function getHighlights(chapterId: string) {
 async function getNotes(chapterId: string) {
   'use server';
   const { userId } = auth();
-  if (!userId) { 
+  if (!userId) {
     return [];
   }
 

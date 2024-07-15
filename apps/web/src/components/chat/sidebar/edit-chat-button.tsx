@@ -2,7 +2,7 @@ import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { chats } from '@theaistudybible/core/database/schema';
 import { Chat } from '@theaistudybible/core/model/chat';
-import { auth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';

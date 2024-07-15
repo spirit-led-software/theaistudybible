@@ -6,7 +6,7 @@ import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
 import { createId } from '@theaistudybible/core/util/id';
 import { convertToCoreMessages, generateObject } from 'ai';
-import { auth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { isNull } from 'drizzle-orm';
 import { Accessor, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';

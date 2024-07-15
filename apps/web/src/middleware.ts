@@ -1,7 +1,7 @@
 import { createMiddleware } from '@solidjs/start/middleware';
 import { cache } from '@theaistudybible/core/cache';
 import { getTimeStringFromSeconds } from '@theaistudybible/core/util/date';
-import { clerkMiddleware } from 'clerk-solidjs';
+import { clerkMiddleware } from 'clerk-solidjs/server';
 import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import { getRequestIP } from 'vinxi/http';
 
@@ -13,8 +13,8 @@ const ratelimit = new RateLimiterRedis({
 
 export default createMiddleware({
   onRequest: [
-    async ({ nativeEvent }) => {
-      const ip = getRequestIP(nativeEvent);
+    async ({ nativeEvent, clientAddress }) => {
+      const ip = getRequestIP(nativeEvent) || clientAddress;
       if (!ip) {
         return Response.json(
           {
@@ -64,6 +64,20 @@ export default createMiddleware({
     clerkMiddleware({
       publishableKey: process.env.PUBLIC_CLERK_PUBLISHABLE_KEY,
       secretKey: process.env.CLERK_SECRET_KEY
-    })
+    }),
+    async ({ request, locals }) => {
+      const path = new URL(request.url).pathname;
+      if (
+        path.startsWith('/admin') &&
+        !(locals.auth.sessionClaims?.metadata.roles?.includes('admin') ?? false)
+      ) {
+        return new Response(null, {
+          status: 302,
+          headers: {
+            location: '/'
+          }
+        });
+      }
+    }
   ]
 });

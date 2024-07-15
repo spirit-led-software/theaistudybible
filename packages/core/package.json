@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "typecheck": "tsc -noEmit",
+    "type-check": "tsc -noEmit",
     "lint": "eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write ."

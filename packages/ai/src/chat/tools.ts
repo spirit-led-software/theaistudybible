@@ -278,9 +278,7 @@ export const vectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('Search terms or phrases that will be used to find relevant resources.')
-      .min(1)
-      .max(4)
+      .describe('1 to 4 search terms or phrases that will be used to find relevant resources.')
   }),
   execute: async ({ terms }) => {
     const maxDocs = 12;

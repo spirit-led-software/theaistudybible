@@ -19,7 +19,7 @@
         "format": {},
         "lint": {},
         "lint:fix": {},
-        "typecheck": {},
+        "type-check": {},
         "dev": {
             "persistent": true,
             "cache": false

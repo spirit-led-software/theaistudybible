@@ -10,7 +10,7 @@ import {
   Verse,
   VerseNote
 } from '@theaistudybible/core/model/bible';
-import { auth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { createSignal, Show } from 'solid-js';

@@ -3,7 +3,8 @@ import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/s
 import { db } from '@theaistudybible/core/database';
 import { verseHighlights } from '@theaistudybible/core/database/schema';
 import { contentsToText } from '@theaistudybible/core/util/bible';
-import { auth, SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { createEffect, For, Match, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';

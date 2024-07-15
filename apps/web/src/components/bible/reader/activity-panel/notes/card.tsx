@@ -1,7 +1,8 @@
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { Prettify } from '@theaistudybible/core/types/util';
-import { auth, SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
+import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { Plus } from 'lucide-solid';
 import { createEffect, createSignal, For, Show } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';

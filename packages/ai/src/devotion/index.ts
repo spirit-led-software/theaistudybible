@@ -4,10 +4,7 @@ import { db } from '@theaistudybible/core/database';
 import { devotionImages, devotions } from '@theaistudybible/core/database/schema';
 import { Devotion } from '@theaistudybible/core/model';
 import { s3 } from '@theaistudybible/core/storage';
-import { formNumberSequenceString } from '@theaistudybible/core/util/number';
 import { generateText } from 'ai';
-import { z } from 'zod';
-import zodToJsonSchema from 'zod-to-json-schema';
 import { plusTierModels } from '../models';
 import { openai, registry } from '../provider-registry';
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
@@ -16,32 +13,19 @@ import { getTodaysTopic } from './topics';
 const modelInfo = plusTierModels[0];
 
 export const getBibleReading = async (topic: string) => {
-  const bibleReadingSchema = z.object({
-    bibleAbbreviation: z.string().describe('The abbreviation of the bible the reading is from.'),
-    bookName: z.string().describe('The name of the book the reading is from.'),
-    chapterNumber: z.number().describe('The number of the chapter the reading is from.'),
-    verseNumbers: z.array(z.number()).describe('The numbers of the verses in the reading.'),
-    text: z.string().describe('The bible reading text.')
-  });
-
   const { text: bibleReading } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
-    system: `Your goal is to search the vector store to find a bible reading for a given topic. You can search the vector store
-up to 5 times to find the bible reading. You can only use Bible reading
-
-JSON Schema:
-${JSON.stringify(zodToJsonSchema(bibleReadingSchema))}
-You MUST answer with a JSON object that matches the JSON schema above.
+    system: `Your goal is to search the vector store to find a bible reading for a given topic. You can only use Bible readings
+found in the vector store.
 `,
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: {
       vectorStore: bibleVectorStoreTool
     },
-    toolChoice: 'required',
-    maxToolRoundtrips: 5
+    toolChoice: 'required'
   });
 
-  return bibleReadingSchema.parse(JSON.parse(bibleReading));
+  return bibleReading;
 };
 
 export const generateSummary = async ({
@@ -54,16 +38,15 @@ export const generateSummary = async ({
   const { text: summary } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     system: `You are an expert at summarizing Bible passages. You must search for relevant resources in the vector store to
-provide an accurate summary of the passage for the provided topic. You can search the vector store up to 5 times. You must only use
-the information from the vector store in your summary.`,
+provide an accurate summary of the passage for the provided topic. You must only use the information from the vector store in your summary. 
+Your summary must be 500 words or less.`,
     prompt: `The topic is "${topic}".
 Summarize the following bible passage:
 ${bibleReading}`,
     tools: {
       vectorStore: vectorStoreTool
     },
-    toolChoice: 'required',
-    maxToolRoundtrips: 5
+    toolChoice: 'required'
   });
 
   return summary;
@@ -81,8 +64,8 @@ export const generateReflection = async ({
   const { text: reflection } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     system: `You are an expert at reflecting upon Bible passages. You must search for relevant resources in the vector store to
-provide a thought-provoking and accurate reflection of the passage for the provided topic. You can search the vector store up to 5 times. You must only use
-the information from the vector store in your reflection.`,
+provide a thought-provoking and accurate reflection of the passage for the provided topic. You must only use
+the information from the vector store in your reflection. Your reflection must be 500 words or less.`,
     prompt: `The topic is "${topic}".
 Here is the Bible passage:
 ${bibleReading}
@@ -93,8 +76,7 @@ Write a reflection of the passage.`,
     tools: {
       vectorStore: vectorStoreTool
     },
-    toolChoice: 'required',
-    maxToolRoundtrips: 5
+    toolChoice: 'required'
   });
 
   return reflection;
@@ -113,7 +95,8 @@ export const generatePrayer = async ({
 }) => {
   const { text: prayer } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
-    system: `You are an expert at writing Christian prayers. You must write a closing prayer for the provided devotional.`,
+    system: `You are an expert at writing Christian prayers. You must write a closing prayer for the provided devotional. 
+Your prayer must be 200 words or less.`,
     prompt: `Here is the devotional:
 Topic:
 ${topic}
@@ -124,9 +107,7 @@ ${summary}
 Reflection:
 ${reflection}
 
-Write a closing prayer.`,
-    toolChoice: 'required',
-    maxToolRoundtrips: 5
+Write a closing prayer.`
   });
 
   return prayer;
@@ -136,8 +117,8 @@ export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     system: `You must generate a prompt that will generate an accurate image to represent the devotional. You must use the vector store to search
-for relevant resources to make your prompt extremely accurate. You can search the vector store up to 5 times. You must only use
-the information from the vector store in your prompt.`,
+for relevant resources to make your prompt extremely accurate. You must only use
+the information from the vector store in your prompt. Your prompt must be 200 words or less.`,
     prompt: `Here is the devotional:
 Topic: ${devotion.topic}
 Reading: ${devotion.bibleReading}
@@ -149,8 +130,7 @@ Generate a prompt that will generate an accurate image to represent the devotion
     tools: {
       vectorStore: vectorStoreTool
     },
-    toolChoice: 'required',
-    maxToolRoundtrips: 5
+    toolChoice: 'required'
   });
 
   return imagePrompt;
@@ -204,19 +184,18 @@ export const generateImage = async ({
 export const generateDevotion = async () => {
   const topic = getTodaysTopic();
   const bibleReading = await getBibleReading(topic);
-  const bibleReadingText = `${bibleReading.text} - ${bibleReading.bookName} ${bibleReading.chapterNumber}:${formNumberSequenceString(bibleReading.verseNumbers)} (${bibleReading.bibleAbbreviation})`;
   const summary = await generateSummary({
     topic,
-    bibleReading: bibleReadingText
+    bibleReading
   });
   const reflection = await generateReflection({
     topic,
-    bibleReading: bibleReadingText,
+    bibleReading,
     summary
   });
   const prayer = await generatePrayer({
     topic,
-    bibleReading: bibleReadingText,
+    bibleReading,
     summary,
     reflection
   });
@@ -225,7 +204,7 @@ export const generateDevotion = async () => {
     .insert(devotions)
     .values({
       topic,
-      bibleReading: bibleReadingText,
+      bibleReading,
       summary,
       reflection,
       prayer

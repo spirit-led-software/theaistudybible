@@ -12,7 +12,7 @@ export const ChatMenu = () => {
   const [chatStore, setChatStore] = useChatStore();
 
   return (
-    <div class="flex w-full justify-center border-b shadow-sm">
+    <div class="flex w-full justify-center border-b pt-2 shadow-sm">
       <div class="flex w-full max-w-2xl items-center justify-between px-3 py-1">
         <H6 class="max-w-md justify-self-center truncate">{chatStore.chat?.name ?? 'New Chat'}</H6>
         <div class="flex justify-end">

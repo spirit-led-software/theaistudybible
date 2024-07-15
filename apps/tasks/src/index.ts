@@ -8,7 +8,9 @@ import { tasksQueue } from './queues';
 import './tasks';
 import './workers';
 
-const app = new Hono();
+const app = new Hono({
+  strict: false
+});
 
 const serverAdapter = new HonoAdapter(serveStatic);
 createBullBoard({

@@ -5,14 +5,20 @@ import { Worker } from 'bullmq';
 export const tasksWorker = new Worker(
   'tasks',
   async (job) => {
-    switch (job.name) {
-      case 'daily-devotion': {
-        return await generateDevotion();
+    try {
+      switch (job.name) {
+        case 'generate-devotion':
+        case 'daily-devotion': {
+          return await generateDevotion();
+        }
+        default: {
+          console.log('Unknown task:', job.name);
+          break;
+        }
       }
-      default: {
-        console.log('Unknown task:', job.name);
-        break;
-      }
+    } catch (e) {
+      console.error('Task failed:', e);
+      throw e;
     }
   },
   {

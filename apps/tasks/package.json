@@ -3,7 +3,7 @@
   "module": "./src/index.ts",
   "type": "module",
   "scripts": {
-    "typecheck": "tsc -noEmit",
+    "type-check": "tsc -noEmit",
     "lint": "prettier --check . && eslint .",
     "lint:fix": "prettier --write . && eslint . --fix",
     "format": "prettier --write .",

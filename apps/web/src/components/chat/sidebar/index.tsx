@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
-import { auth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import day from 'dayjs';
 import { Clock } from 'lucide-solid';
 import { For, Match, Switch, createEffect, on } from 'solid-js';

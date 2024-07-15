@@ -1,7 +1,8 @@
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { db } from '@theaistudybible/core/database';
 import { verseBookmarks } from '@theaistudybible/core/database/schema';
-import { auth, useAuth } from 'clerk-solidjs';
+import { useAuth } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 import { useBibleReaderStore } from '~/components/providers/bible-reader';
