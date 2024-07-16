@@ -63,7 +63,7 @@
     "@theaistudybible/tasks": "workspace:*",
     "ai": "^3.2.19",
     "class-variance-authority": "^0.7.0",
-    "clerk-solidjs": "1.0.3",
+    "clerk-solidjs": "^1.0.6",
     "clsx": "^2.1.1",
     "cmdk-solid": "^1.0.1",
     "dayjs": "^1.11.11",
