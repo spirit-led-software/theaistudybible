@@ -12,22 +12,22 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
-    "@clerk/types": "^4.6.1",
+    "@clerk/types": "^4.8.0",
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.29",
+    "@ai-sdk/anthropic": "^0.0.30",
     "@ai-sdk/mistral": "^0.0.22",
     "@ai-sdk/openai": "^0.0.36",
-    "@aws-sdk/client-s3": "^3.613.0",
+    "@aws-sdk/client-s3": "^3.616.0",
     "@qdrant/js-client-rest": "^1.10.0",
     "@theaistudybible/core": "workspace:*",
-    "ai": "^3.2.19",
+    "ai": "^3.2.29",
     "drizzle-orm": "^0.32.0",
     "js-tiktoken": "^1.0.12",
-    "openai": "^4.52.5",
+    "openai": "^4.52.7",
     "rate-limiter-flexible": "^5.0.3",
     "tiktoken": "^1.0.15",
     "zod": "^3.23.8",

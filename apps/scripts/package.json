@@ -18,10 +18,10 @@
     "@types/uuid": "^10.0.0",
     "@types/yargs": "^17.0.32",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^2.0.2"
+    "vitest": "^2.0.3"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.0.14",
+    "@clerk/clerk-sdk-node": "^5.0.16",
     "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",

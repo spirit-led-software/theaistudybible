@@ -17,12 +17,12 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.11.6",
-    "vitest": "^2.0.2"
+    "vitest": "^2.0.3"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.613.0",
+    "@aws-sdk/client-s3": "^3.616.0",
     "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.2.19",
+    "ai": "^3.2.29",
     "axios": "^1.7.2",
     "axios-retry": "^4.4.1",
     "drizzle-orm": "^0.32.0",

@@ -1,47 +1,33 @@
 {
   "name": "theaistudybible",
   "description": "The AI Study Bible",
-  "private": "true",
+  "private": true,
   "version": "1.0.0",
+  "type": "module",
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
-    "bun": "^1.1.18",
     "concurrently": "^8.2.2",
+    "dotenv-cli": "^7.4.2",
     "drizzle-kit": "^0.23.0",
-    "turbo": "^2.0.6",
-    "vitest": "^2.0.2"
+    "turbo": "^2.0.7",
+    "vitest": "^2.0.3"
   },
-  "packageManager": "bun@1.1.17",
   "scripts": {
-    "build": "bun --env-file=.env turbo build",
+    "build": "dotenv -e .env -- turbo build",
     "changeset": "changeset",
-    "db:generate": "bun --env-file=.env drizzle-kit generate",
-    "db:migrate": "bun --env-file=.env drizzle-kit migrate",
-    "db:seed": "bun --env-file=.env run ./apps/scripts/src/index.ts db seed",
-    "db:studio": "bun --env-file=.env drizzle-kit studio",
-    "dev": "concurrently -n \"docker-compose,turbo,drizzle-studio\" -c \"blue,yellow,red\" \"docker compose up\" \"bun --env-file=.env turbo dev\" \"bun run db:studio\"",
+    "db:generate": "dotenv -e .env -- drizzle-kit generate",
+    "db:migrate": "dotenv -e .env -- drizzle-kit migrate",
+    "db:seed": "dotenv -e .env -- run ./apps/scripts/src/index.ts db seed",
+    "db:studio": "dotenv -e .env -- drizzle-kit studio",
+    "dev": "concurrently -n \"docker-compose,turbo,drizzle-studio\" -c \"blue,yellow,red\" \"docker compose up\" \"dotenv -e .env -- turbo dev\" \"bun run db:studio\"",
     "format": "turbo format",
     "lint:fix": "turbo lint:fix",
     "lint": "turbo lint",
     "release": "changeset publish",
-    "scripts": "bun --env-file=.env run ./apps/scripts/src/index.ts",
-    "start": "bun --env-file=.env turbo start",
+    "scripts": "dotenv -e .env -- run ./apps/scripts/src/index.ts",
+    "start": "dotenv -e .env -- turbo start",
     "type-check": "turbo type-check",
     "version": "changeset version"
   },
-  "trustedDependencies": [
-    "@clerk/shared",
-    "browser-tabs-lock",
-    "bun",
-    "core-js",
-    "esbuild",
-    "msgpackr-extract",
-    "protobufjs"
-  ],
-  "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "tools/*"
-  ]
+  "packageManager": "pnpm@9.5.0"
 }

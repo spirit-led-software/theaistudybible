@@ -19,14 +19,15 @@
     "@theaistudybible/eslint-config": "workspace:*",
     "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
-    "vitest": "^2.0.2"
+    "bun": "^1.1.20",
+    "vitest": "^2.0.3"
   },
   "dependencies": {
-    "@bull-board/api": "^5.20.5",
-    "@bull-board/hono": "^5.20.5",
+    "@bull-board/api": "^5.21.1",
+    "@bull-board/hono": "^5.21.1",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
-    "bullmq": "^5.8.5",
-    "hono": "^4.4.12"
+    "bullmq": "^5.10.1",
+    "hono": "^4.5.0"
   }
 }
