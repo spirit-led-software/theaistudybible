@@ -18,7 +18,7 @@ export default defineConfig({
     plugins: [
       tsconfigPaths(),
       cjsInterop({
-        dependencies: ['@clerk/clerk-js', 'pg']
+        dependencies: ['pg']
       }),
       VitePWA(),
       devtools()

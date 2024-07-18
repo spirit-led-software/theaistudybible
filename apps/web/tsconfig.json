@@ -14,7 +14,7 @@
     "noEmit": true,
     "types": ["vinxi/types/client", "vite-plugin-pwa/solid"],
     "isolatedModules": true,
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@theaistudybible/core": ["../../packages/core/src"],
       "@theaistudybible/core/*": ["../../packages/core/src/*"],
@@ -25,6 +25,6 @@
       "~/*": ["./src/*"]
     }
   },
-  "include": ["./src", "../../packages/core/globals.d.ts"],
+  "include": ["src", "app.config.ts", "../../packages/core/globals.d.ts"],
   "exclude": ["node_modules", "dist", ".output", ".vinxi"]
 }

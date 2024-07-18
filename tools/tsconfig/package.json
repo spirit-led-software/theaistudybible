@@ -5,8 +5,7 @@
   "private": true,
   "main": "tsconfig.json",
   "devDependencies": {
-    "@types/bun": "^1.1.6",
-    "tsc-alias": "^1.8.10",
+    "@types/node": "^20.14.11",
     "typescript": "^5.5.3"
   }
 }

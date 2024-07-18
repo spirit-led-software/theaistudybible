@@ -19,7 +19,7 @@
     "db:migrate": "dotenv -e .env -- drizzle-kit migrate",
     "db:seed": "dotenv -e .env -- run ./apps/scripts/src/index.ts db seed",
     "db:studio": "dotenv -e .env -- drizzle-kit studio",
-    "dev": "concurrently -n \"docker-compose,turbo,drizzle-studio\" -c \"blue,yellow,red\" \"docker compose up\" \"dotenv -e .env -- turbo dev\" \"bun run db:studio\"",
+    "dev": "concurrently -n \"docker-compose,turbo,drizzle-studio\" -c \"blue,yellow,red\" \"docker compose up\" \"dotenv -e .env -- turbo dev\" \"pnpm run db:studio\"",
     "format": "turbo format",
     "lint:fix": "turbo lint:fix",
     "lint": "turbo lint",

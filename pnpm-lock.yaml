@@ -31,7 +31,7 @@ importers:
     dependencies:
       '@clerk/clerk-sdk-node':
         specifier: ^5.0.16
-        version: 5.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.0.16(react@18.3.1)
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
@@ -49,7 +49,7 @@ importers:
         version: 16.4.5
       drizzle-orm:
         specifier: ^0.32.0
-        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)
+        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)
       fast-xml-parser:
         specifier: ^4.4.0
         version: 4.4.0
@@ -153,7 +153,7 @@ importers:
         version: 0.2.2(solid-js@1.8.18)
       '@hono/clerk-auth':
         specifier: ^2.0.0
-        version: 2.0.0(@clerk/backend@1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(hono@4.5.0)
+        version: 2.0.0(@clerk/backend@1.3.2(react@18.3.1))(hono@4.5.0)
       '@hono/sentry':
         specifier: ^1.2.0
         version: 1.2.0(hono@4.5.0)
@@ -201,7 +201,7 @@ importers:
         version: 0.14.1(solid-js@1.8.18)
       '@solidjs/start':
         specifier: ^1.0.5
-        version: 1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3))
+        version: 1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3))
       '@tanstack/solid-query':
         specifier: ^5.51.9
         version: 5.51.9(solid-js@1.8.18)
@@ -225,7 +225,7 @@ importers:
         version: 0.7.0
       clerk-solidjs:
         specifier: ^1.1.3
-        version: 1.1.3(@solidjs/start@1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(solid-js@1.8.18)
+        version: 1.1.3(@solidjs/start@1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3)))(react@18.3.1)(solid-js@1.8.18)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -237,10 +237,10 @@ importers:
         version: 1.11.12
       drizzle-orm:
         specifier: ^0.32.0
-        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)
+        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)
       drizzle-zod:
         specifier: ^0.5.1
-        version: 0.5.1(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(zod@3.23.8)
+        version: 0.5.1(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(zod@3.23.8)
       embla-carousel-solid:
         specifier: ^8.1.6
         version: 8.1.6(solid-js@1.8.18)
@@ -319,7 +319,10 @@ importers:
         version: 3.4.6
       vinxi:
         specifier: ^0.4.0
-        version: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
+        version: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
+      vite:
+        specifier: ^5.3.4
+        version: 5.3.4(@types/node@20.14.11)(terser@5.31.3)
       vite-plugin-cjs-interop:
         specifier: ^2.1.1
         version: 2.1.1
@@ -355,7 +358,7 @@ importers:
         version: 3.2.29(openai@4.52.7)(react@18.3.1)(solid-js@1.8.18)(svelte@4.2.18)(vue@3.4.32(typescript@5.5.3))(zod@3.23.8)
       drizzle-orm:
         specifier: ^0.32.0
-        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)
+        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)
       js-tiktoken:
         specifier: ^1.0.12
         version: 1.0.12
@@ -393,6 +396,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.616.0
         version: 3.616.0
+      '@clerk/clerk-sdk-node':
+        specifier: ^5.0.16
+        version: 5.0.16(react@18.3.1)
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
@@ -407,11 +413,20 @@ importers:
         version: 4.4.1(axios@1.7.2)
       drizzle-orm:
         specifier: ^0.32.0
-        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)
+        version: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)
+      ioredis:
+        specifier: ^5.4.1
+        version: 5.4.1
       nodemailer:
         specifier: ^6.9.14
         version: 6.9.14
+      pg:
+        specifier: ^8.12.0
+        version: 8.12.0
     devDependencies:
+      '@clerk/types':
+        specifier: ^4.8.0
+        version: 4.8.0
       '@theaistudybible/eslint-config':
         specifier: workspace:*
         version: link:../../tools/eslint-config
@@ -484,12 +499,9 @@ importers:
 
   tools/tsconfig:
     devDependencies:
-      '@types/bun':
-        specifier: ^1.1.6
-        version: 1.1.6
-      tsc-alias:
-        specifier: ^1.8.10
-        version: 1.8.10
+      '@types/node':
+        specifier: ^20.14.11
+        version: 20.14.11
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
@@ -3100,9 +3112,6 @@ packages:
   '@types/braces@3.0.4':
     resolution: {integrity: sha512-0WR3b8eaISjEW7RpZnclONaLFDf7buaowRHdqLp4vLj54AsSAYWfh3DRbfiYJY9XDxMgx1B4sE1Afw2PGpuHOA==}
 
-  '@types/bun@1.1.6':
-    resolution: {integrity: sha512-uJgKjTdX0GkWEHZzQzFsJkWp5+43ZS7HC8sZPFnOwnSo1AsNl2q9o2bFeS23disNDqbggEgyFkKCHl/w8iZsMA==}
-
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -3916,11 +3925,9 @@ packages:
   bun-types@1.1.17:
     resolution: {integrity: sha512-Z4+OplcSd/YZq7ZsrfD00DKJeCwuNY96a1IDJyR73+cTBaFIS7SC6LhpY/W3AMEXO9iYq5NJ58WAwnwL1p5vKg==}
 
-  bun-types@1.1.20:
-    resolution: {integrity: sha512-2u84HciDR3E7Uc0t0AEeXHmQAWe9uzRKTz120D3silIJOQlbGIMJMJiGaM8Yx7nEvMyfV0LfSdkEGnb77AN5AA==}
-
   bun@1.1.20:
     resolution: {integrity: sha512-aqLmvaz0/vLUiCrOXtAsf7pCSOS/qXieYDsq8COa3+fIgMK05CjZt9m9r7DC+tjKy7hH8uKSNTapQOr/kX8gIA==}
+    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -4096,10 +4103,6 @@ packages:
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
-
-  commander@9.5.0:
-    resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
-    engines: {node: ^12.20.0 || >=14}
 
   common-tags@1.8.2:
     resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
@@ -5892,10 +5895,6 @@ packages:
   msgpackr@1.11.0:
     resolution: {integrity: sha512-I8qXuuALqJe5laEBYoFykChhSXLikZmUhccjGsPuSJ/7uPip2TJ7lwdIQwWSAi0jGZDXv4WOP8Qg65QZRuXxXw==}
 
-  mylas@2.1.13:
-    resolution: {integrity: sha512-+MrqnJRtxdF+xngFfUUkIMQrUUL0KsxbADUkn23Z/4ibGg192Q+z+CQyiYwvWTsYjJygmMR8+w3ZDa98Zh6ESg==}
-    engines: {node: '>=12.0.0'}
-
   mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
 
@@ -6250,10 +6249,6 @@ packages:
   pkg-types@1.1.3:
     resolution: {integrity: sha512-+JrgthZG6m3ckicaOB74TwQ+tBWsFl3qVQg7mN8ulwSOElJ7gBhKzj2VkCPnZ4NlF6kEquYU+RIYNVAvzd54UA==}
 
-  plimit-lit@1.6.1:
-    resolution: {integrity: sha512-B7+VDyb8Tl6oMJT9oSO2CW8XC/T4UcJGrwOVoNGwOQsQYhlpfajmrMj5xeejqaASq3V/EqThyOeATEOMuSEXiA==}
-    engines: {node: '>=12'}
-
   possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
     engines: {node: '>= 0.4'}
@@ -6462,10 +6457,6 @@ packages:
   querystringify@2.2.0:
     resolution: {integrity: sha512-FIqgj2EUvTa7R50u0rGsyTftzjYmv/a3hO345bZNrqabNqjtgiDMgmo4mkUjd+nzU5oF3dClKqFIPUKybUyqoQ==}
 
-  queue-lit@1.5.2:
-    resolution: {integrity: sha512-tLc36IOPeMAubu8BkW8YDBV+WyIgKlYU7zUNs0J5Vk9skSZ4JfGlPOqplP0aHdfv7HL0B2Pg6nwiq60Qc6M2Hw==}
-    engines: {node: '>=12'}
-
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -6487,11 +6478,6 @@ packages:
 
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
-
-  react-dom@18.3.1:
-    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
-    peerDependencies:
-      react: ^18.3.1
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -6666,9 +6652,6 @@ packages:
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-
-  scheduler@0.23.2:
-    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
   scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
@@ -7200,10 +7183,6 @@ packages:
 
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
-
-  tsc-alias@1.8.10:
-    resolution: {integrity: sha512-Ibv4KAWfFkFdKJxnWfVtdOmB0Zi1RJVxcbPGiCDsFpCQSsmpWyuzHG3rQyI5YkobWwxFPEyQfu1hdo4qLG2zPw==}
-    hasBin: true
 
   tsconfck@3.1.1:
     resolution: {integrity: sha512-00eoI6WY57SvZEVjm13stEVE90VkEdJAFGgpFLTsZbJyW/LwFQ7uQxJHWpZ2hzSWgCPKc9AnBnNP+0X7o3hAmQ==}
@@ -10120,9 +10099,9 @@ snapshots:
       human-id: 1.0.2
       prettier: 2.8.8
 
-  '@clerk/backend@1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@clerk/backend@1.3.2(react@18.3.1)':
     dependencies:
-      '@clerk/shared': 2.3.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@clerk/shared': 2.3.3(react@18.3.1)
       '@clerk/types': 4.8.0
       cookie: 0.5.0
       snakecase-keys: 5.4.4
@@ -10131,17 +10110,17 @@ snapshots:
       - react
       - react-dom
 
-  '@clerk/clerk-sdk-node@5.0.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@clerk/clerk-sdk-node@5.0.16(react@18.3.1)':
     dependencies:
-      '@clerk/backend': 1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@clerk/shared': 2.3.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@clerk/backend': 1.3.2(react@18.3.1)
+      '@clerk/shared': 2.3.3(react@18.3.1)
       '@clerk/types': 4.8.0
       tslib: 2.4.1
     transitivePeerDependencies:
       - react
       - react-dom
 
-  '@clerk/shared@2.3.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@clerk/shared@2.3.3(react@18.3.1)':
     dependencies:
       '@clerk/types': 4.8.0
       glob-to-regexp: 0.4.1
@@ -10150,7 +10129,6 @@ snapshots:
       swr: 2.2.5(react@18.3.1)
     optionalDependencies:
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   '@clerk/themes@2.1.12':
     dependencies:
@@ -10529,9 +10507,9 @@ snapshots:
 
   '@floating-ui/utils@0.2.4': {}
 
-  '@hono/clerk-auth@2.0.0(@clerk/backend@1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(hono@4.5.0)':
+  '@hono/clerk-auth@2.0.0(@clerk/backend@1.3.2(react@18.3.1))(hono@4.5.0)':
     dependencies:
-      '@clerk/backend': 1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@clerk/backend': 1.3.2(react@18.3.1)
       hono: 4.5.0
 
   '@hono/sentry@1.2.0(hono@4.5.0)':
@@ -11511,11 +11489,11 @@ snapshots:
     dependencies:
       solid-js: 1.8.18
 
-  '@solidjs/start@1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3))':
+  '@solidjs/start@1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3))':
     dependencies:
-      '@vinxi/plugin-directives': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
-      '@vinxi/server-components': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
-      '@vinxi/server-functions': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
+      '@vinxi/plugin-directives': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
+      '@vinxi/server-components': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
+      '@vinxi/server-functions': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
       defu: 6.1.4
       error-stack-parser: 2.1.4
       glob: 10.4.5
@@ -11600,10 +11578,6 @@ snapshots:
 
   '@types/braces@3.0.4': {}
 
-  '@types/bun@1.1.6':
-    dependencies:
-      bun-types: 1.1.17
-
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 0.7.34
@@ -11653,7 +11627,7 @@ snapshots:
 
   '@types/node-fetch@2.6.11':
     dependencies:
-      '@types/node': 18.19.41
+      '@types/node': 20.14.11
       form-data: 4.0.0
 
   '@types/node@12.20.55': {}
@@ -11665,6 +11639,7 @@ snapshots:
   '@types/node@20.12.14':
     dependencies:
       undici-types: 5.26.5
+    optional: true
 
   '@types/node@20.14.11':
     dependencies:
@@ -11696,7 +11671,8 @@ snapshots:
 
   '@types/ws@8.5.11':
     dependencies:
-      '@types/node': 20.12.14
+      '@types/node': 20.14.11
+    optional: true
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -11938,7 +11914,7 @@ snapshots:
     transitivePeerDependencies:
       - uWebSockets.js
 
-  '@vinxi/plugin-directives@0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))':
+  '@vinxi/plugin-directives@0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))':
     dependencies:
       '@babel/parser': 7.24.8
       acorn: 8.12.1
@@ -11949,29 +11925,29 @@ snapshots:
       magicast: 0.2.11
       recast: 0.23.9
       tslib: 2.6.3
-      vinxi: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
+      vinxi: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
 
-  '@vinxi/server-components@0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))':
+  '@vinxi/server-components@0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))':
     dependencies:
-      '@vinxi/plugin-directives': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
+      '@vinxi/plugin-directives': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
       acorn: 8.12.1
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.12.1)
       astring: 1.8.6
       magicast: 0.2.11
       recast: 0.23.9
-      vinxi: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
+      vinxi: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
 
-  '@vinxi/server-functions@0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))':
+  '@vinxi/server-functions@0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))':
     dependencies:
-      '@vinxi/plugin-directives': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
+      '@vinxi/plugin-directives': 0.4.1(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))
       acorn: 8.12.1
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.12.1)
       astring: 1.8.6
       magicast: 0.2.11
       recast: 0.23.9
-      vinxi: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
+      vinxi: 0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3)
 
   '@vitest/expect@2.0.3':
     dependencies:
@@ -12921,11 +12897,6 @@ snapshots:
     dependencies:
       '@types/node': 20.12.14
       '@types/ws': 8.5.11
-
-  bun-types@1.1.20:
-    dependencies:
-      '@types/node': 20.12.14
-      '@types/ws': 8.5.11
     optional: true
 
   bun@1.1.20:
@@ -13037,14 +13008,14 @@ snapshots:
     dependencies:
       clsx: 2.0.0
 
-  clerk-solidjs@1.1.3(@solidjs/start@1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3)))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(solid-js@1.8.18):
+  clerk-solidjs@1.1.3(@solidjs/start@1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3)))(react@18.3.1)(solid-js@1.8.18):
     dependencies:
-      '@clerk/backend': 1.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@clerk/shared': 2.3.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@clerk/backend': 1.3.2(react@18.3.1)
+      '@clerk/shared': 2.3.3(react@18.3.1)
       '@solid-primitives/context': 0.2.3(solid-js@1.8.18)
       '@solid-primitives/destructure': 0.1.17(solid-js@1.8.18)
       '@solid-primitives/memo': 1.3.9(solid-js@1.8.18)
-      '@solidjs/start': 1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3))
+      '@solidjs/start': 1.0.5(rollup@4.18.1)(solid-js@1.8.18)(vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3))(vite@5.3.4(@types/node@20.14.11)(terser@5.31.3))
       '@tanstack/solid-query': 5.51.9(solid-js@1.8.18)
       solid-js: 1.8.18
     transitivePeerDependencies:
@@ -13116,8 +13087,6 @@ snapshots:
   commander@2.20.3: {}
 
   commander@4.1.1: {}
-
-  commander@9.5.0: {}
 
   common-tags@1.8.2: {}
 
@@ -13234,9 +13203,9 @@ snapshots:
 
   dayjs@1.11.12: {}
 
-  db0@0.1.4(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)):
+  db0@0.1.4(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)):
     optionalDependencies:
-      drizzle-orm: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)
+      drizzle-orm: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)
 
   debug@2.6.9:
     dependencies:
@@ -13352,17 +13321,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1):
+  drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1):
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/pg': 8.11.6
-      bun-types: 1.1.20
+      bun-types: 1.1.17
       pg: 8.12.0
       react: 18.3.1
 
-  drizzle-zod@0.5.1(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(zod@3.23.8):
+  drizzle-zod@0.5.1(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(zod@3.23.8):
     dependencies:
-      drizzle-orm: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)
+      drizzle-orm: 0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)
       zod: 3.23.8
 
   duplexer@0.1.2: {}
@@ -15272,8 +15241,6 @@ snapshots:
     optionalDependencies:
       msgpackr-extract: 3.0.3
 
-  mylas@2.1.13: {}
-
   mz@2.7.0:
     dependencies:
       any-promise: 1.3.0
@@ -15286,7 +15253,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  nitropack@2.9.7(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1)):
+  nitropack@2.9.7(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1)):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.3.4
       '@netlify/functions': 2.8.1
@@ -15309,7 +15276,7 @@ snapshots:
       cookie-es: 1.1.0
       croner: 8.1.0
       crossws: 0.2.4
-      db0: 0.1.4(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))
+      db0: 0.1.4(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))
       defu: 6.1.4
       destr: 2.0.3
       dot-prop: 8.0.2
@@ -15710,10 +15677,6 @@ snapshots:
       mlly: 1.7.1
       pathe: 1.1.2
 
-  plimit-lit@1.6.1:
-    dependencies:
-      queue-lit: 1.5.2
-
   possible-typed-array-names@1.0.0: {}
 
   postcss-import@15.1.0(postcss@8.4.39):
@@ -15835,8 +15798,6 @@ snapshots:
 
   querystringify@2.2.0: {}
 
-  queue-lit@1.5.2: {}
-
   queue-microtask@1.2.3: {}
 
   queue-tick@1.0.1: {}
@@ -15855,13 +15816,6 @@ snapshots:
     dependencies:
       defu: 6.1.4
       destr: 2.0.3
-
-  react-dom@18.3.1(react@18.3.1):
-    dependencies:
-      loose-envify: 1.4.0
-      react: 18.3.1
-      scheduler: 0.23.2
-    optional: true
 
   react-is@16.13.1: {}
 
@@ -16081,11 +16035,6 @@ snapshots:
       is-regex: 1.1.4
 
   safer-buffer@2.1.2: {}
-
-  scheduler@0.23.2:
-    dependencies:
-      loose-envify: 1.4.0
-    optional: true
 
   scslre@0.3.0:
     dependencies:
@@ -16685,15 +16634,6 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tsc-alias@1.8.10:
-    dependencies:
-      chokidar: 3.6.0
-      commander: 9.5.0
-      globby: 11.1.0
-      mylas: 2.1.13
-      normalize-path: 3.0.0
-      plimit-lit: 1.6.1
-
   tsconfck@3.1.1(typescript@5.5.3):
     optionalDependencies:
       typescript: 5.5.3
@@ -16964,7 +16904,7 @@ snapshots:
       '@types/unist': 3.0.2
       unist-util-stringify-position: 4.0.0
 
-  vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3):
+  vinxi@0.4.0(@types/node@20.14.11)(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))(ioredis@5.4.1)(terser@5.31.3):
     dependencies:
       '@babel/core': 7.24.9
       '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.24.9)
@@ -16986,7 +16926,7 @@ snapshots:
       hookable: 5.5.3
       http-proxy: 1.18.1
       micromatch: 4.0.7
-      nitropack: 2.9.7(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.20)(pg@8.12.0)(react@18.3.1))
+      nitropack: 2.9.7(drizzle-orm@0.32.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(bun-types@1.1.17)(pg@8.12.0)(react@18.3.1))
       node-fetch-native: 1.6.4
       path-to-regexp: 6.2.2
       pathe: 1.1.2
