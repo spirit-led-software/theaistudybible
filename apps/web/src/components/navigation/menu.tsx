@@ -60,7 +60,7 @@ export const Menu = (props: MenuProps) => {
       </NavigationMenuItem>
       <NavigationMenuItem>
         <NavigationMenuTrigger class="justify-between">
-          Chat
+          Gen-AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
         <NavigationMenuContent class="w-56">
@@ -73,14 +73,6 @@ export const Menu = (props: MenuProps) => {
               Engage with AI about Jesus and the Bible
             </NavigationMenuDescription>
           </NavigationMenuLink>
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-      <NavigationMenuItem>
-        <NavigationMenuTrigger class="justify-between">
-          Devos
-          <NavigationMenuIcon />
-        </NavigationMenuTrigger>
-        <NavigationMenuContent class="w-56">
           <NavigationMenuLink href="/devotion">
             <NavigationMenuLabel class="flex items-center gap-2">
               <Lightbulb />

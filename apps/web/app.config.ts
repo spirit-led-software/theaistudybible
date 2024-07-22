@@ -10,7 +10,7 @@ const workspaceRoot = searchForWorkspaceRoot(process.cwd());
 export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
-    preset: 'bun'
+    preset: 'node-server'
   },
   vite: {
     envDir: workspaceRoot,

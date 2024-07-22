@@ -8,6 +8,6 @@
       "@theaistudybible/ai/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],
+  "include": ["src", "../../packages/core/globals.d.ts"],
   "exclude": ["node_modules"]
 }

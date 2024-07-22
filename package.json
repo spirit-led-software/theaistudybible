@@ -9,7 +9,7 @@
     "concurrently": "^8.2.2",
     "dotenv-cli": "^7.4.2",
     "drizzle-kit": "^0.23.0",
-    "turbo": "^2.0.7",
+    "turbo": "^2.0.9",
     "vitest": "^2.0.3"
   },
   "scripts": {

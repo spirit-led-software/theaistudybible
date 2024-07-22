@@ -17,12 +17,12 @@ export type ModelInfo = {
 
 export const freeTierModels: ModelInfo[] = [
   {
-    id: 'gpt-3.5-turbo',
-    name: 'GPT-3.5 Turbo',
+    id: 'gpt-4o-mini',
+    name: 'GPT-4o Mini',
     description: 'A large language model trained by OpenAI',
-    contextSize: 16_000,
+    contextSize: 128_000,
     provider: 'openai',
-    link: 'https://platform.openai.com/docs/models/gpt-3-5-turbo',
+    link: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
     tier: 'free'
   }
 ];

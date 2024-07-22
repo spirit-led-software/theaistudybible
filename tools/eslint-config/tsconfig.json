@@ -4,6 +4,6 @@
     "allowJs": true,
     "strict": false
   },
-  "include": ["./eslint.config.js"],
+  "include": ["eslint.config.js"],
   "exclude": ["node_modules"]
 }

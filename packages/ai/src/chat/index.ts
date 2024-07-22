@@ -61,6 +61,11 @@ export const createChatChain = (options: CreateChatChainOptions) => {
     // Fix weird issue where some messages are empty
     messages = messages.filter((message) => (message.content?.length ?? 0) > 0);
 
+    const resolvedTools = tools({
+      userId: options.userId,
+      sessionClaims: options.sessionClaims
+    });
+
     return {
       streamTextResult: await streamText({
         model: registry.languageModel(options.modelId),
@@ -73,33 +78,44 @@ The user's favorite bible translation is ${options.sessionClaims.metadata.bibleT
 You must format your response in valid markdown syntax.`,
         // @ts-ignore
         messages,
-        tools: tools({
-          userId: options.userId,
-          sessionClaims: options.sessionClaims
-        }),
+        tools: resolvedTools,
         maxTokens: options.maxTokens,
         onFinish: async (event) => {
-          await db.insert(messagesTable).values({
-            id: responseId,
-            role: 'assistant',
-            content: event.text,
-            toolInvocations: event.toolCalls,
-            finishReason: event.finishReason,
-            data: {
-              modelId: options.modelId
-            },
-            originMessageId: options.userMessageId,
-            userId: options.userId,
-            chatId: options.chatId
-          });
+          let [response] = await db
+            .insert(messagesTable)
+            .values({
+              id: responseId,
+              role: 'assistant',
+              content: event.text,
+              toolInvocations: event.toolCalls?.map((t) => ({
+                ...t,
+                state: resolvedTools[t.toolName].execute ? 'call' : 'partial-call'
+              })),
+              finishReason: event.finishReason,
+              data: {
+                modelId: options.modelId
+              },
+              originMessageId: options.userMessageId,
+              userId: options.userId,
+              chatId: options.chatId
+            })
+            .returning()
+            .execute();
 
           if (event.toolResults?.length) {
-            await db
+            [response] = await db
               .update(messagesTable)
               .set({
-                toolInvocations: event.toolResults
+                toolInvocations: (response.toolInvocations ?? []).concat(
+                  event.toolResults.map((t) => ({
+                    ...t,
+                    state: 'result'
+                  }))
+                )
               })
-              .where(eq(messagesTable.id, responseId));
+              .where(eq(messagesTable.id, responseId))
+              .returning()
+              .execute();
 
             for (const toolResult of event.toolResults) {
               if (toolResult.toolName === 'vectorStore') {

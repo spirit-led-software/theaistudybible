@@ -24,7 +24,7 @@
     "@aws-sdk/client-s3": "^3.616.0",
     "@clerk/clerk-sdk-node": "^5.0.16",
     "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.2.29",
+    "ai": "^3.2.32",
     "axios": "^1.7.2",
     "axios-retry": "^4.4.1",
     "drizzle-orm": "^0.32.0",
