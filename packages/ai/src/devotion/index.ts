@@ -3,8 +3,9 @@ import { createId } from '@theaistudybible/core//util/id';
 import { db } from '@theaistudybible/core/database';
 import { devotionImages, devotions } from '@theaistudybible/core/database/schema';
 import { Devotion } from '@theaistudybible/core/model';
-import { s3 } from '@theaistudybible/core/storage';
-import { generateText } from 'ai';
+import { s3 } from '@theaistudybible/core/src/storage';
+import { generateObject, generateText } from 'ai';
+import { z } from 'zod';
 import { plusTierModels } from '../models';
 import { openai, registry } from '../provider-registry';
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
@@ -116,6 +117,47 @@ Write a closing prayer.`,
   return prayer;
 };
 
+export const generateDiveDeeperQueries = async ({
+  topic,
+  bibleReading,
+  summary,
+  reflection,
+  prayer
+}: {
+  topic: string;
+  bibleReading: string;
+  summary: string;
+  reflection: string;
+  prayer: string;
+}) => {
+  const { object } = await generateObject({
+    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    schema: z.object({
+      queries: z.array(z.string())
+    }),
+    system: `You must generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional. The queries must be posed
+as though you are the user.
+
+Here is an example query given the topic of "money":
+How can I best utilize my money for the Gospel?`,
+    prompt: `Here is the devotional:
+Topic:
+${topic}
+Reading:
+${bibleReading}
+Summary:
+${summary}
+Reflection:
+${reflection}
+Prayer:
+${prayer}
+
+Generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional.`
+  });
+
+  return object.queries;
+};
+
 export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
@@ -202,8 +244,13 @@ export const generateDevotion = async () => {
     summary,
     reflection
   });
-
-  console.log(JSON.stringify({ topic, bibleReading, summary, reflection, prayer }));
+  const diveDeeperQueries = await generateDiveDeeperQueries({
+    topic,
+    bibleReading,
+    summary,
+    reflection,
+    prayer
+  });
 
   const [devotion] = await db
     .insert(devotions)
@@ -212,7 +259,8 @@ export const generateDevotion = async () => {
       bibleReading,
       summary,
       reflection,
-      prayer
+      prayer,
+      diveDeeperQueries
     })
     .returning();
 
