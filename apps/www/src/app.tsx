@@ -1,3 +1,4 @@
+import { cn } from '@/www/lib/utils';
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { MultiProvider } from '@solid-primitives/context';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
@@ -10,14 +11,14 @@ import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import NavigationHeader from './components/navigation/header';
 import { Button } from './components/ui/button';
+import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toast';
 import { H1, H4 } from './components/ui/typography';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
-import { cn } from './utils';
+import { DevotionProvider } from './contexts/devotion';
 
 import './app.css';
-import { DevotionProvider } from './contexts/devotion';
 
 export function getServerCookies() {
   'use server';
@@ -30,9 +31,9 @@ export default function App() {
     defaultOptions: {
       queries: {
         gcTime: 1000 * 60 * 5,
-        staleTime: 1000 * 60 * 5
-      }
-    }
+        staleTime: 1000 * 60 * 5,
+      },
+    },
   });
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
 
@@ -42,7 +43,10 @@ export default function App() {
       <Router
         root={(props) => (
           <MetaProvider>
-            <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
+            <ClerkProvider
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
+            >
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
@@ -55,7 +59,12 @@ export default function App() {
                     fallback={(err, reset) => (
                       <div class="flex h-dvh w-full flex-col items-center justify-center space-y-2">
                         <H1>Error</H1>
-                        <H4 class="max-w-sm text-center">{err.message}</H4>
+                        <H4 class="max-w-sm text-center">
+                          {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                            err.message
+                          }
+                        </H4>
                         <div class="flex space-x-2">
                           <Button onClick={reset}>Retry</Button>
                           <Button as={A} href="/">
@@ -69,8 +78,8 @@ export default function App() {
                       <main
                         id="main"
                         class={cn(
-                          'flex min-h-dvh w-full flex-col',
-                          `${props.location.pathname.startsWith('/chat') ? 'h-dvh' : ''}`
+                          'flex min-h-screen w-full flex-col',
+                          `${props.location.pathname.startsWith('/chat') ? 'h-screen' : ''}`,
                         )}
                       >
                         <Show when={props.location.pathname !== '/'}>
@@ -81,6 +90,7 @@ export default function App() {
                     </Suspense>
                   </ErrorBoundary>
                   <Toaster />
+                  <Sonner />
                 </MultiProvider>
               </ColorModeProvider>
             </ClerkProvider>

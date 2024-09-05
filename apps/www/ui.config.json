@@ -6,6 +6,6 @@
     "css": "src/app.css"
   },
   "aliases": {
-    "path": "~/*"
+    "path": "@/www/*"
   }
 }

@@ -1,16 +1,16 @@
-import { useChat } from '@ai-sdk/solid';
+import { allModels } from '@/ai/models';
+import { Markdown } from '@/www/components/ui/markdown';
+import { cn } from '@/www/lib/utils';
+import type { useChat } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
 import { A } from '@solidjs/router';
-import { allModels } from '@theaistudybible/ai/models';
 import type { Message as AIMessage } from 'ai/solid';
 import { useUser } from 'clerk-solidjs';
-import { Check, Copy } from 'lucide-solid';
+import { Copy } from 'lucide-solid';
 import { Match, Show, Switch } from 'solid-js';
-import { Markdown } from '~/components/ui/markdown';
-import { cn } from '~/utils';
+import { toast } from 'solid-sonner';
 import Icon from '../../branding/icon';
 import { Button } from '../../ui/button';
-import { showToast } from '../../ui/toast';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { MessageReactionButtons } from './reaction-buttons';
 import { Tools } from './tools';
@@ -30,7 +30,7 @@ export const Message = (props: MessageProps) => {
     <div
       class={cn(
         'flex w-full space-x-4 py-4 pl-5',
-        props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t'
+        props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
     >
       <div class="mt-2 flex h-full w-10 shrink-0 items-start">
@@ -47,7 +47,7 @@ export const Message = (props: MessageProps) => {
             <Match when={props.message.role === 'assistant'}>
               <Tooltip>
                 <TooltipTrigger as="div">
-                  <div class="flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2">
+                  <div class="bg-primary flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full p-2">
                     <Icon width={300} height={300} class="flex-shrink-0" />
                   </div>
                 </TooltipTrigger>
@@ -80,8 +80,10 @@ export const Message = (props: MessageProps) => {
                 <Show
                   when={
                     props.message.role !== props.nextMessage?.role &&
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     'modelId' in (data as any) &&
-                    (data as any).modelId
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+                    ((data as any).modelId as string)
                   }
                   keyed
                 >
@@ -118,19 +120,12 @@ export const Message = (props: MessageProps) => {
                 variant="ghost"
                 class="h-fit w-fit p-1"
                 onClick={() => {
-                  writeClipboard([
+                  void writeClipboard([
                     new ClipboardItem({
-                      'text/plain': new Blob([props.message.content], { type: 'text/plain' })
-                    })
+                      'text/plain': new Blob([props.message.content], { type: 'text/plain' }),
+                    }),
                   ]);
-                  showToast({
-                    title: (
-                      <div class="flex items-center gap-2">
-                        <Check />
-                        Text copied
-                      </div>
-                    )
-                  });
+                  toast.success('Text copied');
                 }}
               >
                 <Copy size={15} />

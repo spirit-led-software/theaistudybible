@@ -1,7 +1,9 @@
+import type { Chat } from '@/schemas/chats';
 import { makePersisted } from '@solid-primitives/storage';
-import { Chat } from '@theaistudybible/core/model/chat';
-import { JSXElement, createContext, splitProps, useContext } from 'solid-js';
-import { SetStoreFunction, Store, createStore } from 'solid-js/store';
+import type { JSXElement} from 'solid-js';
+import { createContext, splitProps, useContext } from 'solid-js';
+import type { SetStoreFunction, Store} from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 
 export type ChatStore = {
   chat?: Chat;
@@ -21,14 +23,18 @@ export const ChatProvider = (props: ChatProviderProps) => {
 
   const [store, setStore] = makePersisted(
     createStore<ChatStore>({
-      chat: others.chat
+      chat: others.chat,
     }),
     {
-      name: 'chat'
-    }
+      name: 'chat',
+    },
   );
 
-  return <ChatContext.Provider value={[store, setStore]}>{local.children}</ChatContext.Provider>;
+  return (
+    <ChatContext.Provider value={[store, setStore] as ChatContextValue}>
+      {local.children}
+    </ChatContext.Provider>
+  );
 };
 
 export const useChatStore = () => {

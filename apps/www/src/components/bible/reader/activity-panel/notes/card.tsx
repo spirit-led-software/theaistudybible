@@ -1,18 +1,18 @@
+import { db } from '@/core/database';
+import type { Prettify } from '@/core/types/util';
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
+import { DrawerClose } from '@/www/components/ui/drawer';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { H5, P } from '@/www/components/ui/typography';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createInfiniteQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { Prettify } from '@theaistudybible/core/types/util';
 import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { Plus } from 'lucide-solid';
 import { createEffect, createSignal, For, Show } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { Transition, TransitionGroup } from 'solid-transition-group';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
-import { DrawerClose } from '~/components/ui/drawer';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { H5, P } from '~/components/ui/typography';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 
@@ -27,7 +27,7 @@ const getNotes = async (props: {
   if (!userId) {
     return {
       notes: [],
-      nextCursor: undefined
+      nextCursor: undefined,
     };
   }
 
@@ -42,19 +42,19 @@ const getNotes = async (props: {
       with: {
         verse: {
           columns: {
-            content: false
+            content: false,
           },
           with: {
             book: true,
             chapter: {
               columns: {
-                content: false
-              }
+                content: false,
+              },
             },
-            bible: true
-          }
-        }
-      }
+            bible: true,
+          },
+        },
+      },
     });
   } else {
     notes = await db.query.chapterNotes.findMany({
@@ -66,20 +66,20 @@ const getNotes = async (props: {
       with: {
         chapter: {
           columns: {
-            content: false
+            content: false,
           },
           with: {
             book: true,
-            bible: true
-          }
-        }
-      }
+            bible: true,
+          },
+        },
+      },
     });
   }
 
   return {
     notes,
-    nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined
+    nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined,
   };
 };
 
@@ -91,27 +91,27 @@ export const NotesCard = () => {
       'notes',
       {
         chapterId: brStore.chapter.id,
-        verseIds: brStore.verse ? [brStore.verse.id] : brStore.selectedVerseInfos.map((v) => v.id)
-      }
+        verseIds: brStore.verse ? [brStore.verse.id] : brStore.selectedVerseInfos.map((v) => v.id),
+      },
     ],
     queryFn: ({ pageParam }) =>
       getNotes({
         chapterId: brStore.chapter.id,
         verseIds: brStore.verse ? [brStore.verse.id] : brStore.selectedVerseInfos.map((v) => v.id),
         offset: pageParam,
-        limit: 9
+        limit: 9,
       }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: 0
+    initialPageParam: 0,
   }));
 
   type NoteType = Prettify<Awaited<ReturnType<typeof getNotes>>['notes']>[number];
   const [notes, setNotes] = createStore<NoteType[]>(
-    // @ts-ignore Types are messed up for some reason
-    query.data?.pages.flatMap((page) => page.notes) || []
+    // @ts-expect-error - Types are messed up for some reason
+    query.data?.pages.flatMap((page) => page.notes) || [],
   );
   createEffect(() => {
-    // @ts-ignore Types are messed up for some reason
+    // @ts-expect-error - Types are messed up for some reason
     setNotes(reconcile(query.data?.pages.flatMap((page) => page.notes) || []));
   });
 
@@ -177,7 +177,7 @@ export const NotesCard = () => {
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class="px-0 text-lg capitalize text-accent-foreground"
+                class="text-accent-foreground px-0 text-lg capitalize"
               />{' '}
               to take notes
             </P>

@@ -1,7 +1,9 @@
+import type { Devotion } from '@/schemas/devotions';
 import { makePersisted } from '@solid-primitives/storage';
-import { Devotion } from '@theaistudybible/core/model/devotion';
-import { createContext, JSX, splitProps, useContext } from 'solid-js';
-import { createStore, SetStoreFunction, Store } from 'solid-js/store';
+import type { JSX} from 'solid-js';
+import { createContext, splitProps, useContext } from 'solid-js';
+import type { SetStoreFunction, Store } from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 
 export type DevotionStore = {
   devotion?: Devotion;
@@ -9,7 +11,7 @@ export type DevotionStore = {
 
 export type DevotionContextValue = [
   get: Store<DevotionStore>,
-  set: SetStoreFunction<DevotionStore>
+  set: SetStoreFunction<DevotionStore>,
 ];
 
 export const DevotionContext = createContext<DevotionContextValue>();
@@ -24,15 +26,17 @@ export const DevotionProvider = (props: DevotionProviderProps) => {
 
   const [store, setStore] = makePersisted(
     createStore<DevotionStore>({
-      devotion: others.devotion
+      devotion: others.devotion,
     }),
     {
-      name: 'devotion'
-    }
+      name: 'devotion',
+    },
   );
 
   return (
-    <DevotionContext.Provider value={[store, setStore]}>{local.children}</DevotionContext.Provider>
+    <DevotionContext.Provider value={[store, setStore] as DevotionContextValue}>
+      {local.children}
+    </DevotionContext.Provider>
   );
 };
 

@@ -1,37 +1,30 @@
-import { A } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chapterNotes, verseNotes } from '@theaistudybible/core/database/schema';
-import {
-  Bible,
-  Book,
-  Chapter,
-  ChapterNote,
-  Verse,
-  VerseNote
-} from '@theaistudybible/core/model/bible';
-import { auth } from 'clerk-solidjs/server';
-import { and, eq } from 'drizzle-orm';
-import { HelpCircle } from 'lucide-solid';
-import { createSignal, Show } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { db } from '@/core/database';
+import { chapterNotes, verseNotes } from '@/core/database/schema';
+import type { Bible, Book, Chapter, ChapterNote, Verse, VerseNote } from '@/schemas/bibles/types';
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '~/components/ui/dialog';
-import { Markdown } from '~/components/ui/markdown';
+  DialogTrigger,
+} from '@/www/components/ui/dialog';
+import { Markdown } from '@/www/components/ui/markdown';
 import {
   TextField,
   TextFieldErrorMessage,
   TextFieldLabel,
-  TextFieldTextArea
-} from '~/components/ui/text-field';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+  TextFieldTextArea,
+} from '@/www/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { A } from '@solidjs/router';
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { auth } from 'clerk-solidjs/server';
+import { and, eq } from 'drizzle-orm';
+import { HelpCircle } from 'lucide-solid';
+import { createSignal, Show } from 'solid-js';
 
 const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
   'use server';
@@ -90,24 +83,24 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
     mutationFn: (mProps: { noteId: string; content: string }) =>
       editNote({
         type: 'verseId' in props.note ? 'verse' : 'chapter',
-        ...mProps
+        ...mProps,
       }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['notes']
-      })
+        queryKey: ['notes'],
+      }),
   }));
 
   const deleteNoteMutation = createMutation(() => ({
     mutationFn: (mProps: { noteId: string }) =>
       deleteNote({
         type: 'verseId' in props.note ? 'verse' : 'chapter',
-        ...mProps
+        ...mProps,
       }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['notes']
-      })
+        queryKey: ['notes'],
+      }),
   }));
 
   return (
@@ -123,7 +116,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
         <Show
           when={isEditingNote()}
           fallback={
-            <div class="overflow-y-auto whitespace-pre-wrap rounded-lg border bg-background p-2">
+            <div class="bg-background overflow-y-auto whitespace-pre-wrap rounded-lg border p-2">
               <Markdown>{props.note.content}</Markdown>
             </div>
           }
@@ -165,7 +158,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             <Show
               when={!showPreview()}
               fallback={
-                <div class="whitespace-pre-wrap rounded-lg border bg-background p-5">
+                <div class="bg-background whitespace-pre-wrap rounded-lg border p-5">
                   <Markdown>{editNoteContent()}</Markdown>
                 </div>
               }

@@ -1,6 +1,6 @@
+import { Button } from '@/www/components/ui/button';
 import { EMAIL, FACEBOOK, TWITTER } from '@solid-primitives/share';
 import { Mail } from 'lucide-solid';
-import { Button } from '~/components/ui/button';
 
 export type ShareButtonProps = {
   share: (network: string | undefined) => void;

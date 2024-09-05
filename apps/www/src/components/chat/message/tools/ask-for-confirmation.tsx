@@ -1,12 +1,12 @@
-import { useChat } from '@ai-sdk/solid';
-import { askForConfirmationTool } from '@theaistudybible/ai/chat/tools';
-import { toCapitalizedCase } from '@theaistudybible/core/util/string';
-import { ToolInvocation } from 'ai';
+import type { askForConfirmationTool } from '@/ai/chat/tools';
+import { toCapitalizedCase } from '@/core/utils/string';
+import { Button } from '@/www/components/ui/button';
+import { H5 } from '@/www/components/ui/typography';
+import type { useChat } from '@ai-sdk/solid';
+import type { ToolInvocation } from 'ai';
 import { MessageCircleWarning } from 'lucide-solid';
 import { Show } from 'solid-js';
-import { z } from 'zod';
-import { Button } from '~/components/ui/button';
-import { H5 } from '~/components/ui/typography';
+import type { z } from 'zod';
 
 export type AskForConfirmationToolProps = {
   toolInvocation: ToolInvocation;
@@ -44,8 +44,8 @@ export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
                   props.addToolResult({
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
-                      status: 'canceled'
-                    }
+                      status: 'canceled',
+                    },
                   })
                 }
               >
@@ -56,8 +56,8 @@ export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
                   props.addToolResult({
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
-                      status: 'confirmed'
-                    }
+                      status: 'confirmed',
+                    },
                   })
                 }
               >

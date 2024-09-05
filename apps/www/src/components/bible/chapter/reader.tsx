@@ -1,12 +1,12 @@
+import { db } from '@/core/database';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { H1 } from '@/www/components/ui/typography';
+import { BibleReaderProvider } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
 import { Show } from 'solid-js';
-import { QueryBoundary } from '~/components/query-boundary';
-import { H1 } from '~/components/ui/typography';
-import { BibleReaderProvider } from '~/contexts/bible-reader';
-import { cn } from '~/utils';
 import { buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
@@ -30,12 +30,12 @@ async function getChapterReaderData(props: {
             where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
             with: {
               previous: true,
-              next: true
-            }
-          }
-        }
-      }
-    }
+              next: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!bibleBookChapter) {
@@ -60,7 +60,7 @@ async function getChapterReaderData(props: {
   return {
     bible,
     book,
-    chapter
+    chapter,
   };
 }
 
@@ -70,7 +70,7 @@ export const chapterReaderQueryOptions = (props: {
   chapterNum: number;
 }) => ({
   queryKey: ['chapter-reader', props],
-  queryFn: () => getChapterReaderData(props)
+  queryFn: () => getChapterReaderData(props),
 });
 
 export type ChapterReaderProps = {
@@ -83,8 +83,8 @@ export default function ChapterReader(props: ChapterReaderProps) {
     chapterReaderQueryOptions({
       bibleAbbr: props.bibleAbbr,
       bookAbbr: props.bookAbbr,
-      chapterNum: props.chapterNum
-    })
+      chapterNum: props.chapterNum,
+    }),
   );
 
   return (
@@ -95,7 +95,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
             <BibleReaderMenu />
             <div class="mt-10">
               <div class="flex w-full justify-center">
-                <H1 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+                <H1 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
                   {chapter.name}
                 </H1>
               </div>

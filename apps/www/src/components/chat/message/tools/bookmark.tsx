@@ -1,12 +1,12 @@
+import type { bookmarkChapterTool, bookmarkVerseTool } from '@/ai/chat/tools';
+import { formNumberSequenceString } from '@/core/utils/number';
+import { Button } from '@/www/components/ui/button';
+import { H5, H6 } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
-import { bookmarkChapterTool, bookmarkVerseTool } from '@theaistudybible/ai/chat/tools';
-import { formNumberSequenceString } from '@theaistudybible/core/util/number';
-import { ToolInvocation } from 'ai';
+import type { ToolInvocation } from 'ai';
 import { Bookmark } from 'lucide-solid';
 import { For, Match, Show, Switch } from 'solid-js';
-import { z } from 'zod';
-import { Button } from '~/components/ui/button';
-import { H5, H6 } from '~/components/ui/typography';
+import type { z } from 'zod';
 
 export type BookmarkToolProps = {
   toolInvocation: ToolInvocation;
@@ -80,14 +80,14 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                               <span>
                                 {successResult.book.shortName} {successResult.chapter.number}:
                                 {formNumberSequenceString(
-                                  successResult.verses.map((verse) => verse.number)
+                                  successResult.verses.map((verse) => verse.number),
                                 )}
                               </span>
                               <Button
                                 as={A}
                                 href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
                                 variant="link"
-                                class="h-fit p-0 text-accent-foreground"
+                                class="text-accent-foreground h-fit p-0"
                               >
                                 View
                               </Button>
@@ -106,7 +106,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                                     as={A}
                                     href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${chapter.number}`}
                                     variant="link"
-                                    class="h-fit p-0 text-accent-foreground"
+                                    class="text-accent-foreground h-fit p-0"
                                   >
                                     View
                                   </Button>

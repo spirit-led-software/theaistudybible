@@ -29,7 +29,7 @@ export const topics = [
   'generosity',
   'justice',
   'wisdom',
-  'humility'
+  'humility',
 ];
 
 export function getTodaysTopic() {

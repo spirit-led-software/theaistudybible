@@ -1,7 +1,9 @@
+import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles';
 import { makePersisted } from '@solid-primitives/storage';
-import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import { JSXElement, createContext, splitProps, useContext } from 'solid-js';
-import { SetStoreFunction, Store, createStore } from 'solid-js/store';
+import type { JSXElement} from 'solid-js';
+import { createContext, splitProps, useContext } from 'solid-js';
+import type { SetStoreFunction, Store} from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 
 export type BibleStore = {
   bible?: Bible;
@@ -30,14 +32,18 @@ export const BibleProvider = (props: BibleProviderProps) => {
       bible: others.bible,
       book: others.book,
       chapter: others.chapter,
-      verse: others.verse
+      verse: others.verse,
     }),
     {
-      name: 'bible'
-    }
+      name: 'bible',
+    },
   );
 
-  return <BibleContext.Provider value={[store, setStore]}>{local.children}</BibleContext.Provider>;
+  return (
+    <BibleContext.Provider value={[store, setStore] as BibleContextValue}>
+      {local.children}
+    </BibleContext.Provider>
+  );
 };
 
 export const useBibleStore = () => {

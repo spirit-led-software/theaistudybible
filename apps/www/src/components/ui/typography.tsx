@@ -1,10 +1,10 @@
+import { cn } from '@/www/lib/utils';
 import { splitProps, type JSX, type JSXElement } from 'solid-js';
-import { cn } from '~/utils';
 
 export function H1(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLHeadingElement>
+  } & JSX.HTMLAttributes<HTMLHeadingElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (
@@ -20,7 +20,7 @@ export function H1(
 export function H2(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLHeadingElement>
+  } & JSX.HTMLAttributes<HTMLHeadingElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (
@@ -28,7 +28,7 @@ export function H2(
       {...rest}
       class={cn(
         'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0',
-        props.class
+        props.class,
       )}
     >
       {props.children}
@@ -39,7 +39,7 @@ export function H2(
 export function H3(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLHeadingElement>
+  } & JSX.HTMLAttributes<HTMLHeadingElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (
@@ -52,7 +52,7 @@ export function H3(
 export function H4(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLHeadingElement>
+  } & JSX.HTMLAttributes<HTMLHeadingElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (
@@ -65,7 +65,7 @@ export function H4(
 export function H5(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLHeadingElement>
+  } & JSX.HTMLAttributes<HTMLHeadingElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (
@@ -78,7 +78,7 @@ export function H5(
 export function H6(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLHeadingElement>
+  } & JSX.HTMLAttributes<HTMLHeadingElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (
@@ -91,7 +91,7 @@ export function H6(
 export function P(
   props: {
     children: JSXElement;
-  } & JSX.HTMLAttributes<HTMLParagraphElement>
+  } & JSX.HTMLAttributes<HTMLParagraphElement>,
 ) {
   const [, rest] = splitProps(props, ['children', 'class']);
   return (

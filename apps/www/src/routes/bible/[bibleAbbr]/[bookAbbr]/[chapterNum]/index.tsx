@@ -1,9 +1,10 @@
-import { RouteDefinition, useParams } from '@solidjs/router';
+import ChapterReader, { chapterReaderQueryOptions } from '@/www/components/bible/chapter/reader';
+import { bookPickerQueryOptions } from '@/www/components/bible/reader/menu/chapter-picker/book';
+import { smallTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/small';
+import type { RouteDefinition} from '@solidjs/router';
+import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
-import ChapterReader, { chapterReaderQueryOptions } from '~/components/bible/chapter/reader';
-import { bookPickerQueryOptions } from '~/components/bible/reader/menu/chapter-picker/book';
-import { smallTranslationPickerQueryOptions } from '~/components/bible/reader/menu/translation-picker/small';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
@@ -11,12 +12,12 @@ export const route: RouteDefinition = {
     const chapterNum = parseInt(params.chapterNum);
 
     const qc = useQueryClient();
-    Promise.all([
+    void Promise.all([
       qc.prefetchQuery(chapterReaderQueryOptions({ bibleAbbr, bookAbbr, chapterNum })),
       qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
-      qc.prefetchQuery(smallTranslationPickerQueryOptions())
+      qc.prefetchQuery(smallTranslationPickerQueryOptions()),
     ]);
-  }
+  },
 };
 
 export default function ChapterPage() {

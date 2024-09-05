@@ -1,8 +1,9 @@
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
-import { JSXElement, Show } from 'solid-js';
+import type { JSXElement} from 'solid-js';
+import { Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import SolidMarkedMarkdown from 'solid-marked/component';
-import { cn } from '~/utils';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
 import * as Typography from './typography';
@@ -54,11 +55,11 @@ export const Markdown = (props: { children: string }) => {
             href={props.url}
             title={props.title ?? undefined}
             variant="link"
-            class="p-0 text-foreground"
+            class="text-foreground p-0"
           >
             {props.children}
           </Button>
-        )
+        ),
       }}
     >
       {props.children}

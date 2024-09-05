@@ -1,22 +1,23 @@
-import { useNavigate } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chats } from '@theaistudybible/core/database/schema';
-import { Chat } from '@theaistudybible/core/model/chat';
-import { auth } from 'clerk-solidjs/server';
-import { and, eq } from 'drizzle-orm';
-import { Trash } from 'lucide-solid';
-import { Button } from '~/components/ui/button';
+import { db } from '@/core/database';
+import { chats } from '@/core/database/schema';
+import type { Chat } from '@/schemas/chats';
+import { Button } from '@/www/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '~/components/ui/dialog';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useChatStore } from '~/contexts/chat';
+  DialogTrigger,
+} from '@/www/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { useChatStore } from '@/www/contexts/chat';
+import type { DialogTriggerProps } from '@kobalte/core/dialog';
+import { useNavigate } from '@solidjs/router';
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { auth } from 'clerk-solidjs/server';
+import { and, eq } from 'drizzle-orm';
+import { Trash } from 'lucide-solid';
 
 const deleteChat = async (chatId: string) => {
   'use server';
@@ -40,16 +41,21 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
     mutationFn: () => deleteChat(props.chat.id),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['chats']
-      })
+        queryKey: ['chats'],
+      }),
   }));
 
   return (
     <Dialog>
       <Tooltip>
         <TooltipTrigger
-          as={(props: any) => (
-            <DialogTrigger {...props} as={Button} variant="ghost" size="icon">
+          as={(props: unknown) => (
+            <DialogTrigger
+              {...(props as DialogTriggerProps)}
+              as={Button}
+              variant="ghost"
+              size="icon"
+            >
               <Trash size={16} />
             </DialogTrigger>
           )}

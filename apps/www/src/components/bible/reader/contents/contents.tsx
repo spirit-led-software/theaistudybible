@@ -1,8 +1,8 @@
-import { VerseNote } from '@theaistudybible/core/model/bible';
-import type { Content } from '@theaistudybible/core/types/bible';
+import type { VerseNote } from '@/schemas/bibles';
+import type { Content } from '@/schemas/bibles/contents';
+import { cn } from '@/www/lib/utils';
+import type { HighlightInfo } from '@/www/types/bible';
 import { For, Match, Switch } from 'solid-js';
-import { HighlightInfo } from '~/types/bible';
-import { cn } from '~/utils';
 import CharContent from './char';
 import NoteContent from './note';
 import RefContent from './ref';
@@ -26,15 +26,15 @@ export default function Contents(props: ContentsProps) {
             if (key.startsWith('data-')) {
               return {
                 ...acc,
-                [key]: value
+                [key]: value,
               };
             }
             return {
               ...acc,
-              [`data-${key}`]: value
+              [`data-${key}`]: value,
             };
           },
-          {} as Record<string, string>
+          {} as Record<string, string>,
         );
 
         return (

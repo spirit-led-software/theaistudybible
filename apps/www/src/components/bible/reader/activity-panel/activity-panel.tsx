@@ -1,23 +1,24 @@
+import { Button } from '@/www/components/ui/button';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/www/components/ui/drawer';
+import { Separator } from '@/www/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { H6 } from '@/www/components/ui/typography';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { Highlighter, MessageCircle, Notebook, Share, TextSearch, X } from 'lucide-solid';
-import {
+import type {
   Accessor,
   JSXElement,
+  Setter} from 'solid-js';
+import {
   Match,
-  Setter,
   Show,
   Switch,
   createContext,
   createMemo,
   createSignal,
   splitProps,
-  useContext
+  useContext,
 } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '~/components/ui/drawer';
-import { Separator } from '~/components/ui/separator';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { H6 } from '~/components/ui/typography';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
 import { BookmarkButton } from './bookmark/button';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';
@@ -65,7 +66,7 @@ export const ActivityPanelAlwaysOpenButtons = () => {
     <div
       class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
-      <div class="flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1">
+      <div class="bg-primary flex h-10 place-items-center space-x-2 rounded-t-lg px-3 py-1">
         <Tooltip>
           <TooltipTrigger as={Button} size="sm" onClick={() => setValue('chat')}>
             <MessageCircle />
@@ -93,8 +94,8 @@ export const ActivityPanelButtons = () => {
     <div
       class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
-      <div class="flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1">
-        <H6 class="text-nowrap px-1 text-sm text-primary-foreground">
+      <div class="bg-primary flex h-10 place-items-center space-x-2 rounded-t-lg px-3 py-1">
+        <H6 class="text-primary-foreground text-nowrap px-1 text-sm">
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
         <Separator orientation="vertical" class="bg-primary-foreground" />

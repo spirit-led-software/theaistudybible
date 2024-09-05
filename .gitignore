@@ -35,3 +35,5 @@ changes.txt
 __generated__
 
 .turbo
+
+.libsql.db

@@ -1,6 +1,6 @@
+import { db } from '@/core/database';
+import { messageReactions } from '@/core/database/schema';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { messageReactions } from '@theaistudybible/core/database/schema';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
@@ -19,7 +19,7 @@ const getReactions = async (messageId: string) => {
 
   const reaction = await db.query.messageReactions.findFirst({
     where: (messageReactions, { and, eq }) =>
-      and(eq(messageReactions.userId, userId), eq(messageReactions.messageId, messageId))
+      and(eq(messageReactions.userId, userId), eq(messageReactions.messageId, messageId)),
   });
 
   return reaction ?? null;
@@ -42,13 +42,13 @@ const addReaction = async (props: {
       reaction: props.reaction,
       comment: props.comment,
       messageId: props.messageId,
-      userId
+      userId,
     })
     .onConflictDoUpdate({
       target: [messageReactions.userId, messageReactions.messageId],
       set: {
-        reaction: props.reaction
-      }
+        reaction: props.reaction,
+      },
     });
 };
 
@@ -61,7 +61,7 @@ const removeReaction = async (props: { messageId: string }) => {
   await db
     .delete(messageReactions)
     .where(
-      and(eq(messageReactions.userId, userId), eq(messageReactions.messageId, props.messageId))
+      and(eq(messageReactions.userId, userId), eq(messageReactions.messageId, props.messageId)),
     );
 };
 
@@ -72,7 +72,7 @@ export type MessageReactionButtonsProps = {
 export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
   const reactionQuery = createQuery(() => ({
     queryKey: ['reactions', { messageId: props.messageId }],
-    queryFn: () => getReactions(props.messageId)
+    queryFn: () => getReactions(props.messageId),
   }));
 
   const addReactionMutation = createMutation(() => ({
@@ -83,14 +83,14 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
       addReaction({
         messageId: props.messageId,
         reaction: mProps.reaction,
-        comment: mProps.comment
+        comment: mProps.comment,
       }),
-    onSettled: () => reactionQuery.refetch()
+    onSettled: () => reactionQuery.refetch(),
   }));
 
   const removeReactionMutation = createMutation(() => ({
     mutationFn: () => removeReaction({ messageId: props.messageId }),
-    onSettled: () => reactionQuery.refetch()
+    onSettled: () => reactionQuery.refetch(),
   }));
 
   const [dislikeDialogOpen, setDislikeDialogOpen] = createSignal(false);
@@ -117,7 +117,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
               class="h-fit w-fit p-1"
               onClick={() =>
                 addReactionMutation.mutate({
-                  reaction: 'LIKE'
+                  reaction: 'LIKE',
                 })
               }
             >
@@ -145,7 +145,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                   removeReactionMutation.mutate();
                 } else {
                   addReactionMutation.mutate({
-                    reaction: 'LIKE'
+                    reaction: 'LIKE',
                   });
                 }
               }}
@@ -187,7 +187,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
               const data = new FormData(e.currentTarget);
               addReactionMutation.mutate({
                 reaction: 'DISLIKE',
-                comment: data.get('comment')?.toString()
+                comment: data.get('comment')?.toString(),
               });
               setDislikeDialogOpen(false);
             }}

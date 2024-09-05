@@ -9,7 +9,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger
+  DrawerTrigger,
 } from '../ui/drawer';
 import { Menu } from './menu';
 

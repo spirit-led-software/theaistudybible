@@ -1,17 +1,19 @@
-import { UseChatOptions, useChat as useAIChat } from '@ai-sdk/solid';
+import { freeTierModels } from '@/ai/models';
+import { registry } from '@/ai/provider-registry';
+import { getValidMessages } from '@/api/utils/chat';
+import { db } from '@/core/database';
+import type { Prettify } from '@/core/types/util';
+import { createId } from '@/core/utils/id';
+import type { UseChatOptions} from '@ai-sdk/solid';
+import { useChat as useAIChat } from '@ai-sdk/solid';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
-import { freeTierModels } from '@theaistudybible/ai/models';
-import { registry } from '@theaistudybible/ai/provider-registry';
-import { db } from '@theaistudybible/core/database';
-import { Prettify } from '@theaistudybible/core/types/util';
-import { createId } from '@theaistudybible/core/util/id';
 import { convertToCoreMessages, generateObject } from 'ai';
 import { auth } from 'clerk-solidjs/server';
 import { isNull } from 'drizzle-orm';
-import { Accessor, createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
+import type { Accessor} from 'solid-js';
+import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
-import { getValidMessages } from '~/server/api/utils/chat';
 
 const getChat = async (chatId: string) => {
   'use server';
@@ -20,7 +22,7 @@ const getChat = async (chatId: string) => {
     throw new Error('User is not authenticated');
   }
   const chat = await db.query.chats.findFirst({
-    where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, userId))
+    where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, userId)),
   });
 
   return chat ?? null;
@@ -32,13 +34,13 @@ export const getChatQueryProps = (chatId?: string) => ({
       return await getChat(chatId);
     }
     return null;
-  }
+  },
 });
 
 const getChatMessages = async ({
   chatId,
   limit,
-  offset
+  offset,
 }: {
   chatId: string;
   limit: number;
@@ -55,16 +57,16 @@ const getChatMessages = async ({
         eq(messages.userId, userId),
         eq(messages.chatId, chatId),
         eq(messages.regenerated, false),
-        or(isNull(messages.finishReason), ne(messages.finishReason, 'error'))
+        or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
       ),
     limit,
     offset,
-    orderBy: (messages, { desc }) => desc(messages.createdAt)
+    orderBy: (messages, { desc }) => desc(messages.createdAt),
   });
 
   return {
     messages,
-    nextCursor: messages.length === limit ? offset + messages.length : undefined
+    nextCursor: messages.length === limit ? offset + messages.length : undefined,
   };
 };
 
@@ -76,11 +78,11 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
     }
     return {
       messages: [],
-      nextCursor: undefined
+      nextCursor: undefined,
     } satisfies Awaited<ReturnType<typeof getChatMessages>>;
   },
   initialPageParam: 0,
-  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
 });
 
 const getChatSuggestions = async (chatId: string) => {
@@ -94,7 +96,7 @@ const getChatSuggestions = async (chatId: string) => {
   const messages = await getValidMessages({
     chatId,
     userId,
-    maxTokens: modelInfo.contextSize
+    maxTokens: modelInfo.contextSize,
   });
   const { object } = await generateObject({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
@@ -104,16 +106,16 @@ const getChatSuggestions = async (chatId: string) => {
           z
             .string()
             .describe(
-              'A follow up question the user may ask given the chat history. Questions must be short and concise.'
-            )
+              'A follow up question the user may ask given the chat history. Questions must be short and concise.',
+            ),
         )
-        .length(3)
+        .length(3),
     }),
     system: `You must generate a list of follow up questions that the user may ask a chatbot that is an expert on Christian faith and theology, given the messages provided. 
 
 These questions must drive the conversation forward and be thought-provoking.`,
-    // @ts-ignore
-    messages: convertToCoreMessages(messages)
+    // @ts-expect-error - convertToCoreMessages is not typed
+    messages: convertToCoreMessages(messages),
   });
 
   return object.suggestions;
@@ -126,7 +128,7 @@ export const getChatSuggestionsQueryProps = (chatId?: string) => ({
       return await getChatSuggestions(chatId);
     }
     return [];
-  }
+  },
 });
 
 export type UseChatProps = Prettify<
@@ -156,7 +158,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     maxToolRoundtrips: 5,
     body: {
       ...props()?.body,
-      chatId: chatId()
+      chatId: chatId(),
     },
     onResponse: (response) => {
       const newChatId = response.headers.get('x-chat-id');
@@ -169,19 +171,19 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       }
       return props()?.onResponse?.(response);
     },
-    onFinish: (message) => {
-      chatQuery.refetch();
-      messagesQuery.refetch();
-      followUpSuggestionsQuery.refetch();
-      qc.refetchQueries({
-        queryKey: ['chats']
+    onFinish: (message, options) => {
+      void chatQuery.refetch();
+      void messagesQuery.refetch();
+      void followUpSuggestionsQuery.refetch();
+      void qc.refetchQueries({
+        queryKey: ['chats'],
       });
-      return props()?.onFinish?.(message);
+      return props()?.onFinish?.(message, options);
     },
     onError: (err) => {
       console.error(err);
       return props()?.onError?.(err);
-    }
+    },
   }));
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
@@ -199,25 +201,26 @@ export const useChat = (props: Accessor<UseChatProps>) => {
               .toReversed()
               .map((message) => ({
                 ...message,
+                createdAt: new Date(message.createdAt),
                 content: message.content ?? '',
                 tool_call_id: message.tool_call_id ?? undefined,
                 annotations: message.annotations ?? undefined,
-                toolInvocations: message.toolInvocations ?? undefined
-              })) ?? []
+                toolInvocations: message.toolInvocations ?? undefined,
+              })) ?? [],
           );
         }
-      }
-    )
+      },
+    ),
   );
 
   const followUpSuggestionsQuery = createQuery(() => ({
     ...getChatSuggestionsQueryProps(chatId()),
     // Reduce LLM calls by setting this as never stale
     gcTime: Infinity,
-    staleTime: Infinity
+    staleTime: Infinity,
   }));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(
-    followUpSuggestionsQuery.data ?? []
+    followUpSuggestionsQuery.data ?? [],
   );
   createEffect(() => {
     setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data ?? []));
@@ -227,15 +230,15 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     on([useChatResult.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
       if (useChatResult.messages() && lastAiResponseId && !isLoading) {
         useChatResult.setMessages([
-          ...useChatResult.messages()!.slice(0, -1),
+          ...useChatResult.messages().slice(0, -1),
           {
-            ...useChatResult.messages()!.at(-1)!,
-            id: lastAiResponseId
-          }
+            ...useChatResult.messages().at(-1)!,
+            id: lastAiResponseId,
+          },
         ]);
         setLastAiResponseId(undefined);
       }
-    })
+    }),
   );
 
   createEffect(
@@ -243,14 +246,14 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       () => props()?.initQuery,
       (query) => {
         if (query) {
-          useChatResult.append({
+          void useChatResult.append({
             role: 'user',
-            content: query
+            content: query,
           });
           props()?.setInitQuery?.(undefined);
         }
-      }
-    )
+      },
+    ),
   );
 
   return mergeProps(useChatResult, {
@@ -259,6 +262,6 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     chatQuery,
     chat,
     followUpSuggestionsQuery,
-    followUpSuggestions
+    followUpSuggestions,
   });
 };

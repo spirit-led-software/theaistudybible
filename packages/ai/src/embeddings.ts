@@ -1,6 +1,7 @@
-import { EmbeddingModel } from 'ai';
+import type { EmbeddingModel } from 'ai';
+import { Resource } from 'sst';
 import { registry } from './provider-registry';
-import { Document, DocumentWithEmbedding } from './types/document';
+import type { Document, DocumentWithEmbedding } from './types/document';
 
 export type EmbeddingModelInfo = {
   id: string;
@@ -10,18 +11,18 @@ export type EmbeddingModelInfo = {
 };
 
 export const embeddingsModelInfo: EmbeddingModelInfo =
-  process.env.NODE_ENV === 'production'
+  Resource.Stage.value === 'production'
     ? {
         id: 'openai:text-embedding-3-large',
         dimensions: 3072,
         chunkSize: 1024,
-        chunkOverlap: 256
+        chunkOverlap: 256,
       }
     : {
         id: 'openai:text-embedding-ada-002',
         dimensions: 1536,
         chunkSize: 1024,
-        chunkOverlap: 256
+        chunkOverlap: 256,
       };
 
 export class Embeddings {
@@ -33,7 +34,7 @@ export class Embeddings {
 
   async embedQuery(query: string) {
     const response = await this.embeddings.doEmbed({
-      values: [query]
+      values: [query],
     });
 
     return response.embeddings[0];
@@ -46,14 +47,14 @@ export class Embeddings {
     for (let i = 0; i < docs.length; i += chunkSize) {
       const chunk = docs.slice(i, i + chunkSize);
       const embeddingResponse = await this.embeddings.doEmbed({
-        values: chunk.map((d) => d.content)
+        values: chunk.map((d) => d.content),
       });
 
       result = result.concat(
         embeddingResponse.embeddings.map((d, index) => ({
           ...chunk[index],
-          embedding: d
-        }))
+          embedding: d,
+        })),
       );
     }
     return result;

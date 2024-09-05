@@ -1,10 +1,11 @@
+import { db } from '@/core/database';
+import { devotionImages, devotions } from '@/core/database/schema';
+import { s3 } from '@/core/storage';
+import { createId } from '@/core/utils/id';
+import type { Devotion } from '@/schemas/devotions/types';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { createId } from '@theaistudybible/core//util/id';
-import { db } from '@theaistudybible/core/database';
-import { devotionImages, devotions } from '@theaistudybible/core/database/schema';
-import { Devotion } from '@theaistudybible/core/model';
-import { s3 } from '@theaistudybible/core/src/storage';
 import { generateObject, generateText } from 'ai';
+import { Resource } from 'sst';
 import { z } from 'zod';
 import { plusTierModels } from '../models';
 import { openai, registry } from '../provider-registry';
@@ -23,9 +24,9 @@ Your output will be the bible reading AS-IS in the format:
 "<text>" - <book> <chapter>:<verse> (<translation>)`,
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: {
-      vectorStore: bibleVectorStoreTool
+      vectorStore: bibleVectorStoreTool,
     },
-    maxToolRoundtrips: 5
+    maxToolRoundtrips: 5,
   });
 
   return bibleReading;
@@ -33,7 +34,7 @@ Your output will be the bible reading AS-IS in the format:
 
 export const generateSummary = async ({
   topic,
-  bibleReading
+  bibleReading,
 }: {
   topic: string;
   bibleReading: string;
@@ -47,9 +48,9 @@ Your summary must be 500 words or less.`,
 Summarize the following bible passage:
 ${bibleReading}`,
     tools: {
-      vectorStore: vectorStoreTool
+      vectorStore: vectorStoreTool,
     },
-    maxToolRoundtrips: 5
+    maxToolRoundtrips: 5,
   });
 
   return summary;
@@ -58,7 +59,7 @@ ${bibleReading}`,
 export const generateReflection = async ({
   topic,
   bibleReading,
-  summary
+  summary,
 }: {
   topic: string;
   bibleReading: string;
@@ -77,9 +78,9 @@ ${summary}
 
 Write a reflection of the passage.`,
     tools: {
-      vectorStore: vectorStoreTool
+      vectorStore: vectorStoreTool,
     },
-    maxToolRoundtrips: 5
+    maxToolRoundtrips: 5,
   });
 
   return reflection;
@@ -89,7 +90,7 @@ export const generatePrayer = async ({
   topic,
   bibleReading,
   summary,
-  reflection
+  reflection,
 }: {
   topic: string;
   bibleReading: string;
@@ -111,7 +112,7 @@ Reflection:
 ${reflection}
 
 Write a closing prayer.`,
-    maxToolRoundtrips: 5
+    maxToolRoundtrips: 5,
   });
 
   return prayer;
@@ -122,7 +123,7 @@ export const generateDiveDeeperQueries = async ({
   bibleReading,
   summary,
   reflection,
-  prayer
+  prayer,
 }: {
   topic: string;
   bibleReading: string;
@@ -133,7 +134,7 @@ export const generateDiveDeeperQueries = async ({
   const { object } = await generateObject({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     schema: z.object({
-      queries: z.array(z.string())
+      queries: z.array(z.string()),
     }),
     system: `You must generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional. The queries must be posed
 as though you are the user.
@@ -152,7 +153,7 @@ ${reflection}
 Prayer:
 ${prayer}
 
-Generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional.`
+Generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional.`,
   });
 
   return object.queries;
@@ -173,9 +174,9 @@ Prayer: ${devotion.prayer}
 
 Generate a prompt that will generate an accurate image to represent the devotional.`,
     tools: {
-      vectorStore: vectorStoreTool
+      vectorStore: vectorStoreTool,
     },
-    maxToolRoundtrips: 5
+    maxToolRoundtrips: 5,
   });
 
   return imagePrompt;
@@ -183,7 +184,7 @@ Generate a prompt that will generate an accurate image to represent the devotion
 
 export const generateImage = async ({
   devotionId,
-  prompt
+  prompt,
 }: {
   prompt: string;
   devotionId: string;
@@ -191,7 +192,7 @@ export const generateImage = async ({
   const generateImageResponse = await openai.images.generate({
     prompt,
     model: 'dall-e-3',
-    size: '1024x1024'
+    size: '1024x1024',
   });
 
   const getImageResponse = await fetch(generateImageResponse.data[0].url!);
@@ -204,10 +205,10 @@ export const generateImage = async ({
   const image = Buffer.from(await getImageResponse.arrayBuffer());
   const putObjectResult = await s3.send(
     new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET!,
+      Bucket: Resource.GeneratedImagesBucket.name,
       Key: key,
-      Body: image
-    })
+      Body: image,
+    }),
   );
   if (putObjectResult.$metadata.httpStatusCode !== 200) {
     throw new Error('Could not upload generated image to storage. Please try again later.');
@@ -217,9 +218,9 @@ export const generateImage = async ({
     .insert(devotionImages)
     .values({
       id,
-      url: `${process.env.S3_BUCKET_PUBLIC_URL}/${key}`,
+      url: `${Resource.Cdn.url}/generated-images/${key}`,
       prompt,
-      devotionId
+      devotionId,
     })
     .returning();
 
@@ -231,25 +232,25 @@ export const generateDevotion = async () => {
   const bibleReading = await getBibleReading(topic);
   const summary = await generateSummary({
     topic,
-    bibleReading
+    bibleReading,
   });
   const reflection = await generateReflection({
     topic,
     bibleReading,
-    summary
+    summary,
   });
   const prayer = await generatePrayer({
     topic,
     bibleReading,
     summary,
-    reflection
+    reflection,
   });
   const diveDeeperQueries = await generateDiveDeeperQueries({
     topic,
     bibleReading,
     summary,
     reflection,
-    prayer
+    prayer,
   });
 
   const [devotion] = await db
@@ -260,18 +261,18 @@ export const generateDevotion = async () => {
       summary,
       reflection,
       prayer,
-      diveDeeperQueries
+      diveDeeperQueries,
     })
     .returning();
 
   const imagePrompt = await generateImagePrompt(devotion);
   const image = await generateImage({
     prompt: imagePrompt,
-    devotionId: devotion.id
+    devotionId: devotion.id,
   });
 
   return {
     ...devotion,
-    image
+    image,
   };
 };

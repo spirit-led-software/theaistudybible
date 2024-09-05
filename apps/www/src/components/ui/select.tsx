@@ -1,10 +1,10 @@
 import type { JSX, ValidComponent } from 'solid-js';
 import { splitProps } from 'solid-js';
 
-import { PolymorphicProps } from '@kobalte/core/polymorphic';
+import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import * as SelectPrimitive from '@kobalte/core/select';
 
-import { cn } from '~/utils';
+import { cn } from '@/www/lib/utils';
 
 const Select = SelectPrimitive.Root;
 const SelectValue = SelectPrimitive.Value;
@@ -17,14 +17,14 @@ type SelectTriggerProps<T extends ValidComponent = 'button'> =
   };
 
 const SelectTrigger = <T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, SelectTriggerProps<T>>
+  props: PolymorphicProps<T, SelectTriggerProps<T>>,
 ) => {
   const [local, others] = splitProps(props as SelectTriggerProps, ['class', 'children']);
   return (
     <SelectPrimitive.Trigger
       class={cn(
-        'flex h-10 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-        local.class
+        'border-input ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-10 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        local.class,
       )}
       {...others}
     >
@@ -51,15 +51,15 @@ type SelectContentProps<T extends ValidComponent = 'div'> =
   SelectPrimitive.SelectContentProps<T> & { class?: string | undefined };
 
 const SelectContent = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, SelectContentProps<T>>
+  props: PolymorphicProps<T, SelectContentProps<T>>,
 ) => {
   const [local, others] = splitProps(props as SelectContentProps, ['class']);
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         class={cn(
-          'relative z-50 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80',
-          local.class
+          'bg-popover text-popover-foreground animate-in fade-in-80 relative z-50 min-w-32 overflow-hidden rounded-md border shadow-md',
+          local.class,
         )}
         {...others}
       >
@@ -75,14 +75,14 @@ type SelectItemProps<T extends ValidComponent = 'li'> = SelectPrimitive.SelectIt
 };
 
 const SelectItem = <T extends ValidComponent = 'li'>(
-  props: PolymorphicProps<T, SelectItemProps<T>>
+  props: PolymorphicProps<T, SelectItemProps<T>>,
 ) => {
   const [local, others] = splitProps(props as SelectItemProps, ['class', 'children']);
   return (
     <SelectPrimitive.Item
       class={cn(
-        'relative mt-0 flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-        local.class
+        'focus:bg-accent focus:text-accent-foreground relative mt-0 flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        local.class,
       )}
       {...others}
     >

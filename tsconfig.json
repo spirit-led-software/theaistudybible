@@ -1,0 +1,5 @@
+{
+  "extends": "./tools/tsconfig/tsconfig.json",
+  "include": ["./.sst/platform/config.d.ts", "./packages/core/globals.d.ts", "**/*.ts", "**/*.tsx", "apps/api/tsconfig.json"],
+  "exclude": ["apps", "packages", "tools"]
+}

@@ -1,11 +1,9 @@
 {
   "name": "@theaistudybible/tsconfig",
-  "version": "1.0.0",
   "description": "The AI Study Bible TypeScript Configuration",
   "private": true,
   "main": "tsconfig.json",
   "devDependencies": {
-    "@types/node": "^20.14.11",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   }
 }

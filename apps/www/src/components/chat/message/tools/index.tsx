@@ -1,5 +1,5 @@
-import { useChat } from '@ai-sdk/solid';
-import { ToolInvocation } from 'ai';
+import type { useChat } from '@ai-sdk/solid';
+import type { ToolInvocation } from 'ai';
 import { For, Match, Show, Switch } from 'solid-js';
 import { H6 } from '../../../ui/typography';
 import { AskForConfirmationTool } from './ask-for-confirmation';
@@ -24,7 +24,11 @@ export const Tools = (props: ToolsProps) => {
             fallback={
               <div class="flex w-full flex-col">
                 <H6>{toolInvocation.toolName}</H6>
-                <Show when={'result' in toolInvocation && toolInvocation.result} keyed>
+                <Show
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  when={'result' in toolInvocation && toolInvocation.result}
+                  keyed
+                >
                   {(result) => (
                     <p>
                       <strong>Result:</strong> {result}

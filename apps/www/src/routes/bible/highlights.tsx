@@ -1,27 +1,28 @@
-import { A, RouteDefinition } from '@solidjs/router';
-import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { verseHighlights } from '@theaistudybible/core/database/schema';
-import { contentsToText } from '@theaistudybible/core/util/bible';
-import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
-import { and, eq } from 'drizzle-orm';
-import { createEffect, For, Match, Switch } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
-import { TransitionGroup } from 'solid-transition-group';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { db } from '@/core/database';
+import { verseHighlights } from '@/core/database/schema';
+import { contentsToText } from '@/core/utils/bible';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '~/components/ui/dialog';
-import { Spinner } from '~/components/ui/spinner';
-import { H2, H6 } from '~/components/ui/typography';
+  DialogTrigger,
+} from '@/www/components/ui/dialog';
+import { Spinner } from '@/www/components/ui/spinner';
+import { H2, H6 } from '@/www/components/ui/typography';
+import type { RouteDefinition } from '@solidjs/router';
+import { A } from '@solidjs/router';
+import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
+import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
+import { and, eq } from 'drizzle-orm';
+import { createEffect, For, Match, Switch } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
+import { TransitionGroup } from 'solid-transition-group';
 
 const getHighlights = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
@@ -29,7 +30,7 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
   if (!userId) {
     return {
       highlights: [],
-      nextCursor: undefined
+      nextCursor: undefined,
     };
   }
   const highlights = await db.query.verseHighlights.findMany({
@@ -39,29 +40,29 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
         with: {
           bible: {
             columns: {
-              abbreviation: true
-            }
+              abbreviation: true,
+            },
           },
           book: {
             columns: {
-              abbreviation: true
-            }
+              abbreviation: true,
+            },
           },
           chapter: {
             columns: {
-              number: true
-            }
-          }
-        }
-      }
+              number: true,
+            },
+          },
+        },
+      },
     },
     limit,
-    offset
+    offset,
   });
 
   return {
     highlights,
-    nextCursor: highlights.length === limit ? offset + limit : undefined
+    nextCursor: highlights.length === limit ? offset + limit : undefined,
   };
 };
 
@@ -81,14 +82,14 @@ const getHighlightsQueryOptions = () => ({
   queryKey: ['highlights'],
   queryFn: ({ pageParam }: { pageParam: number }) => getHighlights({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getHighlights>>) => lastPage.nextCursor
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getHighlights>>) => lastPage.nextCursor,
 });
 
 export const route: RouteDefinition = {
   preload: () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
-  }
+    void qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
+  },
 };
 
 const HighlightsPage = () => {
@@ -96,24 +97,24 @@ const HighlightsPage = () => {
 
   const deleteHighlightMutation = createMutation(() => ({
     mutationFn: (highlightId: string) => deleteHighlight(highlightId),
-    onSettled: () => highlightsQuery.refetch()
+    onSettled: () => highlightsQuery.refetch(),
   }));
 
   const [highlights, setHighlights] = createStore(
-    highlightsQuery.data?.pages.flatMap((page) => page.highlights) ?? []
+    highlightsQuery.data?.pages.flatMap((page) => page.highlights) ?? [],
   );
   createEffect(() => {
     setHighlights(
       reconcile(highlightsQuery.data?.pages.flatMap((page) => page.highlights) ?? [], {
-        merge: true
-      })
+        merge: true,
+      }),
     );
   });
 
   return (
     <div class="flex h-full w-full flex-col items-center justify-center p-5">
       <SignedIn>
-        <H2 class="inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+        <H2 class="from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
           Your Highlighted Verses
         </H2>
         <div class="mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
@@ -141,7 +142,7 @@ const HighlightsPage = () => {
                         <div
                           class="size-6 rounded-full"
                           style={{
-                            'background-color': highlight.color
+                            'background-color': highlight.color,
                           }}
                         />
                       </CardHeader>
@@ -189,7 +190,7 @@ const HighlightsPage = () => {
                     <Match when={highlightsQuery.hasNextPage}>
                       <Button
                         onClick={() => {
-                          highlightsQuery.fetchNextPage();
+                          void highlightsQuery.fetchNextPage();
                         }}
                       >
                         Load more

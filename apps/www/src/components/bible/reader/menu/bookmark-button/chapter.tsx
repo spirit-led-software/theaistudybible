@@ -1,16 +1,16 @@
+import { db } from '@/core/database';
+import { chapterBookmarks } from '@/core/database/schema';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Spinner } from '@/www/components/ui/spinner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chapterBookmarks } from '@theaistudybible/core/database/schema';
 import { SignedIn, SignedOut, useAuth } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Spinner } from '~/components/ui/spinner';
-import { showToast } from '~/components/ui/toast';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { toast } from 'solid-sonner';
 
 const addBookmark = async (chapterId: string) => {
   'use server';
@@ -42,7 +42,7 @@ const getBookmark = async (chapterId: string) => {
   }
   const bookmark = await db.query.chapterBookmarks.findFirst({
     where: (chapterBookmarks, { and, eq }) =>
-      and(eq(chapterBookmarks.userId, userId), eq(chapterBookmarks.chapterId, chapterId))
+      and(eq(chapterBookmarks.userId, userId), eq(chapterBookmarks.chapterId, chapterId)),
   });
 
   return bookmark ?? null;
@@ -50,13 +50,13 @@ const getBookmark = async (chapterId: string) => {
 
 export const getChapterBookmarkQueryOptions = ({
   userId,
-  chapterId
+  chapterId,
 }: {
   userId?: string | null;
   chapterId: string;
 }) => ({
   queryKey: ['bookmark', { chapterId, userId }],
-  queryFn: async () => await getBookmark(chapterId)
+  queryFn: async () => await getBookmark(chapterId),
 });
 
 export const ChapterBookmarkButton = () => {
@@ -66,30 +66,24 @@ export const ChapterBookmarkButton = () => {
   const query = createQuery(() =>
     getChapterBookmarkQueryOptions({
       userId: userId(),
-      chapterId: brStore.chapter.id
-    })
+      chapterId: brStore.chapter.id,
+    }),
   );
 
   const addBookmarkMutation = createMutation(() => ({
     mutationFn: () => addBookmark(brStore.chapter.id),
     onSettled: () => query.refetch(),
     onError: (error) => {
-      showToast({
-        title: error.message,
-        variant: 'error'
-      });
-    }
+      toast.error(error.message);
+    },
   }));
 
   const deleteBookmarkMutation = createMutation(() => ({
     mutationFn: () => deleteBookmark(brStore.chapter.id),
     onSettled: () => query.refetch(),
     onError: (error) => {
-      showToast({
-        title: error.message,
-        variant: 'error'
-      });
-    }
+      toast.error(error.message);
+    },
   }));
 
   return (

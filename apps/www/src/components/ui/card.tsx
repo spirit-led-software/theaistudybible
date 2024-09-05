@@ -1,13 +1,13 @@
 import type { Component, ComponentProps } from 'solid-js';
 import { splitProps } from 'solid-js';
 
-import { cn } from '~/utils';
+import { cn } from '@/www/lib/utils';
 
 const Card: Component<ComponentProps<'div'>> = (props) => {
   const [local, others] = splitProps(props, ['class']);
   return (
     <div
-      class={cn('rounded-lg border bg-card text-card-foreground shadow-sm', local.class)}
+      class={cn('bg-card text-card-foreground rounded-lg border shadow-sm', local.class)}
       {...others}
     />
   );
@@ -27,7 +27,7 @@ const CardTitle: Component<ComponentProps<'h3'>> = (props) => {
 
 const CardDescription: Component<ComponentProps<'p'>> = (props) => {
   const [local, others] = splitProps(props, ['class']);
-  return <p class={cn('text-sm text-muted-foreground', local.class)} {...others} />;
+  return <p class={cn('text-muted-foreground text-sm', local.class)} {...others} />;
 };
 
 const CardContent: Component<ComponentProps<'div'>> = (props) => {

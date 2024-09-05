@@ -1,4 +1,4 @@
-import { ToggleGroupItem } from '~/components/ui/toggle-group';
+import { ToggleGroupItem } from '@/www/components/ui/toggle-group';
 
 export type ColorItemProps = {
   title: string;
@@ -12,7 +12,7 @@ export const ColorItem = (props: ColorItemProps) => {
         <span
           class={`h-4 w-4 rounded-full`}
           style={{
-            'background-color': props.hex
+            'background-color': props.hex,
           }}
         />
         <span class="hidden sm:flex">{props.title}</span>

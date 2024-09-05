@@ -1,7 +1,7 @@
+import { cn } from '@/www/lib/utils';
 import * as AccordionPrimitive from '@kobalte/core/accordion';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import { splitProps, type JSXElement, type ValidComponent } from 'solid-js';
-import { cn } from '~/utils';
 
 const Accordion = AccordionPrimitive.Root;
 
@@ -10,7 +10,7 @@ type AccordionItemProps = AccordionPrimitive.AccordionItemProps & {
 };
 
 const AccordionItem = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, AccordionItemProps>
+  props: PolymorphicProps<T, AccordionItemProps>,
 ) => {
   const [local, others] = splitProps(props as AccordionItemProps, ['class']);
   return <AccordionPrimitive.Item class={cn('border-b', local.class)} {...others} />;
@@ -22,7 +22,7 @@ type AccordionTriggerProps = AccordionPrimitive.AccordionTriggerProps & {
 };
 
 const AccordionTrigger = <T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, AccordionTriggerProps>
+  props: PolymorphicProps<T, AccordionTriggerProps>,
 ) => {
   const [local, others] = splitProps(props as AccordionTriggerProps, ['class', 'children']);
   return (
@@ -30,7 +30,7 @@ const AccordionTrigger = <T extends ValidComponent = 'button'>(
       <AccordionPrimitive.Trigger
         class={cn(
           'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-expanded]>svg]:rotate-180',
-          local.class
+          local.class,
         )}
         {...others}
       >
@@ -58,14 +58,14 @@ type AccordionContentProps = AccordionPrimitive.AccordionContentProps & {
 };
 
 const AccordionContent = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, AccordionContentProps>
+  props: PolymorphicProps<T, AccordionContentProps>,
 ) => {
   const [local, others] = splitProps(props as AccordionContentProps, ['class', 'children']);
   return (
     <AccordionPrimitive.Content
       class={cn(
-        'animate-accordion-up overflow-hidden pb-4 pt-0 text-sm transition-all data-[expanded]:animate-accordion-down',
-        local.class
+        'animate-accordion-up data-[expanded]:animate-accordion-down overflow-hidden pb-4 pt-0 text-sm transition-all',
+        local.class,
       )}
       {...others}
     >

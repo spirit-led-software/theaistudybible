@@ -1,9 +1,10 @@
-import { Navigate, RouteDefinition, useParams } from '@solidjs/router';
+import { db } from '@/core/database';
+import { chapters } from '@/core/database/schema';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import type { RouteDefinition} from '@solidjs/router';
+import { Navigate, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chapters } from '@theaistudybible/core/database/schema';
 import { asc } from 'drizzle-orm';
-import { QueryBoundary } from '~/components/query-boundary';
 
 export type BookRedirectUrlParams = {
   bibleAbbr: string;
@@ -14,8 +15,8 @@ export const route: RouteDefinition = {
   preload: ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const qc = useQueryClient();
-    qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookAbbr }));
-  }
+    void qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookAbbr }));
+  },
 };
 
 const getBookRedirectUrl = async ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams) => {
@@ -28,11 +29,11 @@ const getBookRedirectUrl = async ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams
         with: {
           chapters: {
             limit: 1,
-            orderBy: asc(chapters.number)
-          }
-        }
-      }
-    }
+            orderBy: asc(chapters.number),
+          },
+        },
+      },
+    },
   });
 
   const book = bible?.books[0];
@@ -47,7 +48,7 @@ const getBookRedirectUrl = async ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams
 
 const getBookRedirectUrlQueryOptions = ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams) => ({
   queryKey: ['book-redirect', bibleAbbr, bookAbbr],
-  queryFn: () => getBookRedirectUrl({ bibleAbbr, bookAbbr })
+  queryFn: () => getBookRedirectUrl({ bibleAbbr, bookAbbr }),
 });
 
 export default function BookPage() {
@@ -55,8 +56,8 @@ export default function BookPage() {
   const query = createQuery(() =>
     getBookRedirectUrlQueryOptions({
       bibleAbbr: params.bibleAbbr,
-      bookAbbr: params.bookAbbr
-    })
+      bookAbbr: params.bookAbbr,
+    }),
   );
 
   return <QueryBoundary query={query}>{(link) => <Navigate href={link} />}</QueryBoundary>;

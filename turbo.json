@@ -1,28 +1,27 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "globalDependencies": [
-        ".env"
-    ],
-    "globalEnv": [
-        "*"
-    ],
-    "tasks": {
-        "build": {
-            "dependsOn": [
-                "^build"
-            ],
-            "outputs": [
-                ".vinxi/**",
-                ".output/**"
-            ]
-        },
-        "format": {},
-        "lint": {},
-        "lint:fix": {},
-        "type-check": {},
-        "dev": {
-            "persistent": true,
-            "cache": false
-        }
-    }
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalDependencies": [
+    ".env"
+  ],
+  "globalEnv": [
+    "*"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".vinxi/**",
+        ".output/**"
+      ]
+    },
+    "clean": {},
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "type-check": {}
+  }
 }

@@ -2,32 +2,72 @@
   "name": "theaistudybible",
   "description": "The AI Study Bible",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
-  "devDependencies": {
-    "@changesets/cli": "^2.27.7",
-    "concurrently": "^8.2.2",
-    "dotenv-cli": "^7.4.2",
-    "drizzle-kit": "^0.23.0",
-    "turbo": "^2.0.9",
-    "vitest": "^2.0.3"
-  },
   "scripts": {
-    "build": "dotenv -e .env -- turbo build",
-    "changeset": "changeset",
-    "db:generate": "dotenv -e .env -- drizzle-kit generate",
-    "db:migrate": "dotenv -e .env -- drizzle-kit migrate",
-    "db:seed": "dotenv -e .env -- run ./apps/scripts/src/index.ts db seed",
-    "db:studio": "dotenv -e .env -- drizzle-kit studio",
-    "dev": "concurrently -n \"docker-compose,turbo,drizzle-studio\" -c \"blue,yellow,red\" \"docker compose up\" \"dotenv -e .env -- turbo dev\" \"pnpm run db:studio\"",
-    "format": "turbo format",
-    "lint:fix": "turbo lint:fix",
-    "lint": "turbo lint",
-    "release": "changeset publish",
-    "scripts": "dotenv -e .env -- run ./apps/scripts/src/index.ts",
-    "start": "dotenv -e .env -- turbo start",
+    "clean": "turbo clean",
+    "clean-install": "rimraf --glob '**/node_modules' bun.lockb && bun pm cache rm && bun install",
+    "db:generate": "sst shell -- drizzle-kit generate",
+    "db:migrate": "sst shell -- drizzle-kit migrate",
+    "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",
+    "db:studio": "sst shell -- drizzle-kit studio",
+    "dev": "sst dev",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "lint:fix": "eslint --fix .",
+    "lint": "eslint .",
+    "postinstall": "sst install",
+    "refresh": "sst refresh",
+    "scripts": "sst shell -- bun run ./tools/scripts/src/index.ts",
+    "secret:set": "sst secret set",
+    "secret:remove": "sst secret remove",
+    "secret:list": "sst secret list",
     "type-check": "turbo type-check",
-    "version": "changeset version"
+    "upgrade": "bun update --save && sst upgrade"
   },
-  "packageManager": "pnpm@9.5.0"
+  "devDependencies": {
+    "@clerk/types": "^4.19.0",
+    "@eslint/compat": "^1.1.1",
+    "@eslint/js": "^9.9.1",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.5.4",
+    "drizzle-kit": "^0.24.2",
+    "eslint": "^9.9.1",
+    "eslint-plugin-drizzle": "^0.2.3",
+    "eslint-plugin-solid": "^0.14.3",
+    "prettier": "^3.3.3",
+    "prettier-plugin-organize-imports": "^4.0.0",
+    "prettier-plugin-tailwindcss": "^0.6.6",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.1.1",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "8.4.0",
+    "vitest": "^2.0.5"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.645.0",
+    "@aws-sdk/s3-request-presigner": "^3.645.0",
+    "@libsql/client": "^0.10.0",
+    "@upstash/ratelimit": "^2.0.2",
+    "@upstash/redis": "^1.34.0",
+    "ai": "^3.3.27",
+    "date-fns": "^3.6.0",
+    "drizzle-orm": "^0.33.0",
+    "drizzle-zod": "^0.5.1",
+    "sst": "3.0.112",
+    "stripe": "^16.9.0",
+    "zod": "^3.23.8"
+  },
+  "packageManager": "bun@1.1.26",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "overrides": {
+    "nitropack": "npm:nitropack-nightly@latest"
+  },
+  "trustedDependencies": [
+    "@clerk/shared",
+    "esbuild"
+  ]
 }

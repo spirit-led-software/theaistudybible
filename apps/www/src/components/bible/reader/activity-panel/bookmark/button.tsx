@@ -1,27 +1,27 @@
+import { db } from '@/core/database';
+import { verseBookmarks } from '@/core/database/schema';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { verseBookmarks } from '@theaistudybible/core/database/schema';
 import { useAuth } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
 
 const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
   'use server';
   if (!props.verseIds.length) {
     return {
-      isBookmarked: false
+      isBookmarked: false,
     };
   }
 
   const { userId } = auth();
   if (!userId) {
     return {
-      isBookmarked: false
+      isBookmarked: false,
     };
   }
 
@@ -31,7 +31,7 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
     .where(and(eq(verseBookmarks.userId, userId), inArray(verseBookmarks.verseId, props.verseIds)));
 
   return {
-    isBookmarked: bookmarks.length === props.verseIds.length
+    isBookmarked: bookmarks.length === props.verseIds.length,
   };
 };
 
@@ -47,8 +47,8 @@ const bookmarkVerses = async (props: { verseIds: string[] }) => {
     .values(
       props.verseIds.map((verseId) => ({
         verseId,
-        userId
-      }))
+        userId,
+      })),
     )
     .onConflictDoNothing();
 };
@@ -71,17 +71,18 @@ export const BookmarkButton = () => {
 
   const getSelectionBookmarkedQuery = createQuery(() => ({
     queryKey: ['verses-bookmarked', { verseIds: brStore.selectedVerseInfos.map((v) => v.id) }],
-    queryFn: () => getSelectionBookmarked({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) })
+    queryFn: () =>
+      getSelectionBookmarked({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
   }));
 
   const bookmarkVersesMutation = createMutation(() => ({
     mutationFn: () => bookmarkVerses({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
-    onSettled: () => getSelectionBookmarkedQuery.refetch()
+    onSettled: () => getSelectionBookmarkedQuery.refetch(),
   }));
 
   const unbookmarkVersesMutation = createMutation(() => ({
     mutationFn: () => unbookmarkVerses({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
-    onSettled: () => getSelectionBookmarkedQuery.refetch()
+    onSettled: () => getSelectionBookmarkedQuery.refetch(),
   }));
 
   return (

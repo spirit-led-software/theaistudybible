@@ -1,13 +1,13 @@
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
+import { DrawerClose } from '@/www/components/ui/drawer';
+import { TextField, TextFieldTextArea } from '@/www/components/ui/text-field';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { writeClipboard } from '@solid-primitives/clipboard';
 import { createSocialShare } from '@solid-primitives/share';
-import { Check, Copy } from 'lucide-solid';
+import { Copy } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
-import { DrawerClose } from '~/components/ui/drawer';
-import { TextField, TextFieldTextArea } from '~/components/ui/text-field';
-import { showToast } from '~/components/ui/toast';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { toast } from 'solid-sonner';
 import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
 
 export const ShareCard = () => {
@@ -20,7 +20,7 @@ export const ShareCard = () => {
     quote: `${brStore.selectedText} (${brStore.selectedTitle})`,
     description: 'Shared verse from The AI Study Bible.',
     url: window.location.href,
-    hashtags: 'theaistudybible,ai,studybible,bible,verse,scripture,scriptures'
+    hashtags: 'theaistudybible,ai,studybible,bible,verse,scripture,scriptures',
   }));
 
   return (
@@ -45,32 +45,28 @@ export const ShareCard = () => {
         <Button
           onClick={() => {
             if (shareInputRef) {
-              writeClipboard([
+              void writeClipboard([
                 new ClipboardItem({
-                  'text/plain': new Blob([shareInputRef.value], { type: 'text/plain' })
-                })
+                  'text/plain': new Blob([shareInputRef.value], { type: 'text/plain' }),
+                }),
               ]);
-              showToast({
-                title: (
-                  <div class="flex items-center gap-2">
-                    <Check />
-                    Copied to clipboard
-                  </div>
-                )
-              });
+              toast.success('Copied to clipboard');
             }
           }}
         >
           <Copy />
         </Button>
         <Switch>
-          <Match when={navigator.share}>
+          <Match
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            when={navigator.share}
+          >
             <Button
               onClick={() => {
-                navigator.share({
+                void navigator.share({
                   title: brStore.selectedTitle,
                   text: brStore.selectedText,
-                  url: window.location.href
+                  url: window.location.href,
                 });
               }}
             >

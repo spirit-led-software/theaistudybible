@@ -1,25 +1,25 @@
-import type { JwtPayload } from '@clerk/types';
-import { db } from '@theaistudybible/core/database';
+import { db } from '@/core/database';
 import {
   chats,
   messages as messagesTable,
-  messagesToSourceDocuments
-} from '@theaistudybible/core/database/schema';
-import { Message } from '@theaistudybible/core/model/chat/message';
-import { createId } from '@theaistudybible/core/util/id';
+  messagesToSourceDocuments,
+} from '@/core/database/schema';
+import { createId } from '@/core/utils/id';
+import type { Message } from '@/schemas/chats/messages/types';
+import type { JwtPayload } from '@clerk/types';
 import { StreamData, convertToCoreMessages, generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { defaultModel } from '../models';
 import { registry } from '../provider-registry';
-import { messagesToString } from '../util';
+import { messagesToString } from '../utils';
 import { tools } from './tools';
 
 export const renameChat = async (chatId: string, messages: Pick<Message, 'role' | 'content'>[]) => {
   const { object } = await generateObject({
     model: registry.languageModel(`${defaultModel.provider}:${defaultModel.id}`),
     schema: z.object({
-      title: z.string().describe('The new title of the chat')
+      title: z.string().describe('The new title of the chat'),
     }),
     system:
       'Given the following conversation, you must generate a new title for the conversation.' +
@@ -29,13 +29,13 @@ export const renameChat = async (chatId: string, messages: Pick<Message, 'role' 
       '\n```\n' +
       messagesToString(messages) +
       '\n```\n' +
-      "What's the new title?"
+      "What's the new title?",
   });
   return (
     await db
       .update(chats)
       .set({
-        name: object.title
+        name: object.title,
       })
       .where(eq(chats.id, chatId))
       .returning()
@@ -56,14 +56,14 @@ export const createChatChain = (options: CreateChatChainOptions) => {
     const streamData = new StreamData();
     const responseId = `msg_${createId()}`;
 
-    // @ts-ignore
+    // @ts-expect-error - Messages are not typed correctly
     messages = convertToCoreMessages(messages);
     // Fix weird issue where some messages are empty
     messages = messages.filter((message) => (message.content?.length ?? 0) > 0);
 
     const resolvedTools = tools({
       userId: options.userId,
-      sessionClaims: options.sessionClaims
+      sessionClaims: options.sessionClaims,
     });
 
     return {
@@ -76,7 +76,7 @@ You must use the vector database tool to fetch relevant resources for your answe
 The user's favorite bible translation is ${options.sessionClaims.metadata.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.
 
 You must format your response in valid markdown syntax.`,
-        // @ts-ignore
+        // @ts-expect-error - Messages are not typed correctly
         messages,
         tools: resolvedTools,
         maxTokens: options.maxTokens,
@@ -89,15 +89,15 @@ You must format your response in valid markdown syntax.`,
               content: event.text,
               toolInvocations: event.toolCalls?.map((t) => ({
                 ...t,
-                state: resolvedTools[t.toolName].execute ? 'call' : 'partial-call'
+                state: resolvedTools[t.toolName].execute ? 'call' : 'partial-call',
               })),
               finishReason: event.finishReason,
               data: {
-                modelId: options.modelId
+                modelId: options.modelId,
               },
               originMessageId: options.userMessageId,
               userId: options.userId,
-              chatId: options.chatId
+              chatId: options.chatId,
             })
             .returning()
             .execute();
@@ -109,9 +109,9 @@ You must format your response in valid markdown syntax.`,
                 toolInvocations: (response.toolInvocations ?? []).concat(
                   event.toolResults.map((t) => ({
                     ...t,
-                    state: 'result'
-                  }))
-                )
+                    state: 'result',
+                  })),
+                ),
               })
               .where(eq(messagesTable.id, responseId))
               .returning()
@@ -126,18 +126,18 @@ You must format your response in valid markdown syntax.`,
                       messageId: responseId,
                       sourceDocumentId: d.id,
                       distance: 1 - d.score,
-                      distanceMetric: 'cosine' as const
-                    }))
+                      distanceMetric: 'cosine' as const,
+                    })),
                   )
                   // In case there are multiple results with the same document
                   .onConflictDoNothing();
               }
             }
           }
-        }
+        },
       }),
       streamData,
-      responseId
+      responseId,
     };
   };
 };

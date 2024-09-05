@@ -1,13 +1,13 @@
-import { useChat } from '@ai-sdk/solid';
-import { toCapitalizedCase } from '@theaistudybible/core/util/string';
-import { ToolInvocation } from 'ai';
+import { toCapitalizedCase } from '@/core/utils/string';
+import { ColorItem } from '@/www/components/bible/reader/activity-panel/highlight/color-item';
+import { HighlightColorPicker } from '@/www/components/bible/reader/activity-panel/highlight/color-picker';
+import { Button } from '@/www/components/ui/button';
+import { ToggleGroup } from '@/www/components/ui/toggle-group';
+import { H5 } from '@/www/components/ui/typography';
+import type { useChat } from '@ai-sdk/solid';
+import type { ToolInvocation } from 'ai';
 import { Palette } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
-import { ColorItem } from '~/components/bible/reader/activity-panel/highlight/color-item';
-import { HighlightColorPicker } from '~/components/bible/reader/activity-panel/highlight/color-picker';
-import { Button } from '~/components/ui/button';
-import { ToggleGroup } from '~/components/ui/toggle-group';
-import { H5 } from '~/components/ui/typography';
 
 export type AskForHighlightColorToolProps = {
   toolInvocation: ToolInvocation;
@@ -51,8 +51,8 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
                   props.addToolResult({
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
-                      status: 'canceled'
-                    }
+                      status: 'canceled',
+                    },
                   })
                 }
               >
@@ -64,8 +64,8 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
                       status: 'confirmed',
-                      color: tgValue() || customColor()
-                    }
+                      color: tgValue() || customColor(),
+                    },
                   })
                 }
               >
@@ -83,7 +83,7 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
               <div
                 class="h-4 w-4 shrink-0 rounded-full"
                 style={{
-                  'background-color': result.color
+                  'background-color': result.color,
                 }}
               />
             </Show>

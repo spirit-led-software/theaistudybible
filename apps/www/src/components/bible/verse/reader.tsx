@@ -1,12 +1,13 @@
+import { db } from '@/core/database';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { H1 } from '@/www/components/ui/typography';
+import { BibleReaderProvider } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
-import { Accessor, Show } from 'solid-js';
-import { QueryBoundary } from '~/components/query-boundary';
-import { H1 } from '~/components/ui/typography';
-import { BibleReaderProvider } from '~/contexts/bible-reader';
-import { cn } from '~/utils';
+import type { Accessor} from 'solid-js';
+import { Show } from 'solid-js';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
@@ -35,14 +36,14 @@ const getVerseReaderData = async (props: {
                 where: (verses, { eq }) => eq(verses.number, props.verseNum),
                 with: {
                   previous: true,
-                  next: true
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                  next: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
   const book = bibleBookChapterVerse?.books[0];
   const chapter = book?.chapters[0];
@@ -56,7 +57,7 @@ const getVerseReaderData = async (props: {
     bible: bibleBookChapterVerse,
     book,
     chapter,
-    verse
+    verse,
   };
 };
 
@@ -67,7 +68,7 @@ export const getVerseReaderQueryOptions = (props: {
   verseNum: number;
 }) => ({
   queryKey: ['verse-reader', props],
-  queryFn: () => getVerseReaderData(props)
+  queryFn: () => getVerseReaderData(props),
 });
 
 export type VerseReaderProps = {
@@ -98,7 +99,7 @@ export default function VerseReader(props: {
             <BibleReaderMenu />
             <div class="mt-10">
               <div class="flex w-full justify-center">
-                <H1 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+                <H1 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
                   {data.verse.name}
                 </H1>
               </div>

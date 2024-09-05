@@ -1,19 +1,19 @@
-import { A } from '@solidjs/router';
-import { createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import type { Book } from '@theaistudybible/core/model/bible';
-import { Check } from 'lucide-solid';
-import { For } from 'solid-js';
-import { QueryBoundary } from '~/components/query-boundary';
+import { db } from '@/core/database';
+import type { Book } from '@/schemas/bibles';
+import { QueryBoundary } from '@/www/components/query-boundary';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
-} from '~/components/ui/accordion';
-import { Button } from '~/components/ui/button';
-import { CommandItem } from '~/components/ui/command';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
+  AccordionTrigger,
+} from '@/www/components/ui/accordion';
+import { Button } from '@/www/components/ui/button';
+import { CommandItem } from '@/www/components/ui/command';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { A } from '@solidjs/router';
+import { createQuery } from '@tanstack/solid-query';
+import { Check } from 'lucide-solid';
+import { For } from 'solid-js';
 
 export type ChapterPickerProps = {
   book: Book;
@@ -36,12 +36,12 @@ async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDat
           chapters: {
             orderBy: (chapters, { asc }) => asc(chapters.number),
             columns: {
-              content: false
-            }
-          }
-        }
-      }
-    }
+              content: false,
+            },
+          },
+        },
+      },
+    },
   });
 
   const book = bibleBookChapters?.books[0];
@@ -55,7 +55,7 @@ async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDat
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
-  queryFn: () => getChapterPickerData(props)
+  queryFn: () => getChapterPickerData(props),
 });
 
 export default function ChapterPicker(props: ChapterPickerProps) {
@@ -64,8 +64,8 @@ export default function ChapterPicker(props: ChapterPickerProps) {
   const query = createQuery(() => ({
     ...chapterPickerQueryOptions({
       bibleAbbr: brStore.bible.abbreviation,
-      bookAbbr: props.book.abbreviation
-    })
+      bookAbbr: props.book.abbreviation,
+    }),
   }));
 
   return (

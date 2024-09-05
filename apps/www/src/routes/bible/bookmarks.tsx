@@ -1,27 +1,28 @@
-import { A, RouteDefinition } from '@solidjs/router';
-import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chapterBookmarks, verseBookmarks } from '@theaistudybible/core/database/schema';
-import { contentsToText } from '@theaistudybible/core/util/bible';
-import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
-import { and, eq } from 'drizzle-orm';
-import { createEffect, For, Match, Show, Switch } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
-import { TransitionGroup } from 'solid-transition-group';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
+import { db } from '@/core/database';
+import { chapterBookmarks, verseBookmarks } from '@/core/database/schema';
+import { contentsToText } from '@/core/utils/bible';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '~/components/ui/dialog';
-import { Spinner } from '~/components/ui/spinner';
-import { H2, H6 } from '~/components/ui/typography';
+  DialogTrigger,
+} from '@/www/components/ui/dialog';
+import { Spinner } from '@/www/components/ui/spinner';
+import { H2, H6 } from '@/www/components/ui/typography';
+import type { RouteDefinition } from '@solidjs/router';
+import { A } from '@solidjs/router';
+import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
+import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
+import { auth } from 'clerk-solidjs/server';
+import { and, eq } from 'drizzle-orm';
+import { createEffect, For, Match, Show, Switch } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
+import { TransitionGroup } from 'solid-transition-group';
 
 const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
@@ -29,7 +30,7 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
   if (!userId) {
     return {
       bookmarks: [],
-      nextCursor: undefined
+      nextCursor: undefined,
     };
   }
   const [verseBookmarks, chapterBookmarks] = await Promise.all([
@@ -40,56 +41,56 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
           with: {
             bible: {
               columns: {
-                abbreviation: true
-              }
+                abbreviation: true,
+              },
             },
             book: {
               columns: {
-                abbreviation: true
-              }
+                abbreviation: true,
+              },
             },
             chapter: {
               columns: {
-                number: true
-              }
-            }
-          }
-        }
+                number: true,
+              },
+            },
+          },
+        },
       },
       limit,
-      offset
+      offset,
     }),
     db.query.chapterBookmarks.findMany({
       where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, userId),
       with: {
         chapter: {
           columns: {
-            content: false
+            content: false,
           },
           with: {
             bible: {
               columns: {
-                abbreviation: true
-              }
+                abbreviation: true,
+              },
             },
             book: {
               columns: {
-                abbreviation: true
-              }
-            }
-          }
-        }
+                abbreviation: true,
+              },
+            },
+          },
+        },
       },
       limit,
-      offset
-    })
+      offset,
+    }),
   ]);
 
   const bookmarks = [...verseBookmarks, ...chapterBookmarks];
 
   return {
     bookmarks,
-    nextCursor: bookmarks.length === limit ? offset + limit : undefined
+    nextCursor: bookmarks.length === limit ? offset + limit : undefined,
   };
 };
 
@@ -115,14 +116,14 @@ const getBookmarksQueryOptions = () => ({
   queryKey: ['bookmarks'],
   queryFn: ({ pageParam }: { pageParam: number }) => getBookmarks({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor,
 });
 
 export const route: RouteDefinition = {
   preload: () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
-  }
+    void qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+  },
 };
 
 const BookmarksPage = () => {
@@ -130,11 +131,11 @@ const BookmarksPage = () => {
 
   const deleteBookmarkMutation = createMutation(() => ({
     mutationFn: (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => deleteBookmark(props),
-    onSettled: () => bookmarksQuery.refetch()
+    onSettled: () => bookmarksQuery.refetch(),
   }));
 
   const [bookmarks, setBookmarks] = createStore(
-    bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || []
+    bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || [],
   );
   createEffect(() => {
     setBookmarks(reconcile(bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || []));
@@ -143,7 +144,7 @@ const BookmarksPage = () => {
   return (
     <div class="flex h-full w-full flex-col items-center justify-center p-5">
       <SignedIn>
-        <H2 class="inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+        <H2 class="from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
           Your Bookmarks
         </H2>
         <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
@@ -199,7 +200,7 @@ const BookmarksPage = () => {
                                 onClick={() => {
                                   deleteBookmarkMutation.mutate({
                                     type: 'verse' in bookmark ? 'verse' : 'chapter',
-                                    bookmarkId: bookmark.id
+                                    bookmarkId: bookmark.id,
                                   });
                                 }}
                               >
@@ -230,7 +231,7 @@ const BookmarksPage = () => {
                     <Match when={bookmarksQuery.hasNextPage}>
                       <Button
                         onClick={() => {
-                          bookmarksQuery.fetchNextPage();
+                          void bookmarksQuery.fetchNextPage();
                         }}
                       >
                         Load more

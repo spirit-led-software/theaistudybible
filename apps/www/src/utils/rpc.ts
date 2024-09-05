@@ -1,4 +1,4 @@
+import type { RouterType } from '@/www/types/rpc';
 import { hc } from 'hono/client';
-import { RouterType } from '~/types/rpc';
 
-export const rpcClient = hc<RouterType>('/api');
+export const rpcClient = hc<RouterType>(import.meta.env.PUBLIC_API_URL);

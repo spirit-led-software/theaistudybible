@@ -1,16 +1,17 @@
-import { A, RouteDefinition } from '@solidjs/router';
+import { db } from '@/core/database';
+import { NoteItemCard } from '@/www/components/bible/reader/activity-panel/notes/note-item-card';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Spinner } from '@/www/components/ui/spinner';
+import { H2, H6 } from '@/www/components/ui/typography';
+import type { RouteDefinition } from '@solidjs/router';
+import { A } from '@solidjs/router';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
 import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { createEffect, For, Match, Switch } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
-import { NoteItemCard } from '~/components/bible/reader/activity-panel/notes/note-item-card';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Spinner } from '~/components/ui/spinner';
-import { H2, H6 } from '~/components/ui/typography';
 
 const getNotes = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
@@ -18,7 +19,7 @@ const getNotes = async ({ limit, offset }: { limit: number; offset: number }) =>
   if (!userId) {
     return {
       notes: [],
-      nextCursor: undefined
+      nextCursor: undefined,
     };
   }
   const [verseNotes, chapterNotes] = await Promise.all([
@@ -27,45 +28,45 @@ const getNotes = async ({ limit, offset }: { limit: number; offset: number }) =>
       with: {
         verse: {
           columns: {
-            content: false
+            content: false,
           },
           with: {
             chapter: {
               columns: {
-                content: false
-              }
+                content: false,
+              },
             },
             bible: true,
-            book: true
-          }
-        }
+            book: true,
+          },
+        },
       },
       limit,
-      offset
+      offset,
     }),
     db.query.chapterNotes.findMany({
       where: (chapterNotes, { eq }) => eq(chapterNotes.userId, userId),
       with: {
         chapter: {
           columns: {
-            content: false
+            content: false,
           },
           with: {
             bible: true,
-            book: true
-          }
-        }
+            book: true,
+          },
+        },
       },
       limit,
-      offset
-    })
+      offset,
+    }),
   ]);
 
   const notes = [...verseNotes, ...chapterNotes];
 
   return {
     notes,
-    nextCursor: notes.length === limit ? offset + limit : undefined
+    nextCursor: notes.length === limit ? offset + limit : undefined,
   };
 };
 
@@ -73,14 +74,14 @@ const getNotesQueryOptions = () => ({
   queryKey: ['notes'],
   queryFn: ({ pageParam }: { pageParam: number }) => getNotes({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor,
 });
 
 export const route: RouteDefinition = {
   preload: () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getNotesQueryOptions());
-  }
+    void qc.prefetchInfiniteQuery(getNotesQueryOptions());
+  },
 };
 
 const NotesPage = () => {
@@ -94,7 +95,7 @@ const NotesPage = () => {
   return (
     <div class="flex h-full w-full flex-col items-center justify-center p-5">
       <SignedIn>
-        <H2 class="inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+        <H2 class="from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
           Your Notes
         </H2>
         <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
@@ -135,7 +136,7 @@ const NotesPage = () => {
                     <Match when={notesQuery.hasNextPage}>
                       <Button
                         onClick={() => {
-                          notesQuery.fetchNextPage();
+                          void notesQuery.fetchNextPage();
                         }}
                       >
                         Load more

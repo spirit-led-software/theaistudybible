@@ -1,0 +1,23 @@
+{
+  "extends": "@theaistudybible/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@/api": ["./src"],
+      "@/api/*": ["./src/*"],
+      "@/schemas": ["../../packages/schemas/src"],
+      "@/schemas/*": ["../../packages/schemas/src/*"],
+      "@/core": ["../../packages/core/src"],
+      "@/core/*": ["../../packages/core/src/*"],
+      "@/ai": ["../../packages/ai/src"],
+      "@/ai/*": ["../../packages/ai/src/*"],
+      "@/www": ["../www/src"],
+      "@/www/*": ["../www/src/*"],
+      "@/functions": ["../functions/src"],
+      "@/functions/*": ["../functions/src/*"],
+      "@/scripts": ["../../tools/scripts/src"],
+      "@/scripts/*": ["../../tools/scripts/src/*"]
+    }
+  },
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

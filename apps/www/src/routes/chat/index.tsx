@@ -1,7 +1,7 @@
+import { ChatWindow } from '@/www/components/chat/window';
+import { useChatStore } from '@/www/contexts/chat';
 import { Navigate } from '@solidjs/router';
 import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
-import { ChatWindow } from '~/components/chat/window';
-import { useChatStore } from '~/contexts/chat';
 
 export default function ChatPage() {
   const [chatStore] = useChatStore();

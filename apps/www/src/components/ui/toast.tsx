@@ -1,3 +1,4 @@
+import { cn } from '@/www/lib/utils';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import * as ToastPrimitive from '@kobalte/core/toast';
 import type { VariantProps } from 'class-variance-authority';
@@ -5,7 +6,6 @@ import { cva } from 'class-variance-authority';
 import type { JSXElement, ValidComponent } from 'solid-js';
 import { Match, Switch, splitProps } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { cn } from '~/utils';
 
 const toastVariants = cva(
   'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--kb-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--kb-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[opened]:animate-in data-[closed]:animate-out data-[swipe=end]:animate-out data-[closed]:fade-out-80 data-[closed]:slide-out-to-right-full data-[opened]:slide-in-from-top-full data-[opened]:sm:slide-in-from-bottom-full',
@@ -17,13 +17,13 @@ const toastVariants = cva(
           'destructive group border-destructive bg-destructive text-destructive-foreground',
         success: 'success border-success-foreground bg-success text-success-foreground',
         warning: 'warning border-warning-foreground bg-warning text-warning-foreground',
-        error: 'error border-error-foreground bg-error text-error-foreground'
-      }
+        error: 'error border-error-foreground bg-error text-error-foreground',
+      },
     },
     defaultVariants: {
-      variant: 'default'
-    }
-  }
+      variant: 'default',
+    },
+  },
 );
 type ToastVariant = NonNullable<VariantProps<typeof toastVariants>['variant']>;
 
@@ -37,7 +37,7 @@ const Toaster = <T extends ValidComponent = 'ol'>(props: PolymorphicProps<T, Toa
         <ToastPrimitive.List
           class={cn(
             'fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]',
-            local.class
+            local.class,
           )}
           {...others}
         />
@@ -62,14 +62,14 @@ const Toast = <T extends ValidComponent = 'li'>(props: PolymorphicProps<T, Toast
 type ToastCloseButtonProps = ToastPrimitive.ToastCloseButtonProps & { class?: string | undefined };
 
 const ToastClose = <T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, ToastCloseButtonProps>
+  props: PolymorphicProps<T, ToastCloseButtonProps>,
 ) => {
   const [local, others] = splitProps(props as ToastCloseButtonProps, ['class']);
   return (
     <ToastPrimitive.CloseButton
       class={cn(
-        'absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground',
-        local.class
+        'text-foreground/50 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground absolute right-2 top-2 rounded-md p-1 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100',
+        local.class,
       )}
       {...others}
     >
@@ -93,7 +93,7 @@ const ToastClose = <T extends ValidComponent = 'button'>(
 type ToastTitleProps = ToastPrimitive.ToastTitleProps & { class?: string | undefined };
 
 const ToastTitle = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, ToastTitleProps>
+  props: PolymorphicProps<T, ToastTitleProps>,
 ) => {
   const [local, others] = splitProps(props as ToastTitleProps, ['class']);
   return <ToastPrimitive.Title class={cn('text-sm font-semibold', local.class)} {...others} />;
@@ -102,7 +102,7 @@ const ToastTitle = <T extends ValidComponent = 'div'>(
 type ToastDescriptionProps = ToastPrimitive.ToastDescriptionProps & { class?: string | undefined };
 
 const ToastDescription = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, ToastDescriptionProps>
+  props: PolymorphicProps<T, ToastDescriptionProps>,
 ) => {
   const [local, others] = splitProps(props as ToastDescriptionProps, ['class']);
   return <ToastPrimitive.Description class={cn('text-sm opacity-90', local.class)} {...others} />;
@@ -132,12 +132,12 @@ function showToastPromise<T, U>(
     success?: (data: T) => JSXElement;
     error?: (error: U) => JSXElement;
     duration?: number;
-  }
+  },
 ) {
   const variant: { [key in ToastPrimitive.ToastPromiseState]: ToastVariant } = {
     pending: 'default',
     fulfilled: 'success',
-    rejected: 'error'
+    rejected: 'error',
   };
   return ToastPrimitive.toaster.promise<T, U>(promise, (props) => (
     <Toast toastId={props.toastId} variant={variant[props.state]} duration={options.duration}>

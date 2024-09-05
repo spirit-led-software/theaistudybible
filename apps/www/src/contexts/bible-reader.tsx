@@ -1,7 +1,9 @@
-import { Bible, Book, Chapter, Verse } from '@theaistudybible/core/model/bible';
-import { formNumberSequenceString } from '@theaistudybible/core/util/number';
-import { JSXElement, createComputed, createContext, on, splitProps, useContext } from 'solid-js';
-import { SetStoreFunction, Store, createStore } from 'solid-js/store';
+import { formNumberSequenceString } from '@/core/utils/number';
+import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
+import type { JSXElement} from 'solid-js';
+import { createComputed, createContext, on, splitProps, useContext } from 'solid-js';
+import type { SetStoreFunction, Store} from 'solid-js/store';
+import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {
@@ -24,7 +26,7 @@ export type BibleReaderStore = {
 
 export type BibleReaderContextValue = [
   get: Store<BibleReaderStore>,
-  set: SetStoreFunction<BibleReaderStore>
+  set: SetStoreFunction<BibleReaderStore>,
 ];
 
 export const BibleReaderContext = createContext<BibleReaderContextValue>();
@@ -58,30 +60,37 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
         new Set<number>(
           store.selectedVerseInfos
             .map((info: SelectedVerseInfo) => info.number)
-            .toSorted((a: number, b: number) => a - b)
-        )
+            .toSorted((a: number, b: number) => a - b),
+        ),
       );
       return `${store.book.shortName} ${store.chapter.number}:${formNumberSequenceString(verseNumbers)} (${store.bible.abbreviationLocal})`;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     get selectedText() {
-      return this.selectedVerseInfos
-        .toSorted((a: SelectedVerseInfo, b: SelectedVerseInfo) => a.number - b.number)
-        .flatMap((info: SelectedVerseInfo, index: number, array: SelectedVerseInfo[]) => {
-          let text = '';
-          const prev = array[index - 1];
-          if (prev && prev.number + 1 !== info.number) {
-            text += '... ';
-          }
-          text += `${info.number} ${info.text}`;
-          // Add space between verses
-          if (index !== array.length - 1) {
-            text += ' ';
-          }
-          return text;
-        })
-        .join('')
-        .trim();
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return (
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        this.selectedVerseInfos
+          .toSorted((a: SelectedVerseInfo, b: SelectedVerseInfo) => a.number - b.number)
+          .flatMap((info: SelectedVerseInfo, index: number, array: SelectedVerseInfo[]) => {
+            let text = '';
+            const prev = array[index - 1];
+            if (prev && prev.number + 1 !== info.number) {
+              text += '... ';
+            }
+            text += `${info.number} ${info.text}`;
+            // Add space between verses
+            if (index !== array.length - 1) {
+              text += ' ';
+            }
+            return text;
+          })
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          .join('')
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          .trim()
+      );
+    },
   });
 
   const [, setBibleStore] = useBibleStore();
@@ -90,32 +99,32 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       () => store.bible,
       () => {
         setBibleStore('bible', store.bible);
-      }
-    )
+      },
+    ),
   );
   createComputed(
     on(
       () => store.book,
       () => {
         setBibleStore('book', store.book);
-      }
-    )
+      },
+    ),
   );
   createComputed(
     on(
       () => store.chapter,
       () => {
         setBibleStore('chapter', store.chapter);
-      }
-    )
+      },
+    ),
   );
   createComputed(
     on(
       () => store.verse,
       () => {
         setBibleStore('verse', store.verse);
-      }
-    )
+      },
+    ),
   );
 
   return (

@@ -1,9 +1,9 @@
+import type { VerseNote } from '@/schemas/bibles';
+import type { CharContent as CharContentType } from '@/schemas/bibles/contents';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { cn } from '@/www/lib/utils';
+import type { HighlightInfo } from '@/www/types/bible';
 import { A } from '@solidjs/router';
-import { VerseNote } from '@theaistudybible/core/model/bible';
-import type { CharContent as CharContentType } from '@theaistudybible/core/types/bible';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import type { HighlightInfo } from '~/types/bible';
-import { cn } from '~/utils';
 import Contents from './contents';
 
 export type CharContentProps = {

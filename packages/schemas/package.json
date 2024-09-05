@@ -1,0 +1,12 @@
+{
+  "name": "@theaistudybible/schemas",
+  "description": "Shared schemas for The AI Study Bible",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@theaistudybible/tsconfig": "workspace:*"
+  }
+}

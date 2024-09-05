@@ -1,18 +1,18 @@
-import { A } from '@solidjs/router';
-import { vectorStoreTool } from '@theaistudybible/ai/chat/tools';
-import { ToolInvocation } from 'ai';
-import { Search } from 'lucide-solid';
-import { For, Show } from 'solid-js';
-import { z } from 'zod';
+import type { vectorStoreTool } from '@/ai/chat/tools';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
-} from '~/components/ui/accordion';
-import { Button } from '~/components/ui/button';
-import { Spinner } from '~/components/ui/spinner';
-import { H5, H6 } from '~/components/ui/typography';
+  AccordionTrigger,
+} from '@/www/components/ui/accordion';
+import { Button } from '@/www/components/ui/button';
+import { Spinner } from '@/www/components/ui/spinner';
+import { H5, H6 } from '@/www/components/ui/typography';
+import { A } from '@solidjs/router';
+import type { ToolInvocation } from 'ai';
+import { Search } from 'lucide-solid';
+import { For, Show } from 'solid-js';
+import type { z } from 'zod';
 
 export type VectorStoreToolProps = {
   toolInvocation: ToolInvocation;
@@ -69,7 +69,7 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
                       <li class="list-item">
                         <Button
                           as={A}
-                          href={doc.metadata!.url}
+                          href={doc.metadata!.url as string}
                           variant="link"
                           class="h-fit p-0 text-xs"
                         >

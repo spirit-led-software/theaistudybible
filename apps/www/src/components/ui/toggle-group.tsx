@@ -1,15 +1,16 @@
-import { createContext, JSX, splitProps, useContext, ValidComponent } from 'solid-js';
+import type { JSX, ValidComponent } from 'solid-js';
+import { createContext, splitProps, useContext } from 'solid-js';
 
-import { PolymorphicProps } from '@kobalte/core/polymorphic';
+import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import * as ToggleGroupPrimitive from '@kobalte/core/toggle-group';
-import { VariantProps } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority';
 
-import { toggleVariants } from '~/components/ui/toggle';
-import { cn } from '~/utils';
+import { toggleVariants } from '@/www/components/ui/toggle';
+import { cn } from '@/www/lib/utils';
 
 const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
   size: 'default',
-  variant: 'default'
+  variant: 'default',
 });
 
 type ToggleGroupRootProps<T extends ValidComponent = 'div'> =
@@ -17,13 +18,13 @@ type ToggleGroupRootProps<T extends ValidComponent = 'div'> =
     VariantProps<typeof toggleVariants> & { class?: string | undefined; children?: JSX.Element };
 
 const ToggleGroup = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, ToggleGroupRootProps<T>>
+  props: PolymorphicProps<T, ToggleGroupRootProps<T>>,
 ) => {
   const [local, others] = splitProps(props as ToggleGroupRootProps, [
     'class',
     'children',
     'size',
-    'variant'
+    'variant',
   ]);
 
   return (
@@ -38,7 +39,7 @@ const ToggleGroup = <T extends ValidComponent = 'div'>(
           },
           get variant() {
             return local.variant;
-          }
+          },
         }}
       >
         {local.children}
@@ -52,7 +53,7 @@ type ToggleGroupItemProps<T extends ValidComponent = 'button'> =
     VariantProps<typeof toggleVariants> & { class?: string | undefined };
 
 const ToggleGroupItem = <T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, ToggleGroupItemProps<T>>
+  props: PolymorphicProps<T, ToggleGroupItemProps<T>>,
 ) => {
   const [local, others] = splitProps(props as ToggleGroupItemProps, ['class', 'size', 'variant']);
   const context = useContext(ToggleGroupContext);
@@ -61,10 +62,10 @@ const ToggleGroupItem = <T extends ValidComponent = 'button'>(
       class={cn(
         toggleVariants({
           size: context.size || local.size,
-          variant: context.variant || local.variant
+          variant: context.variant || local.variant,
         }),
         'hover:bg-muted hover:text-muted-foreground data-[pressed]:bg-accent data-[pressed]:text-accent-foreground',
-        local.class
+        local.class,
       )}
       {...others}
     />

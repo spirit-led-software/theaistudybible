@@ -2,35 +2,21 @@
   "name": "@theaistudybible/ai",
   "description": "The AI Study Bible AI",
   "private": true,
-  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "type-check": "tsc -noEmit",
-    "lint": "eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@clerk/types": "^4.8.0",
-    "@theaistudybible/eslint-config": "workspace:*",
-    "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.30",
-    "@ai-sdk/mistral": "^0.0.22",
-    "@ai-sdk/openai": "^0.0.37",
-    "@aws-sdk/client-s3": "^3.616.0",
-    "@qdrant/js-client-rest": "^1.10.0",
+    "@ai-sdk/anthropic": "^0.0.48",
+    "@ai-sdk/openai": "^0.0.55",
     "@theaistudybible/core": "workspace:*",
-    "ai": "^3.2.32",
-    "drizzle-orm": "^0.32.0",
-    "js-tiktoken": "^1.0.12",
-    "openai": "^4.52.7",
-    "rate-limiter-flexible": "^5.0.3",
-    "tiktoken": "^1.0.15",
-    "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.1"
+    "@theaistudybible/schemas": "workspace:*",
+    "@upstash/vector": "^1.1.5",
+    "js-tiktoken": "^1.0.14",
+    "openai": "^4.57.3"
   }
 }

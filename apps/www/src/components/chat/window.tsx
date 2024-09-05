@@ -1,8 +1,9 @@
+import { useChat } from '@/www/hooks/use-chat';
 import { createVisibilityObserver } from '@solid-primitives/intersection-observer';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { useChat } from '~/hooks/use-chat';
+import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
 import {
@@ -10,11 +11,10 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious
+  CarouselPrevious,
 } from '../ui/carousel';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
-import { showToast } from '../ui/toast';
 import { H5, H6 } from '../ui/typography';
 import { ChatMenu } from './menu';
 import { Message } from './message';
@@ -28,12 +28,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [chatStore, setChatStore] = useChatStore();
 
   const useChatResult = useChat(() => ({
-    id: props.chatId ?? chatStore.chat?.id
+    id: props.chatId ?? chatStore.chat?.id,
   }));
   createEffect(
     on(useChatResult.chat, (chat) => {
       setChatStore('chat', chat ?? undefined);
-    })
+    }),
   );
 
   createEffect(
@@ -41,28 +41,28 @@ export const ChatWindow = (props: ChatWindowProps) => {
       () => props.initInput,
       (initInput) => {
         useChatResult.setInput(initInput ?? '');
-      }
-    )
+      },
+    ),
   );
 
   createEffect(
     on(useChatResult.error, (error) => {
       if (error) {
-        showToast({ title: error.message, variant: 'error', duration: 3000 });
+        toast.error(error.message);
       }
-    })
+    }),
   );
 
   const [startOfMessagesRef, setStartOfMessagesRef] = createSignal<HTMLDivElement>();
   const startOfMessagesVisible = createVisibilityObserver()(startOfMessagesRef);
 
   const [messagesReversed, setMessagesReversed] = createStore(
-    useChatResult.messages()?.toReversed() ?? []
+    useChatResult.messages()?.toReversed() ?? [],
   );
   createEffect(
     on(useChatResult.messages, (messages) =>
-      setMessagesReversed(reconcile(messages?.toReversed() ?? []))
-    )
+      setMessagesReversed(reconcile(messages?.toReversed() ?? [])),
+    ),
   );
 
   return (
@@ -72,7 +72,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         <Button
           variant="outline"
           size="icon"
-          class="absolute bottom-20 left-1/2 right-1/2 -translate-x-1/2 rounded-full bg-background shadow-lg"
+          class="bg-background absolute bottom-20 left-1/2 right-1/2 -translate-x-1/2 rounded-full shadow-lg"
           onClick={() => startOfMessagesRef()?.scrollIntoView({ behavior: 'smooth' })}
         >
           <ChevronDown />
@@ -86,7 +86,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             useChatResult.followUpSuggestions.length
           }
         >
-          <div class="flex w-full max-w-2xl flex-col gap-2 pb-2 animate-in fade-in zoom-in">
+          <div class="animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2">
             <H6 class="text-center">Follow-up Questions</H6>
             <Carousel class="overflow-x-clip md:overflow-x-visible">
               <CarouselContent>
@@ -98,7 +98,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                         onClick={() =>
                           useChatResult.append({
                             role: 'user',
-                            content: suggestion
+                            content: suggestion,
                           })
                         }
                       >
@@ -144,13 +144,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 <Button
                   variant="link"
                   size="icon"
-                  class="flex h-fit flex-col items-center justify-center py-4 text-foreground"
+                  class="text-foreground flex h-fit flex-col items-center justify-center py-4"
                   onClick={() => {
                     if (
                       useChatResult.messagesQuery.hasNextPage &&
                       !useChatResult.messagesQuery.isFetchingNextPage
                     ) {
-                      useChatResult.messagesQuery.fetchNextPage();
+                      void useChatResult.messagesQuery.fetchNextPage();
                     }
                   }}
                 >
@@ -164,10 +164,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
       </div>
       <form
         class="relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2"
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
           if (!useChatResult.input()) {
-            showToast({ title: 'Please type a message', variant: 'error', duration: 3000 });
+            toast.error('Please type a message');
             return;
           }
           useChatResult.handleSubmit(e);

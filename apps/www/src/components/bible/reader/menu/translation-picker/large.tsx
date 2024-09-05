@@ -1,11 +1,11 @@
+import type { Bible } from '@/schemas/bibles';
+import { Button } from '@/www/components/ui/button';
+import { Input } from '@/www/components/ui/input';
+import { H2, P } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
-import { Bible } from '@theaistudybible/core/model/bible';
 import ISO6391 from 'iso-639-1';
 import { Search } from 'lucide-solid';
 import { createMemo, createSignal } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { H2, P } from '~/components/ui/typography';
 
 export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
   const [search, setSearch] = createSignal('');
@@ -14,8 +14,8 @@ export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
     props.bibles.filter(
       (bible) =>
         bible.name.toLowerCase().includes(search().toLowerCase()) ||
-        bible.abbreviation.toLowerCase().includes(search().toLowerCase())
-    )
+        bible.abbreviation.toLowerCase().includes(search().toLowerCase()),
+    ),
   );
 
   const uniqueLanguages = createMemo(() =>
@@ -24,7 +24,7 @@ export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
         acc.push(bible.languageISO);
       }
       return acc;
-    }, [] as string[])
+    }, [] as string[]),
   );
 
   return (
@@ -44,7 +44,7 @@ export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
           />
         </div>
         <div class="mt-1 flex justify-end">
-          <P class="text-xs text-accent-foreground">{filteredBibles.length}</P>
+          <P class="text-accent-foreground text-xs">{filteredBibles.length}</P>
         </div>
         <div class="mt-2 flex w-full flex-col space-y-4">
           {uniqueLanguages().map((language) => (
@@ -56,7 +56,7 @@ export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
                   .filter(
                     (bible) =>
                       bible.nameLocal.toLowerCase().includes(search().toLowerCase()) ||
-                      bible.abbreviationLocal.toLowerCase().includes(search().toLowerCase())
+                      bible.abbreviationLocal.toLowerCase().includes(search().toLowerCase()),
                   )
                   .map((bible) => (
                     <Button
@@ -67,7 +67,7 @@ export default function LargeTranslationPicker(props: { bibles: Bible[] }) {
                       <p class="text-lg font-bold">
                         {bible.abbreviationLocal} - {bible.nameLocal}
                       </p>
-                      <p class="text-xs text-accent-foreground">{bible.description}</p>
+                      <p class="text-accent-foreground text-xs">{bible.description}</p>
                     </Button>
                   ))}
               </div>

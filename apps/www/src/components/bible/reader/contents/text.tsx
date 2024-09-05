@@ -1,8 +1,9 @@
-import type { TextContent as TextContentType } from '@theaistudybible/core/types/bible';
+import type { TextContent as TextContentType } from '@/schemas/bibles/contents';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
+import type { HighlightInfo } from '@/www/types/bible';
+import { gatherElementIdsByVerseId, hexToRgb } from '@/www/utils';
 import { createMemo } from 'solid-js';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
-import type { HighlightInfo } from '~/types/bible';
-import { cn, gatherElementIdsByVerseId, hexToRgb } from '~/utils';
 
 export type TextContentProps = {
   content: TextContentType;
@@ -16,10 +17,10 @@ export type TextContentProps = {
 export default function TextContent(props: TextContentProps) {
   const [brStore, setBrStore] = useBibleReaderStore();
   const highlightColor = createMemo(
-    () => props.highlights?.find(({ verseId }) => verseId === props.content.verseId)?.color
+    () => props.highlights?.find(({ verseId }) => verseId === props.content.verseId)?.color,
   );
   const selected = createMemo(() =>
-    brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id))
+    brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id)),
   );
 
   const handleClick = () => {
@@ -38,8 +39,8 @@ export default function TextContent(props: TextContentProps) {
           id: props.content.verseId,
           number: props.content.verseNumber,
           contentIds,
-          text
-        }
+          text,
+        },
       ];
     });
   };
@@ -64,12 +65,12 @@ export default function TextContent(props: TextContentProps) {
       {...props}
       class={cn(
         props.style,
-        `cursor-pointer ${selected() ? 'underline decoration-accent-foreground underline-offset-4' : ''}`,
-        props.class
+        `cursor-pointer ${selected() ? 'decoration-accent-foreground underline underline-offset-4' : ''}`,
+        props.class,
       )}
       style={{
         'background-color': bgColor(),
-        transition: 'all 1s ease'
+        transition: 'all 1s ease',
       }}
       onClick={handleClick}
     >

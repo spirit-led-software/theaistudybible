@@ -1,7 +1,7 @@
+import { useIsAdmin } from '@/www/hooks/use-is-admin';
 import { A } from '@solidjs/router';
 import { BookOpen, Bookmark, Highlighter, Lightbulb, MessageCircle, Notebook } from 'lucide-solid';
 import { Show } from 'solid-js';
-import { useIsAdmin } from '~/hooks/use-is-admin';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,7 +10,7 @@ import {
   NavigationMenuItem,
   NavigationMenuLabel,
   NavigationMenuLink,
-  NavigationMenuTrigger
+  NavigationMenuTrigger,
 } from '../ui/navigation-menu';
 
 export type MenuProps = {
@@ -27,7 +27,7 @@ export const Menu = (props: MenuProps) => {
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="w-56">
+        <NavigationMenuContent class="flex w-56 flex-col gap-2 md:grid md:w-[400px] md:grid-cols-2">
           <NavigationMenuLink href="/bible">
             <NavigationMenuLabel class="flex items-center gap-2">
               <BookOpen />
@@ -63,7 +63,7 @@ export const Menu = (props: MenuProps) => {
           Gen-AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="w-56">
+        <NavigationMenuContent class="flex w-56 flex-col gap-2 md:grid md:w-[400px] md:grid-cols-2">
           <NavigationMenuLink href="/chat">
             <NavigationMenuLabel class="flex items-center gap-2">
               <MessageCircle />

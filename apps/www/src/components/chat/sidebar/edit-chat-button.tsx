@@ -1,28 +1,29 @@
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chats } from '@theaistudybible/core/database/schema';
-import { Chat } from '@theaistudybible/core/model/chat';
-import { auth } from 'clerk-solidjs/server';
-import { and, eq } from 'drizzle-orm';
-import { Pencil } from 'lucide-solid';
-import { createEffect, createSignal } from 'solid-js';
-import { Button } from '~/components/ui/button';
+import { db } from '@/core/database';
+import { chats } from '@/core/database/schema';
+import type { Chat } from '@/schemas/chats';
+import { Button } from '@/www/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '~/components/ui/dialog';
+  DialogTrigger,
+} from '@/www/components/ui/dialog';
 import {
   TextField,
   TextFieldErrorMessage,
   TextFieldInput,
-  TextFieldLabel
-} from '~/components/ui/text-field';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useChatStore } from '~/contexts/chat';
+  TextFieldLabel,
+} from '@/www/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { useChatStore } from '@/www/contexts/chat';
+import type { DialogTriggerProps } from '@kobalte/core/dialog';
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { auth } from 'clerk-solidjs/server';
+import { and, eq } from 'drizzle-orm';
+import { Pencil } from 'lucide-solid';
+import { createEffect, createSignal } from 'solid-js';
 
 const editChat = async (props: { chatId: string; name: string }) => {
   'use server';
@@ -34,7 +35,7 @@ const editChat = async (props: { chatId: string; name: string }) => {
     .update(chats)
     .set({
       name: props.name,
-      customName: true
+      customName: true,
     })
     .where(and(eq(chats.userId, userId), eq(chats.id, props.chatId)));
 };
@@ -51,18 +52,18 @@ export const EditChatButton = (props: EditChatButtonProps) => {
     mutationFn: (mProps: { name: string }) =>
       editChat({
         chatId: props.chat.id,
-        name: mProps.name
+        name: mProps.name,
       }),
     onSettled: () => {
-      qc.invalidateQueries({
-        queryKey: ['chats']
+      void qc.invalidateQueries({
+        queryKey: ['chats'],
       });
       if (chatStore.chat?.id === props.chat.id) {
-        qc.invalidateQueries({
-          queryKey: ['chat', { chatId: props.chat.id }]
+        void qc.invalidateQueries({
+          queryKey: ['chat', { chatId: props.chat.id }],
         });
       }
-    }
+    },
   }));
 
   const [nameValue, setNameValue] = createSignal(props.chat.name);
@@ -74,8 +75,13 @@ export const EditChatButton = (props: EditChatButtonProps) => {
     <Dialog>
       <Tooltip>
         <TooltipTrigger
-          as={(props: any) => (
-            <DialogTrigger {...props} as={Button} variant="ghost" size="icon">
+          as={(props: unknown) => (
+            <DialogTrigger
+              {...(props as DialogTriggerProps)}
+              as={Button}
+              variant="ghost"
+              size="icon"
+            >
               <Pencil size={16} />
             </DialogTrigger>
           )}
@@ -100,7 +106,7 @@ export const EditChatButton = (props: EditChatButtonProps) => {
           <Button
             onClick={() =>
               editChatMutation.mutate({
-                name: nameValue()
+                name: nameValue(),
               })
             }
           >

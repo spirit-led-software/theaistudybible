@@ -1,9 +1,9 @@
+import { Button } from '@/www/components/ui/button';
+import { TextField, TextFieldInput, TextFieldLabel } from '@/www/components/ui/text-field';
+import { ToggleGroupItem } from '@/www/components/ui/toggle-group';
 import { ColorPicker } from '@ark-ui/solid';
 import { PipetteIcon } from 'lucide-solid';
-import { Setter } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { TextField, TextFieldInput, TextFieldLabel } from '~/components/ui/text-field';
-import { ToggleGroupItem } from '~/components/ui/toggle-group';
+import type { Setter } from 'solid-js';
 
 export type HighlightColorPickerProps = {
   setColor: Setter<string | undefined>;
@@ -36,7 +36,7 @@ export const HighlightColorPicker = (props: HighlightColorPickerProps) => {
             </ColorPicker.Control>
             <ColorPicker.Positioner>
               <ColorPicker.Content
-                class="rounded-md bg-background p-4 shadow-md"
+                class="bg-background rounded-md p-4 shadow-md"
                 data-corvu-no-drag // Prevent dragging the color picker
               >
                 <div class="flex flex-col gap-3">

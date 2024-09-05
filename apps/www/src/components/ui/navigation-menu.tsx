@@ -1,9 +1,10 @@
-import { JSX, splitProps, ValidComponent } from 'solid-js';
+import type { JSX, ValidComponent } from 'solid-js';
+import { splitProps } from 'solid-js';
 
-import { PolymorphicProps } from '@kobalte/core';
+import type { PolymorphicProps } from '@kobalte/core';
 import * as NavigationMenuPrimitive from '@kobalte/core/navigation-menu';
 
-import { cn } from '~/utils';
+import { cn } from '@/www/lib/utils';
 
 const NavigationMenuItem = NavigationMenuPrimitive.Menu;
 
@@ -14,7 +15,7 @@ type NavigationMenuProps<T extends ValidComponent = 'ul'> =
   };
 
 const NavigationMenu = <T extends ValidComponent = 'ul'>(
-  props: PolymorphicProps<T, NavigationMenuProps<T>>
+  props: PolymorphicProps<T, NavigationMenuProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuProps, ['class', 'children']);
   return (
@@ -22,7 +23,7 @@ const NavigationMenu = <T extends ValidComponent = 'ul'>(
       gutter={6}
       class={cn(
         'group/menu flex w-max flex-1 list-none items-center justify-center data-[orientation=vertical]:flex-col [&>li]:w-full',
-        local.class
+        local.class,
       )}
       {...others}
     >
@@ -38,14 +39,14 @@ type NavigationMenuTriggerProps<T extends ValidComponent = 'button'> =
   };
 
 const NavigationMenuTrigger = <T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, NavigationMenuTriggerProps<T>>
+  props: PolymorphicProps<T, NavigationMenuTriggerProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuTriggerProps, ['class']);
   return (
     <NavigationMenuPrimitive.Trigger
       class={cn(
-        'group/trigger inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[expanded]:bg-accent/50',
-        local.class
+        'group/trigger bg-background hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[active]:bg-accent/50 data-[expanded]:bg-accent/50 inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50',
+        local.class,
       )}
       {...others}
     />
@@ -74,14 +75,14 @@ type NavigationMenuViewportProps<T extends ValidComponent = 'li'> =
   NavigationMenuPrimitive.NavigationMenuViewportProps<T> & { class?: string | undefined };
 
 const NavigationMenuViewport = <T extends ValidComponent = 'li'>(
-  props: PolymorphicProps<T, NavigationMenuViewportProps<T>>
+  props: PolymorphicProps<T, NavigationMenuViewportProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuViewportProps, ['class']);
   return (
     <NavigationMenuPrimitive.Viewport
       class={cn(
-        'pointer-events-none z-[1000] flex h-[var(--kb-navigation-menu-viewport-height)] w-[var(--kb-navigation-menu-viewport-width)] origin-[var(--kb-menu-content-transform-origin)] items-center justify-center overflow-x-clip overflow-y-visible rounded-md border bg-popover opacity-0 shadow-lg transition-[width,height] duration-200 ease-in data-[expanded]:pointer-events-auto data-[orientation=vertical]:overflow-y-clip data-[orientation=vertical]:overflow-x-visible data-[expanded]:rounded-md data-[expanded]:opacity-100 data-[expanded]:ease-out',
-        local.class
+        'bg-popover pointer-events-none z-[1000] flex h-[var(--kb-navigation-menu-viewport-height)] w-[var(--kb-navigation-menu-viewport-width)] origin-[var(--kb-menu-content-transform-origin)] items-center justify-center overflow-x-clip overflow-y-visible rounded-md border opacity-0 shadow-lg transition-[width,height] duration-200 ease-in data-[expanded]:pointer-events-auto data-[orientation=vertical]:overflow-y-clip data-[orientation=vertical]:overflow-x-visible data-[expanded]:rounded-md data-[expanded]:opacity-100 data-[expanded]:ease-out',
+        local.class,
       )}
       {...others}
     />
@@ -94,7 +95,7 @@ type NavigationMenuContentProps<T extends ValidComponent = 'ul'> =
   };
 
 const NavigationMenuContent = <T extends ValidComponent = 'ul'>(
-  props: PolymorphicProps<T, NavigationMenuContentProps<T>>
+  props: PolymorphicProps<T, NavigationMenuContentProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuContentProps, ['class']);
   return (
@@ -113,7 +114,7 @@ const NavigationMenuContent = <T extends ValidComponent = 'ul'>(
           'data-[orientation=vertical]:data-[motion=from-start]:slide-in-from-top-52 data-[orientation=vertical]:data-[motion=to-end]:slide-out-to-bottom-52',
           //bottom to top
           'data-[orientation=vertical]:data-[motion=from-end]:slide-in-from-bottom-52 data-[orientation=vertical]:data-[motion=to-start]:slide-out-to-bottom-52',
-          local.class
+          local.class,
         )}
         {...others}
       />
@@ -125,14 +126,14 @@ type NavigationMenuLinkProps<T extends ValidComponent = 'a'> =
   NavigationMenuPrimitive.NavigationMenuItemProps<T> & { class?: string | undefined };
 
 const NavigationMenuLink = <T extends ValidComponent = 'a'>(
-  props: PolymorphicProps<T, NavigationMenuLinkProps<T>>
+  props: PolymorphicProps<T, NavigationMenuLinkProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuLinkProps, ['class']);
   return (
     <NavigationMenuPrimitive.Item
       class={cn(
-        'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-        local.class
+        'hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+        local.class,
       )}
       {...others}
     />
@@ -143,7 +144,7 @@ type NavigationMenuLabelProps<T extends ValidComponent = 'div'> =
   NavigationMenuPrimitive.NavigationMenuItemLabelProps<T> & { class?: string | undefined };
 
 const NavigationMenuLabel = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, NavigationMenuLabelProps<T>>
+  props: PolymorphicProps<T, NavigationMenuLabelProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuLabelProps, ['class']);
   return (
@@ -158,12 +159,12 @@ type NavigationMenuDescriptionProps<T extends ValidComponent = 'div'> =
   NavigationMenuPrimitive.NavigationMenuItemDescriptionProps<T> & { class?: string | undefined };
 
 const NavigationMenuDescription = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, NavigationMenuDescriptionProps<T>>
+  props: PolymorphicProps<T, NavigationMenuDescriptionProps<T>>,
 ) => {
   const [local, others] = splitProps(props as NavigationMenuDescriptionProps, ['class']);
   return (
     <NavigationMenuPrimitive.ItemDescription
-      class={cn('text-sm leading-snug text-muted-foreground', local.class)}
+      class={cn('text-muted-foreground text-sm leading-snug', local.class)}
       {...others}
     />
   );
@@ -178,5 +179,5 @@ export {
   NavigationMenuLabel,
   NavigationMenuLink,
   NavigationMenuTrigger,
-  NavigationMenuViewport
+  NavigationMenuViewport,
 };

@@ -1,19 +1,20 @@
-import { RouteDefinition, useParams } from '@solidjs/router';
+import { db } from '@/core/database';
+import { toTitleCase } from '@/core/utils/string';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { H1, H3 } from '@/www/components/ui/typography';
+import { useDevotionStore } from '@/www/contexts/devotion';
+import type { RouteDefinition} from '@solidjs/router';
+import { useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { toTitleCase } from '@theaistudybible/core/util/string';
 import { createEffect, Show } from 'solid-js';
-import { QueryBoundary } from '~/components/query-boundary';
-import { H1, H3 } from '~/components/ui/typography';
-import { useDevotionStore } from '~/contexts/devotion';
 
 const getDevotion = async (props: { id: string }) => {
   'use server';
   const devotion = await db.query.devotions.findFirst({
     where: (devotions, { eq }) => eq(devotions.id, props.id),
     with: {
-      images: true
-    }
+      images: true,
+    },
   });
 
   return devotion ?? null;
@@ -22,7 +23,7 @@ const getDevotion = async (props: { id: string }) => {
 const getDevotionQueryProps = (id: string) => {
   return {
     queryKey: ['devotion', { id }],
-    queryFn: () => getDevotion({ id })
+    queryFn: () => getDevotion({ id }),
   };
 };
 
@@ -30,8 +31,8 @@ export const route: RouteDefinition = {
   preload: ({ params }) => {
     const { id } = params;
     const qc = useQueryClient();
-    qc.prefetchQuery(getDevotionQueryProps(id));
-  }
+    void qc.prefetchQuery(getDevotionQueryProps(id));
+  },
 };
 
 const DevotionPage = () => {
@@ -48,29 +49,29 @@ const DevotionPage = () => {
       {(devotion) => (
         <div class="flex w-full grow flex-col items-center p-5">
           <div class="flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap">
-            <H1 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+            <H1 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
               {toTitleCase(devotion.topic)}
             </H1>
             <div class="flex flex-col gap-2 text-center">
-              <H3 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+              <H3 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
                 Reading
               </H3>
               <p>{devotion.bibleReading}</p>
             </div>
             <div class="flex flex-col gap-2">
-              <H3 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+              <H3 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
                 Summary
               </H3>
               <p>{devotion.summary}</p>
             </div>
             <div class="flex flex-col gap-2">
-              <H3 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+              <H3 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
                 Reflection
               </H3>
               <p>{devotion.reflection}</p>
             </div>
             <div class="flex flex-col gap-2">
-              <H3 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+              <H3 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
                 Prayer
               </H3>
               <p>{devotion.prayer}</p>
@@ -78,7 +79,7 @@ const DevotionPage = () => {
             <Show when={devotion.images} keyed>
               {(image) => (
                 <div class="flex flex-col gap-2">
-                  <H3 class="inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground">
+                  <H3 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
                     Image
                   </H3>
                   <img src={image.url!} alt="Devotion image" />

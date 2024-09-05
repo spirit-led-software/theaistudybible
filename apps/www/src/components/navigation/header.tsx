@@ -1,3 +1,4 @@
+import { cn } from '@/www/lib/utils';
 import { dark } from '@clerk/themes';
 import { useColorMode } from '@kobalte/core';
 import { createVisibilityObserver } from '@solid-primitives/intersection-observer';
@@ -9,10 +10,9 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
-  UserButton
+  UserButton,
 } from 'clerk-solidjs';
 import { createMemo, createSignal } from 'solid-js';
-import { cn } from '~/utils';
 import Logo from '../branding/logo';
 import LogoSmall from '../branding/logo-small';
 import { Button } from '../ui/button';
@@ -29,7 +29,7 @@ export default function NavigationHeader() {
 
   const [topRef, setTopRef] = createSignal<HTMLDivElement>();
   const isTopVisible = createVisibilityObserver({
-    initialValue: true
+    initialValue: true,
   })(topRef);
 
   return (
@@ -38,8 +38,8 @@ export default function NavigationHeader() {
       <div class="h-20" />
       <nav
         class={cn(
-          'fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b border-b-border bg-background py-6 pl-2 pr-4 transition-all duration-300 ease-in-out',
-          !isTopVisible() && 'shadow-md'
+          'border-b-border bg-background fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b py-6 pl-2 pr-4 transition-all duration-300 ease-in-out',
+          !isTopVisible() && 'shadow-md',
         )}
       >
         <div class="flex w-1/3 justify-start md:hidden">
@@ -67,8 +67,8 @@ export default function NavigationHeader() {
                 appearance={{
                   baseTheme: colorMode() === 'dark' ? dark : undefined,
                   elements: {
-                    userButtonOuterIdentifier: 'text-foreground'
-                  }
+                    userButtonOuterIdentifier: 'text-foreground',
+                  },
                 }}
               />
             </SignedIn>

@@ -2,10 +2,10 @@ import type { Component, ComponentProps, JSX, ValidComponent } from 'solid-js';
 import { Show, splitProps } from 'solid-js';
 
 import * as SheetPrimitive from '@kobalte/core/dialog';
-import { PolymorphicProps } from '@kobalte/core/polymorphic';
+import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from '~/utils';
+import { cn } from '@/www/lib/utils';
 
 const Sheet = SheetPrimitive.Root;
 const SheetTrigger = SheetPrimitive.Trigger;
@@ -17,10 +17,10 @@ const portalVariants = cva('z-50 flex', {
       top: 'items-start',
       bottom: 'items-end',
       left: 'justify-start',
-      right: 'justify-end'
-    }
+      right: 'justify-end',
+    },
   },
-  defaultVariants: { position: 'right' }
+  defaultVariants: { position: 'right' },
 });
 
 type PortalProps = SheetPrimitive.DialogPortalProps & VariantProps<typeof portalVariants>;
@@ -39,14 +39,14 @@ type DialogOverlayProps<T extends ValidComponent = 'div'> = SheetPrimitive.Dialo
 };
 
 const SheetOverlay = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, DialogOverlayProps<T>>
+  props: PolymorphicProps<T, DialogOverlayProps<T>>,
 ) => {
   const [local, others] = splitProps(props as DialogOverlayProps, ['class']);
   return (
     <SheetPrimitive.Overlay
       class={cn(
-        'fixed inset-0 z-50 bg-black/80 data-[expanded=]:animate-in data-[closed=]:animate-out data-[closed=]:fade-out-0 data-[expanded=]:fade-in-0',
-        local.class
+        'data-[expanded=]:animate-in data-[closed=]:animate-out data-[closed=]:fade-out-0 data-[expanded=]:fade-in-0 fixed inset-0 z-50 bg-black/80',
+        local.class,
       )}
       {...others}
     />
@@ -63,13 +63,13 @@ const sheetVariants = cva(
           'inset-x-0 bottom-0 border-t data-[closed=]:slide-out-to-bottom data-[expanded=]:slide-in-from-bottom',
         left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[closed=]:slide-out-to-left data-[expanded]:slide-in-from-left sm:max-w-sm',
         right:
-          'inset-y-0 right-0 h-full w-3/4  border-l data-[closed=]:slide-out-to-right data-[expanded=]:slide-in-from-right sm:max-w-sm'
-      }
+          'inset-y-0 right-0 h-full w-3/4  border-l data-[closed=]:slide-out-to-right data-[expanded=]:slide-in-from-right sm:max-w-sm',
+      },
     },
     defaultVariants: {
-      position: 'right'
-    }
-  }
+      position: 'right',
+    },
+  },
 );
 
 type DialogContentProps<T extends ValidComponent = 'div'> = SheetPrimitive.DialogContentProps<T> &
@@ -80,12 +80,12 @@ type DialogContentProps<T extends ValidComponent = 'div'> = SheetPrimitive.Dialo
   };
 
 const SheetContent = <T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, DialogContentProps<T>>
+  props: PolymorphicProps<T, DialogContentProps<T>>,
 ) => {
   const [local, others] = splitProps(props as DialogContentProps, [
     'position',
     'class',
-    'children'
+    'children',
   ]);
   return (
     <SheetPortal position={local.position}>
@@ -97,7 +97,7 @@ const SheetContent = <T extends ValidComponent = 'div'>(
         {...others}
       >
         {local.children}
-        <SheetPrimitive.CloseButton class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <SheetPrimitive.CloseButton class="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -140,12 +140,12 @@ type DialogTitleProps<T extends ValidComponent = 'h2'> = SheetPrimitive.DialogTi
 };
 
 const SheetTitle = <T extends ValidComponent = 'h2'>(
-  props: PolymorphicProps<T, DialogTitleProps<T>>
+  props: PolymorphicProps<T, DialogTitleProps<T>>,
 ) => {
   const [local, others] = splitProps(props as DialogTitleProps, ['class']);
   return (
     <SheetPrimitive.Title
-      class={cn('text-lg font-semibold text-foreground', local.class)}
+      class={cn('text-foreground text-lg font-semibold', local.class)}
       {...others}
     />
   );
@@ -155,12 +155,12 @@ type DialogDescriptionProps<T extends ValidComponent = 'p'> =
   SheetPrimitive.DialogDescriptionProps<T> & { class?: string | undefined };
 
 const SheetDescription = <T extends ValidComponent = 'p'>(
-  props: PolymorphicProps<T, DialogDescriptionProps<T>>
+  props: PolymorphicProps<T, DialogDescriptionProps<T>>,
 ) => {
   const [local, others] = splitProps(props as DialogDescriptionProps, ['class']);
   return (
     <SheetPrimitive.Description
-      class={cn('text-sm text-muted-foreground', local.class)}
+      class={cn('text-muted-foreground text-sm', local.class)}
       {...others}
     />
   );
@@ -174,5 +174,5 @@ export {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
+  SheetTrigger,
 };

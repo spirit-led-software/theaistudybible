@@ -1,12 +1,12 @@
+import { db } from '@/core/database';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Command, CommandEmpty, CommandInput, CommandList } from '@/www/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Command, CommandEmpty, CommandInput, CommandList } from '~/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
 import ChapterPicker from './chapter';
 
 async function getBookPickerData(bibleId: string) {
@@ -15,9 +15,9 @@ async function getBookPickerData(bibleId: string) {
     where: (bibles, { or, eq }) => or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
     with: {
       books: {
-        orderBy: (books, { asc }) => asc(books.number)
-      }
-    }
+        orderBy: (books, { asc }) => asc(books.number),
+      },
+    },
   });
 
   if (!bibleBooks) {
@@ -29,7 +29,7 @@ async function getBookPickerData(bibleId: string) {
 
 export const bookPickerQueryOptions = (bibleId: string) => ({
   queryKey: ['book-picker', { bibleId }],
-  queryFn: () => getBookPickerData(bibleId)
+  queryFn: () => getBookPickerData(bibleId),
 });
 
 export default function BookPicker() {

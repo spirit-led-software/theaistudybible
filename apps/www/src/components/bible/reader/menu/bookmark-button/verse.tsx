@@ -1,16 +1,16 @@
+import { db } from '@/core/database';
+import { verseBookmarks } from '@/core/database/schema';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
+import { Spinner } from '@/www/components/ui/spinner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { verseBookmarks } from '@theaistudybible/core/database/schema';
 import { SignedIn, SignedOut, useAuth } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
-import { Spinner } from '~/components/ui/spinner';
-import { showToast } from '~/components/ui/toast';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { toast } from 'solid-sonner';
 
 const addBookmark = async (verseId: string) => {
   'use server';
@@ -43,7 +43,7 @@ const getBookmark = async (verseId: string) => {
 
   const bookmark = await db.query.verseBookmarks.findFirst({
     where: (verseBookmarks, { and, eq }) =>
-      and(eq(verseBookmarks.userId, userId), eq(verseBookmarks.verseId, verseId))
+      and(eq(verseBookmarks.userId, userId), eq(verseBookmarks.verseId, verseId)),
   });
 
   return bookmark ?? null;
@@ -51,13 +51,13 @@ const getBookmark = async (verseId: string) => {
 
 export const getVerseBookmarkQueryOptions = ({
   userId,
-  verseId
+  verseId,
 }: {
   userId?: string | null;
   verseId: string;
 }) => ({
   queryKey: ['bookmark', { verseId, userId }],
-  queryFn: async () => await getBookmark(verseId)
+  queryFn: async () => await getBookmark(verseId),
 });
 
 export const VerseBookmarkButton = () => {
@@ -67,30 +67,24 @@ export const VerseBookmarkButton = () => {
   const query = createQuery(() =>
     getVerseBookmarkQueryOptions({
       userId: userId(),
-      verseId: brStore.verse!.id
-    })
+      verseId: brStore.verse!.id,
+    }),
   );
 
   const addBookmarkMutation = createMutation(() => ({
     mutationFn: () => addBookmark(brStore.verse!.id),
     onSettled: () => query.refetch(),
     onError: (error) => {
-      showToast({
-        title: error.message,
-        variant: 'error'
-      });
-    }
+      toast.error(error.message);
+    },
   }));
 
   const deleteBookmarkMutation = createMutation(() => ({
     mutationFn: () => deleteBookmark(brStore.verse!.id),
     onSettled: () => query.refetch(),
     onError: (error) => {
-      showToast({
-        title: error.message,
-        variant: 'error'
-      });
-    }
+      toast.error(error.message);
+    },
   }));
 
   return (

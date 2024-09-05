@@ -1,18 +1,18 @@
+import { db } from '@/core/database';
+import { verseHighlights } from '@/core/database/schema';
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
+import { DrawerClose } from '@/www/components/ui/drawer';
+import { Spinner } from '@/www/components/ui/spinner';
+import { ToggleGroup } from '@/www/components/ui/toggle-group';
+import { P } from '@/www/components/ui/typography';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { verseHighlights } from '@theaistudybible/core/database/schema';
 import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { createSignal, Match, Switch } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
-import { DrawerClose } from '~/components/ui/drawer';
-import { Spinner } from '~/components/ui/spinner';
-import { showToast } from '~/components/ui/toast';
-import { ToggleGroup } from '~/components/ui/toggle-group';
-import { P } from '~/components/ui/typography';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
+import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
@@ -29,14 +29,14 @@ async function updateHighlights({ color, verseIds }: { color: string; verseIds: 
       verseIds.map((id) => ({
         color,
         userId,
-        verseId: id
-      }))
+        verseId: id,
+      })),
     )
     .onConflictDoUpdate({
       target: [verseHighlights.userId, verseHighlights.verseId],
       set: {
-        color
-      }
+        color,
+      },
     })
     .returning();
 }
@@ -63,28 +63,22 @@ export const HighlightCard = () => {
       updateHighlights({ verseIds, color }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['highlights']
+        queryKey: ['highlights'],
       }),
     onError: () => {
-      showToast({
-        title: 'Failed to save highlights',
-        variant: 'error'
-      });
-    }
+      toast.error('Failed to save highlights');
+    },
   }));
 
   const deleteHighlightsMutation = createMutation(() => ({
     mutationFn: ({ verseIds }: { verseIds: string[] }) => deleteHighlights({ verseIds }),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['highlights']
+        queryKey: ['highlights'],
       }),
     onError: () => {
-      showToast({
-        title: 'Failed to delete highlights',
-        variant: 'error'
-      });
-    }
+      toast.error('Failed to delete highlights');
+    },
   }));
 
   const [tgValue, setTgValue] = createSignal<string | undefined>();
@@ -117,7 +111,7 @@ export const HighlightCard = () => {
             disabled={addHighlightsMutation.isPending || deleteHighlightsMutation.isPending}
             onClick={() =>
               deleteHighlightsMutation.mutate({
-                verseIds: brStore.selectedVerseInfos.map((v) => v.id)
+                verseIds: brStore.selectedVerseInfos.map((v) => v.id),
               })
             }
           >
@@ -132,7 +126,7 @@ export const HighlightCard = () => {
             onClick={() =>
               addHighlightsMutation.mutate({
                 verseIds: brStore.selectedVerseInfos.map((v) => v.id),
-                color: tgValue() === 'custom' ? customColor() : tgValue()
+                color: tgValue() === 'custom' ? customColor() : tgValue(),
               })
             }
           >
@@ -153,7 +147,7 @@ export const HighlightCard = () => {
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class="px-0 text-lg capitalize text-accent-foreground"
+                class="text-accent-foreground px-0 text-lg capitalize"
               />{' '}
               to highlight
             </P>

@@ -1,9 +1,9 @@
+import { Dialog, DialogContent } from '@/www/components/ui/dialog';
+import { cn } from '@/www/lib/utils';
 import type { DialogRootProps } from '@kobalte/core/dialog';
 import * as CommandPrimitive from 'cmdk-solid';
 import type { Component, ComponentProps, ParentProps, VoidProps } from 'solid-js';
 import { splitProps } from 'solid-js';
-import { Dialog, DialogContent } from '~/components/ui/dialog';
-import { cn } from '~/utils';
 
 const Command: Component<ParentProps<CommandPrimitive.CommandRootProps>> = (props) => {
   const [local, others] = splitProps(props, ['class']);
@@ -11,8 +11,8 @@ const Command: Component<ParentProps<CommandPrimitive.CommandRootProps>> = (prop
   return (
     <CommandPrimitive.CommandRoot
       class={cn(
-        'flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
-        local.class
+        'bg-popover text-popover-foreground flex size-full flex-col overflow-hidden rounded-md',
+        local.class,
       )}
       {...others}
     />
@@ -25,7 +25,7 @@ const CommandDialog: Component<ParentProps<DialogRootProps>> = (props) => {
   return (
     <Dialog {...others}>
       <DialogContent class="overflow-hidden p-0">
-        <Command class="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
+        <Command class="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
           {local.children}
         </Command>
       </DialogContent>
@@ -53,8 +53,8 @@ const CommandInput: Component<VoidProps<CommandPrimitive.CommandInputProps>> = (
       </svg>
       <CommandPrimitive.CommandInput
         class={cn(
-          'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
-          local.class
+          'placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
+          local.class,
         )}
         {...others}
       />
@@ -90,8 +90,8 @@ const CommandGroup: Component<ParentProps<CommandPrimitive.CommandGroupProps>> =
   return (
     <CommandPrimitive.CommandGroup
       class={cn(
-        'overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
-        local.class
+        'text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
+        local.class,
       )}
       {...others}
     />
@@ -102,7 +102,7 @@ const CommandSeparator: Component<VoidProps<CommandPrimitive.CommandSeparatorPro
   const [local, others] = splitProps(props, ['class']);
 
   return (
-    <CommandPrimitive.CommandSeparator class={cn('h-px bg-border', local.class)} {...others} />
+    <CommandPrimitive.CommandSeparator class={cn('bg-border h-px', local.class)} {...others} />
   );
 };
 
@@ -113,8 +113,8 @@ const CommandItem: Component<ParentProps<CommandPrimitive.CommandItemProps>> = (
     <CommandPrimitive.CommandItem
       cmdk-item=""
       class={cn(
-        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
-        local.class
+        'aria-selected:bg-accent aria-selected:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50',
+        local.class,
       )}
       {...others}
     />
@@ -126,7 +126,7 @@ const CommandShortcut: Component<ComponentProps<'span'>> = (props) => {
 
   return (
     <span
-      class={cn('ml-auto text-xs tracking-widest text-muted-foreground', local.class)}
+      class={cn('text-muted-foreground ml-auto text-xs tracking-widest', local.class)}
       {...others}
     />
   );
@@ -141,5 +141,5 @@ export {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut
+  CommandShortcut,
 };

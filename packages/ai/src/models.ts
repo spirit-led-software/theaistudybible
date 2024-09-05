@@ -1,12 +1,8 @@
-import { anthropic } from '@ai-sdk/anthropic';
-import { mistral } from '@ai-sdk/mistral';
-import { openai } from '@ai-sdk/openai';
+import type { anthropic } from '@ai-sdk/anthropic';
+import type { openai } from '@ai-sdk/openai';
 
 export type ModelInfo = {
-  id:
-    | Parameters<typeof openai>[0]
-    | Parameters<typeof anthropic>[0]
-    | Parameters<typeof mistral>[0];
+  id: Parameters<typeof openai>[0] | Parameters<typeof anthropic>[0];
   provider: 'openai' | 'anthropic' | 'mistral';
   name: string;
   description: string;
@@ -23,11 +19,11 @@ export const freeTierModels: ModelInfo[] = [
     contextSize: 128_000,
     provider: 'openai',
     link: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
-    tier: 'free'
-  }
+    tier: 'free',
+  },
 ];
 export type FreeTierModelId = (typeof freeTierModels)[number]['id'];
-export const freeTierModelIds = freeTierModels.map((model) => model.id) as FreeTierModelId[];
+export const freeTierModelIds = freeTierModels.map((model) => model.id);
 
 export const plusTierModels: ModelInfo[] = [
   {
@@ -37,18 +33,15 @@ export const plusTierModels: ModelInfo[] = [
     contextSize: 128_000,
     provider: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
-    tier: 'plus'
-  }
+    tier: 'plus',
+  },
 ];
 export type PlusTierModelId = (typeof plusTierModels)[number]['id'];
-export const plusTierModelIds = plusTierModels.map((model) => model.id) as PlusTierModelId[];
+export const plusTierModelIds = plusTierModels.map((model) => model.id);
 
 export const allModels = [...freeTierModels, ...plusTierModels];
 
-export const allModelIds = allModels.map((model) => model.id) as (
-  | FreeTierModelId
-  | PlusTierModelId
-)[];
+export const allModelIds = allModels.map((model) => model.id);
 export type ModelId = (typeof allModelIds)[number];
 
 export const defaultModel = freeTierModels[0];
@@ -64,12 +57,12 @@ export const embeddingModel: EmbeddingModelInfo = {
   id: 'text-embedding-3-large',
   dimensions: 3072,
   chunkSize: 1024,
-  chunkOverlap: 256
+  chunkOverlap: 256,
 };
 
 export const devEmbeddingModel: EmbeddingModelInfo = {
   id: 'text-embedding-ada-002',
   dimensions: 1536,
   chunkSize: 1024,
-  chunkOverlap: 256
+  chunkOverlap: 256,
 };

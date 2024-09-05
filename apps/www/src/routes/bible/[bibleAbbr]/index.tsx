@@ -1,9 +1,10 @@
-import { Navigate, RouteDefinition, useParams } from '@solidjs/router';
+import { db } from '@/core/database';
+import { books, chapters } from '@/core/database/schema';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import type { RouteDefinition} from '@solidjs/router';
+import { Navigate, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { books, chapters } from '@theaistudybible/core/database/schema';
 import { asc } from 'drizzle-orm';
-import { QueryBoundary } from '~/components/query-boundary';
 
 export type BibleRedirectUrlParams = {
   bibleAbbr: string;
@@ -13,8 +14,8 @@ export const route: RouteDefinition = {
   preload: ({ params }) => {
     const { bibleAbbr } = params;
     const qc = useQueryClient();
-    qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
-  }
+    void qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
+  },
 };
 
 const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
@@ -28,11 +29,11 @@ const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
         with: {
           chapters: {
             limit: 1,
-            orderBy: asc(chapters.number)
-          }
-        }
-      }
-    }
+            orderBy: asc(chapters.number),
+          },
+        },
+      },
+    },
   });
 
   const book = bible?.books[0];
@@ -47,7 +48,7 @@ const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
 
 const getBibleRedirectUrlQueryOptions = ({ bibleAbbr }: BibleRedirectUrlParams) => ({
   queryKey: ['bible-redirect', bibleAbbr],
-  queryFn: () => getBibleRedirectUrl({ bibleAbbr })
+  queryFn: () => getBibleRedirectUrl({ bibleAbbr }),
 });
 
 export default function BiblePage() {

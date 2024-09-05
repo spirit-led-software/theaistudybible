@@ -6,14 +6,15 @@ import {
   createSignal,
   mergeProps,
   splitProps,
-  useContext
+  useContext,
 } from 'solid-js';
 
 import type { CreateEmblaCarouselType } from 'embla-carousel-solid';
 import createEmblaCarousel from 'embla-carousel-solid';
 
-import { Button, ButtonProps } from '~/components/ui/button';
-import { cn } from '~/utils';
+import type { ButtonProps } from '@/www/components/ui/button';
+import { Button } from '@/www/components/ui/button';
+import { cn } from '@/www/lib/utils';
 
 export type CarouselApi = CreateEmblaCarouselType[1];
 
@@ -52,7 +53,7 @@ const useCarousel = () => {
 const Carousel: Component<CarouselProps & ComponentProps<'div'>> = (rawProps) => {
   const props = mergeProps<(CarouselProps & ComponentProps<'div'>)[]>(
     { orientation: 'horizontal' },
-    rawProps
+    rawProps,
   );
 
   const [local, others] = splitProps(props, [
@@ -61,15 +62,15 @@ const Carousel: Component<CarouselProps & ComponentProps<'div'>> = (rawProps) =>
     'setApi',
     'plugins',
     'class',
-    'children'
+    'children',
   ]);
 
   const [carouselRef, api] = createEmblaCarousel(
     () => ({
       ...local.opts,
-      axis: local.orientation === 'horizontal' ? 'x' : 'y'
+      axis: local.orientation === 'horizontal' ? 'x' : 'y',
     }),
-    () => (local.plugins === undefined ? [] : local.plugins)
+    () => (local.plugins === undefined ? [] : local.plugins),
   );
   const [canScrollPrev, setCanScrollPrev] = createSignal(false);
   const [canScrollNext, setCanScrollNext] = createSignal(false);
@@ -128,8 +129,8 @@ const Carousel: Component<CarouselProps & ComponentProps<'div'>> = (rawProps) =>
         scrollPrev,
         scrollNext,
         canScrollPrev,
-        canScrollNext
-      }) satisfies CarouselContextProps
+        canScrollNext,
+      }) satisfies CarouselContextProps,
   );
 
   return (
@@ -172,7 +173,7 @@ const CarouselItem: Component<ComponentProps<'div'>> = (props) => {
       class={cn(
         'min-w-0 shrink-0 grow-0 basis-full',
         orientation === 'horizontal' ? 'pl-4' : 'pt-4',
-        local.class
+        local.class,
       )}
       {...others}
     />
@@ -195,7 +196,7 @@ const CarouselPrevious: Component<CarouselButtonProps> = (rawProps) => {
         orientation === 'horizontal'
           ? '-left-12 top-1/2 -translate-y-1/2'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
-        local.class
+        local.class,
       )}
       disabled={!canScrollPrev()}
       onClick={scrollPrev}
@@ -234,7 +235,7 @@ const CarouselNext: Component<CarouselButtonProps> = (rawProps) => {
         orientation === 'horizontal'
           ? '-right-12 top-1/2 -translate-y-1/2'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
-        local.class
+        local.class,
       )}
       disabled={!canScrollNext()}
       onClick={scrollNext}

@@ -1,7 +1,7 @@
-import type { NoteContent as NoteContentType } from '@theaistudybible/core/types/bible';
+import type { NoteContent as NoteContentType } from '@/schemas/bibles/contents';
+import { Button } from '@/www/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { Notebook } from 'lucide-solid';
-import { Button } from '~/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import Contents from './contents';
 
 export type NoteContentProps = {

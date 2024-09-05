@@ -1,11 +1,7 @@
-import { Redis } from 'ioredis';
-
-const redisUrl = new URL(process.env.REDIS_URL);
+import { Redis } from '@upstash/redis';
+import { Resource } from 'sst';
 
 export const cache = new Redis({
-  host: redisUrl.hostname,
-  port: parseInt(redisUrl.port),
-  username: redisUrl.username,
-  password: redisUrl.password,
-  maxRetriesPerRequest: null
+  url: Resource.UpstashRedis.restUrl,
+  token: Resource.UpstashRedis.restToken,
 });

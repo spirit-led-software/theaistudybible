@@ -1,11 +1,14 @@
-import * as schema from '@theaistudybible/core/database/schema';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import * as schema from '@/core/database/schema';
+import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/libsql';
+import { Resource } from 'sst';
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
-
-export const db = drizzle(pool, {
-  schema
-});
+export const db = drizzle(
+  createClient({
+    url: Resource.Database.url,
+    authToken: Resource.Database.token || undefined,
+  }),
+  {
+    schema,
+  },
+);

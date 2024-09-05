@@ -10,47 +10,26 @@
   "cSpell.words": [
     "autocorrect",
     "autofocus",
-    "Codegen",
-    "Cupertino",
-    "daisyui",
     "Devo",
-    "flushbar",
-    "graphqlsp",
     "Hnsw",
-    "iconify",
-    "langchain",
-    "LANGSMITH",
     "mistralai",
     "Mixtral",
     "NKJV",
     "openai",
     "Ratelimit",
-    "REVENUECAT",
-    "Riverpod",
-    "tada",
     "tailwindcss",
     "theaistudybible",
-    "togetherai",
-    "unfocus",
+    "turso",
     "upstash"
   ],
   "eslint.workingDirectories": [
-    "packages/core",
-    "packages/langchain",
-    "packages/server",
-    "apps/scripts",
-    "apps/web",
-    "apps/functions"
+    {
+      "mode": "auto"
+    }
   ],
   "eslint.lintTask.enable": true,
-  "eslint.experimental.useFlatConfig": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "svelte"
-  ],
+  "eslint.useFlatConfig": true,
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "workbench.colorCustomizations": {
     "activityBar.activeBackground": "#65c89b",
     "activityBar.background": "#65c89b",

@@ -1,6 +1,6 @@
+import { Button } from '@/www/components/ui/button';
+import { H1, H3 } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
-import { Button } from '~/components/ui/button';
-import { H1, H3 } from '~/components/ui/typography';
 
 export default function NotFoundPage() {
   return (

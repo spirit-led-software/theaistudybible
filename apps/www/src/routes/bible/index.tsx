@@ -1,10 +1,11 @@
+import { db } from '@/core/database';
+import { LargeTranslationPicker } from '@/www/components/bible/reader/menu/translation-picker';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { useBibleStore } from '@/www/contexts/bible';
 import { Title } from '@solidjs/meta';
-import { Navigate, RouteDefinition } from '@solidjs/router';
+import type { RouteDefinition } from '@solidjs/router';
+import { Navigate } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { LargeTranslationPicker } from '~/components/bible/reader/menu/translation-picker';
-import { QueryBoundary } from '~/components/query-boundary';
-import { useBibleStore } from '~/contexts/bible';
 
 async function getBibles() {
   'use server';
@@ -13,14 +14,14 @@ async function getBibles() {
 
 const biblesQueryOptions = {
   queryKey: ['bibles'],
-  queryFn: () => getBibles()
+  queryFn: () => getBibles(),
 };
 
 export const route: RouteDefinition = {
   preload: async () => {
     const qc = useQueryClient();
     await qc.prefetchQuery(biblesQueryOptions);
-  }
+  },
 };
 
 export default function BiblePage() {

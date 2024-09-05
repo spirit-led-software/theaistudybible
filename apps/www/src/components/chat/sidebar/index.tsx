@@ -1,12 +1,12 @@
+import { db } from '@/core/database';
+import { cn } from '@/www/lib/utils';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
 import { auth } from 'clerk-solidjs/server';
-import day from 'dayjs';
+import { formatDate } from 'date-fns';
 import { Clock } from 'lucide-solid';
 import { For, Match, Switch, createEffect, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { cn } from '~/utils';
 import { useChatStore } from '../../../contexts/chat';
 import { QueryBoundary } from '../../query-boundary';
 import { Button, buttonVariants } from '../../ui/button';
@@ -16,7 +16,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
+  SheetTrigger,
 } from '../../ui/sheet';
 import { Spinner } from '../../ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -35,12 +35,12 @@ const getChats = async ({ offset, limit }: { offset: number; limit: number }) =>
     where: (chats, { eq }) => eq(chats.userId, userId),
     orderBy: (chats, { desc }) => desc(chats.updatedAt),
     offset,
-    limit
+    limit,
   });
 
   return {
     chats,
-    nextCursor: chats.length === limit ? offset + chats.length : undefined
+    nextCursor: chats.length === limit ? offset + chats.length : undefined,
   };
 };
 
@@ -54,7 +54,7 @@ export const ChatSidebar = () => {
     queryKey: ['chats', { limit: 10 }],
     queryFn: ({ pageParam }) => getChats({ offset: pageParam, limit: 10 }),
     initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
   }));
 
   const [chats, setChats] = createStore(chatsQuery.data?.pages.flatMap((page) => page.chats) ?? []);
@@ -64,11 +64,11 @@ export const ChatSidebar = () => {
       (data) => {
         setChats(
           reconcile(data?.pages.flatMap((page) => page.chats) ?? [], {
-            merge: true
-          })
+            merge: true,
+          }),
         );
-      }
-    )
+      },
+    ),
   );
 
   return (
@@ -103,8 +103,8 @@ export const ChatSidebar = () => {
                       <div
                         data-index={idx()}
                         class={cn(
-                          'group flex h-fit w-full items-center justify-between gap-2 rounded-lg p-2 hover:bg-accent',
-                          chatStore.chat?.id === chat.id && 'bg-muted'
+                          'hover:bg-accent group flex h-fit w-full items-center justify-between gap-2 rounded-lg p-2',
+                          chatStore.chat?.id === chat.id && 'bg-muted',
                         )}
                       >
                         <SheetClose
@@ -122,8 +122,8 @@ export const ChatSidebar = () => {
                             <span class="line-clamp-2 group-hover:line-clamp-none">
                               {chat.name}
                             </span>
-                            <span class="text-sm text-muted-foreground">
-                              {day(chat.updatedAt).format('MMMM D, YYYY')}
+                            <span class="text-muted-foreground text-sm">
+                              {formatDate(chat.updatedAt, 'MMMM D, YYYY')}
                             </span>
                           </div>
                         </SheetClose>
@@ -145,7 +145,7 @@ export const ChatSidebar = () => {
                     class="w-full"
                     onClick={() => {
                       if (!chatsQuery.isFetchingNextPage) {
-                        chatsQuery.fetchNextPage();
+                        void chatsQuery.fetchNextPage();
                       }
                     }}
                   >

@@ -1,31 +1,32 @@
-import { A } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import { chapterNotes, verseNotes } from '@theaistudybible/core/database/schema';
-import { contentsToText } from '@theaistudybible/core/util/bible';
-import { auth } from 'clerk-solidjs/server';
-import { HelpCircle } from 'lucide-solid';
-import { createSignal, Show } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
-import { Label } from '~/components/ui/label';
-import { Markdown } from '~/components/ui/markdown';
+import { db } from '@/core/database';
+import { chapterNotes, verseNotes } from '@/core/database/schema';
+import { contentsToText } from '@/core/utils/bible';
+import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
+import { Label } from '@/www/components/ui/label';
+import { Markdown } from '@/www/components/ui/markdown';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '~/components/ui/select';
+  SelectValue,
+} from '@/www/components/ui/select';
 import {
   TextField,
   TextFieldErrorMessage,
   TextFieldLabel,
-  TextFieldTextArea
-} from '~/components/ui/text-field';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
-import { P } from '~/components/ui/typography';
-import { SelectedVerseInfo, useBibleReaderStore } from '~/contexts/bible-reader';
+  TextFieldTextArea,
+} from '@/www/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { P } from '@/www/components/ui/typography';
+import type { SelectedVerseInfo} from '@/www/contexts/bible-reader';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { A } from '@solidjs/router';
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { auth } from 'clerk-solidjs/server';
+import { HelpCircle } from 'lucide-solid';
+import { createSignal, Show } from 'solid-js';
 
 const addNote = async (props: { chapterId: string; verseId?: string; content: string }) => {
   'use server';
@@ -38,13 +39,13 @@ const addNote = async (props: { chapterId: string; verseId?: string; content: st
     await db.insert(verseNotes).values({
       userId,
       verseId: props.verseId,
-      content: props.content
+      content: props.content,
     });
   } else {
     await db.insert(chapterNotes).values({
       userId,
       chapterId: props.chapterId,
-      content: props.content
+      content: props.content,
     });
   }
 };
@@ -58,7 +59,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
   const [brStore] = useBibleReaderStore();
 
   const [selectedVerseInfo, setSelectedVerseInfo] = createSignal<SelectedVerseInfo | undefined>(
-    brStore.selectedVerseInfos[0]
+    brStore.selectedVerseInfos[0],
   );
   const [contentValue, setContentValue] = createSignal('');
   const [showPreview, setShowPreview] = createSignal(false);
@@ -69,8 +70,8 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
     mutationFn: (props: { chapterId: string; verseId?: string; content: string }) => addNote(props),
     onSettled: () =>
       qc.invalidateQueries({
-        queryKey: ['notes']
-      })
+        queryKey: ['notes'],
+      }),
   }));
 
   return (
@@ -146,7 +147,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           <Show
             when={!showPreview()}
             fallback={
-              <div class="whitespace-pre-wrap rounded-lg border bg-background p-5">
+              <div class="bg-background whitespace-pre-wrap rounded-lg border p-5">
                 <Markdown>{contentValue()}</Markdown>
               </div>
             }
@@ -166,7 +167,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
             addNoteMutation.mutate({
               chapterId: brStore.chapter.id,
               verseId: brStore.verse?.id ?? selectedVerseInfo()?.id,
-              content: contentValue()
+              content: contentValue(),
             });
             props.onAdd?.();
           }}

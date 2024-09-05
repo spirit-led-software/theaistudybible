@@ -7,7 +7,9 @@ export const bibleVectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('1 to 4 search terms or phrases that will be used to find relevant bible passages.')
+      .describe(
+        '1 to 4 search terms or phrases that will be used to find relevant bible passages.',
+      ),
   }),
   execute: async ({ terms }) => {
     const maxDocs = 10;
@@ -15,26 +17,17 @@ export const bibleVectorStoreTool = tool({
       await Promise.all(
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
-            filter: {
-              must: [
-                {
-                  key: 'type',
-                  match: {
-                    text: 'bible'
-                  }
-                }
-              ]
-            },
+            filter: 'type = "bible"',
             limit: maxDocs / terms.length,
             withMetadata: true,
-            withEmbedding: false
-          })
-        )
+            withEmbedding: false,
+          }),
+        ),
       )
     )
       .flat()
       .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i); // remove duplicates
-  }
+  },
 });
 
 export const vectorStoreTool = tool({
@@ -42,7 +35,7 @@ export const vectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('1 to 4 search terms or phrases that will be used to find relevant resources.')
+      .describe('1 to 4 search terms or phrases that will be used to find relevant resources.'),
   }),
   execute: async ({ terms }) => {
     const maxDocs = 4;
@@ -52,12 +45,12 @@ export const vectorStoreTool = tool({
           vectorStore.searchDocuments(term, {
             limit: maxDocs / terms.length,
             withMetadata: true,
-            withEmbedding: false
-          })
-        )
+            withEmbedding: false,
+          }),
+        ),
       )
     )
       .flat()
       .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i); // remove duplicates
-  }
+  },
 });

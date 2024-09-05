@@ -1,13 +1,13 @@
+import type { highlightVerseTool } from '@/ai/chat/tools';
+import { formNumberSequenceString } from '@/core/utils/number';
+import { buttonVariants } from '@/www/components/ui/button';
+import { H5, H6 } from '@/www/components/ui/typography';
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
-import { highlightVerseTool } from '@theaistudybible/ai/chat/tools';
-import { formNumberSequenceString } from '@theaistudybible/core/util/number';
-import { ToolInvocation } from 'ai';
+import type { ToolInvocation } from 'ai';
 import { Highlighter } from 'lucide-solid';
 import { Show } from 'solid-js';
-import { z } from 'zod';
-import { buttonVariants } from '~/components/ui/button';
-import { H5, H6 } from '~/components/ui/typography';
-import { cn } from '~/utils';
+import type { z } from 'zod';
 
 export type HighlightVerseToolProps = {
   toolInvocation: ToolInvocation;
@@ -35,7 +35,7 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
             <div
               class="h-4 w-4 shrink-0 rounded-full"
               style={{
-                'background-color': toolArgs.color || '#FFD700'
+                'background-color': toolArgs.color || '#FFD700',
               }}
             />
           </div>
@@ -68,7 +68,7 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
                           href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
                           class={cn(
                             buttonVariants({ variant: 'link' }),
-                            'h-fit p-0 text-accent-foreground'
+                            'text-accent-foreground h-fit p-0',
                           )}
                         >
                           View

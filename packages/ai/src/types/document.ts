@@ -1,5 +1,5 @@
-import type { Metadata } from '@theaistudybible/core/types/metadata';
-import type { Prettify } from '@theaistudybible/core/types/util';
+import type { Prettify } from '@/core/types/util';
+import type { Metadata } from '@/schemas/utils/metadata';
 
 export type Document = {
   id: string;

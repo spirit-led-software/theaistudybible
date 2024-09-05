@@ -1,19 +1,20 @@
+import type { VerseNote } from '@/schemas/bibles';
+import type { VerseContent as VerseContentType } from '@/schemas/bibles/contents';
+import { Button } from '@/www/components/ui/button';
+import { Markdown } from '@/www/components/ui/markdown';
+import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
+import { H5 } from '@/www/components/ui/typography';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
-import { VerseNote } from '@theaistudybible/core/model/bible';
-import { VerseContent as VerseContentType } from '@theaistudybible/core/types/bible';
 import { Notebook } from 'lucide-solid';
 import { For, Show } from 'solid-js';
-import { Button } from '~/components/ui/button';
-import { Markdown } from '~/components/ui/markdown';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import { H5 } from '~/components/ui/typography';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
-import { cn } from '~/utils';
 
 export type VerseContentProps = {
   content: VerseContentType;
   notes?: VerseNote[];
   style?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any;
   class?: string;
 };
@@ -29,7 +30,7 @@ export const VerseContent = (props: VerseContentProps) => {
       class={cn(props.style, 'inline-flex gap-1', props.class)}
     >
       <A
-        href={`/bible/${brStore.bible!.abbreviation}/${brStore.book!.abbreviation}/${brStore.chapter!.number}/${props.content.number}`}
+        href={`/bible/${brStore.bible.abbreviation}/${brStore.book.abbreviation}/${brStore.chapter.number}/${props.content.number}`}
         class="hover:underline"
       >
         {props.content.number}

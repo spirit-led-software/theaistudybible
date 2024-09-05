@@ -1,11 +1,11 @@
+import type { generateImageTool } from '@/ai/chat/tools';
+import { Spinner } from '@/www/components/ui/spinner';
+import { H5, H6 } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
-import { generateImageTool } from '@theaistudybible/ai/chat/tools';
-import { ToolInvocation } from 'ai';
+import type { ToolInvocation } from 'ai';
 import { Image } from 'lucide-solid';
 import { Show } from 'solid-js';
-import { z } from 'zod';
-import { Spinner } from '~/components/ui/spinner';
-import { H5, H6 } from '~/components/ui/typography';
+import type { z } from 'zod';
 
 export type GenerateImageToolProps = {
   toolInvocation: ToolInvocation;

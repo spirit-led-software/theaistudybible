@@ -1,20 +1,20 @@
-import { useNavigate } from '@solidjs/router';
-import { createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import ISO6391 from 'iso-639-1';
-import { Check, ChevronsUpDown } from 'lucide-solid';
-import { QueryBoundary } from '~/components/query-boundary';
-import { Button } from '~/components/ui/button';
+import { db } from '@/core/database';
+import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-  CommandList
-} from '~/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
-import { useBibleReaderStore } from '~/contexts/bible-reader';
+  CommandList,
+} from '@/www/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { useNavigate } from '@solidjs/router';
+import { createQuery } from '@tanstack/solid-query';
+import ISO6391 from 'iso-639-1';
+import { Check, ChevronsUpDown } from 'lucide-solid';
 
 async function getSmallPickerData() {
   'use server';
@@ -23,7 +23,7 @@ async function getSmallPickerData() {
 
 export const smallTranslationPickerQueryOptions = () => ({
   queryKey: ['small-translation-picker'],
-  queryFn: () => getSmallPickerData()
+  queryFn: () => getSmallPickerData(),
 });
 
 export default function SmallTranslationPicker() {
@@ -65,7 +65,7 @@ export default function SmallTranslationPicker() {
                           value={foundBible.name}
                           onSelect={() => {
                             navigate(
-                              `/bible/${foundBible.abbreviation}/${brStore.book.abbreviation}/${brStore.chapter.number}`
+                              `/bible/${foundBible.abbreviation}/${brStore.book.abbreviation}/${brStore.chapter.number}`,
                             );
                           }}
                           class="flex w-full items-center justify-between"

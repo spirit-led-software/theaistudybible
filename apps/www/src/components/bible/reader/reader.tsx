@@ -1,18 +1,19 @@
+import { db } from '@/core/database';
+import type { Content } from '@/schemas/bibles/contents';
+import type { SelectedVerseInfo} from '@/www/contexts/bible-reader';
+import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import type { HighlightInfo } from '@/www/types/bible';
+import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { db } from '@theaistudybible/core/database';
-import type { Content } from '@theaistudybible/core/types/bible';
 import { auth } from 'clerk-solidjs/server';
 import { createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { SelectedVerseInfo, useBibleReaderStore } from '~/contexts/bible-reader';
-import { HighlightInfo } from '~/types/bible';
-import { gatherElementIdsAndVerseNumberByVerseId } from '~/utils';
 import {
   ActivityPanel,
   ActivityPanelAlwaysOpenButtons,
   ActivityPanelButtons,
-  ActivityPanelContent
+  ActivityPanelContent,
 } from './activity-panel';
 import Contents from './contents/contents';
 
@@ -29,20 +30,20 @@ async function getHighlights(chapterId: string) {
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
       columns: {
-        id: true
+        id: true,
       },
       with: {
         verses: {
           columns: {
-            id: true
+            id: true,
           },
           with: {
             highlights: {
-              where: (highlights, { eq }) => eq(highlights.userId, userId)
-            }
-          }
-        }
-      }
+              where: (highlights, { eq }) => eq(highlights.userId, userId),
+            },
+          },
+        },
+      },
     })
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.highlights) || [];
@@ -60,20 +61,20 @@ async function getNotes(chapterId: string) {
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
       columns: {
-        id: true
+        id: true,
       },
       with: {
         verses: {
           columns: {
-            id: true
+            id: true,
           },
           with: {
             notes: {
-              where: (notes, { eq }) => eq(notes.userId, userId)
-            }
-          }
-        }
-      }
+              where: (notes, { eq }) => eq(notes.userId, userId),
+            },
+          },
+        },
+      },
     })
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.notes) || [];
@@ -103,7 +104,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
             id,
             number: parseInt(contents.verseNumber!),
             contentIds: contents.ids,
-            text
+            text,
           };
         });
 
@@ -112,19 +113,19 @@ export const ReaderContent = (props: ReaderContentProps) => {
       setSearchParams(
         { verseIds: undefined },
         {
-          replace: true
-        }
+          replace: true,
+        },
       );
       document.getElementById(verseIds[0])?.scrollIntoView({
         behavior: 'smooth',
-        block: 'center'
+        block: 'center',
       });
     }
   });
 
   const highlightsQuery = createQuery(() => ({
     queryKey: ['highlights', { chapterId: brStore.chapter.id }],
-    queryFn: () => getHighlights(brStore.chapter.id)
+    queryFn: () => getHighlights(brStore.chapter.id),
   }));
   const [highlights, setHighlights] = createStore(
     highlightsQuery.data?.map(
@@ -132,9 +133,9 @@ export const ReaderContent = (props: ReaderContentProps) => {
         ({
           id: hl.id,
           verseId: hl.verseId,
-          color: hl.color
-        }) satisfies HighlightInfo
-    ) || []
+          color: hl.color,
+        }) satisfies HighlightInfo,
+    ) || [],
   );
   createEffect(() => {
     setHighlights(
@@ -144,16 +145,16 @@ export const ReaderContent = (props: ReaderContentProps) => {
             ({
               id: hl.id,
               verseId: hl.verseId,
-              color: hl.color
-            }) satisfies HighlightInfo
-        ) || []
-      )
+              color: hl.color,
+            }) satisfies HighlightInfo,
+        ) || [],
+      ),
     );
   });
 
   const notesQuery = createQuery(() => ({
     queryKey: ['notes', { chapterId: brStore.chapter.id }],
-    queryFn: () => getNotes(brStore.chapter.id)
+    queryFn: () => getNotes(brStore.chapter.id),
   }));
   const [notes, setNotes] = createStore(notesQuery.data || []);
   createEffect(() => {
