@@ -1,4 +1,5 @@
 import { s3 } from '@/core/storage';
+import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
@@ -16,7 +17,7 @@ async function requestUpload({ name, size }: { name: string; size: number }) {
     s3,
     new PutObjectCommand({
       Bucket: Resource.BibleBucket.name,
-      Key: name,
+      Key: `${createId()}_${name}`,
       ContentLength: size,
       ContentType: 'application/zip',
     }),

@@ -1,6 +1,7 @@
+import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
+import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createBible } from './bibles/create';
 import { seedDatabase } from './database/seed';
 
 await yargs(hideBin(process.argv))
@@ -43,19 +44,14 @@ await yargs(hideBin(process.argv))
             description: 'Generate embeddings for the bible',
             default: false,
           })
-          .option('embedding-model', {
-            alias: 'm',
-            type: 'string',
-            description: 'Embedding model to use',
-          })
           .demandOption(['zip-path']),
       async (argv) => {
-        await createBible({
-          zipPath: argv['zip-path'],
+        const zipBuffer = fs.readFileSync(argv['zip-path']);
+        await createBibleFromDblZip({
+          zipBuffer,
           publicationId: argv['publication-id'],
           overwrite: argv['overwrite'],
           generateEmbeddings: argv['generate-embeddings'],
-          embeddingModel: argv['embedding-model'],
         });
       },
     ),

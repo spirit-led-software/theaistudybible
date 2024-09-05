@@ -4,28 +4,24 @@ import * as schema from '@/core/database/schema';
 import type { Verse } from '@/schemas/bibles/types';
 import { eq } from 'drizzle-orm';
 import { XMLParser } from 'fast-xml-parser';
-import fs from 'fs';
 import JSZip from 'jszip';
-import { generateChapterEmbeddings } from '../lib/bible/embeddings';
-import type { DBLMetadata, Publication } from '../lib/bible/types';
-import { parseUsx } from '../lib/bible/usx';
+import { generateChapterEmbeddings } from './generate-chapter-embeddings';
+import type { DBLMetadata, Publication } from './types';
+import { parseUsx } from './usx';
 
-export async function createBible({
-  zipPath,
+export async function createBibleFromDblZip({
+  zipBuffer,
   publicationId,
   overwrite,
   generateEmbeddings,
 }: {
-  zipPath: string;
+  zipBuffer: Uint8Array;
   publicationId?: string;
   overwrite: boolean;
   generateEmbeddings: boolean;
-  embeddingModel?: string;
 }) {
-  const buffer = fs.readFileSync(zipPath);
-
   const zip = new JSZip();
-  const zipFile = await zip.loadAsync(buffer);
+  const zipFile = await zip.loadAsync(zipBuffer);
 
   const licenseFile = zipFile.file('license.xml');
   if (!licenseFile) {

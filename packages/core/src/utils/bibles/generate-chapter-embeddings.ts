@@ -2,7 +2,7 @@ import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import { chaptersToSourceDocuments } from '@/core/database/schema';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
-import { versesToDocs } from './content';
+import { versesToDocs } from './verses-to-docs';
 
 export const generateChapterEmbeddings = async ({
   verses,

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "clean": "turbo clean",
+    "clean": "turbo run clean",
     "clean-install": "rimraf --glob '**/node_modules' bun.lockb && bun pm cache rm && bun install",
     "db:generate": "sst shell -- drizzle-kit generate",
     "db:migrate": "sst shell -- drizzle-kit migrate",
@@ -21,7 +21,7 @@
     "secret:set": "sst secret set",
     "secret:remove": "sst secret remove",
     "secret:list": "sst secret list",
-    "type-check": "turbo type-check",
+    "type-check": "turbo run type-check",
     "upgrade": "bun update --save && sst upgrade"
   },
   "devDependencies": {
@@ -53,8 +53,8 @@
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
-    "sst": "3.0.112",
-    "stripe": "^16.9.0",
+    "sst": "3.0.115",
+    "stripe": "^16.10.0",
     "zod": "^3.23.8"
   },
   "packageManager": "bun@1.1.26",

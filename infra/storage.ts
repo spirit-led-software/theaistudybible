@@ -4,6 +4,12 @@ export const bibleBucket = new sst.aws.Bucket('BibleBucket');
 bibleBucket.subscribe(
   {
     handler: 'apps/functions/src/bucket/subscribers/bible.handler',
+    nodejs: {
+      install: ['jsdom'],
+      esbuild: {
+        external: ['jsdom'],
+      },
+    },
     timeout: '15 minutes',
   },
   {

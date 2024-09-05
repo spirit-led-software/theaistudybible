@@ -115,7 +115,7 @@ export function parseUsx(xmlString: string) {
   const doc = new JSDOM(xmlString, {
     contentType: 'application/xml',
   });
-  const usx = doc.window.document;
+  const usx = doc.window.document.documentElement;
 
   if (usx.nodeName !== 'usx' || usx.nodeType !== usx.ELEMENT_NODE) {
     throw new Error('Invalid USX document');
