@@ -2,7 +2,6 @@ import { db } from '@/core/database';
 import { verseBookmarks } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
-import { Spinner } from '@/www/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createMutation, createQuery } from '@tanstack/solid-query';
@@ -112,7 +111,11 @@ export const VerseBookmarkButton = () => {
           </TooltipContent>
         </Tooltip>
       }
-      loadingFallback={<Spinner size="sm" />}
+      loadingFallback={
+        <Button disabled>
+          <Bookmark />
+        </Button>
+      }
     >
       {() => (
         <Tooltip>

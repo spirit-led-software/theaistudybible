@@ -1,12 +1,11 @@
 import { createChatChain, renameChat } from '@/ai/chat';
 import { allModels } from '@/ai/models';
-import type { Bindings, Variables } from '@/api/types';
 import { db } from '@/core/database';
 import { chats, messages, messages as messagesTable } from '@/core/database/schema';
 import type { Chat } from '@/schemas/chats/types';
+import type { Bindings, Variables } from '@/www/server/api/types';
 import { zValidator } from '@hono/zod-validator';
 import type { ToolInvocation } from 'ai';
-import { StreamingTextResponse } from 'ai';
 import { eq } from 'drizzle-orm';
 import { createSelectSchema } from 'drizzle-zod';
 import { Hono } from 'hono';
@@ -185,27 +184,21 @@ const app = new Hono<{
         userId: claims.sub,
         sessionClaims: claims,
         maxTokens: maxResponseTokens,
-      });
-
-      const { streamTextResult, streamData, responseId } = await streamText(messages);
-
-      const aiStream = streamTextResult.toAIStream({
-        onFinal: async () => {
+        onFinish: async () => {
           await Promise.all(pendingPromises);
-          await streamData.close();
         },
       });
-      return new StreamingTextResponse(
-        aiStream,
-        {
+
+      const { streamTextResult, responseId } = await streamText(messages);
+      return streamTextResult.toDataStreamResponse({
+        init: {
           headers: {
             'x-chat-id': chat.id,
             'x-response-id': responseId,
             'x-model-id': modelId,
           },
         },
-        streamData,
-      );
+      });
     },
   );
 

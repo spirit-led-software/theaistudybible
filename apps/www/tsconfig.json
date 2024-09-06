@@ -19,8 +19,6 @@
       "@/core/*": ["../../packages/core/src/*"],
       "@/ai": ["../../packages/ai/src"],
       "@/ai/*": ["../../packages/ai/src/*"],
-      "@/api": ["../api/src"],
-      "@/api/*": ["../api/src/*"],
       "@/functions": ["../functions/src"],
       "@/functions/*": ["../functions/src/*"],
       "@/scripts": ["../../tools/scripts/src"],

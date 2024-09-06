@@ -2,7 +2,6 @@ import { db } from '@/core/database';
 import { chapterBookmarks } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
-import { Spinner } from '@/www/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { createMutation, createQuery } from '@tanstack/solid-query';
@@ -93,6 +92,7 @@ export const ChapterBookmarkButton = () => {
         <Tooltip>
           <TooltipTrigger
             as={Button}
+            size="icon"
             onClick={() => addBookmarkMutation.mutate()}
             disabled={
               !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
@@ -111,12 +111,17 @@ export const ChapterBookmarkButton = () => {
           </TooltipContent>
         </Tooltip>
       }
-      loadingFallback={<Spinner size="sm" />}
+      loadingFallback={
+        <Button disabled size="icon">
+          <Bookmark />
+        </Button>
+      }
     >
       {() => (
         <Tooltip>
           <TooltipTrigger
             as={Button}
+            size="icon"
             onClick={() => deleteBookmarkMutation.mutate()}
             disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
           >

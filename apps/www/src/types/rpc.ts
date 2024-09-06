@@ -1,9 +1,9 @@
-import type { app } from '@/api';
+import type { app } from '@/www/server/api';
 import type { ClientResponse, hc } from 'hono/client';
 
 export type RouterType = typeof app;
 
-export type RpcClient = ReturnType<typeof hc<RouterType>>;
+export type RpcClient = ReturnType<typeof hc<RouterType>>['api'];
 
 export type Route = keyof RpcClient;
 

@@ -1,5 +1,5 @@
-import { parseFilterString } from '@/api/utils/filter';
 import { chats } from '@/core/database/schema';
+import { parseFilterString } from '@/www/server/api/utils/filter';
 import { and, eq, ilike, inArray, or } from 'drizzle-orm';
 import { describe, expect, test } from 'vitest';
 

@@ -1,10 +1,10 @@
-import type { Bindings, Variables } from '@/api/types';
-import { PaginationSchema, PaginationSchemaNoDefault } from '@/api/utils/pagination';
 import { db } from '@/core/database';
 import { bibles, books, chapters, verses } from '@/core/database/schema';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
+import type { Bindings, Variables } from '@/www/server/api/types';
+import { PaginationSchema, PaginationSchemaNoDefault } from '@/www/server/api/utils/pagination';
 import { zValidator } from '@hono/zod-validator';
-import type { SQL} from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import { and, count, eq, or, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';

@@ -11,7 +11,9 @@
       "@/ai": ["../../packages/ai/src"],
       "@/ai/*": ["../../packages/ai/src/*"],
       "@/www": ["../../apps/www/src"],
-      "@/www/*": ["../../apps/www/src/*"]
+      "@/www/*": ["../../apps/www/src/*"],
+      "@/functions": ["../functions/src"],
+      "@/functions/*": ["../functions/src/*"]
     }
   },
   "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],

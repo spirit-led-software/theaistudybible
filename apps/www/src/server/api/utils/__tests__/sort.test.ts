@@ -1,5 +1,5 @@
-import { parseSortString } from '@/api/utils/sort';
 import { chats } from '@/core/database/schema';
+import { parseSortString } from '@/www/server/api/utils/sort';
 import { asc, desc } from 'drizzle-orm';
 import { describe, expect, test } from 'vitest';
 

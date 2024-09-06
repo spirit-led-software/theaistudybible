@@ -7,9 +7,12 @@ declare module '@solidjs/start/server' {
     auth: AuthReturn;
   }
 }
+
 declare global {
   interface ImportMetaEnv {
-    PUBLIC_API_URL: string;
+    PUBLIC_CDN_URL: string;
+    PUBLIC_CLERK_PUBLISHABLE_KEY: string;
+    PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
   }
 }
 

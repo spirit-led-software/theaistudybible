@@ -88,9 +88,21 @@ export const BookmarkButton = () => {
   return (
     <QueryBoundary
       query={getSelectionBookmarkedQuery}
-      errorFallback={() => <Bookmark size={20} />}
-      loadingFallback={<Bookmark size={20} />}
-      notFoundFallback={<Bookmark size={20} />}
+      errorFallback={() => (
+        <Button size="icon" disabled>
+          <Bookmark size={20} />
+        </Button>
+      )}
+      loadingFallback={
+        <Button size="icon" disabled>
+          <Bookmark size={20} />
+        </Button>
+      }
+      notFoundFallback={
+        <Button size="icon" disabled>
+          <Bookmark size={20} />
+        </Button>
+      }
     >
       {({ isBookmarked }) => (
         <Tooltip>

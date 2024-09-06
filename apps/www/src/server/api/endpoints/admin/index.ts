@@ -1,5 +1,5 @@
-import type { Bindings, Variables } from '@/api/types';
 import { hasRole } from '@/core/user';
+import type { Bindings, Variables } from '@/www/server/api/types';
 import { Hono } from 'hono';
 import { Resource } from 'sst';
 import bibles from './bibles';

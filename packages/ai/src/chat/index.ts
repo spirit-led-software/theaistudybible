@@ -7,7 +7,8 @@ import {
 import { createId } from '@/core/utils/id';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { JwtPayload } from '@clerk/types';
-import { StreamData, convertToCoreMessages, generateObject, streamText } from 'ai';
+import type { StreamData } from 'ai';
+import { convertToCoreMessages, generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { defaultModel } from '../models';
@@ -49,11 +50,12 @@ export type CreateChatChainOptions = {
   userId: string;
   sessionClaims: JwtPayload;
   maxTokens?: number;
+  streamData?: StreamData;
+  onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
   return async (messages: Pick<Message, 'role' | 'content'>[]) => {
-    const streamData = new StreamData();
     const responseId = `msg_${createId()}`;
 
     // @ts-expect-error - Messages are not typed correctly
@@ -134,9 +136,9 @@ You must format your response in valid markdown syntax.`,
               }
             }
           }
+          return options.onFinish?.(event);
         },
       }),
-      streamData,
       responseId,
     };
   };

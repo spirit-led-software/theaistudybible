@@ -18,7 +18,6 @@ export default $config({
     const { database, upstashVectorIndex } = await import('./infra/database');
     const { upstashRedis } = await import('./infra/cache');
     const { cdn } = await import('./infra/storage');
-    const { api } = await import('./infra/api');
     const { webapp } = await import('./infra/www');
     await import('./infra/dev');
 
@@ -27,7 +26,6 @@ export default $config({
       'Vector Store Endpoint': upstashVectorIndex.endpoint,
       'Redis Endpoint': upstashRedis.endpoint,
       'CDN URL': cdn.url,
-      'API URL': api.properties.url,
       'Web App URL': webapp.url,
     };
   },

@@ -1,16 +1,16 @@
 import { freeTierModels } from '@/ai/models';
 import { registry } from '@/ai/provider-registry';
-import { getValidMessages } from '@/api/utils/chat';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
-import type { UseChatOptions} from '@ai-sdk/solid';
+import { getValidMessages } from '@/www/server/api/utils/chat';
+import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { convertToCoreMessages, generateObject } from 'ai';
 import { auth } from 'clerk-solidjs/server';
 import { isNull } from 'drizzle-orm';
-import type { Accessor} from 'solid-js';
+import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
@@ -27,6 +27,7 @@ const getChat = async (chatId: string) => {
 
   return chat ?? null;
 };
+
 export const getChatQueryProps = (chatId?: string) => ({
   queryKey: ['chat', { chatId: chatId ?? null }],
   queryFn: async () => {
@@ -186,10 +187,24 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     },
   }));
 
-  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+  const chatQuery = createQuery(() => ({
+    ...getChatQueryProps(chatId()),
+    placeholderData: null,
+  }));
   const chat = createMemo(() => chatQuery.data);
 
-  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  const messagesQuery = createInfiniteQuery(() => ({
+    ...getChatMessagesQueryProps(chatId()),
+    placeholderData: {
+      pages: [
+        {
+          messages: [],
+          nextCursor: undefined,
+        },
+      ],
+      pageParams: [0],
+    },
+  }));
   createEffect(
     on(
       () => messagesQuery.data,

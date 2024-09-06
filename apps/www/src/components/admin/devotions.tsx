@@ -3,8 +3,7 @@ import { createMutation } from '@tanstack/solid-query';
 import { auth } from 'clerk-solidjs/server';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { TabsContent } from '../ui/tabs';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
 const triggerGenerateDevotion = async () => {
   'use server';
@@ -26,17 +25,14 @@ export const DevotionsContent = () => {
     },
   }));
   return (
-    <TabsContent value="devotions">
-      <Card>
-        <CardHeader>
-          <CardTitle>Generate Devotion</CardTitle>
-          <CardDescription>Generate a devotion for today</CardDescription>
-        </CardHeader>
-        <CardContent />
-        <CardFooter>
-          <Button onClick={() => triggerDevotionMutation.mutate()}>Generate</Button>
-        </CardFooter>
-      </Card>
-    </TabsContent>
+    <Card>
+      <CardHeader>
+        <CardTitle>Generate Devotion</CardTitle>
+      </CardHeader>
+      <CardContent />
+      <CardFooter>
+        <Button onClick={() => triggerDevotionMutation.mutate()}>Generate</Button>
+      </CardFooter>
+    </Card>
   );
 };

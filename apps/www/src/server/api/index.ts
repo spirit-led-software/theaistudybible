@@ -1,8 +1,7 @@
-import type { Bindings, Variables } from '@/api/types';
+import type { Bindings, Variables } from '@/www/server/api/types';
 import { clerkMiddleware } from '@hono/clerk-auth';
 import { sentry } from '@hono/sentry';
 import { Hono } from 'hono';
-import { handle } from 'hono/aws-lambda';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { Resource } from 'sst';
@@ -20,6 +19,7 @@ export const app = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
 }>()
+  .basePath('/api')
   .use('*', logger())
   .use('*', cors())
   .use(
@@ -68,5 +68,3 @@ export const app = new Hono<{
   // Other routes
   .route('/admin', adminRoutes)
   .route('/webhooks', webhooks);
-
-export const handler = handle(app);

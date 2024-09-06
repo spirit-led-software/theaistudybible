@@ -123,7 +123,7 @@ export const ChatSidebar = () => {
                               {chat.name}
                             </span>
                             <span class="text-muted-foreground text-sm">
-                              {formatDate(chat.updatedAt, 'MMMM D, YYYY')}
+                              {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
                             </span>
                           </div>
                         </SheetClose>

@@ -1,4 +1,3 @@
-import { api } from './api';
 import { upstashRedis } from './cache';
 import constants, { CLERK_PUBLISHABLE_KEY, DOMAIN, STRIPE_PUBLISHABLE_KEY } from './constants';
 import { database, upstashVectorIndex } from './database';
@@ -18,7 +17,6 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     cdn,
   ],
   environment: {
-    PUBLIC_API_URL: api.properties.url,
     PUBLIC_CDN_URL: cdn.url,
     PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK_PUBLISHABLE_KEY.properties.value,
     PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.properties.value,

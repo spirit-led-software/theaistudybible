@@ -33,6 +33,9 @@ export class VectorStore {
   private readonly embeddings: Embeddings;
   private readonly client: Index;
 
+  public static MAX_UPSERT_BATCH_SIZE = 1000;
+  public static MAX_DELETE_BATCH_SIZE = 1000;
+
   constructor(embeddings: Embeddings) {
     this.embeddings = embeddings;
     this.client = new Index({
@@ -44,16 +47,23 @@ export class VectorStore {
   async addDocuments(docs: Document[]): Promise<string[]> {
     const docsWithEmbeddings = await this.embeddings.embedDocuments(docs);
     try {
-      await this.client.upsert(
-        docsWithEmbeddings.map((d) => ({
-          id: d.id,
-          vector: d.embedding,
-          payload: {
-            content: d.content,
-            ...d.metadata,
-          },
-        })),
-      );
+      const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
+      for (let i = 0; i < batches; i++) {
+        const batch = docsWithEmbeddings.slice(
+          i * VectorStore.MAX_UPSERT_BATCH_SIZE,
+          (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
+        );
+        await this.client.upsert(
+          batch.map((d) => ({
+            id: d.id,
+            vector: d.embedding,
+            metadata: {
+              content: d.content,
+              ...d.metadata,
+            },
+          })),
+        );
+      }
       return docsWithEmbeddings.map((d) => d.id);
     } catch (e) {
       console.error(JSON.stringify(e));
@@ -63,7 +73,14 @@ export class VectorStore {
 
   async deleteDocuments(ids: string[]): Promise<void> {
     try {
-      await this.client.delete(ids);
+      const batches = Math.ceil(ids.length / VectorStore.MAX_DELETE_BATCH_SIZE);
+      for (let i = 0; i < batches; i++) {
+        const batch = ids.slice(
+          i * VectorStore.MAX_DELETE_BATCH_SIZE,
+          (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
+        );
+        await this.client.delete(batch);
+      }
     } catch (e) {
       console.error(JSON.stringify(e));
       throw e;

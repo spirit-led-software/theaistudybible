@@ -12,8 +12,8 @@ import { getTimeStringFromSeconds } from '@/core/utils/date';
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { JwtPayload } from '@clerk/types';
+import { Ratelimit } from '@upstash/ratelimit';
 import { tool } from 'ai';
-import { RateLimiterRedis, RateLimiterRes } from 'rate-limiter-flexible';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
@@ -319,26 +319,20 @@ export const generateImageTool = (props: { userId: string; sessionClaims: JwtPay
     }),
     execute: async ({ prompt, size }) => {
       const maxImageCount = await getMaxImageCountForUser(props.sessionClaims);
-      const ratelimit = new RateLimiterRedis({
-        storeClient: cache,
-        points: maxImageCount,
-        duration: 3 * 60 * 60,
+      const ratelimit = new Ratelimit({
+        redis: cache,
+        limiter: Ratelimit.slidingWindow(maxImageCount, '3h'),
+        analytics: true,
+        prefix: 'image_generation',
       });
-      try {
-        await ratelimit.consume(props.userId);
-      } catch (ratelimitResult) {
-        if (ratelimitResult instanceof RateLimiterRes) {
-          return {
-            message: `You have issued too many requests for your current plan. Please wait ${getTimeStringFromSeconds(
-              ratelimitResult.msBeforeNext / 1000,
-            )} before trying again, or upgrade your plan.`,
-          } as const;
-        } else {
-          return {
-            status: 'error',
-            message: 'An error occurred while rate limiting. Please try again later.',
-          } as const;
-        }
+
+      const { success, reset } = await ratelimit.limit(props.userId);
+      if (!success) {
+        const waitTime = getTimeStringFromSeconds(Math.ceil((reset - Date.now()) / 1000));
+        return {
+          status: 'error',
+          message: `You have issued too many requests for your current plan. Please wait ${waitTime} before trying again, or upgrade your plan.`,
+        } as const;
       }
 
       try {

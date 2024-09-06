@@ -9,6 +9,7 @@ import {
 } from '@/www/components/ui/accordion';
 import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
+import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
@@ -78,7 +79,14 @@ export default function ChapterPicker(props: ChapterPickerProps) {
         >
           <AccordionTrigger>{props.book.shortName}</AccordionTrigger>
           <AccordionContent class="grid grid-cols-3 gap-1">
-            <QueryBoundary query={query}>
+            <QueryBoundary
+              loadingFallback={
+                <For each={Array(24)}>
+                  {() => <Skeleton width={48} height={48} class="rounded-lg" />}
+                </For>
+              }
+              query={query}
+            >
               {(book) => (
                 <For each={book.chapters}>
                   {(foundChapter, idx) => (

@@ -1,8 +1,8 @@
-import type { Bindings, Variables } from '@/api/types';
-import { PaginationSchema } from '@/api/utils/pagination';
 import { db } from '@/core/database';
 import { indexOperations } from '@/core/database/schema';
 import type { IndexOperation } from '@/schemas/data-sources/types';
+import type { Bindings, Variables } from '@/www/server/api/types';
+import { PaginationSchema } from '@/www/server/api/utils/pagination';
 import { zValidator } from '@hono/zod-validator';
 import { count, eq } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';

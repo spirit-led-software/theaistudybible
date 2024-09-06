@@ -1,5 +1,6 @@
-import type { Tiktoken } from 'js-tiktoken';
-import { cl100k_base } from '../lib/encodings';
+import { get_encoding, type Tiktoken } from 'tiktoken';
+
+export const cl100k_base = get_encoding('cl100k_base');
 
 export const numTokensFromString = (options: { encoding?: Tiktoken; text: string }) => {
   const encoding = options.encoding ?? cl100k_base;

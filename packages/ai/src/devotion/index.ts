@@ -205,7 +205,7 @@ export const generateImage = async ({
   const image = Buffer.from(await getImageResponse.arrayBuffer());
   const putObjectResult = await s3.send(
     new PutObjectCommand({
-      Bucket: Resource.GeneratedImagesBucket.name,
+      Bucket: Resource.DevotionImagesBucket.name,
       Key: key,
       Body: image,
     }),
@@ -218,7 +218,7 @@ export const generateImage = async ({
     .insert(devotionImages)
     .values({
       id,
-      url: `${Resource.Cdn.url}/generated-images/${key}`,
+      url: `${Resource.Cdn.url}/devotion-images/${key}`,
       prompt,
       devotionId,
     })

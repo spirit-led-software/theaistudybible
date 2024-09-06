@@ -7,9 +7,8 @@ import { FolderArchive } from 'lucide-solid';
 import { createEffect, createSignal, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { FileInput, FileInputDropArea, FileInputRoot, FileInputTrigger } from '../ui/file-input';
-import { TabsContent } from '../ui/tabs';
 
 async function requestUpload({ name, size }: { name: string; size: number }) {
   'use server';
@@ -74,27 +73,24 @@ export const BiblesContent = () => {
   );
 
   return (
-    <TabsContent value="bibles">
-      <Card>
-        <CardHeader>
-          <CardTitle>Bibles</CardTitle>
-          <CardDescription>Add a new Bible</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FileInput value={files()} onChange={setFiles}>
-            <FileInputRoot class="h-32">
-              <FileInputTrigger class="flex h-full items-center justify-center border-2 border-dashed border-gray-300 p-4 text-lg">
-                <FolderArchive class="mr-4 size-8" />
-                Choose zip
-              </FileInputTrigger>
-              <FileInputDropArea class="border-2 border-dashed border-gray-300 p-4">
-                Drop your zip file here
-              </FileInputDropArea>
-            </FileInputRoot>
-          </FileInput>
-        </CardContent>
-        <CardFooter />
-      </Card>
-    </TabsContent>
+    <Card>
+      <CardHeader>
+        <CardTitle>Add Bible</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <FileInput value={files()} onChange={setFiles}>
+          <FileInputRoot class="h-32">
+            <FileInputTrigger class="flex h-full items-center justify-center border-2 border-dashed border-gray-300 p-4 text-lg">
+              <FolderArchive class="mr-4 size-8" />
+              Choose zip
+            </FileInputTrigger>
+            <FileInputDropArea class="border-2 border-dashed border-gray-300 p-4">
+              Drop your zip file here
+            </FileInputDropArea>
+          </FileInputRoot>
+        </FileInput>
+      </CardContent>
+      <CardFooter />
+    </Card>
   );
 };
