@@ -55,26 +55,6 @@ export const app = new Hono<{
     c.set('image', image);
     await next();
   })
-  // .post(
-  //   '/',
-  //   zValidator(
-  //     'json',
-  //     z.object({
-  //       prompt: z.string().min(1).max(255)
-  //     })
-  //   ),
-  //   async (c) => {
-  //     const { prompt } = c.req.valid('json');
-  //     const image = await generateImage(c.var.clerkAuth!.userId!, prompt);
-
-  //     return c.json(
-  //       {
-  //         data: image
-  //       },
-  //       200
-  //     );
-  //   }
-  // )
   .get('/', zValidator('query', PaginationSchema(userGeneratedImages)), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
 

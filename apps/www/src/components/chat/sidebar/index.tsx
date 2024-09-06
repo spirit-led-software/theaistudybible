@@ -103,7 +103,7 @@ export const ChatSidebar = () => {
                       <div
                         data-index={idx()}
                         class={cn(
-                          'hover:bg-accent group flex h-fit w-full items-center justify-between gap-2 rounded-lg p-2',
+                          'hover:bg-accent group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2',
                           chatStore.chat?.id === chat.id && 'bg-muted',
                         )}
                       >
@@ -116,18 +116,16 @@ export const ChatSidebar = () => {
                               navigate(`/chat/${chat.id}`);
                             }
                           }}
-                          class="flex h-fit flex-1 px-0 text-left"
+                          class="flex h-fit w-full flex-1 overflow-hidden px-0 text-left"
                         >
-                          <div class="flex flex-col">
-                            <span class="line-clamp-2 group-hover:line-clamp-none">
-                              {chat.name}
-                            </span>
+                          <div class="flex w-full flex-col overflow-hidden">
+                            <span class="line-clamp-2">{chat.name}</span>
                             <span class="text-muted-foreground text-sm">
                               {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
                             </span>
                           </div>
                         </SheetClose>
-                        <div class="invisible flex group-hover:visible">
+                        <div class="invisible flex flex-col group-hover:visible">
                           <EditChatButton chat={chat} />
                           <DeleteChatButton chat={chat} />
                         </div>

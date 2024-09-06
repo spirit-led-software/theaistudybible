@@ -154,7 +154,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     ...props(),
     api: '/api/chat',
     id: chatId(),
-    generateId: () => `msg_${createId()}`,
+    generateId: createId,
     sendExtraMessageFields: true,
     maxToolRoundtrips: 5,
     body: {

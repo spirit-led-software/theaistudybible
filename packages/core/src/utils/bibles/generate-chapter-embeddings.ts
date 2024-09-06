@@ -11,7 +11,7 @@ export const generateChapterEmbeddings = async ({
   bible,
 }: {
   verses: Verse[];
-  chapter: Chapter;
+  chapter: Omit<Chapter, 'content'>;
   book: Book;
   bible: Bible;
 }) => {
@@ -21,12 +21,19 @@ export const generateChapterEmbeddings = async ({
     chapter,
     verses,
   });
-  await vectorStore.addDocuments(docs);
-  await db.insert(chaptersToSourceDocuments).values(
-    docs.map((doc) => ({
-      chapterId: chapter.id,
-      sourceDocumentId: doc.id,
-    })),
-  );
+
+  // Process documents in smaller batches
+  const batchSize = 100;
+  for (let i = 0; i < docs.length; i += batchSize) {
+    const batch = docs.slice(i, i + batchSize);
+    await vectorStore.addDocuments(batch);
+    await db.insert(chaptersToSourceDocuments).values(
+      batch.map((doc) => ({
+        chapterId: chapter.id,
+        sourceDocumentId: doc.id,
+      })),
+    );
+  }
+
   console.log(`Successfully added ${docs.length} documents to vector store for ${chapter.name}`);
 };

@@ -1,8 +1,7 @@
+import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
-import { createVisibilityObserver } from '@solid-primitives/intersection-observer';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, createSignal, on } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
@@ -53,87 +52,23 @@ export const ChatWindow = (props: ChatWindowProps) => {
     }),
   );
 
-  const [startOfMessagesRef, setStartOfMessagesRef] = createSignal<HTMLDivElement>();
-  const startOfMessagesVisible = createVisibilityObserver()(startOfMessagesRef);
-
-  const [messagesReversed, setMessagesReversed] = createStore(
-    useChatResult.messages()?.toReversed() ?? [],
-  );
-  createEffect(
-    on(useChatResult.messages, (messages) =>
-      setMessagesReversed(reconcile(messages?.toReversed() ?? [])),
-    ),
-  );
+  const { isAtBottom, scrollToBottomSmooth, setScrollRef, setMessagesRef, setVisibilityRef } =
+    createScrollAnchor();
 
   return (
-    <div class="relative flex h-full flex-col overflow-y-auto">
+    <div class="relative flex h-full w-full flex-col overflow-y-auto overflow-x-hidden">
       <ChatMenu />
-      <Show when={!startOfMessagesVisible() && !useChatResult.isLoading()}>
+      <Show when={!isAtBottom()}>
         <Button
           variant="outline"
           size="icon"
           class="bg-background absolute bottom-20 left-1/2 right-1/2 -translate-x-1/2 rounded-full shadow-lg"
-          onClick={() => startOfMessagesRef()?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={scrollToBottomSmooth}
         >
           <ChevronDown />
         </Button>
       </Show>
-      <div class="flex grow flex-col-reverse items-center overflow-y-auto">
-        <Show
-          when={
-            !useChatResult.isLoading() &&
-            !useChatResult.followUpSuggestionsQuery.isFetching &&
-            useChatResult.followUpSuggestions.length
-          }
-        >
-          <div class="animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2">
-            <H6 class="text-center">Follow-up Questions</H6>
-            <Carousel class="overflow-x-clip md:overflow-x-visible">
-              <CarouselContent>
-                <For each={useChatResult.followUpSuggestions}>
-                  {(suggestion) => (
-                    <CarouselItem class="flex justify-center">
-                      <Button
-                        class="mx-2 h-full w-full text-wrap rounded-full"
-                        onClick={() =>
-                          useChatResult.append({
-                            role: 'user',
-                            content: suggestion,
-                          })
-                        }
-                      >
-                        {suggestion}
-                      </Button>
-                    </CarouselItem>
-                  )}
-                </For>
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </div>
-        </Show>
-        <div ref={setStartOfMessagesRef} class="h-5 w-full shrink-0" />
-        <For
-          each={messagesReversed}
-          fallback={
-            <div class="flex h-full w-full items-center justify-center p-20">
-              <H5>No messages yet</H5>
-            </div>
-          }
-        >
-          {(message, idx) => (
-            <div data-index={idx()} class="flex w-full max-w-2xl flex-col">
-              <Message
-                previousMessage={messagesReversed[idx() + 1]}
-                message={message}
-                nextMessage={messagesReversed[idx() - 1]}
-                addToolResult={useChatResult.addToolResult}
-                isLoading={useChatResult.isLoading()}
-              />
-            </div>
-          )}
-        </For>
+      <div ref={setScrollRef} class="flex grow flex-col items-center overflow-y-auto">
         <div class="flex w-full items-end justify-center">
           <Switch>
             <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
@@ -160,6 +95,63 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </div>
             </Match>
           </Switch>
+        </div>
+        <div ref={setMessagesRef} class="flex grow flex-col items-center justify-center">
+          <For
+            each={useChatResult.messages()}
+            fallback={
+              <div class="flex grow items-center justify-center p-20">
+                <H5>No messages yet</H5>
+              </div>
+            }
+          >
+            {(message, idx) => (
+              <div data-index={idx()} class="flex w-full max-w-2xl flex-col">
+                <Message
+                  previousMessage={useChatResult.messages()[idx() - 1]}
+                  message={message}
+                  nextMessage={useChatResult.messages()[idx() + 1]}
+                  addToolResult={useChatResult.addToolResult}
+                  isLoading={useChatResult.isLoading()}
+                />
+              </div>
+            )}
+          </For>
+          <Show
+            when={
+              !useChatResult.isLoading() &&
+              !useChatResult.followUpSuggestionsQuery.isFetching &&
+              useChatResult.followUpSuggestions.length
+            }
+          >
+            <div class="animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2">
+              <H6 class="text-center">Follow-up Questions</H6>
+              <Carousel class="mx-20 overflow-x-visible">
+                <CarouselContent>
+                  <For each={useChatResult.followUpSuggestions}>
+                    {(suggestion) => (
+                      <CarouselItem class="flex justify-center">
+                        <Button
+                          class="mx-2 h-full w-full text-wrap rounded-full"
+                          onClick={() =>
+                            useChatResult.append({
+                              role: 'user',
+                              content: suggestion,
+                            })
+                          }
+                        >
+                          {suggestion}
+                        </Button>
+                      </CarouselItem>
+                    )}
+                  </For>
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+            </div>
+          </Show>
+          <div ref={setVisibilityRef} class="h-5 w-full shrink-0" />
         </div>
       </div>
       <form

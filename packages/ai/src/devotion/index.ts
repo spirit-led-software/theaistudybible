@@ -218,7 +218,7 @@ export const generateImage = async ({
     .insert(devotionImages)
     .values({
       id,
-      url: `${Resource.Cdn.url}/devotion-images/${key}`,
+      url: `${Resource.Cdn.url}/${key}`,
       prompt,
       devotionId,
     })

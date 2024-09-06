@@ -4,13 +4,28 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
 import { FolderArchive } from 'lucide-solid';
-import { createEffect, createSignal, on } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
+import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { FileInput, FileInputDropArea, FileInputRoot, FileInputTrigger } from '../ui/file-input';
+import {
+  NumberField,
+  NumberFieldDecrementTrigger,
+  NumberFieldIncrementTrigger,
+  NumberFieldInput,
+} from '../ui/number-field';
 
-async function requestUpload({ name, size }: { name: string; size: number }) {
+async function requestUpload({
+  name,
+  size,
+  publicationId,
+}: {
+  name: string;
+  size: number;
+  publicationId?: string;
+}) {
   'use server';
   return await getSignedUrl(
     s3,
@@ -19,11 +34,14 @@ async function requestUpload({ name, size }: { name: string; size: number }) {
       Key: `${createId()}_${name}`,
       ContentLength: size,
       ContentType: 'application/zip',
+      Metadata: publicationId ? { 'publication-id': publicationId } : undefined,
     }),
+    { expiresIn: 60 * 60 * 24 },
   );
 }
 
 export const BiblesContent = () => {
+  const [publicationId, setPublicationId] = createSignal<string>();
   const [files, setFiles] = createSignal<FileList>();
   const [toastId, setToastId] = createSignal<string | number>();
 
@@ -56,28 +74,42 @@ export const BiblesContent = () => {
     },
   }));
 
-  createEffect(
-    on(files, async (files) => {
-      if (files) {
-        const file = files[0];
-        const url = await requestUploadMutation.mutateAsync({
-          name: file.name,
-          size: file.size,
-        });
-        uploadFileMutation.mutate({
-          url,
-          file,
-        });
-      }
-    }),
-  );
+  const handleSubmit = async () => {
+    const file = files()?.[0];
+    if (file) {
+      const url = await requestUploadMutation.mutateAsync({
+        name: file.name,
+        size: file.size,
+        publicationId: publicationId(),
+      });
+      uploadFileMutation.mutate({
+        url,
+        file,
+      });
+    } else {
+      toast.error('Please select a file');
+    }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Add Bible</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent class="flex flex-col gap-4">
+        <NumberField
+          class="w-52"
+          minValue={1}
+          maxValue={5}
+          value={publicationId()?.substring(1)}
+          onChange={(v) => setPublicationId(`p${v}`)}
+        >
+          <div class="relative">
+            <NumberFieldInput placeholder="Publication ID Number" />
+            <NumberFieldIncrementTrigger />
+            <NumberFieldDecrementTrigger />
+          </div>
+        </NumberField>
         <FileInput value={files()} onChange={setFiles}>
           <FileInputRoot class="h-32">
             <FileInputTrigger class="flex h-full items-center justify-center border-2 border-dashed border-gray-300 p-4 text-lg">
@@ -90,7 +122,9 @@ export const BiblesContent = () => {
           </FileInputRoot>
         </FileInput>
       </CardContent>
-      <CardFooter />
+      <CardFooter>
+        <Button onClick={handleSubmit}>Upload</Button>
+      </CardFooter>
     </Card>
   );
 };

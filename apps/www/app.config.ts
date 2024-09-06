@@ -10,6 +10,7 @@ export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'aws-lambda-streaming',
+    compatibilityDate: '2024-09-06',
   },
   vite: {
     envDir: workspaceRoot,

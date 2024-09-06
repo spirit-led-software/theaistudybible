@@ -350,7 +350,7 @@ export const generateImageTool = (props: { userId: string; sessionClaims: JwtPay
           } as const;
         }
 
-        const id = `uge_${createId()}`;
+        const id = createId();
         const key = `generated-images/${id}.png`;
         const image = Buffer.from(await getImageResponse.arrayBuffer());
         const putObjectResult = await s3.send(
@@ -371,7 +371,7 @@ export const generateImageTool = (props: { userId: string; sessionClaims: JwtPay
           .insert(userGeneratedImages)
           .values({
             id,
-            url: `${Resource.Cdn.url}/generated-images/${key}`,
+            url: `${Resource.Cdn.url}/${key}`,
             userPrompt: prompt,
             prompt: generateImageResponse.data[0].revised_prompt,
             userId: props.userId,

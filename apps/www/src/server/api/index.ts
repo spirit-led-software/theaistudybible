@@ -1,9 +1,7 @@
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { clerkMiddleware } from '@hono/clerk-auth';
-import { sentry } from '@hono/sentry';
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
 import adminRoutes from './endpoints/admin';
 import bibles from './endpoints/public/bibles';
@@ -21,21 +19,12 @@ export const app = new Hono<{
 }>()
   .basePath('/api')
   .use('*', logger())
-  .use('*', cors())
   .use(
     '*',
-    sentry({
-      dsn: 'https://8f8843759a63e1580a37e607f2c845d6@o4507103632359424.ingest.us.sentry.io/4507124309622784',
-      sampleRate: Resource.Stage.value === 'production' ? 1.0 : 0.0,
+    clerkMiddleware({
+      publishableKey: Resource.ClerkPublishableKey.value,
+      secretKey: Resource.ClerkSecretKey.value,
     }),
-  )
-  .use(
-    '*',
-    async (c, next) =>
-      await clerkMiddleware({
-        publishableKey: Resource.ClerkPublishableKey.value,
-        secretKey: Resource.ClerkSecretKey.value,
-      })(c, next),
   )
   .notFound((c) => {
     console.error('Route not found');
@@ -48,7 +37,6 @@ export const app = new Hono<{
   })
   .onError((e, c) => {
     console.error(e);
-    c.get('sentry').captureException(e);
     return c.json(
       {
         message: 'Internal server error',

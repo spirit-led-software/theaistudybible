@@ -1,18 +1,20 @@
 import { Tabs, TabsList, TabsTrigger } from '@/www/components/ui/tabs';
 import { useLocation, useNavigate } from '@solidjs/router';
-import type { JSX } from 'solid-js';
+import { createMemo, type JSX } from 'solid-js';
 
 export default function AdminLayout({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const tab = createMemo(() => location.pathname.split('/').pop());
+
   return (
     <div class="flex w-full grow flex-col items-center p-5">
       <div class="flex w-full max-w-2xl flex-col gap-3">
         <Tabs
-          defaultValue="devotions"
+          defaultValue={tab()}
           class="w-full"
-          value={location.pathname.substring(location.pathname.lastIndexOf('/') + 1)}
+          value={tab()}
           onChange={(value) => {
             navigate(`/admin/${value}`);
           }}
