@@ -1,5 +1,5 @@
 import { db } from '@/core/database';
-import { roles } from '@/core/database/schema';
+import { roles, userCredits } from '@/core/database/schema';
 import { createClerkClient } from '@clerk/clerk-sdk-node';
 import { Resource } from 'sst';
 
@@ -45,6 +45,13 @@ async function createInitialAdminUser() {
       },
     });
   }
+
+  console.log('Adding credits to admin user');
+  await db.insert(userCredits).values({
+    userId: admin.id,
+    balance: Number.MAX_SAFE_INTEGER,
+  });
+
   console.log('Initial admin user created');
 }
 
@@ -57,33 +64,14 @@ async function createInitialRoles() {
     .values({
       id: 'admin',
       name: 'Administrators',
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`],
     })
     .onConflictDoUpdate({
       target: [roles.id],
       set: {
         name: 'Administrators',
-        permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`],
       },
     });
   console.log('Admin role created');
-
-  console.log('Creating moderator role');
-  await db
-    .insert(roles)
-    .values({
-      id: 'moderator',
-      name: 'Moderators',
-      permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`],
-    })
-    .onConflictDoUpdate({
-      target: [roles.id],
-      set: {
-        name: 'Moderators',
-        permissions: [`query:${Number.MAX_SAFE_INTEGER}`, `image:${Number.MAX_SAFE_INTEGER}`],
-      },
-    });
-  console.log('Moderator role created');
 
   console.log('Creating default user role');
   await db
@@ -91,13 +79,11 @@ async function createInitialRoles() {
     .values({
       id: 'user',
       name: 'Users',
-      permissions: ['query:5', 'image:1'],
     })
     .onConflictDoUpdate({
       target: [roles.id],
       set: {
         name: 'Users',
-        permissions: ['query:5', 'image:1'],
       },
     })
     .returning();

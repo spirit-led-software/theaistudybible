@@ -1,17 +1,10 @@
 import { Button } from '@/www/components/ui/button';
 import { H1, H2, H3, P } from '@/www/components/ui/typography';
-import { A, Navigate } from '@solidjs/router';
-import { useAuth } from 'clerk-solidjs';
+import { A } from '@solidjs/router';
 import { BookOpen, MessageCircle, Search } from 'lucide-solid';
 import Logo from '../components/branding/logo';
 
 export default function HomePage() {
-  const { isSignedIn } = useAuth();
-
-  if (isSignedIn()) {
-    return <Navigate href="/bible" />;
-  }
-
   return (
     <div class="flex min-h-dvh w-full flex-col">
       {/* Sticky Header */}

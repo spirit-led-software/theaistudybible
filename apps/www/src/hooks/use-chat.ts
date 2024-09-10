@@ -173,12 +173,13 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       return props()?.onResponse?.(response);
     },
     onFinish: (message, options) => {
-      void chatQuery.refetch();
-      void messagesQuery.refetch();
-      void followUpSuggestionsQuery.refetch();
-      void qc.refetchQueries({
-        queryKey: ['chats'],
-      });
+      void Promise.all([
+        chatQuery.refetch(),
+        messagesQuery.refetch(),
+        followUpSuggestionsQuery.refetch(),
+        qc.invalidateQueries({ queryKey: ['chats'] }),
+        qc.invalidateQueries({ queryKey: ['user-credits'] }),
+      ]);
       return props()?.onFinish?.(message, options);
     },
     onError: (err) => {
@@ -189,12 +190,14 @@ export const useChat = (props: Accessor<UseChatProps>) => {
 
   const chatQuery = createQuery(() => ({
     ...getChatQueryProps(chatId()),
+    keepPreviousData: true,
     placeholderData: null,
   }));
   const chat = createMemo(() => chatQuery.data);
 
   const messagesQuery = createInfiniteQuery(() => ({
     ...getChatMessagesQueryProps(chatId()),
+    keepPreviousData: true,
     placeholderData: {
       pages: [
         {
@@ -205,34 +208,30 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       pageParams: [0],
     },
   }));
-  createEffect(
-    on(
-      () => messagesQuery.data,
-      (data) => {
-        if (!useChatResult.isLoading()) {
-          useChatResult.setMessages(
-            data?.pages
-              ?.flatMap((page) => [...page.messages])
-              .toReversed()
-              .map((message) => ({
-                ...message,
-                createdAt: new Date(message.createdAt),
-                content: message.content ?? '',
-                tool_call_id: message.tool_call_id ?? undefined,
-                annotations: message.annotations ?? undefined,
-                toolInvocations: message.toolInvocations ?? undefined,
-              })) ?? [],
-          );
-        }
-      },
-    ),
-  );
+  createEffect(() => {
+    if (!useChatResult.isLoading()) {
+      useChatResult.setMessages(
+        messagesQuery.data?.pages
+          ?.flatMap((page) => [...page.messages])
+          .toReversed()
+          .map((message) => ({
+            ...message,
+            createdAt: new Date(message.createdAt),
+            content: message.content ?? '',
+            tool_call_id: message.tool_call_id ?? undefined,
+            annotations: message.annotations ?? undefined,
+            toolInvocations: message.toolInvocations ?? undefined,
+          })) ?? [],
+      );
+    }
+  });
 
   const followUpSuggestionsQuery = createQuery(() => ({
     ...getChatSuggestionsQueryProps(chatId()),
     // Reduce LLM calls by setting this as never stale
     gcTime: Infinity,
     staleTime: Infinity,
+    enabled: !!chat(),
   }));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(
     followUpSuggestionsQuery.data ?? [],

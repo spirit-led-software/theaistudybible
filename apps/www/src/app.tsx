@@ -1,4 +1,3 @@
-import { cn } from '@/www/lib/utils';
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { MultiProvider } from '@solid-primitives/context';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
@@ -7,9 +6,8 @@ import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { ClerkProvider } from 'clerk-solidjs';
-import { ErrorBoundary, Show, Suspense, isServer } from 'solid-js/web';
+import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
-import NavigationHeader from './components/navigation/header';
 import { Button } from './components/ui/button';
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toast';
@@ -39,14 +37,11 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SolidQueryDevtools buttonPosition="top-right" />
+      <SolidQueryDevtools buttonPosition="bottom-left" />
       <Router
         root={(props) => (
           <MetaProvider>
-            <ClerkProvider
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
-            >
+            <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
@@ -57,7 +52,7 @@ export default function App() {
                   </Meta>
                   <ErrorBoundary
                     fallback={(err, reset) => (
-                      <div class="flex h-dvh w-full flex-col items-center justify-center space-y-2">
+                      <div class="flex h-full w-full flex-col items-center justify-center space-y-2">
                         <H1>Error</H1>
                         <H4 class="max-w-sm text-center">
                           {
@@ -74,20 +69,7 @@ export default function App() {
                       </div>
                     )}
                   >
-                    <Suspense>
-                      <main
-                        id="main"
-                        class={cn(
-                          'flex min-h-screen w-full flex-col',
-                          `${props.location.pathname.startsWith('/chat') ? 'h-screen' : ''}`,
-                        )}
-                      >
-                        <Show when={props.location.pathname !== '/'}>
-                          <NavigationHeader />
-                        </Show>
-                        {props.children}
-                      </main>
-                    </Suspense>
+                    <Suspense>{props.children}</Suspense>
                   </ErrorBoundary>
                   <Toaster />
                   <Sonner />

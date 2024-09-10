@@ -125,7 +125,7 @@ export const ChatSidebar = () => {
                             </span>
                           </div>
                         </SheetClose>
-                        <div class="invisible flex flex-col group-hover:visible">
+                        <div class="flex flex-col">
                           <EditChatButton chat={chat} />
                           <DeleteChatButton chat={chat} />
                         </div>

@@ -29,7 +29,7 @@ export const Message = (props: MessageProps) => {
   return (
     <div
       class={cn(
-        'flex w-full space-x-4 py-4 pl-5',
+        'flex w-full space-x-4 px-3 py-4',
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
     >

@@ -120,9 +120,9 @@ const getBookmarksQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    void qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+    await qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
   },
 };
 
@@ -142,7 +142,7 @@ const BookmarksPage = () => {
   });
 
   return (
-    <div class="flex h-full w-full flex-col items-center justify-center p-5">
+    <div class="flex h-full w-full flex-col items-center p-5">
       <SignedIn>
         <H2 class="from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
           Your Bookmarks

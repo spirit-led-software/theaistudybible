@@ -3,7 +3,7 @@ import { toTitleCase } from '@/core/utils/string';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { H1, H3 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
-import type { RouteDefinition} from '@solidjs/router';
+import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { createEffect, Show } from 'solid-js';
@@ -28,10 +28,10 @@ const getDevotionQueryProps = (id: string) => {
 };
 
 export const route: RouteDefinition = {
-  preload: ({ params }) => {
+  preload: async ({ params }) => {
     const { id } = params;
     const qc = useQueryClient();
-    void qc.prefetchQuery(getDevotionQueryProps(id));
+    await qc.prefetchQuery(getDevotionQueryProps(id));
   },
 };
 

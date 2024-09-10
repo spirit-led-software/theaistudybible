@@ -2,6 +2,7 @@ import { createChatChain, renameChat } from '@/ai/chat';
 import { allModels } from '@/ai/models';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
+import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { MessageSchema } from '@/schemas/chats';
 import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
@@ -9,12 +10,7 @@ import { zValidator } from '@hono/zod-validator';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import {
-  getDefaultModelId,
-  getValidMessages,
-  rateLimitChat,
-  validateModelId,
-} from '../../utils/chat';
+import { getDefaultModelId, getValidMessages, validateModelId } from '../../utils/chat';
 
 const maxResponseTokens = 4096;
 
@@ -56,11 +52,17 @@ const app = new Hono<{
       const { messages: providedMessages, chatId, modelId: providedModelId } = c.req.valid('json');
 
       const claims = c.var.clerkAuth!.sessionClaims!;
-      console.time('rateLimitChat');
-      const rateLimitResult = await rateLimitChat({ c, claims });
-      console.timeEnd('rateLimitChat');
-      if (rateLimitResult) {
-        return rateLimitResult;
+
+      console.time('checkAndConsumeCredits');
+      const hasCredits = await checkAndConsumeCredits(claims.sub, 'chat');
+      console.timeEnd('checkAndConsumeCredits');
+      if (!hasCredits) {
+        return c.json(
+          {
+            message: 'You must have at least 1 credit to use this resource.',
+          },
+          400,
+        );
       }
 
       console.time('validateModelId');
@@ -182,8 +184,11 @@ const app = new Hono<{
         userId: claims.sub,
         sessionClaims: claims,
         maxTokens: maxResponseTokens,
-        onFinish: async () => {
+        onFinish: async (event) => {
           await Promise.all(pendingPromises);
+          if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
+            await restoreCreditsOnFailure(claims.sub, 'chat');
+          }
         },
       });
 

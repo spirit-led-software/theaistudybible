@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { books, chapters } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
-import type { RouteDefinition} from '@solidjs/router';
+import type { RouteDefinition } from '@solidjs/router';
 import { Navigate, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { asc } from 'drizzle-orm';
@@ -11,10 +11,10 @@ export type BibleRedirectUrlParams = {
 };
 
 export const route: RouteDefinition = {
-  preload: ({ params }) => {
+  preload: async ({ params }) => {
     const { bibleAbbr } = params;
     const qc = useQueryClient();
-    void qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
+    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
   },
 };
 

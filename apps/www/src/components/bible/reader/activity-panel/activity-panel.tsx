@@ -5,10 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { H6 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { Highlighter, MessageCircle, Notebook, Share, TextSearch, X } from 'lucide-solid';
-import type {
-  Accessor,
-  JSXElement,
-  Setter} from 'solid-js';
+import type { Accessor, JSXElement, Setter } from 'solid-js';
 import {
   Match,
   Show,
@@ -92,50 +89,12 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
+      class={`fixed inset-x-0 bottom-0 flex transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
-      <div class="bg-primary flex h-10 place-items-center space-x-2 rounded-t-lg px-3 py-1">
-        <H6 class="text-primary-foreground text-nowrap px-1 text-sm">
+      <div class="bg-primary grid h-fit w-fit grid-cols-3 grid-rows-2 place-items-center gap-1 rounded-t-lg p-1 md:flex md:flex-row">
+        <H6 class="text-primary-foreground col-span-2 text-nowrap px-1 text-center text-sm md:col-span-1">
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Tooltip>
-          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('share')}>
-            <Share size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Share</TooltipContent>
-        </Tooltip>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Tooltip>
-          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('highlight')}>
-            <Highlighter size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Highlight</TooltipContent>
-        </Tooltip>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Tooltip>
-          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('notes')}>
-            <Notebook size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Take Notes</TooltipContent>
-        </Tooltip>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
-        <BookmarkButton />
-        <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Tooltip>
-          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('references')}>
-            <TextSearch size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Find References</TooltipContent>
-        </Tooltip>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
-        <Tooltip>
-          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('chat')}>
-            <MessageCircle size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Explain</TooltipContent>
-        </Tooltip>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
           <TooltipTrigger
             as={Button}
@@ -145,6 +104,37 @@ export const ActivityPanelButtons = () => {
             <X size={20} />
           </TooltipTrigger>
           <TooltipContent>Clear Selection</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('share')}>
+            <Share size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Share</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('highlight')}>
+            <Highlighter size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Highlight</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('notes')}>
+            <Notebook size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Take Notes</TooltipContent>
+        </Tooltip>
+        <BookmarkButton />
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('references')}>
+            <TextSearch size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Find References</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('chat')}>
+            <MessageCircle size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Explain</TooltipContent>
         </Tooltip>
       </div>
     </div>
@@ -170,7 +160,7 @@ export const ActivityPanelContent = () => {
       snapPoints={[0, 0.2, 1]}
     >
       <DrawerContent overlay={false} class="w-full max-w-2xl justify-self-center shadow-lg">
-        <div class="mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col p-4">
+        <div class="mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col overflow-hidden p-4">
           <Show when={value() !== 'chat'}>
             <DrawerHeader class="mb-2">
               <DrawerTitle class="text-center">{brStore.selectedTitle}</DrawerTitle>

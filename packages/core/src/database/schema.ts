@@ -13,6 +13,7 @@ import {
   text,
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
+import { DEFAULT_CREDITS } from '../utils/credits/default';
 import { createId } from '../utils/id';
 
 const timestamp = customType<{
@@ -37,10 +38,18 @@ const baseModel = {
     .$onUpdateFn(() => new Date()),
 };
 
+export const userCredits = sqliteTable('user_credits', {
+  ...baseModel,
+  userId: text('user_id').notNull(),
+  balance: integer('balance')
+    .notNull()
+    .$defaultFn(() => DEFAULT_CREDITS),
+  lastReadingCreditAt: timestamp('last_reading_credit_at'),
+});
+
 export const roles = sqliteTable('roles', {
   ...baseModel,
   name: text('name').notNull(),
-  permissions: text('permissions', { mode: 'json' }).notNull().default([]).$type<string[]>(),
 });
 
 export const chats = sqliteTable(
@@ -793,6 +802,13 @@ export const chaptersToSourceDocumentsRelations = relations(
     };
   },
 );
+
+export const readingSessions = sqliteTable('reading_sessions', {
+  ...baseModel,
+  userId: text('user_id').notNull(),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time'),
+});
 
 export const verses = sqliteTable(
   'verses',

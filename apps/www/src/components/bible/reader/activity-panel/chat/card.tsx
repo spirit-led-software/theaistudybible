@@ -10,7 +10,7 @@ export const ChatCard = () => {
   const [brStore] = useBibleReaderStore();
 
   return (
-    <Card class="flex w-full flex-1 flex-col overflow-y-auto">
+    <Card class="flex h-full w-full flex-1 flex-col overflow-hidden">
       <SignedIn>
         <ChatWindow
           initInput={

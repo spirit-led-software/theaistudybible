@@ -56,19 +56,19 @@ export const ChatWindow = (props: ChatWindowProps) => {
     createScrollAnchor();
 
   return (
-    <div class="relative flex h-full w-full flex-col overflow-y-auto overflow-x-hidden">
+    <div class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button
           variant="outline"
           size="icon"
-          class="bg-background absolute bottom-20 left-1/2 right-1/2 -translate-x-1/2 rounded-full shadow-lg"
+          class="bg-background absolute bottom-20 left-1/2 right-1/2 z-40 -translate-x-1/2 rounded-full shadow-lg"
           onClick={scrollToBottomSmooth}
         >
           <ChevronDown />
         </Button>
       </Show>
-      <div ref={setScrollRef} class="flex grow flex-col items-center overflow-y-auto">
+      <div ref={setScrollRef} class="flex h-full w-full flex-1 flex-col overflow-y-auto">
         <div class="flex w-full items-end justify-center">
           <Switch>
             <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
@@ -96,11 +96,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
             </Match>
           </Switch>
         </div>
-        <div ref={setMessagesRef} class="flex grow flex-col items-center justify-center">
+        <div ref={setMessagesRef} class="flex flex-1 flex-col items-center justify-end">
           <For
             each={useChatResult.messages()}
             fallback={
-              <div class="flex grow items-center justify-center p-20">
+              <div class="flex h-full w-full grow items-center justify-center p-20">
                 <H5>No messages yet</H5>
               </div>
             }
@@ -126,7 +126,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           >
             <div class="animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2">
               <H6 class="text-center">Follow-up Questions</H6>
-              <Carousel class="mx-20 overflow-x-visible">
+              <Carousel class="mx-16 overflow-x-visible">
                 <CarouselContent>
                   <For each={useChatResult.followUpSuggestions}>
                     {(suggestion) => (

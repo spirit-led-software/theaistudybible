@@ -88,7 +88,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
   );
 
   return (
-    <div class="flex max-w-2xl flex-col items-center px-10 py-5">
+    <div class="flex max-w-2xl flex-col items-center px-12 py-5">
       <QueryBoundary query={query}>
         {({ bible, book, chapter }) => (
           <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
@@ -101,11 +101,11 @@ export default function ChapterReader(props: ChapterReaderProps) {
               </div>
               <ReaderContent contents={chapter.content} />
               <Show when={chapter.previous}>
-                <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
+                <div class="fixed bottom-0 left-0 flex flex-col place-items-center justify-center">
                   <Tooltip placement="right">
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-r-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-tr-2xl')}
                       href={`/bible/${bible.abbreviation}/${chapter.previous!.abbreviation.split('.')[0]}/${chapter.previous!.number}`}
                     >
                       <ChevronLeft size={20} class="shrink-0" />
@@ -117,11 +117,11 @@ export default function ChapterReader(props: ChapterReaderProps) {
                 </div>
               </Show>
               <Show when={chapter.next}>
-                <div class="fixed bottom-1/3 right-0 top-1/3 flex flex-col place-items-center justify-center">
+                <div class="fixed bottom-0 right-0 flex flex-col place-items-center justify-center">
                   <Tooltip placement="left">
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-l-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-tl-2xl')}
                       href={`/bible/${bible.abbreviation}/${chapter.next!.abbreviation.split('.')[0]}/${chapter.next!.number}`}
                     >
                       <ChevronRight size={20} class="shrink-0" />

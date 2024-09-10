@@ -1,4 +1,3 @@
-import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import {
   chapterBookmarks,
@@ -7,12 +6,10 @@ import {
   verseHighlights,
 } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
-import { getMaxImageCountForUser } from '@/core/user';
-import { getTimeStringFromSeconds } from '@/core/utils/date';
+import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import type { JwtPayload } from '@clerk/types';
-import { Ratelimit } from '@upstash/ratelimit';
 import { tool } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
@@ -318,20 +315,11 @@ export const generateImageTool = (props: { userId: string; sessionClaims: JwtPay
         .describe('The size of the generated image. More detailed images need a larger size.'),
     }),
     execute: async ({ prompt, size }) => {
-      const maxImageCount = await getMaxImageCountForUser(props.sessionClaims);
-      const ratelimit = new Ratelimit({
-        redis: cache,
-        limiter: Ratelimit.slidingWindow(maxImageCount, '3h'),
-        analytics: true,
-        prefix: 'image_generation',
-      });
-
-      const { success, reset } = await ratelimit.limit(props.userId);
-      if (!success) {
-        const waitTime = getTimeStringFromSeconds(Math.ceil((reset - Date.now()) / 1000));
+      const hasEnoughCredits = await checkAndConsumeCredits(props.userId, 'image');
+      if (!hasEnoughCredits) {
         return {
           status: 'error',
-          message: `You have issued too many requests for your current plan. Please wait ${waitTime} before trying again, or upgrade your plan.`,
+          message: 'Not enough credits to generate an image.',
         } as const;
       }
 
@@ -385,6 +373,7 @@ export const generateImageTool = (props: { userId: string; sessionClaims: JwtPay
         } as const;
       } catch (error) {
         console.error(JSON.stringify(error, null, 2));
+        await restoreCreditsOnFailure(props.userId, 'image');
         return {
           status: 'error',
           message: 'An unknown error occurred. Please try again later.',

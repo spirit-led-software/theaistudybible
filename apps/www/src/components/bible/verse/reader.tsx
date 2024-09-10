@@ -6,7 +6,6 @@ import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
-import type { Accessor} from 'solid-js';
 import { Show } from 'solid-js';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -72,19 +71,21 @@ export const getVerseReaderQueryOptions = (props: {
 });
 
 export type VerseReaderProps = {
-  bibleAbbr: Accessor<string>;
-  bookAbbr: Accessor<string>;
-  chapterNum: Accessor<number>;
-  verseNum: Accessor<number>;
-};
-
-export default function VerseReader(props: {
   bibleAbbr: string;
   bookAbbr: string;
   chapterNum: number;
   verseNum: number;
-}) {
-  const query = createQuery(() => getVerseReaderQueryOptions(props));
+};
+
+export default function VerseReader(props: VerseReaderProps) {
+  const query = createQuery(() =>
+    getVerseReaderQueryOptions({
+      bibleAbbr: props.bibleAbbr,
+      bookAbbr: props.bookAbbr,
+      chapterNum: props.chapterNum,
+      verseNum: props.verseNum,
+    }),
+  );
 
   return (
     <div class="flex max-w-2xl flex-col items-center px-10 py-5">
@@ -114,11 +115,11 @@ export default function VerseReader(props: {
                 </Button>
               </div>
               <Show when={data.verse.previous}>
-                <div class="fixed bottom-1/3 left-0 top-1/3 flex flex-col place-items-center justify-center">
+                <div class="fixed bottom-0 left-0 flex flex-col place-items-center justify-center">
                   <Tooltip placement="right">
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-r-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-tr-2xl')}
                       href={
                         `/bible/${data.bible.abbreviation}/${data.verse.previous!.abbreviation.split('.')[0]}` +
                         `/${data.verse.previous!.abbreviation.split('.')[1]}/${data.verse.previous!.number}`
@@ -133,11 +134,11 @@ export default function VerseReader(props: {
                 </div>
               </Show>
               <Show when={data.verse.next}>
-                <div class="fixed bottom-1/3 right-0 top-1/3 flex flex-col place-items-center justify-center">
+                <div class="fixed bottom-0 right-0 flex flex-col place-items-center justify-center">
                   <Tooltip placement="left">
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-10 rounded-l-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-tl-2xl')}
                       href={
                         `/bible/${data.bible.abbreviation}/${data.verse.next!.abbreviation.split('.')[0]}` +
                         `/${data.verse.next!.abbreviation.split('.')[1]}/${data.verse.next!.number}`

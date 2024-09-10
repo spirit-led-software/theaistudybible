@@ -1,11 +1,8 @@
 import { freeTierModels, plusTierModels } from '@/ai/models';
 import { numTokensFromString } from '@/ai/utils';
-import { cache } from '@/core/cache';
 import { db } from '@/core/database';
-import { getMaxQueryCountForUser, hasRole } from '@/core/user';
-import { getTimeStringFromSeconds } from '@/core/utils/date';
+import { hasRole } from '@/core/user';
 import type { JwtPayload, Variables } from '@clerk/types';
-import { Ratelimit } from '@upstash/ratelimit';
 import type { Context } from 'hono';
 import type { Bindings } from 'hono/types';
 import { Resource } from 'sst';
@@ -54,44 +51,6 @@ export function getDefaultModelId(claims: JwtPayload) {
       ? `${plusTierModels[0].provider}:${plusTierModels[0].id}`
       : `${freeTierModels[0].provider}:${freeTierModels[0].id}`
     : `${freeTierModels[0].provider}:${freeTierModels[0].id}`;
-}
-
-export async function rateLimitChat({
-  c,
-  claims,
-}: {
-  c: Context<{
-    Bindings: Bindings;
-    Variables: Variables;
-  }>;
-  claims: JwtPayload;
-}) {
-  const maxQueryCount = await getMaxQueryCountForUser(claims);
-  const ratelimit = new Ratelimit({
-    redis: cache,
-    limiter: Ratelimit.slidingWindow(maxQueryCount, '3 h'),
-  });
-
-  const { success, limit, remaining, reset } = await ratelimit.limit(claims.sub);
-
-  if (!success) {
-    return c.json(
-      {
-        message: `You have issued too many requests for your current plan. Please wait ${getTimeStringFromSeconds(
-          (reset - Date.now()) / 1000,
-        )} before trying again.`,
-      },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': ((reset - Date.now()) / 1000).toString(),
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-          'X-RateLimit-Reset': new Date(reset).toISOString(),
-        },
-      },
-    );
-  }
 }
 
 const messageChunkSize = 10;

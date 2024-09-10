@@ -1,14 +1,13 @@
 import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
-import type { SelectedVerseInfo} from '@/www/contexts/bible-reader';
+import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import type { HighlightInfo } from '@/www/types/bible';
+import { useReadingSessionContext } from '@/www/contexts/reading-session-context';
 import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { auth } from 'clerk-solidjs/server';
-import { createEffect } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { createEffect, on } from 'solid-js';
 import {
   ActivityPanel,
   ActivityPanelAlwaysOpenButtons,
@@ -87,6 +86,7 @@ export type ReaderContentProps = {
 
 export const ReaderContent = (props: ReaderContentProps) => {
   const [brStore, setBrStore] = useBibleReaderStore();
+  const { updateActivity } = useReadingSessionContext();
 
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(() => {
@@ -126,45 +126,41 @@ export const ReaderContent = (props: ReaderContentProps) => {
   const highlightsQuery = createQuery(() => ({
     queryKey: ['highlights', { chapterId: brStore.chapter.id }],
     queryFn: () => getHighlights(brStore.chapter.id),
+    placeholderData: [],
   }));
-  const [highlights, setHighlights] = createStore(
-    highlightsQuery.data?.map(
-      (hl) =>
-        ({
-          id: hl.id,
-          verseId: hl.verseId,
-          color: hl.color,
-        }) satisfies HighlightInfo,
-    ) || [],
-  );
-  createEffect(() => {
-    setHighlights(
-      reconcile(
-        highlightsQuery.data?.map(
-          (hl) =>
-            ({
-              id: hl.id,
-              verseId: hl.verseId,
-              color: hl.color,
-            }) satisfies HighlightInfo,
-        ) || [],
-      ),
-    );
-  });
 
   const notesQuery = createQuery(() => ({
     queryKey: ['notes', { chapterId: brStore.chapter.id }],
     queryFn: () => getNotes(brStore.chapter.id),
+    placeholderData: [],
   }));
-  const [notes, setNotes] = createStore(notesQuery.data || []);
-  createEffect(() => {
-    setNotes(reconcile(notesQuery.data || []));
-  });
+
+  // Any time the brStore changes, update the activity
+  createEffect(
+    on(
+      () => ({
+        ...brStore,
+      }),
+      () => {
+        updateActivity();
+      },
+    ),
+  );
 
   return (
     <>
-      <div class="eb-container mb-20 mt-5 w-full select-none">
-        <Contents contents={props.contents} highlights={highlights} notes={notes} />
+      <div class="eb-container mb-40 mt-5 w-full select-none">
+        <Contents
+          contents={props.contents}
+          highlights={
+            highlightsQuery.data?.map((hl) => ({
+              id: hl.id,
+              verseId: hl.verseId,
+              color: hl.color,
+            })) || []
+          }
+          notes={notesQuery.data}
+        />
       </div>
       <ActivityPanel>
         <ActivityPanelAlwaysOpenButtons />

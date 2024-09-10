@@ -58,16 +58,18 @@
     @apply border-border;
   }
 
+  html,
+  body,
+  #app {
+    @apply h-full;
+  }
+
   body {
-    @apply bg-background text-foreground min-h-screen;
+    @apply bg-background text-foreground;
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
   }
-}
-
-#app {
-  @apply min-h-screen;
 }
 
 @media (max-width: 640px) {

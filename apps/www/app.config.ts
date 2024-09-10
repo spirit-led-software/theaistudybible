@@ -15,7 +15,13 @@ export default defineConfig({
   vite: {
     envDir: workspaceRoot,
     envPrefix: 'PUBLIC_',
-    plugins: [tsconfigPaths(), VitePWA(), devtools()],
+    plugins: [
+      tsconfigPaths(),
+      VitePWA(),
+      devtools({
+        autoname: true,
+      }),
+    ],
     server: {
       fs: {
         allow: [workspaceRoot],

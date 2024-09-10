@@ -5,6 +5,7 @@ import type { PolymorphicProps } from '@kobalte/core';
 import * as NavigationMenuPrimitive from '@kobalte/core/navigation-menu';
 
 import { cn } from '@/www/lib/utils';
+import { useNavigate } from '@solidjs/router';
 
 const NavigationMenuItem = NavigationMenuPrimitive.Menu;
 
@@ -128,13 +129,18 @@ type NavigationMenuLinkProps<T extends ValidComponent = 'a'> =
 const NavigationMenuLink = <T extends ValidComponent = 'a'>(
   props: PolymorphicProps<T, NavigationMenuLinkProps<T>>,
 ) => {
-  const [local, others] = splitProps(props as NavigationMenuLinkProps, ['class']);
+  const navigate = useNavigate();
+  const [local, others] = splitProps(props as NavigationMenuLinkProps, ['class', 'onSelect']);
   return (
     <NavigationMenuPrimitive.Item
       class={cn(
         'hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
         local.class,
       )}
+      onSelect={() => {
+        navigate(props.href);
+        local.onSelect?.();
+      }}
       {...others}
     />
   );

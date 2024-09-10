@@ -8,12 +8,31 @@ export default createMiddleware({
       publishableKey: Resource.ClerkPublishableKey.value,
       secretKey: Resource.ClerkSecretKey.value,
     }),
-    ({ request, locals }) => {
-      const path = new URL(request.url).pathname;
+    ({
+      request: { url },
+      locals: {
+        auth: { sessionClaims, userId },
+      },
+    }) => {
+      const path = new URL(url).pathname;
       if (
         path.startsWith('/admin') &&
-        !(locals.auth.sessionClaims?.metadata.roles?.includes('admin') ?? false)
+        !(sessionClaims?.metadata.roles?.includes('admin') ?? false)
       ) {
+        return new Response(null, {
+          status: 302,
+          headers: {
+            location: '/',
+          },
+        });
+      } else if (path === '/' && userId) {
+        return new Response(null, {
+          status: 302,
+          headers: {
+            location: '/bible',
+          },
+        });
+      } else if (path === '/credits' && !userId) {
         return new Response(null, {
           status: 302,
           headers: {
