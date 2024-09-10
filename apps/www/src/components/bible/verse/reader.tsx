@@ -88,7 +88,7 @@ export default function VerseReader(props: VerseReaderProps) {
   );
 
   return (
-    <div class="flex max-w-2xl flex-col items-center px-10 py-5">
+    <div class="flex max-w-3xl flex-col items-center px-8 py-5">
       <QueryBoundary query={query}>
         {(data) => (
           <BibleReaderProvider

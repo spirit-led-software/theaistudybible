@@ -18,7 +18,7 @@ export const STRIPE_PUBLISHABLE_KEY = new Constant(
   'StripePublishableKey',
   $app.stage === 'production'
     ? 'pk_live_51P9EQkIXCNnPG1Pb86cM4XPe0WcgBj0VkMlSqRVgG8g8c6YKutrV7Bv5M7l9wi2Hb3fHYBtBUxj6ITQljZQHjrmj00f2GuQ3kb'
-    : 'pk_test_51P9EQkIXCNnPG1Pbzux4FJnxJI4k8qvznWaYpw7La39583X51QcZUmFDsuHgHv2fxHxea7YrVRFzNxYktsKFJ6VH00Rj3zWj90',
+    : 'pk_test_51PxV2IGnwuYH30oD52AJgMZKmfA5qA63XUtEzELia4z7rvxidEqQa7yDy0qNsB4B3j5wMUJExN4LvB10sEwBi9V000nFzrntmv',
 );
 
 export default [STAGE, DOMAIN, CLERK_PUBLISHABLE_KEY, STRIPE_PUBLISHABLE_KEY];

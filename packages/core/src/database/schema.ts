@@ -40,7 +40,7 @@ const baseModel = {
 
 export const userCredits = sqliteTable('user_credits', {
   ...baseModel,
-  userId: text('user_id').notNull(),
+  userId: text('user_id').notNull().unique(),
   balance: integer('balance')
     .notNull()
     .$defaultFn(() => DEFAULT_CREDITS),

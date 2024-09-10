@@ -56,7 +56,7 @@ export const getVerseBookmarkQueryOptions = ({
   verseId: string;
 }) => ({
   queryKey: ['bookmark', { verseId, userId }],
-  queryFn: async () => await getBookmark(verseId),
+  queryFn: () => getBookmark(verseId),
 });
 
 export const VerseBookmarkButton = () => {

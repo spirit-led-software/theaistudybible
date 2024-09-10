@@ -1,7 +1,5 @@
-import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
-import type { JSXElement} from 'solid-js';
-import { Show } from 'solid-js';
+import { Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import SolidMarkedMarkdown from 'solid-marked/component';
 import { Button } from './button';
@@ -12,54 +10,96 @@ export const Markdown = (props: { children: string }) => {
   return (
     <SolidMarkedMarkdown
       builtins={{
-        Root: (props): JSXElement => <div class="whitespace-pre-wrap">{props.children}</div>,
-        Heading: (props): JSXElement => (
-          <Dynamic component={Typography[`H${props.depth}`]} id={props.id} class="mt-6 first:mt-0">
-            <A href={`#${props.id}`}>{props.children}</A>
-          </Dynamic>
-        ),
-        Paragraph: (props): JSXElement => (
-          <Typography.P class="group-[.is-list]:inline">{props.children}</Typography.P>
-        ),
-        Blockquote: (props): JSXElement => (
-          <blockquote class="border-l-4 border-gray-400 pl-4">{props.children}</blockquote>
-        ),
-        Image: (props): JSXElement => (
-          <img
-            src={props.url}
-            alt={props.alt ?? props.title ?? undefined}
-            loading="lazy"
-            class="rounded-md"
-          />
-        ),
-        List: (props): JSXElement => (
-          <Dynamic
-            component={props.ordered ? 'ol' : 'ul'}
-            start={props.start ?? undefined}
-            class={cn('list-inside', props.ordered ? 'list-decimal' : 'list-disc')}
-          >
-            {props.children}
-          </Dynamic>
-        ),
-        ListItem: (props): JSXElement => (
-          <li class="is-list group list-item">
-            <Show when={props.checked != null} fallback={props.children}>
-              <Checkbox checked={props.checked ?? undefined} />
-              {props.children}
-            </Show>
-          </li>
-        ),
-        Link: (props): JSXElement => (
-          <Button
-            as={A}
-            href={props.url}
-            title={props.title ?? undefined}
-            variant="link"
-            class="text-foreground p-0"
-          >
-            {props.children}
-          </Button>
-        ),
+        Root: (props) => {
+          const [local, rest] = splitProps(props, ['children']);
+          return (
+            <div class="whitespace-pre-wrap" {...rest}>
+              {local.children}
+            </div>
+          );
+        },
+        Heading: (props) => {
+          const [local, rest] = splitProps(props, ['depth', 'id', 'children']);
+          return (
+            <Dynamic component={Typography[`H${local.depth}`]} id={local.id} {...rest}>
+              <A href={`#${local.id}`}>{local.children}</A>
+            </Dynamic>
+          );
+        },
+        Paragraph: (props) => {
+          const [local, rest] = splitProps(props, ['children']);
+          return (
+            <Typography.P class="group-[.is-list]:inline" {...rest}>
+              {local.children}
+            </Typography.P>
+          );
+        },
+        Blockquote: (props) => {
+          const [local, rest] = splitProps(props, ['children']);
+          return (
+            <Typography.Blockquote class="group-[.is-list]:inline" {...rest}>
+              {local.children}
+            </Typography.Blockquote>
+          );
+        },
+        Image: (props) => {
+          const [local, rest] = splitProps(props, ['url', 'alt', 'title']);
+          return (
+            <img
+              src={local.url}
+              alt={local.alt ?? local.title ?? undefined}
+              loading="lazy"
+              class="rounded-md"
+              {...rest}
+            />
+          );
+        },
+        List: (props) => {
+          const [local, rest] = splitProps(props, ['children', 'ordered', 'start']);
+          return (
+            <Dynamic
+              component={local.ordered ? Typography.OrderedList : Typography.List}
+              start={local.start ?? undefined}
+              {...rest}
+            >
+              {local.children}
+            </Dynamic>
+          );
+        },
+        ListItem: (props) => {
+          const [local, rest] = splitProps(props, ['children', 'checked']);
+          return (
+            <Typography.ListItem class="is-list group" {...rest}>
+              <Show when={local.checked != null}>
+                <Checkbox checked={local.checked ?? undefined} />
+              </Show>
+              {local.children}
+            </Typography.ListItem>
+          );
+        },
+        Link: (props) => {
+          const [local, rest] = splitProps(props, ['url', 'title', 'children']);
+          return (
+            <Button
+              as={A}
+              href={local.url}
+              title={local.title ?? undefined}
+              variant="link"
+              class="p-0"
+              {...rest}
+            >
+              {local.children}
+            </Button>
+          );
+        },
+        InlineCode: (props) => {
+          const [local, rest] = splitProps(props, ['children']);
+          return <Typography.InlineCode {...rest}>{local.children}</Typography.InlineCode>;
+        },
+        Strong: (props) => {
+          const [local, rest] = splitProps(props, ['children']);
+          return <Typography.Strong {...rest}>{local.children}</Typography.Strong>;
+        },
       }}
     >
       {props.children}

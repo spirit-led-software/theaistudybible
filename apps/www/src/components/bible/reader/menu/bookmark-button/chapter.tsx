@@ -55,7 +55,7 @@ export const getChapterBookmarkQueryOptions = ({
   chapterId: string;
 }) => ({
   queryKey: ['bookmark', { chapterId, userId }],
-  queryFn: async () => await getBookmark(chapterId),
+  queryFn: () => getBookmark(chapterId),
 });
 
 export const ChapterBookmarkButton = () => {

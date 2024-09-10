@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { chats, messages } from '@/core/database/schema';
-import { hasRole } from '@/core/user';
+import { hasRole } from '@/core/utils/user';
 import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { PaginationSchema } from '@/www/server/api/utils/pagination';

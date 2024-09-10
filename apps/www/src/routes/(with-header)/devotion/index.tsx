@@ -16,7 +16,7 @@ const getLatestDevotion = async () => {
 
 const getLatestDevotionQueryOptions = {
   queryKey: ['latest-devotion'],
-  queryFn: getLatestDevotion,
+  queryFn: () => getLatestDevotion(),
 };
 
 export const route: RouteDefinition = {

@@ -154,7 +154,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     ...props(),
     api: '/api/chat',
     id: chatId(),
-    generateId: createId,
+    generateId: () => createId(),
     sendExtraMessageFields: true,
     maxToolRoundtrips: 5,
     body: {
@@ -241,8 +241,8 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   });
 
   createEffect(
-    on([useChatResult.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
-      if (useChatResult.messages() && lastAiResponseId && !isLoading) {
+    on([lastAiResponseId], ([lastAiResponseId]) => {
+      if (useChatResult.messages() && lastAiResponseId) {
         useChatResult.setMessages([
           ...useChatResult.messages().slice(0, -1),
           {

@@ -20,15 +20,15 @@ export default function NavigationHeader() {
 
   return (
     <nav class="border-b-border bg-background/80 fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b py-6 pl-2 pr-4 backdrop-blur-md transition-all duration-300 ease-in-out">
-      <div class="flex w-1/3 justify-start md:hidden">
+      <div class="flex w-1/3 justify-start sm:hidden">
         <NavigationDrawer />
       </div>
-      <div class="flex w-1/3 justify-center md:justify-start">
+      <div class="flex w-1/3 justify-center sm:justify-start">
         <A href="/">
           {smallWindow() ? <LogoSmall width={128} height={64} /> : <Logo width={256} height={64} />}
         </A>
       </div>
-      <div class="hidden w-1/3 justify-center md:flex">
+      <div class="hidden w-1/3 justify-center sm:flex">
         <div class="flex w-full place-items-center justify-center">
           <Menu orientation="horizontal" />
         </div>

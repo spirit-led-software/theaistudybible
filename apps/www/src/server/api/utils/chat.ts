@@ -1,7 +1,7 @@
 import { freeTierModels, plusTierModels } from '@/ai/models';
 import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
-import { hasRole } from '@/core/user';
+import { hasRole } from '@/core/utils/user';
 import type { JwtPayload, Variables } from '@clerk/types';
 import type { Context } from 'hono';
 import type { Bindings } from 'hono/types';

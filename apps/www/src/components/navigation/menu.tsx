@@ -5,6 +5,7 @@ import {
   BookOpen,
   Bookmark,
   CreditCard,
+  Download,
   Highlighter,
   Info,
   Lightbulb,
@@ -37,7 +38,7 @@ export const Menu = (props: MenuProps) => {
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="flex w-56 flex-col gap-2 md:grid md:w-[400px] md:grid-cols-2">
+        <NavigationMenuContent class="flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2">
           <NavigationMenuLink as={A} href="/about">
             <NavigationMenuLabel class="flex items-center gap-2">
               <Info />
@@ -45,6 +46,15 @@ export const Menu = (props: MenuProps) => {
             </NavigationMenuLabel>
             <NavigationMenuDescription>
               Learn about The AI Study Bible and what we stand for
+            </NavigationMenuDescription>
+          </NavigationMenuLink>
+          <NavigationMenuLink as={A} href="/about/install">
+            <NavigationMenuLabel class="flex items-center gap-2">
+              <Download />
+              Install
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>
+              Install this website as an app on your device
             </NavigationMenuDescription>
           </NavigationMenuLink>
           <SignedIn>
@@ -65,7 +75,7 @@ export const Menu = (props: MenuProps) => {
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="flex w-56 flex-col gap-2 md:grid md:w-[400px] md:grid-cols-2">
+        <NavigationMenuContent class="flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2">
           <NavigationMenuLink as={A} href="/bible">
             <NavigationMenuLabel class="flex items-center gap-2">
               <BookOpen />
@@ -101,7 +111,7 @@ export const Menu = (props: MenuProps) => {
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="flex w-56 flex-col gap-2 md:grid md:w-[400px] md:grid-cols-2">
+        <NavigationMenuContent class="flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2">
           <NavigationMenuLink as={A} href="/chat">
             <NavigationMenuLabel class="flex items-center gap-2">
               <MessageCircle />
@@ -124,7 +134,7 @@ export const Menu = (props: MenuProps) => {
       </NavigationMenuItem>
       <Show when={isAdmin()}>
         <NavigationMenuItem>
-          <NavigationMenuTrigger as={A} href="/admin" class="justify-start">
+          <NavigationMenuTrigger disabled as={A} href="/admin" class="justify-start">
             Admin
           </NavigationMenuTrigger>
         </NavigationMenuItem>

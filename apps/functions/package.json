@@ -13,6 +13,7 @@
   "dependencies": {
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/ai": "workspace:*",
-    "@theaistudybible/schemas": "workspace:*"
+    "@theaistudybible/schemas": "workspace:*",
+    "hono": "^4.5.11"
   }
 }

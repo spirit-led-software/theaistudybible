@@ -1,11 +1,5 @@
-import { createClerkClient, type User } from '@clerk/clerk-sdk-node';
+import type { User } from '@clerk/clerk-sdk-node';
 import type { JwtPayload } from '@clerk/types';
-import { Resource } from 'sst';
-
-export const clerkClient = createClerkClient({
-  secretKey: Resource.ClerkSecretKey.value,
-  publishableKey: Resource.ClerkPublishableKey.value,
-});
 
 export function hasRole(role: string, sessionClaims?: JwtPayload | null) {
   if (

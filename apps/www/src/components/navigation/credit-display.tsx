@@ -2,6 +2,7 @@ import { db } from '@/core/database';
 import { userCredits } from '@/core/database/schema';
 import { DEFAULT_CREDITS } from '@/core/utils/credits/default';
 import { cn } from '@/www/lib/utils';
+import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { auth } from 'clerk-solidjs/server';
 import { eq } from 'drizzle-orm';
@@ -68,6 +69,9 @@ export function CreditDisplay() {
             <li class="text-sm">1 image = 5 credits</li>
           </ul>
         </div>
+        <Button as={A} href="/credits">
+          Purchase Credits
+        </Button>
       </PopoverContent>
     </Popover>
   );

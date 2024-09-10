@@ -88,7 +88,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
   );
 
   return (
-    <div class="flex max-w-2xl flex-col items-center px-12 py-5">
+    <div class="flex max-w-3xl flex-col items-center px-8 py-5">
       <QueryBoundary query={query}>
         {({ bible, book, chapter }) => (
           <BibleReaderProvider bible={bible} book={book} chapter={chapter}>

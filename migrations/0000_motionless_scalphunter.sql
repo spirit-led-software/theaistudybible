@@ -190,12 +190,20 @@ CREATE TABLE `messages_to_source_documents` (
 	FOREIGN KEY (`message_id`) REFERENCES `messages`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE TABLE `reading_sessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`user_id` text NOT NULL,
+	`start_time` text NOT NULL,
+	`end_time` text
+);
+--> statement-breakpoint
 CREATE TABLE `roles` (
 	`id` text PRIMARY KEY NOT NULL,
 	`created_at` text NOT NULL,
 	`updated_at` text NOT NULL,
-	`name` text NOT NULL,
-	`permissions` text DEFAULT '[]' NOT NULL
+	`name` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `share_chat_options` (
@@ -204,6 +212,15 @@ CREATE TABLE `share_chat_options` (
 	`updated_at` text NOT NULL,
 	`chat_id` text NOT NULL,
 	FOREIGN KEY (`chat_id`) REFERENCES `chats`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `user_credits` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`user_id` text NOT NULL,
+	`balance` integer NOT NULL,
+	`last_reading_credit_at` text
 );
 --> statement-breakpoint
 CREATE TABLE `user_generated_images` (

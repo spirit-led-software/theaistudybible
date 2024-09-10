@@ -18,7 +18,9 @@ export default $config({
     const { database, upstashVectorIndex } = await import('./infra/database');
     const { upstashRedis } = await import('./infra/cache');
     const { cdn } = await import('./infra/storage');
+    const { webhooksApi } = await import('./infra/api');
     const { webapp } = await import('./infra/www');
+    await import('./infra/jobs');
     await import('./infra/dev');
 
     return {
@@ -27,6 +29,7 @@ export default $config({
       'Redis Endpoint': upstashRedis.endpoint,
       'CDN URL': cdn.url,
       'Web App URL': webapp.url,
+      'Webhooks API URL': webhooksApi.properties.url,
     };
   },
 });

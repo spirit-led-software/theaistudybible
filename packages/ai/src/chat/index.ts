@@ -83,7 +83,7 @@ You must format your response in valid markdown syntax.`,
         tools: resolvedTools,
         maxTokens: options.maxTokens,
         onFinish: async (event) => {
-          let [response] = await db
+          const [response] = await db
             .insert(messagesTable)
             .values({
               id: responseId,
@@ -91,7 +91,7 @@ You must format your response in valid markdown syntax.`,
               content: event.text,
               toolInvocations: event.toolCalls?.map((t) => ({
                 ...t,
-                state: resolvedTools[t.toolName].execute ? 'call' : 'partial-call',
+                state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
               })),
               finishReason: event.finishReason,
               data: {
@@ -105,17 +105,15 @@ You must format your response in valid markdown syntax.`,
             .execute();
 
           if (event.toolResults?.length) {
-            [response] = await db
+            await db
               .update(messagesTable)
               .set({
-                toolInvocations: (response.toolInvocations ?? []).concat(
-                  event.toolResults.map((t) => ({
-                    ...t,
-                    state: 'result',
-                  })),
-                ),
+                toolInvocations: event.toolResults.map((t) => ({
+                  ...t,
+                  state: 'result',
+                })),
               })
-              .where(eq(messagesTable.id, responseId))
+              .where(eq(messagesTable.id, response.id))
               .returning()
               .execute();
 
@@ -136,7 +134,7 @@ You must format your response in valid markdown syntax.`,
               }
             }
           }
-          return options.onFinish?.(event);
+          return await options.onFinish?.(event);
         },
       }),
       responseId,

@@ -1,4 +1,4 @@
-import { hasRole } from '@/core/user';
+import { hasRole } from '@/core/utils/user';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { Hono } from 'hono';
 import { Resource } from 'sst';

@@ -1,15 +1,12 @@
-import { clerkClient } from '@/core/user';
-import { Hono } from 'hono';
+import { clerk } from '@/core/clerk';
+import { db } from '@/core/database';
+import { userCredits } from '@/core/database/schema';
+import { stripe } from '@/core/stripe';
+import { sql } from 'drizzle-orm';
+import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
-import Stripe from 'stripe';
-import type { Bindings, Variables } from '../../types';
 
-const stripe = new Stripe(Resource.StripeSecretKey.value);
-
-const app = new Hono<{
-  Bindings: Bindings;
-  Variables: Variables;
-}>().post('/', async (c) => {
+const app = new Hono().post('/', async (c) => {
   const body = await c.req.text();
   const sig = c.req.header('stripe-signature');
   let stripeEvent;
@@ -29,7 +26,7 @@ const app = new Hono<{
         return c.json({ message: 'Client reference ID not found' }, 400);
       }
 
-      const user = await clerkClient.users.getUser(clientReferenceId);
+      const user = await clerk.users.getUser(clientReferenceId);
       if (!user) {
         console.error(`User not found for client reference ID: ${clientReferenceId}`);
         return c.json({ message: 'User not found' }, 404);
@@ -41,7 +38,7 @@ const app = new Hono<{
         typeof stripeCustomerId === 'string' &&
         user.publicMetadata.stripeCustomerId !== stripeCustomerId
       ) {
-        await clerkClient.users.updateUser(user.id, {
+        await clerk.users.updateUser(user.id, {
           publicMetadata: {
             ...user.publicMetadata,
             stripeCustomerId,
@@ -49,27 +46,38 @@ const app = new Hono<{
         });
       }
 
+      let product = session.line_items?.data[0].price?.product;
+      if (!product) {
+        return c.json({ message: 'Product not included in checkout session' }, 400);
+      }
+
+      if (typeof product === 'string') {
+        product = await stripe.products.retrieve(product);
+      }
+      if (!product || product.deleted) {
+        return c.json({ message: 'Invalid product' }, 400);
+      }
+
+      const credits = product.metadata.credits;
+      if (!credits || typeof credits !== 'number') {
+        return c.json({ message: 'Invalid credits in product metadata' }, 400);
+      }
+
+      await db
+        .insert(userCredits)
+        .values({
+          userId: user.id,
+          balance: credits,
+        })
+        .onConflictDoUpdate({
+          target: [userCredits.userId],
+          set: {
+            balance: sql`${userCredits.balance} + ${credits}`,
+          },
+        })
+        .returning();
+
       return c.json({ message: 'Checkout session completed' });
-    }
-    case 'customer.subscription.created': {
-      const subscription = stripeEvent.data.object;
-      console.log('Subscription created: ', subscription);
-
-      const sr = await stripe.customers.retrieve(subscription.customer as string);
-      if (sr.deleted) {
-        console.log('Customer is deleted');
-        return c.json({ message: 'Customer is deleted' });
-      }
-
-      const user = await clerkClient.users.getUser(sr.metadata.clerkId);
-      if (!user) {
-        console.error(`User not found for Stripe customer ID: ${subscription.customer as string}`);
-        return c.json({ message: 'User not found' }, 404);
-      }
-
-      // TODO: Add role to user
-
-      return c.json({ message: 'Subscription created' });
     }
     default: {
       console.warn(`Unhandled event type: ${stripeEvent.type}`);

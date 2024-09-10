@@ -11,5 +11,5 @@ export default function BibleReaderLayout(props: { children: JSX.Element }) {
     });
   });
 
-  return <>{props.children}</>;
+  return <div class="container max-w-3xl">{props.children}</div>;
 }

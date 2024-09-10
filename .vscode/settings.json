@@ -76,11 +76,5 @@
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.tsserver.watchOptions": {
-    "watchDirectory": "useFsEvents",
-    "watchFile": "useFsEventsOnParentDirectory",
-    "fallbackPolling": "dynamicPriorityPolling",
-    "synchronousWatchDirectory": true
-  }
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

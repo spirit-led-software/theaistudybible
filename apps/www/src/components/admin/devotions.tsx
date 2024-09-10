@@ -1,6 +1,8 @@
-import { hasRole } from '@/core/user';
+import { generateDevotion } from '@/ai/devotion';
+import { hasRole } from '@/core/utils/user';
 import { createMutation } from '@tanstack/solid-query';
 import { auth } from 'clerk-solidjs/server';
+import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -11,19 +13,27 @@ const triggerGenerateDevotion = async () => {
   if (!hasRole('admin', sessionClaims)) {
     throw new Error('You must be an admin to access this resource.');
   }
-  return Promise.resolve();
+  return await generateDevotion();
 };
 
 export const DevotionsContent = () => {
+  const [toastId, setToastId] = createSignal<string | number>();
+
   const triggerDevotionMutation = createMutation(() => ({
     mutationFn: () => triggerGenerateDevotion(),
-    onSuccess: () => {
-      toast.success('Triggered Devotion Generation!');
+    onMutate: () => {
+      setToastId(toast.loading('Generating...', { duration: Infinity }));
     },
-    onError: () => {
-      toast.error('Failed to generate devotion');
+    onSuccess: () => {
+      toast.dismiss(toastId());
+      toast.success('Devotion generated!');
+    },
+    onError: (error) => {
+      toast.dismiss(toastId());
+      toast.error(error.message);
     },
   }));
+
   return (
     <Card>
       <CardHeader>

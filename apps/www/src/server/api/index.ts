@@ -11,7 +11,6 @@ import chat from './endpoints/secure/chat';
 import chats from './endpoints/secure/chats';
 import generatedImages from './endpoints/secure/generated-images';
 import messages from './endpoints/secure/messages';
-import webhooks from './endpoints/webhooks';
 
 export const app = new Hono<{
   Bindings: Bindings;
@@ -54,5 +53,4 @@ export const app = new Hono<{
   .route('/generated-images', generatedImages)
   .route('/messages', messages)
   // Other routes
-  .route('/admin', adminRoutes)
-  .route('/webhooks', webhooks);
+  .route('/admin', adminRoutes);

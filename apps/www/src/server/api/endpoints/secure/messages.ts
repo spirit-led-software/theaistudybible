@@ -1,7 +1,7 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import { messageReactions, messages } from '@/core/database/schema';
-import { hasRole } from '@/core/user';
+import { hasRole } from '@/core/utils/user';
 import type { Message, MessageReaction } from '@/schemas/chats/messages/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { PaginationSchema } from '@/www/server/api/utils/pagination';

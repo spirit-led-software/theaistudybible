@@ -1,8 +1,10 @@
 import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
+import { hasRole } from '@/core/utils/user';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
+import { auth } from 'clerk-solidjs/server';
 import { FolderArchive } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -27,6 +29,10 @@ async function requestUpload({
   publicationId?: string;
 }) {
   'use server';
+  const { sessionClaims } = auth();
+  if (!hasRole('admin', sessionClaims)) {
+    throw new Error('You must be an admin to access this resource.');
+  }
   return await getSignedUrl(
     s3,
     new PutObjectCommand({
@@ -45,6 +51,17 @@ export const BiblesContent = () => {
   const [files, setFiles] = createSignal<FileList>();
   const [toastId, setToastId] = createSignal<string | number>();
 
+  const requestUploadMutation = createMutation(() => ({
+    mutationFn: requestUpload,
+    onMutate: () => {
+      setToastId(toast.loading('Uploading...', { duration: Infinity }));
+    },
+    onError: () => {
+      toast.dismiss(toastId());
+      toast.error('Failed to request upload');
+    },
+  }));
+
   const uploadFileMutation = createMutation(() => ({
     mutationFn: async ({ url, file }: { url: string; file: File }) => {
       await fetch(url, {
@@ -60,17 +77,6 @@ export const BiblesContent = () => {
     onError: () => {
       toast.dismiss(toastId());
       toast.error('Failed to upload bible zip');
-    },
-  }));
-
-  const requestUploadMutation = createMutation(() => ({
-    mutationFn: requestUpload,
-    onMutate: () => {
-      setToastId(toast.loading('Uploading...', { duration: Infinity }));
-    },
-    onError: () => {
-      toast.dismiss(toastId());
-      toast.error('Failed to request upload');
     },
   }));
 

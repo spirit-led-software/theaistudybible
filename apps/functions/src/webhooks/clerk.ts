@@ -1,21 +1,18 @@
+import { clerk } from '@/core/clerk';
+import { stripe } from '@/core/stripe';
 import type { WebhookEvent } from '@clerk/clerk-sdk-node';
-import { Hono } from 'hono';
+import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
-import { Stripe } from 'stripe';
 import { Webhook } from 'svix';
-import type { Bindings, Variables } from '../../types';
 
-const app = new Hono<{
-  Bindings: Bindings;
-  Variables: Variables;
-}>().post('/', async (c) => {
+const app = new Hono().post('/', async (c) => {
   // Get the Svix headers for verification
-  const svix_id = c.req.header('svix-id');
-  const svix_timestamp = c.req.header('svix-timestamp');
-  const svix_signature = c.req.header('svix-signature');
+  const svixId = c.req.header('svix-id');
+  const svixTimestamp = c.req.header('svix-timestamp');
+  const svixSignature = c.req.header('svix-signature');
 
   // If there are missing Svix headers, error out
-  if (!svix_id || !svix_timestamp || !svix_signature) {
+  if (!svixId || !svixTimestamp || !svixSignature) {
     return c.json(
       {
         message: 'Missing Svix headers',
@@ -34,9 +31,9 @@ const app = new Hono<{
   // If the verification fails, error out and  return error code
   try {
     evt = wh.verify(await c.req.text(), {
-      'svix-id': svix_id,
-      'svix-timestamp': svix_timestamp,
-      'svix-signature': svix_signature,
+      'svix-id': svixId,
+      'svix-timestamp': svixTimestamp,
+      'svix-signature': svixSignature,
     }) as WebhookEvent;
   } catch (err: unknown) {
     let message = 'Webhook failed to verify. Error: ';
@@ -56,7 +53,7 @@ const app = new Hono<{
     case 'user.created': {
       const { id, public_metadata } = evt.data;
 
-      const user = await c.var.clerk.users.updateUserMetadata(id, {
+      const user = await clerk.users.updateUserMetadata(id, {
         publicMetadata: {
           ...public_metadata,
           bibleTranslation: 'WEB',
@@ -65,7 +62,6 @@ const app = new Hono<{
       });
 
       if (!public_metadata.stripeCustomerId) {
-        const stripe = new Stripe(Resource.StripeSecretKey.value);
         const customer = await stripe.customers.create({
           email: user.emailAddresses[0].emailAddress,
           name: `${user.firstName} ${user.lastName}`,
@@ -73,7 +69,7 @@ const app = new Hono<{
             clerkId: user.id,
           },
         });
-        await c.var.clerk.users.updateUserMetadata(user.id, {
+        await clerk.users.updateUserMetadata(user.id, {
           publicMetadata: {
             ...user.publicMetadata,
             stripeCustomerId: customer.id,

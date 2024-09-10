@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1725561781047,
-      "tag": "0000_fast_paladin",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1725731304785,
-      "tag": "0001_robust_sunspot",
+      "when": 1725992973150,
+      "tag": "0000_motionless_scalphunter",
       "breakpoints": true
     }
   ]

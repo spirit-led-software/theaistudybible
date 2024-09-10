@@ -47,10 +47,18 @@ async function createInitialAdminUser() {
   }
 
   console.log('Adding credits to admin user');
-  await db.insert(userCredits).values({
-    userId: admin.id,
-    balance: Number.MAX_SAFE_INTEGER,
-  });
+  await db
+    .insert(userCredits)
+    .values({
+      userId: admin.id,
+      balance: Number.MAX_SAFE_INTEGER,
+    })
+    .onConflictDoUpdate({
+      target: [userCredits.userId],
+      set: {
+        balance: Number.MAX_SAFE_INTEGER,
+      },
+    });
 
   console.log('Initial admin user created');
 }
