@@ -5,11 +5,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "test": "vitest",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@theaistudybible/tsconfig": "workspace:*"
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/ts-config": "workspace:*"
   },
   "dependencies": {
     "@theaistudybible/schemas": "workspace:*",

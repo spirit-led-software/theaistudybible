@@ -4,11 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "test": "vitest",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@theaistudybible/tsconfig": "workspace:*"
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/ts-config": "workspace:*"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.49",

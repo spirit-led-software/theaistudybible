@@ -1,0 +1,17 @@
+{
+  "name": "@theaistudybible/eslint-config",
+  "description": "The AI Study Bible ESLint Configuration",
+  "private": true,
+  "type": "module",
+  "main": "eslint.config.js",
+  "devDependencies": {
+    "@eslint/compat": "^1.1.1",
+    "@eslint/js": "^9.10.0",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.10.0",
+    "eslint-plugin-drizzle": "^0.2.3",
+    "eslint-plugin-solid": "^0.14.3",
+    "globals": "^15.9.0",
+    "typescript-eslint": "8.5.0"
+  }
+}

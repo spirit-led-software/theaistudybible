@@ -5,11 +5,13 @@
   "type": "module",
   "main": "index.ts",
   "scripts": {
+    "lint": "eslint .",
     "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@theaistudybible/tsconfig": "workspace:*",
+    "@theaistudybible/eslint-config": "workspace:*",
+    "@theaistudybible/ts-config": "workspace:*",
     "@types/jsdom": "^21.1.7",
     "@types/yargs": "^17.0.33",
     "vite-tsconfig-paths": "^5.0.1",
