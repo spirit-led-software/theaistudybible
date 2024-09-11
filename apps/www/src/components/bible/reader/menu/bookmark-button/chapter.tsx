@@ -92,12 +92,12 @@ export const ChapterBookmarkButton = () => {
         <Tooltip>
           <TooltipTrigger
             as={Button}
-            size="icon"
+            size='icon'
             onClick={() => addBookmarkMutation.mutate()}
             disabled={
               !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
             }
-            class="disabled:pointer-events-auto"
+            class='disabled:pointer-events-auto'
           >
             <Bookmark />
           </TooltipTrigger>
@@ -112,7 +112,7 @@ export const ChapterBookmarkButton = () => {
         </Tooltip>
       }
       loadingFallback={
-        <Button disabled size="icon">
+        <Button disabled size='icon'>
           <Bookmark />
         </Button>
       }
@@ -121,11 +121,11 @@ export const ChapterBookmarkButton = () => {
         <Tooltip>
           <TooltipTrigger
             as={Button}
-            size="icon"
+            size='icon'
             onClick={() => deleteBookmarkMutation.mutate()}
             disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
           >
-            <Bookmark fill="hsl(var(--primary-foreground))" />
+            <Bookmark fill='hsl(var(--primary-foreground))' />
           </TooltipTrigger>
           <TooltipContent>
             <p>Remove Bookmark</p>

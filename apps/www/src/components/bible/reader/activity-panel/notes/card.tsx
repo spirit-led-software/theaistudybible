@@ -118,20 +118,20 @@ export const NotesCard = () => {
   const [isAddingNote, setIsAddingNote] = createSignal(false);
 
   return (
-    <Card class="flex w-full flex-1 flex-col overflow-y-auto">
+    <Card class='flex w-full flex-1 flex-col overflow-y-auto'>
       <SignedIn>
-        <CardHeader class="flex flex-row items-center justify-between border-b shadow-sm">
+        <CardHeader class='flex flex-row items-center justify-between border-b shadow-sm'>
           <CardTitle>Notes</CardTitle>
           <Tooltip>
-            <TooltipTrigger as={Button} onClick={() => setIsAddingNote(true)} size="icon">
-              <Plus class="h-4 w-4" />
+            <TooltipTrigger as={Button} onClick={() => setIsAddingNote(true)} size='icon'>
+              <Plus class='h-4 w-4' />
             </TooltipTrigger>
             <TooltipContent>Add Note</TooltipContent>
           </Tooltip>
         </CardHeader>
-        <CardContent class="overflow-y-auto py-4">
-          <div class="grid grid-cols-1 gap-2">
-            <Transition name="card-item">
+        <CardContent class='overflow-y-auto py-4'>
+          <div class='grid grid-cols-1 gap-2'>
+            <Transition name='card-item'>
               <Show when={isAddingNote()}>
                 <AddNoteCard
                   onAdd={() => setIsAddingNote(false)}
@@ -139,11 +139,11 @@ export const NotesCard = () => {
                 />
               </Show>
             </Transition>
-            <TransitionGroup name="card-item">
+            <TransitionGroup name='card-item'>
               <For
                 each={notes}
                 fallback={
-                  <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all">
+                  <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all'>
                     <H5>No notes</H5>
                   </div>
                 }
@@ -162,29 +162,29 @@ export const NotesCard = () => {
             </TransitionGroup>
           </div>
         </CardContent>
-        <CardFooter class="flex justify-end gap-2 border-t pt-4">
-          <DrawerClose as={Button} variant="outline">
+        <CardFooter class='flex justify-end gap-2 border-t pt-4'>
+          <DrawerClose as={Button} variant='outline'>
             Close
           </DrawerClose>
         </CardFooter>
       </SignedIn>
       <SignedOut>
         <CardHeader />
-        <CardContent class="flex w-full flex-1 flex-col place-items-center justify-center pt-6">
-          <div class="flex h-full w-full flex-col place-items-center justify-center">
-            <P class="text-lg">
+        <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
+          <div class='flex h-full w-full flex-col place-items-center justify-center'>
+            <P class='text-lg'>
               Please{' '}
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class="text-accent-foreground px-0 text-lg capitalize"
+                class='text-accent-foreground px-0 text-lg capitalize'
               />{' '}
               to take notes
             </P>
           </div>
         </CardContent>
-        <CardFooter class="flex justify-end">
-          <DrawerClose as={Button} variant="outline">
+        <CardFooter class='flex justify-end'>
+          <DrawerClose as={Button} variant='outline'>
             Close
           </DrawerClose>
         </CardFooter>

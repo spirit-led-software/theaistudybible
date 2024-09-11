@@ -102,7 +102,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
             .trim();
           return {
             id,
-            number: parseInt(contents.verseNumber!),
+            number: Number.parseInt(contents.verseNumber!),
             contentIds: contents.ids,
             text,
           };
@@ -149,7 +149,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   return (
     <>
-      <div class="eb-container container select-none">
+      <div class='eb-container container select-none'>
         <Contents
           contents={props.contents}
           highlights={

@@ -28,7 +28,7 @@ export function ReadingSessionProvider(props: { children: JSXElement }) {
   const [lastActivity, setLastActivity] = makePersisted(createSignal(0), {
     name: LAST_ACTIVITY_KEY,
     serialize: (value) => value.toString(),
-    deserialize: (value) => parseInt(value),
+    deserialize: (value) => Number.parseInt(value),
   });
   const [isReading, setIsReading] = createSignal(false);
   const [lastCreditUpdate, setLastCreditUpdate] = createSignal(Date.now());
@@ -86,7 +86,9 @@ export function ReadingSessionProvider(props: { children: JSXElement }) {
             if (timeSinceLastCreditUpdate >= 10 * 60 * 1000) {
               const creditsToAdd = Math.floor(timeSinceLastCreditUpdate / (10 * 60 * 1000)) * 3; // 3 credits per 10 minutes
               await updateUserCredits(creditsToAdd);
-              void queryClient.invalidateQueries({ queryKey: ['user-credits'] });
+              void queryClient.invalidateQueries({
+                queryKey: ['user-credits'],
+              });
               setLastCreditUpdate(Date.now());
             }
           }

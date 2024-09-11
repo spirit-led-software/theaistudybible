@@ -1,16 +1,7 @@
 import { cn } from '@/www/lib/utils';
 import type { PolymorphicProps } from '@kobalte/core';
-import type {
-  JSX,
-  ValidComponent} from 'solid-js';
-import {
-  createContext,
-  createSignal,
-  onCleanup,
-  Show,
-  splitProps,
-  useContext
-} from 'solid-js';
+import type { JSX, ValidComponent } from 'solid-js';
+import { createContext, createSignal, onCleanup, Show, splitProps, useContext } from 'solid-js';
 import type { ButtonProps } from './button';
 import { Button } from './button';
 
@@ -142,7 +133,7 @@ const FileInputTrigger = (props: FileInputTriggerProps) => {
   return (
     <>
       <Button
-        variant="outline"
+        variant='outline'
         class={cn(
           'w-full justify-start text-left font-normal',
           !files() && 'text-muted-foreground',
@@ -155,7 +146,7 @@ const FileInputTrigger = (props: FileInputTriggerProps) => {
           {`${files()!.length} file(s) selected`}
         </Show>
       </Button>
-      <input id="file-input" type="file" class="hidden" onChange={handleChange} />
+      <input id='file-input' type='file' class='hidden' onChange={handleChange} />
     </>
   );
 };
@@ -178,7 +169,7 @@ const FileInputDropArea = (props: FileInputDropAreaProps) => {
         )}
         {...others}
       >
-        {local.children || <p class="text-muted-foreground text-lg">Drop files here</p>}
+        {local.children || <p class='text-muted-foreground text-lg'>Drop files here</p>}
       </div>
     </Show>
   );

@@ -37,7 +37,8 @@ export function validateModelId({
   if (isPlusTier && !hasRole('rc:plus', claims) && !hasRole('admin', claims)) {
     return c.json(
       {
-        message: `Your plan does not support this model. Please upgrade to a plan that supports this model.`,
+        message:
+          'Your plan does not support this model. Please upgrade to a plan that supports this model.',
       },
       403,
     );

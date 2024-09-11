@@ -3,7 +3,9 @@ import * as ImagePrimitive from '@kobalte/core/image';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
 import { splitProps, type ValidComponent } from 'solid-js';
 
-type AvatarRootProps = ImagePrimitive.ImageRootProps & { class?: string | undefined };
+type AvatarRootProps = ImagePrimitive.ImageRootProps & {
+  class?: string | undefined;
+};
 
 const Avatar = <T extends ValidComponent = 'span'>(props: PolymorphicProps<T, AvatarRootProps>) => {
   const [local, others] = splitProps(props as AvatarRootProps, ['class']);
@@ -15,7 +17,9 @@ const Avatar = <T extends ValidComponent = 'span'>(props: PolymorphicProps<T, Av
   );
 };
 
-type AvatarImageProps = ImagePrimitive.ImageImgProps & { class?: string | undefined };
+type AvatarImageProps = ImagePrimitive.ImageImgProps & {
+  class?: string | undefined;
+};
 
 const AvatarImage = <T extends ValidComponent = 'img'>(
   props: PolymorphicProps<T, AvatarImageProps>,
@@ -24,7 +28,9 @@ const AvatarImage = <T extends ValidComponent = 'img'>(
   return <ImagePrimitive.Img class={cn('aspect-square size-full', local.class)} {...others} />;
 };
 
-type AvatarFallbackProps = ImagePrimitive.ImageFallbackProps & { class?: string | undefined };
+type AvatarFallbackProps = ImagePrimitive.ImageFallbackProps & {
+  class?: string | undefined;
+};
 
 const AvatarFallback = <T extends ValidComponent = 'span'>(
   props: PolymorphicProps<T, AvatarFallbackProps>,

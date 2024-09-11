@@ -31,7 +31,7 @@ export default function BiblePage() {
   }
 
   return (
-    <div class="flex w-full flex-col p-5 text-center">
+    <div class='flex w-full flex-col p-5 text-center'>
       <Title>Bible</Title>
       <LargeTranslationPicker />
     </div>

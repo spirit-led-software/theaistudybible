@@ -10,7 +10,9 @@ const Popover: Component<PopoverPrimitive.PopoverRootProps> = (props) => {
   return <PopoverPrimitive.Root gutter={4} {...props} />;
 };
 
-type PopoverContentProps = PopoverPrimitive.PopoverContentProps & { class?: string | undefined };
+type PopoverContentProps = PopoverPrimitive.PopoverContentProps & {
+  class?: string | undefined;
+};
 
 const PopoverContent = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, PopoverContentProps>,

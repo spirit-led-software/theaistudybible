@@ -25,12 +25,7 @@ export const renameChat = async (chatId: string, messages: Pick<Message, 'role' 
     system:
       'Given the following conversation, you must generate a new title for the conversation.' +
       ' The new title must be short and descriptive.',
-    prompt:
-      "Here's the conversation delimited by triple backticks:" +
-      '\n```\n' +
-      messagesToString(messages) +
-      '\n```\n' +
-      "What's the new title?",
+    prompt: `Here's the conversation delimited by triple backticks:\n\`\`\`\n${messagesToString(messages)}\n\`\`\`\nWhat's the new title?`,
   });
   return (
     await db
@@ -59,9 +54,9 @@ export const createChatChain = (options: CreateChatChainOptions) => {
     const responseId = `msg_${createId()}`;
 
     // @ts-expect-error - Messages are not typed correctly
-    messages = convertToCoreMessages(messages);
+    let coreMessages = convertToCoreMessages(messages);
     // Fix weird issue where some messages are empty
-    messages = messages.filter((message) => (message.content?.length ?? 0) > 0);
+    coreMessages = coreMessages.filter((message) => (message.content?.length ?? 0) > 0);
 
     const resolvedTools = tools({
       userId: options.userId,
@@ -78,8 +73,7 @@ You must use the vector database tool to fetch relevant resources for your answe
 The user's favorite bible translation is ${options.sessionClaims.metadata.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.
 
 You must format your response in valid markdown syntax.`,
-        // @ts-expect-error - Messages are not typed correctly
-        messages,
+        messages: coreMessages,
         tools: resolvedTools,
         maxTokens: options.maxTokens,
         onFinish: async (event) => {

@@ -16,5 +16,3 @@ declare global {
     PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
   }
 }
-
-export {};

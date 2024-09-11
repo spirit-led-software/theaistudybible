@@ -9,7 +9,9 @@ const Tooltip: Component<TooltipPrimitive.TooltipRootProps> = (props) => {
   return <TooltipPrimitive.Root gutter={4} {...props} />;
 };
 
-type TooltipContentProps = TooltipPrimitive.TooltipContentProps & { class?: string | undefined };
+type TooltipContentProps = TooltipPrimitive.TooltipContentProps & {
+  class?: string | undefined;
+};
 
 const TooltipContent = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, TooltipContentProps>,

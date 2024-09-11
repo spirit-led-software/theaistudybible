@@ -104,7 +104,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
   }));
 
   return (
-    <Card class="flex h-full max-h-[400px] w-full flex-col transition-all">
+    <Card class='flex h-full max-h-[400px] w-full flex-col transition-all'>
       <CardHeader>
         <CardTitle>
           {props.verse
@@ -112,11 +112,11 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             : `${props.book.shortName} ${props.chapter.number}`}
         </CardTitle>
       </CardHeader>
-      <CardContent class="flex grow flex-col overflow-y-auto">
+      <CardContent class='flex grow flex-col overflow-y-auto'>
         <Show
           when={isEditingNote()}
           fallback={
-            <div class="bg-background overflow-y-auto whitespace-pre-wrap rounded-lg border p-2">
+            <div class='bg-background overflow-y-auto whitespace-pre-wrap rounded-lg border p-2'>
               <Markdown>{props.note.content}</Markdown>
             </div>
           }
@@ -125,21 +125,21 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             value={editNoteContent()}
             onChange={setEditNoteContent}
             validationState={editNoteContent().trim() ? 'valid' : 'invalid'}
-            class="space-y-2"
+            class='space-y-2'
           >
-            <div class="flex w-full items-center justify-between">
+            <div class='flex w-full items-center justify-between'>
               <Tooltip>
-                <TooltipTrigger as={TextFieldLabel} class="flex items-center">
-                  Content <HelpCircle size={16} class="ml-1" />
+                <TooltipTrigger as={TextFieldLabel} class='flex items-center'>
+                  Content <HelpCircle size={16} class='ml-1' />
                 </TooltipTrigger>
                 <TooltipContent>
                   Accepts{' '}
                   <Button
                     as={A}
-                    variant="link"
-                    size="sm"
-                    class="p-0"
-                    href="https://www.markdownguide.org/"
+                    variant='link'
+                    size='sm'
+                    class='p-0'
+                    href='https://www.markdownguide.org/'
                   >
                     markdown
                   </Button>
@@ -147,9 +147,9 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
               </Tooltip>
               <TextFieldLabel
                 as={Button}
-                variant="link"
-                size="sm"
-                class="p-0 text-xs hover:no-underline"
+                variant='link'
+                size='sm'
+                class='p-0 text-xs hover:no-underline'
                 onClick={() => setShowPreview(!showPreview())}
               >
                 {showPreview() ? 'Hide Preview' : 'Show Preview'}
@@ -158,7 +158,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             <Show
               when={!showPreview()}
               fallback={
-                <div class="bg-background whitespace-pre-wrap rounded-lg border p-5">
+                <div class='bg-background whitespace-pre-wrap rounded-lg border p-5'>
                   <Markdown>{editNoteContent()}</Markdown>
                 </div>
               }
@@ -169,19 +169,22 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
           </TextField>
         </Show>
       </CardContent>
-      <CardFooter class="flex justify-end space-x-2">
+      <CardFooter class='flex justify-end space-x-2'>
         <Show
           when={!isEditingNote()}
           fallback={
             <>
-              <Button variant="outline" onClick={() => setIsEditingNote(false)}>
+              <Button variant='outline' onClick={() => setIsEditingNote(false)}>
                 Cancel
               </Button>
               <Button
                 disabled={!editNoteContent().trim()}
                 onClick={() => {
                   setIsEditingNote(false);
-                  editNoteMutation.mutate({ noteId: props.note.id, content: editNoteContent() });
+                  editNoteMutation.mutate({
+                    noteId: props.note.id,
+                    content: editNoteContent(),
+                  });
                 }}
               >
                 Save
@@ -192,21 +195,21 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
           <Dialog>
             <DialogTrigger
               as={Button}
-              variant="outline"
+              variant='outline'
               onClick={() => {
                 setIsEditingNote(false);
               }}
             >
               Delete
             </DialogTrigger>
-            <DialogContent class="space-y-2 sm:max-w-[425px]">
+            <DialogContent class='space-y-2 sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Are you sure you want to delete this note?</DialogTitle>
               </DialogHeader>
               <DialogFooter>
                 <Button
-                  type="submit"
-                  variant="destructive"
+                  type='submit'
+                  variant='destructive'
                   onClick={() => {
                     deleteNoteMutation.mutate({ noteId: props.note.id });
                   }}

@@ -67,7 +67,11 @@ const app = new Hono<{
 
       console.time('validateModelId');
       if (providedModelId) {
-        const modelIdValidationResponse = validateModelId({ c, providedModelId, claims });
+        const modelIdValidationResponse = validateModelId({
+          c,
+          providedModelId,
+          claims,
+        });
         if (modelIdValidationResponse) {
           return modelIdValidationResponse;
         }

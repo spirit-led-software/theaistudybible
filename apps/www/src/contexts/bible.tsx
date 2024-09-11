@@ -1,8 +1,8 @@
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles';
 import { makePersisted } from '@solid-primitives/storage';
-import type { JSXElement} from 'solid-js';
+import type { JSXElement } from 'solid-js';
 import { createContext, splitProps, useContext } from 'solid-js';
-import type { SetStoreFunction, Store} from 'solid-js/store';
+import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 
 export type BibleStore = {

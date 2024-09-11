@@ -7,9 +7,9 @@ import { createMemo } from 'solid-js';
 export type RefContentProps = {
   content: TextContent;
   style: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   attrs: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   props: any;
   class?: string;
 };
@@ -36,7 +36,7 @@ export default function RefContent(props: RefContentProps) {
       data-verse-id={props.content.verseId}
       data-verse-number={props.content.verseNumber}
       {...props}
-      class={cn(props.style, `hover:underline`, props.class)}
+      class={cn(props.style, 'hover:underline', props.class)}
       href={link()}
     >
       {props.content.text}

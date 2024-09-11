@@ -15,7 +15,10 @@ const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
 
 type ToggleGroupRootProps<T extends ValidComponent = 'div'> =
   ToggleGroupPrimitive.ToggleGroupRootProps<T> &
-    VariantProps<typeof toggleVariants> & { class?: string | undefined; children?: JSX.Element };
+    VariantProps<typeof toggleVariants> & {
+      class?: string | undefined;
+      children?: JSX.Element;
+    };
 
 const ToggleGroup = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, ToggleGroupRootProps<T>>,

@@ -46,16 +46,16 @@ export default function SmallTranslationPicker() {
         <Popover>
           <PopoverTrigger
             as={Button}
-            variant="outline"
-            role="combobox"
-            class="justify-between text-nowrap"
+            variant='outline'
+            role='combobox'
+            class='justify-between text-nowrap'
           >
             {brStore.bible.abbreviationLocal}
-            <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown class='ml-2 h-4 w-4 shrink-0 opacity-50' />
           </PopoverTrigger>
-          <PopoverContent class="w-[200px] p-0">
+          <PopoverContent class='w-[200px] p-0'>
             <Command>
-              <CommandInput placeholder="Search bibles..." />
+              <CommandInput placeholder='Search bibles...' />
               <CommandList>
                 <CommandEmpty>Not Found</CommandEmpty>
                 {uniqueLanguages?.map((language) => (
@@ -70,14 +70,14 @@ export default function SmallTranslationPicker() {
                               `/bible/${foundBible.abbreviation}/${brStore.book.abbreviation}/${brStore.chapter.number}`,
                             );
                           }}
-                          class="flex w-full items-center justify-between"
+                          class='flex w-full items-center justify-between'
                         >
                           <Check
                             class={`mr-2 h-4 w-4 ${foundBible.id === brStore.bible.id ? 'opacity-100' : 'opacity-0'}`}
                           />
-                          <div class="flex w-full flex-col justify-end text-end">
-                            <p class="text-lg font-medium">{foundBible.abbreviationLocal}</p>
-                            <p class="text-xs">{foundBible.nameLocal}</p>
+                          <div class='flex w-full flex-col justify-end text-end'>
+                            <p class='text-lg font-medium'>{foundBible.abbreviationLocal}</p>
+                            <p class='text-xs'>{foundBible.nameLocal}</p>
                           </div>
                         </CommandItem>
                       ))}

@@ -20,7 +20,7 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { P } from '@/www/components/ui/typography';
-import type { SelectedVerseInfo} from '@/www/contexts/bible-reader';
+import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -75,26 +75,26 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
   }));
 
   return (
-    <Card class="transition-all">
+    <Card class='transition-all'>
       <CardHeader>
         <CardTitle>Add Note</CardTitle>
       </CardHeader>
-      <CardContent class="space-y-4">
+      <CardContent class='space-y-4'>
         <Show when={!brStore.verse && brStore.selectedVerseInfos.length}>
-          <div class="flex items-center space-x-1">
-            <Label for="verse-select">Verse</Label>
+          <div class='flex items-center space-x-1'>
+            <Label for='verse-select'>Verse</Label>
             <Select<SelectedVerseInfo>
-              id="verse-select"
+              id='verse-select'
               value={selectedVerseInfo()}
               onChange={setSelectedVerseInfo}
               options={brStore.selectedVerseInfos}
-              optionValue="id"
-              optionTextValue="number"
+              optionValue='id'
+              optionTextValue='number'
               itemComponent={(props) => (
                 <SelectItem item={props.item}>{props.item.rawValue.number}</SelectItem>
               )}
             >
-              <SelectTrigger aria-label="Verse Number">
+              <SelectTrigger aria-label='Verse Number'>
                 <SelectValue<SelectedVerseInfo>>
                   {(state) => state.selectedOption().number}
                 </SelectValue>
@@ -114,21 +114,21 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           value={contentValue()}
           onChange={setContentValue}
           validationState={contentValue().trim() ? 'valid' : 'invalid'}
-          class="space-y-2"
+          class='space-y-2'
         >
-          <div class="flex w-full items-center justify-between">
+          <div class='flex w-full items-center justify-between'>
             <Tooltip>
-              <TooltipTrigger as={TextFieldLabel} class="flex items-center">
-                Content <HelpCircle size={16} class="ml-1" />
+              <TooltipTrigger as={TextFieldLabel} class='flex items-center'>
+                Content <HelpCircle size={16} class='ml-1' />
               </TooltipTrigger>
               <TooltipContent>
                 Accepts{' '}
                 <Button
                   as={A}
-                  variant="link"
-                  size="sm"
-                  class="p-0"
-                  href="https://www.markdownguide.org/"
+                  variant='link'
+                  size='sm'
+                  class='p-0'
+                  href='https://www.markdownguide.org/'
                 >
                   markdown
                 </Button>
@@ -136,9 +136,9 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
             </Tooltip>
             <TextFieldLabel
               as={Button}
-              variant="link"
-              size="sm"
-              class="p-0 text-xs hover:no-underline"
+              variant='link'
+              size='sm'
+              class='p-0 text-xs hover:no-underline'
               onClick={() => setShowPreview(!showPreview())}
             >
               {showPreview() ? 'Hide Preview' : 'Show Preview'}
@@ -147,7 +147,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           <Show
             when={!showPreview()}
             fallback={
-              <div class="bg-background whitespace-pre-wrap rounded-lg border p-5">
+              <div class='bg-background whitespace-pre-wrap rounded-lg border p-5'>
                 <Markdown>{contentValue()}</Markdown>
               </div>
             }
@@ -157,8 +157,8 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           <TextFieldErrorMessage>Cannot be empty</TextFieldErrorMessage>
         </TextField>
       </CardContent>
-      <CardFooter class="flex justify-end space-x-2">
-        <Button onClick={props.onCancel} variant="outline">
+      <CardFooter class='flex justify-end space-x-2'>
+        <Button onClick={props.onCancel} variant='outline'>
           Cancel
         </Button>
         <Button

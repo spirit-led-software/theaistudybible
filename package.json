@@ -11,10 +11,10 @@
     "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",
     "db:studio": "sst shell -- drizzle-kit studio",
     "dev": "sst dev",
-    "format:check": "prettier --check .",
-    "format": "prettier --write .",
-    "lint:fix": "eslint --fix .",
-    "lint": "eslint .",
+    "format:check": "biome format .",
+    "format": "biome format --write .",
+    "lint:fix": "biome lint --write .",
+    "lint": "biome lint .",
     "postinstall": "sst install",
     "refresh": "sst refresh",
     "remove": "sst remove",
@@ -27,19 +27,11 @@
     "upgrade": "bun update --latest --save && sst upgrade"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
     "@clerk/types": "^4.20.1",
-    "@eslint/compat": "^1.1.1",
-    "@eslint/js": "^9.10.0",
-    "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.5.4",
     "@types/bun": "^1.1.9",
+    "@types/node": "^22.5.4",
     "drizzle-kit": "^0.24.2",
-    "eslint": "^9.10.0",
-    "eslint-plugin-drizzle": "^0.2.3",
-    "eslint-plugin-solid": "^0.14.3",
-    "prettier": "^3.3.3",
-    "prettier-plugin-organize-imports": "^4.0.0",
-    "prettier-plugin-tailwindcss": "^0.6.6",
     "rimraf": "^6.0.1",
     "turbo": "^2.1.1",
     "typescript": "^5.6.2",
@@ -61,16 +53,9 @@
     "zod": "^3.23.8"
   },
   "packageManager": "bun@1.1.26",
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "tools/*"
-  ],
+  "workspaces": ["apps/*", "packages/*", "tools/*"],
   "overrides": {
     "nitropack": "npm:nitropack-nightly@latest"
   },
-  "trustedDependencies": [
-    "@clerk/shared",
-    "esbuild"
-  ]
+  "trustedDependencies": ["@clerk/shared", "esbuild"]
 }

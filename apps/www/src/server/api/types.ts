@@ -1,9 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
 export type Bindings = {
   //
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// biome-ignore lint/complexity/noBannedTypes: <explanation>
 export type Variables = {
   //
 };

@@ -97,7 +97,7 @@ export const VerseBookmarkButton = () => {
             disabled={
               !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
             }
-            class="disabled:pointer-events-auto"
+            class='disabled:pointer-events-auto'
           >
             <Bookmark />
           </TooltipTrigger>
@@ -124,7 +124,7 @@ export const VerseBookmarkButton = () => {
             onClick={() => deleteBookmarkMutation.mutate()}
             disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
           >
-            <Bookmark fill="hsl(var(--primary-foreground))" />
+            <Bookmark fill='hsl(var(--primary-foreground))' />
           </TooltipTrigger>
           <TooltipContent>
             <p>Remove Bookmark</p>

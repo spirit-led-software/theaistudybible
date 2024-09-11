@@ -32,7 +32,10 @@ const buttonVariants = cva(
 );
 
 type ButtonProps = ButtonPrimitive.ButtonRootProps &
-  VariantProps<typeof buttonVariants> & { class?: string | undefined; children?: JSXElement };
+  VariantProps<typeof buttonVariants> & {
+    class?: string | undefined;
+    children?: JSXElement;
+  };
 
 const Button = <T extends ValidComponent = 'button'>(props: PolymorphicProps<T, ButtonProps>) => {
   const [local, others] = splitProps(props as ButtonProps, ['variant', 'size', 'class']);

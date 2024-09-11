@@ -1,8 +1,8 @@
-name: "CI setup"
-description: "CI setup for The AI Study Bible"
+name: 'CI setup'
+description: 'CI setup for The AI Study Bible'
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Install Bun
       uses: oven-sh/setup-bun@v1

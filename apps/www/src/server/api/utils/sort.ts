@@ -1,4 +1,4 @@
-import type { SQL} from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import { asc, desc, getTableColumns, type Table } from 'drizzle-orm';
 
 export function parseSortString<T extends Table>(table: T, sortString: string): SQL<unknown>[] {

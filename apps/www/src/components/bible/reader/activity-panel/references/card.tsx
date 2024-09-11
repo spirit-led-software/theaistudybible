@@ -28,20 +28,20 @@ export const ReferencesCard = () => {
   }));
 
   return (
-    <Card class="flex w-full flex-1 flex-col overflow-y-auto border-none bg-transparent">
+    <Card class='flex w-full flex-1 flex-col overflow-y-auto border-none bg-transparent'>
       <CardHeader>
         <CardTitle>References</CardTitle>
       </CardHeader>
-      <CardContent class="flex w-full flex-1 flex-col overflow-y-auto">
+      <CardContent class='flex w-full flex-1 flex-col overflow-y-auto'>
         <QueryBoundary
           query={query}
           loadingFallback={
-            <div class="flex w-full flex-col items-center space-y-4 rounded-lg border p-5">
+            <div class='flex w-full flex-col items-center space-y-4 rounded-lg border p-5'>
               <For each={new Array(5)}>
                 {(_, idx) => (
-                  <div class="flex w-full space-x-2">
-                    <span class="font-bold">{idx() + 1}.</span>
-                    <div class="flex w-full flex-col space-y-2">
+                  <div class='flex w-full space-x-2'>
+                    <span class='font-bold'>{idx() + 1}.</span>
+                    <div class='flex w-full flex-col space-y-2'>
                       <Skeleton height={16} radius={10} />
                       <Skeleton height={100} radius={10} />
                     </div>
@@ -52,13 +52,13 @@ export const ReferencesCard = () => {
           }
         >
           {(references) => (
-            <div class="flex w-full flex-1 flex-col space-y-4 overflow-y-auto rounded-lg border p-5">
+            <div class='flex w-full flex-1 flex-col space-y-4 overflow-y-auto rounded-lg border p-5'>
               <For each={references}>
                 {(reference, idx) => (
-                  <div class="flex w-full flex-col items-start justify-start">
-                    <div class="flex w-full space-x-2">
-                      <span class="font-bold">{idx() + 1}.</span>
-                      <div class="flex w-full flex-col space-y-2">
+                  <div class='flex w-full flex-col items-start justify-start'>
+                    <div class='flex w-full space-x-2'>
+                      <span class='font-bold'>{idx() + 1}.</span>
+                      <div class='flex w-full flex-col space-y-2'>
                         <H6>
                           {
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -70,7 +70,7 @@ export const ReferencesCard = () => {
                           }
                           :
                         </H6>
-                        <p class="line-clamp-3 truncate text-wrap">
+                        <p class='line-clamp-3 truncate text-wrap'>
                           {reference.content.replace(`- ${reference.metadata!.name}`, '').trim()}
                         </p>
                       </div>
@@ -90,8 +90,8 @@ export const ReferencesCard = () => {
           )}
         </QueryBoundary>
       </CardContent>
-      <CardFooter class="justify-end space-x-2">
-        <DrawerClose as={Button} variant="outline">
+      <CardFooter class='justify-end space-x-2'>
+        <DrawerClose as={Button} variant='outline'>
           Close
         </DrawerClose>
       </CardFooter>

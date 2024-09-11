@@ -1,6 +1,6 @@
 import type { Devotion } from '@/schemas/devotions';
 import { makePersisted } from '@solid-primitives/storage';
-import type { JSX} from 'solid-js';
+import type { JSX } from 'solid-js';
 import { createContext, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';

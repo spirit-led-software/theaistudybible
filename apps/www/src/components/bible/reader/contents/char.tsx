@@ -12,7 +12,7 @@ export type CharContentProps = {
   class?: string;
   highlights?: HighlightInfo[];
   notes?: VerseNote[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   props: any;
 };
 
@@ -40,12 +40,12 @@ export default function CharContent(props: CharContentProps) {
     const number = strongsNumber.slice(1);
     const strongsLink = `https://biblehub.com/strongs/${language}/${number}.htm`;
     return (
-      <Tooltip placement="bottom">
-        <TooltipTrigger as="span">{CharContent}</TooltipTrigger>
-        <TooltipContent class="flex w-fit justify-center indent-0">
-          <div class="w-full text-center">
-            <h6 class="font-bold">Strong{"'"}s</h6>
-            <A href={strongsLink} class="hover:underline">
+      <Tooltip placement='bottom'>
+        <TooltipTrigger as='span'>{CharContent}</TooltipTrigger>
+        <TooltipContent class='flex w-fit justify-center indent-0'>
+          <div class='w-full text-center'>
+            <h6 class='font-bold'>Strong{"'"}s</h6>
+            <A href={strongsLink} class='hover:underline'>
               {strongsNumber}
             </A>
           </div>

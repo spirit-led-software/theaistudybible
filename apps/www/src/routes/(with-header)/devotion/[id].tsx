@@ -7,7 +7,7 @@ import { useDevotionStore } from '@/www/contexts/devotion';
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { createEffect, Show } from 'solid-js';
+import { Show, createEffect } from 'solid-js';
 
 const getDevotion = async ({ id }: { id: string }) => {
   'use server';
@@ -46,29 +46,29 @@ const DevotionPage = () => {
   });
 
   return (
-    <div class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+    <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
       <DevotionMenu />
-      <div class="flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pb-20 pt-32">
+      <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pb-20 pt-32'>
         <QueryBoundary query={devotionQuery}>
           {(devotion) => (
             <>
-              <div class="flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap">
-                <div class="flex flex-col gap-2 text-center">
-                  <H2 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
+              <div class='flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap'>
+                <div class='flex flex-col gap-2 text-center'>
+                  <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
                     Reading
                   </H2>
                   <p>{devotion.bibleReading}</p>
                 </div>
-                <div class="flex flex-col gap-2">
-                  <H2 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
+                <div class='flex flex-col gap-2'>
+                  <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
                     Summary
                   </H2>
                   <Markdown>{devotion.summary}</Markdown>
                 </div>
                 <Show when={devotion.reflection} keyed>
                   {(reflection) => (
-                    <div class="flex flex-col gap-2">
-                      <H2 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
+                    <div class='flex flex-col gap-2'>
+                      <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
                         Reflection
                       </H2>
                       <Markdown>{reflection}</Markdown>
@@ -77,8 +77,8 @@ const DevotionPage = () => {
                 </Show>
                 <Show when={devotion.prayer} keyed>
                   {(prayer) => (
-                    <div class="flex flex-col gap-2">
-                      <H2 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
+                    <div class='flex flex-col gap-2'>
+                      <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
                         Prayer
                       </H2>
                       <Markdown>{prayer}</Markdown>
@@ -87,12 +87,12 @@ const DevotionPage = () => {
                 </Show>
                 <Show when={devotion.images} keyed>
                   {(image) => (
-                    <div class="flex flex-col gap-2">
-                      <H2 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent">
-                        Image
+                    <div class='flex flex-col gap-2'>
+                      <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
+                        Generated Illustration
                       </H2>
-                      <img src={image.url!} alt="Devotion image" />
-                      <p class="text-xs">Prompt: {image.prompt}</p>
+                      <img src={image.url!} alt='Illustration for the devotion' />
+                      <p class='text-xs'>Prompt: {image.prompt}</p>
                     </div>
                   )}
                 </Show>

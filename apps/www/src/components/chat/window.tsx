@@ -56,30 +56,30 @@ export const ChatWindow = (props: ChatWindowProps) => {
     createScrollAnchor();
 
   return (
-    <div class="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+    <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button
-          variant="outline"
-          size="icon"
-          class="bg-background absolute bottom-20 left-1/2 right-1/2 z-40 -translate-x-1/2 rounded-full shadow-lg"
+          variant='outline'
+          size='icon'
+          class='bg-background absolute bottom-20 left-1/2 right-1/2 z-40 -translate-x-1/2 rounded-full shadow-lg'
           onClick={scrollToBottomSmooth}
         >
           <ChevronDown />
         </Button>
       </Show>
-      <div ref={setScrollRef} class="flex h-full w-full flex-1 flex-col overflow-y-auto">
-        <div class="flex w-full items-end justify-center">
+      <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
+        <div class='flex w-full items-end justify-center'>
           <Switch>
             <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
-              <Spinner size="sm" />
+              <Spinner size='sm' />
             </Match>
             <Match when={useChatResult.messagesQuery.hasNextPage}>
-              <div class="flex flex-col items-center justify-center">
+              <div class='flex flex-col items-center justify-center'>
                 <Button
-                  variant="link"
-                  size="icon"
-                  class="text-foreground flex h-fit flex-col items-center justify-center py-4"
+                  variant='link'
+                  size='icon'
+                  class='text-foreground flex h-fit flex-col items-center justify-center py-4'
                   onClick={() => {
                     if (
                       useChatResult.messagesQuery.hasNextPage &&
@@ -96,17 +96,17 @@ export const ChatWindow = (props: ChatWindowProps) => {
             </Match>
           </Switch>
         </div>
-        <div ref={setMessagesRef} class="flex flex-1 flex-col items-center justify-end">
+        <div ref={setMessagesRef} class='flex flex-1 flex-col items-center justify-end'>
           <For
             each={useChatResult.messages()}
             fallback={
-              <div class="flex h-full w-full grow items-center justify-center p-20">
+              <div class='flex h-full w-full grow items-center justify-center p-20'>
                 <H5>No messages yet</H5>
               </div>
             }
           >
             {(message, idx) => (
-              <div data-index={idx()} class="flex w-full max-w-2xl flex-col">
+              <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
                 <Message
                   previousMessage={useChatResult.messages()[idx() - 1]}
                   message={message}
@@ -124,15 +124,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
               useChatResult.followUpSuggestions.length
             }
           >
-            <div class="animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2">
-              <H6 class="text-center">Follow-up Questions</H6>
-              <Carousel class="mx-16 overflow-x-visible">
+            <div class='animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2'>
+              <H6 class='text-center'>Follow-up Questions</H6>
+              <Carousel class='mx-16 overflow-x-visible'>
                 <CarouselContent>
                   <For each={useChatResult.followUpSuggestions}>
                     {(suggestion) => (
-                      <CarouselItem class="flex justify-center">
+                      <CarouselItem class='flex justify-center'>
                         <Button
-                          class="mx-2 h-full w-full text-wrap rounded-full"
+                          class='mx-2 h-full w-full text-wrap rounded-full'
                           onClick={() =>
                             useChatResult.append({
                               role: 'user',
@@ -151,11 +151,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Carousel>
             </div>
           </Show>
-          <div ref={setVisibilityRef} class="h-5 w-full shrink-0" />
+          <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
         </div>
       </div>
       <form
-        class="relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2"
+        class='relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2'
         onSubmit={(e) => {
           e.preventDefault();
           if (!useChatResult.input()) {
@@ -165,16 +165,16 @@ export const ChatWindow = (props: ChatWindowProps) => {
           useChatResult.handleSubmit(e);
         }}
       >
-        <div class="flex w-full max-w-2xl items-center rounded-full border py-2 pl-5 pr-1">
+        <div class='flex w-full max-w-2xl items-center rounded-full border py-2 pl-5 pr-1'>
           <TextField
-            class="flex flex-1 items-center"
+            class='flex flex-1 items-center'
             value={useChatResult.input()}
             onChange={useChatResult.setInput}
-            autoCapitalize="sentences"
+            autoCapitalize='sentences'
           >
             <TextFieldTextArea
-              placeholder="Type a message"
-              class="flex max-h-24 min-h-[10px] w-full resize-none items-center justify-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+              placeholder='Type a message'
+              class='flex max-h-24 min-h-[10px] w-full resize-none items-center justify-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
               minLength={1}
               autoResize
               autofocus
@@ -183,10 +183,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
           <Switch
             fallback={
               <Button
-                type="submit"
-                size="icon"
-                variant="outline"
-                class="rounded-full"
+                type='submit'
+                size='icon'
+                variant='outline'
+                class='rounded-full'
                 disabled={useChatResult.isLoading()}
               >
                 <Send size={20} />
@@ -194,7 +194,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             }
           >
             <Match when={useChatResult.isLoading()}>
-              <Spinner size="sm" />
+              <Spinner size='sm' />
             </Match>
           </Switch>
         </div>

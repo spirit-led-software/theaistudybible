@@ -92,47 +92,47 @@ export default function VerseReader(props: VerseReaderProps) {
   );
 
   return (
-    <div class="flex max-w-3xl flex-col items-center px-8 py-5">
+    <div class='flex max-w-3xl flex-col items-center px-8 py-5'>
       <QueryBoundary query={query}>
         {({ bible, book, chapter, verse, rightsHolder }) => (
           <BibleReaderProvider bible={bible} book={book} chapter={chapter} verse={verse}>
             <BibleReaderMenu />
-            <div class="mt-10">
-              <div class="flex w-full justify-center">
-                <H1 class="from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
+            <div class='mt-10'>
+              <div class='flex w-full justify-center'>
+                <H1 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
                   {verse.name}
                 </H1>
               </div>
-              <div class="mb-5 mt-10">
+              <div class='mb-5 mt-10'>
                 <ReaderContent contents={verse.content} />
               </div>
-              <div class="mb-20 flex flex-col items-center gap-2">
+              <div class='mb-20 flex flex-col items-center gap-2'>
                 <Muted>
                   Copyright
-                  <Copyright class="mx-2 inline-block size-4" />
+                  <Copyright class='mx-2 inline-block size-4' />
                   <Button
                     as={A}
-                    variant="link"
+                    variant='link'
                     href={rightsHolder.url}
-                    class="text-muted-foreground p-0"
+                    class='text-muted-foreground p-0'
                   >
                     {rightsHolder.nameLocal}
                   </Button>
                 </Muted>
                 <Muted>{bible.copyrightStatement}</Muted>
               </div>
-              <div class="flex w-full flex-col items-center">
+              <div class='flex w-full flex-col items-center'>
                 <Button
                   as={A}
                   href={`/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}`}
-                  variant="outline"
+                  variant='outline'
                 >
                   More from {book.shortName} {chapter.number}
                 </Button>
               </div>
               <Show when={verse.previous}>
-                <div class="fixed bottom-0 left-0 flex flex-col place-items-center justify-center">
-                  <Tooltip placement="right">
+                <div class='fixed bottom-0 left-0 flex flex-col place-items-center justify-center'>
+                  <Tooltip placement='right'>
                     <TooltipTrigger
                       as={A}
                       class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-none rounded-tr-2xl')}
@@ -141,7 +141,7 @@ export default function VerseReader(props: VerseReaderProps) {
                         `/${verse.previous!.abbreviation.split('.')[1]}/${verse.previous!.number}`
                       }
                     >
-                      <ChevronLeft size={20} class="shrink-0" />
+                      <ChevronLeft size={20} class='shrink-0' />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{verse.previous!.name}</p>
@@ -150,8 +150,8 @@ export default function VerseReader(props: VerseReaderProps) {
                 </div>
               </Show>
               <Show when={verse.next}>
-                <div class="fixed bottom-0 right-0 flex flex-col place-items-center justify-center">
-                  <Tooltip placement="left">
+                <div class='fixed bottom-0 right-0 flex flex-col place-items-center justify-center'>
+                  <Tooltip placement='left'>
                     <TooltipTrigger
                       as={A}
                       class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-none rounded-tl-2xl')}
@@ -160,7 +160,7 @@ export default function VerseReader(props: VerseReaderProps) {
                         `/${verse.next!.abbreviation.split('.')[1]}/${verse.next!.number}`
                       }
                     >
-                      <ChevronRight size={20} class="shrink-0" />
+                      <ChevronRight size={20} class='shrink-0' />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{verse.next!.name}</p>

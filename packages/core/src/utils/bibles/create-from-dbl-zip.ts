@@ -74,15 +74,19 @@ export async function createBibleFromDblZip({
         with: {
           chapters: {
             columns: { id: true },
-            with: { chaptersToSourceDocuments: { columns: { sourceDocumentId: true } } },
+            with: {
+              chaptersToSourceDocuments: {
+                columns: { sourceDocumentId: true },
+              },
+            },
           },
         },
       })
       .then(
         (bible) =>
-          bible?.chapters
-            .map((chapter) => chapter.chaptersToSourceDocuments.map((c) => c.sourceDocumentId))
-            .flat() ?? [],
+          bible?.chapters.flatMap((chapter) =>
+            chapter.chaptersToSourceDocuments.map((c) => c.sourceDocumentId),
+          ) ?? [],
       );
 
     await Promise.all([
@@ -168,9 +172,9 @@ export async function createBibleFromDblZip({
     }
     return {
       src: content['@_src'],
-      abbreviation: name['abbr'].toUpperCase(),
-      shortName: name['short'],
-      longName: name['long'],
+      abbreviation: name.abbr.toUpperCase(),
+      shortName: name.short,
+      longName: name.long,
     };
   });
 
@@ -225,8 +229,7 @@ export async function createBibleFromDblZip({
     const bookXml = await bookFile.async('text');
     const contents = parseUsx(bookXml);
 
-    console.log(`Book content parsed, inserting chapters into database...`);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    console.log('Book content parsed, inserting chapters into database...');
     const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
     const newChapters = await db
       .insert(schema.chapters)
@@ -241,7 +244,7 @@ export async function createBibleFromDblZip({
               nextId: index < arr.length - 1 ? arr[index + 1][1].id : undefined,
               abbreviation: `${bookInfo.abbreviation.toUpperCase()}.${chapter}`,
               name: `${bookInfo.shortName} ${chapter}`,
-              number: parseInt(chapter),
+              number: Number.parseInt(chapter),
               content: content.contents,
             }) satisfies typeof schema.chapters.$inferInsert,
         ),
@@ -274,7 +277,7 @@ export async function createBibleFromDblZip({
                     nextId: index < arr.length - 1 ? arr[index + 1][1].id : undefined,
                     abbreviation: `${chapter.abbreviation}.${verseNumber}`,
                     name: `${chapter.name}:${verseNumber}`,
-                    number: parseInt(verseNumber),
+                    number: Number.parseInt(verseNumber),
                     content: verseContent.contents,
                   }) satisfies typeof schema.verses.$inferInsert,
               ),

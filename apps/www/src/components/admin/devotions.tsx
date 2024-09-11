@@ -22,7 +22,7 @@ export const DevotionsContent = () => {
   const triggerDevotionMutation = createMutation(() => ({
     mutationFn: () => triggerGenerateDevotion(),
     onMutate: () => {
-      setToastId(toast.loading('Generating...', { duration: Infinity }));
+      setToastId(toast.loading('Generating...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
       toast.dismiss(toastId());

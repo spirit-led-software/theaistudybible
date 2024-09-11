@@ -70,19 +70,19 @@ export default function ChapterPicker(props: ChapterPickerProps) {
   }));
 
   return (
-    <CommandItem value={props.book.shortName} class="aria-selected:bg-background">
-      <Accordion collapsible class="w-full">
+    <CommandItem value={props.book.shortName} class='aria-selected:bg-background'>
+      <Accordion collapsible class='w-full'>
         <AccordionItem
           value={props.book.abbreviation}
           onMouseEnter={() => !query.data && query.refetch()}
           onClick={() => !query.data && query.refetch()}
         >
           <AccordionTrigger>{props.book.shortName}</AccordionTrigger>
-          <AccordionContent class="grid grid-cols-3 gap-1">
+          <AccordionContent class='grid grid-cols-3 gap-1'>
             <QueryBoundary
               loadingFallback={
                 <For each={Array(24)}>
-                  {() => <Skeleton width={48} height={48} class="rounded-lg" />}
+                  {() => <Skeleton width={48} height={48} class='rounded-lg' />}
                 </For>
               }
               query={query}
@@ -92,10 +92,10 @@ export default function ChapterPicker(props: ChapterPickerProps) {
                   {(foundChapter, idx) => (
                     <Button
                       data-index={idx()}
-                      variant="outline"
+                      variant='outline'
                       as={A}
                       href={`/bible/${brStore.bible.abbreviation}/${book.abbreviation}/${foundChapter.number}`}
-                      class="flex place-items-center justify-center overflow-visible"
+                      class='flex place-items-center justify-center overflow-visible'
                     >
                       <Check
                         size={10}

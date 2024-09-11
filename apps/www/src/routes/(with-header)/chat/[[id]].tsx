@@ -33,7 +33,7 @@ export default function ChatPage() {
             <ChatWindow chatId={params.id} />
           </SignedIn>
           <SignedOut>
-            <div class="flex h-full w-full flex-col items-center justify-center">
+            <div class='flex h-full w-full flex-col items-center justify-center'>
               <SignIn />
             </div>
           </SignedOut>

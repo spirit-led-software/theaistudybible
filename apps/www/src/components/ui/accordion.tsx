@@ -26,7 +26,7 @@ const AccordionTrigger = <T extends ValidComponent = 'button'>(
 ) => {
   const [local, others] = splitProps(props as AccordionTriggerProps, ['class', 'children']);
   return (
-    <AccordionPrimitive.Header class="flex">
+    <AccordionPrimitive.Header class='flex'>
       <AccordionPrimitive.Trigger
         class={cn(
           'flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-expanded]>svg]:rotate-180',
@@ -36,16 +36,16 @@ const AccordionTrigger = <T extends ValidComponent = 'button'>(
       >
         {local.children}
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="size-4 shrink-0 transition-transform duration-200"
+          xmlns='http://www.w3.org/2000/svg'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          class='size-4 shrink-0 transition-transform duration-200'
         >
-          <path d="M6 9l6 6l6 -6" />
+          <path d='M6 9l6 6l6 -6' />
         </svg>
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>

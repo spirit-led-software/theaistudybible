@@ -31,13 +31,13 @@ export function CreditDisplay() {
   }));
 
   return (
-    <QueryBoundary query={creditsQuery} loadingFallback={<Spinner size="sm" />}>
+    <QueryBoundary query={creditsQuery} loadingFallback={<Spinner size='sm' />}>
       {(credits) => (
         <Popover>
           <PopoverTrigger
             as={Button}
-            variant="outline"
-            size="icon"
+            variant='outline'
+            size='icon'
             class={cn(
               'flex size-8 flex-col items-center justify-center gap-1 rounded-full p-2 text-xs lg:flex-row',
               credits < 3 && 'text-red-500',
@@ -46,22 +46,22 @@ export function CreditDisplay() {
           >
             {credits > DEFAULT_CREDITS ? `>${DEFAULT_CREDITS}` : credits}
           </PopoverTrigger>
-          <PopoverContent class="flex flex-col gap-2">
+          <PopoverContent class='flex flex-col gap-2'>
             <H5>{credits} credits</H5>
             <div>
               <H6>Earn credits by reading</H6>
-              <ul class="list-inside list-disc">
-                <li class="text-sm">10 minutes of reading = 3 credits</li>
+              <ul class='list-inside list-disc'>
+                <li class='text-sm'>10 minutes of reading = 3 credits</li>
               </ul>
             </div>
             <div>
               <H6>Spend credits using AI</H6>
-              <ul class="list-inside list-disc">
-                <li class="text-sm">1 response = 1 credit</li>
-                <li class="text-sm">1 image = 5 credits</li>
+              <ul class='list-inside list-disc'>
+                <li class='text-sm'>1 response = 1 credit</li>
+                <li class='text-sm'>1 image = 5 credits</li>
               </ul>
             </div>
-            <Button as={A} href="/credits">
+            <Button as={A} href='/credits'>
               Purchase Credits
             </Button>
           </PopoverContent>

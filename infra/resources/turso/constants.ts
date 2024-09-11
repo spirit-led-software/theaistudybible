@@ -37,5 +37,3 @@ export const TURSO_LOCATIONS = {
   yul: 'Montreal, Canada',
   yyz: 'Toronto, Canada',
 } as const;
-
-

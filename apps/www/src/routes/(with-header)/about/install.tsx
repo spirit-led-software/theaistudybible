@@ -32,22 +32,22 @@ export default function InstallPage() {
   const isWindows = () => /windows/.test(userAgent());
 
   return (
-    <div class="mx-auto max-w-2xl p-4">
+    <div class='mx-auto max-w-2xl p-4'>
       <Show
         when={isStandalone()}
         fallback={
           <>
-            <div class="mb-4">
+            <div class='mb-4'>
               <GradientH1>Install as an App</GradientH1>
               <P>Follow these steps to install our Progressive Web App on your device:</P>
             </div>
 
             <Show when={isIOS() && isSafari()}>
               <InstallInstructions
-                icon={<Safari class="mr-2 inline-block size-6" />}
+                icon={<Safari class='mr-2 inline-block size-6' />}
                 steps={[
                   <ListItem>
-                    Tap the Share button (<Share class="inline-block size-4" />) in Safari's bottom
+                    Tap the Share button (<Share class='inline-block size-4' />) in Safari's bottom
                     menu
                   </ListItem>,
                   <ListItem>
@@ -62,11 +62,11 @@ export default function InstallPage() {
 
             <Show when={isAndroid() && isChrome()}>
               <InstallInstructions
-                icon={<Chrome class="mr-2 inline-block size-6" />}
+                icon={<Chrome class='mr-2 inline-block size-6' />}
                 steps={[
                   <ListItem>
-                    Tap the menu icon (<EllipsisVertical class="inline-block size-4" />) in the top
-                    right
+                    Tap the menu icon (
+                    <EllipsisVertical class='inline-block size-4' />) in the top right
                   </ListItem>,
                   <ListItem>
                     Tap <Strong>Add to Home screen</Strong>
@@ -80,11 +80,11 @@ export default function InstallPage() {
 
             <Show when={isChrome() && (isMac() || isWindows())}>
               <InstallInstructions
-                icon={<Chrome class="mr-2 inline-block size-6" />}
+                icon={<Chrome class='mr-2 inline-block size-6' />}
                 steps={[
                   <ListItem>
                     Click the install icon in the address bar (
-                    <MonitorUp class="inline-block size-4" />)
+                    <MonitorUp class='inline-block size-4' />)
                   </ListItem>,
                   <ListItem>
                     Click <Strong>Install</Strong> in the popup
@@ -95,11 +95,11 @@ export default function InstallPage() {
 
             <Show when={isFirefox() && (isMac() || isWindows())}>
               <InstallInstructions
-                icon={<Firefox class="mr-2 inline-block size-6" />}
+                icon={<Firefox class='mr-2 inline-block size-6' />}
                 steps={[
                   <ListItem>
                     Click the install icon in the address bar (
-                    <HousePlus class="inline-block size-4" />)
+                    <HousePlus class='inline-block size-4' />)
                   </ListItem>,
                   <ListItem>
                     Click <Strong>Install</Strong> in the popup
@@ -110,11 +110,12 @@ export default function InstallPage() {
 
             <Show when={isEdge() && (isMac() || isWindows())}>
               <InstallInstructions
-                icon={<Globe class="mr-2 inline-block size-6" />}
+                icon={<Globe class='mr-2 inline-block size-6' />}
                 steps={[
                   <ListItem>
-                    Click the install icon in the address bar (<Plus class="inline-block size-4" />)
-                    or (<Globe class="inline-block size-4" />)
+                    Click the install icon in the address bar (
+                    <Plus class='inline-block size-4' />) or (
+                    <Globe class='inline-block size-4' />)
                   </ListItem>,
                   <ListItem>
                     Click <Strong>Install</Strong> in the popup
@@ -125,11 +126,11 @@ export default function InstallPage() {
 
             <Show when={isOpera() && (isMac() || isWindows())}>
               <InstallInstructions
-                icon={<Globe class="mr-2 inline-block size-6" />}
+                icon={<Globe class='mr-2 inline-block size-6' />}
                 steps={[
                   <ListItem>
                     Click the install icon in the address bar (
-                    <MonitorUp class="inline-block size-4" />)
+                    <MonitorUp class='inline-block size-4' />)
                   </ListItem>,
                   <ListItem>
                     Click <Strong>Install</Strong> in the popup
@@ -139,9 +140,9 @@ export default function InstallPage() {
             </Show>
 
             <Show when={isLoading()}>
-              <div class="rounded-lg bg-gray-100 p-4">
-                <H3 class="mb-2 text-xl font-bold">
-                  <Spinner class="mr-2 inline-block size-4" />
+              <div class='rounded-lg bg-gray-100 p-4'>
+                <H3 class='mb-2 text-xl font-bold'>
+                  <Spinner class='mr-2 inline-block size-4' />
                   Loading...
                 </H3>
                 <p>Please wait while we check your browser for installation support.</p>
@@ -159,8 +160,8 @@ export default function InstallPage() {
                 !isLoading()
               }
             >
-              <div class="rounded-lg bg-yellow-100 p-4">
-                <h2 class="mb-2 text-xl font-bold">Unsupported Browser</h2>
+              <div class='rounded-lg bg-yellow-100 p-4'>
+                <h2 class='mb-2 text-xl font-bold'>Unsupported Browser</h2>
                 <p>
                   Your current browser may not support PWA installation. Try using a modern browser
                   like Chrome, Firefox, or Edge for the best experience.
@@ -168,14 +169,14 @@ export default function InstallPage() {
               </div>
             </Show>
 
-            <div class="mt-8 rounded-lg bg-blue-100 p-4">
+            <div class='mt-8 rounded-lg bg-blue-100 p-4'>
               <H3>Need Help?</H3>
               <P>
                 If you're having trouble installing the PWA, please make sure you're using the
                 latest version of your browser. If you still need assistance, don't hesitate to
                 <A
                   class={cn(buttonVariants({ variant: 'link' }), 'inline-block w-fit px-0')}
-                  href="mailto:support@theaistudybible.com"
+                  href='mailto:support@theaistudybible.com'
                 >
                   contact our support team
                 </A>
@@ -185,8 +186,8 @@ export default function InstallPage() {
           </>
         }
       >
-        <div class="rounded-lg bg-green-100 p-4 text-green-800">
-          <h2 class="mb-2 text-xl font-bold">You've already installed the PWA!</h2>
+        <div class='rounded-lg bg-green-100 p-4 text-green-800'>
+          <h2 class='mb-2 text-xl font-bold'>You've already installed the PWA!</h2>
           <p>You're currently using the app in standalone mode. Enjoy!</p>
         </div>
       </Show>
@@ -196,7 +197,7 @@ export default function InstallPage() {
 
 function InstallInstructions(props: { icon: JSX.Element; steps: (string | JSX.Element)[] }) {
   return (
-    <div class="mb-6 rounded-lg bg-gray-100 p-4">
+    <div class='mb-6 rounded-lg bg-gray-100 p-4'>
       <H3>
         {props.icon}
         Installation Steps
@@ -205,7 +206,7 @@ function InstallInstructions(props: { icon: JSX.Element; steps: (string | JSX.El
         <For each={props.steps}>
           {(step) => (
             <Show when={typeof step === 'string'} fallback={step}>
-              <li class="mb-1">{step}</li>
+              <li class='mb-1'>{step}</li>
             </Show>
           )}
         </For>

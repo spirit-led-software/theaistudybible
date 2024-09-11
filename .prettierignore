@@ -1,7 +1,0 @@
-node_modules
-dist
-.turbo
-.vinxi
-.output
-bun.lockb
-migrations

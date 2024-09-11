@@ -24,15 +24,11 @@ export default function Contents(props: ContentsProps) {
         const addProps = Object.entries(attrs).reduce(
           (acc, [key, value]) => {
             if (key.startsWith('data-')) {
-              return {
-                ...acc,
-                [key]: value,
-              };
+              acc[key] = value;
+            } else {
+              acc[`data-${key}`] = value;
             }
-            return {
-              ...acc,
-              [`data-${key}`]: value,
-            };
+            return acc;
           },
           {} as Record<string, string>,
         );

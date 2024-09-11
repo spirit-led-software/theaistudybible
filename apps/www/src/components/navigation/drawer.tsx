@@ -21,22 +21,22 @@ export const NavigationDrawer = () => {
   });
 
   return (
-    <Drawer side="left" open={open()} onOpenChange={setOpen}>
-      <DrawerTrigger as={Button} variant="ghost">
+    <Drawer side='left' open={open()} onOpenChange={setOpen}>
+      <DrawerTrigger as={Button} variant='ghost'>
         <MenuIcon size={24} />
       </DrawerTrigger>
-      <DrawerContent class="w-1/2">
-        <div class="relative h-dvh w-full">
-          <DrawerHeader class="flex items-center justify-between">
-            <DrawerTitle as={A} href="/">
+      <DrawerContent class='w-1/2'>
+        <div class='relative h-dvh w-full'>
+          <DrawerHeader class='flex items-center justify-between'>
+            <DrawerTitle as={A} href='/'>
               <LogoSmall width={150} height={150} />
             </DrawerTitle>
-            <DrawerClose as={Button} variant="ghost">
+            <DrawerClose as={Button} variant='ghost'>
               <X size={24} />
             </DrawerClose>
           </DrawerHeader>
-          <div class="block max-w-none space-y-2 p-5">
-            <Menu orientation="vertical" />
+          <div class='block max-w-none space-y-2 p-5'>
+            <Menu orientation='vertical' />
           </div>
         </div>
       </DrawerContent>

@@ -146,7 +146,7 @@ export function parseUsx(xmlString: string) {
         continue; // Ignore chapter end markers
       }
 
-      const chapterNumber = parseInt(element.getAttribute('number') ?? '0');
+      const chapterNumber = Number.parseInt(element.getAttribute('number') ?? '0');
       if (chapterNumber < 1) {
         throw new Error(`Invalid chapter number ${chapterNumber}`);
       }
@@ -157,7 +157,11 @@ export function parseUsx(xmlString: string) {
       state.chapterNumber = chapterNumber;
       state.chapterId = id;
       state.verseNumber = 0;
-      state.contents[state.chapterNumber] = { id, contents: [], verseContents: {} };
+      state.contents[state.chapterNumber] = {
+        id,
+        contents: [],
+        verseContents: {},
+      };
       continue;
     }
 
@@ -258,7 +262,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       if (element.hasAttribute('eid')) {
         continue;
       }
-      const verseNumber = parseInt(element.getAttribute('number') ?? '0');
+      const verseNumber = Number.parseInt(element.getAttribute('number') ?? '0');
       if (verseNumber < 1) {
         throw new Error(`Invalid verse number ${verseNumber}`);
       }
@@ -269,7 +273,10 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       const id = `ver_${createId()}`;
       state.verseNumber = verseNumber;
       state.verseId = id;
-      state.contents[state.chapterNumber].verseContents[state.verseNumber] = { id, contents: [] };
+      state.contents[state.chapterNumber].verseContents[state.verseNumber] = {
+        id,
+        contents: [],
+      };
 
       if (state.verseOwningObj) {
         state.verseOwningObj = {

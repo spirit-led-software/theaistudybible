@@ -27,7 +27,9 @@ const toastVariants = cva(
 );
 type ToastVariant = NonNullable<VariantProps<typeof toastVariants>['variant']>;
 
-type ToastListProps = ToastPrimitive.ToastListProps & { class?: string | undefined };
+type ToastListProps = ToastPrimitive.ToastListProps & {
+  class?: string | undefined;
+};
 
 const Toaster = <T extends ValidComponent = 'ol'>(props: PolymorphicProps<T, ToastListProps>) => {
   const [local, others] = splitProps(props as ToastListProps, ['class']);
@@ -59,7 +61,9 @@ const Toast = <T extends ValidComponent = 'li'>(props: PolymorphicProps<T, Toast
   );
 };
 
-type ToastCloseButtonProps = ToastPrimitive.ToastCloseButtonProps & { class?: string | undefined };
+type ToastCloseButtonProps = ToastPrimitive.ToastCloseButtonProps & {
+  class?: string | undefined;
+};
 
 const ToastClose = <T extends ValidComponent = 'button'>(
   props: PolymorphicProps<T, ToastCloseButtonProps>,
@@ -74,23 +78,25 @@ const ToastClose = <T extends ValidComponent = 'button'>(
       {...others}
     >
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="size-4"
+        xmlns='http://www.w3.org/2000/svg'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+        class='size-4'
       >
-        <path d="M18 6l-12 12" />
-        <path d="M6 6l12 12" />
+        <path d='M18 6l-12 12' />
+        <path d='M6 6l12 12' />
       </svg>
     </ToastPrimitive.CloseButton>
   );
 };
 
-type ToastTitleProps = ToastPrimitive.ToastTitleProps & { class?: string | undefined };
+type ToastTitleProps = ToastPrimitive.ToastTitleProps & {
+  class?: string | undefined;
+};
 
 const ToastTitle = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, ToastTitleProps>,
@@ -99,7 +105,9 @@ const ToastTitle = <T extends ValidComponent = 'div'>(
   return <ToastPrimitive.Title class={cn('text-sm font-semibold', local.class)} {...others} />;
 };
 
-type ToastDescriptionProps = ToastPrimitive.ToastDescriptionProps & { class?: string | undefined };
+type ToastDescriptionProps = ToastPrimitive.ToastDescriptionProps & {
+  class?: string | undefined;
+};
 
 const ToastDescription = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, ToastDescriptionProps>,
@@ -116,7 +124,7 @@ function showToast(props: {
 }) {
   ToastPrimitive.toaster.show((data) => (
     <Toast toastId={data.toastId} variant={props.variant} duration={props.duration}>
-      <div class="grid gap-1">
+      <div class='grid gap-1'>
         {props.title && <ToastTitle>{props.title}</ToastTitle>}
         {props.description && <ToastDescription>{props.description}</ToastDescription>}
       </div>

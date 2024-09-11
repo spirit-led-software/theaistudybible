@@ -13,7 +13,7 @@ export const Markdown = (props: { children: string }) => {
         Root: (props) => {
           const [local, rest] = splitProps(props, ['children']);
           return (
-            <div class="whitespace-pre-wrap" {...rest}>
+            <div class='whitespace-pre-wrap' {...rest}>
               {local.children}
             </div>
           );
@@ -29,7 +29,7 @@ export const Markdown = (props: { children: string }) => {
         Paragraph: (props) => {
           const [local, rest] = splitProps(props, ['children']);
           return (
-            <Typography.P class="group-[.is-list]:inline" {...rest}>
+            <Typography.P class='group-[.is-list]:inline' {...rest}>
               {local.children}
             </Typography.P>
           );
@@ -37,7 +37,7 @@ export const Markdown = (props: { children: string }) => {
         Blockquote: (props) => {
           const [local, rest] = splitProps(props, ['children']);
           return (
-            <Typography.Blockquote class="group-[.is-list]:inline" {...rest}>
+            <Typography.Blockquote class='group-[.is-list]:inline' {...rest}>
               {local.children}
             </Typography.Blockquote>
           );
@@ -45,11 +45,12 @@ export const Markdown = (props: { children: string }) => {
         Image: (props) => {
           const [local, rest] = splitProps(props, ['url', 'alt', 'title']);
           return (
+            // biome-ignore lint/a11y/useAltText: <explanation>
             <img
               src={local.url}
               alt={local.alt ?? local.title ?? undefined}
-              loading="lazy"
-              class="rounded-md"
+              loading='lazy'
+              class='rounded-md'
               {...rest}
             />
           );
@@ -69,7 +70,7 @@ export const Markdown = (props: { children: string }) => {
         ListItem: (props) => {
           const [local, rest] = splitProps(props, ['children', 'checked']);
           return (
-            <Typography.ListItem class="is-list group" {...rest}>
+            <Typography.ListItem class='is-list group' {...rest}>
               <Show when={local.checked != null}>
                 <Checkbox checked={local.checked ?? undefined} />
               </Show>
@@ -84,8 +85,8 @@ export const Markdown = (props: { children: string }) => {
               as={A}
               href={local.url}
               title={local.title ?? undefined}
-              variant="link"
-              class="p-0"
+              variant='link'
+              class='p-0'
               {...rest}
             >
               {local.children}

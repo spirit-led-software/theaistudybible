@@ -53,8 +53,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
             <DialogTrigger
               {...(props as DialogTriggerProps)}
               as={Button}
-              variant="ghost"
-              size="icon"
+              variant='ghost'
+              size='icon'
             >
               <Trash size={16} />
             </DialogTrigger>
@@ -68,7 +68,7 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
         </DialogHeader>
         <DialogFooter>
           <Button
-            variant="destructive"
+            variant='destructive'
             onClick={() => {
               deleteChatMutation.mutate();
               if (chatStore.chat?.id === props.chat.id) {

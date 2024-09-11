@@ -37,7 +37,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SolidQueryDevtools buttonPosition="bottom-left" />
+      <SolidQueryDevtools buttonPosition='bottom-left' />
       <Router
         root={(props) => (
           <MetaProvider>
@@ -46,23 +46,23 @@ export default function App() {
               <ColorModeProvider storageManager={storageManager}>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
                   <Title>The AI Study Bible</Title>
-                  <Meta name="description">
+                  <Meta name='description'>
                     The AI Study Bible is a digital study Bible that uses artificial intelligence to
                     help you study the Bible.
                   </Meta>
                   <ErrorBoundary
                     fallback={(err, reset) => (
-                      <div class="flex h-full w-full flex-col items-center justify-center space-y-2">
+                      <div class='flex h-full w-full flex-col items-center justify-center space-y-2'>
                         <H1>Error</H1>
-                        <H4 class="max-w-sm text-center">
+                        <H4 class='max-w-sm text-center'>
                           {
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                             err.message
                           }
                         </H4>
-                        <div class="flex space-x-2">
+                        <div class='flex space-x-2'>
                           <Button onClick={reset}>Retry</Button>
-                          <Button as={A} href="/">
+                          <Button as={A} href='/'>
                             Go Home Instead
                           </Button>
                         </div>

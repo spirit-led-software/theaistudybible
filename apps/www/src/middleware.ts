@@ -25,14 +25,16 @@ export default createMiddleware({
             location: '/',
           },
         });
-      } else if (path === '/' && userId) {
+      }
+      if (path === '/' && userId) {
         return new Response(null, {
           status: 302,
           headers: {
             location: '/bible',
           },
         });
-      } else if (path === '/credits' && !userId) {
+      }
+      if (path === '/credits' && !userId) {
         return new Response(null, {
           status: 302,
           headers: {

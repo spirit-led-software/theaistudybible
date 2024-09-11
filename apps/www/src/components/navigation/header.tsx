@@ -20,21 +20,21 @@ export default function NavigationHeader() {
   const smallWindow = createMemo(() => size.width < 768);
 
   return (
-    <nav class="border-b-border bg-background/80 fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b py-6 pl-2 pr-4 backdrop-blur-md transition-all duration-300 ease-in-out">
-      <div class="flex w-1/3 justify-start sm:hidden">
+    <nav class='border-b-border bg-background/80 fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b py-6 pl-2 pr-4 backdrop-blur-md transition-all duration-300 ease-in-out'>
+      <div class='flex w-1/3 justify-start sm:hidden'>
         <NavigationDrawer />
       </div>
-      <div class="flex w-1/3 justify-center sm:justify-start">
-        <A href="/">
+      <div class='flex w-1/3 justify-center sm:justify-start'>
+        <A href='/'>
           {smallWindow() ? <LogoSmall width={128} height={64} /> : <Logo width={256} height={64} />}
         </A>
       </div>
-      <div class="hidden w-1/3 justify-center sm:flex">
-        <div class="flex w-full place-items-center justify-center">
-          <Menu orientation="horizontal" />
+      <div class='hidden w-1/3 justify-center sm:flex'>
+        <div class='flex w-full place-items-center justify-center'>
+          <Menu orientation='horizontal' />
         </div>
       </div>
-      <div class="flex w-1/3 items-center justify-end gap-2">
+      <div class='flex w-1/3 items-center justify-end gap-2'>
         <ThemeToggleButton />
         <ClerkLoaded>
           <SignedIn>
@@ -50,7 +50,7 @@ export default function NavigationHeader() {
             />
           </SignedIn>
           <SignedOut>
-            <Button as={SignInButton} mode="modal" forceRedirectUrl={location.pathname} />
+            <Button as={SignInButton} mode='modal' forceRedirectUrl={location.pathname} />
           </SignedOut>
         </ClerkLoaded>
       </div>

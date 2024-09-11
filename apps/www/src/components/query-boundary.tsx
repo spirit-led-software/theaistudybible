@@ -38,7 +38,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
     <Suspense
       fallback={
         props.loadingFallback ?? (
-          <div class="flex h-full w-full flex-1 items-center justify-center p-10">
+          <div class='flex h-full w-full flex-1 items-center justify-center p-10'>
             <Spinner />
           </div>
         )
@@ -52,9 +52,9 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
               reset();
             })
           ) : (
-            <div class="flex h-full w-full flex-1 flex-col place-items-center justify-center space-x-2">
+            <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center space-x-2'>
               <H1>Error</H1>
-              <H6 class="max-w-sm">{err.message}</H6>
+              <H6 class='max-w-sm'>{err.message}</H6>
               <Button
                 onClick={async () => {
                   await props.query.refetch();
@@ -70,7 +70,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
         <Switch fallback={props.notFoundFallback}>
           <Match when={!props.query.isFetching && !props.query.data}>
             {props.notFoundFallback ?? (
-              <div class="flex h-full w-full flex-1 items-center justify-center">
+              <div class='flex h-full w-full flex-1 items-center justify-center'>
                 Data not found
               </div>
             )}

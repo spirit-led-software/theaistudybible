@@ -15,11 +15,11 @@ export function PaginationSchema<T extends Table>(
       cursor: z
         .string()
         .optional()
-        .transform((v) => (v ? parseInt(v) : options?.cursor || 0)),
+        .transform((v) => (v ? Number.parseInt(v) : options?.cursor || 0)),
       limit: z
         .string()
         .optional()
-        .transform((v) => (v ? parseInt(v) : options?.limit || 10)),
+        .transform((v) => (v ? Number.parseInt(v) : options?.limit || 10)),
       filter: z
         .string()
         .optional()
@@ -49,11 +49,11 @@ export function PaginationSchemaNoDefault<T extends Table>(
     cursor: z
       .string()
       .optional()
-      .transform((v) => (v ? parseInt(v) : options?.cursor || 0)),
+      .transform((v) => (v ? Number.parseInt(v) : options?.cursor || 0)),
     limit: z
       .string()
       .optional()
-      .transform((v) => (v ? parseInt(v) : options?.limit || 10)),
+      .transform((v) => (v ? Number.parseInt(v) : options?.limit || 10)),
     filter: z
       .string()
       .optional()

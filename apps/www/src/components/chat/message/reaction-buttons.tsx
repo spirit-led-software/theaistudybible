@@ -101,10 +101,10 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
         query={reactionQuery}
         loadingFallback={
           <>
-            <Button size="icon" variant="ghost" class="h-fit w-fit p-1" disabled>
+            <Button size='icon' variant='ghost' class='h-fit w-fit p-1' disabled>
               <ThumbsUp size={15} />
             </Button>
-            <Button size="icon" variant="ghost" class="h-fit w-fit p-1" disabled>
+            <Button size='icon' variant='ghost' class='h-fit w-fit p-1' disabled>
               <ThumbsDown size={15} />
             </Button>
           </>
@@ -112,9 +112,9 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
         notFoundFallback={
           <>
             <Button
-              size="icon"
-              variant="ghost"
-              class="h-fit w-fit p-1"
+              size='icon'
+              variant='ghost'
+              class='h-fit w-fit p-1'
               onClick={() =>
                 addReactionMutation.mutate({
                   reaction: 'LIKE',
@@ -124,9 +124,9 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
               <ThumbsUp size={15} />
             </Button>
             <Button
-              size="icon"
-              variant="ghost"
-              class="h-fit w-fit p-1"
+              size='icon'
+              variant='ghost'
+              class='h-fit w-fit p-1'
               onClick={() => setDislikeDialogOpen(true)}
             >
               <ThumbsDown size={15} />
@@ -137,9 +137,9 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
         {(reaction) => (
           <>
             <Button
-              size="icon"
-              variant="ghost"
-              class="h-fit w-fit p-1"
+              size='icon'
+              variant='ghost'
+              class='h-fit w-fit p-1'
               onClick={() => {
                 if (reaction?.reaction === 'LIKE') {
                   removeReactionMutation.mutate();
@@ -156,9 +156,9 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
               />
             </Button>
             <Button
-              size="icon"
-              variant="ghost"
-              class="h-fit w-fit p-1"
+              size='icon'
+              variant='ghost'
+              class='h-fit w-fit p-1'
               onClick={() => {
                 if (reaction?.reaction === 'DISLIKE') {
                   removeReactionMutation.mutate();
@@ -181,7 +181,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
             <DialogTitle>What went wrong?</DialogTitle>
           </DialogHeader>
           <form
-            class="flex flex-col space-y-4"
+            class='flex flex-col space-y-4'
             onSubmit={(e) => {
               e.preventDefault();
               const data = new FormData(e.currentTarget);
@@ -193,10 +193,10 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
             }}
           >
             <TextField>
-              <TextFieldTextArea name="comment" />
+              <TextFieldTextArea name='comment' />
             </TextField>
             <DialogFooter>
-              <Button type="submit">Submit</Button>
+              <Button type='submit'>Submit</Button>
             </DialogFooter>
           </form>
         </DialogContent>

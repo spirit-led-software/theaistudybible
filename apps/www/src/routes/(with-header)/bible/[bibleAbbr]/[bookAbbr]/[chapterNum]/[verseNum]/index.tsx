@@ -8,12 +8,19 @@ import { useQueryClient } from '@tanstack/solid-query';
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
-    const chapterNum = parseInt(params.chapterNum);
-    const verseNum = parseInt(params.verseNum);
+    const chapterNum = Number.parseInt(params.chapterNum);
+    const verseNum = Number.parseInt(params.verseNum);
 
     const qc = useQueryClient();
     await Promise.all([
-      qc.prefetchQuery(getVerseReaderQueryOptions({ bibleAbbr, bookAbbr, chapterNum, verseNum })),
+      qc.prefetchQuery(
+        getVerseReaderQueryOptions({
+          bibleAbbr,
+          bookAbbr,
+          chapterNum,
+          verseNum,
+        }),
+      ),
       qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
       qc.prefetchQuery(smallTranslationPickerQueryOptions()),
     ]);
@@ -23,8 +30,8 @@ export const route: RouteDefinition = {
 export default function ChapterPage() {
   const params = useParams();
 
-  const chapterNum = () => parseInt(params.chapterNum);
-  const verseNum = () => parseInt(params.verseNum);
+  const chapterNum = () => Number.parseInt(params.chapterNum);
+  const verseNum = () => Number.parseInt(params.verseNum);
 
   return (
     <VerseReader

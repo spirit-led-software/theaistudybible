@@ -10,7 +10,7 @@ export const ChatCard = () => {
   const [brStore] = useBibleReaderStore();
 
   return (
-    <Card class="flex h-full w-full flex-1 flex-col overflow-hidden">
+    <Card class='flex h-full w-full flex-1 flex-col overflow-hidden'>
       <SignedIn>
         <ChatWindow
           initInput={
@@ -22,21 +22,21 @@ export const ChatCard = () => {
       </SignedIn>
       <SignedOut>
         <CardHeader />
-        <CardContent class="flex w-full flex-1 flex-col place-items-center justify-center pt-6">
-          <div class="flex h-full w-full flex-col place-items-center justify-center">
+        <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
+          <div class='flex h-full w-full flex-col place-items-center justify-center'>
             <P>
               Please{' '}
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class="text-accent-foreground px-0 capitalize"
+                class='text-accent-foreground px-0 capitalize'
               />{' '}
               to chat
             </P>
           </div>
         </CardContent>
-        <CardFooter class="flex justify-end">
-          <DrawerClose as={Button} variant="outline">
+        <CardFooter class='flex justify-end'>
+          <DrawerClose as={Button} variant='outline'>
             Close
           </DrawerClose>
         </CardFooter>

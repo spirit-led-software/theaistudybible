@@ -67,7 +67,7 @@ export const BiblesContent = () => {
   const requestUploadMutation = createMutation(() => ({
     mutationFn: requestUpload,
     onMutate: () => {
-      setToastId(toast.loading('Uploading...', { duration: Infinity }));
+      setToastId(toast.loading('Uploading...', { duration: Number.POSITIVE_INFINITY }));
     },
     onError: () => {
       toast.dismiss(toastId());
@@ -116,33 +116,33 @@ export const BiblesContent = () => {
       <CardHeader>
         <CardTitle>Add Bible</CardTitle>
       </CardHeader>
-      <CardContent class="flex flex-col gap-4">
-        <div class="flex items-center gap-4">
+      <CardContent class='flex flex-col gap-4'>
+        <div class='flex items-center gap-4'>
           <NumberField
-            class="w-52"
+            class='w-52'
             minValue={1}
             maxValue={5}
             value={publicationId()?.substring(1)}
             onChange={(v) => setPublicationId(`p${v}`)}
           >
-            <div class="relative">
-              <NumberFieldInput placeholder="Publication ID Number" />
+            <div class='relative'>
+              <NumberFieldInput placeholder='Publication ID Number' />
               <NumberFieldIncrementTrigger />
               <NumberFieldDecrementTrigger />
             </div>
           </NumberField>
-          <div class="flex items-center">
+          <div class='flex items-center'>
             <Label>Generate embeddings</Label>
             <Checkbox checked={generateEmbeddings()} onChange={(v) => setGenerateEmbeddings(v)} />
           </div>
         </div>
         <FileInput value={files()} onChange={setFiles}>
-          <FileInputRoot class="h-32">
-            <FileInputTrigger class="flex h-full items-center justify-center border-2 border-dashed border-gray-300 p-4 text-lg">
-              <FolderArchive class="mr-4 size-8" />
+          <FileInputRoot class='h-32'>
+            <FileInputTrigger class='flex h-full items-center justify-center border-2 border-dashed border-gray-300 p-4 text-lg'>
+              <FolderArchive class='mr-4 size-8' />
               Choose zip
             </FileInputTrigger>
-            <FileInputDropArea class="border-2 border-dashed border-gray-300 p-4">
+            <FileInputDropArea class='border-2 border-dashed border-gray-300 p-4'>
               Drop your zip file here
             </FileInputDropArea>
           </FileInputRoot>

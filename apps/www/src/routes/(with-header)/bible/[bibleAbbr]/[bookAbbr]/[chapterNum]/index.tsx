@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/solid-query';
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
-    const chapterNum = parseInt(params.chapterNum);
+    const chapterNum = Number.parseInt(params.chapterNum);
 
     const qc = useQueryClient();
     await Promise.all([
@@ -22,7 +22,7 @@ export const route: RouteDefinition = {
 export default function ChapterPage() {
   const params = useParams();
 
-  const chapterNum = () => parseInt(params.chapterNum);
+  const chapterNum = () => Number.parseInt(params.chapterNum);
 
   return (
     <ChapterReader

@@ -14,9 +14,9 @@ export type GenerateImageToolProps = {
 
 export const GenerateImageTool = (props: GenerateImageToolProps) => {
   return (
-    <div class="flex w-full flex-col">
-      <H5 class="flex items-center">
-        <Image class="mr-2" size={18} />
+    <div class='flex w-full flex-col'>
+      <H5 class='flex items-center'>
+        <Image class='mr-2' size={18} />
         Generate Image
       </H5>
       <Show
@@ -26,15 +26,15 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
         keyed
       >
         {(toolArgs) => (
-          <div class="flex items-center space-x-2 text-sm">
+          <div class='flex items-center space-x-2 text-sm'>
             <span>{toolArgs.prompt}</span>
           </div>
         )}
       </Show>
       <Show when={props.isLoading && !('result' in props.toolInvocation)}>
-        <div class="mt-2 flex w-full flex-col">
+        <div class='mt-2 flex w-full flex-col'>
           <H6>Generating</H6>
-          <Spinner size="sm" />
+          <Spinner size='sm' />
         </div>
       </Show>
       <Show
@@ -47,26 +47,26 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
         keyed
       >
         {(result) => (
-          <div class="mt-2 flex w-full flex-col">
+          <div class='mt-2 flex w-full flex-col'>
             <H6>Result</H6>
             <Show
               when={result.status === 'error' && result}
               fallback={
-                <div class="flex flex-col text-sm">
+                <div class='flex flex-col text-sm'>
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
-                      <div class="flex flex-col gap-2">
-                        <A href={successResult.image.url!} class="w-fit">
+                      <div class='flex flex-col gap-2'>
+                        <A href={successResult.image.url!} class='w-fit'>
                           <img
                             src={successResult.image.url!}
                             alt={successResult.image.prompt!}
-                            loading="lazy"
+                            loading='lazy'
                             width={128}
                             height={128}
-                            class="rounded-md"
+                            class='rounded-md'
                           />
                         </A>
-                        <p class="text-xs">
+                        <p class='text-xs'>
                           <strong>Revised Prompt:</strong> {successResult.image.prompt!}
                         </p>
                       </div>
@@ -77,7 +77,7 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
               keyed
             >
               {(failedResult) => (
-                <div class="flex flex-col text-sm">
+                <div class='flex flex-col text-sm'>
                   <span>Failed</span>
                   <span>{failedResult.message}</span>
                 </div>

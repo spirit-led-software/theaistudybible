@@ -21,9 +21,9 @@ export type VectorStoreToolProps = {
 
 export const VectorStoreTool = (props: VectorStoreToolProps) => {
   return (
-    <div class="flex w-full flex-col pr-5">
-      <H5 class="flex items-center">
-        <Search class="mr-2" size={18} />
+    <div class='flex w-full flex-col pr-5'>
+      <H5 class='flex items-center'>
+        <Search class='mr-2' size={18} />
         Search for Sources
       </H5>
       <Show
@@ -31,13 +31,13 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
         keyed
       >
         {(toolArgs) => (
-          <Accordion multiple={false} collapsible class="w-full text-sm">
-            <AccordionItem value="terms">
+          <Accordion multiple={false} collapsible class='w-full text-sm'>
+            <AccordionItem value='terms'>
               <AccordionTrigger>Queries</AccordionTrigger>
               <AccordionContent>
-                <ul class="list-inside list-none">
+                <ul class='list-inside list-none'>
                   <For each={toolArgs.terms}>
-                    {(term) => <li class="list-item text-xs">{term}</li>}
+                    {(term) => <li class='list-item text-xs'>{term}</li>}
                   </For>
                 </ul>
               </AccordionContent>
@@ -46,9 +46,9 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
         )}
       </Show>
       <Show when={props.isLoading && !('result' in props.toolInvocation)}>
-        <div class="mt-2 flex w-full flex-col">
+        <div class='mt-2 flex w-full flex-col'>
           <H6>Searching</H6>
-          <Spinner size="sm" />
+          <Spinner size='sm' />
         </div>
       </Show>
       <Show
@@ -59,19 +59,19 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
         keyed
       >
         {(result) => (
-          <Accordion multiple={false} collapsible class="w-full text-sm">
-            <AccordionItem value="results">
+          <Accordion multiple={false} collapsible class='w-full text-sm'>
+            <AccordionItem value='results'>
               <AccordionTrigger>Results ({result.length})</AccordionTrigger>
               <AccordionContent>
-                <ul class="list-inside list-disc">
+                <ul class='list-inside list-disc'>
                   <For each={result}>
                     {(doc) => (
-                      <li class="list-item">
+                      <li class='list-item'>
                         <Button
                           as={A}
                           href={doc.metadata!.url as string}
-                          variant="link"
-                          class="h-fit p-0 text-xs"
+                          variant='link'
+                          class='h-fit p-0 text-xs'
                         >
                           {doc.metadata!.name}
                         </Button>

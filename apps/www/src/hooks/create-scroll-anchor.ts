@@ -78,9 +78,9 @@ export const createScrollAnchor = () => {
     if (current) {
       const observer = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
+          for (const entry of entries) {
             setIsVisible(entry.isIntersecting);
-          });
+          }
         },
         {
           rootMargin: '0px 0px -150px 0px',

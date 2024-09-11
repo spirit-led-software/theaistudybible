@@ -33,22 +33,22 @@ export const Message = (props: MessageProps) => {
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
     >
-      <div class="mt-2 flex h-full w-10 shrink-0 items-start">
+      <div class='mt-2 flex h-full w-10 shrink-0 items-start'>
         <Show when={props.previousMessage?.role !== props.message.role}>
           <Switch>
             <Match when={props.message.role === 'user'}>
               <Tooltip>
-                <TooltipTrigger as="div">
-                  <img src={user()?.imageUrl} alt="Avatar" class="h-10 w-10 rounded-full" />
+                <TooltipTrigger as='div'>
+                  <img src={user()?.imageUrl} alt='Avatar' class='h-10 w-10 rounded-full' />
                 </TooltipTrigger>
                 <TooltipContent>Me</TooltipContent>
               </Tooltip>
             </Match>
             <Match when={props.message.role === 'assistant'}>
               <Tooltip>
-                <TooltipTrigger as="div">
-                  <div class="bg-primary flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full p-2">
-                    <Icon width={300} height={300} class="flex-shrink-0" />
+                <TooltipTrigger as='div'>
+                  <div class='bg-primary flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full p-2'>
+                    <Icon width={300} height={300} class='flex-shrink-0' />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>The AI Study Bible</TooltipContent>
@@ -57,7 +57,7 @@ export const Message = (props: MessageProps) => {
           </Switch>
         </Show>
       </div>
-      <div class="flex w-full flex-col">
+      <div class='flex w-full flex-col'>
         <Show when={props.message.content} keyed>
           {(content) => <Markdown>{content}</Markdown>}
         </Show>
@@ -73,16 +73,16 @@ export const Message = (props: MessageProps) => {
             />
           )}
         </Show>
-        <div class="flex items-center gap-2 py-2">
+        <div class='flex items-center gap-2 py-2'>
           <Show when={props.message.data} keyed>
             {(data) => (
               <div>
                 <Show
                   when={
                     props.message.role !== props.nextMessage?.role &&
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
                     'modelId' in (data as any) &&
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+                    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
                     ((data as any).modelId as string)
                   }
                   keyed
@@ -98,7 +98,7 @@ export const Message = (props: MessageProps) => {
                         <TooltipTrigger
                           as={A}
                           href={modelInfo.link}
-                          class="mt-2 w-fit rounded-full border p-2 text-xs text-gray-500"
+                          class='mt-2 w-fit rounded-full border p-2 text-xs text-gray-500'
                         >
                           {modelInfo.name}
                         </TooltipTrigger>
@@ -110,19 +110,21 @@ export const Message = (props: MessageProps) => {
               </div>
             )}
           </Show>
-          <div class="flex gap-1">
+          <div class='flex gap-1'>
             <Show
               when={
                 props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
               }
             >
               <Button
-                variant="ghost"
-                class="h-fit w-fit p-1"
+                variant='ghost'
+                class='h-fit w-fit p-1'
                 onClick={() => {
                   void writeClipboard([
                     new ClipboardItem({
-                      'text/plain': new Blob([props.message.content], { type: 'text/plain' }),
+                      'text/plain': new Blob([props.message.content], {
+                        type: 'text/plain',
+                      }),
                     }),
                   ]);
                   toast.success('Text copied');

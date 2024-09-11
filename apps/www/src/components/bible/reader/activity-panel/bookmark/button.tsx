@@ -72,7 +72,9 @@ export const BookmarkButton = () => {
   const getSelectionBookmarkedQuery = createQuery(() => ({
     queryKey: ['verses-bookmarked', { verseIds: brStore.selectedVerseInfos.map((v) => v.id) }],
     queryFn: () =>
-      getSelectionBookmarked({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
+      getSelectionBookmarked({
+        verseIds: brStore.selectedVerseInfos.map((v) => v.id),
+      }),
   }));
 
   const bookmarkVersesMutation = createMutation(() => ({
@@ -81,7 +83,10 @@ export const BookmarkButton = () => {
   }));
 
   const unbookmarkVersesMutation = createMutation(() => ({
-    mutationFn: () => unbookmarkVerses({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
+    mutationFn: () =>
+      unbookmarkVerses({
+        verseIds: brStore.selectedVerseInfos.map((v) => v.id),
+      }),
     onSettled: () => getSelectionBookmarkedQuery.refetch(),
   }));
 
@@ -89,17 +94,17 @@ export const BookmarkButton = () => {
     <QueryBoundary
       query={getSelectionBookmarkedQuery}
       errorFallback={() => (
-        <Button size="icon" disabled>
+        <Button size='icon' disabled>
           <Bookmark size={20} />
         </Button>
       )}
       loadingFallback={
-        <Button size="icon" disabled>
+        <Button size='icon' disabled>
           <Bookmark size={20} />
         </Button>
       }
       notFoundFallback={
-        <Button size="icon" disabled>
+        <Button size='icon' disabled>
           <Bookmark size={20} />
         </Button>
       }
@@ -108,7 +113,7 @@ export const BookmarkButton = () => {
         <Tooltip>
           <TooltipTrigger
             as={Button}
-            size="icon"
+            size='icon'
             disabled={!isSignedIn()}
             onClick={() => {
               if (isBookmarked) {

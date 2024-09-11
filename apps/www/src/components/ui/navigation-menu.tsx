@@ -55,25 +55,27 @@ const NavigationMenuTrigger = <T extends ValidComponent = 'button'>(
 };
 const NavigationMenuIcon = () => {
   return (
-    <NavigationMenuPrimitive.Icon aria-hidden="true">
+    <NavigationMenuPrimitive.Icon aria-hidden='true'>
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="relative top-px ml-1 size-3 transition duration-200 group-data-[expanded]/trigger:rotate-180 group-data-[orientation=vertical]/menu:-rotate-90 group-data-[orientation=vertical]/menu:group-data-[expanded]/trigger:rotate-90"
+        xmlns='http://www.w3.org/2000/svg'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+        class='relative top-px ml-1 size-3 transition duration-200 group-data-[expanded]/trigger:rotate-180 group-data-[orientation=vertical]/menu:-rotate-90 group-data-[orientation=vertical]/menu:group-data-[expanded]/trigger:rotate-90'
       >
-        <path d="M6 9l6 6l6 -6" />
+        <path d='M6 9l6 6l6 -6' />
       </svg>
     </NavigationMenuPrimitive.Icon>
   );
 };
 
 type NavigationMenuViewportProps<T extends ValidComponent = 'li'> =
-  NavigationMenuPrimitive.NavigationMenuViewportProps<T> & { class?: string | undefined };
+  NavigationMenuPrimitive.NavigationMenuViewportProps<T> & {
+    class?: string | undefined;
+  };
 
 const NavigationMenuViewport = <T extends ValidComponent = 'li'>(
   props: PolymorphicProps<T, NavigationMenuViewportProps<T>>,
@@ -124,7 +126,9 @@ const NavigationMenuContent = <T extends ValidComponent = 'ul'>(
 };
 
 type NavigationMenuLinkProps<T extends ValidComponent = 'a'> =
-  NavigationMenuPrimitive.NavigationMenuItemProps<T> & { class?: string | undefined };
+  NavigationMenuPrimitive.NavigationMenuItemProps<T> & {
+    class?: string | undefined;
+  };
 
 const NavigationMenuLink = <T extends ValidComponent = 'a'>(
   props: PolymorphicProps<T, NavigationMenuLinkProps<T>>,
@@ -147,7 +151,9 @@ const NavigationMenuLink = <T extends ValidComponent = 'a'>(
 };
 
 type NavigationMenuLabelProps<T extends ValidComponent = 'div'> =
-  NavigationMenuPrimitive.NavigationMenuItemLabelProps<T> & { class?: string | undefined };
+  NavigationMenuPrimitive.NavigationMenuItemLabelProps<T> & {
+    class?: string | undefined;
+  };
 
 const NavigationMenuLabel = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, NavigationMenuLabelProps<T>>,
@@ -162,7 +168,9 @@ const NavigationMenuLabel = <T extends ValidComponent = 'div'>(
 };
 
 type NavigationMenuDescriptionProps<T extends ValidComponent = 'div'> =
-  NavigationMenuPrimitive.NavigationMenuItemDescriptionProps<T> & { class?: string | undefined };
+  NavigationMenuPrimitive.NavigationMenuItemDescriptionProps<T> & {
+    class?: string | undefined;
+  };
 
 const NavigationMenuDescription = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, NavigationMenuDescriptionProps<T>>,

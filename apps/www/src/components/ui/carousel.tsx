@@ -138,8 +138,8 @@ const Carousel: Component<CarouselProps & ComponentProps<'div'>> = (rawProps) =>
       <div
         onKeyDown={handleKeyDown}
         class={cn('relative', local.class)}
-        role="region"
-        aria-roledescription="carousel"
+        role='region'
+        aria-roledescription='carousel'
         {...others}
       >
         {local.children}
@@ -153,7 +153,7 @@ const CarouselContent: Component<ComponentProps<'div'>> = (props) => {
   const { carouselRef, orientation } = useCarousel();
 
   return (
-    <div ref={carouselRef} class="overflow-hidden">
+    <div ref={carouselRef} class='overflow-hidden'>
       <div
         class={cn('flex', orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col', local.class)}
         {...others}
@@ -168,8 +168,8 @@ const CarouselItem: Component<ComponentProps<'div'>> = (props) => {
 
   return (
     <div
-      role="group"
-      aria-roledescription="slide"
+      role='group'
+      aria-roledescription='slide'
       class={cn(
         'min-w-0 shrink-0 grow-0 basis-full',
         orientation === 'horizontal' ? 'pl-4' : 'pt-4',
@@ -203,20 +203,20 @@ const CarouselPrevious: Component<CarouselButtonProps> = (rawProps) => {
       {...others}
     >
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="size-4"
+        xmlns='http://www.w3.org/2000/svg'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+        class='size-4'
       >
-        <path d="M5 12l14 0" />
-        <path d="M5 12l6 6" />
-        <path d="M5 12l6 -6" />
+        <path d='M5 12l14 0' />
+        <path d='M5 12l6 6' />
+        <path d='M5 12l6 -6' />
       </svg>
-      <span class="sr-only">Previous slide</span>
+      <span class='sr-only'>Previous slide</span>
     </Button>
   );
 };
@@ -242,20 +242,20 @@ const CarouselNext: Component<CarouselButtonProps> = (rawProps) => {
       {...others}
     >
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="size-4"
+        xmlns='http://www.w3.org/2000/svg'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+        class='size-4'
       >
-        <path d="M5 12l14 0" />
-        <path d="M13 18l6 -6" />
-        <path d="M13 6l6 6" />
+        <path d='M5 12l14 0' />
+        <path d='M13 18l6 -6' />
+        <path d='M13 6l6 6' />
       </svg>
-      <span class="sr-only">Next slide</span>
+      <span class='sr-only'>Next slide</span>
     </Button>
   );
 };

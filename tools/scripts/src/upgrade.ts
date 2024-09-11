@@ -1,5 +1,5 @@
 import { $ } from 'bun';
-import { readdirSync } from 'fs';
+import { readdirSync } from 'node:fs';
 
 export const upgradePackages = async () => {
   const apps = readdirSync('./apps', { withFileTypes: true }).filter((d) => d.isDirectory());

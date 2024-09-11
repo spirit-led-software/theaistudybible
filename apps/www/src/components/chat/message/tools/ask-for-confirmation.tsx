@@ -15,9 +15,9 @@ export type AskForConfirmationToolProps = {
 
 export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
   return (
-    <div class="flex w-full flex-col">
-      <H5 class="flex items-center">
-        <MessageCircleWarning class="mr-2" size={18} />
+    <div class='flex w-full flex-col'>
+      <H5 class='flex items-center'>
+        <MessageCircleWarning class='mr-2' size={18} />
         Confirm Action
       </H5>
       <Show
@@ -28,7 +28,7 @@ export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
           })
         }
         fallback={
-          <div class="flex w-full flex-col space-y-2">
+          <div class='flex w-full flex-col space-y-2'>
             <Show
               when={
                 props.toolInvocation.args as z.infer<(typeof askForConfirmationTool)['parameters']>
@@ -37,9 +37,9 @@ export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
             >
               {(toolArgs) => <p>{toolArgs.message}</p>}
             </Show>
-            <div class="flex space-x-2">
+            <div class='flex space-x-2'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() =>
                   props.addToolResult({
                     toolCallId: props.toolInvocation.toolCallId,
@@ -69,8 +69,8 @@ export const AskForConfirmationTool = (props: AskForConfirmationToolProps) => {
         keyed
       >
         {(result) => (
-          <div class="flex items-center">
-            <span class="text-sm">{toCapitalizedCase(result.status)}</span>
+          <div class='flex items-center'>
+            <span class='text-sm'>{toCapitalizedCase(result.status)}</span>
           </div>
         )}
       </Show>

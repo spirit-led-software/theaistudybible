@@ -40,16 +40,16 @@ export default function BookPicker() {
     <Popover>
       <PopoverTrigger
         as={Button}
-        variant="outline"
-        role="combobox"
-        class="justify-between text-nowrap"
+        variant='outline'
+        role='combobox'
+        class='justify-between text-nowrap'
       >
         {brStore.book.shortName} {brStore.chapter.number}
-        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        <ChevronsUpDown class='ml-2 h-4 w-4 shrink-0 opacity-50' />
       </PopoverTrigger>
-      <PopoverContent class="w-[200px] p-0">
+      <PopoverContent class='w-[200px] p-0'>
         <Command>
-          <CommandInput placeholder="Search books..." />
+          <CommandInput placeholder='Search books...' />
           <QueryBoundary query={query}>
             {(books) => (
               <CommandList>

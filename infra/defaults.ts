@@ -8,7 +8,7 @@ import { bibleBucket, cdn, generatedImagesBucket } from './storage';
  * Define defaults for all SST functions
  */
 $transform(sst.aws.Function, (args) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: Don't care
   args.link = $output(args.link).apply((link: sst.Linkable<any>[] = []) => [
     ...link,
     ...constants,

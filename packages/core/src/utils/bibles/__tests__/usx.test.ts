@@ -1,6 +1,6 @@
 import { parseUsx } from '@/core/utils/bibles/usx';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, test } from 'vitest';
 
 describe('USX Tests', () => {

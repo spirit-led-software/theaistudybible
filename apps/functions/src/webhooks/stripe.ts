@@ -5,11 +5,12 @@ import { stripe } from '@/core/stripe';
 import { sql } from 'drizzle-orm';
 import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
+import type Stripe from 'stripe';
 
 const app = new Hono().post('/', async (c) => {
   const body = await c.req.text();
   const sig = c.req.header('stripe-signature');
-  let stripeEvent;
+  let stripeEvent: Stripe.Event;
   try {
     stripeEvent = stripe.webhooks.constructEvent(body, sig!, Resource.StripeWebhookSecret.value);
   } catch (err) {

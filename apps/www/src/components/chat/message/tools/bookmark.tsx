@@ -14,9 +14,9 @@ export type BookmarkToolProps = {
 
 export const BookmarkTool = (props: BookmarkToolProps) => {
   return (
-    <div class="flex w-full flex-col">
-      <H5 class="flex items-center">
-        <Bookmark class="mr-2" size={18} />
+    <div class='flex w-full flex-col'>
+      <H5 class='flex items-center'>
+        <Bookmark class='mr-2' size={18} />
         Bookmark
       </H5>
       <Show
@@ -34,7 +34,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
               {(toolArgs) => (
                 <For each={toolArgs.chapterNumbers}>
                   {(chapterNumber) => (
-                    <span class="text-sm">
+                    <span class='text-sm'>
                       {toolArgs.bookName} {chapterNumber}
                     </span>
                   )}
@@ -43,7 +43,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
             </Match>
             <Match when={'verseNumbers' in toolArgs && toolArgs} keyed>
               {(toolArgs) => (
-                <span class="text-sm">
+                <span class='text-sm'>
                   {toolArgs.bookName} {toolArgs.chapterNumber}:
                   {formNumberSequenceString(toolArgs.verseNumbers)}
                 </span>
@@ -65,18 +65,18 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
         keyed
       >
         {(result) => (
-          <div class="mt-1 flex flex-col">
+          <div class='mt-1 flex flex-col'>
             <H6>Result</H6>
             <Show
               when={result.status === 'error' && result}
               fallback={
-                <div class="flex flex-col text-sm">
+                <div class='flex flex-col text-sm'>
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
                       <Switch>
                         <Match when={'verses' in successResult && successResult} keyed>
                           {(successResult) => (
-                            <div class="flex items-center space-x-2">
+                            <div class='flex items-center space-x-2'>
                               <span>
                                 {successResult.book.shortName} {successResult.chapter.number}:
                                 {formNumberSequenceString(
@@ -86,8 +86,8 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                               <Button
                                 as={A}
                                 href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
-                                variant="link"
-                                class="text-accent-foreground h-fit p-0"
+                                variant='link'
+                                class='text-accent-foreground h-fit p-0'
                               >
                                 View
                               </Button>
@@ -98,15 +98,15 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                           {(successResult) => (
                             <For each={successResult.chapters}>
                               {(chapter) => (
-                                <div class="flex items-center space-x-2">
+                                <div class='flex items-center space-x-2'>
                                   <span>
                                     {successResult.book.shortName} {chapter.number}
                                   </span>
                                   <Button
                                     as={A}
                                     href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${chapter.number}`}
-                                    variant="link"
-                                    class="text-accent-foreground h-fit p-0"
+                                    variant='link'
+                                    class='text-accent-foreground h-fit p-0'
                                   >
                                     View
                                   </Button>
@@ -123,7 +123,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
               keyed
             >
               {(failedResult) => (
-                <div class="flex flex-col">
+                <div class='flex flex-col'>
                   <span>Failed</span>
                   <span>{failedResult.message}</span>
                 </div>

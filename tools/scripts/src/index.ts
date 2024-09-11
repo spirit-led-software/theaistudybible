@@ -1,5 +1,5 @@
 import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
-import fs from 'fs';
+import fs from 'node:fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { seedDatabase } from './database/seed';
@@ -59,7 +59,7 @@ await yargs(hideBin(process.argv))
         await createBibleFromDblZip({
           zipBuffer,
           publicationId: argv['publication-id'],
-          overwrite: argv['overwrite'],
+          overwrite: argv.overwrite,
           generateEmbeddings: argv['generate-embeddings'],
         });
       },

@@ -32,15 +32,15 @@ export const Menu = (props: MenuProps) => {
   const isAdmin = useIsAdmin();
 
   return (
-    <NavigationMenu orientation={props.orientation} class="w-full">
+    <NavigationMenu orientation={props.orientation} class='w-full'>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class="justify-between">
+        <NavigationMenuTrigger class='justify-between'>
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2">
-          <NavigationMenuLink as={A} href="/about">
-            <NavigationMenuLabel class="flex items-center gap-2">
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2'>
+          <NavigationMenuLink as={A} href='/about'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <Info />
               About
             </NavigationMenuLabel>
@@ -48,8 +48,8 @@ export const Menu = (props: MenuProps) => {
               Learn about The AI Study Bible and what we stand for
             </NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href="/about/install">
-            <NavigationMenuLabel class="flex items-center gap-2">
+          <NavigationMenuLink as={A} href='/about/install'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <Download />
               Install
             </NavigationMenuLabel>
@@ -58,8 +58,8 @@ export const Menu = (props: MenuProps) => {
             </NavigationMenuDescription>
           </NavigationMenuLink>
           <SignedIn>
-            <NavigationMenuLink as={A} href="/credits">
-              <NavigationMenuLabel class="flex items-center gap-2">
+            <NavigationMenuLink as={A} href='/credits'>
+              <NavigationMenuLabel class='flex items-center gap-2'>
                 <CreditCard />
                 Credits
               </NavigationMenuLabel>
@@ -71,34 +71,34 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class="justify-between">
+        <NavigationMenuTrigger class='justify-between'>
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2">
-          <NavigationMenuLink as={A} href="/bible">
-            <NavigationMenuLabel class="flex items-center gap-2">
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2'>
+          <NavigationMenuLink as={A} href='/bible'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <BookOpen />
               Read
             </NavigationMenuLabel>
             <NavigationMenuDescription>Read the Bible</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href="/bible/highlights">
-            <NavigationMenuLabel class="flex items-center gap-2">
+          <NavigationMenuLink as={A} href='/bible/highlights'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <Highlighter />
               Highlights
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your highlights</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href="/bible/notes">
-            <NavigationMenuLabel class="flex items-center gap-2">
+          <NavigationMenuLink as={A} href='/bible/notes'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <Notebook />
               Notes
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your notes</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href="/bible/bookmarks">
-            <NavigationMenuLabel class="flex items-center gap-2">
+          <NavigationMenuLink as={A} href='/bible/bookmarks'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <Bookmark />
               Bookmarks
             </NavigationMenuLabel>
@@ -107,13 +107,13 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class="justify-between">
+        <NavigationMenuTrigger class='justify-between'>
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class="flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2">
-          <NavigationMenuLink as={A} href="/chat">
-            <NavigationMenuLabel class="flex items-center gap-2">
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2'>
+          <NavigationMenuLink as={A} href='/chat'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <MessageCircle />
               Chat
             </NavigationMenuLabel>
@@ -121,8 +121,8 @@ export const Menu = (props: MenuProps) => {
               Engage with AI about Jesus and the Bible
             </NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href="/devotion">
-            <NavigationMenuLabel class="flex items-center gap-2">
+          <NavigationMenuLink as={A} href='/devotion'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
               <Lightbulb />
               Devotions
             </NavigationMenuLabel>
@@ -134,7 +134,7 @@ export const Menu = (props: MenuProps) => {
       </NavigationMenuItem>
       <Show when={isAdmin()}>
         <NavigationMenuItem>
-          <NavigationMenuTrigger disabled as={A} href="/admin" class="justify-start">
+          <NavigationMenuTrigger disabled as={A} href='/admin' class='justify-start'>
             Admin
           </NavigationMenuTrigger>
         </NavigationMenuItem>

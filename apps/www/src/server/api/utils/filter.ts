@@ -1,5 +1,4 @@
-import type {
-  Table} from 'drizzle-orm';
+import type { Table } from 'drizzle-orm';
 import {
   and,
   arrayContained,
@@ -30,7 +29,7 @@ export const operators = [
 ] as const;
 export type Operator = (typeof operators)[number];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function cleanseValue(value: string): any {
   // String values can be wrapped in single or double quotes
   if (
@@ -49,7 +48,7 @@ export function cleanseValue(value: string): any {
   }
 
   // Numbers
-  if (!isNaN(Number(value))) {
+  if (!Number.isNaN(Number(value))) {
     return Number(value);
   }
 
@@ -175,7 +174,7 @@ export function parseFilterString<T extends Table>(table: T, filter: string): SQ
       }
 
       let subExpression = '';
-      let subOperator;
+      let subOperator: string | undefined;
       if (sql) {
         subOperator = operators.shift();
       } else {

@@ -12,15 +12,15 @@ export const ChatMenu = () => {
   const [chatStore, setChatStore] = useChatStore();
 
   return (
-    <div class="flex w-full justify-center border-b pt-2 shadow-sm">
-      <div class="flex w-full max-w-2xl items-center justify-between px-3 py-1">
-        <H6 class="truncate">{chatStore.chat?.name ?? 'New Chat'}</H6>
-        <div class="flex justify-end">
+    <div class='flex w-full justify-center border-b pt-2 shadow-sm'>
+      <div class='flex w-full max-w-2xl items-center justify-between px-3 py-1'>
+        <H6 class='truncate'>{chatStore.chat?.name ?? 'New Chat'}</H6>
+        <div class='flex justify-end'>
           <Tooltip>
             <TooltipTrigger
               as={Button}
-              size="icon"
-              variant="ghost"
+              size='icon'
+              variant='ghost'
               onClick={() => {
                 setChatStore('chat', undefined);
 

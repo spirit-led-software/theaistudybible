@@ -79,8 +79,8 @@ export const EditChatButton = (props: EditChatButtonProps) => {
             <DialogTrigger
               {...(props as DialogTriggerProps)}
               as={Button}
-              variant="ghost"
-              size="icon"
+              variant='ghost'
+              size='icon'
             >
               <Pencil size={16} />
             </DialogTrigger>
@@ -96,13 +96,13 @@ export const EditChatButton = (props: EditChatButtonProps) => {
           value={nameValue()}
           onChange={setNameValue}
           validationState={nameValue().trim() === '' ? 'invalid' : 'valid'}
-          class="flex flex-col gap-2"
+          class='flex flex-col gap-2'
         >
           <TextFieldLabel>Name</TextFieldLabel>
-          <TextFieldInput type="text" />
+          <TextFieldInput type='text' />
           <TextFieldErrorMessage>Chat name is required.</TextFieldErrorMessage>
         </TextField>
-        <DialogFooter class="flex justify-end gap-2">
+        <DialogFooter class='flex justify-end gap-2'>
           <Button
             onClick={() =>
               editChatMutation.mutate({

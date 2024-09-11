@@ -93,22 +93,22 @@ const NotesPage = () => {
   });
 
   return (
-    <div class="flex h-full w-full flex-col items-center p-5">
+    <div class='flex h-full w-full flex-col items-center p-5'>
       <SignedIn>
-        <H2 class="from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent">
+        <H2 class='from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
           Your Notes
         </H2>
-        <div class="mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3">
+        <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
           <QueryBoundary query={notesQuery}>
             {() => (
-              <TransitionGroup name="card-item">
+              <TransitionGroup name='card-item'>
                 <For
                   each={notes}
                   fallback={
-                    <div class="flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3">
-                      <H6 class="text-center">
+                    <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
+                      <H6 class='text-center'>
                         No notes yet, get{' '}
-                        <A href="/bible" class="hover:underline">
+                        <A href='/bible' class='hover:underline'>
                           reading
                         </A>
                         !
@@ -128,10 +128,10 @@ const NotesPage = () => {
                     />
                   )}
                 </For>
-                <div class="flex w-full justify-center lg:col-span-3">
+                <div class='flex w-full justify-center lg:col-span-3'>
                   <Switch>
                     <Match when={notesQuery.isFetchingNextPage}>
-                      <Spinner size="sm" />
+                      <Spinner size='sm' />
                     </Match>
                     <Match when={notesQuery.hasNextPage}>
                       <Button

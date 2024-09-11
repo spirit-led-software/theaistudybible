@@ -47,38 +47,38 @@ const AboutPage: Component = () => {
   ];
 
   return (
-    <div class="mx-auto max-w-4xl space-y-12 px-4 py-12">
-      <header class="space-y-4 text-center">
+    <div class='mx-auto max-w-4xl space-y-12 px-4 py-12'>
+      <header class='space-y-4 text-center'>
         <GradientH1>Here's What We Do</GradientH1>
-        <P class="text-muted-foreground text-xl">
+        <P class='text-muted-foreground text-xl'>
           Empowering your spiritual journey with cutting-edge AI technology
         </P>
       </header>
 
       <section>
-        <H2 class="mb-6 flex items-center text-2xl font-semibold">
-          <Sparkles class="mr-2 inline-block" />
+        <H2 class='mb-6 flex items-center text-2xl font-semibold'>
+          <Sparkles class='mr-2 inline-block' />
           Our Features
         </H2>
-        <div class="grid gap-8 md:grid-cols-2">
+        <div class='grid gap-8 md:grid-cols-2'>
           {features.map((feature) => (
-            <div class="rounded-lg bg-white p-6 shadow-md">
-              <H3 class="mb-2 flex items-center text-xl font-semibold">
-                <feature.icon class="mr-2 inline-block" />
+            <div class='rounded-lg bg-white p-6 shadow-md'>
+              <H3 class='mb-2 flex items-center text-xl font-semibold'>
+                <feature.icon class='mr-2 inline-block' />
                 {feature.title}
               </H3>
-              <P class="text-muted-foreground">{feature.description}</P>
+              <P class='text-muted-foreground'>{feature.description}</P>
             </div>
           ))}
         </div>
       </section>
 
-      <section class="rounded-lg bg-gray-100 p-8">
-        <H2 class="mb-4 flex items-center text-2xl font-semibold">
-          <Heart class="mr-2 inline-block" />
+      <section class='rounded-lg bg-gray-100 p-8'>
+        <H2 class='mb-4 flex items-center text-2xl font-semibold'>
+          <Heart class='mr-2 inline-block' />
           Our Mission
         </H2>
-        <p class="mb-4">
+        <p class='mb-4'>
           At The AI Study Bible, we're committed to bridging the gap between ancient wisdom and
           modern technology. Our mission is to make Bible study more accessible, engaging, and
           insightful for everyone, from seasoned theologians to curious newcomers.
@@ -89,8 +89,8 @@ const AboutPage: Component = () => {
         </p>
       </section>
 
-      <div class="flex justify-center">
-        <Button as={A} href="/bible" class="px-6 py-3 text-lg">
+      <div class='flex justify-center'>
+        <Button as={A} href='/bible' class='px-6 py-3 text-lg'>
           Start Your Journey
         </Button>
       </div>

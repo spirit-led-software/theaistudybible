@@ -15,9 +15,9 @@ export type HighlightVerseToolProps = {
 
 export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
   return (
-    <div class="flex w-full flex-col">
-      <H5 class="flex items-center">
-        <Highlighter class="mr-2" size={18} />
+    <div class='flex w-full flex-col'>
+      <H5 class='flex items-center'>
+        <Highlighter class='mr-2' size={18} />
         Highlight Verse
       </H5>
       <Show
@@ -27,13 +27,13 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
         keyed
       >
         {(toolArgs) => (
-          <div class="flex items-center space-x-2 text-sm">
+          <div class='flex items-center space-x-2 text-sm'>
             <span>
               {toolArgs.bookName} {toolArgs.chapterNumber}:
               {formNumberSequenceString(toolArgs.verseNumbers)} ({toolArgs.bibleAbbr})
             </span>
             <div
-              class="h-4 w-4 shrink-0 rounded-full"
+              class='h-4 w-4 shrink-0 rounded-full'
               style={{
                 'background-color': toolArgs.color || '#FFD700',
               }}
@@ -51,15 +51,15 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
         keyed
       >
         {(result) => (
-          <div class="mt-2 flex w-full flex-col">
+          <div class='mt-2 flex w-full flex-col'>
             <H6>Result</H6>
             <Show
               when={result.status === 'error' && result}
               fallback={
-                <div class="flex flex-col text-sm">
+                <div class='flex flex-col text-sm'>
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
-                      <div class="flex items-center space-x-2">
+                      <div class='flex items-center space-x-2'>
                         <span>
                           {successResult.book.shortName} {successResult.chapter.number}:
                           {formNumberSequenceString(successResult.verses.map((v) => v.number))}
@@ -81,7 +81,7 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
               keyed
             >
               {(failedResult) => (
-                <div class="flex flex-col text-sm">
+                <div class='flex flex-col text-sm'>
                   <span>Failed</span>
                   <span>{failedResult.message}</span>
                 </div>

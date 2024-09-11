@@ -8,7 +8,7 @@ import { createMemo } from 'solid-js';
 export type TextContentProps = {
   content: TextContentType;
   style: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   props: any;
   highlights?: HighlightInfo[];
   class?: string;

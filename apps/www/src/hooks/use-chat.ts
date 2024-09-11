@@ -234,8 +234,8 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   const followUpSuggestionsQuery = createQuery(() => ({
     ...getChatSuggestionsQueryProps(chatId()),
     // Reduce LLM calls by setting this as never stale
-    gcTime: Infinity,
-    staleTime: Infinity,
+    gcTime: Number.POSITIVE_INFINITY,
+    staleTime: Number.POSITIVE_INFINITY,
     enabled: !!chat(),
   }));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(

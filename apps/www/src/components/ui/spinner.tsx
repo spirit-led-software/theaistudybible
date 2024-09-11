@@ -32,7 +32,9 @@ const spinnerVariants = cva(
   },
 );
 
-type SpinnerProps = VariantProps<typeof spinnerVariants> & { class?: string | undefined };
+type SpinnerProps = VariantProps<typeof spinnerVariants> & {
+  class?: string | undefined;
+};
 
 const Spinner = (props: SpinnerProps) => {
   const [local, others] = splitProps(props, ['variant', 'size', 'class']);

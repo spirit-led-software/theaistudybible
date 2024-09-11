@@ -24,7 +24,7 @@ export const ShareCard = () => {
   }));
 
   return (
-    <Card class="w-full">
+    <Card class='w-full'>
       <CardHeader>
         <CardTitle>Share</CardTitle>
       </CardHeader>
@@ -33,13 +33,13 @@ export const ShareCard = () => {
           <TextFieldTextArea
             ref={shareInputRef}
             value={brStore.selectedText}
-            class="w-full resize-none"
+            class='w-full resize-none'
             autoResize={true}
           />
         </TextField>
       </CardContent>
-      <CardFooter class="justify-end space-x-2">
-        <DrawerClose as={Button} variant="outline">
+      <CardFooter class='justify-end space-x-2'>
+        <DrawerClose as={Button} variant='outline'>
           Close
         </DrawerClose>
         <Button
@@ -47,7 +47,9 @@ export const ShareCard = () => {
             if (shareInputRef) {
               void writeClipboard([
                 new ClipboardItem({
-                  'text/plain': new Blob([shareInputRef.value], { type: 'text/plain' }),
+                  'text/plain': new Blob([shareInputRef.value], {
+                    type: 'text/plain',
+                  }),
                 }),
               ]);
               toast.success('Copied to clipboard');

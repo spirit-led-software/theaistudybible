@@ -94,16 +94,16 @@ const ContextMenuSubTrigger = <T extends ValidComponent = 'div'>(
     >
       {local.children}
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="ml-auto size-4"
+        xmlns='http://www.w3.org/2000/svg'
+        viewBox='0 0 24 24'
+        fill='none'
+        stroke='currentColor'
+        stroke-width='2'
+        stroke-linecap='round'
+        stroke-linejoin='round'
+        class='ml-auto size-4'
       >
-        <path d="M9 6l6 6l-6 6" />
+        <path d='M9 6l6 6l-6 6' />
       </svg>
     </ContextMenuPrimitive.SubTrigger>
   );
@@ -145,19 +145,19 @@ const ContextMenuCheckboxItem = <T extends ValidComponent = 'div'>(
       )}
       {...others}
     >
-      <span class="absolute left-2 flex size-3.5 items-center justify-center">
+      <span class='absolute left-2 flex size-3.5 items-center justify-center'>
         <ContextMenuPrimitive.ItemIndicator>
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="size-4"
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            class='size-4'
           >
-            <path d="M5 12l5 5l10 -10" />
+            <path d='M5 12l5 5l10 -10' />
           </svg>
         </ContextMenuPrimitive.ItemIndicator>
       </span>
@@ -199,19 +199,19 @@ const ContextMenuRadioItem = <T extends ValidComponent = 'div'>(
       )}
       {...others}
     >
-      <span class="absolute left-2 flex size-3.5 items-center justify-center">
+      <span class='absolute left-2 flex size-3.5 items-center justify-center'>
         <ContextMenuPrimitive.ItemIndicator>
           <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="size-2 fill-current"
+            xmlns='http://www.w3.org/2000/svg'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            class='size-2 fill-current'
           >
-            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            <path d='M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0' />
           </svg>
         </ContextMenuPrimitive.ItemIndicator>
       </span>

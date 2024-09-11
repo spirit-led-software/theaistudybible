@@ -19,10 +19,10 @@ export const Tools = (props: ToolsProps) => {
   return (
     <For each={props.toolInvocations}>
       {(toolInvocation) => (
-        <div class="flex w-full flex-col">
+        <div class='flex w-full flex-col'>
           <Switch
             fallback={
-              <div class="flex w-full flex-col">
+              <div class='flex w-full flex-col'>
                 <H6>{toolInvocation.toolName}</H6>
                 <Show
                   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

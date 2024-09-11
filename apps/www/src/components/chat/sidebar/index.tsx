@@ -82,19 +82,19 @@ export const ChatSidebar = () => {
         </TooltipTrigger>
         <TooltipContent>View Chats</TooltipContent>
       </Tooltip>
-      <SheetContent class="h-dvh" position="left">
-        <div class="flex h-full w-full max-w-none flex-col space-y-2 px-2 pb-10">
+      <SheetContent class='h-dvh' position='left'>
+        <div class='flex h-full w-full max-w-none flex-col space-y-2 px-2 pb-10'>
           <SheetHeader>
             <SheetTitle>Chats</SheetTitle>
           </SheetHeader>
-          <div class="flex max-h-full grow flex-col overflow-y-auto">
-            <div class="flex grow flex-col gap-2 pr-3">
+          <div class='flex max-h-full grow flex-col overflow-y-auto'>
+            <div class='flex grow flex-col gap-2 pr-3'>
               <QueryBoundary query={chatsQuery}>
                 {() => (
                   <For
                     each={chats}
                     fallback={
-                      <div class="flex h-full w-full flex-1 items-center justify-center">
+                      <div class='flex h-full w-full flex-1 items-center justify-center'>
                         <H6>No chats yet</H6>
                       </div>
                     }
@@ -109,23 +109,23 @@ export const ChatSidebar = () => {
                       >
                         <SheetClose
                           as={Button}
-                          variant="ghost"
+                          variant='ghost'
                           onClick={() => {
                             setChatStore('chat', chat);
                             if (location.pathname.startsWith('/chat')) {
                               navigate(`/chat/${chat.id}`);
                             }
                           }}
-                          class="flex h-fit w-full flex-1 overflow-hidden px-0 text-left"
+                          class='flex h-fit w-full flex-1 overflow-hidden px-0 text-left'
                         >
-                          <div class="flex w-full flex-col overflow-hidden">
-                            <span class="line-clamp-2">{chat.name}</span>
-                            <span class="text-muted-foreground text-sm">
+                          <div class='flex w-full flex-col overflow-hidden'>
+                            <span class='line-clamp-2'>{chat.name}</span>
+                            <span class='text-muted-foreground text-sm'>
                               {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
                             </span>
                           </div>
                         </SheetClose>
-                        <div class="flex flex-col">
+                        <div class='flex flex-col'>
                           <EditChatButton chat={chat} />
                           <DeleteChatButton chat={chat} />
                         </div>
@@ -140,7 +140,7 @@ export const ChatSidebar = () => {
                 </Match>
                 <Match when={chatsQuery.hasNextPage}>
                   <Button
-                    class="w-full"
+                    class='w-full'
                     onClick={() => {
                       if (!chatsQuery.isFetchingNextPage) {
                         void chatsQuery.fetchNextPage();

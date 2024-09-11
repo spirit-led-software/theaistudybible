@@ -113,11 +113,11 @@ export const app = new Hono<{
           cursor: z
             .string()
             .optional()
-            .transform((v) => (v ? parseInt(v) : 0)),
+            .transform((v) => (v ? Number.parseInt(v) : 0)),
           limit: z
             .string()
             .optional()
-            .transform((v) => (v ? parseInt(v) : 10)),
+            .transform((v) => (v ? Number.parseInt(v) : 10)),
         })
         .optional()
         .transform(

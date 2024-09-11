@@ -81,19 +81,19 @@ export const DevotionSidebar = () => {
         </TooltipTrigger>
         <TooltipContent>View Devotions</TooltipContent>
       </Tooltip>
-      <SheetContent class="h-dvh" position="left">
-        <div class="flex h-full w-full max-w-none flex-col space-y-2 px-2 pb-10">
+      <SheetContent class='h-dvh' position='left'>
+        <div class='flex h-full w-full max-w-none flex-col space-y-2 px-2 pb-10'>
           <SheetHeader>
             <SheetTitle>Devotions</SheetTitle>
           </SheetHeader>
-          <div class="flex max-h-full grow flex-col overflow-y-auto">
-            <div class="flex grow flex-col gap-2 pr-3">
+          <div class='flex max-h-full grow flex-col overflow-y-auto'>
+            <div class='flex grow flex-col gap-2 pr-3'>
               <QueryBoundary query={devotionsQuery}>
                 {() => (
                   <For
                     each={devotions}
                     fallback={
-                      <div class="flex h-full w-full flex-1 items-center justify-center">
+                      <div class='flex h-full w-full flex-1 items-center justify-center'>
                         <H6>No devotions yet</H6>
                       </div>
                     }
@@ -107,16 +107,16 @@ export const DevotionSidebar = () => {
                       >
                         <SheetClose
                           as={Button}
-                          variant="ghost"
+                          variant='ghost'
                           onClick={() => {
                             setDevotionStore('devotion', devotion);
                             navigate(`/devotion/${devotion.id}`);
                           }}
-                          class="h flex h-fit w-full flex-1 overflow-hidden px-0 text-left"
+                          class='h flex h-fit w-full flex-1 overflow-hidden px-0 text-left'
                         >
-                          <div class="flex w-full flex-col overflow-hidden">
-                            <span class="line-clamp-2">{toTitleCase(devotion.topic)}</span>
-                            <span class="text-muted-foreground text-sm">
+                          <div class='flex w-full flex-col overflow-hidden'>
+                            <span class='line-clamp-2'>{toTitleCase(devotion.topic)}</span>
+                            <span class='text-muted-foreground text-sm'>
                               {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
                             </span>
                           </div>
@@ -132,7 +132,7 @@ export const DevotionSidebar = () => {
                 </Match>
                 <Match when={devotionsQuery.hasNextPage}>
                   <Button
-                    class="w-full"
+                    class='w-full'
                     onClick={() => {
                       if (!devotionsQuery.isFetchingNextPage) {
                         void devotionsQuery.fetchNextPage();

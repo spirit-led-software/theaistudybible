@@ -91,23 +91,23 @@ export const HighlightCard = () => {
           <CardTitle>Highlight</CardTitle>
         </CardHeader>
         <CardContent>
-          <ToggleGroup class="grid grid-cols-4 grid-rows-2" onChange={(value) => setTgValue(value)}>
-            <ColorItem title="Pink" hex="#FFC0CB" />
-            <ColorItem title="Blue" hex="#ADD8E6" />
-            <ColorItem title="Green" hex="#90EE90" />
-            <ColorItem title="Yellow" hex="#FFFF00" />
-            <ColorItem title="Orange" hex="#FFA500" />
-            <ColorItem title="Purple" hex="#DDA0DD" />
-            <ColorItem title="Red" hex="#FF6347" />
+          <ToggleGroup class='grid grid-cols-4 grid-rows-2' onChange={(value) => setTgValue(value)}>
+            <ColorItem title='Pink' hex='#FFC0CB' />
+            <ColorItem title='Blue' hex='#ADD8E6' />
+            <ColorItem title='Green' hex='#90EE90' />
+            <ColorItem title='Yellow' hex='#FFFF00' />
+            <ColorItem title='Orange' hex='#FFA500' />
+            <ColorItem title='Purple' hex='#DDA0DD' />
+            <ColorItem title='Red' hex='#FF6347' />
             <HighlightColorPicker setColor={setCustomColor} />
           </ToggleGroup>
         </CardContent>
-        <CardFooter class="flex justify-end gap-2">
-          <DrawerClose as={Button} variant="outline">
+        <CardFooter class='flex justify-end gap-2'>
+          <DrawerClose as={Button} variant='outline'>
             Close
           </DrawerClose>
           <Button
-            variant="destructive"
+            variant='destructive'
             disabled={addHighlightsMutation.isPending || deleteHighlightsMutation.isPending}
             onClick={() =>
               deleteHighlightsMutation.mutate({
@@ -117,7 +117,7 @@ export const HighlightCard = () => {
           >
             <Switch fallback={'Reset'}>
               <Match when={deleteHighlightsMutation.isPending}>
-                <Spinner size="sm" variant="destructive-foreground" />
+                <Spinner size='sm' variant='destructive-foreground' />
               </Match>
             </Switch>
           </Button>
@@ -132,7 +132,7 @@ export const HighlightCard = () => {
           >
             <Switch fallback={'Save'}>
               <Match when={addHighlightsMutation.isPending}>
-                <Spinner size="sm" variant="primary-foreground" />
+                <Spinner size='sm' variant='primary-foreground' />
               </Match>
             </Switch>
           </Button>
@@ -140,21 +140,21 @@ export const HighlightCard = () => {
       </SignedIn>
       <SignedOut>
         <CardHeader />
-        <CardContent class="flex w-full flex-1 flex-col place-items-center justify-center pt-6">
-          <div class="flex h-full w-full flex-col place-items-center justify-center">
-            <P class="text-lg">
+        <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
+          <div class='flex h-full w-full flex-col place-items-center justify-center'>
+            <P class='text-lg'>
               Please{' '}
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class="text-accent-foreground px-0 text-lg capitalize"
+                class='text-accent-foreground px-0 text-lg capitalize'
               />{' '}
               to highlight
             </P>
           </div>
         </CardContent>
-        <CardFooter class="flex justify-end">
-          <DrawerClose as={Button} variant="outline">
+        <CardFooter class='flex justify-end'>
+          <DrawerClose as={Button} variant='outline'>
             Close
           </DrawerClose>
         </CardFooter>

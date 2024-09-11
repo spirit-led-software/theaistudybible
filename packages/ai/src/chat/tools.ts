@@ -296,7 +296,10 @@ export const vectorStoreTool = tool({
   },
 });
 
-export const generateImageTool = (props: { userId: string; sessionClaims: JwtPayload }) =>
+export const generateImageTool = (props: {
+  userId: string;
+  sessionClaims: JwtPayload;
+}) =>
   tool({
     description:
       'Generate an image from a text prompt. You must use the vector store search tool to fetch relevant resources to make your prompt more detailed. This tool does not require confirmation.',
@@ -382,7 +385,10 @@ export const generateImageTool = (props: { userId: string; sessionClaims: JwtPay
     },
   });
 
-export const tools = (options: { userId: string; sessionClaims: JwtPayload }) => ({
+export const tools = (options: {
+  userId: string;
+  sessionClaims: JwtPayload;
+}) => ({
   askForConfirmation: askForConfirmationTool,
   askForHighlightColor: askForHighlightColorTool,
   highlightVerse: highlightVerseTool({
