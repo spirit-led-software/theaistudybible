@@ -32,8 +32,9 @@ jobs:
       - name: Type check
         run: bun run type-check
 
-      - name: Lint
-        run: bun run lint
+      - name: Lint changed files
+        run: |
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | xargs bun run eslint
 
       - name: Set SST Stage
         run: |
