@@ -9,12 +9,20 @@ import tsEslint from 'typescript-eslint';
 
 export default tsEslint.config(
   {
-    ignores: ['**/node_modules/**', '**/.sst/**', '**/.turbo/**', '**/.vinxi/**', '**/.output/**'],
+    ignores: [
+      '**/node_modules',
+      '**/.sst',
+      '**/.turbo',
+      '**/.vinxi',
+      '**/.output',
+      '**/sst-env.d.ts',
+    ],
   },
   {
     languageOptions: {
       globals: {
         ...globals.node,
+        ...globals.browser,
       },
     },
   },
@@ -22,7 +30,7 @@ export default tsEslint.config(
   // TypeScript
   ...tsEslint.configs.recommendedTypeChecked,
   {
-    // With SolidJS
+    files: ['**/*.ts', '**/*.tsx'],
     ...solidPlugin.configs['flat/typescript'],
     languageOptions: {
       parserOptions: {
@@ -48,7 +56,7 @@ export default tsEslint.config(
     },
   },
   {
-    files: ['**/*.{js,cjs,mjs}'],
+    files: ['**/*.{js,cjs,mjs,jsx}'],
     ...tsEslint.configs.disableTypeChecked,
   },
   {
