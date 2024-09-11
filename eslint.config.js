@@ -9,14 +9,7 @@ import tsEslint from 'typescript-eslint';
 
 export default tsEslint.config(
   {
-    ignores: [
-      '**/node_modules',
-      '**/.sst',
-      '**/.turbo',
-      '**/.vinxi',
-      '**/.output',
-      '**/sst-env.d.ts',
-    ],
+    ignores: ['**/node_modules', '**/.sst', '**/.turbo', '**/.vinxi', '**/.output'],
   },
   {
     languageOptions: {
@@ -30,15 +23,14 @@ export default tsEslint.config(
   // TypeScript
   ...tsEslint.configs.recommendedTypeChecked,
   {
-    files: ['**/*.ts', '**/*.tsx'],
     ...solidPlugin.configs['flat/typescript'],
     languageOptions: {
       parserOptions: {
         project: [
           './tsconfig.json',
-          './apps/*/tsconfig.json',
-          './packages/*/tsconfig.json',
-          './tools/*/tsconfig.json',
+          'apps/*/tsconfig.json',
+          'packages/*/tsconfig.json',
+          'tools/*/tsconfig.json',
         ],
         tsconfigRootDir: import.meta.dirname,
       },

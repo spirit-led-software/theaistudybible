@@ -23,6 +23,7 @@
     "secret:remove": "sst secret remove",
     "secret:list": "sst secret list",
     "type-check": "turbo run type-check",
+    "test": "vitest run",
     "upgrade": "bun update --latest --save && sst upgrade"
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "@eslint/js": "^9.10.0",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.5.4",
+    "@types/bun": "^1.1.9",
     "drizzle-kit": "^0.24.2",
     "eslint": "^9.10.0",
     "eslint-plugin-drizzle": "^0.2.3",

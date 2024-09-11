@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -14,7 +15,7 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
-    "hono": "^4.5.11",
+    "hono": "^4.6.1",
     "svix": "^1.32.0"
   }
 }

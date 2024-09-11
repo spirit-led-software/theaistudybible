@@ -3,9 +3,18 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { seedDatabase } from './database/seed';
+import { upgradePackages } from './upgrade';
 
 await yargs(hideBin(process.argv))
   .scriptName('scripts')
+  .command(
+    'upgrade',
+    'Upgrade all packages',
+    (yargs) => yargs,
+    async () => {
+      await upgradePackages();
+    },
+  )
   .command('db', 'Database commands', (yargs) =>
     yargs.command(
       'seed',

@@ -16,7 +16,7 @@
     "vitest": "^2.0.5"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.0.35",
+    "@clerk/clerk-sdk-node": "^5.0.38",
     "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",

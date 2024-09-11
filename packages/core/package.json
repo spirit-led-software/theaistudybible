@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@theaistudybible/schemas": "workspace:*",
-    "@clerk/clerk-sdk-node": "^5.0.35",
+    "@clerk/clerk-sdk-node": "^5.0.38",
     "@paralleldrive/cuid2": "^2.2.2"
   }
 }
