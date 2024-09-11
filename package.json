@@ -26,7 +26,7 @@
     "secret:list": "sst secret list",
     "type-check": "turbo run type-check",
     "test": "vitest run",
-    "upgrade": "bun update --latest --save && sst upgrade"
+    "upgrade": "bun run scripts upgrade && sst upgrade"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
@@ -50,7 +50,7 @@
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
-    "sst": "3.0.132",
+    "sst": "3.1.3",
     "stripe": "^16.10.0",
     "zod": "^3.23.8"
   },
