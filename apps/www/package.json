@@ -7,8 +7,6 @@
     "clean": "rimraf .output .vinxi",
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
     "start": "vinxi start",
     "type-check": "tsc --noEmit",
     "test": "vitest"
@@ -16,8 +14,7 @@
   "devDependencies": {
     "@clerk/types": "^4.19.0",
     "@tanstack/eslint-plugin-query": "^5.53.0",
-    "@theaistudybible/eslint-config": "workspace:*",
-    "@theaistudybible/ts-config": "workspace:*",
+    "@theaistudybible/tsconfig": "workspace:*",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.45",
     "solid-devtools": "^0.30.1",

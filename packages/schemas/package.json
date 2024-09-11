@@ -4,12 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@theaistudybible/eslint-config": "workspace:*",
-    "@theaistudybible/ts-config": "workspace:*"
+    "@theaistudybible/tsconfig": "workspace:*"
   }
 }

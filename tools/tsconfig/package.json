@@ -1,5 +1,5 @@
 {
-  "name": "@theaistudybible/ts-config",
+  "name": "@theaistudybible/tsconfig",
   "description": "The AI Study Bible TypeScript Configuration",
   "private": true,
   "main": "tsconfig.json",

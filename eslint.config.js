@@ -34,7 +34,13 @@ export default tsEslint.config(
     ...solidPlugin.configs['flat/typescript'],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.json'],
+        project: [
+          './tsconfig.json',
+          './apps/*/tsconfig.json',
+          './packages/*/tsconfig.json',
+          './tools/*/tsconfig.json',
+        ],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
