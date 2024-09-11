@@ -81,7 +81,6 @@ export function parseFilterExpression<T extends Table>(table: T, expression: str
     throw new Error(`Invalid operator: ${operator}`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const value = cleanseValue(tokens.slice(isNot ? 3 : 2).join(' '));
 
   let sql: SQL<unknown>;
@@ -95,7 +94,6 @@ export function parseFilterExpression<T extends Table>(table: T, expression: str
       break;
     }
     case '~=': {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       sql = ilike(column, value);
       break;
     }
@@ -117,7 +115,6 @@ export function parseFilterExpression<T extends Table>(table: T, expression: str
     }
     case 'in':
     case 'IN': {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       sql = inArray(column, value);
       break;
     }
@@ -127,7 +124,6 @@ export function parseFilterExpression<T extends Table>(table: T, expression: str
       break;
     }
     default: {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       throw new Error(`Invalid operator: ${operator}`);
     }
   }

@@ -18,9 +18,8 @@ export default function RefContent(props: RefContentProps) {
   const [brStore] = useBibleReaderStore();
 
   const link = createMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const [bookAbbr, chapterAndVerse] = props.attrs.loc.split(' ');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+
     const [chapter, verse] = chapterAndVerse.split(':');
     let link = `/bible/${brStore.bible.abbreviation}/${bookAbbr}/${chapter}`;
     if (verse) {

@@ -24,11 +24,7 @@ export const Tools = (props: ToolsProps) => {
             fallback={
               <div class='flex w-full flex-col'>
                 <H6>{toolInvocation.toolName}</H6>
-                <Show
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                  when={'result' in toolInvocation && toolInvocation.result}
-                  keyed
-                >
+                <Show when={'result' in toolInvocation && toolInvocation.result} keyed>
                   {(result) => (
                     <p>
                       <strong>Result:</strong> {result}

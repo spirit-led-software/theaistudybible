@@ -378,7 +378,7 @@ export const app = new Hono<{
     ),
     (c) => {
       const { 'include-content': includeContent } = c.req.valid('query');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const { content, ...rest } = c.var.chapter;
 
       return c.json(

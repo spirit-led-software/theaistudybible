@@ -65,31 +65,27 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       );
       return `${store.book.shortName} ${store.chapter.number}:${formNumberSequenceString(verseNumbers)} (${store.bible.abbreviationLocal})`;
     },
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
     get selectedText() {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return (
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        this.selectedVerseInfos
-          .toSorted((a: SelectedVerseInfo, b: SelectedVerseInfo) => a.number - b.number)
-          .flatMap((info: SelectedVerseInfo, index: number, array: SelectedVerseInfo[]) => {
-            let text = '';
-            const prev = array[index - 1];
-            if (prev && prev.number + 1 !== info.number) {
-              text += '... ';
-            }
-            text += `${info.number} ${info.text}`;
-            // Add space between verses
-            if (index !== array.length - 1) {
-              text += ' ';
-            }
-            return text;
-          })
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          .join('')
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          .trim()
-      );
+      return this.selectedVerseInfos
+        .toSorted((a: SelectedVerseInfo, b: SelectedVerseInfo) => a.number - b.number)
+        .flatMap((info: SelectedVerseInfo, index: number, array: SelectedVerseInfo[]) => {
+          let text = '';
+          const prev = array[index - 1];
+          if (prev && prev.number + 1 !== info.number) {
+            text += '... ';
+          }
+          text += `${info.number} ${info.text}`;
+          // Add space between verses
+          if (index !== array.length - 1) {
+            text += ' ';
+          }
+          return text;
+        })
+
+        .join('')
+
+        .trim();
     },
   });
 

@@ -59,10 +59,7 @@ export const ShareCard = () => {
           <Copy />
         </Button>
         <Switch>
-          <Match
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            when={navigator.share}
-          >
+          <Match when={navigator.share}>
             <Button
               onClick={() => {
                 void navigator.share({

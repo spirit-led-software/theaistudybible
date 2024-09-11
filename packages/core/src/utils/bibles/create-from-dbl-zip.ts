@@ -183,7 +183,6 @@ export async function createBibleFromDblZip({
     .insert(schema.books)
     .values(
       bookInfos.map((book, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { src, ...rest } = book;
         return {
           ...rest,

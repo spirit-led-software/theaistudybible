@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { TURSO_API_BASE_URL } from './constants';
 import type {
   TursoDatabaseConfiguration,

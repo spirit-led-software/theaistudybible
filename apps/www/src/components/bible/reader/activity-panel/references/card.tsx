@@ -60,14 +60,11 @@ export const ReferencesCard = () => {
                       <span class='font-bold'>{idx() + 1}.</span>
                       <div class='flex w-full flex-col space-y-2'>
                         <H6>
-                          {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                            reference
-                              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                              .metadata!.name.replace(`(${brStore.bible.abbreviationLocal})`, '')
-                              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                              .trim()
-                          }
+                          {reference
+
+                            .metadata!.name.replace(`(${brStore.bible.abbreviationLocal})`, '')
+
+                            .trim()}
                           :
                         </H6>
                         <p class='line-clamp-3 truncate text-wrap'>
@@ -77,7 +74,6 @@ export const ReferencesCard = () => {
                     </div>
                     <DrawerClose
                       as={A}
-                      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                       href={`${reference.metadata!.url}?verseIds=${encodeURIComponent(reference.metadata!.verseIds.join(','))}`}
                       class={cn(buttonVariants({ variant: 'link' }), 'text-accent-foreground')}
                     >

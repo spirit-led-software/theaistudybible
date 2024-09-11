@@ -1,6 +1,6 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { MultiProvider } from '@solid-primitives/context';
-import { Meta, MetaProvider, Title } from '@solidjs/meta';
+import { Link, Meta, MetaProvider, Title } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
@@ -50,16 +50,15 @@ export default function App() {
                     The AI Study Bible is a digital study Bible that uses artificial intelligence to
                     help you study the Bible.
                   </Meta>
+                  <Meta name='theme-color' content='#030527' />
+                  <Link rel='icon' href='/favicon.ico' sizes='48x48' />
+                  <Link rel='icon' href='/icon.svg' type='image/svg+xml' sizes='any' />
+                  <Link rel='apple-touch-icon' href='/apple-touch-icon-180x180.png' />
                   <ErrorBoundary
                     fallback={(err, reset) => (
                       <div class='flex h-full w-full flex-col items-center justify-center space-y-2'>
                         <H1>Error</H1>
-                        <H4 class='max-w-sm text-center'>
-                          {
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                            err.message
-                          }
-                        </H4>
+                        <H4 class='max-w-sm text-center'>{err.message}</H4>
                         <div class='flex space-x-2'>
                           <Button onClick={reset}>Retry</Button>
                           <Button as={A} href='/'>
