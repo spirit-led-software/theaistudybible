@@ -63,8 +63,9 @@ export function ReadingSessionProvider(props: { children: JSXElement }) {
     setIsReading(false);
     const session = sessionId();
     if (session) {
-      await endReadingSession(session);
-      setSessionId(null);
+      await endReadingSession(session).finally(() => {
+        setSessionId(null);
+      });
     }
   };
 

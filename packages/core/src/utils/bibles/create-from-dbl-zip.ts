@@ -99,12 +99,65 @@ export async function createBibleFromDblZip({
       name: metadata.identification.name,
       nameLocal: metadata.identification.nameLocal,
       description: metadata.identification.description,
-      languageISO: metadata.language.iso,
-      countryISOs: Array.isArray(metadata.countries)
-        ? metadata.countries.map((country) => country.iso)
-        : [metadata.countries.country.iso],
+      copyrightStatement: metadata.copyright.fullStatement.statementContent.p,
     })
     .returning();
+
+  const [language] = await db
+    .insert(schema.bibleLanguages)
+    .values(metadata.language)
+    .onConflictDoNothing()
+    .returning();
+  await db.insert(schema.biblesToLanguages).values({
+    bibleId: bible.id,
+    languageId: language.id,
+  });
+
+  const countries = await db
+    .insert(schema.bibleCountries)
+    .values(
+      Array.isArray(metadata.countries)
+        ? metadata.countries.map((country) => country)
+        : [metadata.countries.country],
+    )
+    .onConflictDoNothing()
+    .returning();
+  await db.insert(schema.biblesToCountries).values(
+    countries.map((country) => ({
+      bibleId: bible.id,
+      countryId: country.id,
+    })),
+  );
+
+  const [rightsHolder] = await db
+    .insert(schema.bibleRightsHolders)
+    .values(metadata.agencies.rightsHolder)
+    .onConflictDoNothing()
+    .returning();
+  await db.insert(schema.biblesToRightsHolders).values({
+    bibleId: bible.id,
+    rightsHolderId: rightsHolder.id,
+  });
+
+  const [rightsAdmin] = await db
+    .insert(schema.bibleRightsAdmins)
+    .values(metadata.agencies.rightsAdmin)
+    .onConflictDoNothing()
+    .returning();
+  await db.insert(schema.biblesToRightsAdmins).values({
+    bibleId: bible.id,
+    rightsAdminId: rightsAdmin.id,
+  });
+
+  const [contributor] = await db
+    .insert(schema.bibleContributors)
+    .values(metadata.agencies.contributor)
+    .onConflictDoNothing()
+    .returning();
+  await db.insert(schema.biblesToContributors).values({
+    bibleId: bible.id,
+    contributorId: contributor.id,
+  });
 
   console.log(`Bible created with ID ${bible.id}`);
 

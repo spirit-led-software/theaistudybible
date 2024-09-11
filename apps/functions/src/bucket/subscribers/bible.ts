@@ -24,12 +24,13 @@ export const handler: S3Handler = async (event) => {
 
       // Extract parameters from metadata
       const publicationId = Metadata?.['publication-id'];
+      const generateEmbeddings = Metadata?.['generate-embeddings'] === 'true';
 
       await createBibleFromDblZip({
         zipBuffer: buffer,
-        publicationId,
         overwrite: true,
-        generateEmbeddings: true,
+        publicationId,
+        generateEmbeddings,
       });
 
       console.log(`Successfully processed ${key}`);

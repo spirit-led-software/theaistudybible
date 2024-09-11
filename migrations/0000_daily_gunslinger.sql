@@ -1,3 +1,59 @@
+CREATE TABLE `bible_contributors` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`uid` text NOT NULL,
+	`name` text NOT NULL,
+	`content` integer NOT NULL,
+	`publication` integer NOT NULL,
+	`management` integer NOT NULL,
+	`finance` integer NOT NULL,
+	`qa` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `bible_countries` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`iso` text NOT NULL,
+	`name` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `bible_languages` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`iso` text NOT NULL,
+	`name` text NOT NULL,
+	`name_local` text NOT NULL,
+	`script` text NOT NULL,
+	`script_code` text NOT NULL,
+	`script_direction` text NOT NULL,
+	`ldml` text NOT NULL,
+	`rod` integer NOT NULL,
+	`numerals` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `bible_rights_admins` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`uid` text NOT NULL,
+	`name` text NOT NULL,
+	`url` text
+);
+--> statement-breakpoint
+CREATE TABLE `bible_rights_holders` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` text NOT NULL,
+	`updated_at` text NOT NULL,
+	`uid` text NOT NULL,
+	`name` text NOT NULL,
+	`name_local` text NOT NULL,
+	`abbr` text NOT NULL,
+	`url` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `bibles` (
 	`id` text PRIMARY KEY NOT NULL,
 	`created_at` text NOT NULL,
@@ -7,8 +63,42 @@ CREATE TABLE `bibles` (
 	`name` text NOT NULL,
 	`name_local` text NOT NULL,
 	`description` text NOT NULL,
-	`language_iso` text NOT NULL,
-	`country_isos` text DEFAULT '[]' NOT NULL
+	`copyright_statement` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `bibles_to_contributors` (
+	`bible_id` text NOT NULL,
+	`contributor_id` text NOT NULL,
+	FOREIGN KEY (`bible_id`) REFERENCES `bibles`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`contributor_id`) REFERENCES `bible_contributors`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `bibles_to_countries` (
+	`bible_id` text NOT NULL,
+	`country_id` text NOT NULL,
+	FOREIGN KEY (`bible_id`) REFERENCES `bibles`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`country_id`) REFERENCES `bible_countries`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `bibles_to_languages` (
+	`bible_id` text NOT NULL,
+	`language_id` text NOT NULL,
+	FOREIGN KEY (`bible_id`) REFERENCES `bibles`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`language_id`) REFERENCES `bible_languages`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `bibles_to_rights_admins` (
+	`bible_id` text NOT NULL,
+	`rights_admin_id` text NOT NULL,
+	FOREIGN KEY (`bible_id`) REFERENCES `bibles`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`rights_admin_id`) REFERENCES `bible_rights_admins`(`id`) ON UPDATE cascade ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE `bibles_to_rights_holders` (
+	`bible_id` text NOT NULL,
+	`rights_holder_id` text NOT NULL,
+	FOREIGN KEY (`bible_id`) REFERENCES `bibles`(`id`) ON UPDATE cascade ON DELETE cascade,
+	FOREIGN KEY (`rights_holder_id`) REFERENCES `bible_rights_holders`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `books` (
@@ -304,10 +394,18 @@ CREATE TABLE `verses` (
 	FOREIGN KEY (`chapter_id`) REFERENCES `chapters`(`id`) ON UPDATE cascade ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `bible_contributors_uid_unique` ON `bible_contributors` (`uid`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bible_countries_iso_unique` ON `bible_countries` (`iso`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bible_languages_iso_unique` ON `bible_languages` (`iso`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bible_rights_admins_uid_unique` ON `bible_rights_admins` (`uid`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bible_rights_holders_uid_unique` ON `bible_rights_holders` (`uid`);--> statement-breakpoint
 CREATE UNIQUE INDEX `bibles_abbreviation_unique` ON `bibles` (`abbreviation`);--> statement-breakpoint
 CREATE INDEX `bibles_abbreviation` ON `bibles` (`abbreviation`);--> statement-breakpoint
-CREATE INDEX `bibles_language_iso` ON `bibles` (`language_iso`);--> statement-breakpoint
-CREATE INDEX `bibles_country_isos` ON `bibles` (`country_isos`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bibles_to_contributors_key` ON `bibles_to_contributors` (`bible_id`,`contributor_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bibles_to_countries_key` ON `bibles_to_countries` (`bible_id`,`country_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bibles_to_languages_key` ON `bibles_to_languages` (`bible_id`,`language_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bibles_to_rights_admins_key` ON `bibles_to_rights_admins` (`bible_id`,`rights_admin_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `bible_rights_holders_to_bibles_key` ON `bibles_to_rights_holders` (`bible_id`,`rights_holder_id`);--> statement-breakpoint
 CREATE INDEX `books_abbreviation` ON `books` (`abbreviation`);--> statement-breakpoint
 CREATE INDEX `books_short_name` ON `books` (`short_name`);--> statement-breakpoint
 CREATE INDEX `books_long_name` ON `books` (`long_name`);--> statement-breakpoint
@@ -321,6 +419,8 @@ CREATE UNIQUE INDEX `chapter_source_document_key` ON `chapters_to_source_documen
 CREATE INDEX `chat_name` ON `chats` (`name`);--> statement-breakpoint
 CREATE UNIQUE INDEX `data_sources_name_key` ON `data_sources` (`name`);--> statement-breakpoint
 CREATE INDEX `data_sources_type` ON `data_sources` (`type`);--> statement-breakpoint
+CREATE INDEX `data_sources_last_manual_sync_idx` ON `data_sources` (`last_manual_sync`);--> statement-breakpoint
+CREATE INDEX `data_sources_last_automatic_sync_idx` ON `data_sources` (`last_automatic_sync`);--> statement-breakpoint
 CREATE UNIQUE INDEX `data_source_source_document_key` ON `data_sources_to_source_documents` (`data_source_id`,`source_document_id`);--> statement-breakpoint
 CREATE INDEX `devotion_images_devotion_id` ON `devotion_images` (`devotion_id`);--> statement-breakpoint
 CREATE INDEX `devotion_reactions_devotion_id` ON `devotion_reactions` (`devotion_id`);--> statement-breakpoint
@@ -334,10 +434,18 @@ CREATE INDEX `chat_id` ON `messages` (`chat_id`);--> statement-breakpoint
 CREATE INDEX `user_id` ON `messages` (`user_id`);--> statement-breakpoint
 CREATE INDEX `origin_message_id` ON `messages` (`origin_message_id`);--> statement-breakpoint
 CREATE INDEX `anonymous` ON `messages` (`anonymous`);--> statement-breakpoint
+CREATE INDEX `messages_created_at_idx` ON `messages` (`created_at`);--> statement-breakpoint
 CREATE UNIQUE INDEX `message_source_document_key` ON `messages_to_source_documents` (`message_id`,`source_document_id`);--> statement-breakpoint
+CREATE INDEX `reading_sessions_user_id_idx` ON `reading_sessions` (`user_id`);--> statement-breakpoint
+CREATE INDEX `reading_sessions_start_time_idx` ON `reading_sessions` (`start_time`);--> statement-breakpoint
+CREATE INDEX `reading_sessions_end_time_idx` ON `reading_sessions` (`end_time`);--> statement-breakpoint
+CREATE INDEX `roles_name_idx` ON `roles` (`name`);--> statement-breakpoint
 CREATE INDEX `chat_share_options_chat_id` ON `share_chat_options` (`chat_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `user_credits_user_id_unique` ON `user_credits` (`user_id`);--> statement-breakpoint
+CREATE INDEX `user_credits_user_id_idx` ON `user_credits` (`user_id`);--> statement-breakpoint
 CREATE INDEX `user_generated_images_user_id` ON `user_generated_images` (`user_id`);--> statement-breakpoint
 CREATE INDEX `user_generated_images_message_id` ON `user_generated_images` (`message_id`);--> statement-breakpoint
+CREATE INDEX `user_generated_images_created_at_idx` ON `user_generated_images` (`created_at`);--> statement-breakpoint
 CREATE UNIQUE INDEX `user_generated_image_reaction_key` ON `user_generated_images_reactions` (`user_generated_image_id`,`user_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `user_generated_image_source_document_key` ON `user_generated_images_to_source_documents` (`user_generated_image_id`,`source_document_id`);--> statement-breakpoint
 CREATE UNIQUE INDEX `verse_bookmarks_user_verse_key` ON `verse_bookmarks` (`user_id`,`verse_id`);--> statement-breakpoint

@@ -6,6 +6,7 @@ import { ClerkLoaded, SignedIn, SignedOut, SignInButton, UserButton } from 'cler
 import { createMemo } from 'solid-js';
 import Logo from '../branding/logo';
 import LogoSmall from '../branding/logo-small';
+import { ThemeToggleButton } from '../theme/toggle-button';
 import { Button } from '../ui/button';
 import { CreditDisplay } from './credit-display';
 import { NavigationDrawer } from './drawer';
@@ -33,21 +34,20 @@ export default function NavigationHeader() {
           <Menu orientation="horizontal" />
         </div>
       </div>
-      <div class="flex w-1/3 items-center justify-end">
+      <div class="flex w-1/3 items-center justify-end gap-2">
+        <ThemeToggleButton />
         <ClerkLoaded>
           <SignedIn>
-            <div class="flex items-center gap-2">
-              <CreditDisplay />
-              <UserButton
-                showName={!smallWindow()}
-                appearance={{
-                  baseTheme: colorMode() === 'dark' ? dark : undefined,
-                  elements: {
-                    userButtonOuterIdentifier: 'text-foreground',
-                  },
-                }}
-              />
-            </div>
+            <CreditDisplay />
+            <UserButton
+              showName={!smallWindow()}
+              appearance={{
+                baseTheme: colorMode() === 'dark' ? dark : undefined,
+                elements: {
+                  userButtonOuterIdentifier: 'text-foreground',
+                },
+              }}
+            />
           </SignedIn>
           <SignedOut>
             <Button as={SignInButton} mode="modal" forceRedirectUrl={location.pathname} />

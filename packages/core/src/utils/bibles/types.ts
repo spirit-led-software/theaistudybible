@@ -138,7 +138,7 @@ export interface Language {
   nameLocal: string;
   script: string;
   scriptCode: string;
-  scriptDirection: string;
+  scriptDirection: 'LTR' | 'RTL';
   ldml: string;
   rod: number;
   numerals: string;

@@ -38,19 +38,31 @@ const baseModel = {
     .$onUpdateFn(() => new Date()),
 };
 
-export const userCredits = sqliteTable('user_credits', {
-  ...baseModel,
-  userId: text('user_id').notNull().unique(),
-  balance: integer('balance')
-    .notNull()
-    .$defaultFn(() => DEFAULT_CREDITS),
-  lastReadingCreditAt: timestamp('last_reading_credit_at'),
-});
+export const userCredits = sqliteTable(
+  'user_credits',
+  {
+    ...baseModel,
+    userId: text('user_id').notNull().unique(),
+    balance: integer('balance')
+      .notNull()
+      .$defaultFn(() => DEFAULT_CREDITS),
+    lastReadingCreditAt: timestamp('last_reading_credit_at'),
+  },
+  (table) => ({
+    userIdIdx: index('user_credits_user_id_idx').on(table.userId),
+  }),
+);
 
-export const roles = sqliteTable('roles', {
-  ...baseModel,
-  name: text('name').notNull(),
-});
+export const roles = sqliteTable(
+  'roles',
+  {
+    ...baseModel,
+    name: text('name').notNull(),
+  },
+  (table) => ({
+    nameIdx: index('roles_name_idx').on(table.name),
+  }),
+);
 
 export const chats = sqliteTable(
   'chats',
@@ -136,6 +148,7 @@ export const messages = sqliteTable(
       userIdIdx: index('user_id').on(table.userId),
       originMessageIdIdx: index('origin_message_id').on(table.originMessageId),
       anonymousIdx: index('anonymous').on(table.anonymous),
+      createdAtIdx: index('messages_created_at_idx').on(table.createdAt),
       originMessageReference: foreignKey({
         columns: [table.originMessageId],
         foreignColumns: [table.id],
@@ -256,6 +269,7 @@ export const userGeneratedImages = sqliteTable(
     return {
       userIdIdx: index('user_generated_images_user_id').on(table.userId),
       messageIdIdx: index('user_generated_images_message_id').on(table.messageId),
+      createdAtIdx: index('user_generated_images_created_at_idx').on(table.createdAt),
     };
   },
 );
@@ -498,6 +512,10 @@ export const dataSources = sqliteTable(
     return {
       nameKey: uniqueIndex('data_sources_name_key').on(table.name),
       typeIdx: index('data_sources_type').on(table.type),
+      lastManualSyncIdx: index('data_sources_last_manual_sync_idx').on(table.lastManualSync),
+      lastAutomaticSyncIdx: index('data_sources_last_automatic_sync_idx').on(
+        table.lastAutomaticSync,
+      ),
     };
   },
 );
@@ -583,23 +601,280 @@ export const bibles = sqliteTable(
     name: text('name').notNull(),
     nameLocal: text('name_local').notNull(),
     description: text('description').notNull(),
-    languageISO: text('language_iso').notNull(),
-    countryISOs: text('country_isos', { mode: 'json' }).notNull().default([]).$type<string[]>(),
+    copyrightStatement: text('copyright_statement').notNull(),
   },
   (table) => {
     return {
       abbreviationIdx: index('bibles_abbreviation').on(table.abbreviation),
-      languageISOIdx: index('bibles_language_iso').on(table.languageISO),
-      countryISOsIdx: index('bibles_country_isos').on(table.countryISOs),
     };
   },
 );
 
 export const biblesRelations = relations(bibles, ({ many }) => {
   return {
+    biblesToLanguages: many(biblesToLanguages),
+    biblesToCountries: many(biblesToCountries),
+    biblesToRightsHolders: many(biblesToRightsHolders),
+    biblesToRightsAdmins: many(biblesToRightsAdmins),
+    biblesToContributors: many(biblesToContributors),
     books: many(books),
     chapters: many(chapters),
     verses: many(verses),
+  };
+});
+
+export const bibleLanguages = sqliteTable('bible_languages', {
+  ...baseModel,
+  iso: text('iso').notNull().unique(),
+  name: text('name').notNull(),
+  nameLocal: text('name_local').notNull(),
+  script: text('script').notNull(),
+  scriptCode: text('script_code').notNull(),
+  scriptDirection: text('script_direction', { enum: ['LTR', 'RTL'] }).notNull(),
+  ldml: text('ldml').notNull(),
+  rod: integer('rod').notNull(),
+  numerals: text('numerals').notNull(),
+});
+
+export const bibleLanguagesRelations = relations(bibleLanguages, ({ many }) => {
+  return {
+    biblesToLanguages: many(biblesToLanguages),
+  };
+});
+
+export const biblesToLanguages = sqliteTable(
+  'bibles_to_languages',
+  {
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+    languageId: text('language_id')
+      .references(() => bibleLanguages.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+  },
+  (table) => ({
+    bibleLanguageKey: uniqueIndex('bibles_to_languages_key').on(table.bibleId, table.languageId),
+  }),
+);
+
+export const biblesToLanguagesRelations = relations(biblesToLanguages, ({ one }) => {
+  return {
+    bible: one(bibles, {
+      fields: [biblesToLanguages.bibleId],
+      references: [bibles.id],
+    }),
+    language: one(bibleLanguages, {
+      fields: [biblesToLanguages.languageId],
+      references: [bibleLanguages.id],
+    }),
+  };
+});
+
+export const bibleCountries = sqliteTable('bible_countries', {
+  ...baseModel,
+  iso: text('iso').notNull().unique(),
+  name: text('name').notNull(),
+});
+
+export const bibleCountriesRelations = relations(bibleCountries, ({ many }) => {
+  return {
+    biblesToCountries: many(biblesToCountries),
+  };
+});
+
+export const biblesToCountries = sqliteTable(
+  'bibles_to_countries',
+  {
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+    countryId: text('country_id')
+      .references(() => bibleCountries.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+  },
+  (table) => ({
+    bibleCountryKey: uniqueIndex('bibles_to_countries_key').on(table.bibleId, table.countryId),
+  }),
+);
+
+export const biblesToCountriesRelations = relations(biblesToCountries, ({ one }) => {
+  return {
+    bible: one(bibles, {
+      fields: [biblesToCountries.bibleId],
+      references: [bibles.id],
+    }),
+    country: one(bibleCountries, {
+      fields: [biblesToCountries.countryId],
+      references: [bibleCountries.id],
+    }),
+  };
+});
+
+export const bibleRightsHolders = sqliteTable('bible_rights_holders', {
+  ...baseModel,
+  uid: text('uid').notNull().unique(),
+  name: text('name').notNull(),
+  nameLocal: text('name_local').notNull(),
+  abbr: text('abbr').notNull(),
+  url: text('url').notNull(),
+});
+
+export const bibleRightsHoldersRelations = relations(bibleRightsHolders, ({ many }) => {
+  return {
+    biblesToRightsHolders: many(biblesToRightsHolders),
+  };
+});
+
+export const biblesToRightsHolders = sqliteTable(
+  'bibles_to_rights_holders',
+  {
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+    rightsHolderId: text('rights_holder_id')
+      .references(() => bibleRightsHolders.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+  },
+  (table) => ({
+    bibleRightsHolderKey: uniqueIndex('bible_rights_holders_to_bibles_key').on(
+      table.bibleId,
+      table.rightsHolderId,
+    ),
+  }),
+);
+
+export const biblesToRightsHoldersRelations = relations(biblesToRightsHolders, ({ one }) => {
+  return {
+    bible: one(bibles, {
+      fields: [biblesToRightsHolders.bibleId],
+      references: [bibles.id],
+    }),
+    rightsHolder: one(bibleRightsHolders, {
+      fields: [biblesToRightsHolders.rightsHolderId],
+      references: [bibleRightsHolders.id],
+    }),
+  };
+});
+
+export const bibleRightsAdmins = sqliteTable('bible_rights_admins', {
+  ...baseModel,
+  uid: text('uid').notNull().unique(),
+  name: text('name').notNull(),
+  url: text('url'),
+});
+
+export const bibleRightsAdminsRelations = relations(bibleRightsAdmins, ({ many }) => {
+  return {
+    biblesToRightsAdmins: many(biblesToRightsAdmins),
+  };
+});
+
+export const biblesToRightsAdmins = sqliteTable(
+  'bibles_to_rights_admins',
+  {
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+    rightsAdminId: text('rights_admin_id')
+      .references(() => bibleRightsAdmins.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+  },
+  (table) => ({
+    bibleRightsAdminKey: uniqueIndex('bibles_to_rights_admins_key').on(
+      table.bibleId,
+      table.rightsAdminId,
+    ),
+  }),
+);
+
+export const biblesToRightsAdminsRelations = relations(biblesToRightsAdmins, ({ one }) => {
+  return {
+    bible: one(bibles, {
+      fields: [biblesToRightsAdmins.bibleId],
+      references: [bibles.id],
+    }),
+    rightsAdmin: one(bibleRightsAdmins, {
+      fields: [biblesToRightsAdmins.rightsAdminId],
+      references: [bibleRightsAdmins.id],
+    }),
+  };
+});
+
+export const bibleContributors = sqliteTable('bible_contributors', {
+  ...baseModel,
+  uid: text('uid').notNull().unique(),
+  name: text('name').notNull(),
+  content: integer('content', { mode: 'boolean' }).notNull(),
+  publication: integer('publication', { mode: 'boolean' }).notNull(),
+  management: integer('management', { mode: 'boolean' }).notNull(),
+  finance: integer('finance', { mode: 'boolean' }).notNull(),
+  qa: integer('qa', { mode: 'boolean' }).notNull(),
+});
+
+export const bibleContributorsRelations = relations(bibleContributors, ({ many }) => {
+  return {
+    biblesToContributors: many(biblesToContributors),
+  };
+});
+
+export const biblesToContributors = sqliteTable(
+  'bibles_to_contributors',
+  {
+    bibleId: text('bible_id')
+      .references(() => bibles.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+    contributorId: text('contributor_id')
+      .references(() => bibleContributors.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      })
+      .notNull(),
+  },
+  (table) => ({
+    bibleContributorKey: uniqueIndex('bibles_to_contributors_key').on(
+      table.bibleId,
+      table.contributorId,
+    ),
+  }),
+);
+
+export const biblesToContributorsRelations = relations(biblesToContributors, ({ one }) => {
+  return {
+    bible: one(bibles, {
+      fields: [biblesToContributors.bibleId],
+      references: [bibles.id],
+    }),
+    contributor: one(bibleContributors, {
+      fields: [biblesToContributors.contributorId],
+      references: [bibleContributors.id],
+    }),
   };
 });
 
@@ -803,12 +1078,20 @@ export const chaptersToSourceDocumentsRelations = relations(
   },
 );
 
-export const readingSessions = sqliteTable('reading_sessions', {
-  ...baseModel,
-  userId: text('user_id').notNull(),
-  startTime: timestamp('start_time').notNull(),
-  endTime: timestamp('end_time'),
-});
+export const readingSessions = sqliteTable(
+  'reading_sessions',
+  {
+    ...baseModel,
+    userId: text('user_id').notNull(),
+    startTime: timestamp('start_time').notNull(),
+    endTime: timestamp('end_time'),
+  },
+  (table) => ({
+    userIdIdx: index('reading_sessions_user_id_idx').on(table.userId),
+    startTimeIdx: index('reading_sessions_start_time_idx').on(table.startTime),
+    endTimeIdx: index('reading_sessions_end_time_idx').on(table.endTime),
+  }),
+);
 
 export const verses = sqliteTable(
   'verses',

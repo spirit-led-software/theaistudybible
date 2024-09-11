@@ -149,7 +149,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   return (
     <>
-      <div class="eb-container mb-40 mt-5 w-full select-none">
+      <div class="eb-container container select-none">
         <Contents
           contents={props.contents}
           highlights={

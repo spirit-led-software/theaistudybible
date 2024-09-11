@@ -1,4 +1,5 @@
 import { db } from '@/core/database';
+import type { BibleLanguage } from '@/schemas/bibles';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import {
@@ -13,12 +14,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/pop
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { useNavigate } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import ISO6391 from 'iso-639-1';
 import { Check, ChevronsUpDown } from 'lucide-solid';
 
 async function getSmallPickerData() {
   'use server';
-  return await db.query.bibles.findMany();
+  return await db.query.bibles.findMany({
+    with: { biblesToLanguages: { with: { language: true } } },
+  });
 }
 
 export const smallTranslationPickerQueryOptions = () => ({
@@ -32,11 +34,11 @@ export default function SmallTranslationPicker() {
   const navigate = useNavigate();
 
   const uniqueLanguages = query.data?.reduce((acc, bible) => {
-    if (!acc.some((language) => language === bible.languageISO)) {
-      acc.push(bible.languageISO);
+    if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
+      acc.push(bible.biblesToLanguages[0].language);
     }
     return acc;
-  }, [] as string[]);
+  }, [] as BibleLanguage[]);
 
   return (
     <QueryBoundary query={query}>
@@ -57,9 +59,9 @@ export default function SmallTranslationPicker() {
               <CommandList>
                 <CommandEmpty>Not Found</CommandEmpty>
                 {uniqueLanguages?.map((language) => (
-                  <CommandGroup heading={ISO6391.getName(language)} value={language}>
+                  <CommandGroup heading={language.nameLocal} value={language.name}>
                     {bibles
-                      .filter((bible) => bible.languageISO === language)
+                      .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
                       .map((foundBible) => (
                         <CommandItem
                           value={foundBible.name}

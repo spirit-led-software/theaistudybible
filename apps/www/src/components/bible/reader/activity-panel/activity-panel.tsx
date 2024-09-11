@@ -1,6 +1,5 @@
 import { Button } from '@/www/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/www/components/ui/drawer';
-import { Separator } from '@/www/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { H6 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
@@ -65,12 +64,11 @@ export const ActivityPanelAlwaysOpenButtons = () => {
     >
       <div class="bg-primary flex h-10 place-items-center space-x-2 rounded-t-lg px-3 py-1">
         <Tooltip>
-          <TooltipTrigger as={Button} size="sm" onClick={() => setValue('chat')}>
+          <TooltipTrigger as={Button} size="icon" onClick={() => setValue('chat')}>
             <MessageCircle />
           </TooltipTrigger>
           <TooltipContent>Chat</TooltipContent>
         </Tooltip>
-        <Separator orientation="vertical" class="bg-primary-foreground" />
         <Tooltip>
           <TooltipTrigger as={Button} size="icon" onClick={() => setValue('notes')}>
             <Notebook size={20} />
