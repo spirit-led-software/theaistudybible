@@ -3,7 +3,8 @@ node_modules
 
 # sst
 .sst
-sst-env.d.ts
+**/sst-env.d.ts
+!/sst-env.d.ts
 
 # misc
 .DS_Store
