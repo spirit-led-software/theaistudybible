@@ -23,7 +23,6 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     PUBLIC_CLERK_PUBLISHABLE_KEY: CLERK_PUBLISHABLE_KEY.properties.value,
     PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.properties.value,
   },
-  warm: $app.stage === 'production' ? 2 : 0,
   domain: {
     name: DOMAIN.properties.value,
     dns: sst.cloudflare.dns(),
