@@ -1,37 +1,35 @@
-/// <reference path="./.sst/platform/config.d.ts" />
-
 export default $config({
-  app(input) {
+  app: (input) => {
     return {
-      name: "theaistudybible",
-      removal: input?.stage === "production" ? "retain" : "remove",
-      home: "aws",
+      name: 'theaistudybible',
+      removal: input?.stage === 'production' ? 'retain' : 'remove',
+      home: 'aws',
       providers: {
-        aws: {
-          region: "us-east-1",
-        },
+        aws: true,
+        cloudflare: true,
+        '@upstash/pulumi': true,
       },
     };
   },
-  async run() {
-    await import("./infra/constants");
-    const layers = await import("./infra/layers");
-    const buckets = await import("./infra/buckets");
-    const cdn = await import("./infra/cdn");
-    const databases = await import("./infra/databases");
-    await import("./infra/crons");
-    const queues = await import("./infra/queues");
-    const web = await import("./infra/web");
+  run: async () => {
+    await import('./infra/defaults');
+    await import('./infra/constants');
+    await import('./infra/secrets');
+    const { database, upstashVectorIndex } = await import('./infra/database');
+    const { upstashRedis } = await import('./infra/cache');
+    const { cdn } = await import('./infra/storage');
+    const { webhooksApi } = await import('./infra/api');
+    const { webapp } = await import('./infra/www');
+    await import('./infra/jobs');
+    await import('./infra/dev');
 
     return {
-      CdnUrl: cdn.cdn.url,
-      ChromiumLayer: $interpolate`${layers.chromiumLayer.layerName}:${layers.chromiumLayer.version}`,
-      IndexFileBucketName: buckets.indexFileBucket.name,
-      PublicBucketName: buckets.publicBucket.name,
-      UpstashRedisRestUrl: $interpolate`https://${databases.upstashRedis.endpoint}`,
-      UpstashVectorRestUrl: databases.upstashVector.restUrl,
-      WebpageScraperQueueUrl: queues.webpageScraperQueue.url,
-      WebsiteUrl: web.webApp.url,
+      'Database URL': database.properties.url,
+      'Vector Store Endpoint': upstashVectorIndex.endpoint,
+      'Redis Endpoint': upstashRedis.endpoint,
+      'CDN URL': cdn.url,
+      'Web App URL': webapp.url,
+      'Webhooks API URL': webhooksApi.properties.url,
     };
   },
 });

@@ -1,0 +1,9 @@
+{
+  "name": "@theaistudybible/tsconfig",
+  "description": "The AI Study Bible TypeScript Configuration",
+  "private": true,
+  "main": "tsconfig.json",
+  "devDependencies": {
+    "typescript": "^5.6.2"
+  }
+}

@@ -2,99 +2,41 @@
   "search.exclude": {
     "**/.sst": true
   },
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "always",
-    // "source.addMissingImports": "always", // useful when doing a big refactor
-    "source.organizeImports": "always"
-  },
   "cSpell.words": [
     "autocorrect",
     "autofocus",
-    "Codegen",
-    "Cupertino",
-    "daisyui",
     "Devo",
-    "flushbar",
-    "graphqlsp",
     "Hnsw",
-    "iconify",
-    "langchain",
-    "LANGSMITH",
     "mistralai",
     "Mixtral",
     "NKJV",
     "openai",
     "Ratelimit",
-    "REVENUECAT",
-    "Riverpod",
-    "tada",
     "tailwindcss",
     "theaistudybible",
-    "togetherai",
-    "unfocus",
+    "turso",
     "upstash"
   ],
-  "eslint.workingDirectories": [
-    "packages/core",
-    "packages/langchain",
-    "packages/server",
-    "apps/scripts",
-    "apps/web",
-    "apps/functions"
-  ],
-  "eslint.lintTask.enable": true,
-  "eslint.experimental.useFlatConfig": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "svelte"
-  ],
-  "workbench.colorCustomizations": {
-    "activityBar.activeBackground": "#2f7c47",
-    "activityBar.background": "#2f7c47",
-    "activityBar.foreground": "#e7e7e7",
-    "activityBar.inactiveForeground": "#e7e7e799",
-    "activityBarBadge.background": "#422c74",
-    "activityBarBadge.foreground": "#e7e7e7",
-    "commandCenter.border": "#e7e7e799",
-    "sash.hoverBorder": "#2f7c47",
-    "statusBar.background": "#215732",
-    "statusBar.foreground": "#e7e7e7",
-    "statusBarItem.hoverBackground": "#2f7c47",
-    "statusBarItem.remoteBackground": "#215732",
-    "statusBarItem.remoteForeground": "#e7e7e7",
-    "titleBar.activeBackground": "#215732",
-    "titleBar.activeForeground": "#e7e7e7",
-    "titleBar.inactiveBackground": "#21573299",
-    "titleBar.inactiveForeground": "#e7e7e799"
-  },
-  "peacock.color": "#215732",
+  "biome.enabled": true,
+  "eslint.enable": false,
+  "prettier.enable": false,
   "editor.formatOnSave": true,
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[svelte]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
-  },
-  "[yaml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml"
-  },
+  "editor.defaultFormatter": "biomejs.biome",
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },  
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
 }

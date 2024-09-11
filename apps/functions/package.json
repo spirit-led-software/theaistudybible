@@ -1,47 +1,21 @@
 {
   "name": "@theaistudybible/functions",
-  "version": "1.0.0",
+  "description": "The AI Study Bible Lambda Functions",
+  "private": true,
   "type": "module",
   "scripts": {
-    "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit",
-    "lint": "prettier --check . && eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@sparticuz/chromium": "^123.0.1",
-    "@theaistudybible/eslint-config": "workspace:*",
-    "@theaistudybible/prettier-config": "workspace:*",
     "@theaistudybible/tsconfig": "workspace:*",
-    "@types/aws-lambda": "^8.10.138",
-    "@types/busboy": "^1.5.4",
-    "@types/node": "^20.14.3",
-    "@types/nodemailer": "^6.4.15",
-    "vitest": "^1.6.0"
+    "@types/aws-lambda": "^8.10.145"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.598.0",
-    "@clerk/clerk-sdk-node": "^5.0.11",
-    "@clerk/types": "^4.6.0",
-    "@langchain/community": "^0.2.11",
-    "@langchain/core": "^0.2.6",
-    "@middy/core": "^5.4.0",
-    "@paralleldrive/cuid2": "^2.2.2",
-    "@sentry/node": "^8.9.2",
     "@theaistudybible/core": "workspace:*",
-    "@theaistudybible/langchain": "workspace:*",
-    "@theaistudybible/server": "workspace:*",
-    "@upstash/ratelimit": "^1.2.1",
-    "@upstash/redis": "^1.31.5",
-    "ai": "^3.1.37",
-    "drizzle-orm": "^0.31.2",
-    "fast-xml-parser": "^4.4.0",
-    "firebase-admin": "^12.1.1",
-    "langchain": "^0.2.5",
-    "mammoth": "^1.8.0",
-    "openai": "^4.51.0",
-    "pdf-parse": "^1.1.1",
-    "sst": "^3.0.33"
+    "@theaistudybible/ai": "workspace:*",
+    "@theaistudybible/schemas": "workspace:*",
+    "hono": "^4.6.1",
+    "svix": "^1.32.0"
   }
 }

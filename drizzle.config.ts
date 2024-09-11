@@ -1,11 +1,13 @@
-import { defineConfig } from "drizzle-kit";
-import { Resource } from "sst";
+import { defineConfig } from 'drizzle-kit';
+import { Resource } from 'sst';
 
 export default defineConfig({
-  schema: "packages/core/src/database/schema.ts",
-  out: "migrations",
-  dialect: "postgresql",
+  schema: 'packages/core/src/database/schema.ts',
+  out: 'migrations',
+  dialect: 'sqlite',
+  driver: 'turso',
   dbCredentials: {
-    url: Resource.NeonBranch.readWriteUrl,
+    url: Resource.Database.url,
+    authToken: Resource.Database.token || undefined,
   },
 });

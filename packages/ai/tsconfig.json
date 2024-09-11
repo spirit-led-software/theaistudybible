@@ -1,0 +1,26 @@
+{
+  "extends": "@theaistudybible/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@/ai": ["./src"],
+      "@/ai/*": ["./src/*"],
+      "@/schemas": ["../schemas/src"],
+      "@/schemas/*": ["../schemas/src/*"],
+      "@/core": ["../core/src"],
+      "@/core/*": ["../core/src/*"],
+      "@/www": ["../apps/www/src"],
+      "@/www/*": ["../apps/www/src/*"],
+      "@/functions": ["../apps/functions/src"],
+      "@/functions/*": ["../apps/functions/src/*"],
+      "@/scripts": ["../../tools/scripts/src"],
+      "@/scripts/*": ["../../tools/scripts/src/*"]
+    }
+  },
+  "include": [
+    "../../packages/core/globals.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "../core/src/utils/credits/check-and-consume-credits.ts"
+  ],
+  "exclude": ["node_modules"]
+}

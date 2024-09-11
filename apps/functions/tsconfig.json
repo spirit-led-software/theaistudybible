@@ -2,18 +2,20 @@
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
     "paths": {
-      "@theaistudybible/core": ["../../packages/core/src"],
-      "@theaistudybible/core/*": ["../../packages/core/src/*"],
-      "@theaistudybible/langchain": ["../../packages/langchain/src"],
-      "@theaistudybible/langchain/*": ["../../packages/langchain/src/*"],
-      "@theaistudybible/server": ["../../packages/server/src"],
-      "@theaistudybible/server/*": ["../../packages/server/src/*"],
-      "@lib/server/database": ["../../packages/server/src/lib/database"],
-      "@lib/server/cache": ["../../packages/server/src/lib/cache"],
-      "@theaistudybible/functions": ["./src"],
-      "@theaistudybible/functions/*": ["./src/*"]
+      "@/functions": ["./src"],
+      "@/functions/*": ["./src/*"],
+      "@/schemas": ["../../packages/schemas/src"],
+      "@/schemas/*": ["../../packages/schemas/src/*"],
+      "@/core": ["../../packages/core/src"],
+      "@/core/*": ["../../packages/core/src/*"],
+      "@/ai": ["../../packages/ai/src"],
+      "@/ai/*": ["../../packages/ai/src/*"],
+      "@/www": ["../www/src"],
+      "@/www/*": ["../www/src/*"],
+      "@/scripts": ["../../tools/scripts/src"],
+      "@/scripts/*": ["../../tools/scripts/src/*"]
     }
   },
-  "include": ["./src/**/*.ts", "../../packages/core/globals.d.ts"],
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

@@ -1,30 +1,19 @@
 {
   "name": "@theaistudybible/core",
+  "description": "The AI Study Bible Core",
+  "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "sst bind vitest",
-    "typecheck": "tsc -noEmit",
-    "lint": "eslint .",
-    "lint:fix": "prettier --write . && eslint . --fix",
-    "format": "prettier --write ."
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@theaistudybible/eslint-config": "workspace:*",
-    "@theaistudybible/prettier-config": "workspace:*",
-    "@theaistudybible/tsconfig": "workspace:*",
-    "@types/node": "^20.14.3",
-    "@types/nodemailer": "^6.4.15",
-    "@types/validator": "^13.12.0",
-    "vitest": "^1.6.0"
+    "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^2.2.2",
-    "ai": "^3.1.37",
-    "axios": "^1.7.2",
-    "axios-retry": "^4.4.0",
-    "drizzle-orm": "^0.31.2",
-    "nodemailer": "^6.9.13",
-    "sst": "^3.0.33"
+    "@theaistudybible/schemas": "workspace:*",
+    "@clerk/clerk-sdk-node": "^5.0.38",
+    "@paralleldrive/cuid2": "^2.2.2"
   }
 }

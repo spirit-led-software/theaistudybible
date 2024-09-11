@@ -1,248 +1,783 @@
 {
-  "id": "92c4248a-763f-4580-abf9-8c8339e539c6",
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "23496695-57e7-423d-81ae-797cd65e014d",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
   "tables": {
-    "public.bibles": {
-      "name": "bibles",
-      "schema": "",
+    "bible_contributors": {
+      "name": "bible_contributors",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
-        "abbreviation": {
-          "name": "abbreviation",
+        "uid": {
+          "name": "uid",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "abbreviation_local": {
-          "name": "abbreviation_local",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "name_local": {
-          "name": "name_local",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "language_iso": {
-          "name": "language_iso",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "country_isos": {
-          "name": "country_isos",
-          "type": "jsonb",
+        "content": {
+          "name": "content",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "'[]'::jsonb"
+          "autoincrement": false
+        },
+        "publication": {
+          "name": "publication",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "management": {
+          "name": "management",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "finance": {
+          "name": "finance",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qa": {
+          "name": "qa",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
-        "bibles_abbreviation": {
-          "name": "bibles_abbreviation",
-          "columns": [
-            {
-              "expression": "abbreviation",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "bibles_language_iso": {
-          "name": "bibles_language_iso",
-          "columns": [
-            {
-              "expression": "language_iso",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "bibles_country_isos": {
-          "name": "bibles_country_isos",
-          "columns": [
-            {
-              "expression": "country_isos",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+        "bible_contributors_uid_unique": {
+          "name": "bible_contributors_uid_unique",
+          "columns": ["uid"],
+          "isUnique": true
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "bibles_abbreviation_unique": {
-          "name": "bibles_abbreviation_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "abbreviation"
-          ]
-        }
-      }
+      "uniqueConstraints": {}
     },
-    "public.books": {
-      "name": "books",
-      "schema": "",
+    "bible_countries": {
+      "name": "bible_countries",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
-        "bible_id": {
-          "name": "bible_id",
+        "iso": {
+          "name": "iso",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "previous_id": {
-          "name": "previous_id",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bible_countries_iso_unique": {
+          "name": "bible_countries_iso_unique",
+          "columns": ["iso"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bible_languages": {
+      "name": "bible_languages",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
         },
-        "next_id": {
-          "name": "next_id",
+        "created_at": {
+          "name": "created_at",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
         },
-        "number": {
-          "name": "number",
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "iso": {
+          "name": "iso",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_local": {
+          "name": "name_local",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "script": {
+          "name": "script",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "script_code": {
+          "name": "script_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "script_direction": {
+          "name": "script_direction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ldml": {
+          "name": "ldml",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rod": {
+          "name": "rod",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
+        },
+        "numerals": {
+          "name": "numerals",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bible_languages_iso_unique": {
+          "name": "bible_languages_iso_unique",
+          "columns": ["iso"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bible_rights_admins": {
+      "name": "bible_rights_admins",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "uid": {
+          "name": "uid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bible_rights_admins_uid_unique": {
+          "name": "bible_rights_admins_uid_unique",
+          "columns": ["uid"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bible_rights_holders": {
+      "name": "bible_rights_holders",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "uid": {
+          "name": "uid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_local": {
+          "name": "name_local",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "abbr": {
+          "name": "abbr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bible_rights_holders_uid_unique": {
+          "name": "bible_rights_holders_uid_unique",
+          "columns": ["uid"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bibles": {
+      "name": "bibles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "abbreviation": {
           "name": "abbreviation",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
+        },
+        "abbreviation_local": {
+          "name": "abbreviation_local",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name_local": {
+          "name": "name_local",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "copyright_statement": {
+          "name": "copyright_statement",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bibles_abbreviation_unique": {
+          "name": "bibles_abbreviation_unique",
+          "columns": ["abbreviation"],
+          "isUnique": true
+        },
+        "bibles_abbreviation": {
+          "name": "bibles_abbreviation",
+          "columns": ["abbreviation"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bibles_to_contributors": {
+      "name": "bibles_to_contributors",
+      "columns": {
+        "bible_id": {
+          "name": "bible_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "contributor_id": {
+          "name": "contributor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bibles_to_contributors_key": {
+          "name": "bibles_to_contributors_key",
+          "columns": ["bible_id", "contributor_id"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "bibles_to_contributors_bible_id_bibles_id_fk": {
+          "name": "bibles_to_contributors_bible_id_bibles_id_fk",
+          "tableFrom": "bibles_to_contributors",
+          "tableTo": "bibles",
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "bibles_to_contributors_contributor_id_bible_contributors_id_fk": {
+          "name": "bibles_to_contributors_contributor_id_bible_contributors_id_fk",
+          "tableFrom": "bibles_to_contributors",
+          "tableTo": "bible_contributors",
+          "columnsFrom": ["contributor_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bibles_to_countries": {
+      "name": "bibles_to_countries",
+      "columns": {
+        "bible_id": {
+          "name": "bible_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "country_id": {
+          "name": "country_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bibles_to_countries_key": {
+          "name": "bibles_to_countries_key",
+          "columns": ["bible_id", "country_id"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "bibles_to_countries_bible_id_bibles_id_fk": {
+          "name": "bibles_to_countries_bible_id_bibles_id_fk",
+          "tableFrom": "bibles_to_countries",
+          "tableTo": "bibles",
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "bibles_to_countries_country_id_bible_countries_id_fk": {
+          "name": "bibles_to_countries_country_id_bible_countries_id_fk",
+          "tableFrom": "bibles_to_countries",
+          "tableTo": "bible_countries",
+          "columnsFrom": ["country_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bibles_to_languages": {
+      "name": "bibles_to_languages",
+      "columns": {
+        "bible_id": {
+          "name": "bible_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "language_id": {
+          "name": "language_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bibles_to_languages_key": {
+          "name": "bibles_to_languages_key",
+          "columns": ["bible_id", "language_id"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "bibles_to_languages_bible_id_bibles_id_fk": {
+          "name": "bibles_to_languages_bible_id_bibles_id_fk",
+          "tableFrom": "bibles_to_languages",
+          "tableTo": "bibles",
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "bibles_to_languages_language_id_bible_languages_id_fk": {
+          "name": "bibles_to_languages_language_id_bible_languages_id_fk",
+          "tableFrom": "bibles_to_languages",
+          "tableTo": "bible_languages",
+          "columnsFrom": ["language_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bibles_to_rights_admins": {
+      "name": "bibles_to_rights_admins",
+      "columns": {
+        "bible_id": {
+          "name": "bible_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rights_admin_id": {
+          "name": "rights_admin_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bibles_to_rights_admins_key": {
+          "name": "bibles_to_rights_admins_key",
+          "columns": ["bible_id", "rights_admin_id"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "bibles_to_rights_admins_bible_id_bibles_id_fk": {
+          "name": "bibles_to_rights_admins_bible_id_bibles_id_fk",
+          "tableFrom": "bibles_to_rights_admins",
+          "tableTo": "bibles",
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "bibles_to_rights_admins_rights_admin_id_bible_rights_admins_id_fk": {
+          "name": "bibles_to_rights_admins_rights_admin_id_bible_rights_admins_id_fk",
+          "tableFrom": "bibles_to_rights_admins",
+          "tableTo": "bible_rights_admins",
+          "columnsFrom": ["rights_admin_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bibles_to_rights_holders": {
+      "name": "bibles_to_rights_holders",
+      "columns": {
+        "bible_id": {
+          "name": "bible_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "rights_holder_id": {
+          "name": "rights_holder_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "bible_rights_holders_to_bibles_key": {
+          "name": "bible_rights_holders_to_bibles_key",
+          "columns": ["bible_id", "rights_holder_id"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "bibles_to_rights_holders_bible_id_bibles_id_fk": {
+          "name": "bibles_to_rights_holders_bible_id_bibles_id_fk",
+          "tableFrom": "bibles_to_rights_holders",
+          "tableTo": "bibles",
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "bibles_to_rights_holders_rights_holder_id_bible_rights_holders_id_fk": {
+          "name": "bibles_to_rights_holders_rights_holder_id_bible_rights_holders_id_fk",
+          "tableFrom": "bibles_to_rights_holders",
+          "tableTo": "bible_rights_holders",
+          "columnsFrom": ["rights_holder_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "books": {
+      "name": "books",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bible_id": {
+          "name": "bible_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "previous_id": {
+          "name": "previous_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "next_id": {
+          "name": "next_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "number": {
+          "name": "number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "abbreviation": {
+          "name": "abbreviation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "short_name": {
           "name": "short_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "long_name": {
           "name": "long_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "books_abbreviation": {
           "name": "books_abbreviation",
-          "columns": [
-            {
-              "expression": "abbreviation",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["abbreviation"],
+          "isUnique": false
         },
         "books_short_name": {
           "name": "books_short_name",
-          "columns": [
-            {
-              "expression": "short_name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["short_name"],
+          "isUnique": false
         },
         "books_long_name": {
           "name": "books_long_name",
-          "columns": [
-            {
-              "expression": "long_name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["long_name"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -250,12 +785,8 @@
           "name": "books_bible_id_bibles_id_fk",
           "tableFrom": "books",
           "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -263,73 +794,60 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.chapter_bookmarks": {
+    "chapter_bookmarks": {
       "name": "chapter_bookmarks",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "chapter_id": {
           "name": "chapter_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
+        "chapter_bookmarks_user_chapter_key": {
+          "name": "chapter_bookmarks_user_chapter_key",
+          "columns": ["user_id", "chapter_id"],
+          "isUnique": true
+        },
         "chapter_bookmarks_chapter_id": {
           "name": "chapter_bookmarks_chapter_id",
-          "columns": [
-            {
-              "expression": "chapter_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["chapter_id"],
+          "isUnique": false
         },
         "chapter_bookmarks_user_id": {
           "name": "chapter_bookmarks_user_id",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -337,12 +855,8 @@
           "name": "chapter_bookmarks_chapter_id_chapters_id_fk",
           "tableFrom": "chapter_bookmarks",
           "tableTo": "chapters",
-          "columnsFrom": [
-            "chapter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chapter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -350,94 +864,164 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.chapters": {
-      "name": "chapters",
-      "schema": "",
+    "chapter_notes": {
+      "name": "chapter_notes",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
+        },
+        "chapter_id": {
+          "name": "chapter_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "chapter_notes_chapter_id": {
+          "name": "chapter_notes_chapter_id",
+          "columns": ["chapter_id"],
+          "isUnique": false
+        },
+        "chapter_notes_user_id": {
+          "name": "chapter_notes_user_id",
+          "columns": ["user_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "chapter_notes_chapter_id_chapters_id_fk": {
+          "name": "chapter_notes_chapter_id_chapters_id_fk",
+          "tableFrom": "chapter_notes",
+          "tableTo": "chapters",
+          "columnsFrom": ["chapter_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "chapters": {
+      "name": "chapters",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "bible_id": {
           "name": "bible_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "book_id": {
           "name": "book_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "previous_id": {
           "name": "previous_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "next_id": {
           "name": "next_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "abbreviation": {
           "name": "abbreviation",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "number": {
           "name": "number",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "content": {
           "name": "content",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "chapters_name": {
           "name": "chapters_name",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["name"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -445,12 +1029,8 @@
           "name": "chapters_bible_id_bibles_id_fk",
           "tableFrom": "chapters",
           "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -458,12 +1038,8 @@
           "name": "chapters_book_id_books_id_fk",
           "tableFrom": "chapters",
           "tableTo": "books",
-          "columnsFrom": [
-            "book_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["book_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -471,126 +1047,163 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.chats": {
+    "chapters_to_source_documents": {
+      "name": "chapters_to_source_documents",
+      "columns": {
+        "chapter_id": {
+          "name": "chapter_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source_document_id": {
+          "name": "source_document_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "chapter_source_document_key": {
+          "name": "chapter_source_document_key",
+          "columns": ["chapter_id", "source_document_id"],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "chapters_to_source_documents_chapter_id_chapters_id_fk": {
+          "name": "chapters_to_source_documents_chapter_id_chapters_id_fk",
+          "tableFrom": "chapters_to_source_documents",
+          "tableTo": "chapters",
+          "columnsFrom": ["chapter_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "chats": {
       "name": "chats",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'New Chat'"
         },
         "custom_name": {
           "name": "custom_name",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "chat_name": {
           "name": "chat_name",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["name"],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.data_sources": {
+    "data_sources": {
       "name": "data_sources",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "url": {
           "name": "url",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "type": {
           "name": "type",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "metadata": {
           "name": "metadata",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'::jsonb"
+          "autoincrement": false,
+          "default": "'{}'"
         },
         "number_of_documents": {
           "name": "number_of_documents",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         },
         "sync_schedule": {
@@ -598,95 +1211,73 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'NEVER'"
         },
         "last_manual_sync": {
           "name": "last_manual_sync",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "last_automatic_sync": {
           "name": "last_automatic_sync",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "data_sources_name_key": {
           "name": "data_sources_name_key",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["name"],
+          "isUnique": true
         },
         "data_sources_type": {
           "name": "data_sources_type",
-          "columns": [
-            {
-              "expression": "type",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["type"],
+          "isUnique": false
+        },
+        "data_sources_last_manual_sync_idx": {
+          "name": "data_sources_last_manual_sync_idx",
+          "columns": ["last_manual_sync"],
+          "isUnique": false
+        },
+        "data_sources_last_automatic_sync_idx": {
+          "name": "data_sources_last_automatic_sync_idx",
+          "columns": ["last_automatic_sync"],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.data_sources_to_source_documents": {
+    "data_sources_to_source_documents": {
       "name": "data_sources_to_source_documents",
-      "schema": "",
       "columns": {
         "data_source_id": {
           "name": "data_source_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "source_document_id": {
           "name": "source_document_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "data_source_source_document_key": {
           "name": "data_source_source_document_key",
-          "columns": [
-            {
-              "expression": "data_source_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_document_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["data_source_id", "source_document_id"],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -694,12 +1285,8 @@
           "name": "data_sources_to_source_documents_data_source_id_data_sources_id_fk",
           "tableFrom": "data_sources_to_source_documents",
           "tableTo": "data_sources",
-          "columnsFrom": [
-            "data_source_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["data_source_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -707,76 +1294,71 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.devotion_images": {
+    "devotion_images": {
       "name": "devotion_images",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "devotion_id": {
           "name": "devotion_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "url": {
           "name": "url",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "prompt": {
           "name": "prompt",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "negative_prompt": {
           "name": "negative_prompt",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "caption": {
           "name": "caption",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "devotion_images_devotion_id": {
           "name": "devotion_images_devotion_id",
-          "columns": [
-            {
-              "expression": "devotion_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["devotion_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -784,12 +1366,8 @@
           "name": "devotion_images_devotion_id_devotions_id_fk",
           "tableFrom": "devotion_images",
           "tableTo": "devotions",
-          "columnsFrom": [
-            "devotion_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["devotion_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -797,70 +1375,64 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.devotion_reactions": {
+    "devotion_reactions": {
       "name": "devotion_reactions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "devotion_id": {
           "name": "devotion_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reaction": {
           "name": "reaction",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "comment": {
           "name": "comment",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "devotion_reactions_devotion_id": {
           "name": "devotion_reactions_devotion_id",
-          "columns": [
-            {
-              "expression": "devotion_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["devotion_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -868,12 +1440,8 @@
           "name": "devotion_reactions_devotion_id_devotions_id_fk",
           "tableFrom": "devotion_reactions",
           "tableTo": "devotions",
-          "columnsFrom": [
-            "devotion_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["devotion_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -881,118 +1449,117 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.devotions": {
+    "devotions": {
       "name": "devotions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "topic": {
           "name": "topic",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'general'"
         },
         "bible_reading": {
           "name": "bible_reading",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "summary": {
           "name": "summary",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reflection": {
           "name": "reflection",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "prayer": {
           "name": "prayer",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "dive_deeper_queries": {
           "name": "dive_deeper_queries",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'[]'::jsonb"
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "failed": {
           "name": "failed",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": false
         }
       },
       "indexes": {
         "devotions_created_at_idx": {
           "name": "devotions_created_at_idx",
-          "columns": [
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["created_at"],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.devotions_to_source_documents": {
+    "devotions_to_source_documents": {
       "name": "devotions_to_source_documents",
-      "schema": "",
       "columns": {
         "devotion_id": {
           "name": "devotion_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "source_document_id": {
           "name": "source_document_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "distance": {
           "name": "distance",
-          "type": "double precision",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         },
         "distance_metric": {
@@ -1000,30 +1567,15 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'cosine'"
         }
       },
       "indexes": {
         "devotion_source_document_key": {
           "name": "devotion_source_document_key",
-          "columns": [
-            {
-              "expression": "devotion_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_document_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["devotion_id", "source_document_id"],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -1031,12 +1583,8 @@
           "name": "devotions_to_source_documents_devotion_id_devotions_id_fk",
           "tableFrom": "devotions_to_source_documents",
           "tableTo": "devotions",
-          "columnsFrom": [
-            "devotion_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["devotion_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1044,72 +1592,66 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.index_operations": {
+    "index_operations": {
       "name": "index_operations",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "status": {
           "name": "status",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "error_messages": {
           "name": "error_messages",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'[]'::jsonb"
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "metadata": {
           "name": "metadata",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'{}'::jsonb"
+          "autoincrement": false,
+          "default": "'{}'"
         },
         "data_source_id": {
           "name": "data_source_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "index_operation_status": {
           "name": "index_operation_status",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["status"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1117,12 +1659,8 @@
           "name": "index_operations_data_source_id_data_sources_id_fk",
           "tableFrom": "index_operations",
           "tableTo": "data_sources",
-          "columnsFrom": [
-            "data_source_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["data_source_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1130,76 +1668,64 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.message_reactions": {
+    "message_reactions": {
       "name": "message_reactions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "message_id": {
           "name": "message_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reaction": {
           "name": "reaction",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "comment": {
           "name": "comment",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "message_reaction_key": {
           "name": "message_reaction_key",
-          "columns": [
-            {
-              "expression": "message_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["message_id", "user_id"],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -1207,12 +1733,8 @@
           "name": "message_reactions_message_id_messages_id_fk",
           "tableFrom": "message_reactions",
           "tableTo": "messages",
-          "columnsFrom": [
-            "message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1220,203 +1742,152 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.messages": {
+    "messages": {
       "name": "messages",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "tool_call_id": {
-          "name": "tool_call_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "content": {
           "name": "content",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tool_call_id": {
+          "name": "tool_call_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "role": {
           "name": "role",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "function_call": {
-          "name": "function_call",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{}'::jsonb"
+          "notNull": true,
+          "autoincrement": false
         },
         "data": {
           "name": "data",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tool_calls": {
-          "name": "tool_calls",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'[]'::jsonb"
+          "autoincrement": false
         },
         "annotations": {
           "name": "annotations",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "metadata": {
-          "name": "metadata",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{}'::jsonb"
+          "autoincrement": false
+        },
+        "tool_invocations": {
+          "name": "tool_invocations",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "finish_reason": {
+          "name": "finish_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "anonymous": {
           "name": "anonymous",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "regenerated": {
+          "name": "regenerated",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
           "default": false
         },
         "chat_id": {
           "name": "chat_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "origin_message_id": {
           "name": "origin_message_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "role": {
           "name": "role",
-          "columns": [
-            {
-              "expression": "role",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["role"],
+          "isUnique": false
         },
         "content": {
           "name": "content",
-          "columns": [
-            {
-              "expression": "content",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["content"],
+          "isUnique": false
         },
         "chat_id": {
           "name": "chat_id",
-          "columns": [
-            {
-              "expression": "chat_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["chat_id"],
+          "isUnique": false
         },
         "user_id": {
           "name": "user_id",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id"],
+          "isUnique": false
         },
         "origin_message_id": {
           "name": "origin_message_id",
-          "columns": [
-            {
-              "expression": "origin_message_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["origin_message_id"],
+          "isUnique": false
         },
         "anonymous": {
           "name": "anonymous",
-          "columns": [
-            {
-              "expression": "anonymous",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["anonymous"],
+          "isUnique": false
+        },
+        "messages_created_at_idx": {
+          "name": "messages_created_at_idx",
+          "columns": ["created_at"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1424,12 +1895,8 @@
           "name": "messages_chat_id_chats_id_fk",
           "tableFrom": "messages",
           "tableTo": "chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -1437,12 +1904,8 @@
           "name": "messages_origin_message_id_messages_id_fk",
           "tableFrom": "messages",
           "tableTo": "messages",
-          "columnsFrom": [
-            "origin_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -1450,12 +1913,8 @@
           "name": "origin_message_reference",
           "tableFrom": "messages",
           "tableTo": "messages",
-          "columnsFrom": [
-            "origin_message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["origin_message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1463,27 +1922,29 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.messages_to_source_documents": {
+    "messages_to_source_documents": {
       "name": "messages_to_source_documents",
-      "schema": "",
       "columns": {
         "message_id": {
           "name": "message_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "source_document_id": {
           "name": "source_document_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "distance": {
           "name": "distance",
-          "type": "double precision",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         },
         "distance_metric": {
@@ -1491,30 +1952,15 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'cosine'"
         }
       },
       "indexes": {
         "message_source_document_key": {
           "name": "message_source_document_key",
-          "columns": [
-            {
-              "expression": "message_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_document_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["message_id", "source_document_id"],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -1522,12 +1968,8 @@
           "name": "messages_to_source_documents_message_id_messages_id_fk",
           "tableFrom": "messages_to_source_documents",
           "tableTo": "messages",
-          "columnsFrom": [
-            "message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1535,95 +1977,153 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.roles": {
-      "name": "roles",
-      "schema": "",
+    "reading_sessions": {
+      "name": "reading_sessions",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "start_time": {
+          "name": "start_time",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "reading_sessions_user_id_idx": {
+          "name": "reading_sessions_user_id_idx",
+          "columns": ["user_id"],
+          "isUnique": false
+        },
+        "reading_sessions_start_time_idx": {
+          "name": "reading_sessions_start_time_idx",
+          "columns": ["start_time"],
+          "isUnique": false
+        },
+        "reading_sessions_end_time_idx": {
+          "name": "reading_sessions_end_time_idx",
+          "columns": ["end_time"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "roles": {
+      "name": "roles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "permissions": {
-          "name": "permissions",
-          "type": "jsonb",
-          "primaryKey": false,
           "notNull": true,
-          "default": "'[]'::jsonb"
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "roles_name_idx": {
+          "name": "roles_name_idx",
+          "columns": ["name"],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.share_chat_options": {
+    "share_chat_options": {
       "name": "share_chat_options",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "chat_id": {
           "name": "chat_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "chat_share_options_chat_id": {
           "name": "chat_share_options_chat_id",
-          "columns": [
-            {
-              "expression": "chat_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["chat_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1631,12 +2131,8 @@
           "name": "share_chat_options_chat_id_chats_id_fk",
           "tableFrom": "share_chat_options",
           "tableTo": "chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1644,111 +2140,166 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.user_generated_images": {
-      "name": "user_generated_images",
-      "schema": "",
+    "user_credits": {
+      "name": "user_credits",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
+        },
+        "balance": {
+          "name": "balance",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "last_reading_credit_at": {
+          "name": "last_reading_credit_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "user_credits_user_id_unique": {
+          "name": "user_credits_user_id_unique",
+          "columns": ["user_id"],
+          "isUnique": true
+        },
+        "user_credits_user_id_idx": {
+          "name": "user_credits_user_id_idx",
+          "columns": ["user_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "user_generated_images": {
+      "name": "user_generated_images",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "message_id": {
           "name": "message_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "url": {
           "name": "url",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "user_prompt": {
           "name": "user_prompt",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "prompt": {
           "name": "prompt",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "negative_prompt": {
           "name": "negative_prompt",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "search_queries": {
           "name": "search_queries",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "'[]'::jsonb"
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "failed": {
           "name": "failed",
-          "type": "boolean",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": false
         }
       },
       "indexes": {
         "user_generated_images_user_id": {
           "name": "user_generated_images_user_id",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_id"],
+          "isUnique": false
         },
         "user_generated_images_message_id": {
           "name": "user_generated_images_message_id",
-          "columns": [
-            {
-              "expression": "message_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["message_id"],
+          "isUnique": false
+        },
+        "user_generated_images_created_at_idx": {
+          "name": "user_generated_images_created_at_idx",
+          "columns": ["created_at"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1756,12 +2307,8 @@
           "name": "user_generated_images_message_id_messages_id_fk",
           "tableFrom": "user_generated_images",
           "tableTo": "messages",
-          "columnsFrom": [
-            "message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["message_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1769,76 +2316,64 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.user_generated_images_reactions": {
+    "user_generated_images_reactions": {
       "name": "user_generated_images_reactions",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "user_generated_image_id": {
           "name": "user_generated_image_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "reaction": {
           "name": "reaction",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "comment": {
           "name": "comment",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
         "user_generated_image_reaction_key": {
           "name": "user_generated_image_reaction_key",
-          "columns": [
-            {
-              "expression": "user_generated_image_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_generated_image_id", "user_id"],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -1846,12 +2381,8 @@
           "name": "user_generated_images_reactions_user_generated_image_id_user_generated_images_id_fk",
           "tableFrom": "user_generated_images_reactions",
           "tableTo": "user_generated_images",
-          "columnsFrom": [
-            "user_generated_image_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_generated_image_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1859,27 +2390,29 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.user_generated_images_to_source_documents": {
+    "user_generated_images_to_source_documents": {
       "name": "user_generated_images_to_source_documents",
-      "schema": "",
       "columns": {
         "user_generated_image_id": {
           "name": "user_generated_image_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "source_document_id": {
           "name": "source_document_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "distance": {
           "name": "distance",
-          "type": "double precision",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": 0
         },
         "distance_metric": {
@@ -1887,30 +2420,15 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false,
           "default": "'cosine'"
         }
       },
       "indexes": {
         "user_generated_image_source_document_key": {
           "name": "user_generated_image_source_document_key",
-          "columns": [
-            {
-              "expression": "user_generated_image_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "source_document_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["user_generated_image_id", "source_document_id"],
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -1918,12 +2436,8 @@
           "name": "user_generated_images_to_source_documents_user_generated_image_id_user_generated_images_id_fk",
           "tableFrom": "user_generated_images_to_source_documents",
           "tableTo": "user_generated_images",
-          "columnsFrom": [
-            "user_generated_image_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_generated_image_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -1931,79 +2445,137 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.verse_highlights": {
-      "name": "verse_highlights",
-      "schema": "",
+    "verse_bookmarks": {
+      "name": "verse_bookmarks",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "verse_id": {
           "name": "verse_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "user_id": {
           "name": "user_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "verse_bookmarks_user_verse_key": {
+          "name": "verse_bookmarks_user_verse_key",
+          "columns": ["user_id", "verse_id"],
+          "isUnique": true
+        },
+        "verse_bookmarks_verse_id": {
+          "name": "verse_bookmarks_verse_id",
+          "columns": ["verse_id"],
+          "isUnique": false
+        },
+        "verse_bookmarks_user_id": {
+          "name": "verse_bookmarks_user_id",
+          "columns": ["user_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "verse_bookmarks_verse_id_verses_id_fk": {
+          "name": "verse_bookmarks_verse_id_verses_id_fk",
+          "tableFrom": "verse_bookmarks",
+          "tableTo": "verses",
+          "columnsFrom": ["verse_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "verse_highlights": {
+      "name": "verse_highlights",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "verse_id": {
+          "name": "verse_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "color": {
           "name": "color",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
+        "verse_highlights_user_verse_key": {
+          "name": "verse_highlights_user_verse_key",
+          "columns": ["user_id", "verse_id"],
+          "isUnique": true
+        },
         "verse_highlights_verse_id": {
           "name": "verse_highlights_verse_id",
-          "columns": [
-            {
-              "expression": "verse_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["verse_id"],
+          "isUnique": false
         },
-        "chapter_highlights_user_id": {
-          "name": "chapter_highlights_user_id",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+        "verse_highlights_user_id": {
+          "name": "verse_highlights_user_id",
+          "columns": ["user_id"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -2011,12 +2583,8 @@
           "name": "verse_highlights_verse_id_verses_id_fk",
           "tableFrom": "verse_highlights",
           "tableTo": "verses",
-          "columnsFrom": [
-            "verse_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["verse_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2024,100 +2592,171 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.verses": {
-      "name": "verses",
-      "schema": "",
+    "verse_notes": {
+      "name": "verse_notes",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp with time zone",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "autoincrement": false
+        },
+        "verse_id": {
+          "name": "verse_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "verse_notes_verse_id": {
+          "name": "verse_notes_verse_id",
+          "columns": ["verse_id"],
+          "isUnique": false
+        },
+        "verse_notes_user_id": {
+          "name": "verse_notes_user_id",
+          "columns": ["user_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "verse_notes_verse_id_verses_id_fk": {
+          "name": "verse_notes_verse_id_verses_id_fk",
+          "tableFrom": "verse_notes",
+          "tableTo": "verses",
+          "columnsFrom": ["verse_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "verses": {
+      "name": "verses",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "bible_id": {
           "name": "bible_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "book_id": {
           "name": "book_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "chapter_id": {
           "name": "chapter_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "previous_id": {
           "name": "previous_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "next_id": {
           "name": "next_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "abbreviation": {
           "name": "abbreviation",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "number": {
           "name": "number",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "content": {
           "name": "content",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
         "verses_name": {
           "name": "verses_name",
-          "columns": [
-            {
-              "expression": "name",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "columns": ["name"],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -2125,12 +2764,8 @@
           "name": "verses_bible_id_bibles_id_fk",
           "tableFrom": "verses",
           "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["bible_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -2138,12 +2773,8 @@
           "name": "verses_book_id_books_id_fk",
           "tableFrom": "verses",
           "tableTo": "books",
-          "columnsFrom": [
-            "book_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["book_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -2151,12 +2782,8 @@
           "name": "verses_chapter_id_chapters_id_fk",
           "tableFrom": "verses",
           "tableTo": "chapters",
-          "columnsFrom": [
-            "chapter_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chapter_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -2166,10 +2793,12 @@
     }
   },
   "enums": {},
-  "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }

@@ -1,9 +1,0 @@
-{
-  "extends": "@theaistudybible/tsconfig",
-  "compilerOptions": {
-    "allowJs": true,
-    "strict": false
-  },
-  "include": ["./eslint.config.js"],
-  "exclude": ["node_modules"]
-}

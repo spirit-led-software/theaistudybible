@@ -1,33 +1,12 @@
 {
-  "version": "6",
-  "dialect": "postgresql",
+  "version": "7",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1718309032184,
-      "tag": "0000_broad_malice",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1718323714747,
-      "tag": "0001_complete_hitman",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1718357031978,
-      "tag": "0002_past_khan",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1718737474725,
-      "tag": "0003_tearful_natasha_romanoff",
+      "version": "6",
+      "when": 1726066316334,
+      "tag": "0000_daily_gunslinger",
       "breakpoints": true
     }
   ]

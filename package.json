@@ -1,43 +1,63 @@
 {
   "name": "theaistudybible",
-  "version": "1.0.0",
+  "description": "The AI Study Bible",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "turbo dev",
-    "deploy": "sst deploy",
-    "remove": "sst remove",
-    "refresh": "sst refresh",
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "clean-install": "rimraf --glob '**/node_modules' bun.lockb && bun pm cache rm && bun install",
     "db:generate": "sst shell -- drizzle-kit generate",
+    "db:migrate": "sst shell -- drizzle-kit migrate",
+    "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",
     "db:studio": "sst shell -- drizzle-kit studio",
-    "scripts": "cd apps/scripts && sst shell -- bun run src/index.ts",
-    "format": "turbo format",
-    "lint": "turbo lint",
-    "lint:fix": "turbo lint:fix",
-    "typecheck": "turbo typecheck",
-    "update": "concurrently --names \"Dependency Update,Chromium Layer Update,LLRT Layer Update\" -c \"bgYellow,bgBlue,bgRed\" \"pnpm update -rLf && pnpm sst upgrade && pnpm install -rf\" \"cd lambda-layers/chromium && ./build-layer.sh\" \"cd lambda-layers/llrt && ./build-layer.sh\" "
+    "dev": "sst dev",
+    "deploy": "sst deploy",
+    "format:check": "biome format .",
+    "format": "biome format --write .",
+    "lint:fix": "biome lint --write .",
+    "lint": "biome lint .",
+    "postinstall": "sst install",
+    "refresh": "sst refresh",
+    "remove": "sst remove",
+    "scripts": "sst shell -- bun run ./tools/scripts/src/index.ts",
+    "secret:set": "sst secret set",
+    "secret:remove": "sst secret remove",
+    "secret:list": "sst secret list",
+    "type-check": "turbo run type-check",
+    "test": "vitest run",
+    "upgrade": "bun update --latest --save && sst upgrade"
   },
   "devDependencies": {
-    "@types/aws-lambda": "8.10.138",
-    "@types/node": "^20.14.3",
-    "bun": "^1.1.13",
-    "concurrently": "^8.2.2",
-    "drizzle-kit": "^0.22.7",
-    "turbo": "^2.0.4",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
+    "@biomejs/biome": "^1.8.3",
+    "@clerk/types": "^4.20.1",
+    "@types/bun": "^1.1.9",
+    "@types/node": "^22.5.4",
+    "drizzle-kit": "^0.24.2",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.1.1",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "8.5.0",
+    "vitest": "^2.0.5"
   },
   "dependencies": {
-    "@neondatabase/api-client": "^1.8.0",
-    "@pulumi/pulumi": "^3.120.0",
-    "@upstash/pulumi": "^0.2.0",
-    "@upstash/vector": "^1.1.2",
-    "sst": "^3.0.33"
+    "@aws-sdk/client-s3": "^3.649.0",
+    "@aws-sdk/s3-request-presigner": "^3.649.0",
+    "@libsql/client": "^0.10.0",
+    "@upstash/ratelimit": "^2.0.2",
+    "@upstash/redis": "^1.34.0",
+    "ai": "^3.3.33",
+    "date-fns": "^3.6.0",
+    "drizzle-orm": "^0.33.0",
+    "drizzle-zod": "^0.5.1",
+    "sst": "3.1.2",
+    "stripe": "^16.10.0",
+    "zod": "^3.23.8"
   },
-  "packageManager": "pnpm@9.1.4",
-  "pnpm": {
-    "overrides": {
-      "nitropack": "npm:nitropack-nightly@latest"
-    }
-  }
+  "packageManager": "bun@1.1.26",
+  "workspaces": ["apps/*", "packages/*", "tools/*"],
+  "overrides": {
+    "nitropack": "npm:nitropack-nightly@latest"
+  },
+  "trustedDependencies": ["@biomejs/biome", "@clerk/shared", "esbuild", "sharp"]
 }

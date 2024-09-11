@@ -1,79 +1,26 @@
-export const CLOUDFRONT_HOSTED_ZONE_ID = "Z2FDTNDATAQYW2";
+import { Constant } from './resources';
 
-export const PUBLIC_ENV_VARS = {
-  CLERK_PUBLISHABLE_KEY: process.env.CLERK_PUBLISHABLE_KEY!,
-  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY!,
-} as const;
+const BASE_DOMAIN = 'theaistudybible.com';
 
-export const SECRET_ENV_VARS = {
-  // Environment
-  NODE_ENV: process.env.NODE_ENV!,
+export const STAGE = new Constant('Stage', $app.stage);
 
-  // AI
-  UNSTRUCTURED_API_KEY: process.env.UNSTRUCTURED_API_KEY!,
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY!,
-  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY!,
+export const DOMAIN = new Constant(
+  'Domain',
+  $app.stage === 'production' ? BASE_DOMAIN : `${$app.stage}.${BASE_DOMAIN}`,
+);
 
-  // Revenue Cat
-  REVENUECAT_PROJECT_ID: process.env.REVENUECAT_PROJECT_ID!,
-  REVENUECAT_API_KEY: process.env.REVENUECAT_API_KEY!,
-  REVENUECAT_STRIPE_API_KEY: process.env.REVENUECAT_STRIPE_API_KEY!,
-  REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET!,
+export const CLERK_PUBLISHABLE_KEY = new Constant(
+  'ClerkPublishableKey',
+  $app.stage === 'production'
+    ? 'pk_live_Y2xlcmsudGhlYWlzdHVkeWJpYmxlLmNvbSQ'
+    : 'pk_test_cHJvYmFibGUtYmlzb24tNDkuY2xlcmsuYWNjb3VudHMuZGV2JA',
+);
 
-  // Email
-  EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST!,
-  EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT!,
-  EMAIL_SERVER_USERNAME: process.env.EMAIL_SERVER_USERNAME!,
-  EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD!,
+export const STRIPE_PUBLISHABLE_KEY = new Constant(
+  'StripePublishableKey',
+  $app.stage === 'production'
+    ? 'pk_live_51PxV2IGnwuYH30oDXjADngpbZOgTX5ihzw8xSs8nQk3WOhgpZd83RU3XkyHBVsMO8cncSsUT3FM7DeLH9hFcOp3O00ypOJLC5f'
+    : 'pk_test_51PxV2IGnwuYH30oD52AJgMZKmfA5qA63XUtEzELia4z7rvxidEqQa7yDy0qNsB4B3j5wMUJExN4LvB10sEwBi9V000nFzrntmv',
+);
 
-  // Admin User
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL!,
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD!,
-
-  // Clerk
-  CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY!,
-  CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET!,
-
-  // Stripe
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY!,
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET!,
-} as const;
-
-export const hostedZone = await aws.route53.getZone({
-  name: "theaistudybible.com",
-});
-
-export const domainNamePrefix = `${$app.stage !== "prod" ? `${$app.stage}.test` : ""}`;
-export const domainName = `${domainNamePrefix.length > 0 ? `${domainNamePrefix}.` : ""}${
-  hostedZone.name
-}`;
-
-$transform(sst.aws.Function, (args) => {
-  args.permissions = $output(args.permissions).apply((permissions) => [
-    ...(permissions ?? []),
-    {
-      actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
-      resources: ["*"],
-    },
-  ]);
-  args.environment = $output(args.environment).apply((environment) => ({
-    ...environment,
-    ...PUBLIC_ENV_VARS,
-    ...SECRET_ENV_VARS,
-  }));
-  args.timeout = args.timeout ?? "60 seconds";
-  args.runtime = args.runtime ?? "nodejs20.x";
-  args.nodejs = $output(args.nodejs).apply((nodejs) => ({
-    ...nodejs,
-    esbuild: {
-      ...nodejs?.esbuild,
-      external: ["@sparticuz/chromium"],
-      minify: $app.stage === "prod",
-      treeShaking: true,
-    },
-  }));
-  args.logging = $output(args.logging).apply((logging) => ({
-    ...logging,
-    retention: $app.stage === "prod" ? ("1 week" as const) : ("1 day" as const),
-  }));
-});
+export default [STAGE, DOMAIN, CLERK_PUBLISHABLE_KEY, STRIPE_PUBLISHABLE_KEY];

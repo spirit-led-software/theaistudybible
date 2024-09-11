@@ -1,0 +1,35 @@
+name: Cleanup PR Preview
+
+concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  TURSO_ORG_NAME: ${{ secrets.TURSO_ORG_NAME }}
+  TURSO_API_KEY: ${{ secrets.TURSO_API_KEY }}
+  UPSTASH_EMAIL: ${{ secrets.UPSTASH_EMAIL }}
+  UPSTASH_API_KEY: ${{ secrets.UPSTASH_API_KEY }}
+  NODE_ENV: development
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: CI setup
+        uses: ./.github/actions/ci-setup
+
+      - name: Set SST Stage
+        run: |
+          echo "pr-${{ github.event.pull_request.number }}" > .sst/stage
+
+      - name: Remove
+        run: bun run remove

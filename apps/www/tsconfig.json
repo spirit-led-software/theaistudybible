@@ -1,0 +1,30 @@
+{
+  "extends": "@theaistudybible/tsconfig",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": ["vinxi/types/client", "vite-plugin-pwa/solid"],
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/www": ["./src"],
+      "@/www/*": ["./src/*"],
+      "@/schemas": ["../../packages/schemas/src"],
+      "@/schemas/*": ["../../packages/schemas/src/*"],
+      "@/core": ["../../packages/core/src"],
+      "@/core/*": ["../../packages/core/src/*"],
+      "@/ai": ["../../packages/ai/src"],
+      "@/ai/*": ["../../packages/ai/src/*"],
+      "@/functions": ["../functions/src"],
+      "@/functions/*": ["../functions/src/*"],
+      "@/scripts": ["../../tools/scripts/src"],
+      "@/scripts/*": ["../../tools/scripts/src/*"]
+    }
+  },
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".output", ".vinxi"]
+}

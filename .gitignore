@@ -3,11 +3,8 @@ node_modules
 
 # sst
 .sst
-.build
-sst-env.d.ts
-
-# opennext
-.open-next
+**/sst-env.d.ts
+!/sst-env.d.ts
 
 # misc
 .DS_Store
@@ -16,22 +13,8 @@ sst-env.d.ts
 .env*.local
 /.env
 
-# Docker volumes
-volumes
-
-# test files
-test
-
-# Various app secret files
-.secret
-firebase-service-account.json
-apple-auth-key.p8
-apple-app-store-key.p8
-
-# A file I use to keep track of changes to the project
-changes.txt
-
-# GraphQL Codegen
-__generated__
-
+# TurboRepo
 .turbo
+
+# Local LibSQL DB
+.libsql.db

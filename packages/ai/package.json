@@ -1,0 +1,22 @@
+{
+  "name": "@theaistudybible/ai",
+  "description": "The AI Study Bible AI",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@theaistudybible/tsconfig": "workspace:*"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^0.0.49",
+    "@ai-sdk/openai": "^0.0.58",
+    "@theaistudybible/core": "workspace:*",
+    "@theaistudybible/schemas": "workspace:*",
+    "@upstash/vector": "^1.1.5",
+    "openai": "^4.59.0",
+    "tiktoken": "^1.0.16"
+  }
+}

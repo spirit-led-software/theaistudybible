@@ -1,0 +1,269 @@
+import { cn } from '@/www/lib/utils';
+import { splitProps, type ComponentProps } from 'solid-js';
+
+export const H1 = (props: ComponentProps<'h1'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <h1
+      class={cn(
+        'scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl [&:not(:first-child)]:mt-8',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </h1>
+  );
+};
+
+export const GradientH1 = (props: ComponentProps<'h1'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <H1
+      class={cn(
+        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </H1>
+  );
+};
+
+export const H2 = (props: ComponentProps<'h2'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <h2
+      class={cn(
+        'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 [&:not(:first-child)]:mt-6',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </h2>
+  );
+};
+
+export const GradientH2 = (props: ComponentProps<'h2'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <H2
+      class={cn(
+        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </H2>
+  );
+};
+
+export const H3 = (props: ComponentProps<'h3'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <h3
+      class={cn(
+        'scroll-m-20 text-2xl font-semibold tracking-tight [&:not(:first-child)]:mt-6',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </h3>
+  );
+};
+
+export const GradientH3 = (props: ComponentProps<'h3'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <H3
+      class={cn(
+        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </H3>
+  );
+};
+
+export const H4 = (props: ComponentProps<'h4'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <h4
+      class={cn(
+        'scroll-m-20 text-xl font-semibold tracking-tight [&:not(:first-child)]:mt-4',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </h4>
+  );
+};
+
+export const GradientH4 = (props: ComponentProps<'h4'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <H4
+      class={cn(
+        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </H4>
+  );
+};
+
+export const H5 = (props: ComponentProps<'h5'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <h5
+      class={cn(
+        'scroll-m-20 text-lg font-semibold tracking-tight [&:not(:first-child)]:mt-2',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </h5>
+  );
+};
+
+export const GradientH5 = (props: ComponentProps<'h5'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <H5
+      class={cn(
+        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </H5>
+  );
+};
+
+export const H6 = (props: ComponentProps<'h6'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <h6
+      class={cn(
+        'scroll-m-20 text-base font-semibold tracking-tight [&:not(:first-child)]:mt-1',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </h6>
+  );
+};
+
+export const GradientH6 = (props: ComponentProps<'h6'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <H6
+      class={cn(
+        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </H6>
+  );
+};
+
+export const P = (props: ComponentProps<'p'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <p class={cn('leading-7 [&:not(:first-child)]:mt-6', local.class)} {...rest}>
+      {local.children}
+    </p>
+  );
+};
+
+export const Blockquote = (props: ComponentProps<'blockquote'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <blockquote class={cn('mt-6 border-l-2 pl-6 italic', local.class)} {...rest}>
+      {local.children}
+    </blockquote>
+  );
+};
+
+export const List = (props: ComponentProps<'ul'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <ul class={cn('my-6 ml-6 list-disc [&>li]:mt-2', local.class)} {...rest}>
+      {local.children}
+    </ul>
+  );
+};
+
+export const OrderedList = (props: ComponentProps<'ol'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <ol class={cn('my-6 ml-6 list-decimal [&>li]:mt-2', local.class)} {...rest}>
+      {local.children}
+    </ol>
+  );
+};
+
+export const ListItem = (props: ComponentProps<'li'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <li class={cn('list-item', local.class)} {...rest}>
+      {local.children}
+    </li>
+  );
+};
+
+export const InlineCode = (props: ComponentProps<'code'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <code
+      class={cn(
+        'bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </code>
+  );
+};
+
+export const Lead = (props: ComponentProps<'p'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <p class={cn('text-muted-foreground text-xl', local.class)} {...rest}>
+      {local.children}
+    </p>
+  );
+};
+
+export const Muted = (props: ComponentProps<'p'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <p class={cn('text-muted-foreground text-sm', local.class)} {...rest}>
+      {local.children}
+    </p>
+  );
+};
+
+export const Strong = (props: ComponentProps<'strong'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <strong class={cn('font-bold', local.class)} {...rest}>
+      {local.children}
+    </strong>
+  );
+};

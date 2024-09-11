@@ -1,0 +1,34 @@
+{
+  "name": "@theaistudybible/scripts",
+  "description": "Scripts for The AI Study Bible",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@theaistudybible/tsconfig": "workspace:*",
+    "@types/jsdom": "^21.1.7",
+    "@types/yargs": "^17.0.33",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.0.5"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.38",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@theaistudybible/ai": "workspace:*",
+    "@theaistudybible/core": "workspace:*",
+    "@theaistudybible/schemas": "workspace:*",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.33.0",
+    "fast-xml-parser": "^4.5.0",
+    "jsdom": "^25.0.0",
+    "jszip": "^3.10.1",
+    "ora": "^8.1.0",
+    "pg": "^8.12.0",
+    "yargs": "^17.7.2",
+    "zod": "^3.23.8"
+  }
+}
