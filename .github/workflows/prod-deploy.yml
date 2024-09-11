@@ -30,9 +30,8 @@ jobs:
       - name: Type check
         run: bun run type-check
 
-      - name: Lint changed files
-        run: |
-          git diff --name-only HEAD^ | xargs bun run eslint
+      - name: Lint
+        run: bun run lint
 
       - name: Set SST Stage
         run: |
