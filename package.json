@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "turbo run build",
     "clean": "turbo run clean",
     "clean-install": "rimraf --glob '**/node_modules' bun.lockb && bun pm cache rm && bun install",
     "db:generate": "sst shell -- drizzle-kit generate",
@@ -11,6 +12,7 @@
     "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",
     "db:studio": "sst shell -- drizzle-kit studio",
     "dev": "sst dev",
+    "deploy": "sst deploy",
     "format:check": "biome format .",
     "format": "biome format --write .",
     "lint:fix": "biome lint --write .",
