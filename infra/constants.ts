@@ -11,13 +11,15 @@ export const DOMAIN = new Constant(
 
 export const CLERK_PUBLISHABLE_KEY = new Constant(
   'ClerkPublishableKey',
-  $app.stage === 'production' ? '' : 'pk_test_cHJvYmFibGUtYmlzb24tNDkuY2xlcmsuYWNjb3VudHMuZGV2JA',
+  $app.stage === 'production'
+    ? 'pk_live_Y2xlcmsudGhlYWlzdHVkeWJpYmxlLmNvbSQ'
+    : 'pk_test_cHJvYmFibGUtYmlzb24tNDkuY2xlcmsuYWNjb3VudHMuZGV2JA',
 );
 
 export const STRIPE_PUBLISHABLE_KEY = new Constant(
   'StripePublishableKey',
   $app.stage === 'production'
-    ? 'pk_live_51P9EQkIXCNnPG1Pb86cM4XPe0WcgBj0VkMlSqRVgG8g8c6YKutrV7Bv5M7l9wi2Hb3fHYBtBUxj6ITQljZQHjrmj00f2GuQ3kb'
+    ? 'pk_live_51PxV2IGnwuYH30oDXjADngpbZOgTX5ihzw8xSs8nQk3WOhgpZd83RU3XkyHBVsMO8cncSsUT3FM7DeLH9hFcOp3O00ypOJLC5f'
     : 'pk_test_51PxV2IGnwuYH30oD52AJgMZKmfA5qA63XUtEzELia4z7rvxidEqQa7yDy0qNsB4B3j5wMUJExN4LvB10sEwBi9V000nFzrntmv',
 );
 

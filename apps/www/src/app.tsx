@@ -17,7 +17,6 @@ import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
 
 import './app.css';
-import { MDXProvider } from './contexts/mdx';
 
 export function getServerCookies() {
   'use server';
@@ -45,38 +44,36 @@ export default function App() {
             <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
-                <MDXProvider>
-                  <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
-                    <Title>The AI Study Bible</Title>
-                    <Meta name="description">
-                      The AI Study Bible is a digital study Bible that uses artificial intelligence
-                      to help you study the Bible.
-                    </Meta>
-                    <ErrorBoundary
-                      fallback={(err, reset) => (
-                        <div class="flex h-full w-full flex-col items-center justify-center space-y-2">
-                          <H1>Error</H1>
-                          <H4 class="max-w-sm text-center">
-                            {
-                              // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                              err.message
-                            }
-                          </H4>
-                          <div class="flex space-x-2">
-                            <Button onClick={reset}>Retry</Button>
-                            <Button as={A} href="/">
-                              Go Home Instead
-                            </Button>
-                          </div>
+                <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
+                  <Title>The AI Study Bible</Title>
+                  <Meta name="description">
+                    The AI Study Bible is a digital study Bible that uses artificial intelligence to
+                    help you study the Bible.
+                  </Meta>
+                  <ErrorBoundary
+                    fallback={(err, reset) => (
+                      <div class="flex h-full w-full flex-col items-center justify-center space-y-2">
+                        <H1>Error</H1>
+                        <H4 class="max-w-sm text-center">
+                          {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                            err.message
+                          }
+                        </H4>
+                        <div class="flex space-x-2">
+                          <Button onClick={reset}>Retry</Button>
+                          <Button as={A} href="/">
+                            Go Home Instead
+                          </Button>
                         </div>
-                      )}
-                    >
-                      <Suspense>{props.children}</Suspense>
-                    </ErrorBoundary>
-                    <Toaster />
-                    <Sonner />
-                  </MultiProvider>
-                </MDXProvider>
+                      </div>
+                    )}
+                  >
+                    <Suspense>{props.children}</Suspense>
+                  </ErrorBoundary>
+                  <Toaster />
+                  <Sonner />
+                </MultiProvider>
               </ColorModeProvider>
             </ClerkProvider>
           </MetaProvider>

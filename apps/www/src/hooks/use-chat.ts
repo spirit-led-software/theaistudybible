@@ -154,7 +154,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     ...props(),
     api: '/api/chat',
     id: chatId(),
-    generateId: () => createId(),
+    generateId: createId,
     sendExtraMessageFields: true,
     maxToolRoundtrips: 5,
     body: {
@@ -208,23 +208,28 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       pageParams: [0],
     },
   }));
-  createEffect(() => {
-    if (!useChatResult.isLoading()) {
-      useChatResult.setMessages(
-        messagesQuery.data?.pages
-          ?.flatMap((page) => [...page.messages])
-          .toReversed()
-          .map((message) => ({
-            ...message,
-            createdAt: new Date(message.createdAt),
-            content: message.content ?? '',
-            tool_call_id: message.tool_call_id ?? undefined,
-            annotations: message.annotations ?? undefined,
-            toolInvocations: message.toolInvocations ?? undefined,
-          })) ?? [],
-      );
-    }
-  });
+  createEffect(
+    on(
+      () => messagesQuery.data,
+      (data) => {
+        if (!useChatResult.isLoading()) {
+          useChatResult.setMessages(
+            data?.pages
+              ?.flatMap((page) => [...page.messages])
+              .toReversed()
+              .map((message) => ({
+                ...message,
+                createdAt: new Date(message.createdAt),
+                content: message.content ?? '',
+                tool_call_id: message.tool_call_id ?? undefined,
+                annotations: message.annotations ?? undefined,
+                toolInvocations: message.toolInvocations ?? undefined,
+              })) ?? [],
+          );
+        }
+      },
+    ),
+  );
 
   const followUpSuggestionsQuery = createQuery(() => ({
     ...getChatSuggestionsQueryProps(chatId()),
@@ -241,8 +246,8 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   });
 
   createEffect(
-    on([lastAiResponseId], ([lastAiResponseId]) => {
-      if (useChatResult.messages() && lastAiResponseId) {
+    on([useChatResult.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
+      if (useChatResult.messages() && lastAiResponseId && !isLoading) {
         useChatResult.setMessages([
           ...useChatResult.messages().slice(0, -1),
           {

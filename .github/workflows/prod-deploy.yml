@@ -1,0 +1,47 @@
+name: Deploy to production
+
+concurrency: production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  TURSO_ORG_NAME: ${{ secrets.TURSO_ORG_NAME }}
+  TURSO_API_KEY: ${{ secrets.TURSO_API_KEY }}
+  UPSTASH_EMAIL: ${{ secrets.UPSTASH_EMAIL }}
+  UPSTASH_API_KEY: ${{ secrets.UPSTASH_API_KEY }}
+  NODE_ENV: production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: CI setup
+        uses: ./.github/actions/ci-setup
+
+      - name: Type check
+        run: bun run type-check
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Set SST Stage
+        run: |
+          echo "production" > .sst/stage
+
+      - name: Deploy
+        run: bun run deploy
+
+      - name: Run DB migrations
+        run: bun run db:migrate
+
+      - name: Seed DB
+        run: bun run db:seed
