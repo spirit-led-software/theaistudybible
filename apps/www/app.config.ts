@@ -18,7 +18,21 @@ export default defineConfig({
     plugins: [
       tsconfigPaths(),
       VitePWA({
+        includeAssets: [
+          'favicon.ico',
+          'icon.svg',
+          'apple-touch-icon-180x180.png',
+          'pwa-64x64.png',
+          'pwa-192x192.png',
+          'pwa-512x512.png',
+          'maskable-icon-512x512.png',
+        ],
         manifest: {
+          name: 'The AI Study Bible',
+          short_name: 'ASB',
+          description:
+            'The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.',
+          theme_color: '#030527',
           icons: [
             {
               src: 'pwa-64x64.png',

@@ -45,15 +45,6 @@ export default function App() {
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
-                  <Title>The AI Study Bible</Title>
-                  <Meta name='description'>
-                    The AI Study Bible is a digital study Bible that uses artificial intelligence to
-                    help you study the Bible.
-                  </Meta>
-                  <Meta name='theme-color' content='#030527' />
-                  <Link rel='icon' href='/favicon.ico' sizes='48x48' />
-                  <Link rel='icon' href='/icon.svg' type='image/svg+xml' sizes='any' />
-                  <Link rel='apple-touch-icon' href='/apple-touch-icon-180x180.png' />
                   <ErrorBoundary
                     fallback={(err, reset) => (
                       <div class='flex h-full w-full flex-col items-center justify-center space-y-2'>
