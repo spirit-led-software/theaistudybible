@@ -328,22 +328,24 @@ async function insertChapters(
   bookInfo: ReturnType<typeof getBookInfos>[number],
 ) {
   const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
-  const insertChapterBatchSize = 10;
+  const insertChapterBatchSize = 20;
   const newChapters = [];
+  const chapterEntries = Object.entries(contents);
 
-  for (let i = 0; i < Object.entries(contents).length; i += insertChapterBatchSize) {
-    const chapterBatch = Object.entries(contents).slice(i, i + insertChapterBatchSize);
+  for (let i = 0; i < chapterEntries.length; i += insertChapterBatchSize) {
+    const chapterBatch = chapterEntries.slice(i, i + insertChapterBatchSize);
     const insertedChapters = await db
       .insert(schema.chapters)
       .values(
         chapterBatch.map(
-          ([chapter, content], index, arr) =>
+          ([chapter, content], index) =>
             ({
               id: content.id,
               bibleId: bible.id,
               bookId: book.id,
-              previousId: index > 0 ? arr[index - 1][1].id : undefined,
-              nextId: index < arr.length - 1 ? arr[index + 1][1].id : undefined,
+              previousId: index > 0 ? chapterEntries[index - 1][1].id : undefined,
+              nextId:
+                index < chapterEntries.length - 1 ? chapterEntries[index + 1][1].id : undefined,
               abbreviation: `${bookInfo.abbreviation.toUpperCase()}.${chapter}`,
               name: `${bookInfo.shortName} ${chapter}`,
               number: Number.parseInt(chapter),
@@ -368,7 +370,7 @@ async function processChapters(
   bookInfo: ReturnType<typeof getBookInfos>[number],
   generateEmbeddings: boolean,
 ) {
-  const processChapterBatchSize = 5;
+  const processChapterBatchSize = 10;
   for (let i = 0; i < chapters.length; i += processChapterBatchSize) {
     const chapterBatch = chapters.slice(i, i + processChapterBatchSize);
     await Promise.all(
@@ -379,7 +381,10 @@ async function processChapters(
         if (generateEmbeddings) {
           console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
           await generateChapterEmbeddings({
-            verses: createdVerses,
+            verses: createdVerses.map((v) => ({
+              ...v,
+              content: content.verseContents[v.number].contents,
+            })),
             chapter,
             book,
             bible,
@@ -399,26 +404,40 @@ async function insertVerses(
   chapter: Omit<typeof schema.chapters.$inferSelect, 'content'>,
   content: ReturnType<typeof parseUsx>[number],
 ) {
-  return db
-    .insert(schema.verses)
-    .values(
-      Object.entries(content.verseContents).map(
-        ([verseNumber, verseContent], index, arr) =>
-          ({
-            id: verseContent.id,
-            bibleId: bible.id,
-            bookId: book.id,
-            chapterId: chapter.id,
-            previousId: index > 0 ? arr[index - 1][1].id : undefined,
-            nextId: index < arr.length - 1 ? arr[index + 1][1].id : undefined,
-            abbreviation: `${chapter.abbreviation}.${verseNumber}`,
-            name: `${chapter.name}:${verseNumber}`,
-            number: Number.parseInt(verseNumber),
-            content: verseContent.contents,
-          }) satisfies typeof schema.verses.$inferInsert,
-      ),
-    )
-    .returning();
+  const { content: verseContent, ...columnsWithoutContent } = getTableColumns(schema.verses);
+  const insertVerseBatchSize = 40;
+  const allVerses = [];
+  const verseEntries = Object.entries(content.verseContents);
+
+  for (let i = 0; i < verseEntries.length; i += insertVerseBatchSize) {
+    const verseBatch = verseEntries.slice(i, i + insertVerseBatchSize);
+    const insertedVerses = await db
+      .insert(schema.verses)
+      .values(
+        verseBatch.map(
+          ([verseNumber, verseContent], index) =>
+            ({
+              id: verseContent.id,
+              bibleId: bible.id,
+              bookId: book.id,
+              chapterId: chapter.id,
+              previousId: i + index > 0 ? verseEntries[i + index - 1][1].id : undefined,
+              nextId:
+                i + index < verseEntries.length - 1 ? verseEntries[i + index + 1][1].id : undefined,
+              abbreviation: `${chapter.abbreviation}.${verseNumber}`,
+              name: `${chapter.name}:${verseNumber}`,
+              number: Number.parseInt(verseNumber),
+              content: verseContent.contents,
+            }) satisfies typeof schema.verses.$inferInsert,
+        ),
+      )
+      .returning({
+        ...columnsWithoutContent,
+      });
+    allVerses.push(...insertedVerses);
+  }
+
+  return allVerses;
 }
 
 async function cleanupMissingChapterLinks(bibleId: string) {
@@ -455,7 +474,7 @@ async function cleanupMissingChapterLinks(bibleId: string) {
     },
   });
 
-  const batchSize = 10;
+  const batchSize = 5;
   for (let i = 0; i < chapters.length; i += batchSize) {
     const batch = chapters.slice(i, i + batchSize);
     await Promise.all(
@@ -514,7 +533,7 @@ async function cleanupMissingVerseLinks(bibleId: string) {
     },
   });
 
-  const batchSize = 10;
+  const batchSize = 5;
   for (let i = 0; i < verses.length; i += batchSize) {
     const batch = verses.slice(i, i + batchSize);
     await Promise.all(

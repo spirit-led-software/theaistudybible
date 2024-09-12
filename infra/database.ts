@@ -2,7 +2,7 @@ import { turso } from './resources';
 
 let tursoGroup: turso.TursoGroup | undefined = undefined;
 let tursoDb: turso.TursoDatabase | undefined = undefined;
-if (!$dev) {
+if (!$dev || process.env.TURSO_IN_DEV === 'true') {
   tursoGroup = new turso.TursoGroup('TursoGroup', {
     name: 'default', // This must be default if not on the "Scale" plan or above
     primaryLocation: 'atl',
