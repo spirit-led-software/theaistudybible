@@ -1,6 +1,6 @@
 import { clerk } from '@/core/clerk';
 import { stripe } from '@/core/stripe';
-import type { WebhookEvent } from '@clerk/clerk-sdk-node';
+import type { User, WebhookEvent } from '@clerk/clerk-sdk-node';
 import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
 import { Webhook } from 'svix';
@@ -51,28 +51,39 @@ const app = new Hono().post('/', async (c) => {
   switch (evt.type) {
     case 'user.updated':
     case 'user.created': {
-      const { id, public_metadata } = evt.data;
+      const { id, email_addresses, first_name, last_name, public_metadata } = evt.data;
 
-      const user = await clerk.users.updateUserMetadata(id, {
-        publicMetadata: {
-          ...public_metadata,
-          bibleTranslation: 'WEB',
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          roles: Array.from(new Set([...((public_metadata as any)?.roles ?? []), 'user'])),
-        },
-      });
-
-      if (!public_metadata.stripeCustomerId) {
-        const customer = await stripe.customers.create({
-          email: user.emailAddresses[0].emailAddress,
-          name: `${user.firstName} ${user.lastName}`,
-          metadata: {
-            clerkId: user.id,
+      let user: User | undefined;
+      if (!('bibleTranslation' in public_metadata)) {
+        user = await clerk.users.updateUserMetadata(id, {
+          publicMetadata: {
+            ...public_metadata,
+            bibleTranslation: 'WEB',
           },
         });
-        await clerk.users.updateUserMetadata(user.id, {
+      }
+
+      if (!('roles' in public_metadata)) {
+        user = await clerk.users.updateUserMetadata(id, {
           publicMetadata: {
-            ...user.publicMetadata,
+            ...public_metadata,
+            // biome-ignore lint/suspicious/noExplicitAny: We know what type this is
+            roles: Array.from(new Set([...((public_metadata as any)?.roles ?? []), 'user'])),
+          },
+        });
+      }
+
+      if (!('stripeCustomerId' in public_metadata)) {
+        const customer = await stripe.customers.create({
+          email: email_addresses[0].email_address,
+          name: `${first_name} ${last_name}`,
+          metadata: {
+            clerkId: id,
+          },
+        });
+        await clerk.users.updateUserMetadata(id, {
+          publicMetadata: {
+            ...public_metadata,
             stripeCustomerId: customer.id,
           },
         });
