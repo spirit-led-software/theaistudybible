@@ -3,13 +3,14 @@ import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
 import { Resource } from 'sst';
 
-async function dbFetch(input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) {
+async function dbFetch(request: Request) {
   const maxRetries = 3;
   let retries = 0;
 
   while (retries < maxRetries) {
     try {
-      const response = await fetch(input, init);
+      const { url, ...options } = request;
+      const response = await fetch(url, options);
       if (response.ok) return response;
       throw new Error(`HTTP error! status: ${response.status}`);
     } catch (error) {
@@ -18,6 +19,7 @@ async function dbFetch(input: Parameters<typeof fetch>[0], init?: Parameters<typ
       await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
     }
   }
+  throw new Error('Failed to fetch');
 }
 
 const client = createClient({
