@@ -17,6 +17,10 @@
     "turso",
     "upstash"
   ],
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
   "biome.enabled": true,
   "eslint.enable": false,
   "prettier.enable": false,

@@ -10,7 +10,8 @@
       "**/.output",
       "**/bun.lockb",
       "**/migrations",
-      "**/sst-env.d.ts"
+      "**/sst-env.d.ts",
+      "**/__tests__/MAT.json"
     ]
   },
   "formatter": {

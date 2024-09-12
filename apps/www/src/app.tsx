@@ -4,7 +4,6 @@ import { MetaProvider } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { ClerkProvider } from './contexts/clerk';
 import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import { Button } from './components/ui/button';
@@ -13,6 +12,7 @@ import { Toaster } from './components/ui/toast';
 import { H1, H4 } from './components/ui/typography';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
+import { ClerkProvider } from './contexts/clerk';
 import { DevotionProvider } from './contexts/devotion';
 
 import './app.css';
