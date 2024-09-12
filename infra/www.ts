@@ -25,6 +25,7 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
   },
   domain: {
     name: DOMAIN.properties.value,
+    redirects: [`www.${DOMAIN.properties.value}`],
     dns: sst.cloudflare.dns(),
   },
 });
