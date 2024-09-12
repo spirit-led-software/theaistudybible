@@ -24,12 +24,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
 
 const getDevotions = async ({ offset, limit }: { offset: number; limit: number }) => {
-  'use server';
-  const { userId } = auth();
-  if (!userId) {
-    throw new Error('User is not authenticated');
-  }
-
   const devotions = await db.query.devotions.findMany({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
     offset,
