@@ -1,5 +1,4 @@
 import { defineConfig } from '@solidjs/start/config';
-import devtools from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -53,9 +52,6 @@ export default defineConfig({
             },
           ],
         },
-      }),
-      devtools({
-        autoname: true,
       }),
     ],
   },
