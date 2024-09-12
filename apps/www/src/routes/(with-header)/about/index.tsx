@@ -1,6 +1,6 @@
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
-import { GradientH1, H2, H3, P } from '@/www/components/ui/typography';
+import { GradientH1, H2, P } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
 import {
   BookOpenText,

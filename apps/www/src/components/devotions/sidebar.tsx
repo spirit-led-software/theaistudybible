@@ -3,7 +3,6 @@ import { toTitleCase } from '@/core/utils/string';
 import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { formatDate } from 'date-fns';
 import { History } from 'lucide-solid';
 import { For, Match, Switch, createEffect, on } from 'solid-js';

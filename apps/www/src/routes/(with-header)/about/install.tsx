@@ -2,7 +2,7 @@ import { Chrome, Firefox, Safari } from '@/www/components/ui/brand-icons';
 import { buttonVariants } from '@/www/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Spinner } from '@/www/components/ui/spinner';
-import { GradientH1, H3, ListItem, OrderedList, P, Strong } from '@/www/components/ui/typography';
+import { GradientH1, ListItem, OrderedList, P, Strong } from '@/www/components/ui/typography';
 import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { EllipsisVertical, Globe, HousePlus, MonitorUp, Plus, Share } from 'lucide-solid';
