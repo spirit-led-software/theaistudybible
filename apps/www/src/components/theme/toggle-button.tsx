@@ -8,12 +8,12 @@ export function ThemeToggleButton() {
   const [open, setOpen] = createSignal(false);
   const { colorMode, setColorMode } = useColorMode();
 
-  const icon = colorMode() === 'light' ? <Moon /> : <Sun />;
+  const Icon = () => (colorMode() === 'light' ? <Sun /> : <Moon />);
 
   return (
     <Popover open={open()} onOpenChange={setOpen}>
       <PopoverTrigger as={Button} size='icon' variant='ghost' class='size-8'>
-        {icon}
+        <Icon />
       </PopoverTrigger>
       <PopoverContent class='w-fit'>
         <div class='flex flex-col gap-2'>
