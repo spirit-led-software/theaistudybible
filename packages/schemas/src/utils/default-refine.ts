@@ -1,4 +1,3 @@
-
 import { TimestampSchema } from './timestamp';
 
 export const defaultRefine = {
