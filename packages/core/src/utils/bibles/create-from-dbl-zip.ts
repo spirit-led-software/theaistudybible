@@ -1,7 +1,7 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { type SQL, eq, getTableColumns, sql } from 'drizzle-orm';
 import { XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
 import { generateChapterEmbeddings } from './generate-chapter-embeddings';
@@ -110,7 +110,10 @@ export async function createBibleFromDblZip({
   const [language] = await db
     .insert(schema.bibleLanguages)
     .values(metadata.language)
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: [schema.bibleLanguages.iso],
+      set: metadata.language,
+    })
     .returning();
   await db.insert(schema.biblesToLanguages).values({
     bibleId: bible.id,
@@ -124,7 +127,18 @@ export async function createBibleFromDblZip({
         ? metadata.countries.map((country) => country)
         : [metadata.countries.country],
     )
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: [schema.bibleCountries.iso],
+      set: Array.isArray(metadata.countries)
+        ? Object.keys(metadata.countries[0]).reduce(
+            (acc, curr) => {
+              acc[curr] = sql`excluded.${curr}`;
+              return acc;
+            },
+            {} as Record<string, SQL<unknown>>,
+          )
+        : metadata.countries.country,
+    })
     .returning();
   await db.insert(schema.biblesToCountries).values(
     countries.map((country) => ({
@@ -136,7 +150,10 @@ export async function createBibleFromDblZip({
   const [rightsHolder] = await db
     .insert(schema.bibleRightsHolders)
     .values(metadata.agencies.rightsHolder)
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: [schema.bibleRightsHolders.uid],
+      set: metadata.agencies.rightsHolder,
+    })
     .returning();
   await db.insert(schema.biblesToRightsHolders).values({
     bibleId: bible.id,
@@ -146,7 +163,10 @@ export async function createBibleFromDblZip({
   const [rightsAdmin] = await db
     .insert(schema.bibleRightsAdmins)
     .values(metadata.agencies.rightsAdmin)
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: [schema.bibleRightsAdmins.uid],
+      set: metadata.agencies.rightsAdmin,
+    })
     .returning();
   await db.insert(schema.biblesToRightsAdmins).values({
     bibleId: bible.id,
@@ -156,7 +176,10 @@ export async function createBibleFromDblZip({
   const [contributor] = await db
     .insert(schema.bibleContributors)
     .values(metadata.agencies.contributor)
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: [schema.bibleContributors.uid],
+      set: metadata.agencies.contributor,
+    })
     .returning();
   await db.insert(schema.biblesToContributors).values({
     bibleId: bible.id,
