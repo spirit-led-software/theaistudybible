@@ -6,9 +6,6 @@ bibleBucket.subscribe(
     handler: 'apps/functions/src/bucket/subscribers/bible.handler',
     nodejs: {
       install: ['jsdom'],
-      esbuild: {
-        external: ['jsdom'],
-      },
     },
     memory: '4 GB',
     timeout: '15 minutes',
