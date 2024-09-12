@@ -1,4 +1,5 @@
 import { messages } from '@/core/database/schema';
+import { defaultRefine } from '@/schemas/utils/default-refine';
 import type { FinishReason, ToolInvocation } from 'ai';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -41,6 +42,7 @@ export const FinishReasonSchema: z.ZodType<FinishReason> = z.enum([
 ]);
 
 const refine = {
+  ...defaultRefine,
   annotations: z.any(),
   data: z.any(),
   finishReason: FinishReasonSchema,

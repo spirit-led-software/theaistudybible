@@ -1,9 +1,10 @@
 import { chats } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { defaultRefine } from '../utils/default-refine';
 
-export const ChatSchema = createSelectSchema(chats);
+export const ChatSchema = createSelectSchema(chats, defaultRefine);
 
-export const CreateChatSchema = createInsertSchema(chats).omit({
+export const CreateChatSchema = createInsertSchema(chats, defaultRefine).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

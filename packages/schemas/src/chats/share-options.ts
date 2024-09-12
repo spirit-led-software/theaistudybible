@@ -1,9 +1,13 @@
 import { shareChatOptions } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { defaultRefine } from '../utils/default-refine';
 
-export const ShareChatOptionsSchema = createSelectSchema(shareChatOptions);
+export const ShareChatOptionsSchema = createSelectSchema(shareChatOptions, defaultRefine);
 
-export const CreateShareChatOptionsSchema = createInsertSchema(shareChatOptions).omit({
+export const CreateShareChatOptionsSchema = createInsertSchema(
+  shareChatOptions,
+  defaultRefine,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

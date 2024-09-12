@@ -1,8 +1,10 @@
 import { chapters } from '@/core/database/schema';
+import { defaultRefine } from '@/schemas/utils/default-refine';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { ContentSchema } from '../contents';
 
 const refine = {
+  ...defaultRefine,
   content: ContentSchema.array(),
 };
 

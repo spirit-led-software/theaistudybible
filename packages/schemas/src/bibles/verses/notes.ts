@@ -1,9 +1,10 @@
 import { verseNotes } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { defaultRefine } from '../../utils/default-refine';
 
-export const VerseNoteSchema = createSelectSchema(verseNotes);
+export const VerseNoteSchema = createSelectSchema(verseNotes, defaultRefine);
 
-export const CreateVerseNoteSchema = createInsertSchema(verseNotes).omit({
+export const CreateVerseNoteSchema = createInsertSchema(verseNotes, defaultRefine).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

@@ -1,9 +1,10 @@
 import { devotionImages } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { defaultRefine } from '../utils/default-refine';
 
-export const DevotionImageSchema = createSelectSchema(devotionImages);
+export const DevotionImageSchema = createSelectSchema(devotionImages, defaultRefine);
 
-export const CreateDevotionImageSchema = createInsertSchema(devotionImages).omit({
+export const CreateDevotionImageSchema = createInsertSchema(devotionImages, defaultRefine).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

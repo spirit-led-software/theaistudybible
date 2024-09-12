@@ -1,8 +1,10 @@
 import { devotions } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { defaultRefine } from '../utils/default-refine';
 
 const refine = {
+  ...defaultRefine,
   diveDeeperQueries: z.array(z.string()),
 };
 

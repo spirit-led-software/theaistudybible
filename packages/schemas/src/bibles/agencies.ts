@@ -1,9 +1,13 @@
 import { bibleContributors, bibleRightsAdmins, bibleRightsHolders } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { defaultRefine } from '../utils/default-refine';
 
-export const BibleRightsHolderSchema = createSelectSchema(bibleRightsHolders);
+export const BibleRightsHolderSchema = createSelectSchema(bibleRightsHolders, defaultRefine);
 
-export const CreateBibleRightsHolderSchema = createInsertSchema(bibleRightsHolders).omit({
+export const CreateBibleRightsHolderSchema = createInsertSchema(
+  bibleRightsHolders,
+  defaultRefine,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -11,9 +15,12 @@ export const CreateBibleRightsHolderSchema = createInsertSchema(bibleRightsHolde
 
 export const UpdateBibleRightsHolderSchema = CreateBibleRightsHolderSchema.partial();
 
-export const BibleRightsAdminSchema = createSelectSchema(bibleRightsAdmins);
+export const BibleRightsAdminSchema = createSelectSchema(bibleRightsAdmins, defaultRefine);
 
-export const CreateBibleRightsAdminSchema = createInsertSchema(bibleRightsAdmins).omit({
+export const CreateBibleRightsAdminSchema = createInsertSchema(
+  bibleRightsAdmins,
+  defaultRefine,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -21,9 +28,12 @@ export const CreateBibleRightsAdminSchema = createInsertSchema(bibleRightsAdmins
 
 export const UpdateBibleRightsAdminSchema = CreateBibleRightsAdminSchema.partial();
 
-export const BibleContributorSchema = createSelectSchema(bibleContributors);
+export const BibleContributorSchema = createSelectSchema(bibleContributors, defaultRefine);
 
-export const CreateBibleContributorSchema = createInsertSchema(bibleContributors).omit({
+export const CreateBibleContributorSchema = createInsertSchema(
+  bibleContributors,
+  defaultRefine,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

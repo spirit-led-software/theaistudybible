@@ -1,6 +1,7 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
+import type { Bible } from '@/schemas/bibles/types';
 import { type SQL, eq, getTableColumns, sql } from 'drizzle-orm';
 import { XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
@@ -8,97 +9,125 @@ import { generateChapterEmbeddings } from './generate-chapter-embeddings';
 import type { DBLMetadata, Publication } from './types';
 import { parseUsx } from './usx';
 
+type CreateBibleParams = {
+  zipBuffer: Uint8Array;
+  publicationId?: string;
+  overwrite: boolean;
+  generateEmbeddings: boolean;
+};
+
 export async function createBibleFromDblZip({
   zipBuffer,
   publicationId,
   overwrite,
   generateEmbeddings,
-}: {
-  zipBuffer: Uint8Array;
-  publicationId?: string;
-  overwrite: boolean;
-  generateEmbeddings: boolean;
-}) {
+}: CreateBibleParams) {
   const zipFile = await JSZip.loadAsync(zipBuffer);
+  const { metadata, publication } = await extractMetadataAndPublication(zipFile, publicationId);
+  const abbreviation = publication.abbreviation;
 
-  const licenseFile = zipFile.file('license.xml');
-  if (!licenseFile) {
-    throw new Error('license.xml not found');
+  console.log(`Checking if bible ${abbreviation} already exists...`);
+  let bible: Bible | undefined = await findExistingBible(abbreviation, overwrite);
+
+  if (!bible) {
+    bible = await createNewBible(metadata, abbreviation);
+    await createBibleRelations(bible, metadata);
   }
 
+  console.log(`Bible created with ID ${bible.id}`);
+
+  const bookInfos = getBookInfos(publication, metadata);
+  const newBooks = await createBooks(bible.id, bookInfos);
+  await createBookOrder(newBooks);
+
+  await processBooks(zipFile, bible, newBooks, bookInfos, generateEmbeddings);
+
+  await cleanupMissingChapterLinks(bible.id);
+  await cleanupMissingVerseLinks(bible.id);
+}
+
+async function extractMetadataAndPublication(zipFile: JSZip, publicationId?: string) {
   const metadataFile = zipFile.file('metadata.xml');
-  if (!metadataFile) {
-    throw new Error('metadata.xml not found');
-  }
+  if (!metadataFile) throw new Error('metadata.xml not found');
 
   const metadataXml = await metadataFile.async('text');
   const { DBLMetadata: metadata } = new XMLParser({
     ignoreAttributes: false,
     allowBooleanAttributes: true,
-  }).parse(metadataXml) as {
-    DBLMetadata: DBLMetadata;
-  };
+  }).parse(metadataXml) as { DBLMetadata: DBLMetadata };
 
-  let publication: Publication | undefined;
+  const publication = findPublication(metadata, publicationId);
+  if (!publication) throw new Error('Publication not found');
+
+  return { metadata, publication };
+}
+
+function findPublication(metadata: DBLMetadata, publicationId?: string): Publication | undefined {
   if (publicationId) {
-    publication = metadata.publications.publication.find((pub) => pub['@_id'] === publicationId);
-  } else {
-    publication = metadata.publications.publication.find((pub) => pub['@_default'] === 'true');
-    if (!publication) {
-      publication = metadata.publications.publication[0];
-    }
+    return metadata.publications.publication.find((pub) => pub['@_id'] === publicationId);
   }
-  if (!publication) {
-    throw new Error('Publication not found');
-  }
+  return (
+    metadata.publications.publication.find((pub) => pub['@_default'] === 'true') ||
+    metadata.publications.publication[0]
+  );
+}
 
-  const abbreviation = publication.abbreviation;
-
-  console.log(`Checking if bible ${abbreviation} already exists...`);
-
-  let bible = await db.query.bibles.findFirst({
+async function findExistingBible(abbreviation: string, overwrite: boolean) {
+  const bible = await db.query.bibles.findFirst({
     where: eq(schema.bibles.abbreviation, abbreviation),
   });
-  if (bible) {
-    if (!overwrite) {
-      throw new Error(
-        `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`,
-      );
-    }
 
-    console.log(`Bible ${abbreviation} already exists. Deleting...`);
-    const sourceDocIds = await db.query.bibles
-      .findFirst({
-        where: (bibles, { eq }) => eq(bibles.id, bible!.id),
-        columns: { id: true },
-        with: {
-          chapters: {
-            columns: { id: true },
-            with: {
-              chaptersToSourceDocuments: {
-                columns: { sourceDocumentId: true },
-              },
-            },
-          },
-        },
-      })
-      .then(
-        (bible) =>
-          bible?.chapters.flatMap((chapter) =>
-            chapter.chaptersToSourceDocuments.map((c) => c.sourceDocumentId),
-          ) ?? [],
-      );
-
-    await Promise.all([
-      db.delete(schema.bibles).where(eq(schema.bibles.id, bible.id)),
-      sourceDocIds.length && vectorStore.deleteDocuments(sourceDocIds),
-    ]);
+  if (bible && !overwrite) {
+    throw new Error(
+      `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`,
+    );
   }
 
-  [bible] = await db
+  if (bible) {
+    console.log(`Bible ${abbreviation} already exists. Deleting...`);
+    await deleteBibleAndEmbeddings(bible.id);
+    return undefined;
+  }
+
+  return bible;
+}
+
+async function deleteBibleAndEmbeddings(bibleId: string) {
+  const sourceDocIds = await getSourceDocIds(bibleId);
+  await Promise.all([
+    db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId)),
+    sourceDocIds.length && vectorStore.deleteDocuments(sourceDocIds),
+  ]);
+}
+
+async function getSourceDocIds(bibleId: string) {
+  const bible = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.id, bibleId),
+    columns: { id: true },
+    with: {
+      chapters: {
+        columns: { id: true },
+        with: {
+          chaptersToSourceDocuments: {
+            columns: { sourceDocumentId: true },
+          },
+        },
+      },
+    },
+  });
+
+  return (
+    bible?.chapters.flatMap((chapter) =>
+      chapter.chaptersToSourceDocuments.map((c) => c.sourceDocumentId),
+    ) ?? []
+  );
+}
+
+async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
+  const [bible] = await db
     .insert(schema.bibles)
     .values({
-      abbreviation: abbreviation,
+      abbreviation,
       abbreviationLocal: metadata.identification.abbreviationLocal,
       name: metadata.identification.name,
       nameLocal: metadata.identification.nameLocal,
@@ -107,92 +136,121 @@ export async function createBibleFromDblZip({
     })
     .returning();
 
+  return bible;
+}
+
+async function createBibleRelations(
+  bible: typeof schema.bibles.$inferSelect,
+  metadata: DBLMetadata,
+) {
+  await createBibleLanguage(bible.id, metadata.language);
+  await createBibleCountries(bible.id, metadata.countries);
+  await createBibleRightsHolder(bible.id, metadata.agencies.rightsHolder);
+  await createBibleRightsAdmin(bible.id, metadata.agencies.rightsAdmin);
+  await createBibleContributor(bible.id, metadata.agencies.contributor);
+}
+
+async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['language']) {
   const [language] = await db
     .insert(schema.bibleLanguages)
-    .values(metadata.language)
+    .values(dblLanguage)
     .onConflictDoUpdate({
       target: [schema.bibleLanguages.iso],
-      set: metadata.language,
+      set: dblLanguage,
     })
     .returning();
   await db.insert(schema.biblesToLanguages).values({
-    bibleId: bible.id,
+    bibleId,
     languageId: language.id,
   });
+}
 
+async function createBibleCountries(bibleId: string, dblCountries: DBLMetadata['countries']) {
+  const countriesArray = Array.isArray(dblCountries)
+    ? dblCountries.map((country) => country)
+    : [dblCountries.country];
   const countries = await db
     .insert(schema.bibleCountries)
-    .values(
-      Array.isArray(metadata.countries)
-        ? metadata.countries.map((country) => country)
-        : [metadata.countries.country],
-    )
+    .values(countriesArray)
     .onConflictDoUpdate({
       target: [schema.bibleCountries.iso],
-      set: Array.isArray(metadata.countries)
-        ? Object.keys(metadata.countries[0]).reduce(
+      set: Array.isArray(dblCountries)
+        ? Object.keys(dblCountries[0]).reduce(
             (acc, curr) => {
               acc[curr] = sql`excluded.${curr}`;
               return acc;
             },
             {} as Record<string, SQL<unknown>>,
           )
-        : metadata.countries.country,
+        : dblCountries.country,
     })
     .returning();
   await db.insert(schema.biblesToCountries).values(
     countries.map((country) => ({
-      bibleId: bible.id,
+      bibleId,
       countryId: country.id,
     })),
   );
+}
 
+async function createBibleRightsHolder(
+  bibleId: string,
+  dblRightsHolder: DBLMetadata['agencies']['rightsHolder'],
+) {
   const [rightsHolder] = await db
     .insert(schema.bibleRightsHolders)
-    .values(metadata.agencies.rightsHolder)
+    .values(dblRightsHolder)
     .onConflictDoUpdate({
       target: [schema.bibleRightsHolders.uid],
-      set: metadata.agencies.rightsHolder,
+      set: dblRightsHolder,
     })
     .returning();
   await db.insert(schema.biblesToRightsHolders).values({
-    bibleId: bible.id,
+    bibleId,
     rightsHolderId: rightsHolder.id,
   });
+}
 
+async function createBibleRightsAdmin(
+  bibleId: string,
+  dblRightsAdmin: DBLMetadata['agencies']['rightsAdmin'],
+) {
   const [rightsAdmin] = await db
     .insert(schema.bibleRightsAdmins)
-    .values(metadata.agencies.rightsAdmin)
+    .values(dblRightsAdmin)
     .onConflictDoUpdate({
       target: [schema.bibleRightsAdmins.uid],
-      set: metadata.agencies.rightsAdmin,
+      set: dblRightsAdmin,
     })
     .returning();
   await db.insert(schema.biblesToRightsAdmins).values({
-    bibleId: bible.id,
+    bibleId,
     rightsAdminId: rightsAdmin.id,
   });
+}
 
+async function createBibleContributor(
+  bibleId: string,
+  dblContributor: DBLMetadata['agencies']['contributor'],
+) {
   const [contributor] = await db
     .insert(schema.bibleContributors)
-    .values(metadata.agencies.contributor)
+    .values(dblContributor)
     .onConflictDoUpdate({
       target: [schema.bibleContributors.uid],
-      set: metadata.agencies.contributor,
+      set: dblContributor,
     })
     .returning();
   await db.insert(schema.biblesToContributors).values({
-    bibleId: bible.id,
+    bibleId,
     contributorId: contributor.id,
   });
+}
 
-  console.log(`Bible created with ID ${bible.id}`);
-
-  const bookInfos = publication.structure.content.map((content) => {
+function getBookInfos(publication: Publication, metadata: DBLMetadata) {
+  return publication.structure.content.map((content) => {
     const name = metadata.names.name.find((name) => content['@_name'] === name['@_id']);
-    if (!name) {
-      throw new Error(`Content ${content['@_name']} not found`);
-    }
+    if (!name) throw new Error(`Content ${content['@_name']} not found`);
     return {
       src: content['@_src'],
       abbreviation: name.abbr.toUpperCase(),
@@ -200,9 +258,10 @@ export async function createBibleFromDblZip({
       longName: name.long,
     };
   });
+}
 
-  console.log('Creating books...');
-  const newBooks = await db
+async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBookInfos>) {
+  return db
     .insert(schema.books)
     .values(
       bookInfos.map((book, index) => {
@@ -210,53 +269,74 @@ export async function createBibleFromDblZip({
         return {
           ...rest,
           number: index + 1,
-          bibleId: bible.id,
+          bibleId,
         };
       }),
     )
     .returning();
+}
 
-  console.log('Creating book order...');
+async function createBookOrder(books: (typeof schema.books.$inferSelect)[]) {
   await Promise.all(
-    newBooks.map(async (book, index, books) => {
+    books.map(async (book, index, books) => {
       const previousBook = books[index - 1];
-      if (previousBook) {
-        await db
-          .update(schema.books)
-          .set({ previousId: previousBook.id })
-          .where(eq(schema.books.id, book.id));
-      }
       const nextBook = books[index + 1];
-      if (nextBook) {
-        await db
-          .update(schema.books)
-          .set({ nextId: nextBook.id })
-          .where(eq(schema.books.id, book.id));
+      const updates: Partial<typeof schema.books.$inferSelect> = {};
+
+      if (previousBook) updates.previousId = previousBook.id;
+      if (nextBook) updates.nextId = nextBook.id;
+
+      if (Object.keys(updates).length) {
+        await db.update(schema.books).set(updates).where(eq(schema.books.id, book.id));
       }
-      return book;
     }),
   );
+}
 
+async function processBooks(
+  zipFile: JSZip,
+  bible: typeof schema.bibles.$inferSelect,
+  books: (typeof schema.books.$inferSelect)[],
+  bookInfos: ReturnType<typeof getBookInfos>,
+  generateEmbeddings: boolean,
+) {
   for (const bookInfo of bookInfos) {
     console.log(`Processing book: ${bookInfo.abbreviation}...`);
-    const book = newBooks.find((book) => book.abbreviation === bookInfo.abbreviation);
-    if (!book) {
-      throw new Error(`Book ${bookInfo.abbreviation} not found`);
-    }
+    const book = books.find((b) => b.abbreviation === bookInfo.abbreviation);
+    if (!book) throw new Error(`Book ${bookInfo.abbreviation} not found`);
 
     const bookFile = zipFile.file(bookInfo.src);
-    if (!bookFile) {
-      throw new Error(`Book file ${bookInfo.src} not found`);
-    }
+    if (!bookFile) throw new Error(`Book file ${bookInfo.src} not found`);
+
     const bookXml = await bookFile.async('text');
     const contents = parseUsx(bookXml);
 
     console.log('Book content parsed, inserting chapters into database...');
-    const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
-    const newChapters = await db
+    const newChapters = await insertChapters(bible, book, contents, bookInfo);
+
+    console.log(
+      `${bookInfo.abbreviation}: Inserted ${newChapters.length} chapters. Inserting verses...`,
+    );
+    await processChapters(newChapters, contents, bible, book, bookInfo, generateEmbeddings);
+  }
+}
+
+async function insertChapters(
+  bible: typeof schema.bibles.$inferSelect,
+  book: typeof schema.books.$inferSelect,
+  contents: ReturnType<typeof parseUsx>,
+  bookInfo: ReturnType<typeof getBookInfos>[number],
+) {
+  const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
+  const insertChapterBatchSize = 10;
+  const newChapters = [];
+
+  for (let i = 0; i < Object.entries(contents).length; i += insertChapterBatchSize) {
+    const chapterBatch = Object.entries(contents).slice(i, i + insertChapterBatchSize);
+    const insertedChapters = await db
       .insert(schema.chapters)
       .values(
-        Object.entries(contents).map(
+        chapterBatch.map(
           ([chapter, content], index, arr) =>
             ({
               id: content.id,
@@ -274,56 +354,71 @@ export async function createBibleFromDblZip({
       .returning({
         ...columnsWithoutContent,
       });
-
-    console.log(
-      `${bookInfo.abbreviation}: Inserted ${newChapters.length} chapters. Inserting verses...`,
-    );
-
-    const chapterBatchSize = 5;
-    for (let i = 0; i < newChapters.length; i += chapterBatchSize) {
-      const chapterBatch = newChapters.slice(i, i + chapterBatchSize);
-      await Promise.all(
-        chapterBatch.map(async (chapter) => {
-          const content = contents[chapter.number];
-          const createdVerses = await db
-            .insert(schema.verses)
-            .values(
-              Object.entries(content.verseContents).map(
-                ([verseNumber, verseContent], index, arr) =>
-                  ({
-                    id: verseContent.id,
-                    bibleId: bible.id,
-                    bookId: book.id,
-                    chapterId: chapter.id,
-                    previousId: index > 0 ? arr[index - 1][1].id : undefined,
-                    nextId: index < arr.length - 1 ? arr[index + 1][1].id : undefined,
-                    abbreviation: `${chapter.abbreviation}.${verseNumber}`,
-                    name: `${chapter.name}:${verseNumber}`,
-                    number: Number.parseInt(verseNumber),
-                    content: verseContent.contents,
-                  }) satisfies typeof schema.verses.$inferInsert,
-              ),
-            )
-            .returning();
-
-          if (generateEmbeddings) {
-            console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
-            await generateChapterEmbeddings({
-              verses: createdVerses,
-              chapter,
-              book,
-              bible,
-            });
-          }
-        }),
-      );
-      console.log(
-        `Processed ${Math.min(i + chapterBatchSize, newChapters.length)} chapters out of ${newChapters.length}`,
-      );
-    }
+    newChapters.push(...insertedChapters);
   }
-  await cleanupMissingChapterLinks(bible.id);
-  await cleanupMissingVerseLinks(bible.id);
+
+  return newChapters;
+}
+
+async function processChapters(
+  chapters: Omit<typeof schema.chapters.$inferSelect, 'content'>[],
+  contents: ReturnType<typeof parseUsx>,
+  bible: typeof schema.bibles.$inferSelect,
+  book: typeof schema.books.$inferSelect,
+  bookInfo: ReturnType<typeof getBookInfos>[number],
+  generateEmbeddings: boolean,
+) {
+  const processChapterBatchSize = 5;
+  for (let i = 0; i < chapters.length; i += processChapterBatchSize) {
+    const chapterBatch = chapters.slice(i, i + processChapterBatchSize);
+    await Promise.all(
+      chapterBatch.map(async (chapter) => {
+        const content = contents[chapter.number];
+        const createdVerses = await insertVerses(bible, book, chapter, content);
+
+        if (generateEmbeddings) {
+          console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
+          await generateChapterEmbeddings({
+            verses: createdVerses,
+            chapter,
+            book,
+            bible,
+          });
+        }
+      }),
+    );
+    console.log(
+      `Processed ${Math.min(i + processChapterBatchSize, chapters.length)} chapters out of ${chapters.length}`,
+    );
+  }
+}
+
+async function insertVerses(
+  bible: typeof schema.bibles.$inferSelect,
+  book: typeof schema.books.$inferSelect,
+  chapter: Omit<typeof schema.chapters.$inferSelect, 'content'>,
+  content: ReturnType<typeof parseUsx>[number],
+) {
+  return db
+    .insert(schema.verses)
+    .values(
+      Object.entries(content.verseContents).map(
+        ([verseNumber, verseContent], index, arr) =>
+          ({
+            id: verseContent.id,
+            bibleId: bible.id,
+            bookId: book.id,
+            chapterId: chapter.id,
+            previousId: index > 0 ? arr[index - 1][1].id : undefined,
+            nextId: index < arr.length - 1 ? arr[index + 1][1].id : undefined,
+            abbreviation: `${chapter.abbreviation}.${verseNumber}`,
+            name: `${chapter.name}:${verseNumber}`,
+            number: Number.parseInt(verseNumber),
+            content: verseContent.contents,
+          }) satisfies typeof schema.verses.$inferInsert,
+      ),
+    )
+    .returning();
 }
 
 async function cleanupMissingChapterLinks(bibleId: string) {
@@ -359,6 +454,7 @@ async function cleanupMissingChapterLinks(bibleId: string) {
       },
     },
   });
+
   const batchSize = 10;
   for (let i = 0; i < chapters.length; i += batchSize) {
     const batch = chapters.slice(i, i + batchSize);
@@ -417,6 +513,7 @@ async function cleanupMissingVerseLinks(bibleId: string) {
       },
     },
   });
+
   const batchSize = 10;
   for (let i = 0; i < verses.length; i += batchSize) {
     const batch = verses.slice(i, i + batchSize);

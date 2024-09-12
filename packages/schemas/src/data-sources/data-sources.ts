@@ -1,11 +1,16 @@
 import { dataSources } from '@/core/database/schema';
-import { createSelectSchema } from 'drizzle-zod';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { MetadataSchema } from '../utils';
+import { defaultRefine } from '../utils/default-refine';
 
-export const DataSourceSchema = createSelectSchema(dataSources);
+const refine = {
+  ...defaultRefine,
+  metadata: MetadataSchema,
+};
 
-export const DataSourceIdSchema = DataSourceSchema.pick({ id: true });
+export const DataSourceSchema = createSelectSchema(dataSources, refine);
 
-export const CreateDataSourceSchema = DataSourceSchema.omit({
+export const CreateDataSourceSchema = createInsertSchema(dataSources, refine).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
