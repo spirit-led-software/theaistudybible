@@ -58,7 +58,7 @@ const app = new Hono().post('/', async (c) => {
           ...public_metadata,
           bibleTranslation: 'WEB',
           // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          roles: [...((public_metadata as any)?.roles ?? []), 'user'],
+          roles: Array.from(new Set([...((public_metadata as any)?.roles ?? []), 'user'])),
         },
       });
 
