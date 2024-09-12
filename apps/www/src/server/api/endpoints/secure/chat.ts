@@ -41,7 +41,6 @@ const app = new Hono<{
             id: true,
             content: true,
             role: true,
-            createdAt: true,
           })
           .passthrough()
           .array(),
