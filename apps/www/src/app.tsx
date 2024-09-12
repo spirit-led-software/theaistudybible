@@ -4,7 +4,7 @@ import { MetaProvider } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { ClerkProvider } from 'clerk-solidjs';
+import { ClerkProvider } from './contexts/clerk';
 import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import { Button } from './components/ui/button';
@@ -39,9 +39,9 @@ export default function App() {
       <Router
         root={(props) => (
           <MetaProvider>
-            <ClerkProvider publishableKey={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}>
-              <ColorModeScript storageType={storageManager.type} />
-              <ColorModeProvider storageManager={storageManager}>
+            <ColorModeScript storageType={storageManager.type} />
+            <ColorModeProvider storageManager={storageManager}>
+              <ClerkProvider>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
                   <ErrorBoundary
                     fallback={(err, reset) => (
@@ -62,8 +62,8 @@ export default function App() {
                   <Toaster />
                   <Sonner />
                 </MultiProvider>
-              </ColorModeProvider>
-            </ClerkProvider>
+              </ClerkProvider>
+            </ColorModeProvider>
           </MetaProvider>
         )}
       >

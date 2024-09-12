@@ -1,5 +1,5 @@
 import { Button } from '@/www/components/ui/button';
-import { H1, H2, H3, P } from '@/www/components/ui/typography';
+import { GradientH1, H1, H2, H3, P } from '@/www/components/ui/typography';
 import { A, Navigate } from '@solidjs/router';
 import { SignedIn, SignedOut } from 'clerk-solidjs';
 import { BookOpen, MessageCircle, Search } from 'lucide-solid';
@@ -25,9 +25,9 @@ export default function HomePage() {
             <div class='container mx-auto px-10'>
               <div class='flex flex-col items-center space-y-12 md:flex-row md:justify-between md:space-y-0'>
                 <div class='text-center md:w-1/2 md:text-left'>
-                  <H1 class='from-accent-foreground to-primary mb-6 inline-block bg-gradient-to-r bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl md:text-6xl'>
+                  <GradientH1 class='mb-6 text-4xl font-extrabold sm:text-5xl md:text-6xl'>
                     The AI Study Bible
-                  </H1>
+                  </GradientH1>
                   <H3 class='text-muted-foreground max-w-xl text-lg font-medium sm:text-xl md:text-2xl'>
                     Unlock Divine Wisdom Anytime, Anywhere with AI-Powered Insights
                   </H3>
@@ -60,7 +60,7 @@ export default function HomePage() {
                 {/* Feature 1 */}
                 <div class='flex flex-col items-center text-center'>
                   <div class='bg-primary/10 mb-4 rounded-full p-3'>
-                    <BookOpen class='text-primary h-6 w-6 sm:h-8 sm:w-8' />
+                    <BookOpen class='h-6 w-6 sm:h-8 sm:w-8' />
                   </div>
                   <H3 class='mb-2 text-lg font-semibold sm:text-xl'>Deeper Understanding</H3>
                   <P class='text-muted-foreground text-sm sm:text-base'>
@@ -72,7 +72,7 @@ export default function HomePage() {
                 {/* Feature 2 */}
                 <div class='flex flex-col items-center text-center'>
                   <div class='bg-primary/10 mb-4 rounded-full p-3'>
-                    <MessageCircle class='text-primary h-6 w-6 sm:h-8 sm:w-8' />
+                    <MessageCircle class='h-6 w-6 sm:h-8 sm:w-8' />
                   </div>
                   <H3 class='mb-2 text-lg font-semibold sm:text-xl'>AI Conversations</H3>
                   <P class='text-muted-foreground text-sm sm:text-base'>
@@ -84,7 +84,7 @@ export default function HomePage() {
                 {/* Feature 3 */}
                 <div class='flex flex-col items-center text-center'>
                   <div class='bg-primary/10 mb-4 rounded-full p-3'>
-                    <Search class='text-primary h-6 w-6 sm:h-8 sm:w-8' />
+                    <Search class='h-6 w-6 sm:h-8 sm:w-8' />
                   </div>
                   <H3 class='mb-2 text-lg font-semibold sm:text-xl'>Advanced Search</H3>
                   <P class='text-muted-foreground text-sm sm:text-base'>

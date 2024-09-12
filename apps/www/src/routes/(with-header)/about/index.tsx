@@ -63,20 +63,22 @@ const AboutPage: Component = () => {
         </H2>
         <div class='grid gap-8 md:grid-cols-2'>
           {features.map((feature) => (
-            <Card class='rounded-lg bg-white p-6 shadow-md'>
+            <Card>
               <CardHeader>
                 <CardTitle>
                   <feature.icon class='mr-2 inline-block' />
                   {feature.title}
                 </CardTitle>
               </CardHeader>
-              <P class='text-muted-foreground'>{feature.description}</P>
+              <CardContent>
+                <P class='text-muted-foreground'>{feature.description}</P>
+              </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      <Card>
+      <Card class='bg-muted'>
         <CardHeader>
           <CardTitle>
             <Heart class='mr-2 inline-block' />

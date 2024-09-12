@@ -178,7 +178,7 @@ export default function InstallPage() {
               </Card>
             </Show>
 
-            <Card class='mt-8 bg-blue-100'>
+            <Card class='mt-8 bg-blue-100 text-blue-800'>
               <CardHeader>
                 <CardTitle>Need Help?</CardTitle>
               </CardHeader>
