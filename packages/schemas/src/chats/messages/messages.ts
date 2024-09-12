@@ -46,7 +46,7 @@ const refine = {
   annotations: z.any(),
   data: z.any(),
   finishReason: FinishReasonSchema,
-  toolInvocations: ToolInvocationSchema.array(),
+  toolInvocations: ToolInvocationSchema.array().optional(),
 };
 
 export const MessageSchema = createSelectSchema(messages, refine);
