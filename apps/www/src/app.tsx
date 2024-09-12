@@ -1,10 +1,9 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { MultiProvider } from '@solid-primitives/context';
-import { Link, Meta, MetaProvider, Title } from '@solidjs/meta';
+import { MetaProvider } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { ClerkProvider } from 'clerk-solidjs';
 import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
@@ -37,7 +36,6 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SolidQueryDevtools buttonPosition='bottom-left' />
       <Router
         root={(props) => (
           <MetaProvider>

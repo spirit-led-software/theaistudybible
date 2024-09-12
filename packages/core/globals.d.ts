@@ -5,9 +5,6 @@ declare global {
     interface ProcessEnv {
       // Make everything else undefined
       [key: string]: undefined;
-
-      // Environment
-      NODE_ENV: 'development' | 'production';
     }
   }
   interface CustomJwtSessionClaims {

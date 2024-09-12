@@ -30,7 +30,8 @@
         "noSvgWithoutTitle": "off"
       },
       "correctness": {
-        "useJsxKeyInIterable": "off"
+        "useJsxKeyInIterable": "off",
+        "noUnusedImports": "error"
       },
       "nursery": {
         "noReactSpecificProps": "error"

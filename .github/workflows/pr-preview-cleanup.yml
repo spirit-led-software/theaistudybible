@@ -15,7 +15,6 @@ env:
   TURSO_API_KEY: ${{ secrets.TURSO_API_KEY }}
   UPSTASH_EMAIL: ${{ secrets.UPSTASH_EMAIL }}
   UPSTASH_API_KEY: ${{ secrets.UPSTASH_API_KEY }}
-  NODE_ENV: development
 
 jobs:
   deploy:
