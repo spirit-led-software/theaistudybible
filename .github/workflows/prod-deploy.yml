@@ -5,6 +5,10 @@ concurrency: production
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - 'README.md'
+      - '.vscode'
+      - '.cursorrules'
   workflow_dispatch:
 
 env:

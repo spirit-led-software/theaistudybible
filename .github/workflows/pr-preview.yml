@@ -5,6 +5,10 @@ concurrency: ${{ github.workflow }}-${{ github.event.pull_request.number }}
 on:
   pull_request:
     branches: [master]
+    paths-ignore:
+      - 'README.md'
+      - '.vscode'
+      - '.cursorrules'
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
