@@ -261,36 +261,47 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
 }
 
 async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBookInfos>) {
-  return db
-    .insert(schema.books)
-    .values(
-      bookInfos.map((book, index) => {
-        const { src, ...rest } = book;
-        return {
-          ...rest,
-          number: index + 1,
-          bibleId,
-        };
-      }),
-    )
-    .returning();
+  const batchSize = 20;
+  const allBooks = [];
+
+  for (let i = 0; i < bookInfos.length; i += batchSize) {
+    const batch = bookInfos.slice(i, i + batchSize);
+    const insertedBooks = await db
+      .insert(schema.books)
+      .values(
+        batch.map((book, index) => {
+          const { src, ...rest } = book;
+          return {
+            ...rest,
+            number: i + index + 1,
+            bibleId,
+          };
+        }),
+      )
+      .returning();
+    allBooks.push(...insertedBooks);
+  }
+
+  return allBooks;
 }
 
 async function createBookOrder(books: (typeof schema.books.$inferSelect)[]) {
-  await Promise.all(
-    books.map(async (book, index, books) => {
-      const previousBook = books[index - 1];
-      const nextBook = books[index + 1];
-      const updates: Partial<typeof schema.books.$inferSelect> = {};
+  const batchSize = 10;
+  for (let i = 0; i < books.length; i += batchSize) {
+    const batch = books.slice(i, i + batchSize);
+    await Promise.all(
+      batch.map(async (book, index) => {
+        const previousBook = books[i + index - 1];
+        const nextBook = books[i + index + 1];
+        const updates: Partial<typeof schema.books.$inferSelect> = {};
 
-      if (previousBook) updates.previousId = previousBook.id;
-      if (nextBook) updates.nextId = nextBook.id;
+        if (previousBook) updates.previousId = previousBook.id;
+        if (nextBook) updates.nextId = nextBook.id;
 
-      if (Object.keys(updates).length) {
-        await db.update(schema.books).set(updates).where(eq(schema.books.id, book.id));
-      }
-    }),
-  );
+        return db.update(schema.books).set(updates).where(eq(schema.books.id, book.id));
+      }),
+    );
+  }
 }
 
 async function processBooks(
@@ -370,30 +381,32 @@ async function processChapters(
   bookInfo: ReturnType<typeof getBookInfos>[number],
   generateEmbeddings: boolean,
 ) {
-  const processChapterBatchSize = 10;
-  for (let i = 0; i < chapters.length; i += processChapterBatchSize) {
-    const chapterBatch = chapters.slice(i, i + processChapterBatchSize);
-    await Promise.all(
-      chapterBatch.map(async (chapter) => {
-        const content = contents[chapter.number];
-        const createdVerses = await insertVerses(bible, book, chapter, content);
+  const batchSize = 5;
+  for (let i = 0; i < chapters.length; i += batchSize) {
+    const chapterBatch = chapters.slice(i, i + batchSize);
 
-        if (generateEmbeddings) {
-          console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
-          await generateChapterEmbeddings({
-            verses: createdVerses.map((v) => ({
-              ...v,
-              content: content.verseContents[v.number].contents,
-            })),
-            chapter,
-            book,
-            bible,
-          });
-        }
-      }),
-    );
+    for (const chapter of chapterBatch) {
+      const content = contents[chapter.number];
+      const createdVerses = await insertVerses(bible, book, chapter, content);
+
+      if (generateEmbeddings) {
+        console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
+        await generateChapterEmbeddings({
+          verses: createdVerses.map((v) => ({
+            ...v,
+            content: content.verseContents[v.number].contents,
+          })),
+          chapter,
+          book,
+          bible,
+        });
+      }
+
+      console.log(`Processed chapter ${chapter.number} out of ${chapters.length}`);
+    }
+
     console.log(
-      `Processed ${Math.min(i + processChapterBatchSize, chapters.length)} chapters out of ${chapters.length}`,
+      `Processed batch ${i / batchSize + 1} out of ${Math.ceil(chapters.length / batchSize)}`,
     );
   }
 }
@@ -405,7 +418,7 @@ async function insertVerses(
   content: ReturnType<typeof parseUsx>[number],
 ) {
   const { content: verseContent, ...columnsWithoutContent } = getTableColumns(schema.verses);
-  const insertVerseBatchSize = 40;
+  const insertVerseBatchSize = 20;
   const allVerses = [];
   const verseEntries = Object.entries(content.verseContents);
 
@@ -474,25 +487,27 @@ async function cleanupMissingChapterLinks(bibleId: string) {
     },
   });
 
-  const batchSize = 5;
+  const batchSize = 10;
   for (let i = 0; i < chapters.length; i += batchSize) {
     const batch = chapters.slice(i, i + batchSize);
-    await Promise.all(
-      batch.map(async (chapter) => {
-        if (!chapter.nextId && chapter.book.next) {
-          await db
+    await Promise.all([
+      ...batch
+        .filter((chapter) => !chapter.nextId && chapter.book.next !== null)
+        .map((chapter) =>
+          db
             .update(schema.chapters)
-            .set({ nextId: chapter.book.next.chapters[0].id })
-            .where(eq(schema.chapters.id, chapter.id));
-        }
-        if (!chapter.previousId && chapter.book.previous) {
-          await db
+            .set({ nextId: chapter.book.next!.chapters[0].id })
+            .where(eq(schema.chapters.id, chapter.id)),
+        ),
+      ...batch
+        .filter((chapter) => !chapter.previousId && chapter.book.previous !== null)
+        .map((chapter) =>
+          db
             .update(schema.chapters)
-            .set({ previousId: chapter.book.previous.chapters[0].id })
-            .where(eq(schema.chapters.id, chapter.id));
-        }
-      }),
-    );
+            .set({ previousId: chapter.book.previous!.chapters[0].id })
+            .where(eq(schema.chapters.id, chapter.id)),
+        ),
+    ]);
     console.log(
       `Processed ${Math.min(i + batchSize, chapters.length)} chapters out of ${chapters.length}`,
     );
@@ -533,25 +548,27 @@ async function cleanupMissingVerseLinks(bibleId: string) {
     },
   });
 
-  const batchSize = 5;
+  const batchSize = 10;
   for (let i = 0; i < verses.length; i += batchSize) {
     const batch = verses.slice(i, i + batchSize);
-    await Promise.all(
-      batch.map(async (verse) => {
-        if (!verse.nextId && verse.chapter.next) {
-          await db
+    await Promise.all([
+      ...batch
+        .filter((verse) => !verse.nextId && verse.chapter.next !== null)
+        .map((verse) =>
+          db
             .update(schema.verses)
-            .set({ nextId: verse.chapter.next.verses[0].id })
-            .where(eq(schema.verses.id, verse.id));
-        }
-        if (!verse.previousId && verse.chapter.previous) {
-          await db
+            .set({ nextId: verse.chapter.next!.verses[0].id })
+            .where(eq(schema.verses.id, verse.id)),
+        ),
+      ...batch
+        .filter((verse) => !verse.previousId && verse.chapter.previous !== null)
+        .map((verse) =>
+          db
             .update(schema.verses)
-            .set({ previousId: verse.chapter.previous.verses[0].id })
-            .where(eq(schema.verses.id, verse.id));
-        }
-      }),
-    );
+            .set({ previousId: verse.chapter.previous!.verses[0].id })
+            .where(eq(schema.verses.id, verse.id)),
+        ),
+    ]);
     console.log(
       `Processed ${Math.min(i + batchSize, verses.length)} verses out of ${verses.length}`,
     );

@@ -3,7 +3,7 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Skeleton } from '@/www/components/ui/skeleton';
-import { H1 } from '@/www/components/ui/typography';
+import { H1, P } from '@/www/components/ui/typography';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -14,10 +14,13 @@ import type { Stripe } from 'stripe';
 
 async function getProducts() {
   'use server';
-  const products = await stripe.products.list({
+  const productsListResponse = await stripe.products.list({
     expand: ['data.default_price'],
   });
-  return products.data;
+  const products = productsListResponse.data.toSorted(
+    (a, b) => Number(a.metadata.credits) - Number(b.metadata.credits),
+  );
+  return products;
 }
 
 async function createCheckoutSession(product: Stripe.Product) {
@@ -95,14 +98,14 @@ export default function CreditPurchasePage() {
 
   return (
     <div class='container flex h-full max-w-3xl flex-1 flex-col overflow-y-auto px-4 py-8'>
-      <div class='mb-8 flex flex-col items-center gap-2'>
+      <div class='flex flex-col items-center gap-2'>
         <H1 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
           Purchase Credits
         </H1>
-        <p class='text-muted-foreground text-center text-sm'>
+        <P class='text-muted-foreground text-center text-sm'>
           Credits are used to access our AI services. You can use the credits to get answers to your
           questions, generate images, and more.
-        </p>
+        </P>
       </div>
 
       <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
@@ -149,17 +152,17 @@ export default function CreditPurchasePage() {
         </QueryBoundary>
       </div>
 
-      <div class='mt-8 flex flex-col items-center gap-2'>
-        <p class='text-muted-foreground text-center text-sm'>
+      <div class='mt-8 flex flex-col items-center'>
+        <P class='text-muted-foreground text-center text-sm'>
           Select a credit package to proceed with your purchase. Payment details will be collected
           on the next step.
-        </p>
-        <p>
+        </P>
+        <P>
           Looking for a different amount?{' '}
           <a href='mailto:support@theaistudybible.com' class='text-primary underline'>
             Contact us
           </a>
-        </p>
+        </P>
       </div>
     </div>
   );

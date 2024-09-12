@@ -22,6 +22,7 @@
     "refresh": "sst refresh",
     "remove": "sst remove",
     "scripts": "sst shell -- bun run ./tools/scripts/src/index.ts",
+    "scripts:prod": "sst shell --stage production -- bun run ./tools/scripts/src/index.ts",
     "secret:set": "sst secret set",
     "secret:remove": "sst secret remove",
     "secret:list": "sst secret list",
