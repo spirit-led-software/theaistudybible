@@ -5,5 +5,5 @@ export default function LogoSmall(
   props: Omit<JSX.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'>,
 ) {
   const { colorMode } = useColorMode();
-  return <img {...props} src={`/logo-small-${colorMode()}.svg`} alt='Logo' />;
+  return <img {...props} src={`/logos/small-${colorMode()}.svg`} alt='Logo' />;
 }

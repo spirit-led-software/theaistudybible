@@ -1,10 +1,7 @@
 import { defineConfig } from '@solidjs/start/config';
 import devtools from 'solid-devtools/vite';
-import { searchForWorkspaceRoot } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
-
-const workspaceRoot = searchForWorkspaceRoot(process.cwd());
 
 export default defineConfig({
   middleware: './src/middleware.ts',
@@ -13,7 +10,6 @@ export default defineConfig({
     compatibilityDate: '2024-09-06',
   },
   vite: {
-    envDir: workspaceRoot,
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
@@ -22,9 +18,9 @@ export default defineConfig({
           'favicon.ico',
           'icon.svg',
           'apple-touch-icon-180x180.png',
-          'pwa-64x64.png',
-          'pwa-192x192.png',
-          'pwa-512x512.png',
+          'pwa/64x64.png',
+          'pwa/192x192.png',
+          'pwa/512x512.png',
           'maskable-icon-512x512.png',
         ],
         manifest: {
@@ -35,17 +31,17 @@ export default defineConfig({
           theme_color: '#030527',
           icons: [
             {
-              src: 'pwa-64x64.png',
+              src: 'pwa/64x64.png',
               sizes: '64x64',
               type: 'image/png',
             },
             {
-              src: 'pwa-192x192.png',
+              src: 'pwa/192x192.png',
               sizes: '192x192',
               type: 'image/png',
             },
             {
-              src: 'pwa-512x512.png',
+              src: 'pwa/512x512.png',
               sizes: '512x512',
               type: 'image/png',
             },
@@ -62,10 +58,5 @@ export default defineConfig({
         autoname: true,
       }),
     ],
-    server: {
-      fs: {
-        allow: [workspaceRoot],
-      },
-    },
   },
 });
