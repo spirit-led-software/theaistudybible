@@ -12,7 +12,7 @@
 .eb-container blockquote:after,
 .eb-container q:before,
 .eb-container q:after {
-  content: '';
+  content: "";
   content: none;
 }
 
@@ -34,11 +34,11 @@
 }
 
 .eb-container .ca:before {
-  content: '(';
+  content: "(";
 }
 
 .eb-container .ca:after {
-  content: ')' !important;
+  content: ")" !important;
 }
 
 .eb-container .cl {
@@ -52,23 +52,23 @@
   font-style: italic;
 }
 
-.eb-container sup[class^='v'] {
+.eb-container sup[class^="v"] {
   color: black;
   font-size: 0.7em;
   letter-spacing: -0.03em;
   vertical-align: 0.25em;
   line-height: 0;
-  font-family: 'Helvetica', sans-serif;
+  font-family: "Helvetica", sans-serif;
   font-weight: bold;
   top: inherit;
 }
 
-.eb-container sup[class^='v']:after {
-  content: '\a0';
+.eb-container sup[class^="v"]:after {
+  content: "\a0";
 }
 
 .eb-container sup + sup:before {
-  content: '\a0';
+  content: "\a0";
 }
 
 .eb-container .va {
@@ -76,11 +76,11 @@
 }
 
 .eb-container .va:before {
-  content: '(';
+  content: "(";
 }
 
 .eb-container .va:after {
-  content: ')' !important;
+  content: ")" !important;
 }
 
 .eb-container .xo {
@@ -112,12 +112,12 @@
   letter-spacing: -0.03em;
   vertical-align: 0.25em;
   line-height: 0;
-  font-family: 'Helvetica', sans-serif;
+  font-family: "Helvetica", sans-serif;
   font-weight: bold;
 }
 
 .eb-container .notelink + sup:before {
-  content: '\a0';
+  content: "\a0";
 }
 
 .eb-container .f {
@@ -133,7 +133,7 @@
   font-variant: small-caps;
 }
 
-.eb-container [class^='fq'] {
+.eb-container [class^="fq"] {
   font-style: italic;
 }
 
@@ -148,12 +148,12 @@
   letter-spacing: -0.03em;
   vertical-align: 0.25em;
   line-height: 0;
-  font-family: 'Helvetica', sans-serif;
+  font-family: "Helvetica", sans-serif;
   font-weight: bold;
 }
 
 .eb-container .fv:after {
-  content: '\a0';
+  content: "\a0";
 }
 
 .eb-container .h {
@@ -161,7 +161,7 @@
   font-style: italic;
 }
 
-.eb-container [class^='imt'] {
+.eb-container [class^="imt"] {
   text-align: center;
   font-weight: bold;
 }
@@ -188,13 +188,13 @@
   font-size: 1.1em;
 }
 
-.eb-container [class^='is'] {
+.eb-container [class^="is"] {
   font-size: 1.1em;
   text-align: center;
   font-weight: bold;
 }
 
-.eb-container [class^='ip'] {
+.eb-container [class^="ip"] {
   text-indent: 1em;
 }
 
@@ -229,7 +229,7 @@
   text-indent: 0;
 }
 
-.eb-container [class^='iq'] {
+.eb-container [class^="iq"] {
   margin-left: 1em;
   margin-right: 1em;
 }
@@ -238,7 +238,7 @@
   text-indent: 1em;
 }
 
-.eb-container [class^='ili'] {
+.eb-container [class^="ili"] {
   padding-left: 1em;
   text-indent: -1em;
 }
@@ -293,7 +293,7 @@
   font-style: italic;
 }
 
-.eb-container [class^='p'] {
+.eb-container [class^="p"] {
   @apply my-2 indent-2;
 }
 
@@ -356,7 +356,7 @@
   text-align: right;
 }
 
-.eb-container [class^='li'] {
+.eb-container [class^="li"] {
   padding-left: 1em;
   text-indent: -1em;
   margin-left: 1em;
@@ -378,7 +378,7 @@
   margin-right: 0em;
 }
 
-.eb-container [class^='q'] {
+.eb-container [class^="q"] {
   padding-left: 1em;
   text-indent: -1em;
   margin-left: 1em;
@@ -528,26 +528,26 @@
   display: table-row;
 }
 
-.eb-container [class^='th'] {
+.eb-container [class^="th"] {
   font-style: italic;
   display: table-cell;
 }
 
-.eb-container [class^='thr'] {
+.eb-container [class^="thr"] {
   text-align: right;
   padding-right: 1.5em;
 }
 
-.eb-container [class^='tc'] {
+.eb-container [class^="tc"] {
   display: table-cell;
 }
 
-.eb-container [class^='tcr'] {
+.eb-container [class^="tcr"] {
   text-align: right;
   padding-right: 1.5em;
 }
 
-.eb-container [class^='mt'] {
+.eb-container [class^="mt"] {
   text-align: center;
   font-weight: bold;
   letter-spacing: normal;
@@ -564,7 +564,7 @@
   font-weight: normal;
 }
 
-.eb-container [class^='ms'] {
+.eb-container [class^="ms"] {
   text-align: center;
   font-weight: bold;
   line-height: 1.2;
@@ -660,10 +660,10 @@
   letter-spacing: normal;
 }
 
-.eb-container [class^='p'] + .s,
-.eb-container [class^='p'] + .s1,
-.eb-container [class^='q'] + .s,
-.eb-container [class^='q'] + .s1 {
+.eb-container [class^="p"] + .s,
+.eb-container [class^="p"] + .s1,
+.eb-container [class^="q"] + .s,
+.eb-container [class^="q"] + .s1 {
   margin-top: 1.5em;
 }
 

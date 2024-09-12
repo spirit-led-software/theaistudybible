@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
   "files": {
     "ignore": [
       "**/node_modules",
@@ -28,14 +28,14 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "useSemanticElements": "warn",
+        "noLabelWithoutControl": "warn"
       },
       "correctness": {
         "useJsxKeyInIterable": "off",
-        "noUnusedImports": "error"
-      },
-      "nursery": {
-        "noReactSpecificProps": "error"
+        "noUnusedImports": "error",
+        "noUnknownFunction": "warn"
       },
       "style": {
         "noNonNullAssertion": "off"
