@@ -10,7 +10,7 @@ bibleBucket.subscribe(
         external: ['jsdom'],
       },
     },
-    memory: '2 GB',
+    memory: '4 GB',
     timeout: '15 minutes',
   },
   {
@@ -28,11 +28,11 @@ export const devotionImagesBucket = new sst.aws.Bucket('DevotionImagesBucket', {
 
 export const cdn = new sst.aws.Router('Cdn', {
   routes: {
-    '/generated-images/*': $interpolate`https://${generatedImagesBucket.nodes.bucket.bucketRegionalDomainName}`,
-    '/devotion-images/*': $interpolate`https://${devotionImagesBucket.nodes.bucket.bucketRegionalDomainName}`,
+    '/generated-images/*': $interpolate`https://${generatedImagesBucket.nodes.bucket.bucketDomainName}`,
+    '/devotion-images/*': $interpolate`https://${devotionImagesBucket.nodes.bucket.bucketDomainName}`,
   },
   domain: {
-    name: $interpolate`cdn.${DOMAIN.properties.value}`,
+    name: `cdn.${DOMAIN.properties.value}`,
     dns: sst.cloudflare.dns(),
   },
 });
