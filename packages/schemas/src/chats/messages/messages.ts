@@ -45,7 +45,7 @@ const refine = {
   ...defaultRefine,
   annotations: z.any(),
   data: z.any(),
-  finishReason: FinishReasonSchema,
+  finishReason: FinishReasonSchema.optional(),
   toolInvocations: ToolInvocationSchema.array().optional(),
 };
 
