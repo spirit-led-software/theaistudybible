@@ -1,4 +1,4 @@
-import { type ClerkProviderProps, ClerkProvider as DefaultClerkProvider } from 'clerk-solidjs';
+import { ClerkProvider as DefaultClerkProvider } from 'clerk-solidjs';
 import type { JSXElement } from 'solid-js';
 import { dark } from '@clerk/themes';
 import { useColorMode } from '@kobalte/core';

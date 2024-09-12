@@ -1,5 +1,5 @@
 import { Button } from '@/www/components/ui/button';
-import { GradientH1, H1, H2, H3, P } from '@/www/components/ui/typography';
+import { GradientH1, H2, H3, P } from '@/www/components/ui/typography';
 import { A, Navigate } from '@solidjs/router';
 import { SignedIn, SignedOut } from 'clerk-solidjs';
 import { BookOpen, MessageCircle, Search } from 'lucide-solid';

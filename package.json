@@ -18,6 +18,7 @@
     "lint:fix": "biome lint --write .",
     "lint": "biome lint .",
     "postinstall": "sst install",
+    "predeploy": "bun run format && bun run lint:fix",
     "refresh": "sst refresh",
     "remove": "sst remove",
     "scripts": "sst shell -- bun run ./tools/scripts/src/index.ts",
