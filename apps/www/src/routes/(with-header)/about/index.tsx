@@ -1,4 +1,5 @@
 import { Button } from '@/www/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { GradientH1, H2, H3, P } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
 import {
@@ -62,32 +63,38 @@ const AboutPage: Component = () => {
         </H2>
         <div class='grid gap-8 md:grid-cols-2'>
           {features.map((feature) => (
-            <div class='rounded-lg bg-white p-6 shadow-md'>
-              <H3 class='mb-2 flex items-center text-xl font-semibold'>
-                <feature.icon class='mr-2 inline-block' />
-                {feature.title}
-              </H3>
+            <Card class='rounded-lg bg-white p-6 shadow-md'>
+              <CardHeader>
+                <CardTitle>
+                  <feature.icon class='mr-2 inline-block' />
+                  {feature.title}
+                </CardTitle>
+              </CardHeader>
               <P class='text-muted-foreground'>{feature.description}</P>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
 
-      <section class='rounded-lg bg-gray-100 p-8'>
-        <H2 class='mb-4 flex items-center text-2xl font-semibold'>
-          <Heart class='mr-2 inline-block' />
-          Our Mission
-        </H2>
-        <p class='mb-4'>
-          At The AI Study Bible, we're committed to bridging the gap between ancient wisdom and
-          modern technology. Our mission is to make Bible study more accessible, engaging, and
-          insightful for everyone, from seasoned theologians to curious newcomers.
-        </p>
-        <p>
-          We believe that by harnessing the power of AI, we can unlock new dimensions of
-          understanding and help people connect with scripture in profound and personal ways.
-        </p>
-      </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Heart class='mr-2 inline-block' />
+            Our Mission
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <P>
+            At The AI Study Bible, we're committed to bridging the gap between ancient wisdom and
+            modern technology. Our mission is to make Bible study more accessible, engaging, and
+            insightful for everyone, from seasoned theologians to curious newcomers.
+          </P>
+          <P>
+            We believe that by harnessing the power of AI, we can unlock new dimensions of
+            understanding and help people connect with scripture in profound and personal ways.
+          </P>
+        </CardContent>
+      </Card>
 
       <div class='flex justify-center'>
         <Button as={A} href='/bible' class='px-6 py-3 text-lg'>

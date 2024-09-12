@@ -1,5 +1,6 @@
 import { Chrome, Firefox, Safari } from '@/www/components/ui/brand-icons';
 import { buttonVariants } from '@/www/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Spinner } from '@/www/components/ui/spinner';
 import { GradientH1, H3, ListItem, OrderedList, P, Strong } from '@/www/components/ui/typography';
 import { cn } from '@/www/lib/utils';
@@ -140,13 +141,17 @@ export default function InstallPage() {
             </Show>
 
             <Show when={isLoading()}>
-              <div class='rounded-lg bg-gray-100 p-4'>
-                <H3 class='mb-2 text-xl font-bold'>
-                  <Spinner class='mr-2 inline-block size-4' />
-                  Loading...
-                </H3>
-                <p>Please wait while we check your browser for installation support.</p>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    <Spinner class='mr-2 inline-block size-4' />
+                    Loading...
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <P>Please wait while we check your browser for installation support.</P>
+                </CardContent>
+              </Card>
             </Show>
 
             <Show
@@ -160,36 +165,48 @@ export default function InstallPage() {
                 !isLoading()
               }
             >
-              <div class='rounded-lg bg-yellow-100 p-4'>
-                <h2 class='mb-2 text-xl font-bold'>Unsupported Browser</h2>
-                <p>
-                  Your current browser may not support PWA installation. Try using a modern browser
-                  like Chrome, Firefox, or Edge for the best experience.
-                </p>
-              </div>
+              <Card class='bg-yellow-100'>
+                <CardTitle>
+                  <CardTitle>Unsupported Browser</CardTitle>
+                </CardTitle>
+                <CardContent>
+                  <P>
+                    Your current browser may not support PWA installation. Try using a modern
+                    browser like Chrome, Firefox, or Edge for the best experience.
+                  </P>
+                </CardContent>
+              </Card>
             </Show>
 
-            <div class='mt-8 rounded-lg bg-blue-100 p-4'>
-              <H3>Need Help?</H3>
-              <P>
-                If you're having trouble installing the PWA, please make sure you're using the
-                latest version of your browser. If you still need assistance, don't hesitate to
-                <A
-                  class={cn(buttonVariants({ variant: 'link' }), 'inline-block w-fit px-0')}
-                  href='mailto:support@theaistudybible.com'
-                >
-                  contact our support team
-                </A>
-                .
-              </P>
-            </div>
+            <Card class='mt-8 bg-blue-100'>
+              <CardHeader>
+                <CardTitle>Need Help?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <P>
+                  If you're having trouble installing the PWA, please make sure you're using the
+                  latest version of your browser. If you still need assistance, don't hesitate to
+                  <A
+                    class={cn(buttonVariants({ variant: 'link' }), 'inline-block w-fit px-0')}
+                    href='mailto:support@theaistudybible.com'
+                  >
+                    contact our support team
+                  </A>
+                  .
+                </P>
+              </CardContent>
+            </Card>
           </>
         }
       >
-        <div class='rounded-lg bg-green-100 p-4 text-green-800'>
-          <h2 class='mb-2 text-xl font-bold'>You've already installed the PWA!</h2>
-          <p>You're currently using the app in standalone mode. Enjoy!</p>
-        </div>
+        <Card class='bg-green-100 text-green-800'>
+          <CardHeader>
+            <CardTitle>You've already installed the PWA!</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <P>You're currently using the app in standalone mode. Enjoy!</P>
+          </CardContent>
+        </Card>
       </Show>
     </div>
   );
@@ -197,20 +214,24 @@ export default function InstallPage() {
 
 function InstallInstructions(props: { icon: JSX.Element; steps: (string | JSX.Element)[] }) {
   return (
-    <div class='mb-6 rounded-lg bg-gray-100 p-4'>
-      <H3>
-        {props.icon}
-        Installation Steps
-      </H3>
-      <OrderedList>
-        <For each={props.steps}>
-          {(step) => (
-            <Show when={typeof step === 'string'} fallback={step}>
-              <li class='mb-1'>{step}</li>
-            </Show>
-          )}
-        </For>
-      </OrderedList>
-    </div>
+    <Card class='mb-4'>
+      <CardHeader>
+        <CardTitle>
+          {props.icon}
+          Installation Steps
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <OrderedList>
+          <For each={props.steps}>
+            {(step) => (
+              <Show when={typeof step === 'string'} fallback={step}>
+                <li class='mb-1'>{step}</li>
+              </Show>
+            )}
+          </For>
+        </OrderedList>
+      </CardContent>
+    </Card>
   );
 }
