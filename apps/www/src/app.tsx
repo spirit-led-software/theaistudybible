@@ -40,7 +40,7 @@ export default function App() {
         root={(props) => (
           <MetaProvider>
             <ColorModeScript storageType={storageManager.type} />
-            <ColorModeProvider storageManager={storageManager}>
+            <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
               <ClerkProvider>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
                   <ErrorBoundary
