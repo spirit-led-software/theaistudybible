@@ -37,7 +37,7 @@
     "@types/node": "^22.5.4",
     "drizzle-kit": "^0.24.2",
     "rimraf": "^6.0.1",
-    "turbo": "^2.1.1",
+    "turbo": "^2.1.2",
     "typescript": "^5.6.2",
     "typescript-eslint": "8.5.0",
     "vitest": "^2.1.0"
@@ -52,8 +52,8 @@
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
-    "sst": "3.1.7",
-    "stripe": "^16.10.0",
+    "sst": "3.1.8",
+    "stripe": "^16.11.0",
     "zod": "^3.23.8"
   },
   "packageManager": "bun@1.1.26",
