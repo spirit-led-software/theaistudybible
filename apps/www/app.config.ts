@@ -6,9 +6,6 @@ export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'aws-lambda-streaming',
-    prerender: {
-      routes: ['/', '/about'],
-    },
   },
   vite: {
     envPrefix: 'PUBLIC_',
