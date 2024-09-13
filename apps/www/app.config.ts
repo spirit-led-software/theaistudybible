@@ -6,6 +6,7 @@ export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'aws-lambda-streaming',
+    inlineDynamicImports: true,
   },
   vite: {
     envPrefix: 'PUBLIC_',
