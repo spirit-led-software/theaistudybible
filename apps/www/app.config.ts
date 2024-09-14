@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     preset: 'aws-lambda-streaming',
   },
-  vite: {
+  vite: () => ({
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
@@ -46,5 +46,8 @@ export default defineConfig({
         },
       }),
     ],
-  },
+    ssr: {
+      external: ['@libsql/client'],
+    },
+  }),
 });
