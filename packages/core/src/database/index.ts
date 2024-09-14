@@ -31,6 +31,10 @@ const client = createClient({
   fetch: dbFetch,
 });
 
+process.on('beforeExit', () => {
+  client.close();
+});
+
 export const db = drizzle(client, {
   schema,
 });
