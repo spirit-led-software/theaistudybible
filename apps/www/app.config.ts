@@ -5,8 +5,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
-    preset: 'aws-lambda-streaming',
-    compatibilityDate: '2024-04-01',
+    preset: 'aws-lambda',
   },
   vite: {
     envPrefix: 'PUBLIC_',
