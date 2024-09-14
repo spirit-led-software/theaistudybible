@@ -46,8 +46,5 @@ export default defineConfig({
         },
       }),
     ],
-    ssr: {
-      external: ['@libsql/client'],
-    },
   }),
 });
