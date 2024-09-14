@@ -1,5 +1,5 @@
 import { createMiddleware } from '@solidjs/start/middleware';
-import { clerkMiddleware } from 'clerk-solidjs/server';
+import { clerkMiddleware } from 'clerk-solidjs/start/server';
 import { Resource } from 'sst';
 
 export default createMiddleware({

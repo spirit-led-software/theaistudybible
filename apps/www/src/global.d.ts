@@ -1,10 +1,11 @@
 /// <reference types="@solidjs/start/env" />
 /// <reference types="@solidjs/start/server" />
-import type { AuthReturn } from 'clerk-solidjs/server';
+
+import type { AuthObject } from '@clerk/backend';
 
 declare module '@solidjs/start/server' {
   export interface RequestEventLocals {
-    auth: AuthReturn;
+    auth: AuthObject;
   }
 }
 
