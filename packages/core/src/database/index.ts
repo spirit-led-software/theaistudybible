@@ -1,5 +1,5 @@
 import * as schema from '@/core/database/schema';
-import { createClient } from '@libsql/client';
+import { createClient } from '@libsql/client/web';
 import { drizzle } from 'drizzle-orm/libsql';
 import { Resource } from 'sst';
 
