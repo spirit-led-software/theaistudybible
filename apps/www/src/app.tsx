@@ -10,11 +10,13 @@ import { Button } from './components/ui/button';
 import { Toaster as Sonner } from './components/ui/sonner';
 import { Toaster } from './components/ui/toast';
 import { H1, H4 } from './components/ui/typography';
+import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
-import { ClerkProvider } from './contexts/clerk';
 import { DevotionProvider } from './contexts/devotion';
 
+import '@fontsource/goldman';
+import '@fontsource-variable/inter';
 import './app.css';
 
 export function getServerCookies() {
@@ -39,9 +41,9 @@ export default function App() {
       <Router
         root={(props) => (
           <MetaProvider>
-            <ColorModeScript storageType={storageManager.type} />
-            <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
-              <ClerkProvider>
+            <AuthProvider>
+              <ColorModeScript storageType={storageManager.type} />
+              <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
                   <ErrorBoundary
                     fallback={(err, reset) => (
@@ -62,8 +64,8 @@ export default function App() {
                   <Toaster />
                   <Sonner />
                 </MultiProvider>
-              </ClerkProvider>
-            </ColorModeProvider>
+              </ColorModeProvider>
+            </AuthProvider>
           </MetaProvider>
         )}
       >

@@ -1,11 +1,14 @@
 /// <reference types="@solidjs/start/env" />
 /// <reference types="@solidjs/start/server" />
 
-import type { AuthObject } from '@clerk/backend';
+import type { Role } from '@/schemas/roles';
+import type { Session, User } from 'lucia';
 
 declare module '@solidjs/start/server' {
   export interface RequestEventLocals {
-    auth: AuthObject;
+    session: Session | null;
+    user: User | null;
+    roles: Role[] | null;
   }
 }
 

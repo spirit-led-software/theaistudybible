@@ -19,7 +19,7 @@ const TabsList = <T extends ValidComponent = 'div'>(
   return (
     <TabsPrimitive.List
       class={cn(
-        'bg-muted text-muted-foreground inline-flex h-10 items-center justify-center rounded-md p-1',
+        'inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
         local.class,
       )}
       {...others}
@@ -38,7 +38,7 @@ const TabsTrigger = <T extends ValidComponent = 'button'>(
   return (
     <TabsPrimitive.Trigger
       class={cn(
-        'ring-offset-background focus-visible:ring-ring data-[selected]:bg-background data-[selected]:text-foreground inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[selected]:shadow-sm',
+        'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 font-medium text-sm ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[selected]:bg-background data-[selected]:text-foreground data-[selected]:shadow-sm',
         local.class,
       )}
       {...others}
@@ -57,7 +57,7 @@ const TabsContent = <T extends ValidComponent = 'div'>(
   return (
     <TabsPrimitive.Content
       class={cn(
-        'ring-offset-background focus-visible:ring-ring mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+        'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         local.class,
       )}
       {...others}
@@ -76,7 +76,7 @@ const TabsIndicator = <T extends ValidComponent = 'div'>(
   return (
     <TabsPrimitive.Indicator
       class={cn(
-        'duration-250ms absolute transition-all data-[orientation=horizontal]:-bottom-px data-[orientation=vertical]:-right-px data-[orientation=horizontal]:h-[2px] data-[orientation=vertical]:w-[2px]',
+        'data-[orientation=horizontal]:-bottom-px data-[orientation=vertical]:-right-px absolute transition-all duration-250ms data-[orientation=horizontal]:h-[2px] data-[orientation=vertical]:w-[2px]',
         local.class,
       )}
       {...others}

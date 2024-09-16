@@ -62,7 +62,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         <Button
           variant='outline'
           size='icon'
-          class='bg-background absolute bottom-20 left-1/2 right-1/2 z-40 -translate-x-1/2 rounded-full shadow-lg'
+          class='-translate-x-1/2 absolute right-1/2 bottom-20 left-1/2 z-40 rounded-full bg-background shadow-lg'
           onClick={scrollToBottomSmooth}
         >
           <ChevronDown />
@@ -79,7 +79,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 <Button
                   variant='link'
                   size='icon'
-                  class='text-foreground flex h-fit flex-col items-center justify-center py-4'
+                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
                   onClick={() => {
                     if (
                       useChatResult.messagesQuery.hasNextPage &&
@@ -124,7 +124,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               useChatResult.followUpSuggestions.length
             }
           >
-            <div class='animate-in fade-in zoom-in flex w-full max-w-2xl flex-col gap-2 pb-2'>
+            <div class='fade-in zoom-in flex w-full max-w-2xl animate-in flex-col gap-2 pb-2'>
               <H6 class='text-center'>Follow-up Questions</H6>
               <Carousel class='mx-16 overflow-x-visible'>
                 <CarouselContent>
@@ -165,7 +165,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           useChatResult.handleSubmit(e);
         }}
       >
-        <div class='flex w-full max-w-2xl items-center rounded-full border py-2 pl-5 pr-1'>
+        <div class='flex w-full max-w-2xl items-center rounded-full border py-2 pr-1 pl-5'>
           <TextField
             class='flex flex-1 items-center'
             value={useChatResult.input()}

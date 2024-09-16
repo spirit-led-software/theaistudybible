@@ -1,10 +1,11 @@
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { ChatWindow } from '@/www/components/chat/window';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/www/components/ui/card';
 import { DrawerClose } from '@/www/components/ui/drawer';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
 
 export const ChatCard = () => {
   const [brStore] = useBibleReaderStore();
@@ -29,7 +30,7 @@ export const ChatCard = () => {
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class='text-accent-foreground px-0 capitalize'
+                class='px-0 text-accent-foreground capitalize'
               />{' '}
               to chat
             </P>

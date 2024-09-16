@@ -1,10 +1,8 @@
-import { useUser } from 'clerk-solidjs';
 import { createMemo } from 'solid-js';
+import { useAuth } from '../contexts/auth';
 
 export function useIsAdmin() {
-  const { user } = useUser();
+  const { roles } = useAuth();
 
-  return createMemo(() =>
-    (user()?.publicMetadata.roles as string[] | undefined)?.includes('admin'),
-  );
+  return createMemo(() => roles()?.some((role) => role.id === 'admin') ?? false);
 }

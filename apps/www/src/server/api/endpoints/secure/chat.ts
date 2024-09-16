@@ -19,7 +19,7 @@ const app = new Hono<{
   Variables: Variables;
 }>()
   .use('/*', async (c, next) => {
-    if (!c.var.clerkAuth?.userId) {
+    if (!c.var.user?.id) {
       return c.json(
         {
           message: 'You must be logged in to access this resource.',
@@ -50,10 +50,8 @@ const app = new Hono<{
       const pendingPromises: Promise<unknown>[] = []; // promises to wait for before closing the stream
       const { messages: providedMessages, chatId, modelId: providedModelId } = c.req.valid('json');
 
-      const claims = c.var.clerkAuth!.sessionClaims!;
-
       console.time('checkAndConsumeCredits');
-      const hasCredits = await checkAndConsumeCredits(claims.sub, 'chat');
+      const hasCredits = await checkAndConsumeCredits(c.var.user!.id, 'chat');
       console.timeEnd('checkAndConsumeCredits');
       if (!hasCredits) {
         return c.json(
@@ -69,14 +67,13 @@ const app = new Hono<{
         const modelIdValidationResponse = validateModelId({
           c,
           providedModelId,
-          claims,
         });
         if (modelIdValidationResponse) {
           return modelIdValidationResponse;
         }
       }
       console.timeEnd('validateModelId');
-      const modelId = providedModelId ?? getDefaultModelId(claims);
+      const modelId = providedModelId ?? getDefaultModelId(c);
 
       console.time('getChat');
       let chat: Chat;
@@ -86,11 +83,11 @@ const app = new Hono<{
             where: (chats, { eq }) => eq(chats.id, chatId),
           })
           .then(async (foundChat) => {
-            if (!foundChat || foundChat.userId !== claims.sub) {
+            if (!foundChat || foundChat.userId !== c.var.user!.id) {
               return await db
                 .insert(chats)
                 .values({
-                  userId: claims.sub,
+                  userId: c.var.user!.id,
                 })
                 .returning()
                 .execute();
@@ -101,7 +98,7 @@ const app = new Hono<{
         [chat] = await db
           .insert(chats)
           .values({
-            userId: claims.sub,
+            userId: c.var.user!.id,
           })
           .returning()
           .execute();
@@ -137,7 +134,7 @@ const app = new Hono<{
             .values({
               ...lastMessage,
               chatId: chat.id,
-              userId: claims.sub,
+              userId: c.var.user!.id,
             })
             .returning()
             .execute();
@@ -156,7 +153,7 @@ const app = new Hono<{
 
       console.time('getValidMessages');
       const messages = await getValidMessages({
-        userId: claims.sub,
+        userId: c.var.user!.id,
         chatId: chat.id,
         maxTokens: modelInfo.contextSize - maxResponseTokens,
         mustStartWithUserMessage: modelInfo.provider === 'anthropic',
@@ -184,13 +181,12 @@ const app = new Hono<{
         modelId,
         chatId: chat.id,
         userMessageId: lastUserMessage.id,
-        userId: claims.sub,
-        sessionClaims: claims,
+        userId: c.var.user!.id,
         maxTokens: maxResponseTokens,
         onFinish: async (event) => {
           await Promise.all(pendingPromises);
           if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
-            await restoreCreditsOnFailure(claims.sub, 'chat');
+            await restoreCreditsOnFailure(c.var.user!.id, 'chat');
           }
         },
       });

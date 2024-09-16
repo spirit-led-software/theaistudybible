@@ -38,7 +38,7 @@ const AvatarFallback = <T extends ValidComponent = 'span'>(
   const [local, others] = splitProps(props as AvatarFallbackProps, ['class']);
   return (
     <ImagePrimitive.Fallback
-      class={cn('bg-muted flex size-full items-center justify-center rounded-full', local.class)}
+      class={cn('flex size-full items-center justify-center rounded-full bg-muted', local.class)}
       {...others}
     />
   );

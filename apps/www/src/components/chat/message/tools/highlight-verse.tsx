@@ -68,7 +68,7 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
                           href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
                           class={cn(
                             buttonVariants({ variant: 'link' }),
-                            'text-accent-foreground h-fit p-0',
+                            'h-fit p-0 text-accent-foreground',
                           )}
                         >
                           View

@@ -1,6 +1,7 @@
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/metadata';
 import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
+import { add, formatISO, parseISO } from 'date-fns';
 import { relations } from 'drizzle-orm';
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import {
@@ -8,6 +9,7 @@ import {
   foreignKey,
   index,
   integer,
+  primaryKey,
   real,
   sqliteTable,
   text,
@@ -17,12 +19,12 @@ import { DEFAULT_CREDITS } from '../utils/credits/default';
 import { createId } from '../utils/id';
 
 const timestamp = customType<{
-  data: string | Date;
+  data: Date;
   driverData: string;
 }>({
   dataType: () => 'text',
-  toDriver: (value) => (typeof value === 'string' ? value : value.toISOString()),
-  fromDriver: (value) => new Date(value),
+  toDriver: (value) => formatISO(value),
+  fromDriver: (value) => parseISO(value),
 });
 
 const baseModel = {
@@ -38,18 +40,100 @@ const baseModel = {
     .$onUpdateFn(() => new Date()),
 };
 
+export const users = sqliteTable('users', {
+  ...baseModel,
+  email: text('email').notNull().unique(),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  image: text('image'),
+  stripeCustomerId: text('stripe_customer_id'),
+});
+
+export const usersRelations = relations(users, ({ one, many }) => ({
+  passwords: many(passwords),
+  forgottenPasswordCodes: many(forgottenPasswordCodes),
+  sessions: many(sessions),
+  userCredits: many(userCredits),
+  usersToRoles: many(usersToRoles),
+  chats: many(chats),
+  messages: many(messages),
+  messageReactions: many(messageReactions),
+  userGeneratedImages: many(userGeneratedImages),
+  userGeneratedImagesReactions: many(userGeneratedImagesReactions),
+  devotionReactions: many(devotionReactions),
+  chapterBookmarks: many(chapterBookmarks),
+  chapterNotes: many(chapterNotes),
+  verseHighlights: many(verseHighlights),
+  verseBookmarks: many(verseBookmarks),
+  verseNotes: many(verseNotes),
+}));
+
+export const passwords = sqliteTable('passwords', {
+  ...baseModel,
+  userId: text('userId')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  hash: text('hash').notNull(),
+});
+
+export const passwordsRelations = relations(passwords, ({ one }) => ({
+  user: one(users, {
+    fields: [passwords.userId],
+    references: [users.id],
+  }),
+}));
+
+export const forgottenPasswordCodes = sqliteTable('forgotten_password_codes', {
+  ...baseModel,
+  userId: text('userId')
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  code: text('code')
+    .notNull()
+    .$defaultFn(() => createId()),
+  expiresAt: timestamp('expires_at')
+    .notNull()
+    .$defaultFn(() => add(new Date(), { hours: 1 })),
+});
+
+export const forgottenPasswordCodesRelations = relations(forgottenPasswordCodes, ({ one }) => ({
+  user: one(users, {
+    fields: [forgottenPasswordCodes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const sessions = sqliteTable('sessions', {
+  id: text('id').primaryKey(),
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expiresAt: integer('expires_at').notNull(),
+});
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
 export const userCredits = sqliteTable(
   'user_credits',
   {
     ...baseModel,
-    userId: text('user_id').notNull().unique(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     balance: integer('balance')
       .notNull()
       .$defaultFn(() => DEFAULT_CREDITS),
     lastReadingCreditAt: timestamp('last_reading_credit_at'),
   },
   (table) => ({
-    userIdIdx: index('user_credits_user_id_idx').on(table.userId),
+    userIdIdx: uniqueIndex('user_credits_user_id_idx').on(table.userId),
   }),
 );
 
@@ -64,23 +148,60 @@ export const roles = sqliteTable(
   }),
 );
 
+export const rolesRelations = relations(roles, ({ many }) => ({
+  usersToRoles: many(usersToRoles),
+}));
+
+export const usersToRoles = sqliteTable(
+  'users_to_roles',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    roleId: text('role_id')
+      .notNull()
+      .references(() => roles.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    primaryKey: primaryKey({ columns: [table.userId, table.roleId] }),
+  }),
+);
+
+export const usersToRolesRelations = relations(usersToRoles, ({ one }) => ({
+  user: one(users, {
+    fields: [usersToRoles.userId],
+    references: [users.id],
+  }),
+  role: one(roles, {
+    fields: [usersToRoles.roleId],
+    references: [roles.id],
+  }),
+}));
+
 export const chats = sqliteTable(
   'chats',
   {
     ...baseModel,
     name: text('name').notNull().default('New Chat'),
     customName: integer('custom_name', { mode: 'boolean' }).notNull().default(false),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => {
     return {
       nameIdx: index('chat_name').on(table.name),
+      userIdIdx: index('chat_user_id').on(table.userId),
     };
   },
 );
 
 export const chatsRelations = relations(chats, ({ one, many }) => {
   return {
+    user: one(users, {
+      fields: [chats.userId],
+      references: [users.id],
+    }),
     messages: many(messages),
     shareOptions: one(shareChatOptions),
   };
@@ -116,7 +237,7 @@ export const messages = sqliteTable(
     ...baseModel,
 
     // Fields required by the ai sdk
-    content: text('content'),
+    content: text('content').default(''),
     tool_call_id: text('tool_call_id'),
     role: text('role', {
       enum: ['system', 'user', 'assistant', 'data'],
@@ -133,11 +254,12 @@ export const messages = sqliteTable(
     // Relations fields
     chatId: text('chat_id')
       .notNull()
-      .references(() => chats.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-    userId: text('user_id').notNull(),
+      .references(() => chats.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     originMessageId: text('origin_message_id').references((): AnySQLiteColumn => messages.id, {
       onDelete: 'cascade',
-      onUpdate: 'cascade',
     }),
   },
   (table) => {
@@ -190,7 +312,9 @@ export const messageReactions = sqliteTable(
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
     comment: text('comment'),
   },
@@ -253,7 +377,9 @@ export const userGeneratedImages = sqliteTable(
   'user_generated_images',
   {
     ...baseModel,
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     messageId: text('message_id').references(() => messages.id, {
       onDelete: 'cascade',
       onUpdate: 'cascade',
@@ -295,7 +421,9 @@ export const userGeneratedImagesReactions = sqliteTable(
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
     comment: text('comment'),
   },
@@ -366,8 +494,8 @@ export const devotions = sqliteTable(
     topic: text('topic').notNull().default('general'),
     bibleReading: text('bible_reading').notNull(),
     summary: text('summary').notNull(),
-    reflection: text('reflection'),
-    prayer: text('prayer'),
+    reflection: text('reflection').notNull(),
+    prayer: text('prayer').notNull(),
     diveDeeperQueries: text('dive_deeper_queries', { mode: 'json' })
       .notNull()
       .default([])
@@ -399,13 +527,16 @@ export const devotionReactions = sqliteTable(
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
     comment: text('comment'),
   },
   (table) => {
     return {
       devotionIdIdx: index('devotion_reactions_devotion_id').on(table.devotionId),
+      userIdIdx: index('devotion_reactions_user_id').on(table.userId),
     };
   },
 );
@@ -987,12 +1118,11 @@ export const chapterBookmarks = sqliteTable(
   {
     ...baseModel,
     chapterId: text('chapter_id')
-      .references(() => chapters.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-      })
+      .references(() => chapters.id, { onDelete: 'cascade' })
       .notNull(),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => {
     return {
@@ -1025,7 +1155,9 @@ export const chapterNotes = sqliteTable(
         onUpdate: 'cascade',
       })
       .notNull(),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
   },
   (table) => {
@@ -1082,7 +1214,9 @@ export const readingSessions = sqliteTable(
   'reading_sessions',
   {
     ...baseModel,
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     startTime: timestamp('start_time').notNull(),
     endTime: timestamp('end_time'),
   },
@@ -1164,12 +1298,11 @@ export const verseHighlights = sqliteTable(
   {
     ...baseModel,
     verseId: text('verse_id')
-      .references(() => verses.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-      })
+      .references(() => verses.id, { onDelete: 'cascade' })
       .notNull(),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     color: text('color').notNull(),
   },
   (table) => {
@@ -1195,12 +1328,11 @@ export const verseBookmarks = sqliteTable(
   {
     ...baseModel,
     verseId: text('verse_id')
-      .references(() => verses.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-      })
+      .references(() => verses.id, { onDelete: 'cascade' })
       .notNull(),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => {
     return {
@@ -1225,12 +1357,11 @@ export const verseNotes = sqliteTable(
   {
     ...baseModel,
     verseId: text('verse_id')
-      .references(() => verses.id, {
-        onDelete: 'cascade',
-        onUpdate: 'cascade',
-      })
+      .references(() => verses.id, { onDelete: 'cascade' })
       .notNull(),
-    userId: text('user_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
   },
   (table) => {

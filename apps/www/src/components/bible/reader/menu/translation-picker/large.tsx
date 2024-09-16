@@ -76,7 +76,7 @@ export default function LargeTranslationPicker() {
             <div class='mt-2 flex w-full flex-col space-y-4'>
               {uniqueLanguages().map((language) => (
                 <div class='flex w-full flex-col space-y-2'>
-                  <div class='text-lg font-bold'>{ISO6391.getName(language)}</div>
+                  <div class='font-bold text-lg'>{ISO6391.getName(language)}</div>
                   <div class='flex w-full flex-col space-y-2'>
                     {bibles
                       .filter((bible) => bible.biblesToLanguages[0].language.iso === language)
@@ -91,7 +91,7 @@ export default function LargeTranslationPicker() {
                           as={A}
                           href={`/bible/${bible.abbreviation}`}
                         >
-                          <p class='text-lg font-bold'>
+                          <p class='font-bold text-lg'>
                             {bible.abbreviationLocal} - {bible.nameLocal}
                           </p>
                           <p class='text-accent-foreground text-xs'>{bible.description}</p>

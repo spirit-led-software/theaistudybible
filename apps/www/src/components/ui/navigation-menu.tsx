@@ -46,7 +46,7 @@ const NavigationMenuTrigger = <T extends ValidComponent = 'button'>(
   return (
     <NavigationMenuPrimitive.Trigger
       class={cn(
-        'group/trigger bg-background hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[active]:bg-accent/50 data-[expanded]:bg-accent/50 inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none disabled:pointer-events-none disabled:opacity-50',
+        'group/trigger inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-background px-4 py-2 font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[expanded]:bg-accent/50',
         local.class,
       )}
       {...others}
@@ -64,7 +64,7 @@ const NavigationMenuIcon = () => {
         stroke-width='2'
         stroke-linecap='round'
         stroke-linejoin='round'
-        class='relative top-px ml-1 size-3 transition duration-200 group-data-[expanded]/trigger:rotate-180 group-data-[orientation=vertical]/menu:-rotate-90 group-data-[orientation=vertical]/menu:group-data-[expanded]/trigger:rotate-90'
+        class='group-data-[orientation=vertical]/menu:-rotate-90 relative top-px ml-1 size-3 transition duration-200 group-data-[orientation=vertical]/menu:group-data-[expanded]/trigger:rotate-90 group-data-[expanded]/trigger:rotate-180'
       >
         <path d='M6 9l6 6l6 -6' />
       </svg>
@@ -84,7 +84,7 @@ const NavigationMenuViewport = <T extends ValidComponent = 'li'>(
   return (
     <NavigationMenuPrimitive.Viewport
       class={cn(
-        'bg-popover pointer-events-none z-[1000] flex h-[var(--kb-navigation-menu-viewport-height)] w-[var(--kb-navigation-menu-viewport-width)] origin-[var(--kb-menu-content-transform-origin)] items-center justify-center overflow-x-clip overflow-y-visible rounded-md border opacity-0 shadow-lg transition-[width,height] duration-200 ease-in data-[expanded]:pointer-events-auto data-[orientation=vertical]:overflow-y-clip data-[orientation=vertical]:overflow-x-visible data-[expanded]:rounded-md data-[expanded]:opacity-100 data-[expanded]:ease-out',
+        'pointer-events-none z-[1000] flex h-[var(--kb-navigation-menu-viewport-height)] w-[var(--kb-navigation-menu-viewport-width)] origin-[var(--kb-menu-content-transform-origin)] items-center justify-center overflow-x-clip overflow-y-visible rounded-md border bg-popover opacity-0 shadow-lg transition-[width,height] duration-200 ease-in data-[expanded]:pointer-events-auto data-[orientation=vertical]:overflow-y-clip data-[orientation=vertical]:overflow-x-visible data-[expanded]:rounded-md data-[expanded]:opacity-100 data-[expanded]:ease-out',
         local.class,
       )}
       {...others}
@@ -106,9 +106,9 @@ const NavigationMenuContent = <T extends ValidComponent = 'ul'>(
       <NavigationMenuPrimitive.Content
         class={cn(
           // base settings
-          'pointer-events-none absolute left-0 top-0 box-border p-4 focus:outline-none data-[expanded]:pointer-events-auto',
+          'pointer-events-none absolute top-0 left-0 box-border p-4 focus:outline-none data-[expanded]:pointer-events-auto',
           // base animation settings
-          'data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out',
+          'data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out',
           // left to right
           'data-[orientation=horizontal]:data-[motion=from-start]:slide-in-from-left-52 data-[orientation=horizontal]:data-[motion=to-end]:slide-out-to-right-52',
           // right to left
@@ -138,7 +138,7 @@ const NavigationMenuLink = <T extends ValidComponent = 'a'>(
   return (
     <NavigationMenuPrimitive.Item
       class={cn(
-        'hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+        'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
         local.class,
       )}
       onSelect={() => {
@@ -161,7 +161,7 @@ const NavigationMenuLabel = <T extends ValidComponent = 'div'>(
   const [local, others] = splitProps(props as NavigationMenuLabelProps, ['class']);
   return (
     <NavigationMenuPrimitive.ItemLabel
-      class={cn('text-sm font-medium leading-none', local.class)}
+      class={cn('font-medium text-sm leading-none', local.class)}
       {...others}
     />
   );

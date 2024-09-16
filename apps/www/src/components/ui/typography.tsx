@@ -1,12 +1,12 @@
 import { cn } from '@/www/lib/utils';
-import { splitProps, type ComponentProps } from 'solid-js';
+import { type ComponentProps, splitProps } from 'solid-js';
 
 export const H1 = (props: ComponentProps<'h1'>) => {
   const [local, rest] = splitProps(props, ['class', 'children']);
   return (
     <h1
       class={cn(
-        'scroll-m-20 text-4xl font-bold tracking-tight lg:text-5xl [&:not(:first-child)]:mt-8',
+        'scroll-m-20 font-bold font-goldman text-4xl tracking-tight lg:text-5xl [&:not(:first-child)]:mt-8',
         local.class,
       )}
       {...rest}
@@ -21,7 +21,7 @@ export const GradientH1 = (props: ComponentProps<'h1'>) => {
   return (
     <H1
       class={cn(
-        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        'inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground',
         local.class,
       )}
       {...rest}
@@ -36,7 +36,7 @@ export const H2 = (props: ComponentProps<'h2'>) => {
   return (
     <h2
       class={cn(
-        'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 [&:not(:first-child)]:mt-6',
+        'scroll-m-20 border-b pb-2 font-goldman font-semibold text-3xl tracking-tight first:mt-0 [&:not(:first-child)]:mt-6',
         local.class,
       )}
       {...rest}
@@ -51,7 +51,7 @@ export const GradientH2 = (props: ComponentProps<'h2'>) => {
   return (
     <H2
       class={cn(
-        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        'inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground',
         local.class,
       )}
       {...rest}
@@ -66,7 +66,7 @@ export const H3 = (props: ComponentProps<'h3'>) => {
   return (
     <h3
       class={cn(
-        'scroll-m-20 text-2xl font-semibold tracking-tight [&:not(:first-child)]:mt-6',
+        'scroll-m-20 font-goldman font-semibold text-2xl tracking-tight [&:not(:first-child)]:mt-6',
         local.class,
       )}
       {...rest}
@@ -81,7 +81,7 @@ export const GradientH3 = (props: ComponentProps<'h3'>) => {
   return (
     <H3
       class={cn(
-        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        'inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground',
         local.class,
       )}
       {...rest}
@@ -96,7 +96,7 @@ export const H4 = (props: ComponentProps<'h4'>) => {
   return (
     <h4
       class={cn(
-        'scroll-m-20 text-xl font-semibold tracking-tight [&:not(:first-child)]:mt-4',
+        'scroll-m-20 font-semibold text-xl tracking-tight [&:not(:first-child)]:mt-4',
         local.class,
       )}
       {...rest}
@@ -111,7 +111,7 @@ export const GradientH4 = (props: ComponentProps<'h4'>) => {
   return (
     <H4
       class={cn(
-        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        'inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground',
         local.class,
       )}
       {...rest}
@@ -126,7 +126,7 @@ export const H5 = (props: ComponentProps<'h5'>) => {
   return (
     <h5
       class={cn(
-        'scroll-m-20 text-lg font-semibold tracking-tight [&:not(:first-child)]:mt-2',
+        'scroll-m-20 font-semibold text-lg tracking-tight [&:not(:first-child)]:mt-2',
         local.class,
       )}
       {...rest}
@@ -141,7 +141,7 @@ export const GradientH5 = (props: ComponentProps<'h5'>) => {
   return (
     <H5
       class={cn(
-        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        'inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground',
         local.class,
       )}
       {...rest}
@@ -156,7 +156,7 @@ export const H6 = (props: ComponentProps<'h6'>) => {
   return (
     <h6
       class={cn(
-        'scroll-m-20 text-base font-semibold tracking-tight [&:not(:first-child)]:mt-1',
+        'scroll-m-20 font-semibold text-base tracking-tight [&:not(:first-child)]:mt-1',
         local.class,
       )}
       {...rest}
@@ -171,7 +171,7 @@ export const GradientH6 = (props: ComponentProps<'h6'>) => {
   return (
     <H6
       class={cn(
-        'from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent',
+        'inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground',
         local.class,
       )}
       {...rest}
@@ -231,7 +231,7 @@ export const InlineCode = (props: ComponentProps<'code'>) => {
   return (
     <code
       class={cn(
-        'bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
+        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold text-sm',
         local.class,
       )}
       {...rest}

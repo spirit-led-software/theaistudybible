@@ -19,17 +19,17 @@ import {
   TextFieldTextArea,
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { auth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
-import { createSignal, Show } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 
 const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
@@ -37,30 +37,30 @@ const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; cont
     await db
       .update(chapterNotes)
       .set({ content: props.content })
-      .where(and(eq(chapterNotes.userId, userId), eq(chapterNotes.id, props.noteId)));
+      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)));
   } else {
     await db
       .update(verseNotes)
       .set({ content: props.content })
-      .where(and(eq(verseNotes.userId, userId), eq(verseNotes.id, props.noteId)));
+      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
   }
 };
 
 const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
   if (props.type === 'chapter') {
     await db
       .delete(chapterNotes)
-      .where(and(eq(chapterNotes.userId, userId), eq(chapterNotes.id, props.noteId)));
+      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)));
   } else {
     await db
       .delete(verseNotes)
-      .where(and(eq(verseNotes.userId, userId), eq(verseNotes.id, props.noteId)));
+      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
   }
 };
 
@@ -116,7 +116,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
         <Show
           when={isEditingNote()}
           fallback={
-            <div class='bg-background overflow-y-auto whitespace-pre-wrap rounded-lg border p-2'>
+            <div class='overflow-y-auto whitespace-pre-wrap rounded-lg border bg-background p-2'>
               <Markdown>{props.note.content}</Markdown>
             </div>
           }
@@ -158,7 +158,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             <Show
               when={!showPreview()}
               fallback={
-                <div class='bg-background whitespace-pre-wrap rounded-lg border p-5'>
+                <div class='whitespace-pre-wrap rounded-lg border bg-background p-5'>
                   <Markdown>{editNoteContent()}</Markdown>
                 </div>
               }

@@ -18,7 +18,7 @@ const NumberFieldLabel = <T extends ValidComponent = 'label'>(
   return (
     <NumberFieldPrimitive.Label
       class={cn(
-        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        'font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
         local.class,
       )}
       {...others}
@@ -38,7 +38,7 @@ const NumberFieldInput = <T extends ValidComponent = 'input'>(
   return (
     <NumberFieldPrimitive.Input
       class={cn(
-        'border-input ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring data-[invalid]:border-error-foreground data-[invalid]:text-error-foreground flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[invalid]:border-error-foreground data-[invalid]:text-error-foreground',
         local.class,
       )}
       {...others}
@@ -62,7 +62,7 @@ const NumberFieldIncrementTrigger = <T extends ValidComponent = 'button'>(
   return (
     <NumberFieldPrimitive.IncrementTrigger
       class={cn(
-        'absolute right-1 top-1 inline-flex size-4 items-center justify-center',
+        'absolute top-1 right-1 inline-flex size-4 items-center justify-center',
         local.class,
       )}
       {...others}
@@ -101,7 +101,7 @@ const NumberFieldDecrementTrigger = <T extends ValidComponent = 'button'>(
   return (
     <NumberFieldPrimitive.DecrementTrigger
       class={cn(
-        'absolute bottom-1 right-1 inline-flex size-4 items-center justify-center',
+        'absolute right-1 bottom-1 inline-flex size-4 items-center justify-center',
         local.class,
       )}
       {...others}

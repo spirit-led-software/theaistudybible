@@ -5,3 +5,4 @@ export * from './devotions';
 export * from './generated-images';
 export * from './roles';
 export * from './utils';
+export * from './users';

@@ -57,7 +57,7 @@ const AboutPage: Component = () => {
       </header>
 
       <section>
-        <H2 class='mb-6 flex items-center text-2xl font-semibold'>
+        <H2 class='mb-6 flex items-center font-semibold text-2xl'>
           <Sparkles class='mr-2 inline-block' />
           Our Features
         </H2>

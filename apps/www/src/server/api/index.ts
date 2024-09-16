@@ -1,8 +1,7 @@
 import type { Bindings, Variables } from '@/www/server/api/types';
-import { clerkMiddleware } from '@hono/clerk-auth';
 import { logger } from 'hono/logger';
 import { Hono } from 'hono/quick';
-import { Resource } from 'sst';
+import { auth } from '../auth';
 import adminRoutes from './endpoints/admin';
 import bibles from './endpoints/public/bibles';
 import dataSources from './endpoints/public/data-sources';
@@ -18,13 +17,13 @@ export const app = new Hono<{
 }>()
   .basePath('/api')
   .use('*', logger())
-  .use(
-    '*',
-    clerkMiddleware({
-      publishableKey: Resource.ClerkPublishableKey.value,
-      secretKey: Resource.ClerkSecretKey.value,
-    }),
-  )
+  .use('*', async (c, next) => {
+    const { session, user, roles } = auth();
+    c.set('session', session);
+    c.set('user', user);
+    c.set('roles', roles);
+    await next();
+  })
   .notFound((c) => {
     console.error('Route not found');
     return c.json(

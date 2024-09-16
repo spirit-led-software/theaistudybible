@@ -37,6 +37,9 @@
         "noUnusedImports": "error",
         "noUnknownFunction": "warn"
       },
+      "nursery": {
+        "useSortedClasses": "info"
+      },
       "style": {
         "noNonNullAssertion": "off"
       }

@@ -1,6 +1,8 @@
 import { db } from '@/core/database';
 import { verseHighlights } from '@/core/database/schema';
 import { contentsToText } from '@/core/utils/bible';
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignIn } from '@/www/components/auth/sign-in';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -14,45 +16,32 @@ import {
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
+import { auth } from '@/www/server/auth';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
-import { createEffect, For, Match, Switch } from 'solid-js';
+import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
 const getHighlights = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return {
       highlights: [],
       nextCursor: undefined,
     };
   }
   const highlights = await db.query.verseHighlights.findMany({
-    where: (verseHighlights, { eq }) => eq(verseHighlights.userId, userId),
+    where: (verseHighlights, { eq }) => eq(verseHighlights.userId, user.id),
     with: {
       verse: {
         with: {
-          bible: {
-            columns: {
-              abbreviation: true,
-            },
-          },
-          book: {
-            columns: {
-              abbreviation: true,
-            },
-          },
-          chapter: {
-            columns: {
-              number: true,
-            },
-          },
+          bible: { columns: { abbreviation: true } },
+          book: { columns: { abbreviation: true } },
+          chapter: { columns: { number: true } },
         },
       },
     },
@@ -68,14 +57,14 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
 
 const deleteHighlight = async (highlightId: string) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
   await db
     .delete(verseHighlights)
-    .where(and(eq(verseHighlights.userId, userId), eq(verseHighlights.id, highlightId)));
+    .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
 };
 
 const getHighlightsQueryOptions = () => ({
@@ -114,7 +103,7 @@ const HighlightsPage = () => {
   return (
     <div class='flex h-full w-full flex-col items-center p-5'>
       <SignedIn>
-        <H2 class='from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
+        <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
           Your Highlighted Verses
         </H2>
         <div class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>

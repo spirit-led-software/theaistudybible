@@ -76,7 +76,7 @@ export default function SmallTranslationPicker() {
                             class={`mr-2 h-4 w-4 ${foundBible.id === brStore.bible.id ? 'opacity-100' : 'opacity-0'}`}
                           />
                           <div class='flex w-full flex-col justify-end text-end'>
-                            <p class='text-lg font-medium'>{foundBible.abbreviationLocal}</p>
+                            <p class='font-medium text-lg'>{foundBible.abbreviationLocal}</p>
                             <p class='text-xs'>{foundBible.nameLocal}</p>
                           </div>
                         </CommandItem>

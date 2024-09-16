@@ -1,6 +1,8 @@
 import { db } from '@/core/database';
 import { chapterBookmarks, verseBookmarks } from '@/core/database/schema';
 import { contentsToText } from '@/core/utils/bible';
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignIn } from '@/www/components/auth/sign-in';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -14,20 +16,19 @@ import {
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
+import { auth } from '@/www/server/auth';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
-import { createEffect, For, Match, Show, Switch } from 'solid-js';
+import { For, Match, Show, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
 const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return {
       bookmarks: [],
       nextCursor: undefined,
@@ -35,25 +36,13 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
   }
   const [verseBookmarks, chapterBookmarks] = await Promise.all([
     db.query.verseBookmarks.findMany({
-      where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, userId),
+      where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, user.id),
       with: {
         verse: {
           with: {
-            bible: {
-              columns: {
-                abbreviation: true,
-              },
-            },
-            book: {
-              columns: {
-                abbreviation: true,
-              },
-            },
-            chapter: {
-              columns: {
-                number: true,
-              },
-            },
+            bible: { columns: { abbreviation: true } },
+            book: { columns: { abbreviation: true } },
+            chapter: { columns: { number: true } },
           },
         },
       },
@@ -61,23 +50,13 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
       offset,
     }),
     db.query.chapterBookmarks.findMany({
-      where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, userId),
+      where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, user.id),
       with: {
         chapter: {
-          columns: {
-            content: false,
-          },
+          columns: { content: false },
           with: {
-            bible: {
-              columns: {
-                abbreviation: true,
-              },
-            },
-            book: {
-              columns: {
-                abbreviation: true,
-              },
-            },
+            bible: { columns: { abbreviation: true } },
+            book: { columns: { abbreviation: true } },
           },
         },
       },
@@ -96,19 +75,19 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
 
 const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
   if (props.type === 'verse') {
     await db
       .delete(verseBookmarks)
-      .where(and(eq(verseBookmarks.userId, userId), eq(verseBookmarks.id, props.bookmarkId)));
+      .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
   } else {
     await db
       .delete(chapterBookmarks)
-      .where(and(eq(chapterBookmarks.userId, userId), eq(chapterBookmarks.id, props.bookmarkId)));
+      .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)));
   }
 };
 
@@ -144,7 +123,7 @@ const BookmarksPage = () => {
   return (
     <div class='flex h-full w-full flex-col items-center p-5'>
       <SignedIn>
-        <H2 class='from-accent-foreground to-primary dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
+        <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
           Your Bookmarks
         </H2>
         <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>

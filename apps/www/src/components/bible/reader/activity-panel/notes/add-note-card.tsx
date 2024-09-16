@@ -22,28 +22,28 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { P } from '@/www/components/ui/typography';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { auth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { HelpCircle } from 'lucide-solid';
-import { createSignal, Show } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 
 const addNote = async (props: { chapterId: string; verseId?: string; content: string }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
   if (props.verseId) {
     await db.insert(verseNotes).values({
-      userId,
+      userId: user.id,
       verseId: props.verseId,
       content: props.content,
     });
   } else {
     await db.insert(chapterNotes).values({
-      userId,
+      userId: user.id,
       chapterId: props.chapterId,
       content: props.content,
     });
@@ -147,7 +147,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           <Show
             when={!showPreview()}
             fallback={
-              <div class='bg-background whitespace-pre-wrap rounded-lg border p-5'>
+              <div class='whitespace-pre-wrap rounded-lg border bg-background p-5'>
                 <Markdown>{contentValue()}</Markdown>
               </div>
             }

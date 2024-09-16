@@ -2,9 +2,9 @@ import { db } from '@/core/database';
 import { userCredits } from '@/core/database/schema';
 import { DEFAULT_CREDITS } from '@/core/utils/credits/default';
 import { cn } from '@/www/lib/utils';
+import { auth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { eq } from 'drizzle-orm';
 import { QueryBoundary } from '../query-boundary';
 import { Button } from '../ui/button';
@@ -14,12 +14,12 @@ import { H5, H6 } from '../ui/typography';
 
 export async function getUserCredits() {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return 0;
   }
 
-  const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, userId));
+  const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, user.id));
 
   return userCredit?.balance ?? DEFAULT_CREDITS;
 }

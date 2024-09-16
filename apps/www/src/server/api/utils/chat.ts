@@ -1,23 +1,20 @@
 import { freeTierModels, plusTierModels } from '@/ai/models';
 import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
-import { hasRole } from '@/core/utils/user';
-import type { JwtPayload, Variables } from '@clerk/types';
 import type { Context } from 'hono';
 import type { Bindings } from 'hono/types';
 import { Resource } from 'sst';
+import type { Variables } from '../types';
 
 export function validateModelId({
   c,
   providedModelId,
-  claims,
 }: {
   c: Context<{
     Bindings: Bindings;
     Variables: Variables;
   }>;
   providedModelId: string;
-  claims: JwtPayload;
 }): Response | undefined {
   const isFreeTier = freeTierModels.some(
     (model) => `${model.provider}:${model.id}` === providedModelId,
@@ -34,7 +31,7 @@ export function validateModelId({
       400,
     );
   }
-  if (isPlusTier && !hasRole('rc:plus', claims) && !hasRole('admin', claims)) {
+  if (isPlusTier && !c.var.roles?.some((role) => role.id === 'admin')) {
     return c.json(
       {
         message:
@@ -46,8 +43,8 @@ export function validateModelId({
   return undefined;
 }
 
-export function getDefaultModelId(claims: JwtPayload) {
-  return hasRole('rc:plus', claims) || hasRole('admin', claims)
+export function getDefaultModelId(c: Context<{ Bindings: Bindings; Variables: Variables }>) {
+  return c.var.roles?.some((role) => role.id === 'admin')
     ? Resource.Stage.value === 'production'
       ? `${plusTierModels[0].provider}:${plusTierModels[0].id}`
       : `${freeTierModels[0].provider}:${freeTierModels[0].id}`

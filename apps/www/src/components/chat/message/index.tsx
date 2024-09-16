@@ -1,11 +1,11 @@
 import { allModels } from '@/ai/models';
 import { Markdown } from '@/www/components/ui/markdown';
+import { useAuth } from '@/www/contexts/auth';
 import { cn } from '@/www/lib/utils';
 import type { useChat } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
 import { A } from '@solidjs/router';
 import type { Message as AIMessage } from 'ai/solid';
-import { useUser } from 'clerk-solidjs';
 import { Copy } from 'lucide-solid';
 import { Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -24,7 +24,7 @@ export type MessageProps = {
 };
 
 export const Message = (props: MessageProps) => {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   return (
     <div
@@ -39,7 +39,11 @@ export const Message = (props: MessageProps) => {
             <Match when={props.message.role === 'user'}>
               <Tooltip>
                 <TooltipTrigger as='div'>
-                  <img src={user()?.imageUrl} alt='Avatar' class='h-10 w-10 rounded-full' />
+                  <img
+                    src={user()?.image ?? undefined}
+                    alt='Avatar'
+                    class='h-10 w-10 rounded-full'
+                  />
                 </TooltipTrigger>
                 <TooltipContent>Me</TooltipContent>
               </Tooltip>
@@ -47,7 +51,7 @@ export const Message = (props: MessageProps) => {
             <Match when={props.message.role === 'assistant'}>
               <Tooltip>
                 <TooltipTrigger as='div'>
-                  <div class='bg-primary flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full p-2'>
+                  <div class='flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'>
                     <Icon width={300} height={300} class='flex-shrink-0' />
                   </div>
                 </TooltipTrigger>
@@ -98,7 +102,7 @@ export const Message = (props: MessageProps) => {
                         <TooltipTrigger
                           as={A}
                           href={modelInfo.link}
-                          class='mt-2 w-fit rounded-full border p-2 text-xs text-gray-500'
+                          class='mt-2 w-fit rounded-full border p-2 text-gray-500 text-xs'
                         >
                           {modelInfo.name}
                         </TooltipTrigger>

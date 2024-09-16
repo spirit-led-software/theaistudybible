@@ -1,7 +1,6 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import { devotionReactions, devotions } from '@/core/database/schema';
-import { hasRole } from '@/core/utils/user';
 import type { Devotion, DevotionImage, DevotionReaction } from '@/schemas/devotions/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { PaginationSchema } from '@/www/server/api/utils/pagination';
@@ -62,8 +61,8 @@ export const app = new Hono<{
 
     if (
       c.req.method !== 'GET' &&
-      c.var.clerkAuth?.userId !== reaction.userId &&
-      !hasRole('admin', c.var.clerkAuth!.sessionClaims)
+      c.var.user?.id !== reaction.userId &&
+      !c.var.roles?.some((role) => role.id === 'admin')
     ) {
       return c.json({ message: 'You do not have permission to access this resource.' }, 403);
     }
@@ -117,7 +116,7 @@ export const app = new Hono<{
     async (c) => {
       const data = c.req.valid('json');
 
-      if (!c.var.clerkAuth?.userId) {
+      if (!c.var.user?.id) {
         return c.json({ message: 'You must be logged in' }, 401);
       }
 
@@ -126,7 +125,7 @@ export const app = new Hono<{
         .values({
           ...data,
           devotionId: c.var.devotion.id,
-          userId: c.var.clerkAuth.userId,
+          userId: c.var.user.id,
         })
         .returning();
 

@@ -1,4 +1,6 @@
 import '../../sst-env';
+import type { lucia } from '@/core/auth';
+import type { users } from '@/core/database/schema';
 
 declare global {
   namespace NodeJS {
@@ -7,11 +9,11 @@ declare global {
       [key: string]: undefined;
     }
   }
-  interface CustomJwtSessionClaims {
-    metadata: {
-      roles?: string[];
-      bibleTranslation?: string;
-      stripeCustomerId?: string;
-    };
+}
+
+declare module 'lucia' {
+  interface Register {
+    Lucia: typeof lucia;
+    DatabaseUserAttributes: typeof users.$inferSelect;
   }
 }

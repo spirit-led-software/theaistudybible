@@ -3,10 +3,10 @@ import { verseBookmarks } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { auth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { useAuth } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 
@@ -18,8 +18,8 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
     };
   }
 
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return {
       isBookmarked: false,
     };
@@ -28,7 +28,9 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
   const bookmarks = await db
     .select()
     .from(verseBookmarks)
-    .where(and(eq(verseBookmarks.userId, userId), inArray(verseBookmarks.verseId, props.verseIds)));
+    .where(
+      and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
+    );
 
   return {
     isBookmarked: bookmarks.length === props.verseIds.length,
@@ -37,8 +39,8 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
 
 const bookmarkVerses = async (props: { verseIds: string[] }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
@@ -47,7 +49,7 @@ const bookmarkVerses = async (props: { verseIds: string[] }) => {
     .values(
       props.verseIds.map((verseId) => ({
         verseId,
-        userId,
+        userId: user.id,
       })),
     )
     .onConflictDoNothing();
@@ -55,14 +57,16 @@ const bookmarkVerses = async (props: { verseIds: string[] }) => {
 
 const unbookmarkVerses = async (props: { verseIds: string[] }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
   await db
     .delete(verseBookmarks)
-    .where(and(eq(verseBookmarks.userId, userId), inArray(verseBookmarks.verseId, props.verseIds)));
+    .where(
+      and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
+    );
 };
 
 export const BookmarkButton = () => {

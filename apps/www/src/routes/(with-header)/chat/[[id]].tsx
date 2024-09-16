@@ -1,10 +1,11 @@
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignIn } from '@/www/components/auth/sign-in';
 import { ChatWindow } from '@/www/components/chat/window';
 import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate, useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
-import { SignedIn, SignedOut, SignIn } from 'clerk-solidjs';
 import { Show } from 'solid-js';
 
 export const route: RouteDefinition = {

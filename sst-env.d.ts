@@ -25,23 +25,15 @@ declare module "sst" {
       "type": "sst.aws.Router"
       "url": string
     }
-    "ClerkPublishableKey": {
-      "type": "sst.sst.Linkable"
-      "value": string
-    }
-    "ClerkSecretKey": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
-    "ClerkWebhookSecret": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
     "Database": {
       "name": string
       "token": string
       "type": "sst.sst.Linkable"
       "url": string
+    }
+    "Dev": {
+      "type": "sst.sst.Linkable"
+      "value": string
     }
     "DevotionImagesBucket": {
       "name": string
@@ -58,6 +50,10 @@ declare module "sst" {
     "OpenAiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "ProfileImagesBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
     }
     "Stage": {
       "type": "sst.sst.Linkable"
@@ -87,6 +83,10 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
+    "WebApp": {
+      "type": "sst.aws.SolidStart"
+      "url": string
+    }
     "WebhooksApi": {
       "type": "sst.sst.Linkable"
       "url": string
@@ -94,10 +94,6 @@ declare module "sst" {
     "WebhooksApiFunction": {
       "name": string
       "type": "sst.aws.Function"
-      "url": string
-    }
-    "WebhooksApiRouter": {
-      "type": "sst.aws.Router"
       "url": string
     }
   }

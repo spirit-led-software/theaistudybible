@@ -62,7 +62,7 @@ export const ActivityPanelAlwaysOpenButtons = () => {
     <div
       class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
-      <div class='bg-primary flex h-10 place-items-center space-x-2 rounded-t-lg px-3 py-1'>
+      <div class='flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1'>
         <Tooltip>
           <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
             <MessageCircle />
@@ -89,8 +89,8 @@ export const ActivityPanelButtons = () => {
     <div
       class={`fixed inset-x-0 bottom-0 flex transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
-      <div class='bg-primary grid h-fit w-fit grid-cols-3 grid-rows-2 place-items-center gap-1 rounded-t-lg p-1 md:flex md:flex-row'>
-        <H6 class='text-primary-foreground col-span-2 text-nowrap px-1 text-center text-sm md:col-span-1'>
+      <div class='grid h-fit w-fit grid-cols-3 grid-rows-2 place-items-center gap-1 rounded-t-lg bg-primary p-1 md:flex md:flex-row'>
+        <H6 class='col-span-2 text-nowrap px-1 text-center text-primary-foreground text-sm md:col-span-1'>
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
         <Tooltip>

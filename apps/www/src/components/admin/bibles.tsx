@@ -1,10 +1,9 @@
 import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
-import { hasRole } from '@/core/utils/user';
+import { auth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { FolderArchive } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -33,8 +32,8 @@ async function requestUpload({
   generateEmbeddings: boolean;
 }) {
   'use server';
-  const { sessionClaims } = auth();
-  if (!hasRole('admin', sessionClaims)) {
+  const { roles } = auth();
+  if (roles?.some((role) => role.id === 'admin')) {
     throw new Error('You must be an admin to access this resource.');
   }
 
@@ -138,11 +137,11 @@ export const BiblesContent = () => {
         </div>
         <FileInput value={files()} onChange={setFiles}>
           <FileInputRoot class='h-32'>
-            <FileInputTrigger class='flex h-full items-center justify-center border-2 border-dashed border-gray-300 p-4 text-lg'>
+            <FileInputTrigger class='flex h-full items-center justify-center border-2 border-gray-300 border-dashed p-4 text-lg'>
               <FolderArchive class='mr-4 size-8' />
               Choose zip
             </FileInputTrigger>
-            <FileInputDropArea class='border-2 border-dashed border-gray-300 p-4'>
+            <FileInputDropArea class='border-2 border-gray-300 border-dashed p-4'>
               Drop your zip file here
             </FileInputDropArea>
           </FileInputRoot>

@@ -18,8 +18,8 @@
     "upstash"
   ],
   "editor.codeActionsOnSave": {
-    "quickfix.biome": "explicit",
-    "source.organizeImports.biome": "explicit"
+    "quickfix.biome": "always",
+    "source.organizeImports.biome": "always"
   },
   "biome.enabled": true,
   "eslint.enable": false,

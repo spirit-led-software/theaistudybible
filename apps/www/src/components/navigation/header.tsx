@@ -1,9 +1,9 @@
-import { dark } from '@clerk/themes';
-import { useColorMode } from '@kobalte/core';
 import { useWindowSize } from '@solid-primitives/resize-observer';
-import { A, useLocation } from '@solidjs/router';
-import { ClerkLoaded, SignedIn, SignedOut, SignInButton, UserButton } from 'clerk-solidjs';
+import { A } from '@solidjs/router';
 import { createMemo } from 'solid-js';
+import { AuthLoaded, SignedIn, SignedOut } from '../auth/control';
+import { SignInButton } from '../auth/sign-in-button';
+import { UserButton } from '../auth/user-button';
 import Logo from '../branding/logo';
 import LogoSmall from '../branding/logo-small';
 import { ThemeToggleButton } from '../theme/toggle-button';
@@ -13,14 +13,11 @@ import { NavigationDrawer } from './drawer';
 import { Menu } from './menu';
 
 export default function NavigationHeader() {
-  const location = useLocation();
-
-  const { colorMode } = useColorMode();
   const size = useWindowSize();
   const smallWindow = createMemo(() => size.width < 768);
 
   return (
-    <nav class='border-b-border bg-background/80 fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b py-6 pl-2 pr-4 backdrop-blur-md transition-all duration-300 ease-in-out'>
+    <nav class='fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
       <div class='flex w-1/3 justify-start sm:hidden'>
         <NavigationDrawer />
       </div>
@@ -36,23 +33,15 @@ export default function NavigationHeader() {
       </div>
       <div class='flex w-1/3 items-center justify-end gap-2'>
         <ThemeToggleButton />
-        <ClerkLoaded>
+        <AuthLoaded>
           <SignedIn>
             <CreditDisplay />
-            <UserButton
-              showName={!smallWindow()}
-              appearance={{
-                baseTheme: colorMode() === 'dark' ? dark : undefined,
-                elements: {
-                  userButtonOuterIdentifier: 'text-foreground',
-                },
-              }}
-            />
+            <UserButton showName={!smallWindow()} />
           </SignedIn>
           <SignedOut>
-            <Button as={SignInButton} mode='modal' forceRedirectUrl={location.pathname} />
+            <Button as={SignInButton} />
           </SignedOut>
-        </ClerkLoaded>
+        </AuthLoaded>
       </div>
     </nav>
   );

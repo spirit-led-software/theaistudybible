@@ -6,7 +6,6 @@ import {
 } from '@/core/database/schema';
 import { createId } from '@/core/utils/id';
 import type { Message } from '@/schemas/chats/messages/types';
-import type { JwtPayload } from '@clerk/types';
 import type { StreamData } from 'ai';
 import { convertToCoreMessages, generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
@@ -43,7 +42,7 @@ export type CreateChatChainOptions = {
   chatId: string;
   userMessageId: string;
   userId: string;
-  sessionClaims: JwtPayload;
+  bibleTranslation?: string;
   maxTokens?: number;
   streamData?: StreamData;
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
@@ -60,7 +59,6 @@ export const createChatChain = (options: CreateChatChainOptions) => {
 
     const resolvedTools = tools({
       userId: options.userId,
-      sessionClaims: options.sessionClaims,
     });
 
     return {
@@ -70,7 +68,7 @@ export const createChatChain = (options: CreateChatChainOptions) => {
 
 You must use the vector database tool to fetch relevant resources for your answer. You must only answer the query using these resources. If you don't know the answer, say: "I don't know". Don't make up an answer.
 
-The user's favorite bible translation is ${options.sessionClaims.metadata.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.
+The user's favorite bible translation is ${options.bibleTranslation ?? 'WEB'}. Use that translation throughout your conversation unless instructed otherwise by the user.
 
 You must format your response in valid markdown syntax.`,
         messages: coreMessages,

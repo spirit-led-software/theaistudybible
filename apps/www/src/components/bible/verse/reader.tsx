@@ -99,11 +99,11 @@ export default function VerseReader(props: VerseReaderProps) {
             <BibleReaderMenu />
             <div class='mt-10'>
               <div class='flex w-full justify-center'>
-                <H1 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
+                <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                   {verse.name}
                 </H1>
               </div>
-              <div class='mb-5 mt-10'>
+              <div class='mt-10 mb-5'>
                 <ReaderContent contents={verse.content} />
               </div>
               <div class='mb-20 flex flex-col items-center gap-2'>
@@ -114,7 +114,7 @@ export default function VerseReader(props: VerseReaderProps) {
                     as={A}
                     variant='link'
                     href={rightsHolder.url}
-                    class='text-muted-foreground p-0'
+                    class='p-0 text-muted-foreground'
                   >
                     {rightsHolder.nameLocal}
                   </Button>
@@ -150,7 +150,7 @@ export default function VerseReader(props: VerseReaderProps) {
                 </div>
               </Show>
               <Show when={verse.next}>
-                <div class='fixed bottom-0 right-0 flex flex-col place-items-center justify-center'>
+                <div class='fixed right-0 bottom-0 flex flex-col place-items-center justify-center'>
                   <Tooltip placement='left'>
                     <TooltipTrigger
                       as={A}

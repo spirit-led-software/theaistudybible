@@ -64,7 +64,7 @@ const AccordionContent = <T extends ValidComponent = 'div'>(
   return (
     <AccordionPrimitive.Content
       class={cn(
-        'animate-accordion-up data-[expanded]:animate-accordion-down overflow-hidden pb-4 pt-0 text-sm transition-all',
+        'animate-accordion-up overflow-hidden pt-0 pb-4 text-sm transition-all data-[expanded]:animate-accordion-down',
         local.class,
       )}
       {...others}

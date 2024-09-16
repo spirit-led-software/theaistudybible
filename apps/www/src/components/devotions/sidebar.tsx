@@ -94,7 +94,7 @@ export const DevotionSidebar = () => {
                     {(devotion) => (
                       <div
                         class={cn(
-                          'hover:bg-accent group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2',
+                          'group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2 hover:bg-accent',
                           devotionStore.devotion?.id === devotion.id && 'bg-accent',
                         )}
                       >

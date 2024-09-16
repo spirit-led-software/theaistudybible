@@ -36,7 +36,7 @@ export const HighlightColorPicker = (props: HighlightColorPickerProps) => {
             </ColorPicker.Control>
             <ColorPicker.Positioner>
               <ColorPicker.Content
-                class='bg-background rounded-md p-4 shadow-md'
+                class='rounded-md bg-background p-4 shadow-md'
                 data-corvu-no-drag // Prevent dragging the color picker
               >
                 <div class='flex flex-col gap-3'>
@@ -55,12 +55,12 @@ export const HighlightColorPicker = (props: HighlightColorPickerProps) => {
                     <div class='flex flex-1 flex-col gap-2'>
                       <ColorPicker.ChannelSlider channel='hue' class='flex w-full'>
                         <ColorPicker.ChannelSliderTrack class='h-2 w-full rounded-lg' />
-                        <ColorPicker.ChannelSliderThumb class='h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-sm outline outline-white' />
+                        <ColorPicker.ChannelSliderThumb class='-translate-x-1/2 -translate-y-1/2 size-3 rounded-full shadow-sm outline outline-white' />
                       </ColorPicker.ChannelSlider>
                       <ColorPicker.ChannelSlider channel='alpha' class='flex w-full'>
                         <ColorPicker.TransparencyGrid size='8px' />
                         <ColorPicker.ChannelSliderTrack class='h-2 w-full rounded-lg' />
-                        <ColorPicker.ChannelSliderThumb class='h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-sm outline outline-white' />
+                        <ColorPicker.ChannelSliderThumb class='-translate-x-1/2 -translate-y-1/2 size-3 rounded-full shadow-sm outline outline-white' />
                       </ColorPicker.ChannelSlider>
                     </div>
                   </div>

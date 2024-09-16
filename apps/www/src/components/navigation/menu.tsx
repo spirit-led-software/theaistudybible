@@ -1,6 +1,5 @@
 import { useIsAdmin } from '@/www/hooks/use-is-admin';
 import { A } from '@solidjs/router';
-import { SignedIn } from 'clerk-solidjs';
 import {
   BookOpen,
   Bookmark,
@@ -13,6 +12,7 @@ import {
   Notebook,
 } from 'lucide-solid';
 import { Show } from 'solid-js';
+import { SignedIn } from '../auth/control';
 import {
   NavigationMenu,
   NavigationMenuContent,

@@ -65,7 +65,8 @@ export default function TextContent(props: TextContentProps) {
       {...props}
       class={cn(
         props.style,
-        `cursor-pointer ${selected() ? 'decoration-accent-foreground underline underline-offset-4' : ''}`,
+        'cursor-pointer',
+        selected() && 'underline decoration-accent-foreground underline-offset-4',
         props.class,
       )}
       style={{

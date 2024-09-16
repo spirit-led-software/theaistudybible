@@ -4,10 +4,10 @@ import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
+import { auth } from '@/www/server/auth';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { createEffect } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { Stripe } from 'stripe';
@@ -25,8 +25,8 @@ async function getProducts() {
 
 async function createCheckoutSession(product: Stripe.Product) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User not authenticated');
   }
 
@@ -38,7 +38,7 @@ async function createCheckoutSession(product: Stripe.Product) {
         quantity: 1,
       },
     ],
-    client_reference_id: userId,
+    client_reference_id: user.id,
     success_url: `${import.meta.env.PUBLIC_WEBSITE_URL}/credits?success=true`,
     cancel_url: `${import.meta.env.PUBLIC_WEBSITE_URL}/credits?canceled=true`,
   });
@@ -99,10 +99,10 @@ export default function CreditPurchasePage() {
   return (
     <div class='container flex h-full max-w-3xl flex-1 flex-col overflow-y-auto px-4 py-8'>
       <div class='flex flex-col items-center gap-2'>
-        <H1 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
+        <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
           Purchase Credits
         </H1>
-        <P class='text-muted-foreground text-center text-sm'>
+        <P class='text-center text-muted-foreground text-sm'>
           Credits are used to access our AI services. You can use the credits to get answers to your
           questions, generate images, and more.
         </P>
@@ -124,7 +124,7 @@ export default function CreditPurchasePage() {
                   <CardTitle class='text-lg'>{product.name}</CardTitle>
                 </CardHeader>
                 <CardContent class='pb-2'>
-                  <p class='text-2xl font-bold'>
+                  <p class='font-bold text-2xl'>
                     ${(((product.default_price as Stripe.Price).unit_amount ?? 0) / 100).toFixed(2)}
                   </p>
                   <p class='text-muted-foreground text-sm'>
@@ -153,7 +153,7 @@ export default function CreditPurchasePage() {
       </div>
 
       <div class='mt-8 flex flex-col items-center'>
-        <P class='text-muted-foreground text-center text-sm'>
+        <P class='text-center text-muted-foreground text-sm'>
           Select a credit package to proceed with your purchase. Payment details will be collected
           on the next step.
         </P>

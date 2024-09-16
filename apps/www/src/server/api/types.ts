@@ -1,9 +1,13 @@
+import type { Role } from '@/schemas/roles';
+import type { Session, User } from 'lucia';
+
 // biome-ignore lint/complexity/noBannedTypes: <explanation>
 export type Bindings = {
   //
 };
 
-// biome-ignore lint/complexity/noBannedTypes: <explanation>
 export type Variables = {
-  //
+  session: Session | null;
+  user: User | null;
+  roles: Role[] | null;
 };

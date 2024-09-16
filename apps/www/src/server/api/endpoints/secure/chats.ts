@@ -1,6 +1,5 @@
 import { db } from '@/core/database';
 import { chats, messages } from '@/core/database/schema';
-import { hasRole } from '@/core/utils/user';
 import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { PaginationSchema } from '@/www/server/api/utils/pagination';
@@ -17,7 +16,7 @@ const app = new Hono<{
   };
 }>()
   .use('/*', async (c, next) => {
-    if (!c.var.clerkAuth?.userId) {
+    if (!c.var.user) {
       return c.json(
         {
           message: 'You must be logged in to access this resource.',
@@ -41,10 +40,7 @@ const app = new Hono<{
       );
     }
 
-    if (
-      c.var.clerkAuth?.userId !== chat.userId &&
-      !hasRole('admin', c.var.clerkAuth!.sessionClaims)
-    ) {
+    if (c.var.user?.id !== chat.userId && c.var.roles?.some((role) => role.id === 'admin')) {
       return c.json(
         {
           message: 'You do not have permission to access this resource.',
@@ -71,7 +67,7 @@ const app = new Hono<{
         .insert(chats)
         .values({
           ...chatData,
-          userId: c.var.clerkAuth!.userId!,
+          userId: c.var.user!.id,
         })
         .returning();
       return c.json(
@@ -93,7 +89,7 @@ const app = new Hono<{
     async (c) => {
       const { cursor, limit, filter, sort } = c.req.valid('query');
 
-      let where = eq(chats.userId, c.var.clerkAuth!.userId!);
+      let where = eq(chats.userId, c.var.user!.id);
       if (filter) {
         where = and(where, filter)!;
       }

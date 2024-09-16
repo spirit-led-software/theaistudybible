@@ -26,7 +26,7 @@ const ContextMenuContent = <T extends ValidComponent = 'div'>(
     <ContextMenuPrimitive.Portal>
       <ContextMenuPrimitive.Content
         class={cn(
-          'bg-popover text-popover-foreground animate-in z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-md border p-1 shadow-md',
+          'z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] animate-in overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
           local.class,
         )}
         {...others}
@@ -46,7 +46,7 @@ const ContextMenuItem = <T extends ValidComponent = 'div'>(
   return (
     <ContextMenuPrimitive.Item
       class={cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         local.class,
       )}
       {...others}
@@ -69,7 +69,7 @@ const ContextMenuSeparator = <T extends ValidComponent = 'hr'>(
   const [local, others] = splitProps(props as ContextMenuSeparatorProps, ['class']);
   return (
     <ContextMenuPrimitive.Separator
-      class={cn('bg-muted -mx-1 my-1 h-px', local.class)}
+      class={cn('-mx-1 my-1 h-px bg-muted', local.class)}
       {...others}
     />
   );
@@ -87,7 +87,7 @@ const ContextMenuSubTrigger = <T extends ValidComponent = 'div'>(
   return (
     <ContextMenuPrimitive.SubTrigger
       class={cn(
-        'focus:bg-accent data-[state=open]:bg-accent flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none',
+        'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent',
         local.class,
       )}
       {...others}
@@ -120,7 +120,7 @@ const ContextMenuSubContent = <T extends ValidComponent = 'div'>(
   return (
     <ContextMenuPrimitive.SubContent
       class={cn(
-        'bg-popover text-popover-foreground animate-in z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] overflow-hidden rounded-md border p-1 shadow-md',
+        'z-50 min-w-32 origin-[var(--kb-menu-content-transform-origin)] animate-in overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
         local.class,
       )}
       {...others}
@@ -140,7 +140,7 @@ const ContextMenuCheckboxItem = <T extends ValidComponent = 'div'>(
   return (
     <ContextMenuPrimitive.CheckboxItem
       class={cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'relative flex cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         local.class,
       )}
       {...others}
@@ -176,7 +176,7 @@ const ContextMenuGroupLabel = <T extends ValidComponent = 'span'>(
   const [local, others] = splitProps(props as ContextMenuGroupLabelProps, ['class']);
   return (
     <ContextMenuPrimitive.GroupLabel
-      class={cn('px-2 py-1.5 text-sm font-semibold', local.class)}
+      class={cn('px-2 py-1.5 font-semibold text-sm', local.class)}
       {...others}
     />
   );
@@ -194,7 +194,7 @@ const ContextMenuRadioItem = <T extends ValidComponent = 'div'>(
   return (
     <ContextMenuPrimitive.RadioItem
       class={cn(
-        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        'relative flex cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         local.class,
       )}
       {...others}

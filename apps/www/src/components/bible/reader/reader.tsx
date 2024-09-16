@@ -3,10 +3,10 @@ import type { Content } from '@/schemas/bibles/contents';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { useReadingSessionContext } from '@/www/contexts/reading-session-context';
+import { auth } from '@/www/server/auth';
 import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { createEffect, on } from 'solid-js';
 import {
   ActivityPanel,
@@ -20,8 +20,8 @@ import './contents/contents.css';
 
 async function getHighlights(chapterId: string) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return [];
   }
 
@@ -33,14 +33,8 @@ async function getHighlights(chapterId: string) {
       },
       with: {
         verses: {
-          columns: {
-            id: true,
-          },
-          with: {
-            highlights: {
-              where: (highlights, { eq }) => eq(highlights.userId, userId),
-            },
-          },
+          columns: { id: true },
+          with: { highlights: { where: (highlights, { eq }) => eq(highlights.userId, user.id) } },
         },
       },
     })
@@ -51,8 +45,8 @@ async function getHighlights(chapterId: string) {
 
 async function getNotes(chapterId: string) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return [];
   }
 
@@ -64,14 +58,8 @@ async function getNotes(chapterId: string) {
       },
       with: {
         verses: {
-          columns: {
-            id: true,
-          },
-          with: {
-            notes: {
-              where: (notes, { eq }) => eq(notes.userId, userId),
-            },
-          },
+          columns: { id: true },
+          with: { notes: { where: (notes, { eq }) => eq(notes.userId, user.id) } },
         },
       },
     })

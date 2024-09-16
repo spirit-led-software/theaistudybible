@@ -1,6 +1,6 @@
+import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 
-/** @type {import("tailwindcss").Config} */
 export default {
   darkMode: ['class', '[data-kb-theme="dark"]'],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
@@ -14,6 +14,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        goldman: ['Goldman', 'system-ui'],
+        inter: ['Inter', 'sans-serif'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -97,4 +101,4 @@ export default {
       },
     },
   },
-};
+} satisfies Config;

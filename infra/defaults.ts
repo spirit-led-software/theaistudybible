@@ -25,4 +25,8 @@ $transform(sst.aws.Function, (args) => {
       ]),
     ),
   );
+  args.nodejs = $output(args.nodejs).apply((nodejs) => ({
+    ...nodejs,
+    install: Array.from(new Set([...(nodejs?.install || []), '@libsql/client'])),
+  }));
 });

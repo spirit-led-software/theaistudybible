@@ -1,7 +1,6 @@
 import { generateDevotion } from '@/ai/devotion';
-import { hasRole } from '@/core/utils/user';
+import { auth } from '@/www/server/auth';
 import { createMutation } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
@@ -9,8 +8,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card
 
 const triggerGenerateDevotion = async () => {
   'use server';
-  const { sessionClaims } = auth();
-  if (!hasRole('admin', sessionClaims)) {
+  const { roles } = auth();
+  if (roles?.some((role) => role.id === 'admin')) {
     throw new Error('You must be an admin to access this resource.');
   }
   return await generateDevotion();

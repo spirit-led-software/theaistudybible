@@ -1,8 +1,7 @@
-import { clerk } from '@/core/clerk';
 import { db } from '@/core/database';
-import { userCredits } from '@/core/database/schema';
+import { userCredits, users } from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
 import type Stripe from 'stripe';
@@ -27,24 +26,25 @@ const app = new Hono().post('/', async (c) => {
         return c.json({ message: 'Client reference ID not found' }, 400);
       }
 
-      const user = await clerk.users.getUser(clientReferenceId);
+      const user = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, clientReferenceId),
+      });
       if (!user) {
         console.error(`User not found for client reference ID: ${clientReferenceId}`);
         return c.json({ message: 'User not found' }, 404);
       }
 
-      const stripeCustomerId = session.customer;
-      if (
-        stripeCustomerId &&
-        typeof stripeCustomerId === 'string' &&
-        user.publicMetadata.stripeCustomerId !== stripeCustomerId
-      ) {
-        await clerk.users.updateUser(user.id, {
-          publicMetadata: {
-            ...user.publicMetadata,
-            stripeCustomerId,
-          },
-        });
+      let customer = session.customer;
+      if (typeof customer === 'string') {
+        customer = await stripe.customers.retrieve(customer);
+      }
+      if (customer && !customer.deleted && user.stripeCustomerId !== customer.id) {
+        await db
+          .update(users)
+          .set({
+            stripeCustomerId: customer.id,
+          })
+          .where(eq(users.id, user.id));
       }
 
       let product = session.line_items?.data[0].price?.product;

@@ -1,4 +1,3 @@
-import { hasRole } from '@/core/utils/user';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { Hono } from 'hono';
 import { Resource } from 'sst';
@@ -14,7 +13,7 @@ export const app = new Hono<{
   .use('/*', async (c, next) => {
     if (
       Resource.Stage.value !== 'development' &&
-      (!c.var.clerkAuth?.userId || !hasRole('admin', c.var.clerkAuth.sessionClaims))
+      (!c.var.user?.id || !c.var.roles?.some((role) => role.id === 'admin'))
     ) {
       return c.json(
         {

@@ -38,7 +38,7 @@ const Toaster = <T extends ValidComponent = 'ol'>(props: PolymorphicProps<T, Toa
       <ToastPrimitive.Region>
         <ToastPrimitive.List
           class={cn(
-            'fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]',
+            'fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:top-auto sm:right-0 sm:bottom-0 sm:flex-col md:max-w-[420px]',
             local.class,
           )}
           {...others}
@@ -72,7 +72,7 @@ const ToastClose = <T extends ValidComponent = 'button'>(
   return (
     <ToastPrimitive.CloseButton
       class={cn(
-        'text-foreground/50 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground absolute right-2 top-2 rounded-md p-1 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100',
+        'absolute top-2 right-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground',
         local.class,
       )}
       {...others}
@@ -102,7 +102,7 @@ const ToastTitle = <T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, ToastTitleProps>,
 ) => {
   const [local, others] = splitProps(props as ToastTitleProps, ['class']);
-  return <ToastPrimitive.Title class={cn('text-sm font-semibold', local.class)} {...others} />;
+  return <ToastPrimitive.Title class={cn('font-semibold text-sm', local.class)} {...others} />;
 };
 
 type ToastDescriptionProps = ToastPrimitive.ToastDescriptionProps & {

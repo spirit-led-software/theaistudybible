@@ -1,19 +1,19 @@
 import { db } from '@/core/database';
 import { readingSessions, userCredits } from '@/core/database/schema';
-import { auth } from 'clerk-solidjs/server';
 import { eq, sql } from 'drizzle-orm';
+import { auth } from './auth';
 
 export async function startReadingSession() {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User not authenticated');
   }
 
   const [session] = await db
     .insert(readingSessions)
     .values({
-      userId,
+      userId: user.id,
       startTime: new Date(),
     })
     .returning();
@@ -23,8 +23,8 @@ export async function startReadingSession() {
 
 export async function endReadingSession(sessionId: string) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User not authenticated');
   }
 
@@ -34,7 +34,7 @@ export async function endReadingSession(sessionId: string) {
     .where(eq(readingSessions.id, sessionId))
     .limit(1);
 
-  if (!session || session.userId !== userId) {
+  if (!session || session.userId !== user.id) {
     throw new Error('Invalid session');
   }
 
@@ -44,15 +44,15 @@ export async function endReadingSession(sessionId: string) {
 
 export async function updateUserCredits(creditsToAdd: number) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User not authenticated');
   }
 
   await db
     .insert(userCredits)
     .values({
-      userId,
+      userId: user.id,
       balance: creditsToAdd,
     })
     .onConflictDoUpdate({

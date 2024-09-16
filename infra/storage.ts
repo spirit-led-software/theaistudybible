@@ -15,6 +15,10 @@ bibleBucket.subscribe(
   },
 );
 
+export const profileImagesBucket = new sst.aws.Bucket('ProfileImagesBucket', {
+  public: true,
+});
+
 export const generatedImagesBucket = new sst.aws.Bucket('GeneratedImagesBucket', {
   public: true,
 });
@@ -25,6 +29,7 @@ export const devotionImagesBucket = new sst.aws.Bucket('DevotionImagesBucket', {
 
 export const cdn = new sst.aws.Router('Cdn', {
   routes: {
+    '/profile-images/*': $interpolate`https://${profileImagesBucket.nodes.bucket.bucketDomainName}`,
     '/generated-images/*': $interpolate`https://${generatedImagesBucket.nodes.bucket.bucketDomainName}`,
     '/devotion-images/*': $interpolate`https://${devotionImagesBucket.nodes.bucket.bucketDomainName}`,
   },

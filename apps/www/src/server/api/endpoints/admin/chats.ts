@@ -38,7 +38,7 @@ const app = new Hono<{
         .insert(chats)
         .values({
           ...chatData,
-          userId: chatData.userId ?? c.var.clerkAuth!.userId!,
+          userId: chatData.userId ?? c.var.user!.id,
         })
         .returning()
     )[0];

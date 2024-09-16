@@ -18,17 +18,17 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
+import { auth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';
 
 const editChat = async (props: { chatId: string; name: string }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User is not authenticated');
   }
   await db
@@ -37,7 +37,7 @@ const editChat = async (props: { chatId: string; name: string }) => {
       name: props.name,
       customName: true,
     })
-    .where(and(eq(chats.userId, userId), eq(chats.id, props.chatId)));
+    .where(and(eq(chats.userId, user.id), eq(chats.id, props.chatId)));
 };
 
 export type EditChatButtonProps = {

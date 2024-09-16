@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { messageReactions } from '@/core/database/schema';
+import { auth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
 import { createSignal } from 'solid-js';
@@ -12,14 +12,14 @@ import { TextField, TextFieldTextArea } from '../../ui/text-field';
 
 const getReactions = async (messageId: string) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return null;
   }
 
   const reaction = await db.query.messageReactions.findFirst({
     where: (messageReactions, { and, eq }) =>
-      and(eq(messageReactions.userId, userId), eq(messageReactions.messageId, messageId)),
+      and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, messageId)),
   });
 
   return reaction ?? null;
@@ -31,8 +31,8 @@ const addReaction = async (props: {
   messageId: string;
 }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
@@ -42,7 +42,7 @@ const addReaction = async (props: {
       reaction: props.reaction,
       comment: props.comment,
       messageId: props.messageId,
-      userId,
+      userId: user.id,
     })
     .onConflictDoUpdate({
       target: [messageReactions.userId, messageReactions.messageId],
@@ -54,14 +54,14 @@ const addReaction = async (props: {
 
 const removeReaction = async (props: { messageId: string }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
   await db
     .delete(messageReactions)
     .where(
-      and(eq(messageReactions.userId, userId), eq(messageReactions.messageId, props.messageId)),
+      and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, props.messageId)),
     );
 };
 

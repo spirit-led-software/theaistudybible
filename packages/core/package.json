@@ -12,8 +12,9 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
+    "@lucia-auth/adapter-drizzle": "^1.1.0",
+    "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/schemas": "workspace:*",
-    "@clerk/clerk-sdk-node": "^5.0.38",
-    "@paralleldrive/cuid2": "^2.2.2"
+    "oslo": "^1.2.1"
   }
 }

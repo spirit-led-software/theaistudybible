@@ -8,21 +8,21 @@ import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { convertToCoreMessages, generateObject } from 'ai';
-import { auth } from 'clerk-solidjs/server';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
+import { auth } from '../server/auth';
 
 const getChat = async (chatId: string) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User is not authenticated');
   }
   const chat = await db.query.chats.findFirst({
-    where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, userId)),
+    where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
 
   return chat ?? null;
@@ -48,14 +48,14 @@ const getChatMessages = async ({
   offset: number;
 }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User is not authenticated');
   }
   const messages = await db.query.messages.findMany({
     where: (messages, { eq, and, or, ne }) =>
       and(
-        eq(messages.userId, userId),
+        eq(messages.userId, user.id),
         eq(messages.chatId, chatId),
         eq(messages.regenerated, false),
         or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
@@ -88,15 +88,15 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
 
 const getChatSuggestions = async (chatId: string) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User is not authenticated');
   }
 
   const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,
-    userId,
+    userId: user.id,
     maxTokens: modelInfo.contextSize,
   });
   const { object } = await generateObject({

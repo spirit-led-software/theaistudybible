@@ -1,7 +1,7 @@
-import { auth } from 'clerk-solidjs/server';
+import { auth } from './auth';
 
 export function isAdmin() {
   'use server';
-  const { sessionClaims } = auth();
-  return sessionClaims?.metadata.roles?.includes('admin') ?? false;
+  const { roles } = auth();
+  return roles?.some((role) => role.id === 'admin') ?? false;
 }

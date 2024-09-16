@@ -1,8 +1,8 @@
 import { db } from '@/core/database';
 import { cn } from '@/www/lib/utils';
+import { auth } from '@/www/server/auth';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
-import { auth } from 'clerk-solidjs/server';
 import { formatDate } from 'date-fns';
 import { Clock } from 'lucide-solid';
 import { For, Match, Switch, createEffect, on } from 'solid-js';
@@ -26,13 +26,13 @@ import { EditChatButton } from './edit-chat-button';
 
 const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('User is not authenticated');
   }
 
   const chats = await db.query.chats.findMany({
-    where: (chats, { eq }) => eq(chats.userId, userId),
+    where: (chats, { eq }) => eq(chats.userId, user.id),
     orderBy: (chats, { desc }) => desc(chats.updatedAt),
     offset,
     limit,
@@ -103,7 +103,7 @@ export const ChatSidebar = () => {
                       <div
                         data-index={idx()}
                         class={cn(
-                          'hover:bg-accent group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2',
+                          'group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2 hover:bg-accent',
                           chatStore.chat?.id === chat.id && 'bg-muted',
                         )}
                       >

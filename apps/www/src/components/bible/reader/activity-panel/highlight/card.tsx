@@ -1,5 +1,7 @@
 import { db } from '@/core/database';
 import { verseHighlights } from '@/core/database/schema';
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { DrawerClose } from '@/www/components/ui/drawer';
@@ -7,19 +9,18 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { auth } from '@/www/server/auth';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
 import { and, eq, inArray } from 'drizzle-orm';
-import { createSignal, Match, Switch } from 'solid-js';
+import { Match, Switch, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
 async function updateHighlights({ color, verseIds }: { color: string; verseIds: string[] }) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
@@ -28,7 +29,7 @@ async function updateHighlights({ color, verseIds }: { color: string; verseIds: 
     .values(
       verseIds.map((id) => ({
         color,
-        userId,
+        userId: user.id,
         verseId: id,
       })),
     )
@@ -43,14 +44,14 @@ async function updateHighlights({ color, verseIds }: { color: string; verseIds: 
 
 async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     throw new Error('Not signed in');
   }
 
   await db
     .delete(verseHighlights)
-    .where(and(eq(verseHighlights.userId, userId), inArray(verseHighlights.verseId, verseIds)));
+    .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
 }
 
 export const HighlightCard = () => {
@@ -147,7 +148,7 @@ export const HighlightCard = () => {
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class='text-accent-foreground px-0 text-lg capitalize'
+                class='px-0 text-accent-foreground text-lg capitalize'
               />{' '}
               to highlight
             </P>

@@ -1,16 +1,17 @@
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { DrawerClose } from '@/www/components/ui/drawer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { H5, P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { auth } from '@/www/server/auth';
 import { createInfiniteQuery } from '@tanstack/solid-query';
-import { SignedIn, SignedOut, SignInButton } from 'clerk-solidjs';
-import { auth } from 'clerk-solidjs/server';
 import { Plus } from 'lucide-solid';
-import { createEffect, createSignal, For, Show } from 'solid-js';
+import { For, Show, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { Transition, TransitionGroup } from 'solid-transition-group';
 import { AddNoteCard } from './add-note-card';
@@ -23,8 +24,8 @@ const getNotes = async (props: {
   limit: number;
 }) => {
   'use server';
-  const { userId } = auth();
-  if (!userId) {
+  const { user } = auth();
+  if (!user) {
     return {
       notes: [],
       nextCursor: undefined,
@@ -35,45 +36,25 @@ const getNotes = async (props: {
   if (props.verseIds?.length) {
     notes = await db.query.verseNotes.findMany({
       where: (verseNotes, { and, eq, inArray }) =>
-        and(eq(verseNotes.userId, userId), inArray(verseNotes.verseId, props.verseIds!)),
+        and(eq(verseNotes.userId, user.id), inArray(verseNotes.verseId, props.verseIds!)),
       orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
       offset: props.offset,
       limit: props.limit,
       with: {
         verse: {
-          columns: {
-            content: false,
-          },
-          with: {
-            book: true,
-            chapter: {
-              columns: {
-                content: false,
-              },
-            },
-            bible: true,
-          },
+          columns: { content: false },
+          with: { book: true, chapter: { columns: { content: false } }, bible: true },
         },
       },
     });
   } else {
     notes = await db.query.chapterNotes.findMany({
       where: (chapterNotes, { and, eq }) =>
-        and(eq(chapterNotes.userId, userId), eq(chapterNotes.chapterId, props.chapterId)),
+        and(eq(chapterNotes.userId, user.id), eq(chapterNotes.chapterId, props.chapterId)),
       orderBy: (chapterNotes, { desc }) => desc(chapterNotes.updatedAt),
       offset: props.offset,
       limit: props.limit,
-      with: {
-        chapter: {
-          columns: {
-            content: false,
-          },
-          with: {
-            book: true,
-            bible: true,
-          },
-        },
-      },
+      with: { chapter: { columns: { content: false }, with: { book: true, bible: true } } },
     });
   }
 
@@ -177,7 +158,7 @@ export const NotesCard = () => {
               <Button
                 as={SignInButton}
                 variant={'link'}
-                class='text-accent-foreground px-0 text-lg capitalize'
+                class='px-0 text-accent-foreground text-lg capitalize'
               />{' '}
               to take notes
             </P>

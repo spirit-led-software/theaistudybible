@@ -87,7 +87,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                                 as={A}
                                 href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
                                 variant='link'
-                                class='text-accent-foreground h-fit p-0'
+                                class='h-fit p-0 text-accent-foreground'
                               >
                                 View
                               </Button>
@@ -106,7 +106,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                                     as={A}
                                     href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${chapter.number}`}
                                     variant='link'
-                                    class='text-accent-foreground h-fit p-0'
+                                    class='h-fit p-0 text-accent-foreground'
                                   >
                                     View
                                   </Button>

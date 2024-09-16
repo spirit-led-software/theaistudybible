@@ -55,12 +55,12 @@ const DrawerContent = <T extends ValidComponent = 'div'>(
       </Show>
       <DrawerPrimitive.Content
         class={cn(
-          'bg-background fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border after:absolute after:inset-x-0 after:top-full after:h-1/2 after:bg-inherit data-[transitioning]:transition-transform data-[transitioning]:duration-300 md:select-none',
+          'fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background after:absolute after:inset-x-0 after:top-full after:h-1/2 after:bg-inherit data-[transitioning]:transition-transform data-[transitioning]:duration-300 md:select-none',
           props.class,
         )}
         {...rest}
       >
-        <div class='bg-muted mx-auto mt-4 h-2 w-[100px] rounded-full' />
+        <div class='mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted' />
         {props.children}
       </DrawerPrimitive.Content>
     </DrawerPortal>
@@ -85,7 +85,7 @@ const DrawerTitle = <T extends ValidComponent = 'div'>(
   const [, rest] = splitProps(props as DrawerTitleProps, ['class']);
   return (
     <DrawerPrimitive.Label
-      class={cn('text-lg font-semibold leading-none tracking-tight', props.class)}
+      class={cn('font-semibold text-lg leading-none tracking-tight', props.class)}
       {...rest}
     />
   );

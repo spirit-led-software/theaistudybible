@@ -1,50 +1,46 @@
+import { hashPassword } from '@/core/auth/providers/credentials/utils';
 import { db } from '@/core/database';
-import { roles, userCredits } from '@/core/database/schema';
-import { createClerkClient } from '@clerk/clerk-sdk-node';
+import { passwords, roles, userCredits, users, usersToRoles } from '@/core/database/schema';
 import { Resource } from 'sst';
-
-const clerk = createClerkClient({
-  secretKey: Resource.ClerkSecretKey.value,
-  publishableKey: Resource.ClerkPublishableKey.value,
-});
 
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
-  let {
-    data: [admin],
-  } = await clerk.users.getUserList({
-    emailAddress: [Resource.AdminEmail.value],
-  });
 
-  if (!admin) {
-    admin = await clerk.users.createUser({
-      emailAddress: [Resource.AdminEmail.value],
-      password: Resource.AdminPassword.value,
+  const [admin] = await db
+    .insert(users)
+    .values({
+      email: Resource.AdminEmail.value,
       firstName: 'Administrator',
-      skipPasswordChecks: true,
-    });
+    })
+    .onConflictDoUpdate({
+      target: [users.email],
+      set: {
+        firstName: 'Administrator',
+      },
+    })
+    .returning();
 
-    console.log('Initial admin user created');
-  } else {
-    console.log('Admin user already existed, updating password.');
-    admin = await clerk.users.updateUser(admin.id, {
-      password: Resource.AdminPassword.value,
-      skipPasswordChecks: true,
-    });
-  }
-
-  if (
-    !admin.publicMetadata.roles ||
-    !Array.isArray(admin.publicMetadata.roles) ||
-    !admin.publicMetadata.roles.includes('admin')
-  ) {
-    console.log('Adding admin role to admin user');
-    await clerk.users.updateUser(admin.id, {
-      publicMetadata: {
-        roles: ['admin'],
+  const pwHash = await hashPassword(Resource.AdminPassword.value);
+  await db
+    .insert(passwords)
+    .values({
+      userId: admin.id,
+      hash: pwHash,
+    })
+    .onConflictDoUpdate({
+      target: [passwords.userId],
+      set: {
+        hash: pwHash,
       },
     });
-  }
+
+  await db
+    .insert(usersToRoles)
+    .values({
+      userId: admin.id,
+      roleId: 'admin',
+    })
+    .onConflictDoNothing();
 
   console.log('Adding credits to admin user');
   await db

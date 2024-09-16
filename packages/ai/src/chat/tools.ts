@@ -9,7 +9,6 @@ import { s3 } from '@/core/storage';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import type { JwtPayload } from '@clerk/types';
 import { tool } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
@@ -298,7 +297,6 @@ export const vectorStoreTool = tool({
 
 export const generateImageTool = (props: {
   userId: string;
-  sessionClaims: JwtPayload;
 }) =>
   tool({
     description:
@@ -387,7 +385,6 @@ export const generateImageTool = (props: {
 
 export const tools = (options: {
   userId: string;
-  sessionClaims: JwtPayload;
 }) => ({
   askForConfirmation: askForConfirmationTool,
   askForHighlightColor: askForHighlightColorTool,
@@ -402,7 +399,6 @@ export const tools = (options: {
   }),
   generateImage: generateImageTool({
     userId: options.userId,
-    sessionClaims: options.sessionClaims,
   }),
   vectorStore: vectorStoreTool,
 });

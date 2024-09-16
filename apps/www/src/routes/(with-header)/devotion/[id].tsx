@@ -48,19 +48,19 @@ const DevotionPage = () => {
   return (
     <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
       <DevotionMenu />
-      <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pb-20 pt-32'>
+      <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pt-32 pb-20'>
         <QueryBoundary query={devotionQuery}>
           {(devotion) => (
             <>
               <div class='flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap'>
                 <div class='flex flex-col gap-2 text-center'>
-                  <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-transparent'>
+                  <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                     Reading
                   </H2>
                   <p>{devotion.bibleReading}</p>
                 </div>
                 <div class='flex flex-col gap-2'>
-                  <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
+                  <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                     Summary
                   </H2>
                   <Markdown>{devotion.summary}</Markdown>
@@ -68,7 +68,7 @@ const DevotionPage = () => {
                 <Show when={devotion.reflection} keyed>
                   {(reflection) => (
                     <div class='flex flex-col gap-2'>
-                      <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
+                      <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                         Reflection
                       </H2>
                       <Markdown>{reflection}</Markdown>
@@ -78,7 +78,7 @@ const DevotionPage = () => {
                 <Show when={devotion.prayer} keyed>
                   {(prayer) => (
                     <div class='flex flex-col gap-2'>
-                      <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
+                      <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                         Prayer
                       </H2>
                       <Markdown>{prayer}</Markdown>
@@ -88,7 +88,7 @@ const DevotionPage = () => {
                 <Show when={devotion.images} keyed>
                   {(image) => (
                     <div class='flex flex-col gap-2'>
-                      <H2 class='from-primary to-accent-foreground dark:from-accent-foreground dark:to-secondary-foreground inline-block bg-gradient-to-r bg-clip-text text-center text-transparent'>
+                      <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                         Generated Illustration
                       </H2>
                       <img src={image.url!} alt='Illustration for the devotion' />

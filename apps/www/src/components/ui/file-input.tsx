@@ -164,12 +164,12 @@ const FileInputDropArea = (props: FileInputDropAreaProps) => {
     <Show when={isDragging()}>
       <div
         class={cn(
-          'bg-background/80 absolute inset-0 z-50 flex items-center justify-center backdrop-blur-sm transition-opacity duration-300',
+          'absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-300',
           local.class,
         )}
         {...others}
       >
-        {local.children || <p class='text-muted-foreground text-lg'>Drop files here</p>}
+        {local.children || <p class='text-lg text-muted-foreground'>Drop files here</p>}
       </div>
     </Show>
   );
@@ -186,7 +186,7 @@ type FileInputErrorMessageProps = JSX.HTMLAttributes<HTMLParagraphElement>;
 
 const FileInputErrorMessage = (props: FileInputErrorMessageProps) => {
   const [local, others] = splitProps(props, ['class']);
-  return <p class={cn('text-destructive text-sm font-medium', local.class)} {...others} />;
+  return <p class={cn('font-medium text-destructive text-sm', local.class)} {...others} />;
 };
 
 export {

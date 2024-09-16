@@ -1,7 +1,6 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import { userGeneratedImages } from '@/core/database/schema';
-import { hasRole } from '@/core/utils/user';
 import type { UserGeneratedImage } from '@/schemas/generated-images/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { PaginationSchema } from '@/www/server/api/utils/pagination';
@@ -17,7 +16,7 @@ export const app = new Hono<{
   };
 }>()
   .use('/*', async (c, next) => {
-    if (!c.var.clerkAuth?.userId) {
+    if (!c.var.user) {
       return c.json(
         {
           message: 'You must be logged in to access this resource.',
@@ -40,10 +39,7 @@ export const app = new Hono<{
       );
     }
 
-    if (
-      c.var.clerkAuth?.userId !== image.userId &&
-      !hasRole('admin', c.var.clerkAuth!.sessionClaims)
-    ) {
+    if (c.var.user!.id !== image.userId && c.var.roles?.some((role) => role.id === 'admin')) {
       return c.json(
         {
           message: 'You do not have permission to access this resource.',
@@ -58,7 +54,7 @@ export const app = new Hono<{
   .get('/', zValidator('query', PaginationSchema(userGeneratedImages)), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
-    let where: SQL<unknown> | undefined = eq(userGeneratedImages.userId, c.var.clerkAuth!.userId!);
+    let where: SQL<unknown> | undefined = eq(userGeneratedImages.userId, c.var.user!.id);
     if (filter) {
       where = and(where, filter);
     }

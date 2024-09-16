@@ -1,7 +1,7 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import { messageReactions, messages } from '@/core/database/schema';
-import { hasRole } from '@/core/utils/user';
+import { CreateMessageSchema } from '@/schemas/chats';
 import type { Message, MessageReaction } from '@/schemas/chats/messages/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { PaginationSchema } from '@/www/server/api/utils/pagination';
@@ -19,7 +19,7 @@ export const app = new Hono<{
   };
 }>()
   .use('/*', async (c, next) => {
-    if (!c.var.clerkAuth?.userId) {
+    if (!c.var.user?.id) {
       return c.json(
         {
           message: 'You must be logged in to access this resource.',
@@ -43,10 +43,7 @@ export const app = new Hono<{
       );
     }
 
-    if (
-      c.var.clerkAuth?.userId !== message.userId &&
-      !hasRole('admin', c.var.clerkAuth!.sessionClaims)
-    ) {
+    if (c.var.user?.id !== message.userId && !c.var.roles?.some((role) => role.id === 'admin')) {
       return c.json(
         {
           message: 'You do not have permission to access this resource.',
@@ -71,10 +68,7 @@ export const app = new Hono<{
       );
     }
 
-    if (
-      c.var.clerkAuth?.userId !== reaction.userId &&
-      !hasRole('admin', c.var.clerkAuth!.sessionClaims)
-    ) {
+    if (c.var.user?.id !== reaction.userId && !c.var.roles?.some((role) => role.id === 'admin')) {
       return c.json(
         {
           message: 'You do not have permission to access this resource.',
@@ -90,7 +84,7 @@ export const app = new Hono<{
     '/',
     zValidator(
       'json',
-      createInsertSchema(messages).omit({
+      CreateMessageSchema.omit({
         userId: true,
       }),
     ),
@@ -98,10 +92,9 @@ export const app = new Hono<{
       const data = c.req.valid('json');
       const message = await db
         .insert(messages)
-        // @ts-expect-error - We know this is the correct type
         .values({
           ...data,
-          userId: c.var.clerkAuth!.userId!,
+          userId: c.var.user!.id,
         })
         .returning();
       return c.json(
@@ -115,7 +108,7 @@ export const app = new Hono<{
   .get('/', zValidator('query', PaginationSchema(messages)), async (c) => {
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
-    let where: SQL<unknown> | undefined = eq(messages.userId, c.var.clerkAuth!.userId!);
+    let where: SQL<unknown> | undefined = eq(messages.userId, c.var.user!.id);
     if (filter) {
       where = and(where, filter);
     }
@@ -202,7 +195,7 @@ export const app = new Hono<{
         .values({
           ...data,
           messageId: c.var.message.id,
-          userId: c.var.clerkAuth!.userId!,
+          userId: c.var.user!.id,
         })
         .returning();
       return c.json(
