@@ -43,6 +43,14 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "value": string
     }
+    "Email": {
+      "sender": string
+      "type": "sst.aws.Email"
+    }
+    "EmailQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "GeneratedImagesBucket": {
       "name": string
       "type": "sst.aws.Bucket"

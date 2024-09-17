@@ -391,7 +391,9 @@ CREATE TABLE `users` (
 	`first_name` text,
 	`last_name` text,
 	`image` text,
-	`stripe_customer_id` text
+	`stripe_customer_id` text,
+	`preferred_bible_id` text,
+	FOREIGN KEY (`preferred_bible_id`) REFERENCES `bibles`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `users_to_roles` (

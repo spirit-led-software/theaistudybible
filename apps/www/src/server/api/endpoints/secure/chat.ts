@@ -36,7 +36,13 @@ const app = new Hono<{
       z.object({
         chatId: z.string().optional(),
         modelId: z.string().optional(),
-        messages: MessageSchema.partial()
+        messages: MessageSchema.merge(
+          z.object({
+            createdAt: z.string().datetime(),
+            updatedAt: z.string().datetime(),
+          }),
+        )
+          .partial()
           .required({
             id: true,
             content: true,
@@ -124,7 +130,11 @@ const app = new Hono<{
           if (message) {
             return await db
               .update(messagesTable)
-              .set(lastMessage)
+              .set({
+                ...lastMessage,
+                createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
+                updatedAt: new Date(),
+              })
               .where(eq(messagesTable.id, message.id))
               .returning()
               .execute();
@@ -133,6 +143,8 @@ const app = new Hono<{
             .insert(messagesTable)
             .values({
               ...lastMessage,
+              createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
+              updatedAt: new Date(),
               chatId: chat.id,
               userId: c.var.user!.id,
             })

@@ -2,7 +2,11 @@ import { lucia } from '@/core/auth';
 import { AuthError } from '@/core/auth/errors';
 import { db } from '@/core/database';
 import { forgottenPasswordCodes, passwords, users } from '@/core/database/schema';
+import { sqs } from '@/core/queues';
+import type { EmailQueueRecord } from '@/functions/queues/subscribers/email/types';
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { eq } from 'drizzle-orm';
+import { Resource } from 'sst';
 import type { z } from 'zod';
 import { forgotPasswordSchema, resetPasswordSchema, signInSchema, signUpSchema } from './schemas';
 import { hashPassword, verifyPassword } from './utils';
@@ -81,7 +85,19 @@ export async function requestPasswordReset(values: z.infer<typeof forgotPassword
     })
     .returning();
 
-  
+  const result = await sqs.send(
+    new SendMessageCommand({
+      QueueUrl: Resource.EmailQueue.url,
+      MessageBody: JSON.stringify({
+        subject: 'Password Reset',
+        to: [user.email],
+        html: `<p>Click <a href="https://${Resource.Domain.value}/reset-password?code=${code.code}">here</a> to reset your password.</p>`,
+      } satisfies EmailQueueRecord),
+    }),
+  );
+  if (result.$metadata.httpStatusCode !== 200) {
+    throw new Error('Failed to queue password reset email');
+  }
 
   return code;
 }

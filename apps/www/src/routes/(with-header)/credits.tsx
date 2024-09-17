@@ -97,8 +97,8 @@ export default function CreditPurchasePage() {
   }));
 
   return (
-    <div class='container flex h-full max-w-3xl flex-1 flex-col overflow-y-auto px-4 py-8'>
-      <div class='flex flex-col items-center gap-2'>
+    <div class='container flex h-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 py-8'>
+      <div class='flex flex-col items-center gap-2 pb-8'>
         <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
           Purchase Credits
         </H1>

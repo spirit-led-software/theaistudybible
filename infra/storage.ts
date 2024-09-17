@@ -3,7 +3,7 @@ import { DOMAIN } from './constants';
 export const bibleBucket = new sst.aws.Bucket('BibleBucket');
 bibleBucket.subscribe(
   {
-    handler: 'apps/functions/src/bucket/subscribers/bible.handler',
+    handler: 'apps/functions/src/buckets/subscribers/bible.handler',
     nodejs: {
       install: ['jsdom'],
     },
@@ -18,6 +18,14 @@ bibleBucket.subscribe(
 export const profileImagesBucket = new sst.aws.Bucket('ProfileImagesBucket', {
   public: true,
 });
+profileImagesBucket.subscribe(
+  {
+    handler: 'apps/functions/src/buckets/subscribers/profile-images.handler',
+  },
+  {
+    events: ['s3:ObjectCreated:*'],
+  },
+);
 
 export const generatedImagesBucket = new sst.aws.Bucket('GeneratedImagesBucket', {
   public: true,

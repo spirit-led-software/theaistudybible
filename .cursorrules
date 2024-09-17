@@ -23,7 +23,6 @@ TypeScript Usage
 Syntax and Formatting
 
 - Use the "function" keyword for pure functions.
-- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
 - Use declarative JSX.
 
 UI and Styling

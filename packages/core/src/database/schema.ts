@@ -47,6 +47,7 @@ export const users = sqliteTable('users', {
   lastName: text('last_name'),
   image: text('image'),
   stripeCustomerId: text('stripe_customer_id'),
+  preferredBibleId: text('preferred_bible_id').references(() => bibles.id),
 });
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -61,6 +62,10 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   userGeneratedImages: many(userGeneratedImages),
   userGeneratedImagesReactions: many(userGeneratedImagesReactions),
   devotionReactions: many(devotionReactions),
+  preferredBible: one(bibles, {
+    fields: [users.preferredBibleId],
+    references: [bibles.id],
+  }),
   chapterBookmarks: many(chapterBookmarks),
   chapterNotes: many(chapterNotes),
   verseHighlights: many(verseHighlights),
@@ -743,6 +748,7 @@ export const bibles = sqliteTable(
 
 export const biblesRelations = relations(bibles, ({ many }) => {
   return {
+    usersWhoPreferred: many(users),
     biblesToLanguages: many(biblesToLanguages),
     biblesToCountries: many(biblesToCountries),
     biblesToRightsHolders: many(biblesToRightsHolders),

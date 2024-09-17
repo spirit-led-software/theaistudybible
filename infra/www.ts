@@ -1,8 +1,15 @@
 import { upstashRedis } from './cache';
 import constants, { DOMAIN, STRIPE_PUBLISHABLE_KEY } from './constants';
 import { database, upstashVectorIndex } from './database';
+import { email, emailQueue } from './email';
 import secrets from './secrets';
-import { bibleBucket, cdn, devotionImagesBucket, generatedImagesBucket } from './storage';
+import {
+  bibleBucket,
+  cdn,
+  devotionImagesBucket,
+  generatedImagesBucket,
+  profileImagesBucket,
+} from './storage';
 
 export const webapp = new sst.aws.SolidStart('WebApp', {
   path: 'apps/www',
@@ -10,6 +17,9 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     ...constants,
     ...secrets,
     bibleBucket,
+    email,
+    emailQueue,
+    profileImagesBucket,
     generatedImagesBucket,
     devotionImagesBucket,
     database,

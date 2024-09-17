@@ -32,15 +32,17 @@ export const useAuth = () => {
   };
 };
 
+export const authProviderQueryOptions = {
+  queryKey: ['auth-context'],
+  queryFn: () => auth(),
+};
+
 export type AuthProviderProps = {
   children: JSX.Element;
 };
 
 export const AuthProvider = (props: AuthProviderProps) => {
-  const query = createQuery(() => ({
-    queryKey: ['auth'],
-    queryFn: () => auth(),
-  }));
+  const query = createQuery(() => authProviderQueryOptions);
 
   return (
     <AuthContext.Provider

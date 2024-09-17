@@ -1,8 +1,15 @@
 import { upstashRedis } from './cache';
 import constants from './constants';
 import { database, upstashVectorIndex } from './database';
+import { email, emailQueue } from './email';
 import secrets from './secrets';
-import { bibleBucket, cdn, devotionImagesBucket, generatedImagesBucket } from './storage';
+import {
+  bibleBucket,
+  cdn,
+  devotionImagesBucket,
+  generatedImagesBucket,
+  profileImagesBucket,
+} from './storage';
 
 /**
  * Define defaults for all SST functions
@@ -15,7 +22,10 @@ $transform(sst.aws.Function, (args) => {
         ...link,
         ...constants,
         ...secrets,
+        email,
+        emailQueue,
         bibleBucket,
+        profileImagesBucket,
         generatedImagesBucket,
         devotionImagesBucket,
         database,

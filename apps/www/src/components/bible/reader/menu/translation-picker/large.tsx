@@ -1,11 +1,11 @@
 import { db } from '@/core/database';
+import type { BibleLanguage } from '@/schemas';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';
 import { H2, P } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import ISO6391 from 'iso-639-1';
 import { Search } from 'lucide-solid';
 import { createMemo, createSignal } from 'solid-js';
 
@@ -45,11 +45,11 @@ export default function LargeTranslationPicker() {
 
   const uniqueLanguages = createMemo(() =>
     filteredBibles().reduce((acc, bible) => {
-      if (!acc.some((languageISO) => languageISO === bible.biblesToLanguages[0].language.iso)) {
-        acc.push(bible.biblesToLanguages[0].language.iso);
+      if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
+        acc.push(bible.biblesToLanguages[0].language);
       }
       return acc;
-    }, [] as string[]),
+    }, [] as BibleLanguage[]),
   );
 
   return (
@@ -76,10 +76,10 @@ export default function LargeTranslationPicker() {
             <div class='mt-2 flex w-full flex-col space-y-4'>
               {uniqueLanguages().map((language) => (
                 <div class='flex w-full flex-col space-y-2'>
-                  <div class='font-bold text-lg'>{ISO6391.getName(language)}</div>
+                  <div class='font-bold text-lg'>{language.nameLocal}</div>
                   <div class='flex w-full flex-col space-y-2'>
                     {bibles
-                      .filter((bible) => bible.biblesToLanguages[0].language.iso === language)
+                      .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
                       .filter(
                         (bible) =>
                           bible.nameLocal.toLowerCase().includes(search().toLowerCase()) ||

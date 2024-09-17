@@ -1,6 +1,6 @@
 import { Constant } from './resources';
 
-const BASE_DOMAIN = 'theaistudybible.com';
+export const BASE_DOMAIN = 'theaistudybible.com';
 
 export const DEV = new Constant('Dev', $dev.toString());
 

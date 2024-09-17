@@ -12,6 +12,7 @@ export default $config({
     };
   },
   run: async () => {
+    await import('./infra/email');
     await import('./infra/defaults');
     await import('./infra/constants');
     await import('./infra/secrets');

@@ -1,8 +1,9 @@
 import { signIn } from '@/core/auth/providers/credentials';
 import { signInSchema } from '@/core/auth/providers/credentials/schemas';
+import { authProviderQueryOptions } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { A, useNavigate } from '@solidjs/router';
-import { createMutation } from '@tanstack/solid-query';
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Show, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
@@ -28,6 +29,7 @@ async function handleSignIn(values: z.infer<typeof signInSchema>) {
 
 export const SignIn = (props: SignInProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof signInSchema>>({
     validate: zodForm(signInSchema),
@@ -36,6 +38,9 @@ export const SignIn = (props: SignInProps) => {
   const onSubmit = createMutation(() => ({
     mutationFn: (values: z.infer<typeof signInSchema>) => handleSignIn(values),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: authProviderQueryOptions.queryKey,
+      });
       navigate(props.redirectUrl ?? '/');
     },
     onError: (error) => {
