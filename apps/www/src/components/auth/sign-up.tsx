@@ -5,7 +5,7 @@ import { createForm, zodForm } from '@modular-forms/solid';
 import { A, useNavigate } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
-import { Match, Show, Switch } from 'solid-js';
+import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { getRequestEvent } from 'solid-js/web';
 import { toast } from 'solid-sonner';
@@ -70,31 +70,42 @@ export const SignUp = (props: SignUpProps) => {
           </div>
           <Field name='email'>
             {(field, props) => (
-              <TextField validationState={field.error ? 'invalid' : 'valid'} class='w-full'>
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
                 <TextFieldLabel class='text-sm sm:text-base'>Email</TextFieldLabel>
-                <TextFieldInput type='email' {...props} class='w-full p-2 text-sm sm:text-base' />
-                <Show when={field.error} keyed>
-                  {(error) => (
-                    <TextFieldErrorMessage class='text-xs sm:text-sm'>
-                      {error}
-                    </TextFieldErrorMessage>
-                  )}
-                </Show>
+                <TextFieldInput
+                  {...props}
+                  type='email'
+                  autocomplete='email'
+                  class='w-full p-2 text-sm sm:text-base'
+                />
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
           <Field name='password'>
             {(field, props) => (
-              <TextField validationState={field.error ? 'invalid' : 'valid'} class='w-full'>
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
                 <TextFieldLabel class='text-sm sm:text-base'>Password</TextFieldLabel>
                 <div class='relative'>
                   <TextFieldInput
-                    type={showPassword() ? 'text' : 'password'}
                     {...props}
+                    type={showPassword() ? 'text' : 'password'}
+                    autocomplete='new-password'
                     class='w-full p-2 pr-10 text-sm sm:text-base'
                   />
                   <button
                     type='button'
+                    tabindex={-1}
                     class='absolute inset-y-0 right-0 flex items-center pr-3'
                     onClick={() => setShowPassword(!showPassword())}
                   >
@@ -108,28 +119,30 @@ export const SignUp = (props: SignUpProps) => {
                     </Switch>
                   </button>
                 </div>
-                <Show when={field.error} keyed>
-                  {(error) => (
-                    <TextFieldErrorMessage class='text-xs sm:text-sm'>
-                      {error}
-                    </TextFieldErrorMessage>
-                  )}
-                </Show>
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
           <Field name='confirmPassword'>
             {(field, props) => (
-              <TextField validationState={field.error ? 'invalid' : 'valid'} class='w-full'>
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
                 <TextFieldLabel class='text-sm sm:text-base'>Confirm Password</TextFieldLabel>
                 <div class='relative'>
                   <TextFieldInput
-                    type={showConfirmPassword() ? 'text' : 'password'}
                     {...props}
+                    type={showConfirmPassword() ? 'text' : 'password'}
+                    autocomplete='new-password'
                     class='w-full p-2 pr-10 text-sm sm:text-base'
                   />
                   <button
                     type='button'
+                    tabindex={-1}
                     class='absolute inset-y-0 right-0 flex items-center pr-3'
                     onClick={() => setShowConfirmPassword(!showConfirmPassword())}
                   >
@@ -143,13 +156,9 @@ export const SignUp = (props: SignUpProps) => {
                     </Switch>
                   </button>
                 </div>
-                <Show when={field.error} keyed>
-                  {(error) => (
-                    <TextFieldErrorMessage class='text-xs sm:text-sm'>
-                      {error}
-                    </TextFieldErrorMessage>
-                  )}
-                </Show>
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
               </TextField>
             )}
           </Field>

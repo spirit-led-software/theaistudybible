@@ -12,7 +12,6 @@ export default defineConfig({
     plugins: [
       tsconfigPaths(),
       VitePWA({
-        base: '/',
         includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
         manifest: {
           name: 'The AI Study Bible',
@@ -43,6 +42,7 @@ export default defineConfig({
               purpose: 'maskable',
             },
           ],
+          start_url: '/',
         },
       }),
     ],

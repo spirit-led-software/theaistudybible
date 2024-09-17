@@ -4,7 +4,7 @@ import { createForm, zodForm } from '@modular-forms/solid';
 import { A } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
-import { Match, Show, Switch } from 'solid-js';
+import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
@@ -58,12 +58,17 @@ export function ResetPassword(props: ResetPasswordProps) {
         <CardContent class='space-y-4 px-4 sm:px-6'>
           <Field name='password'>
             {(field, props) => (
-              <TextField validationState={field.error ? 'invalid' : 'valid'} class='w-full'>
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
                 <TextFieldLabel class='text-sm sm:text-base'>New Password</TextFieldLabel>
                 <div class='relative'>
                   <TextFieldInput
-                    type={showPassword() ? 'text' : 'password'}
                     {...props}
+                    type={showPassword() ? 'text' : 'password'}
+                    autocomplete='new-password'
                     class='w-full p-2 pr-10 text-sm sm:text-base'
                   />
                   <button
@@ -81,24 +86,25 @@ export function ResetPassword(props: ResetPasswordProps) {
                     </Switch>
                   </button>
                 </div>
-                <Show when={field.error} keyed>
-                  {(error) => (
-                    <TextFieldErrorMessage class='text-xs sm:text-sm'>
-                      {error}
-                    </TextFieldErrorMessage>
-                  )}
-                </Show>
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
           <Field name='confirmPassword'>
             {(field, props) => (
-              <TextField validationState={field.error ? 'invalid' : 'valid'} class='w-full'>
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
                 <TextFieldLabel class='text-sm sm:text-base'>Confirm New Password</TextFieldLabel>
                 <div class='relative'>
                   <TextFieldInput
-                    type={showConfirmPassword() ? 'text' : 'password'}
                     {...props}
+                    type={showConfirmPassword() ? 'text' : 'password'}
+                    autocomplete='new-password'
                     class='w-full p-2 pr-10 text-sm sm:text-base'
                   />
                   <button
@@ -116,13 +122,9 @@ export function ResetPassword(props: ResetPasswordProps) {
                     </Switch>
                   </button>
                 </div>
-                <Show when={field.error} keyed>
-                  {(error) => (
-                    <TextFieldErrorMessage class='text-xs sm:text-sm'>
-                      {error}
-                    </TextFieldErrorMessage>
-                  )}
-                </Show>
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
               </TextField>
             )}
           </Field>

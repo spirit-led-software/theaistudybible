@@ -3,7 +3,6 @@ import { forgotPasswordSchema } from '@/core/auth/providers/credentials/schemas'
 import { createForm, zodForm } from '@modular-forms/solid';
 import { A } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
-import { Show } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
 import Logo from '../branding/logo';
@@ -55,16 +54,21 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
           </div>
           <Field name='email'>
             {(field, props) => (
-              <TextField validationState={field.error ? 'invalid' : 'valid'} class='w-full'>
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
                 <TextFieldLabel class='text-sm sm:text-base'>Email</TextFieldLabel>
-                <TextFieldInput type='email' {...props} class='w-full p-2 text-sm sm:text-base' />
-                <Show when={field.error} keyed>
-                  {(error) => (
-                    <TextFieldErrorMessage class='text-xs sm:text-sm'>
-                      {error}
-                    </TextFieldErrorMessage>
-                  )}
-                </Show>
+                <TextFieldInput
+                  {...props}
+                  type='email'
+                  autocomplete='email'
+                  class='w-full p-2 text-sm sm:text-base'
+                />
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
