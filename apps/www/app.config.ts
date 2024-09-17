@@ -6,6 +6,7 @@ export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'aws-lambda-streaming',
+    compatibilityDate: '2024-09-17',
   },
   vite: () => ({
     envPrefix: 'PUBLIC_',
