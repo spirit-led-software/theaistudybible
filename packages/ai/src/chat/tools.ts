@@ -340,7 +340,7 @@ export const generateImageTool = (props: {
         }
 
         const id = createId();
-        const key = `generated-images/${id}.png`;
+        const key = `${id}.png`;
         const image = Buffer.from(await getImageResponse.arrayBuffer());
         const putObjectResult = await s3.send(
           new PutObjectCommand({

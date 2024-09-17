@@ -16,7 +16,7 @@ bibleBucket.subscribe(
 );
 
 export const profileImagesBucket = new sst.aws.Bucket('ProfileImagesBucket', {
-  public: true,
+  access: 'cloudfront',
 });
 profileImagesBucket.subscribe(
   {
@@ -28,18 +28,36 @@ profileImagesBucket.subscribe(
 );
 
 export const generatedImagesBucket = new sst.aws.Bucket('GeneratedImagesBucket', {
-  public: true,
+  access: 'cloudfront',
 });
 
 export const devotionImagesBucket = new sst.aws.Bucket('DevotionImagesBucket', {
-  public: true,
+  access: 'cloudfront',
 });
 
 export const cdn = new sst.aws.Router('Cdn', {
   routes: {
-    '/profile-images/*': $interpolate`https://${profileImagesBucket.nodes.bucket.bucketDomainName}`,
-    '/generated-images/*': $interpolate`https://${generatedImagesBucket.nodes.bucket.bucketDomainName}`,
-    '/devotion-images/*': $interpolate`https://${devotionImagesBucket.nodes.bucket.bucketDomainName}`,
+    '/profile-images/*': {
+      bucket: profileImagesBucket,
+      rewrite: {
+        regex: '^/profile-images/(.*)$',
+        to: '/$1',
+      },
+    },
+    '/generated-images/*': {
+      bucket: generatedImagesBucket,
+      rewrite: {
+        regex: '^/generated-images/(.*)$',
+        to: '/$1',
+      },
+    },
+    '/devotion-images/*': {
+      bucket: devotionImagesBucket,
+      rewrite: {
+        regex: '^/devotion-images/(.*)$',
+        to: '/$1',
+      },
+    },
   },
   domain: {
     name: `cdn.${DOMAIN.properties.value}`,

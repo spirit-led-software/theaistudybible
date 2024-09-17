@@ -1,11 +1,11 @@
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import {} from '@/schemas';
-import { authProviderQueryOptions } from '@/www/contexts/auth';
+import { useAuth } from '@/www/contexts/auth';
 import { auth } from '@/www/server/auth';
 import {} from '@modular-forms/solid';
 import { useNavigate } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -32,7 +32,7 @@ async function deleteUser() {
 
 export const DeleteProfileDialog = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
   const [open, setOpen] = createSignal(false);
@@ -44,7 +44,7 @@ export const DeleteProfileDialog = () => {
     },
     onSuccess: () => {
       navigate('/');
-      queryClient.invalidateQueries({ queryKey: authProviderQueryOptions.queryKey });
+      invalidate();
       toast.dismiss(toastId());
       toast.success('Profile deleted');
       setOpen(false);

@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { type UpdateUser, UpdateUserSchema } from '@/schemas';
-import { authProviderQueryOptions, useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/contexts/auth';
 import { auth } from '@/www/server/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -31,7 +31,7 @@ async function updateUser(values: UpdateUser) {
 
 export const EditProfileDialog = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
   const [open, setOpen] = createSignal(false);
@@ -51,7 +51,7 @@ export const EditProfileDialog = () => {
       setToastId(toast.loading('Updating profile...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: authProviderQueryOptions.queryKey });
+      invalidate();
       toast.dismiss(toastId());
       toast.success('Profile updated');
       setOpen(false);

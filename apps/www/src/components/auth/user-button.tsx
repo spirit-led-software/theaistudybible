@@ -43,6 +43,16 @@ export const UserButton = (props: UserButtonProps) => {
     <Show when={isLoaded() && isSignedIn()}>
       <Popover>
         <PopoverTrigger as={Button} variant='ghost' size='icon'>
+          <Show when={props.showName && (user()?.firstName || user()?.lastName)}>
+            <div class='flex flex-wrap items-center gap-2'>
+              <Show when={user()?.firstName} keyed>
+                {(firstName) => <span>{firstName}</span>}
+              </Show>
+              <Show when={user()?.lastName} keyed>
+                {(lastName) => <span>{lastName}</span>}
+              </Show>
+            </div>
+          </Show>
           <Avatar>
             <AvatarImage src={user()?.image || undefined} />
             <AvatarFallback>

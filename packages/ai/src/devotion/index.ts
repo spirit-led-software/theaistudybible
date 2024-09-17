@@ -200,8 +200,8 @@ export const generateImage = async ({
     throw new Error('Could not download generated image. Please try again later.');
   }
 
-  const id = `devo_${createId()}`;
-  const key = `devotion-images/${id}.png`;
+  const id = createId();
+  const key = `${id}.png`;
   const image = Buffer.from(await getImageResponse.arrayBuffer());
   const putObjectResult = await s3.send(
     new PutObjectCommand({

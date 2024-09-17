@@ -1,5 +1,5 @@
 import type { Role } from '@/schemas/roles';
-import { createQuery } from '@tanstack/solid-query';
+import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
 import { type Accessor, type JSX, createContext, useContext } from 'solid-js';
 import { auth } from '../server/auth';
@@ -17,10 +17,13 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const useAuth = () => {
+  const queryClient = useQueryClient();
+
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return {
     isLoaded: () =>
       context.session() !== undefined &&
@@ -28,6 +31,9 @@ export const useAuth = () => {
       context.roles() !== undefined,
     isSignedIn: () => context.session() !== null && context.user() !== null,
     isAdmin: () => context.roles()?.some((role) => role.id === 'admin'),
+    invalidate: () =>
+      queryClient.invalidateQueries({ queryKey: authProviderQueryOptions.queryKey }),
+    refetch: () => queryClient.refetchQueries({ queryKey: authProviderQueryOptions.queryKey }),
     ...context,
   };
 };

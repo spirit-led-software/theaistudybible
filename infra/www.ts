@@ -16,9 +16,9 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
   link: [
     ...constants,
     ...secrets,
-    bibleBucket,
     email,
     emailQueue,
+    bibleBucket,
     profileImagesBucket,
     generatedImagesBucket,
     devotionImagesBucket,

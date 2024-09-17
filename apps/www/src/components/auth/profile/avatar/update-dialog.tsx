@@ -9,25 +9,24 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { useAuth } from '@/www/contexts/auth';
-import { authProviderQueryOptions } from '@/www/contexts/auth';
 import { auth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { createMutation } from '@tanstack/solid-query';
 import { Pencil } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../ui/avatar';
 
-async function requestUpload(props: { contentType: string; size: number }) {
+async function requestUpload(props: { name: string; contentType: string; size: number }) {
   'use server';
   const { user } = auth();
   if (!user) {
     throw new Error('Unauthorized');
   }
 
-  const key = `profile-images/${user.id}/${createId()}`;
+  const key = `${user.id}/${createId()}_${props.name}`;
   const presignedUrl = await getSignedUrl(
     s3,
     new PutObjectCommand({
@@ -46,8 +45,7 @@ async function requestUpload(props: { contentType: string; size: number }) {
 }
 
 export function UpdateAvatarDialog() {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
   const [open, setOpen] = createSignal(false);
@@ -57,6 +55,7 @@ export function UpdateAvatarDialog() {
   const handleUpdateAvatar = createMutation(() => ({
     mutationFn: async (file: File) => {
       const { presignedUrl } = await requestUpload({
+        name: file.name,
         contentType: file.type,
         size: file.size,
       });
@@ -72,7 +71,7 @@ export function UpdateAvatarDialog() {
       setToastId(toast.loading('Updating avatar...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: authProviderQueryOptions.queryKey });
+      invalidate();
       toast.dismiss(toastId());
       toast.success('Avatar updated successfully');
       setOpen(false);
