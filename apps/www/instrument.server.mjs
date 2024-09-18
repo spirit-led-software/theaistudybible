@@ -1,6 +1,4 @@
 // @ts-check
-/// <reference types="../../sst-env.d.ts" />
-
 import * as Sentry from '@sentry/solidstart';
 
 Sentry.init({
