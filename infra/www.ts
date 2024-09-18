@@ -32,7 +32,10 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     PUBLIC_CDN_URL: cdn.url,
     PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.properties.value,
     PUBLIC_STAGE: $app.stage,
-    NODE_OPTIONS: '--import @sentry/node/preload --import ./sentry.server.mjs',
+    NODE_OPTIONS: '--import ./sentry.server.mjs',
+  },
+  server: {
+    install: ['@sentry/solidstart'],
   },
   domain: {
     name: DOMAIN.properties.value,
@@ -41,9 +44,6 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
   },
   transform: {
     server: {
-      nodejs: {
-        install: ['@sentry/solidstart'],
-      },
       copyFiles: [
         {
           from: 'apps/www/sentry.server.mjs',

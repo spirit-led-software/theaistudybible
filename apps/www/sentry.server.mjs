@@ -7,6 +7,6 @@ Sentry.init({
   environment: process.env.PUBLIC_STAGE,
   debug: process.env.PUBLIC_STAGE !== 'production',
   registerEsmLoaderHooks: {
-    exclude: ['drizzle-orm'],
+    onlyIncludeInstrumentedModules: true,
   },
 });

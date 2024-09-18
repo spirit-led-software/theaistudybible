@@ -54,11 +54,11 @@
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
     "lucia": "^3.2.0",
-    "sst": "3.1.17",
-    "stripe": "^16.11.0",
+    "sst": "3.1.18",
+    "stripe": "^16.12.0",
     "zod": "^3.23.8"
   },
-  "packageManager": "bun@1.1.26",
+  "packageManager": "bun@1.1.27",
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "overrides": {
     "nitropack": "npm:nitropack-nightly@latest"
