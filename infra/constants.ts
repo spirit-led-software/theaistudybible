@@ -18,4 +18,7 @@ export const STRIPE_PUBLISHABLE_KEY = new Constant(
     : 'pk_test_51PxV2IGnwuYH30oD52AJgMZKmfA5qA63XUtEzELia4z7rvxidEqQa7yDy0qNsB4B3j5wMUJExN4LvB10sEwBi9V000nFzrntmv',
 );
 
-export default [STAGE, DEV, DOMAIN, STRIPE_PUBLISHABLE_KEY];
+export const SENTRY_ORG = new Constant('SentryOrg', 'the-ai-study-bible');
+export const SENTRY_PROJECT = new Constant('SentryProject', 'javascript-solidstart');
+
+export default [STAGE, DEV, DOMAIN, STRIPE_PUBLISHABLE_KEY, SENTRY_ORG, SENTRY_PROJECT];

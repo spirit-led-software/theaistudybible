@@ -6,7 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean",
-    "clean-install": "rimraf --glob '**/node_modules' bun.lockb && bun pm cache rm && bun install",
+    "clean-install": "rimraf bun.lockb --glob '**/node_modules' && bun install --no-cache",
     "db:generate": "sst shell -- drizzle-kit generate",
     "db:migrate": "sst shell -- drizzle-kit migrate",
     "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",
@@ -49,12 +49,12 @@
     "@libsql/client": "^0.12.0",
     "@upstash/ratelimit": "^2.0.3",
     "@upstash/redis": "^1.34.0",
-    "ai": "^3.3.40",
+    "ai": "^3.3.41",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
     "lucia": "^3.2.0",
-    "sst": "3.1.13",
+    "sst": "3.1.17",
     "stripe": "^16.11.0",
     "zod": "^3.23.8"
   },
@@ -63,5 +63,5 @@
   "overrides": {
     "nitropack": "npm:nitropack-nightly@latest"
   },
-  "trustedDependencies": ["@biomejs/biome", "esbuild", "sharp"]
+  "trustedDependencies": ["@biomejs/biome", "@sentry/cli", "esbuild", "sharp"]
 }

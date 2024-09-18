@@ -31,11 +31,22 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.properties.value}`,
     PUBLIC_CDN_URL: cdn.url,
     PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.properties.value,
+    PUBLIC_STAGE: $app.stage,
+    ...($dev ? {} : { NODE_OPTIONS: '--import ./instrument.server.mjs' }),
   },
-  warm: $app.stage === 'production' ? 2 : 0,
   domain: {
     name: DOMAIN.properties.value,
     redirects: [`www.${DOMAIN.properties.value}`],
     dns: sst.cloudflare.dns(),
+  },
+  transform: {
+    server: {
+      copyFiles: [
+        {
+          from: 'apps/www/instrument.server.mjs',
+          to: './instrument.server.mjs',
+        },
+      ],
+    },
   },
 });

@@ -1,4 +1,5 @@
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
+import { withSentryRouterRouting } from '@sentry/solidstart/solidrouter';
 import { MultiProvider } from '@solid-primitives/context';
 import { MetaProvider } from '@solidjs/meta';
 import { A, Router } from '@solidjs/router';
@@ -19,6 +20,8 @@ import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
 
+const SentryRouter = withSentryRouterRouting(Router);
+
 export function getServerCookies() {
   'use server';
   const colorMode = getCookie('kb-color-mode');
@@ -38,7 +41,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router
+      <SentryRouter
         root={(props) => (
           <MetaProvider>
             <AuthProvider>
@@ -70,7 +73,7 @@ export default function App() {
         )}
       >
         <FileRoutes />
-      </Router>
+      </SentryRouter>
     </QueryClientProvider>
   );
 }

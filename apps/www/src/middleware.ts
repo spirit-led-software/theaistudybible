@@ -1,5 +1,6 @@
 import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
+import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
 import { verifyRequestOrigin } from 'lucia';
 import { getCookie, getHeader, setCookie } from 'vinxi/http';
@@ -37,9 +38,7 @@ export default createMiddleware({
       const roles = await db.query.usersToRoles
         .findMany({
           where: (usersToRoles, { eq }) => eq(usersToRoles.userId, user!.id),
-          with: {
-            role: true,
-          },
+          with: { role: true },
         })
         .then((roles) => roles.map((role) => role.role));
 
@@ -48,4 +47,5 @@ export default createMiddleware({
       locals.roles = roles;
     },
   ],
+  onBeforeResponse: [sentryBeforeResponseMiddleware()],
 });

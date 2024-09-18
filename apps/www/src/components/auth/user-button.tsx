@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 async function signOut() {
   'use server';
   const event = getRequestEvent()!;
-  const sessionCookie = await lucia.createBlankSessionCookie();
+  const sessionCookie = lucia.createBlankSessionCookie();
   setCookie(event.nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 }
 
