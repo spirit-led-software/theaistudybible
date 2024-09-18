@@ -16,10 +16,6 @@ import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
 import { For } from 'solid-js';
 
-export type ChapterPickerProps = {
-  book: Book;
-};
-
 type GetChapterPickerDataProps = {
   bibleAbbr: string;
   bookAbbr: string;
@@ -27,37 +23,49 @@ type GetChapterPickerDataProps = {
 
 async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDataProps) {
   'use server';
-  const bibleBookChapters = await db.query.bibles.findFirst({
+  const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    columns: { id: true },
     with: {
       books: {
         limit: 1,
         where: (books, { eq }) => eq(books.abbreviation, bookAbbr),
+        columns: { abbreviation: true },
         with: {
           chapters: {
             orderBy: (chapters, { asc }) => asc(chapters.number),
-            columns: {
-              content: false,
-            },
+            columns: { id: true, number: true },
           },
         },
       },
     },
   });
 
-  const book = bibleBookChapters?.books[0];
-
-  if (!book) {
-    throw new Error('Insufficient data');
+  if (!bibleData) {
+    throw new Error('Bible not found');
   }
 
-  return book;
+  const { books, ...bible } = bibleData;
+  if (!books.at(0)) {
+    throw new Error('Book not found');
+  }
+
+  const { chapters, ...book } = books[0];
+
+  return {
+    book,
+    chapters,
+  };
 }
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
   queryFn: () => getChapterPickerData(props),
 });
+
+export type ChapterPickerProps = {
+  book: Pick<Book, 'abbreviation' | 'shortName'>;
+};
 
 export default function ChapterPicker(props: ChapterPickerProps) {
   const [brStore] = useBibleReaderStore();
@@ -87,8 +95,8 @@ export default function ChapterPicker(props: ChapterPickerProps) {
               }
               query={query}
             >
-              {(book) => (
-                <For each={book.chapters}>
+              {({ book, chapters }) => (
+                <For each={chapters}>
                   {(foundChapter, idx) => (
                     <Button
                       data-index={idx()}

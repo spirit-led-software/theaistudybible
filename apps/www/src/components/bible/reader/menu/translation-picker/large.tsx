@@ -12,13 +12,7 @@ import { createMemo, createSignal } from 'solid-js';
 async function getBibles() {
   'use server';
   return await db.query.bibles.findMany({
-    with: {
-      biblesToLanguages: {
-        with: {
-          language: true,
-        },
-      },
-    },
+    with: { biblesToLanguages: { with: { language: true } } },
   });
 }
 

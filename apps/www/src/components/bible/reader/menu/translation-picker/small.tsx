@@ -29,9 +29,10 @@ export const smallTranslationPickerQueryOptions = () => ({
 });
 
 export default function SmallTranslationPicker() {
-  const [brStore] = useBibleReaderStore();
-  const query = createQuery(() => smallTranslationPickerQueryOptions());
   const navigate = useNavigate();
+  const [brStore] = useBibleReaderStore();
+
+  const query = createQuery(() => smallTranslationPickerQueryOptions());
 
   const uniqueLanguages = query.data?.reduce((acc, bible) => {
     if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {

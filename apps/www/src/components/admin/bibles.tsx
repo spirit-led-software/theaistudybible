@@ -44,7 +44,7 @@ async function requestUpload({
     metadata['publication-id'] = publicationId;
   }
 
-  return await getSignedUrl(
+  const presignedUrl = await getSignedUrl(
     s3,
     new PutObjectCommand({
       Bucket: Resource.BibleBucket.name,
@@ -55,6 +55,8 @@ async function requestUpload({
     }),
     { expiresIn: 60 * 60 * 24 },
   );
+
+  return { presignedUrl };
 }
 
 export const BiblesContent = () => {
@@ -95,14 +97,14 @@ export const BiblesContent = () => {
   const handleSubmit = async () => {
     const file = files()?.[0];
     if (file) {
-      const url = await requestUploadMutation.mutateAsync({
+      const { presignedUrl } = await requestUploadMutation.mutateAsync({
         name: file.name,
         size: file.size,
         publicationId: publicationId(),
         generateEmbeddings: generateEmbeddings(),
       });
       uploadFileMutation.mutate({
-        url,
+        url: presignedUrl,
         file,
       });
     } else {

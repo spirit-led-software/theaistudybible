@@ -1,10 +1,9 @@
 import { db } from '@/core/database';
-import { books, chapters } from '@/core/database/schema';
+import {} from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { asc } from 'drizzle-orm';
 
 export type BibleRedirectUrlParams = {
   bibleAbbr: string;
@@ -20,30 +19,41 @@ export const route: RouteDefinition = {
 
 const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
   'use server';
-  const bible = await db.query.bibles.findFirst({
+  const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    columns: { abbreviation: true },
     with: {
       books: {
         limit: 1,
-        orderBy: asc(books.number),
+        orderBy: (books, { asc }) => asc(books.number),
+        columns: { abbreviation: true },
         with: {
           chapters: {
             limit: 1,
-            orderBy: asc(chapters.number),
+            orderBy: (chapters, { asc }) => asc(chapters.number),
+            columns: { number: true },
           },
         },
       },
     },
   });
-
-  const book = bible?.books[0];
-  const chapter = book?.chapters[0];
-
-  if (!bible || !book || !chapter) {
-    throw new Error('Insufficient data');
+  if (!bibleData) {
+    throw new Error('Bible not found');
   }
 
-  return `/bible/${bibleAbbr}/${book.abbreviation}/${chapter.number}`;
+  const { books, ...bible } = bibleData;
+  if (!books.at(0)) {
+    throw new Error('Book not found');
+  }
+
+  const { chapters, ...book } = books[0];
+  if (!chapters.at(0)) {
+    throw new Error('Chapter not found');
+  }
+
+  const chapter = chapters[0];
+
+  return `/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}`;
 };
 
 const getBibleRedirectUrlQueryOptions = ({ bibleAbbr }: BibleRedirectUrlParams) => ({

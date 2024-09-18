@@ -28,9 +28,7 @@ async function getHighlights(chapterId: string) {
   return await db.query.chapters
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
-      columns: {
-        id: true,
-      },
+      columns: { id: true },
       with: {
         verses: {
           columns: { id: true },
@@ -53,9 +51,7 @@ async function getNotes(chapterId: string) {
   return await db.query.chapters
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
-      columns: {
-        id: true,
-      },
+      columns: { id: true },
       with: {
         verses: {
           columns: { id: true },

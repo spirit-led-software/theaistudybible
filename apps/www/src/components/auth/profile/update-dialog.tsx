@@ -4,7 +4,7 @@ import { type UpdateUser, UpdateUserSchema } from '@/schemas';
 import { useAuth } from '@/www/contexts/auth';
 import { auth } from '@/www/server/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -30,7 +30,6 @@ async function updateUser(values: UpdateUser) {
 }
 
 export const EditProfileDialog = () => {
-  const queryClient = useQueryClient();
   const { user, invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();

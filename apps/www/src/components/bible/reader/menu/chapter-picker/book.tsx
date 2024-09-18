@@ -16,12 +16,13 @@ async function getBookPickerData(bibleId: string) {
     with: {
       books: {
         orderBy: (books, { asc }) => asc(books.number),
+        columns: { abbreviation: true, shortName: true },
       },
     },
   });
 
   if (!bibleBooks) {
-    throw new Error('Insufficient data');
+    throw new Error('Bible not found');
   }
 
   return bibleBooks.books;
