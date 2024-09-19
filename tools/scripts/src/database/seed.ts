@@ -1,6 +1,7 @@
 import { hashPassword } from '@/core/auth/providers/credentials/utils';
 import { db } from '@/core/database';
 import { passwords, roles, userCredits, users, usersToRoles } from '@/core/database/schema';
+import { sql } from 'drizzle-orm';
 import { Resource } from 'sst';
 
 async function createInitialAdminUser() {
@@ -13,9 +14,9 @@ async function createInitialAdminUser() {
       firstName: 'Administrator',
     })
     .onConflictDoUpdate({
-      target: [users.email],
+      target: users.email,
       set: {
-        firstName: 'Administrator',
+        firstName: sql`excluded.first_name`,
       },
     })
     .returning();
@@ -28,9 +29,9 @@ async function createInitialAdminUser() {
       hash: pwHash,
     })
     .onConflictDoUpdate({
-      target: [passwords.userId],
+      target: passwords.userId,
       set: {
-        hash: pwHash,
+        hash: sql`excluded.hash`,
       },
     });
 
@@ -50,9 +51,9 @@ async function createInitialAdminUser() {
       balance: Number.MAX_SAFE_INTEGER,
     })
     .onConflictDoUpdate({
-      target: [userCredits.userId],
+      target: userCredits.userId,
       set: {
-        balance: Number.MAX_SAFE_INTEGER,
+        balance: sql`excluded.balance`,
       },
     });
 
@@ -70,9 +71,9 @@ async function createInitialRoles() {
       name: 'Administrators',
     })
     .onConflictDoUpdate({
-      target: [roles.id],
+      target: roles.id,
       set: {
-        name: 'Administrators',
+        name: sql`excluded.name`,
       },
     });
   console.log('Admin role created');
@@ -85,9 +86,9 @@ async function createInitialRoles() {
       name: 'Users',
     })
     .onConflictDoUpdate({
-      target: [roles.id],
+      target: roles.id,
       set: {
-        name: 'Users',
+        name: sql`excluded.name`,
       },
     })
     .returning();
