@@ -1,5 +1,4 @@
 import { db } from '@/core/database';
-import {} from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import type { RouteDefinition } from '@solidjs/router';

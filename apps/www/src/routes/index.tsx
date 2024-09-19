@@ -2,7 +2,6 @@ import { Button } from '@/www/components/ui/button';
 import { GradientH1, H2, H3, P } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
 import { BookOpen, MessageCircle, Search } from 'lucide-solid';
-import {} from '../components/auth/control';
 import Logo from '../components/branding/logo';
 import LogoSmall from '../components/branding/logo-small';
 

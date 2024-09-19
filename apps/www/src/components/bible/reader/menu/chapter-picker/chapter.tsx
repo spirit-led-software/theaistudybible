@@ -53,6 +53,7 @@ async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDat
   const { chapters, ...book } = books[0];
 
   return {
+    bible,
     book,
     chapters,
   };

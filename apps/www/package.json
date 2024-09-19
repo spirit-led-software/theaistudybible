@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@ai-sdk/solid": "^0.0.47",
-    "@ark-ui/solid": "^3.12.0",
+    "@ark-ui/solid": "^3.12.1",
     "@aws-sdk/client-s3": "^3.654.0",
     "@aws-sdk/s3-request-presigner": "^3.654.0",
     "@corvu/drawer": "^0.2.2",

@@ -35,6 +35,7 @@
       "correctness": {
         "useJsxKeyInIterable": "off",
         "noUnusedImports": "error",
+        "noUnusedVariables": "error",
         "noUnusedFunctionParameters": "error",
         "noUnknownFunction": "warn"
       },

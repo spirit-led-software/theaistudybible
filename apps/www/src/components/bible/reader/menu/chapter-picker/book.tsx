@@ -11,7 +11,7 @@ import ChapterPicker from './chapter';
 
 async function getBookPickerData(bibleId: string) {
   'use server';
-  const bibleBooks = await db.query.bibles.findFirst({
+  const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { or, eq }) => or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
     with: {
       books: {
@@ -20,12 +20,16 @@ async function getBookPickerData(bibleId: string) {
       },
     },
   });
-
-  if (!bibleBooks) {
+  if (!bibleData) {
     throw new Error('Bible not found');
   }
 
-  return bibleBooks.books;
+  const { books, ...bible } = bibleData;
+
+  return {
+    bible,
+    books,
+  };
 }
 
 export const bookPickerQueryOptions = (bibleId: string) => ({
@@ -52,7 +56,7 @@ export default function BookPicker() {
         <Command>
           <CommandInput placeholder='Search books...' />
           <QueryBoundary query={query}>
-            {(books) => (
+            {({ books }) => (
               <CommandList>
                 <CommandEmpty>Not Found</CommandEmpty>
                 <For each={books}>{(book) => <ChapterPicker book={book} />}</For>
