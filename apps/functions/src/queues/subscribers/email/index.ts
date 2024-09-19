@@ -38,6 +38,7 @@ export const handler: SQSHandler = async (event) => {
         });
       }
     } catch (error) {
+      console.error('Error sending email:', error);
       batchItemFailures.push({ itemIdentifier: r.messageId });
     }
   }
