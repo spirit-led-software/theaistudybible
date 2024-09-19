@@ -1,5 +1,10 @@
 import { DevotionsContent } from '@/www/components/admin/devotions';
+import { AdminLayout } from '@/www/layouts/admin';
 
 export default function DevotionsPage() {
-  return <DevotionsContent />;
+  return (
+    <AdminLayout>
+      <DevotionsContent />
+    </AdminLayout>
+  );
 }

@@ -1,5 +1,6 @@
 import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
+import { WithHeaderLayout } from '@/www/layouts/with-header';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -69,5 +70,9 @@ export default function BookPage() {
     }),
   );
 
-  return <QueryBoundary query={query}>{(link) => <Navigate href={link} />}</QueryBoundary>;
+  return (
+    <WithHeaderLayout>
+      <QueryBoundary query={query}>{(link) => <Navigate href={link} />}</QueryBoundary>
+    </WithHeaderLayout>
+  );
 }

@@ -6,9 +6,10 @@ import { Show } from 'solid-js';
 import { getRequestEvent } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { setCookie } from 'vinxi/http';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import {} from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { UserAvatar } from './user-avatar';
 
 async function signOut() {
   'use server';
@@ -42,7 +43,12 @@ export const UserButton = (props: UserButtonProps) => {
   return (
     <Show when={isLoaded() && isSignedIn()}>
       <Popover>
-        <PopoverTrigger as={Button} variant='ghost' size='icon'>
+        <PopoverTrigger
+          as={Button}
+          variant='ghost'
+          size='icon'
+          class='flex h-fit w-fit shrink-0 items-center gap-1 p-2'
+        >
           <Show when={props.showName && (user()?.firstName || user()?.lastName)}>
             <div class='flex flex-wrap items-center gap-2'>
               <Show when={user()?.firstName} keyed>
@@ -53,13 +59,7 @@ export const UserButton = (props: UserButtonProps) => {
               </Show>
             </div>
           </Show>
-          <Avatar>
-            <AvatarImage src={user()?.image || undefined} />
-            <AvatarFallback>
-              {user()?.firstName?.charAt(0) || user()?.email?.charAt(0) || '?'}
-              {user()?.lastName?.charAt(0) || ''}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar />
         </PopoverTrigger>
         <PopoverContent class='w-52'>
           <div class='flex flex-col gap-2'>

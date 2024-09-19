@@ -16,6 +16,7 @@ import {
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
+import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth } from '@/www/server/auth';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -121,112 +122,114 @@ const BookmarksPage = () => {
   });
 
   return (
-    <div class='flex h-full w-full flex-col items-center p-5'>
-      <SignedIn>
-        <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-          Your Bookmarks
-        </H2>
-        <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
-          <QueryBoundary query={bookmarksQuery}>
-            {() => (
-              <TransitionGroup name='card-item'>
-                <For
-                  each={bookmarks}
-                  fallback={
-                    <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
-                      <H6 class='text-center'>
-                        No bookmarks yet, get{' '}
-                        <A href='/bible' class='hover:underline'>
-                          reading
-                        </A>
-                        !
-                      </H6>
-                    </div>
-                  }
-                >
-                  {(bookmark, idx) => (
-                    <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
-                      <CardHeader>
-                        <CardTitle>
-                          {'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <Show
-                        when={'verse' in bookmark && bookmark.verse}
-                        fallback={<CardContent class='flex grow flex-col' />}
-                        keyed
-                      >
-                        {(verse) => (
-                          <CardContent class='flex grow flex-col'>
-                            {contentsToText(verse.content)}
-                          </CardContent>
-                        )}
-                      </Show>
-                      <CardFooter class='flex items-end justify-end gap-2'>
-                        <Dialog>
-                          <DialogTrigger as={Button} variant='outline'>
-                            Delete
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Are you sure you want to delete this bookmark?
-                              </DialogTitle>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button
-                                variant='destructive'
-                                onClick={() => {
-                                  deleteBookmarkMutation.mutate({
-                                    type: 'verse' in bookmark ? 'verse' : 'chapter',
-                                    bookmarkId: bookmark.id,
-                                  });
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          as={A}
-                          href={
-                            'verse' in bookmark
-                              ? `/bible/${bookmark.verse.bible.abbreviation}/${bookmark.verse.book.abbreviation}/${bookmark.verse.chapter.number}/${bookmark.verse.number}`
-                              : `/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.abbreviation}/${bookmark.chapter.number}`
-                          }
+    <WithHeaderLayout>
+      <div class='flex h-full w-full flex-col items-center p-5'>
+        <SignedIn>
+          <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            Your Bookmarks
+          </H2>
+          <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
+            <QueryBoundary query={bookmarksQuery}>
+              {() => (
+                <TransitionGroup name='card-item'>
+                  <For
+                    each={bookmarks}
+                    fallback={
+                      <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
+                        <H6 class='text-center'>
+                          No bookmarks yet, get{' '}
+                          <A href='/bible' class='hover:underline'>
+                            reading
+                          </A>
+                          !
+                        </H6>
+                      </div>
+                    }
+                  >
+                    {(bookmark, idx) => (
+                      <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
+                        <CardHeader>
+                          <CardTitle>
+                            {'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <Show
+                          when={'verse' in bookmark && bookmark.verse}
+                          fallback={<CardContent class='flex grow flex-col' />}
+                          keyed
                         >
-                          View
+                          {(verse) => (
+                            <CardContent class='flex grow flex-col'>
+                              {contentsToText(verse.content)}
+                            </CardContent>
+                          )}
+                        </Show>
+                        <CardFooter class='flex items-end justify-end gap-2'>
+                          <Dialog>
+                            <DialogTrigger as={Button} variant='outline'>
+                              Delete
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Are you sure you want to delete this bookmark?
+                                </DialogTitle>
+                              </DialogHeader>
+                              <DialogFooter>
+                                <Button
+                                  variant='destructive'
+                                  onClick={() => {
+                                    deleteBookmarkMutation.mutate({
+                                      type: 'verse' in bookmark ? 'verse' : 'chapter',
+                                      bookmarkId: bookmark.id,
+                                    });
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            as={A}
+                            href={
+                              'verse' in bookmark
+                                ? `/bible/${bookmark.verse.bible.abbreviation}/${bookmark.verse.book.abbreviation}/${bookmark.verse.chapter.number}/${bookmark.verse.number}`
+                                : `/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.abbreviation}/${bookmark.chapter.number}`
+                            }
+                          >
+                            View
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    )}
+                  </For>
+                  <div class='flex w-full justify-center lg:col-span-3'>
+                    <Switch>
+                      <Match when={bookmarksQuery.isFetchingNextPage}>
+                        <Spinner size='sm' />
+                      </Match>
+                      <Match when={bookmarksQuery.hasNextPage}>
+                        <Button
+                          onClick={() => {
+                            void bookmarksQuery.fetchNextPage();
+                          }}
+                        >
+                          Load more
                         </Button>
-                      </CardFooter>
-                    </Card>
-                  )}
-                </For>
-                <div class='flex w-full justify-center lg:col-span-3'>
-                  <Switch>
-                    <Match when={bookmarksQuery.isFetchingNextPage}>
-                      <Spinner size='sm' />
-                    </Match>
-                    <Match when={bookmarksQuery.hasNextPage}>
-                      <Button
-                        onClick={() => {
-                          void bookmarksQuery.fetchNextPage();
-                        }}
-                      >
-                        Load more
-                      </Button>
-                    </Match>
-                  </Switch>
-                </div>
-              </TransitionGroup>
-            )}
-          </QueryBoundary>
-        </div>
-      </SignedIn>
-      <SignedOut>
-        <SignIn />
-      </SignedOut>
-    </div>
+                      </Match>
+                    </Switch>
+                  </div>
+                </TransitionGroup>
+              )}
+            </QueryBoundary>
+          </div>
+        </SignedIn>
+        <SignedOut>
+          <SignIn />
+        </SignedOut>
+      </div>
+    </WithHeaderLayout>
   );
 };
 

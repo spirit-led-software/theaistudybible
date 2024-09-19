@@ -2,6 +2,7 @@ import type { Role } from '@/schemas/roles';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
 import { type Accessor, type JSX, createContext, useContext } from 'solid-js';
+import { getRequestEvent, isServer } from 'solid-js/web';
 import { auth } from '../server/auth';
 
 export type AuthContextType = {
@@ -30,7 +31,7 @@ export const useAuth = () => {
       context.user() !== undefined &&
       context.roles() !== undefined,
     isSignedIn: () => context.session() !== null && context.user() !== null,
-    isAdmin: () => context.roles()?.some((role) => role.id === 'admin'),
+    isAdmin: () => context.roles()?.some((role) => role.id === 'admin') ?? false,
     invalidate: () =>
       queryClient.invalidateQueries({ queryKey: authProviderQueryOptions.queryKey }),
     refetch: () => queryClient.refetchQueries({ queryKey: authProviderQueryOptions.queryKey }),
@@ -48,7 +49,12 @@ export type AuthProviderProps = {
 };
 
 export const AuthProvider = (props: AuthProviderProps) => {
-  const query = createQuery(() => authProviderQueryOptions);
+  const initialData = isServer ? getRequestEvent()?.locals : undefined;
+
+  const query = createQuery(() => ({
+    ...authProviderQueryOptions,
+    initialData,
+  }));
 
   return (
     <AuthContext.Provider

@@ -1,6 +1,7 @@
 import { LargeTranslationPicker } from '@/www/components/bible/reader/menu/translation-picker';
 import { largeTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/large';
 import { useBibleStore } from '@/www/contexts/bible';
+import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
@@ -31,9 +32,11 @@ export default function BiblePage() {
   }
 
   return (
-    <div class='flex w-full flex-col p-5 text-center'>
-      <Title>Bible</Title>
-      <LargeTranslationPicker />
-    </div>
+    <WithHeaderLayout>
+      <div class='flex w-full flex-col p-5 text-center'>
+        <Title>Bible</Title>
+        <LargeTranslationPicker />
+      </div>
+    </WithHeaderLayout>
   );
 }

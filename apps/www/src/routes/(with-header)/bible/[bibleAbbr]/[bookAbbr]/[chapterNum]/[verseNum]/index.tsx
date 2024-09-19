@@ -1,6 +1,7 @@
 import { bookPickerQueryOptions } from '@/www/components/bible/reader/menu/chapter-picker/book';
 import { smallTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/small';
 import VerseReader, { getVerseReaderQueryOptions } from '@/www/components/bible/verse/reader';
+import BibleReaderLayout from '@/www/layouts/bible-reader';
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
@@ -34,11 +35,13 @@ export default function ChapterPage() {
   const verseNum = () => Number.parseInt(params.verseNum);
 
   return (
-    <VerseReader
-      bibleAbbr={params.bibleAbbr}
-      bookAbbr={params.bookAbbr}
-      chapterNum={chapterNum()}
-      verseNum={verseNum()}
-    />
+    <BibleReaderLayout>
+      <VerseReader
+        bibleAbbr={params.bibleAbbr}
+        bookAbbr={params.bookAbbr}
+        chapterNum={chapterNum()}
+        verseNum={verseNum()}
+      />
+    </BibleReaderLayout>
   );
 }

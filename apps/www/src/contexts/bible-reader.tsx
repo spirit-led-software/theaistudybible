@@ -65,7 +65,6 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       );
       return `${store.book.shortName} ${store.chapter.number}:${formNumberSequenceString(verseNumbers)} (${store.bible.abbreviationLocal})`;
     },
-
     get selectedText() {
       return this.selectedVerseInfos
         .toSorted((a: SelectedVerseInfo, b: SelectedVerseInfo) => a.number - b.number)
@@ -82,9 +81,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
           }
           return text;
         })
-
         .join('')
-
         .trim();
     },
   });

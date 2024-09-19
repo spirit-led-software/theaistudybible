@@ -1,4 +1,4 @@
-import { useIsAdmin } from '@/www/hooks/use-is-admin';
+import { useAuth } from '@/www/contexts/auth';
 import { A } from '@solidjs/router';
 import {
   BookOpen,
@@ -29,7 +29,7 @@ export type MenuProps = {
 };
 
 export const Menu = (props: MenuProps) => {
-  const isAdmin = useIsAdmin();
+  const { isAdmin } = useAuth();
 
   return (
     <NavigationMenu orientation={props.orientation} class='w-full'>

@@ -1,9 +1,9 @@
 import { Tabs, TabsList, TabsTrigger } from '@/www/components/ui/tabs';
 import { useIsAdmin } from '@/www/hooks/use-is-admin';
 import { Navigate, useLocation, useNavigate } from '@solidjs/router';
-import { createMemo, Show, type JSX } from 'solid-js';
+import { type JSX, Show, createMemo } from 'solid-js';
 
-export default function AdminLayout(props: { children: JSX.Element }) {
+export function AdminLayout(props: { children: JSX.Element }) {
   const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const location = useLocation();

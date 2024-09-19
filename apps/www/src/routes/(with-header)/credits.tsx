@@ -4,6 +4,7 @@ import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
+import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth } from '@/www/server/auth';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
@@ -97,73 +98,78 @@ export default function CreditPurchasePage() {
   }));
 
   return (
-    <div class='container flex h-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 py-8'>
-      <div class='flex flex-col items-center gap-2 pb-8'>
-        <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-          Purchase Credits
-        </H1>
-        <P class='text-center text-muted-foreground text-sm'>
-          Credits are used to access our AI services. You can use the credits to get answers to your
-          questions, generate images, and more.
-        </P>
-      </div>
+    <WithHeaderLayout>
+      <div class='container flex h-full max-w-2xl flex-1 flex-col overflow-y-auto px-4 py-8'>
+        <div class='flex flex-col items-center gap-2 pb-8'>
+          <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            Purchase Credits
+          </H1>
+          <P class='text-center text-muted-foreground text-sm'>
+            Credits are used to access our AI services. You can use the credits to get answers to
+            your questions, generate images, and more.
+          </P>
+        </div>
 
-      <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-        <QueryBoundary
-          query={query}
-          loadingFallback={Array.from({ length: 6 }).map(() => (
-            <div class='flex h-full w-full items-center justify-center'>
-              <Skeleton width={200} height={200} class='rounded-lg' />
-            </div>
-          ))}
-        >
-          {(products) =>
-            products.map((product) => (
-              <Card class='flex flex-col justify-between'>
-                <CardHeader class='pb-2'>
-                  <CardTitle class='text-lg'>{product.name}</CardTitle>
-                </CardHeader>
-                <CardContent class='pb-2'>
-                  <p class='font-bold text-2xl'>
-                    ${(((product.default_price as Stripe.Price).unit_amount ?? 0) / 100).toFixed(2)}
-                  </p>
-                  <p class='text-muted-foreground text-sm'>
-                    $
-                    {(
-                      ((product.default_price as Stripe.Price).unit_amount ?? 0) /
-                      100 /
-                      Number.parseInt(product.metadata.credits)
-                    ).toFixed(2)}
-                    per credit
-                  </p>
-                </CardContent>
-                <CardFooter class='pt-2'>
-                  <Button
-                    class='w-full'
-                    variant='outline'
-                    onClick={() => handlePurchase.mutate(product)}
-                  >
-                    Purchase
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))
-          }
-        </QueryBoundary>
-      </div>
+        <div class='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <QueryBoundary
+            query={query}
+            loadingFallback={Array.from({ length: 6 }).map(() => (
+              <div class='flex h-full w-full items-center justify-center'>
+                <Skeleton width={200} height={200} class='rounded-lg' />
+              </div>
+            ))}
+          >
+            {(products) =>
+              products.map((product) => (
+                <Card class='flex flex-col justify-between'>
+                  <CardHeader class='pb-2'>
+                    <CardTitle class='text-lg'>{product.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent class='pb-2'>
+                    <p class='font-bold text-2xl'>
+                      $
+                      {(((product.default_price as Stripe.Price).unit_amount ?? 0) / 100).toFixed(
+                        2,
+                      )}
+                    </p>
+                    <p class='text-muted-foreground text-sm'>
+                      $
+                      {(
+                        ((product.default_price as Stripe.Price).unit_amount ?? 0) /
+                        100 /
+                        Number.parseInt(product.metadata.credits)
+                      ).toFixed(2)}
+                      per credit
+                    </p>
+                  </CardContent>
+                  <CardFooter class='pt-2'>
+                    <Button
+                      class='w-full'
+                      variant='outline'
+                      onClick={() => handlePurchase.mutate(product)}
+                    >
+                      Purchase
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))
+            }
+          </QueryBoundary>
+        </div>
 
-      <div class='mt-8 flex flex-col items-center'>
-        <P class='text-center text-muted-foreground text-sm'>
-          Select a credit package to proceed with your purchase. Payment details will be collected
-          on the next step.
-        </P>
-        <P>
-          Looking for a different amount?{' '}
-          <a href='mailto:support@theaistudybible.com' class='text-primary underline'>
-            Contact us
-          </a>
-        </P>
+        <div class='mt-8 flex flex-col items-center'>
+          <P class='text-center text-muted-foreground text-sm'>
+            Select a credit package to proceed with your purchase. Payment details will be collected
+            on the next step.
+          </P>
+          <P>
+            Looking for a different amount?{' '}
+            <a href='mailto:support@theaistudybible.com' class='text-primary underline'>
+              Contact us
+            </a>
+          </P>
+        </div>
       </div>
-    </div>
+    </WithHeaderLayout>
   );
 }

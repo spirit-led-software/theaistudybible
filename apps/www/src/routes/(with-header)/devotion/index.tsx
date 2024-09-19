@@ -1,6 +1,7 @@
 import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { useDevotionStore } from '@/www/contexts/devotion';
+import { WithHeaderLayout } from '@/www/layouts/with-header';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -35,9 +36,11 @@ const DevotionPage = () => {
   }
 
   return (
-    <QueryBoundary query={devotionQuery}>
-      {(devotion) => <Navigate href={`/devotion/${devotion.id}`} />}
-    </QueryBoundary>
+    <WithHeaderLayout>
+      <QueryBoundary query={devotionQuery}>
+        {(devotion) => <Navigate href={`/devotion/${devotion.id}`} />}
+      </QueryBoundary>
+    </WithHeaderLayout>
   );
 };
 

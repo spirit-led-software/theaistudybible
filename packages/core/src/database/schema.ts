@@ -32,8 +32,8 @@ const baseModel = {
     .primaryKey()
     .$defaultFn(() => createId()),
   createdAt: timestamp('created_at')
-    .$defaultFn(() => new Date())
-    .notNull(),
+    .notNull()
+    .$defaultFn(() => new Date()),
   updatedAt: timestamp('updated_at')
     .notNull()
     .$defaultFn(() => new Date())

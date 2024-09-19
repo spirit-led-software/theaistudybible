@@ -1,6 +1,7 @@
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { GradientH1, H2, P } from '@/www/components/ui/typography';
+import { AboutLayout } from '@/www/layouts/about';
 import { A } from '@solidjs/router';
 import {
   BookOpenText,
@@ -11,9 +12,8 @@ import {
   Sparkles,
   Star,
 } from 'lucide-solid';
-import type { Component } from 'solid-js';
 
-const AboutPage: Component = () => {
+export default function AboutPage() {
   const features = [
     {
       icon: BookOpenText,
@@ -48,63 +48,63 @@ const AboutPage: Component = () => {
   ];
 
   return (
-    <div class='mx-auto max-w-4xl space-y-12 px-4 py-12'>
-      <header class='space-y-4 text-center'>
-        <GradientH1>Here's What We Do</GradientH1>
-        <P class='text-muted-foreground text-xl'>
-          Empowering your spiritual journey with cutting-edge AI technology
-        </P>
-      </header>
+    <AboutLayout>
+      <div class='mx-auto max-w-4xl space-y-12 px-4 py-12'>
+        <header class='space-y-4 text-center'>
+          <GradientH1>Here's What We Do</GradientH1>
+          <P class='text-muted-foreground text-xl'>
+            Empowering your spiritual journey with cutting-edge AI technology
+          </P>
+        </header>
 
-      <section>
-        <H2 class='mb-6 flex items-center font-semibold text-2xl'>
-          <Sparkles class='mr-2 inline-block' />
-          Our Features
-        </H2>
-        <div class='grid gap-8 md:grid-cols-2'>
-          {features.map((feature) => (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <feature.icon class='mr-2 inline-block' />
-                  {feature.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <P class='text-muted-foreground'>{feature.description}</P>
-              </CardContent>
-            </Card>
-          ))}
+        <section>
+          <H2 class='mb-6 flex items-center font-semibold text-2xl'>
+            <Sparkles class='mr-2 inline-block' />
+            Our Features
+          </H2>
+          <div class='grid gap-8 md:grid-cols-2'>
+            {features.map((feature) => (
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    <feature.icon class='mr-2 inline-block' />
+                    {feature.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <P class='text-muted-foreground'>{feature.description}</P>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <Card class='bg-muted'>
+          <CardHeader>
+            <CardTitle>
+              <Heart class='mr-2 inline-block' />
+              Our Mission
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <P>
+              At The AI Study Bible, we're committed to bridging the gap between ancient wisdom and
+              modern technology. Our mission is to make Bible study more accessible, engaging, and
+              insightful for everyone, from seasoned theologians to curious newcomers.
+            </P>
+            <P>
+              We believe that by harnessing the power of AI, we can unlock new dimensions of
+              understanding and help people connect with scripture in profound and personal ways.
+            </P>
+          </CardContent>
+        </Card>
+
+        <div class='flex justify-center'>
+          <Button as={A} href='/bible' class='px-6 py-3 text-lg'>
+            Start Your Journey
+          </Button>
         </div>
-      </section>
-
-      <Card class='bg-muted'>
-        <CardHeader>
-          <CardTitle>
-            <Heart class='mr-2 inline-block' />
-            Our Mission
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <P>
-            At The AI Study Bible, we're committed to bridging the gap between ancient wisdom and
-            modern technology. Our mission is to make Bible study more accessible, engaging, and
-            insightful for everyone, from seasoned theologians to curious newcomers.
-          </P>
-          <P>
-            We believe that by harnessing the power of AI, we can unlock new dimensions of
-            understanding and help people connect with scripture in profound and personal ways.
-          </P>
-        </CardContent>
-      </Card>
-
-      <div class='flex justify-center'>
-        <Button as={A} href='/bible' class='px-6 py-3 text-lg'>
-          Start Your Journey
-        </Button>
       </div>
-    </div>
+    </AboutLayout>
   );
-};
-
-export default AboutPage;
+}

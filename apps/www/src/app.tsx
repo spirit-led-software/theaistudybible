@@ -2,15 +2,12 @@ import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@ko
 import { withSentryRouterRouting } from '@sentry/solidstart/solidrouter';
 import { MultiProvider } from '@solid-primitives/context';
 import { MetaProvider } from '@solidjs/meta';
-import { A, Router } from '@solidjs/router';
+import { Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { ErrorBoundary, Suspense, isServer } from 'solid-js/web';
+import { Suspense, isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
-import { Button } from './components/ui/button';
-import { Toaster as Sonner } from './components/ui/sonner';
-import { Toaster } from './components/ui/toast';
-import { H1, H4 } from './components/ui/typography';
+import { Toaster } from './components/ui/sonner';
 import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
@@ -48,24 +45,10 @@ export default function App() {
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
                 <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
-                  <ErrorBoundary
-                    fallback={(err, reset) => (
-                      <div class='flex h-full w-full flex-col items-center justify-center space-y-2'>
-                        <H1>Error</H1>
-                        <H4 class='max-w-sm text-center'>{err.message}</H4>
-                        <div class='flex space-x-2'>
-                          <Button onClick={reset}>Retry</Button>
-                          <Button as={A} href='/'>
-                            Go Home Instead
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  >
-                    <Suspense>{props.children}</Suspense>
-                  </ErrorBoundary>
-                  <Toaster />
-                  <Sonner />
+                  <Suspense>
+                    {props.children}
+                    <Toaster />
+                  </Suspense>
                 </MultiProvider>
               </ColorModeProvider>
             </AuthProvider>

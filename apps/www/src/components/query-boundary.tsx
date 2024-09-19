@@ -1,6 +1,7 @@
 import type { CreateQueryResult } from '@tanstack/solid-query';
 import type { JSX } from 'solid-js';
-import { ErrorBoundary, Match, Suspense, Switch } from 'solid-js';
+import { Match, Suspense, Switch } from 'solid-js';
+import { SentryErrorBoundary } from './error-boundary';
 import { Button } from './ui/button';
 import { Spinner } from './ui/spinner';
 import { H1, H6 } from './ui/typography';
@@ -44,7 +45,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
         )
       }
     >
-      <ErrorBoundary
+      <SentryErrorBoundary
         fallback={(err: Error, reset) =>
           props.errorFallback ? (
             props.errorFallback(err, async () => {
@@ -79,7 +80,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
             {props.children(props.query.data as Exclude<T, null | false | undefined>)}
           </Match>
         </Switch>
-      </ErrorBoundary>
+      </SentryErrorBoundary>
     </Suspense>
   );
 }

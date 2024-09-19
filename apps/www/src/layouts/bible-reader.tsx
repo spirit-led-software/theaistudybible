@@ -1,5 +1,6 @@
 import { useReadingSessionContext } from '@/www/contexts/reading-session-context';
-import { onCleanup, onMount, type JSX } from 'solid-js';
+import { type JSX, onCleanup, onMount } from 'solid-js';
+import { WithHeaderLayout } from './with-header';
 
 export default function BibleReaderLayout(props: { children: JSX.Element }) {
   const { startReading, stopReading } = useReadingSessionContext();
@@ -11,5 +12,9 @@ export default function BibleReaderLayout(props: { children: JSX.Element }) {
     });
   });
 
-  return <div class='container max-w-3xl'>{props.children}</div>;
+  return (
+    <WithHeaderLayout>
+      <div class='container max-w-3xl'>{props.children}</div>
+    </WithHeaderLayout>
+  );
 }

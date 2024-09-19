@@ -1,6 +1,5 @@
 import { allModels } from '@/ai/models';
 import { Markdown } from '@/www/components/ui/markdown';
-import { useAuth } from '@/www/contexts/auth';
 import { cn } from '@/www/lib/utils';
 import type { useChat } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
@@ -9,6 +8,7 @@ import type { Message as AIMessage } from 'ai/solid';
 import { Copy } from 'lucide-solid';
 import { Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
+import { UserAvatar } from '../../auth/user-avatar';
 import Icon from '../../branding/icon';
 import { Button } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -24,8 +24,6 @@ export type MessageProps = {
 };
 
 export const Message = (props: MessageProps) => {
-  const { user } = useAuth();
-
   return (
     <div
       class={cn(
@@ -39,11 +37,7 @@ export const Message = (props: MessageProps) => {
             <Match when={props.message.role === 'user'}>
               <Tooltip>
                 <TooltipTrigger as='div'>
-                  <img
-                    src={user()?.image ?? undefined}
-                    alt='Avatar'
-                    class='h-10 w-10 rounded-full'
-                  />
+                  <UserAvatar />
                 </TooltipTrigger>
                 <TooltipContent>Me</TooltipContent>
               </Tooltip>
