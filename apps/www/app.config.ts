@@ -9,7 +9,6 @@ export default defineConfig({
   server: {
     preset: 'aws-lambda-streaming',
     compatibilityDate: '2024-09-18',
-    inlineDynamicImports: true,
   },
   vite: () => ({
     envPrefix: 'PUBLIC_',
