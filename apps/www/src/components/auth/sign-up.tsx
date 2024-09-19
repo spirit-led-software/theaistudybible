@@ -1,13 +1,12 @@
 import { signUp } from '@/core/auth/providers/credentials';
 import { signUpSchema } from '@/core/auth/providers/credentials/schemas';
-import { authProviderQueryOptions } from '@/www/contexts/auth';
+import { useAuth } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { A, useNavigate } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
-import { getRequestEvent } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { setCookie } from 'vinxi/http';
 import type { z } from 'zod';
@@ -22,14 +21,13 @@ export type SignUpProps = {
 
 async function handleSignUp(values: z.infer<typeof signUpSchema>) {
   'use server';
-  const event = getRequestEvent()!;
   const cookie = await signUp(values);
-  setCookie(event.nativeEvent, cookie.name, cookie.value, cookie.attributes);
+  setCookie(cookie.name, cookie.value, cookie.attributes);
 }
 
 export const SignUp = (props: SignUpProps) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { invalidate } = useAuth();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof signUpSchema>>({
     validate: zodForm(signUpSchema),
@@ -41,9 +39,7 @@ export const SignUp = (props: SignUpProps) => {
   const onSubmit = createMutation(() => ({
     mutationFn: (values: z.infer<typeof signUpSchema>) => handleSignUp(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: authProviderQueryOptions.queryKey,
-      });
+      invalidate();
       navigate(props.redirectUrl ?? '/');
     },
     onError: (error) => {

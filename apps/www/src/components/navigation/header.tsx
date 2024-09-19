@@ -1,6 +1,4 @@
-import { useWindowSize } from '@solid-primitives/resize-observer';
 import { A } from '@solidjs/router';
-import { createMemo } from 'solid-js';
 import { AuthLoaded, AuthLoading, SignedIn, SignedOut } from '../auth/control';
 import { SignInButton } from '../auth/sign-in-button';
 import { UserButton } from '../auth/user-button';
@@ -14,9 +12,6 @@ import { NavigationDrawer } from './drawer';
 import { Menu } from './menu';
 
 export default function NavigationHeader() {
-  const size = useWindowSize();
-  const smallWindow = createMemo(() => size.width < 768);
-
   return (
     <nav class='fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
       <div class='flex w-1/3 justify-start sm:hidden sm:w-0'>
@@ -24,7 +19,8 @@ export default function NavigationHeader() {
       </div>
       <div class='flex w-1/3 justify-center sm:justify-start'>
         <A href='/'>
-          {smallWindow() ? <LogoSmall width={128} height={64} /> : <Logo width={256} height={64} />}
+          <LogoSmall width={128} height={64} class='block sm:hidden' />
+          <Logo width={256} height={64} class='hidden sm:block' />
         </A>
       </div>
       <div class='hidden w-1/3 justify-center sm:flex'>
@@ -37,7 +33,7 @@ export default function NavigationHeader() {
         <AuthLoaded>
           <SignedIn>
             <CreditDisplay />
-            <UserButton showName={!smallWindow()} />
+            <UserButton />
           </SignedIn>
           <SignedOut>
             <Button as={SignInButton} />

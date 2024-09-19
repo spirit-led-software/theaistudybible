@@ -9,7 +9,6 @@ Sentry.init({
   environment: import.meta.env.PUBLIC_STAGE,
   tracesSampleRate: import.meta.env.PUBLIC_STAGE === 'production' ? 1.0 : 0.1,
   replaysOnErrorSampleRate: import.meta.env.PUBLIC_STAGE === 'production' ? 0.5 : 0,
-  debug: import.meta.env.PUBLIC_STAGE !== 'production',
 });
 
 mount(() => <StartClient />, document.getElementById('app')!);

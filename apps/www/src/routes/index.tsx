@@ -4,6 +4,7 @@ import { A } from '@solidjs/router';
 import { BookOpen, MessageCircle, Search } from 'lucide-solid';
 import {} from '../components/auth/control';
 import Logo from '../components/branding/logo';
+import LogoSmall from '../components/branding/logo-small';
 
 export default function HomePage() {
   return (
@@ -11,7 +12,8 @@ export default function HomePage() {
       {/* Sticky Header */}
       <header class='sticky top-0 z-50 bg-background/80 backdrop-blur-sm'>
         <div class='container flex h-20 items-center justify-between px-4 py-2 sm:py-4'>
-          <Logo width={100} class='w-1/2 sm:w-1/4' />
+          <LogoSmall width={128} height={64} class='block sm:hidden' />
+          <Logo width={256} height={64} class='hidden sm:block' />
           <Button as={A} href='/bible' size='sm' class='text-xs sm:text-sm'>
             Get Started
           </Button>

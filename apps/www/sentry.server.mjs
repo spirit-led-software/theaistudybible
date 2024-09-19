@@ -6,7 +6,6 @@ Sentry.init({
   tracesSampleRate: process.env.PUBLIC_STAGE === 'production' ? 1.0 : 0.1,
   profilesSampleRate: process.env.PUBLIC_STAGE === 'production' ? 1.0 : 0.1,
   environment: process.env.PUBLIC_STAGE,
-  debug: process.env.PUBLIC_STAGE !== 'production',
   registerEsmLoaderHooks: {
     onlyIncludeInstrumentedModules: true,
   },

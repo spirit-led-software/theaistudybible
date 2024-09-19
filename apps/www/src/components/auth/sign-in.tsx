@@ -7,7 +7,6 @@ import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
-import { getRequestEvent } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { setCookie } from 'vinxi/http';
 import type { z } from 'zod';
@@ -22,9 +21,8 @@ export type SignInProps = {
 
 async function handleSignIn(values: z.infer<typeof signInSchema>) {
   'use server';
-  const event = getRequestEvent()!;
   const cookie = await signIn(values);
-  setCookie(event.nativeEvent, cookie.name, cookie.value, cookie.attributes);
+  setCookie(cookie.name, cookie.value, cookie.attributes);
 }
 
 export const SignIn = (props: SignInProps) => {
