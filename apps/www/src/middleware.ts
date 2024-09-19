@@ -2,21 +2,11 @@ import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
 import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
-import { verifyRequestOrigin } from 'lucia';
-import { getCookie, getHeader, setCookie } from 'vinxi/http';
+import { getCookie, setCookie } from 'vinxi/http';
 
 export default createMiddleware({
   onRequest: [
     async ({ nativeEvent, locals }) => {
-      if (nativeEvent.node.req.method !== 'GET') {
-        const originHeader = getHeader(nativeEvent, 'Origin') ?? null;
-        const hostHeader = getHeader(nativeEvent, 'Host') ?? null;
-        if (!originHeader || !hostHeader || !verifyRequestOrigin(originHeader, [hostHeader])) {
-          nativeEvent.node.res.writeHead(403).end();
-          return;
-        }
-      }
-
       const sessionId = getCookie(nativeEvent, lucia.sessionCookieName) ?? null;
       if (!sessionId) {
         locals.session = null;
