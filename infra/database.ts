@@ -26,7 +26,7 @@ const tursoDb = new turso.TursoDatabase(
 export const database = new sst.Linkable('Database', {
   properties: {
     name: tursoDb.name,
-    url: $interpolate`libsql://${tursoDb.hostname}`,
+    url: $interpolate`https://${tursoDb.hostname}`,
     token: tursoDb.token,
   },
 });
