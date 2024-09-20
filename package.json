@@ -63,5 +63,5 @@
   "overrides": {
     "nitropack": "npm:nitropack-nightly@latest"
   },
-  "trustedDependencies": ["@biomejs/biome", "@sentry/cli", "esbuild", "sharp"]
+  "trustedDependencies": ["@biomejs/biome", "@sentry/cli", "@sentry/profiling-node", "esbuild", "sharp"]
 }

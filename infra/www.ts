@@ -35,7 +35,7 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     NODE_OPTIONS: '--import ./sentry.server.mjs',
   },
   server: {
-    install: ['@sentry/solidstart'],
+    install: ['@sentry/solidstart', '@sentry/profiling-node'],
   },
   domain: {
     name: DOMAIN.properties.value,

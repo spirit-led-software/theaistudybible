@@ -38,6 +38,7 @@
     "@kobalte/core": "^0.13.6",
     "@modular-forms/solid": "^0.23.0",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@sentry/profiling-node": "^8.30.0",
     "@sentry/solidstart": "^8.30.0",
     "@solid-primitives/clipboard": "^1.5.10",
     "@solid-primitives/context": "^0.2.3",
