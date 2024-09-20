@@ -2,12 +2,11 @@ import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { useReadingSessionContext } from '@/www/contexts/reading-session-context';
 import { auth } from '@/www/server/auth';
 import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
-import { createEffect, on } from 'solid-js';
+import { createEffect } from 'solid-js';
 import {
   ActivityPanel,
   ActivityPanelAlwaysOpenButtons,
@@ -70,7 +69,6 @@ export type ReaderContentProps = {
 
 export const ReaderContent = (props: ReaderContentProps) => {
   const [brStore, setBrStore] = useBibleReaderStore();
-  const { updateActivity } = useReadingSessionContext();
 
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(() => {
@@ -118,18 +116,6 @@ export const ReaderContent = (props: ReaderContentProps) => {
     queryFn: () => getNotes(brStore.chapter.id),
     placeholderData: [],
   }));
-
-  // Any time the brStore changes, update the activity
-  createEffect(
-    on(
-      () => ({
-        ...brStore,
-      }),
-      () => {
-        updateActivity();
-      },
-    ),
-  );
 
   return (
     <>
