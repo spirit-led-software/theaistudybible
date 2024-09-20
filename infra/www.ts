@@ -34,9 +34,6 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
     PUBLIC_STAGE: $app.stage,
     NODE_OPTIONS: '--import ./sentry.server.mjs',
   },
-  server: {
-    install: ['@sentry/solidstart', '@sentry/profiling-node'],
-  },
   domain: {
     name: DOMAIN.properties.value,
     redirects: [`www.${DOMAIN.properties.value}`],
@@ -44,6 +41,9 @@ export const webapp = new sst.aws.SolidStart('WebApp', {
   },
   transform: {
     server: {
+      nodejs: {
+        install: ['@sentry/solidstart', '@sentry/profiling-node'],
+      },
       copyFiles: [
         {
           from: 'apps/www/sentry.server.mjs',
