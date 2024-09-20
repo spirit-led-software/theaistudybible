@@ -1,5 +1,5 @@
 {
   "extends": "./tools/tsconfig/tsconfig.json",
-  "include": ["./.sst/platform/config.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["apps", "packages", "tools"]
+  "include": [".sst/platform/config.d.ts", "**/*.ts", "**/*.tsx", "vitest.workspace.js"],
+  "exclude": ["node_modules", "apps", "packages", "tools"]
 }

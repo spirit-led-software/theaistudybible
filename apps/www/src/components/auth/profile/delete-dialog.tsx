@@ -25,6 +25,8 @@ async function deleteUser() {
   }
 
   await db.delete(users).where(eq(users.id, user.id));
+
+  return { success: true };
 }
 
 export const DeleteProfileDialog = () => {

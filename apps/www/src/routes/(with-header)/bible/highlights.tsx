@@ -66,6 +66,8 @@ const deleteHighlight = async (highlightId: string) => {
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
+
+  return { success: true };
 };
 
 const getHighlightsQueryOptions = () => ({

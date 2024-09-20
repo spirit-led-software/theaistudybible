@@ -29,6 +29,7 @@ type TursoDatabaseResourceProviderOutputs = TursoDatabaseType & {
 
 const TursoDatabaseResourceProvider = (
   api: TursoDatabaseApi,
+  opts?: $util.CustomResourceOptions,
 ): $util.dynamic.ResourceProvider<
   TursoDatabaseResourceProviderInputs,
   TursoDatabaseResourceProviderOutputs
@@ -124,7 +125,11 @@ const TursoDatabaseResourceProvider = (
     };
   },
   delete: async (id) => {
-    return await api.delete(id);
+    if (opts?.retainOnDelete) {
+      console.log(`Retaining database ${id} on delete`);
+      return;
+    }
+    await api.delete(id);
   },
 });
 
@@ -140,7 +145,7 @@ export class TursoDatabase extends $util.dynamic.Resource {
 
   constructor(name: string, props: TursoDatabaseInputs, opts?: $util.CustomResourceOptions) {
     super(
-      TursoDatabaseResourceProvider(new TursoDatabaseApi()),
+      TursoDatabaseResourceProvider(new TursoDatabaseApi(), opts),
       name,
       {
         dbId: undefined,

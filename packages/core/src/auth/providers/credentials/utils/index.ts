@@ -1,10 +1,16 @@
-import { argon2id } from '../lib/argon2';
+import { randomBytes } from '@noble/hashes/utils';
+import { Argon2id } from '../lib';
 
-export async function hashPassword(password: string) {
-  const hash = await argon2id.hash(password);
-  return hash;
+export function generateSalt() {
+  return Buffer.from(randomBytes(16)).toString('hex');
 }
 
-export async function verifyPassword(hash: string, password: string) {
-  return await argon2id.verify(hash, password);
+export function hashPassword(password: string, salt: string) {
+  const argon2id = new Argon2id();
+  return argon2id.hash(password, salt);
+}
+
+export function verifyPassword(password: string, salt: string, hash: string) {
+  const argon2id = new Argon2id();
+  return argon2id.verify(password, salt, hash);
 }

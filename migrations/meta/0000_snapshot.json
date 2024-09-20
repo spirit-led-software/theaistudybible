@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "75c5e121-3ca0-45cb-93da-76198f48bf89",
+  "id": "e88d1f6a-451e-4997-8391-9fefed9631eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "bible_contributors": {
@@ -2376,6 +2376,13 @@
         },
         "hash": {
           "name": "hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "salt": {
+          "name": "salt",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

@@ -46,7 +46,7 @@ async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDat
   }
 
   const { books, ...bible } = bibleData;
-  if (!books.at(0)) {
+  if (!books[0]) {
     throw new Error('Book not found');
   }
 

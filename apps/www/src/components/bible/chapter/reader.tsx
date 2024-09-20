@@ -35,20 +35,20 @@ async function getChapterReaderData(props: {
       },
     },
   });
-
   if (!bibleData) {
     throw new Error('Bible not found');
   }
-  const { books, biblesToRightsHolders, ...bible } = bibleData;
 
-  if (!books.at(0)) {
+  const { books, biblesToRightsHolders, ...bible } = bibleData;
+  if (!books[0]) {
     throw new Error('Book not found');
   }
-  const { chapters, ...book } = books[0];
 
-  if (!chapters.at(0)) {
+  const { chapters, ...book } = books[0];
+  if (!chapters[0]) {
     throw new Error('Chapter not found');
   }
+
   const chapter = chapters[0];
 
   return {

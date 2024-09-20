@@ -23,6 +23,7 @@ async function handleSignUp(values: z.infer<typeof signUpSchema>) {
   'use server';
   const cookie = await signUp(values);
   setCookie(cookie.name, cookie.value, cookie.attributes);
+  return { success: true };
 }
 
 export const SignUp = (props: SignUpProps) => {

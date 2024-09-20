@@ -24,7 +24,7 @@ async function updateHighlights({ color, verseIds }: { color: string; verseIds: 
     throw new Error('Not signed in');
   }
 
-  await db
+  return await db
     .insert(verseHighlights)
     .values(
       verseIds.map((id) => ({
@@ -52,6 +52,8 @@ async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
+
+  return { success: true };
 }
 
 export const HighlightCard = () => {

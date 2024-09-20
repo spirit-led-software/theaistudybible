@@ -25,7 +25,10 @@ const deleteChat = async (chatId: string) => {
   if (!user) {
     throw new Error('User is not authenticated');
   }
+
   await db.delete(chats).where(and(eq(chats.userId, user.id), eq(chats.id, chatId)));
+
+  return { success: true };
 };
 
 export type DeleteChatButtonProps = {

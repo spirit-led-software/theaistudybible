@@ -1,6 +1,7 @@
 import { db } from '@/core/database';
 import { chapterNotes, verseNotes } from '@/core/database/schema';
 import { contentsToText } from '@/core/utils/bible';
+import type { ChapterNote, VerseNote } from '@/schemas/bibles/types';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Label } from '@/www/components/ui/label';
@@ -35,19 +36,28 @@ const addNote = async (props: { chapterId: string; verseId?: string; content: st
     throw new Error('Not signed in');
   }
 
+  let note: VerseNote | ChapterNote;
   if (props.verseId) {
-    await db.insert(verseNotes).values({
-      userId: user.id,
-      verseId: props.verseId,
-      content: props.content,
-    });
+    [note] = await db
+      .insert(verseNotes)
+      .values({
+        userId: user.id,
+        verseId: props.verseId,
+        content: props.content,
+      })
+      .returning();
   } else {
-    await db.insert(chapterNotes).values({
-      userId: user.id,
-      chapterId: props.chapterId,
-      content: props.content,
-    });
+    [note] = await db
+      .insert(chapterNotes)
+      .values({
+        userId: user.id,
+        chapterId: props.chapterId,
+        content: props.content,
+      })
+      .returning();
   }
+
+  return note;
 };
 
 export type AddNoteCardProps = {

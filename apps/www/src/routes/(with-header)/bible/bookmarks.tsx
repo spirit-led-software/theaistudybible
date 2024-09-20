@@ -90,6 +90,8 @@ const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: st
       .delete(chapterBookmarks)
       .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)));
   }
+
+  return { success: true };
 };
 
 const getBookmarksQueryOptions = () => ({

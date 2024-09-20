@@ -53,6 +53,8 @@ const bookmarkVerses = async (props: { verseIds: string[] }) => {
       })),
     )
     .onConflictDoNothing();
+
+  return { success: true };
 };
 
 const unbookmarkVerses = async (props: { verseIds: string[] }) => {
@@ -67,6 +69,8 @@ const unbookmarkVerses = async (props: { verseIds: string[] }) => {
     .where(
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
     );
+
+  return { success: true };
 };
 
 export const BookmarkButton = () => {

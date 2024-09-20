@@ -20,6 +20,8 @@ const addBookmark = async (chapterId: string) => {
   }
 
   await db.insert(chapterBookmarks).values({ chapterId, userId: user.id }).onConflictDoNothing();
+
+  return { success: true };
 };
 
 const deleteBookmark = async (chapterId: string) => {
@@ -32,6 +34,8 @@ const deleteBookmark = async (chapterId: string) => {
   await db
     .delete(chapterBookmarks)
     .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)));
+
+  return { success: true };
 };
 
 const getBookmark = async (chapterId: string) => {

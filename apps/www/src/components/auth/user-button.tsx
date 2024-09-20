@@ -14,6 +14,7 @@ async function signOut() {
   'use server';
   const sessionCookie = lucia.createBlankSessionCookie();
   setCookie(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+  return { success: true };
 }
 
 export type UserButtonProps = {

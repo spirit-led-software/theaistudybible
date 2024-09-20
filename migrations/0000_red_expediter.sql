@@ -302,6 +302,7 @@ CREATE TABLE `passwords` (
 	`updated_at` text NOT NULL,
 	`userId` text NOT NULL,
 	`hash` text NOT NULL,
+	`salt` text NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint

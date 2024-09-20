@@ -1,6 +1,5 @@
-import { upstashRedis } from './cache';
 import constants from './constants';
-import { database, upstashVectorIndex } from './database';
+import { database, upstashRedis, upstashVectorIndex } from './database';
 import { email, emailQueue } from './email';
 import secrets from './secrets';
 import {

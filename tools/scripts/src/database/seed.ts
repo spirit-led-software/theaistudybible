@@ -1,4 +1,4 @@
-import { hashPassword } from '@/core/auth/providers/credentials/utils';
+import { generateSalt, hashPassword } from '@/core/auth/providers/credentials/utils';
 import { db } from '@/core/database';
 import { passwords, roles, userCredits, users, usersToRoles } from '@/core/database/schema';
 import { sql } from 'drizzle-orm';
@@ -21,17 +21,20 @@ async function createInitialAdminUser() {
     })
     .returning();
 
-  const pwHash = await hashPassword(Resource.AdminPassword.value);
+  const salt = generateSalt();
+  const pwHash = hashPassword(Resource.AdminPassword.value, salt);
   await db
     .insert(passwords)
     .values({
       userId: admin.id,
       hash: pwHash,
+      salt,
     })
     .onConflictDoUpdate({
       target: passwords.userId,
       set: {
         hash: sql`excluded.hash`,
+        salt: sql`excluded.salt`,
       },
     });
 

@@ -31,13 +31,17 @@ const editChat = async (props: { chatId: string; name: string }) => {
   if (!user) {
     throw new Error('User is not authenticated');
   }
-  await db
+
+  const [chat] = await db
     .update(chats)
     .set({
       name: props.name,
       customName: true,
     })
-    .where(and(eq(chats.userId, user.id), eq(chats.id, props.chatId)));
+    .where(and(eq(chats.userId, user.id), eq(chats.id, props.chatId)))
+    .returning();
+
+  return chat;
 };
 
 export type EditChatButtonProps = {

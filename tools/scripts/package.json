@@ -12,16 +12,13 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/jsdom": "^21.1.7",
     "@types/yargs": "^17.0.33",
-    "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^2.1.1"
+    "vite-tsconfig-paths": "^5.0.1"
   },
   "dependencies": {
     "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
-    "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.33.0",
     "fast-xml-parser": "^4.5.0",
     "jsdom": "^25.0.0",
     "jszip": "^3.10.1",

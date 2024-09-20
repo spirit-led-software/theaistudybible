@@ -21,6 +21,7 @@ export type ResetPasswordProps = {
 async function handleResetPassword(values: z.infer<typeof resetPasswordSchema>) {
   'use server';
   await resetPassword(values);
+  return { success: true };
 }
 
 export function ResetPassword(props: ResetPasswordProps) {

@@ -17,6 +17,7 @@ export type ForgotPasswordProps = {
 async function handleForgotPassword(values: z.infer<typeof forgotPasswordSchema>) {
   'use server';
   await requestPasswordReset({ email: values.email });
+  return { success: true };
 }
 
 export const ForgotPassword = (props: ForgotPasswordProps) => {

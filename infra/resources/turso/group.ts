@@ -15,6 +15,7 @@ type TursoGroupResourceProviderOutputs = TursoGroupType;
 
 const TursoGroupResourceProvider = (
   api: TursoGroupApi,
+  opts?: $util.CustomResourceOptions,
 ): $util.dynamic.ResourceProvider<
   TursoGroupResourceProviderInputs,
   TursoGroupResourceProviderOutputs
@@ -90,7 +91,11 @@ const TursoGroupResourceProvider = (
     };
   },
   delete: async (id) => {
-    return await api.delete(id);
+    if (opts?.retainOnDelete) {
+      console.log(`Retaining group ${id} on delete`);
+      return;
+    }
+    await api.delete(id);
   },
 });
 
@@ -103,7 +108,7 @@ export class TursoGroup extends $util.dynamic.Resource {
 
   constructor(name: string, props: TursoGroupInputs, opts?: $util.CustomResourceOptions) {
     super(
-      TursoGroupResourceProvider(new TursoGroupApi()),
+      TursoGroupResourceProvider(new TursoGroupApi(), opts),
       name,
       {
         uuid: undefined,

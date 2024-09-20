@@ -19,7 +19,7 @@ const getVerseReaderData = async (props: {
   verseNum: number;
 }) => {
   'use server';
-  const bibleBookChapterVerse = await db.query.bibles.findFirst({
+  const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     with: {
       biblesToRightsHolders: { with: { rightsHolder: true } },
@@ -42,18 +42,25 @@ const getVerseReaderData = async (props: {
       },
     },
   });
-  if (!bibleBookChapterVerse) {
-    throw new Error('Insufficient data');
+  if (!bibleData) {
+    throw new Error('Bible not found');
   }
 
-  const { books, biblesToRightsHolders, ...bible } = bibleBookChapterVerse;
+  const { books, biblesToRightsHolders, ...bible } = bibleData;
+  if (!books[0]) {
+    throw new Error('Book not found');
+  }
+
   const { chapters, ...book } = books[0];
-  const { verses, ...chapter } = chapters[0];
-  const verse = verses[0];
-
-  if (!bibleBookChapterVerse || !book || !chapter || !verse) {
-    throw new Error('Insufficient data');
+  if (!chapters[0]) {
+    throw new Error('Chapter not found');
   }
+
+  const { verses, ...chapter } = chapters[0];
+  if (!verses[0]) {
+    throw new Error('Verse not found');
+  }
+  const verse = verses[0];
 
   return {
     bible,

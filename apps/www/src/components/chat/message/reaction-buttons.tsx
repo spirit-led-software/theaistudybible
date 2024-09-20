@@ -36,7 +36,7 @@ const addReaction = async (props: {
     throw new Error('Not signed in');
   }
 
-  await db
+  const [reaction] = await db
     .insert(messageReactions)
     .values({
       reaction: props.reaction,
@@ -49,7 +49,10 @@ const addReaction = async (props: {
       set: {
         reaction: props.reaction,
       },
-    });
+    })
+    .returning();
+
+  return reaction;
 };
 
 const removeReaction = async (props: { messageId: string }) => {
@@ -58,11 +61,14 @@ const removeReaction = async (props: { messageId: string }) => {
   if (!user) {
     throw new Error('Not signed in');
   }
+
   await db
     .delete(messageReactions)
     .where(
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, props.messageId)),
     );
+
+  return { success: true };
 };
 
 export type MessageReactionButtonsProps = {

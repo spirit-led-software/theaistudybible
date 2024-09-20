@@ -18,8 +18,7 @@ export default $config({
     await import('./infra/defaults');
     await import('./infra/constants');
     await import('./infra/secrets');
-    const { database, upstashVectorIndex } = await import('./infra/database');
-    const { upstashRedis } = await import('./infra/cache');
+    const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');
     const { cdn } = await import('./infra/storage');
     const { webhooksApi } = await import('./infra/api');
     const { webapp } = await import('./infra/www');

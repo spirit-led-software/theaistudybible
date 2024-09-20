@@ -251,7 +251,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
         useChatResult.setMessages([
           ...useChatResult.messages().slice(0, -1),
           {
-            ...useChatResult.messages().at(-1)!,
+            ...useChatResult.messages()[useChatResult.messages().length - 1],
             id: lastAiResponseId,
           },
         ]);

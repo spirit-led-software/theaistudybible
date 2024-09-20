@@ -44,8 +44,8 @@ export function ReadingSessionProvider(props: { children: JSXElement }) {
 
   const startNewSession = async () => {
     if (isReading()) {
-      const id = await startReadingSession();
-      setSessionId(id);
+      const session = await startReadingSession();
+      setSessionId(session.id);
       updateActivity();
     }
   };

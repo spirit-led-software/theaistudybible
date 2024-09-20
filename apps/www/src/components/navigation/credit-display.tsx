@@ -16,7 +16,7 @@ export async function getUserCredits() {
   'use server';
   const { user } = auth();
   if (!user) {
-    return 0;
+    return DEFAULT_CREDITS;
   }
 
   const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, user.id));

@@ -18,7 +18,7 @@ export async function startReadingSession() {
     })
     .returning();
 
-  return session.id;
+  return session;
 }
 
 export async function endReadingSession(sessionId: string) {
@@ -28,7 +28,7 @@ export async function endReadingSession(sessionId: string) {
     throw new Error('User not authenticated');
   }
 
-  const [session] = await db
+  let [session] = await db
     .select()
     .from(readingSessions)
     .where(eq(readingSessions.id, sessionId))
@@ -39,7 +39,13 @@ export async function endReadingSession(sessionId: string) {
   }
 
   const endTime = new Date();
-  await db.update(readingSessions).set({ endTime }).where(eq(readingSessions.id, sessionId));
+  [session] = await db
+    .update(readingSessions)
+    .set({ endTime })
+    .where(eq(readingSessions.id, sessionId))
+    .returning();
+
+  return session;
 }
 
 export async function updateUserCredits(creditsToAdd: number) {
@@ -49,7 +55,7 @@ export async function updateUserCredits(creditsToAdd: number) {
     throw new Error('User not authenticated');
   }
 
-  await db
+  const [userCredit] = await db
     .insert(userCredits)
     .values({
       userId: user.id,
@@ -63,4 +69,6 @@ export async function updateUserCredits(creditsToAdd: number) {
       },
     })
     .returning();
+
+  return userCredit;
 }

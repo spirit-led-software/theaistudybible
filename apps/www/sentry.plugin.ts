@@ -1,8 +1,8 @@
 // @ts-check
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import * as Sentry from '@sentry/solidstart';
+import { H3Error } from 'h3';
 import { defineNitroPlugin } from 'nitropack/runtime';
-import { H3Error } from 'vinxi/http';
 
 export default defineNitroPlugin((nitro) => {
   Sentry.init({
@@ -17,11 +17,15 @@ export default defineNitroPlugin((nitro) => {
     if (error instanceof H3Error) {
       if (error.statusCode >= 500 && error.statusCode < 600) {
         Sentry.captureException(error);
+        return;
       }
+      return;
     }
+    Sentry.captureException(error);
   });
 
   nitro.hooks.hookOnce('close', async () => {
+    await Sentry.flush(2000);
     await Sentry.close(2000);
   });
 });

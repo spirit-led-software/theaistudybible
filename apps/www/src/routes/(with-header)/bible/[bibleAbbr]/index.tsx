@@ -42,18 +42,18 @@ const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
   }
 
   const { books, ...bible } = bibleData;
-  if (!books.at(0)) {
+  if (!books[0]) {
     throw new Error('Book not found');
   }
 
   const { chapters, ...book } = books[0];
-  if (!chapters.at(0)) {
+  if (!chapters[0]) {
     throw new Error('Chapter not found');
   }
 
   const chapter = chapters[0];
 
-  return `/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}`;
+  return { redirectUrl: `/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}` };
 };
 
 const getBibleRedirectUrlQueryOptions = ({ bibleAbbr }: BibleRedirectUrlParams) => ({
@@ -67,7 +67,9 @@ export default function BiblePage() {
 
   return (
     <WithHeaderLayout>
-      <QueryBoundary query={query}>{(link) => <Navigate href={link} />}</QueryBoundary>
+      <QueryBoundary query={query}>
+        {({ redirectUrl }) => <Navigate href={redirectUrl} />}
+      </QueryBoundary>
     </WithHeaderLayout>
   );
 }

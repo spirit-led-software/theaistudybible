@@ -80,6 +80,7 @@ export const passwords = sqliteTable('passwords', {
     .unique()
     .references(() => users.id, { onDelete: 'cascade' }),
   hash: text('hash').notNull(),
+  salt: text('salt').notNull(),
 });
 
 export const passwordsRelations = relations(passwords, ({ one }) => ({

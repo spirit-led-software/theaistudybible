@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 import type { z } from 'zod';
 import { forgotPasswordSchema, resetPasswordSchema, signInSchema, signUpSchema } from './schemas';
-import { hashPassword, verifyPassword } from './utils';
+import { generateSalt, hashPassword, verifyPassword } from './utils';
 
 export async function signIn(credentials: z.infer<typeof signInSchema>) {
   const validated = await signInSchema.parseAsync(credentials);
@@ -30,7 +30,11 @@ export async function signIn(credentials: z.infer<typeof signInSchema>) {
     );
   }
 
-  const validPassword = await verifyPassword(existingUserPassword.hash, validated.password);
+  const validPassword = verifyPassword(
+    validated.password,
+    existingUserPassword.salt,
+    existingUserPassword.hash,
+  );
   if (!validPassword) {
     throw new AuthError('InvalidSignIn', 'Invalid password');
   }
@@ -50,7 +54,8 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
     throw new AuthError('EmailExists', 'A user with this email already exists');
   }
 
-  const hash = await hashPassword(validated.password);
+  const salt = generateSalt();
+  const hash = hashPassword(validated.password, salt);
   const [user] = await db
     .insert(users)
     .values({
@@ -60,6 +65,7 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
   await db.insert(passwords).values({
     userId: user.id,
     hash,
+    salt,
   });
 
   const session = await lucia.createSession(user.id, {});
@@ -113,8 +119,9 @@ export async function resetPassword(values: z.infer<typeof resetPasswordSchema>)
     throw new AuthError('InvalidResetCode', 'Invalid reset code');
   }
 
-  const hash = await hashPassword(validated.password);
-  await db.update(passwords).set({ hash }).where(eq(passwords.userId, code.userId));
+  const salt = generateSalt();
+  const hash = hashPassword(validated.password, salt);
+  await db.update(passwords).set({ hash, salt }).where(eq(passwords.userId, code.userId));
 }
 
 export {

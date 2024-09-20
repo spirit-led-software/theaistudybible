@@ -7,10 +7,9 @@ export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'aws-lambda-streaming',
-    compatibilityDate: '2024-09-18',
     plugins: ['./sentry.plugin.ts'],
   },
-  vite: () => ({
+  vite: {
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
@@ -20,8 +19,5 @@ export default defineConfig({
         authToken: Resource.SentryAuthToken.value,
       }),
     ],
-    ssr: {
-      external: ['@node-rs/argon2'],
-    },
-  }),
+  },
 });

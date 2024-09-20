@@ -19,7 +19,9 @@ const addBookmark = async (verseId: string) => {
     throw new Error('Not signed in');
   }
 
-  return await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
+  await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
+
+  return { success: true };
 };
 
 const deleteBookmark = async (verseId: string) => {
@@ -29,9 +31,11 @@ const deleteBookmark = async (verseId: string) => {
     throw new Error('Not signed in');
   }
 
-  return await db
+  await db
     .delete(verseBookmarks)
     .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)));
+
+  return { success: true };
 };
 
 const getBookmark = async (verseId: string) => {

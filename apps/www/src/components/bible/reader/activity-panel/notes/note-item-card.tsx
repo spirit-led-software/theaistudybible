@@ -33,17 +33,22 @@ const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; cont
     throw new Error('Not signed in');
   }
 
+  let note: VerseNote | ChapterNote;
   if (props.type === 'chapter') {
-    await db
+    [note] = await db
       .update(chapterNotes)
       .set({ content: props.content })
-      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)));
+      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)))
+      .returning();
   } else {
-    await db
+    [note] = await db
       .update(verseNotes)
       .set({ content: props.content })
-      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
+      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
+      .returning();
   }
+
+  return note;
 };
 
 const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
@@ -62,6 +67,8 @@ const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) 
       .delete(verseNotes)
       .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
   }
+
+  return { success: true };
 };
 
 export type NoteItemCardProps = {

@@ -26,15 +26,16 @@ export const renameChat = async (chatId: string, messages: Pick<Message, 'role' 
       ' The new title must be short and descriptive.',
     prompt: `Here's the conversation delimited by triple backticks:\n\`\`\`\n${messagesToString(messages)}\n\`\`\`\nWhat's the new title?`,
   });
-  return (
-    await db
-      .update(chats)
-      .set({
-        name: object.title,
-      })
-      .where(eq(chats.id, chatId))
-      .returning()
-  ).at(0);
+
+  const [chat] = await db
+    .update(chats)
+    .set({
+      name: object.title,
+    })
+    .where(eq(chats.id, chatId))
+    .returning();
+
+  return chat;
 };
 
 export type CreateChatChainOptions = {
