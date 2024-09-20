@@ -11,29 +11,28 @@ import {
   profileImagesBucket,
 } from './storage';
 
+export const allLinks = [
+  ...constants,
+  ...secrets,
+  email,
+  emailQueue,
+  bibleBucket,
+  profileImagesBucket,
+  generatedImagesBucket,
+  devotionImagesBucket,
+  database,
+  upstashRedis,
+  upstashVectorIndex,
+  cdn,
+];
+
 /**
  * Define defaults for all SST functions
  */
 $transform(sst.aws.Function, (args) => {
   // biome-ignore lint/suspicious/noExplicitAny: Don't care
   args.link = $output(args.link).apply((link: sst.Linkable<any>[] = []) =>
-    Array.from(
-      new Set([
-        ...link,
-        ...constants,
-        ...secrets,
-        email,
-        emailQueue,
-        bibleBucket,
-        profileImagesBucket,
-        generatedImagesBucket,
-        devotionImagesBucket,
-        database,
-        upstashRedis,
-        upstashVectorIndex,
-        cdn,
-      ]),
-    ),
+    Array.from(new Set([...link, ...allLinks])),
   );
   args.nodejs = $output(args.nodejs).apply((nodejs) => ({
     ...nodejs,

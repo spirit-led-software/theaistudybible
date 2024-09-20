@@ -5,7 +5,9 @@ export default $config({
       removal: input?.stage === 'production' ? 'retain' : 'remove',
       home: 'aws',
       providers: {
-        aws: true,
+        aws: {
+          region: 'us-east-1',
+        },
         cloudflare: true,
         '@upstash/pulumi': true,
       },

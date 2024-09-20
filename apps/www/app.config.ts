@@ -8,6 +8,7 @@ export default defineConfig({
   server: {
     preset: 'aws-lambda-streaming',
     compatibilityDate: '2024-09-18',
+    plugins: ['./sentry.plugin.ts'],
   },
   vite: () => ({
     envPrefix: 'PUBLIC_',
