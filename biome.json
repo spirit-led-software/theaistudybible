@@ -1,5 +1,11 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "master"
+  },
   "files": {
     "ignore": [
       "**/node_modules",
@@ -32,6 +38,9 @@
         "useSemanticElements": "warn",
         "noLabelWithoutControl": "warn"
       },
+      "complexity": {
+        "noBannedTypes": "error"
+      },
       "correctness": {
         "useJsxKeyInIterable": "off",
         "noUnusedImports": "error",
@@ -43,7 +52,12 @@
         "useSortedClasses": "info"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useImportType": "error",
+        "useExportType": "error"
+      },
+      "suspicious": {
+        "useAwait": "error"
       }
     }
   },

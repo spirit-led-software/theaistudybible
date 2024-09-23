@@ -78,9 +78,9 @@ const getHighlightsQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    void qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
+    await qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
   },
 };
 

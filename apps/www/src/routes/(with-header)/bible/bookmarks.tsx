@@ -102,9 +102,9 @@ const getBookmarksQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    void qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+    await qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
   },
 };
 

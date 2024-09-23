@@ -52,9 +52,9 @@ const getProductsQueryOptions = {
 };
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    void qc.prefetchQuery(getProductsQueryOptions);
+    await qc.prefetchQuery(getProductsQueryOptions);
   },
 };
 

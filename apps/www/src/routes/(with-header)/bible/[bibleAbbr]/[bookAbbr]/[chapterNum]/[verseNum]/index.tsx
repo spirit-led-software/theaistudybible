@@ -7,13 +7,13 @@ import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
 
 export const route: RouteDefinition = {
-  preload: ({ params }) => {
+  preload: async ({ params }) => {
     const { bibleAbbr, bookAbbr } = params;
     const chapterNum = Number.parseInt(params.chapterNum);
     const verseNum = Number.parseInt(params.verseNum);
 
     const qc = useQueryClient();
-    void Promise.all([
+    await Promise.all([
       qc.prefetchQuery(
         getVerseReaderQueryOptions({
           bibleAbbr,

@@ -290,7 +290,7 @@ async function createBookOrder(books: (typeof schema.books.$inferSelect)[]) {
   for (let i = 0; i < books.length; i += batchSize) {
     const batch = books.slice(i, i + batchSize);
     await Promise.all(
-      batch.map(async (book, index) => {
+      batch.map((book, index) => {
         const previousBook = books[i + index - 1];
         const nextBook = books[i + index + 1];
         const updates: Partial<typeof schema.books.$inferSelect> = {};

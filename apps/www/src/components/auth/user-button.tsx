@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { H6 } from '../ui/typography';
 import { UserAvatar } from './user-avatar';
 
-async function signOut() {
+function signOut() {
   'use server';
   const sessionCookie = lucia.createBlankSessionCookie();
   setCookie(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
@@ -27,7 +27,7 @@ export const UserButton = (props: UserButtonProps) => {
   const { isLoaded, isSignedIn, user } = useAuth();
 
   const handleSignOut = createMutation(() => ({
-    mutationFn: () => signOut(),
+    mutationFn: () => Promise.resolve(signOut()),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: authProviderQueryOptions.queryKey,
