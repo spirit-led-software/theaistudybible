@@ -20,7 +20,7 @@ ENV SENTRY_PROJECT=$sentry_project
 ENV SENTRY_RELEASE=$sentry_release
 ENV SENTRY_AUTH_TOKEN=$sentry_auth_token
 
-RUN bun run build
+RUN cd apps/www && bun run build
 
 ################################################################################
 FROM oven/bun:1-slim AS prod
