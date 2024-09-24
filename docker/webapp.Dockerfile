@@ -1,23 +1,29 @@
 ARG SENTRY_ORG="the-ai-study-bible"
 ARG SENTRY_PROJECT="javascript-solidstart"
+ARG SENTRY_RELEASE="production"
 ARG SENTRY_AUTH_TOKEN
 
-FROM oven/bun:1-alpine AS build
+FROM oven/bun:1-slim AS build
+
+USER root
+
+RUN apt update && apt install -y git
 
 WORKDIR /build
 
-ENV SENTRY_ORG=${SENTRY_ORG}
-ENV SENTRY_PROJECT=${SENTRY_PROJECT}
-ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+ENV SENTRY_ORG="${SENTRY_ORG}"
+ENV SENTRY_PROJECT="${SENTRY_PROJECT}"
+ENV SENTRY_RELEASE="${SENTRY_RELEASE}"
+ENV SENTRY_AUTH_TOKEN="${SENTRY_AUTH_TOKEN}"
 
 COPY . .
 
-RUN bun install 
+RUN bun install --frozen-lockfile
 
 RUN bun run build
 
 ################################################################################
-FROM oven/bun:1-alpine AS prod
+FROM oven/bun:1-slim AS prod
 
 WORKDIR /app
 

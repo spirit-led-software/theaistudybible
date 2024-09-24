@@ -21,6 +21,7 @@ export const webapp = cluster.addService('WebAppService', {
     args: {
       SENTRY_ORG: SENTRY_ORG.value,
       SENTRY_PROJECT: SENTRY_PROJECT.value,
+      SENTRY_RELEASE: $app.stage,
       SENTRY_AUTH_TOKEN: SENTRY_AUTH_TOKEN.value,
     },
   },
