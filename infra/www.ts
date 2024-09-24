@@ -19,10 +19,14 @@ export const webapp = cluster.addService('WebAppService', {
   image: {
     dockerfile: 'docker/webapp.Dockerfile',
     args: {
-      SENTRY_ORG: SENTRY_ORG.value,
-      SENTRY_PROJECT: SENTRY_PROJECT.value,
-      SENTRY_RELEASE: $app.stage,
-      SENTRY_AUTH_TOKEN: SENTRY_AUTH_TOKEN.value,
+      sentry_org: SENTRY_ORG.value,
+      sentry_project: SENTRY_PROJECT.value,
+      sentry_release: $app.stage,
+      sentry_auth_token: SENTRY_AUTH_TOKEN.value,
+      website_url: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
+      cdn_url: cdn.url,
+      stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
+      stage: $app.stage,
     },
   },
   link: allLinks,
