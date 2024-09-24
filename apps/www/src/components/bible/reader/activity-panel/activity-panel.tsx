@@ -4,17 +4,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { H6 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { Highlighter, MessageCircle, Notebook, Share, TextSearch, X } from 'lucide-solid';
+import { Switch, createContext, createMemo, createSignal, splitProps, useContext } from 'solid-js';
 import type { Accessor, JSXElement, Setter } from 'solid-js';
-import {
-  Match,
-  Show,
-  Switch,
-  createContext,
-  createMemo,
-  createSignal,
-  splitProps,
-  useContext,
-} from 'solid-js';
+import { Match, Show } from 'solid-js';
 import { BookmarkButton } from './bookmark/button';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';

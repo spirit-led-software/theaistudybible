@@ -1,5 +1,5 @@
 import { cn } from '@/www/lib/utils';
-import type { PolymorphicProps } from '@kobalte/core/polymorphic';
+import type { PolymorphicProps } from '@kobalte/core';
 import * as ToastPrimitive from '@kobalte/core/toast';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';

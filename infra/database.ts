@@ -12,16 +12,10 @@ const tursoGroup = new turso.TursoGroup(
   },
 );
 
-const tursoDb = new turso.TursoDatabase(
-  'TursoDatabase',
-  {
-    name: `${$app.name}-${$app.stage}`,
-    group: tursoGroup.name,
-  },
-  {
-    retainOnDelete: $app.stage === 'production',
-  },
-);
+const tursoDb = new turso.TursoDatabase('TursoDatabase', {
+  name: `${$app.name}-${$app.stage}`,
+  group: tursoGroup.name,
+});
 
 export const database = new sst.Linkable('Database', {
   properties: {
@@ -39,19 +33,13 @@ sst.Linkable.wrap(upstash.VectorIndex, (resource) => ({
   },
 }));
 
-export const upstashVectorIndex = new upstash.VectorIndex(
-  'UpstashVectorIndex',
-  {
-    name: `${$app.name}-${$app.stage}`,
-    region: 'us-east-1',
-    dimensionCount: $dev ? 1536 : 3072,
-    similarityFunction: 'COSINE',
-    type: 'payg',
-  },
-  {
-    retainOnDelete: $app.stage !== 'production',
-  },
-);
+export const upstashVectorIndex = new upstash.VectorIndex('UpstashVectorIndex', {
+  name: `${$app.name}-${$app.stage}`,
+  region: 'us-east-1',
+  dimensionCount: $dev ? 1536 : 3072,
+  similarityFunction: 'COSINE',
+  type: 'payg',
+});
 
 sst.Linkable.wrap(upstash.RedisDatabase, (resource) => ({
   properties: {

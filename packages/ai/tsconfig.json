@@ -1,6 +1,7 @@
 {
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
+    "baseUrl": "./",
     "paths": {
       "@/ai": ["./src"],
       "@/ai/*": ["./src/*"],
@@ -8,10 +9,10 @@
       "@/schemas/*": ["../schemas/src/*"],
       "@/core": ["../core/src"],
       "@/core/*": ["../core/src/*"],
-      "@/www": ["../apps/www/src"],
-      "@/www/*": ["../apps/www/src/*"],
-      "@/functions": ["../apps/functions/src"],
-      "@/functions/*": ["../apps/functions/src/*"],
+      "@/www": ["../../apps/www/src"],
+      "@/www/*": ["../../apps/www/src/*"],
+      "@/functions": ["../../apps/functions/src"],
+      "@/functions/*": ["../../apps/functions/src/*"],
       "@/scripts": ["../../tools/scripts/src"],
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }

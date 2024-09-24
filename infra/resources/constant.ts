@@ -4,4 +4,8 @@ export class Constant extends sst.Linkable<{
   constructor(name: string, value: string) {
     super(name, { properties: { value } });
   }
+
+  get value() {
+    return this.properties.value;
+  }
 }

@@ -1,6 +1,7 @@
 {
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
+    "baseUrl": "./",
     "paths": {
       "@/core": ["./src"],
       "@/core/*": ["./src/*"],

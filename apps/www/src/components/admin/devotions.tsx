@@ -9,7 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card
 const triggerGenerateDevotion = async () => {
   'use server';
   const { roles } = auth();
-  if (roles?.some((role) => role.id === 'admin')) {
+  if (!roles?.some((role) => role.id === 'admin')) {
     throw new Error('You must be an admin to access this resource.');
   }
   return await generateDevotion();

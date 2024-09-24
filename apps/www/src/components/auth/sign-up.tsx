@@ -2,13 +2,13 @@ import { signUp } from '@/core/auth/providers/credentials';
 import { signUpSchema } from '@/core/auth/providers/credentials/schemas';
 import { useAuth } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { A, useNavigate } from '@solidjs/router';
+import { A, action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { setCookie } from 'vinxi/http';
+import { appendHeader } from 'vinxi/http';
 import type { z } from 'zod';
 import Logo from '../branding/logo';
 import { Button } from '../ui/button';
@@ -19,17 +19,17 @@ export type SignUpProps = {
   redirectUrl?: string;
 };
 
-async function handleSignUp(values: z.infer<typeof signUpSchema>) {
+const signUpAction = action(async (values: z.infer<typeof signUpSchema>, redirectUrl = '/') => {
   'use server';
   const cookie = await signUp(values);
-  setCookie(cookie.name, cookie.value, cookie.attributes);
-  return { success: true };
-}
+  appendHeader('Set-Cookie', cookie.serialize());
+  throw redirect(redirectUrl);
+});
 
 export const SignUp = (props: SignUpProps) => {
-  const navigate = useNavigate();
   const { invalidate } = useAuth();
 
+  const signUp = useAction(signUpAction);
   const [form, { Form, Field }] = createForm<z.infer<typeof signUpSchema>>({
     validate: zodForm(signUpSchema),
   });
@@ -38,10 +38,9 @@ export const SignUp = (props: SignUpProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = createSignal(false);
 
   const onSubmit = createMutation(() => ({
-    mutationFn: (values: z.infer<typeof signUpSchema>) => handleSignUp(values),
+    mutationFn: (values: z.infer<typeof signUpSchema>) => signUp(values, props.redirectUrl),
     onSuccess: () => {
       invalidate();
-      navigate(props.redirectUrl ?? '/');
     },
     onError: (error) => {
       toast.error(error.message);

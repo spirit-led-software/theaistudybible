@@ -1,14 +1,13 @@
 import { signIn } from '@/core/auth/providers/credentials';
 import { signInSchema } from '@/core/auth/providers/credentials/schemas';
-import { authProviderQueryOptions } from '@/www/contexts/auth';
+import { useAuth } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { A, useNavigate } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { A, action, redirect, useAction } from '@solidjs/router';
+import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
-import { Match, Switch } from 'solid-js';
-import { createSignal } from 'solid-js';
+import { Match, Switch, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { setCookie } from 'vinxi/http';
+import { appendHeader } from 'vinxi/http';
 import type { z } from 'zod';
 import Logo from '../branding/logo';
 import { Button } from '../ui/button';
@@ -19,28 +18,24 @@ export type SignInProps = {
   redirectUrl?: string;
 };
 
-async function handleSignIn(values: z.infer<typeof signInSchema>) {
+const signInAction = action(async (values: z.infer<typeof signInSchema>, redirectUrl = '/') => {
   'use server';
   const cookie = await signIn(values);
-  setCookie(cookie.name, cookie.value, cookie.attributes);
-  return { success: true };
-}
+  appendHeader('Set-Cookie', cookie.serialize());
+  throw redirect(redirectUrl);
+});
 
 export const SignIn = (props: SignInProps) => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
+  const { invalidate } = useAuth();
+  const signIn = useAction(signInAction);
   const [form, { Form, Field }] = createForm<z.infer<typeof signInSchema>>({
     validate: zodForm(signInSchema),
   });
 
   const onSubmit = createMutation(() => ({
-    mutationFn: (values: z.infer<typeof signInSchema>) => handleSignIn(values),
+    mutationFn: (values: z.infer<typeof signInSchema>) => signIn(values, props.redirectUrl),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: authProviderQueryOptions.queryKey,
-      });
-      navigate(props.redirectUrl ?? '/');
+      invalidate();
     },
     onError: (error) => {
       toast.error(error.message);

@@ -11,7 +11,3 @@ const client = createClient({
 export const db = drizzle(client, {
   schema,
 });
-
-process.on('beforeExit', () => {
-  client.close();
-});

@@ -103,8 +103,12 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
-    "WebApp": {
-      "type": "sst.aws.SolidStart"
+    "Vpc": {
+      "type": "sst.aws.Vpc"
+    }
+    "WebAppService": {
+      "service": string
+      "type": "sst.aws.Service"
       "url": string
     }
     "WebhooksApi": {
@@ -114,10 +118,6 @@ declare module "sst" {
     "WebhooksApiFunction": {
       "name": string
       "type": "sst.aws.Function"
-      "url": string
-    }
-    "WebhooksApiRouter": {
-      "type": "sst.aws.Router"
       "url": string
     }
   }

@@ -1,7 +1,8 @@
 import { cn } from '@/www/lib/utils';
 import type { PolymorphicProps } from '@kobalte/core';
 import type { JSX, ValidComponent } from 'solid-js';
-import { createContext, createSignal, onCleanup, Show, splitProps, useContext } from 'solid-js';
+import { createContext, createSignal, onCleanup, splitProps, useContext } from 'solid-js';
+import { Show } from 'solid-js';
 import type { ButtonProps } from './button';
 import { Button } from './button';
 

@@ -3,7 +3,7 @@ import { Show, splitProps } from 'solid-js';
 
 import * as SheetPrimitive from '@kobalte/core/dialog';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { type VariantProps, cva } from 'class-variance-authority';
 
 import { cn } from '@/www/lib/utils';
 

@@ -2,7 +2,7 @@ import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
 import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
-import { getCookie, setCookie } from 'vinxi/http';
+import { appendHeader, getCookie } from 'vinxi/http';
 
 export default createMiddleware({
   onRequest: [
@@ -18,11 +18,15 @@ export default createMiddleware({
       const { session, user } = await lucia.validateSession(sessionId);
       if (session?.fresh) {
         const cookie = lucia.createSessionCookie(session.id);
-        setCookie(nativeEvent, cookie.name, cookie.value, cookie.attributes);
+        appendHeader(nativeEvent, 'Set-Cookie', cookie.serialize());
       }
       if (!session) {
         const cookie = lucia.createBlankSessionCookie();
-        setCookie(nativeEvent, cookie.name, cookie.value, cookie.attributes);
+        appendHeader(nativeEvent, 'Set-Cookie', cookie.serialize());
+        locals.session = null;
+        locals.user = null;
+        locals.roles = null;
+        return;
       }
 
       const roles = await db.query.usersToRoles

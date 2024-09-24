@@ -1,0 +1,18 @@
+# SST
+.sst
+
+# Node
+node_modules
+
+# GitHub
+.github
+
+# VSCode
+.vscode
+
+# Dockerfiles
+/docker
+
+# SolidStart Build Output
+.output
+.vinxi

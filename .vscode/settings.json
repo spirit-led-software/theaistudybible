@@ -18,8 +18,8 @@
     "upstash"
   ],
   "editor.codeActionsOnSave": {
-    "quickfix.biome": "always",
-    "source.organizeImports.biome": "always"
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
   },
   "biome.enabled": true,
   "eslint.enable": false,
@@ -36,7 +36,7 @@
   },
   "[javascriptreact]": {
     "editor.defaultFormatter": "biomejs.biome"
-  },  
+  },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
   },

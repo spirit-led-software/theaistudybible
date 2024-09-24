@@ -9,7 +9,7 @@
     "types": ["vinxi/types/client"],
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@/www": ["./src"],
       "@/www/*": ["./src/*"],

@@ -143,6 +143,13 @@ export const userCredits = sqliteTable(
   }),
 );
 
+export const userCreditsRelations = relations(userCredits, ({ one }) => ({
+  user: one(users, {
+    fields: [userCredits.userId],
+    references: [users.id],
+  }),
+}));
+
 export const roles = sqliteTable(
   'roles',
   {
@@ -290,6 +297,10 @@ export const messages = sqliteTable(
 
 export const messagesRelations = relations(messages, ({ one, many }) => {
   return {
+    user: one(users, {
+      fields: [messages.userId],
+      references: [users.id],
+    }),
     chat: one(chats, {
       fields: [messages.chatId],
       references: [chats.id],
@@ -333,6 +344,10 @@ export const messageReactions = sqliteTable(
 
 export const messageReactionsRelations = relations(messageReactions, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [messageReactions.userId],
+      references: [users.id],
+    }),
     message: one(messages, {
       fields: [messageReactions.messageId],
       references: [messages.id],
@@ -408,6 +423,10 @@ export const userGeneratedImages = sqliteTable(
 
 export const userGeneratedImagesRelations = relations(userGeneratedImages, ({ one, many }) => {
   return {
+    user: one(users, {
+      fields: [userGeneratedImages.userId],
+      references: [users.id],
+    }),
     message: one(messages, {
       fields: [userGeneratedImages.messageId],
       references: [messages.id],
@@ -447,6 +466,10 @@ export const userGeneratedImagesReactionsRelations = relations(
   userGeneratedImagesReactions,
   ({ one }) => {
     return {
+      user: one(users, {
+        fields: [userGeneratedImagesReactions.userId],
+        references: [users.id],
+      }),
       userGeneratedImage: one(userGeneratedImages, {
         fields: [userGeneratedImagesReactions.userGeneratedImageId],
         references: [userGeneratedImages.id],
@@ -549,6 +572,10 @@ export const devotionReactions = sqliteTable(
 
 export const devotionReactionsRelations = relations(devotionReactions, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [devotionReactions.userId],
+      references: [users.id],
+    }),
     devotion: one(devotions, {
       fields: [devotionReactions.devotionId],
       references: [devotions.id],
@@ -1145,6 +1172,10 @@ export const chapterBookmarks = sqliteTable(
 
 export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [chapterBookmarks.userId],
+      references: [users.id],
+    }),
     chapter: one(chapters, {
       fields: [chapterBookmarks.chapterId],
       references: [chapters.id],
@@ -1177,6 +1208,10 @@ export const chapterNotes = sqliteTable(
 
 export const chapterNotesRelations = relations(chapterNotes, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [chapterNotes.userId],
+      references: [users.id],
+    }),
     chapter: one(chapters, {
       fields: [chapterNotes.chapterId],
       references: [chapters.id],
@@ -1233,6 +1268,15 @@ export const readingSessions = sqliteTable(
     endTimeIdx: index('reading_sessions_end_time_idx').on(table.endTime),
   }),
 );
+
+export const readingSessionsRelations = relations(readingSessions, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [readingSessions.userId],
+      references: [users.id],
+    }),
+  };
+});
 
 export const verses = sqliteTable(
   'verses',
@@ -1323,6 +1367,10 @@ export const verseHighlights = sqliteTable(
 
 export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [verseHighlights.userId],
+      references: [users.id],
+    }),
     verse: one(verses, {
       fields: [verseHighlights.verseId],
       references: [verses.id],
@@ -1352,6 +1400,10 @@ export const verseBookmarks = sqliteTable(
 
 export const verseBookmarksRelations = relations(verseBookmarks, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [verseBookmarks.userId],
+      references: [users.id],
+    }),
     verse: one(verses, {
       fields: [verseBookmarks.verseId],
       references: [verses.id],
@@ -1381,6 +1433,10 @@ export const verseNotes = sqliteTable(
 
 export const verseNotesRelations = relations(verseNotes, ({ one }) => {
   return {
+    user: one(users, {
+      fields: [verseNotes.userId],
+      references: [users.id],
+    }),
     verse: one(verses, {
       fields: [verseNotes.verseId],
       references: [verses.id],

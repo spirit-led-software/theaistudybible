@@ -3,15 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/ca
 import { GradientH1, H2, P } from '@/www/components/ui/typography';
 import { AboutLayout } from '@/www/layouts/about';
 import { A } from '@solidjs/router';
-import {
-  BookOpenText,
-  Heart,
-  MessageSquare,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Star,
-} from 'lucide-solid';
+import { BookOpenText, MessageSquare, Search, ShieldCheck, Sparkles, Star } from 'lucide-solid';
+import { Heart } from 'lucide-solid';
 
 export default function AboutPage() {
   const features = [

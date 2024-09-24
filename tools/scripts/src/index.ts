@@ -1,5 +1,5 @@
-import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
 import fs from 'node:fs';
+import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { seedDatabase } from './database/seed';

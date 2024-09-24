@@ -11,7 +11,7 @@ export const webhooksApiRouter = !$dev
         '/*': webhooksApiFn.url,
       },
       domain: {
-        name: `webhooks.${DOMAIN.properties.value}`,
+        name: `webhooks.${DOMAIN.value}`,
         dns: sst.cloudflare.dns(),
       },
     })

@@ -4,7 +4,7 @@ import { HighlightColorPicker } from '@/www/components/bible/reader/activity-pan
 import { Button } from '@/www/components/ui/button';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { H5 } from '@/www/components/ui/typography';
-import type { useChat } from '@ai-sdk/solid';
+import type { useChat } from '@/www/hooks/use-chat';
 import type { ToolInvocation } from 'ai';
 import { Palette } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';

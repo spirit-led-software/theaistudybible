@@ -1,7 +1,7 @@
 import { cn } from '@/www/lib/utils';
 import * as ImagePrimitive from '@kobalte/core/image';
 import type { PolymorphicProps } from '@kobalte/core/polymorphic';
-import { splitProps, type ValidComponent } from 'solid-js';
+import { type ValidComponent, splitProps } from 'solid-js';
 
 type AvatarRootProps = ImagePrimitive.ImageRootProps & {
   class?: string | undefined;

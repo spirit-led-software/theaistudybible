@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.50",
-    "@ai-sdk/openai": "^0.0.61",
+    "@ai-sdk/openai": "^0.0.62",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.1.6",

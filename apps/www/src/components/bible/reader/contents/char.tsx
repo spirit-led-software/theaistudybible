@@ -2,8 +2,9 @@ import type { VerseNote } from '@/schemas/bibles';
 import type { CharContent as CharContentType } from '@/schemas/bibles/contents';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { cn } from '@/www/lib/utils';
-import type { HighlightInfo } from '@/www/types/bible';
 import { A } from '@solidjs/router';
+('@/www/types/bible');
+import type { HighlightInfo } from '@/www/types/bible';
 import Contents from './contents';
 
 export type CharContentProps = {

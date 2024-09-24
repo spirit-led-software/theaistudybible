@@ -1,4 +1,9 @@
-import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
+import {
+  COLOR_MODE_STORAGE_KEY,
+  ColorModeProvider,
+  ColorModeScript,
+  cookieStorageManagerSSR,
+} from '@kobalte/core';
 import { withSentryRouterRouting } from '@sentry/solidstart/solidrouter';
 import { MultiProvider } from '@solid-primitives/context';
 import { MetaProvider } from '@solidjs/meta';
@@ -25,8 +30,8 @@ const SentryRouter = withSentryRouterRouting(Router);
 
 export function getServerCookies() {
   'use server';
-  const colorMode = getCookie('kb-color-mode');
-  return colorMode ? `kb-color-mode=${colorMode}` : '';
+  const colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
+  return colorMode ? `${COLOR_MODE_STORAGE_KEY}=${colorMode}` : '';
 }
 
 export default function App() {
