@@ -2,6 +2,7 @@ ARG sentry_org="the-ai-study-bible"
 ARG sentry_project="javascript-solidstart"
 ARG sentry_release="production"
 ARG sentry_auth_token
+ARG stripe_publishable_key
 
 FROM oven/bun:1-slim AS build
 
