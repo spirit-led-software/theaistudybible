@@ -16,6 +16,6 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "hono": "^4.6.3",
-    "svix": "^1.35.0"
+    "svix": "^1.36.0"
   }
 }
