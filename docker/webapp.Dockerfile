@@ -1,7 +1,7 @@
-ARG SENTRY_ORG="the-ai-study-bible"
-ARG SENTRY_PROJECT="javascript-solidstart"
-ARG SENTRY_RELEASE="production"
-ARG SENTRY_AUTH_TOKEN
+ARG sentry_org="the-ai-study-bible"
+ARG sentry_project="javascript-solidstart"
+ARG sentry_release="production"
+ARG sentry_auth_token
 
 FROM oven/bun:1-slim AS build
 
@@ -11,14 +11,14 @@ RUN apt update && apt install -y git
 
 WORKDIR /build
 
-ENV SENTRY_ORG="${SENTRY_ORG}"
-ENV SENTRY_PROJECT="${SENTRY_PROJECT}"
-ENV SENTRY_RELEASE="${SENTRY_RELEASE}"
-ENV SENTRY_AUTH_TOKEN="${SENTRY_AUTH_TOKEN}"
-
 COPY . .
 
 RUN bun install --frozen-lockfile
+
+ENV SENTRY_ORG=$sentry_org
+ENV SENTRY_PROJECT=$sentry_project
+ENV SENTRY_RELEASE=$sentry_release
+ENV SENTRY_AUTH_TOKEN=$sentry_auth_token
 
 RUN bun run build
 
