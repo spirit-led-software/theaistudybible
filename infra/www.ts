@@ -21,7 +21,6 @@ export const webapp = cluster.addService('WebAppService', {
     args: {
       sentry_org: SENTRY_ORG.value,
       sentry_project: SENTRY_PROJECT.value,
-      sentry_release: $app.stage,
       sentry_auth_token: SENTRY_AUTH_TOKEN.value,
       website_url: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
       cdn_url: cdn.url,
