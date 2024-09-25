@@ -13,6 +13,14 @@ export const vpc = new sst.aws.Vpc('Vpc');
 
 export const cluster = new sst.aws.Cluster('Cluster', { vpc });
 
+export const webAppImageRegistry = new aws.ecr.Repository('WebAppImageRegistry', {
+  name: `${$app.name}-${$app.stage}-webapp-registry`,
+  forceDelete: true,
+});
+export const webAppImageRegistryToken = aws.ecr.getAuthorizationTokenOutput({
+  registryId: webAppImageRegistry.registryId,
+});
+
 const webAppEnv = {
   PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
   PUBLIC_CDN_URL: cdn.url,
@@ -50,7 +58,12 @@ export const webapp = cluster.addService('WebAppService', {
     },
   },
   architecture: 'arm64',
-  scaling: { min: 1, max: 4, cpuUtilization: 85, memoryUtilization: 85 },
+  scaling: {
+    min: 1,
+    max: $app.stage === 'production' ? 4 : 1,
+    cpuUtilization: 90,
+    memoryUtilization: 90,
+  },
   transform: {
     loadBalancerSecurityGroup: (args) => {
       args.ingress = [
@@ -69,6 +82,18 @@ export const webapp = cluster.addService('WebAppService', {
           ipv6CidrBlocks: CLOUDFLARE_IPV6_RANGES,
         },
       ];
+    },
+    image: {
+      tags: [$interpolate`${webAppImageRegistry.repositoryUrl}:latest`],
+      cacheFrom: [{ registry: { ref: $interpolate`${webAppImageRegistry.repositoryUrl}:latest` } }],
+      registries: [
+        {
+          address: webAppImageRegistryToken.proxyEndpoint,
+          username: webAppImageRegistryToken.userName,
+          password: $util.secret(webAppImageRegistryToken.password),
+        },
+      ],
+      network: 'host',
     },
   },
 });

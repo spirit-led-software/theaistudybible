@@ -67,14 +67,6 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "SentryOrg": {
-      "type": "sst.sst.Linkable"
-      "value": string
-    }
-    "SentryProject": {
-      "type": "sst.sst.Linkable"
-      "value": string
-    }
     "Stage": {
       "type": "sst.sst.Linkable"
       "value": string
@@ -118,6 +110,10 @@ declare module "sst" {
     "WebhooksApiFunction": {
       "name": string
       "type": "sst.aws.Function"
+      "url": string
+    }
+    "WebhooksApiRouter": {
+      "type": "sst.aws.Router"
       "url": string
     }
   }

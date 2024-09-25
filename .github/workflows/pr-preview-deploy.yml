@@ -50,8 +50,6 @@ jobs:
           echo "pr-${{ github.event.pull_request.number }}" > .sst/stage
 
       - name: Deploy
-        env:
-          DOCKER_BUILDKIT: 1
         run: |
           bun run deploy
 

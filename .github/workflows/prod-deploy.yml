@@ -46,8 +46,6 @@ jobs:
           echo "production" > .sst/stage
 
       - name: Deploy
-        env:
-          DOCKER_BUILDKIT: 1
         run: |
           bun run deploy
 
