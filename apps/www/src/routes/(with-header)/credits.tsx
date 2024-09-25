@@ -139,8 +139,8 @@ export default function CreditPurchasePage() {
                           ((product.default_price as Stripe.Price).unit_amount ?? 0) /
                           100 /
                           Number.parseInt(product.metadata.credits)
-                        ).toFixed(2)}
-                        per credit
+                        ).toFixed(2)}{' '}
+                        / credit
                       </p>
                     </CardContent>
                     <CardFooter class='pt-2'>

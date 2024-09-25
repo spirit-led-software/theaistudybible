@@ -156,7 +156,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     id: chatId(),
     generateId: createId,
     sendExtraMessageFields: true,
-    maxToolRoundtrips: 5,
+    maxToolRoundtrips: 0,
     body: {
       ...props()?.body,
       chatId: chatId(),
