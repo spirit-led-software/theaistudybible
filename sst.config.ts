@@ -13,33 +13,6 @@ export default $config({
       },
     };
   },
-  console: {
-    autodeploy: {
-      target: (event) => {
-        if (event.type === 'branch' && event.branch === 'master' && event.action === 'pushed') {
-          return {
-            stage: 'production',
-            runner: {
-              engine: 'codebuild',
-              architecture: 'arm64',
-              compute: 'large',
-            },
-          };
-        }
-
-        if (event.type === 'pull_request' && event.base === 'master') {
-          return {
-            stage: `pr-${event.number}`,
-            runner: {
-              engine: 'codebuild',
-              architecture: 'arm64',
-              compute: 'large',
-            },
-          };
-        }
-      },
-    },
-  },
   run: async () => {
     await import('./infra/email');
     await import('./infra/defaults');
