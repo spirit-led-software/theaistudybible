@@ -5,7 +5,7 @@ import { useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { History } from 'lucide-solid';
-import { For, Match, Switch, createEffect, on } from 'solid-js';
+import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useDevotionStore } from '../../contexts/devotion';
 import { QueryBoundary } from '../query-boundary';
@@ -23,6 +23,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
 
 const getDevotions = async ({ offset, limit }: { offset: number; limit: number }) => {
+  'use server';
   const devotions = await db.query.devotions.findMany({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
     offset,
@@ -48,20 +49,19 @@ export const DevotionSidebar = () => {
   }));
 
   const [devotions, setDevotions] = createStore(
-    devotionsQuery.data?.pages.flatMap((page) => page.devotions) ?? [],
+    !devotionsQuery.isLoading && devotionsQuery.data
+      ? devotionsQuery.data.pages.flatMap((page) => page.devotions)
+      : [],
   );
-  createEffect(
-    on(
-      () => devotionsQuery.data,
-      (data) => {
-        setDevotions(
-          reconcile(data?.pages.flatMap((page) => page.devotions) ?? [], {
-            merge: true,
-          }),
-        );
-      },
-    ),
-  );
+  createEffect(() => {
+    if (!devotionsQuery.isLoading && devotionsQuery.data) {
+      setDevotions(
+        reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions) ?? [], {
+          merge: true,
+        }),
+      );
+    }
+  });
 
   return (
     <Sheet>

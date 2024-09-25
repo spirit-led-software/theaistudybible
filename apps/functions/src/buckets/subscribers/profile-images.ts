@@ -26,7 +26,7 @@ export const handler: S3Handler = async (event) => {
 
     await db
       .update(users)
-      .set({ image: `${Resource.Cdn.url}/${record.s3.object.key}` })
+      .set({ image: `${Resource.Cdn.url}/profile-images/${record.s3.object.key}` })
       .where(eq(users.id, userId));
 
     console.log(`Successfully processed ${key}`);

@@ -5,6 +5,7 @@ import { WithHeaderLayout } from '@/www/layouts/with-header';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
+import { Show } from 'solid-js';
 
 const getLatestDevotion = async () => {
   'use server';
@@ -31,16 +32,17 @@ const DevotionPage = () => {
   const devotionQuery = createQuery(() => getLatestDevotionQueryOptions);
   const [devotionStore] = useDevotionStore();
 
-  if (devotionStore.devotion) {
-    return <Navigate href={`/devotion/${devotionStore.devotion.id}`} />;
-  }
-
   return (
-    <WithHeaderLayout>
-      <QueryBoundary query={devotionQuery}>
-        {(devotion) => <Navigate href={`/devotion/${devotion.id}`} />}
-      </QueryBoundary>
-    </WithHeaderLayout>
+    <Show
+      when={!devotionStore.devotion}
+      fallback={<Navigate href={`/devotion/${devotionStore.devotion!.id}`} />}
+    >
+      <WithHeaderLayout>
+        <QueryBoundary query={devotionQuery}>
+          {(devotion) => <Navigate href={`/devotion/${devotion.id}`} />}
+        </QueryBoundary>
+      </WithHeaderLayout>
+    </Show>
   );
 };
 

@@ -13,6 +13,22 @@ export default $config({
       },
     };
   },
+  console: {
+    autodeploy: {
+      target: (event) => {
+        if (event.type === 'branch' && event.branch === 'master' && event.action === 'pushed') {
+          return {
+            stage: 'production',
+            runner: {
+              engine: 'codebuild',
+              architecture: 'arm64',
+              compute: 'small',
+            },
+          };
+        }
+      },
+    },
+  },
   run: async () => {
     await import('./infra/email');
     await import('./infra/defaults');

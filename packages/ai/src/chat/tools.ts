@@ -360,7 +360,7 @@ export const generateImageTool = (props: {
           .insert(userGeneratedImages)
           .values({
             id,
-            url: `${Resource.Cdn.url}/${key}`,
+            url: `${Resource.Cdn.url}/generated-images/${key}`,
             userPrompt: prompt,
             prompt: generateImageResponse.data[0].revised_prompt,
             userId: props.userId,

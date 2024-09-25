@@ -41,7 +41,9 @@ const DevotionPage = () => {
     ...getDevotionQueryProps({ id: params.id }),
   }));
   createEffect(() => {
-    setDevotionStore('devotion', devotionQuery.data ?? undefined);
+    if (!devotionQuery.isLoading && devotionQuery.data) {
+      setDevotionStore('devotion', devotionQuery.data);
+    }
   });
 
   return (

@@ -14,23 +14,22 @@ RUN apt update && apt install -y git
 
 WORKDIR /build
 
-ENV SENTRY_ORG=$sentry_org
-ENV SENTRY_PROJECT=$sentry_project
-ENV SENTRY_RELEASE=$stage
-ENV SENTRY_AUTH_TOKEN=$sentry_auth_token
-ENV PUBLIC_WEBSITE_URL=$website_url
-ENV PUBLIC_CDN_URL=$cdn_url
-ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=$stripe_publishable_key
-ENV PUBLIC_STAGE=$stage
+ENV SENTRY_ORG=${sentry_org}
+ENV SENTRY_PROJECT=${sentry_project}
+ENV SENTRY_RELEASE=${sentry_release}
+ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
+ENV PUBLIC_WEBSITE_URL=${website_url}
+ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
+ENV PUBLIC_STAGE=${stage}
 
 COPY . .
 
 RUN bun install --frozen-lockfile
 
-RUN cd apps/www && bun run build
+RUN bun run build
 
-################################################################################
-FROM oven/bun:1-slim AS prod
+FROM oven/bun:1-slim AS runner
 
 WORKDIR /app
 
