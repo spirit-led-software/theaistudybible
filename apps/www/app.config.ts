@@ -20,7 +20,7 @@ export default defineConfig({
         includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
         manifest: {
           name: 'The AI Study Bible',
-          short_name: 'ASB',
+          short_name: 'The AI Study Bible',
           description:
             'The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.',
           theme_color: '#030527',

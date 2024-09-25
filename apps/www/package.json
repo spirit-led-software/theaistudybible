@@ -7,7 +7,7 @@
     "clean": "rimraf .output .vinxi",
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "generate-pwa-assets": "pwa-assets-generator --preset minimal-2023 public/icon.svg",
+    "generate-pwa-assets": "pwa-assets-generator",
     "start": "vinxi start",
     "type-check": "tsc --noEmit",
     "test": "vitest run"
