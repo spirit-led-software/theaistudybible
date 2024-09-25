@@ -138,42 +138,44 @@ export default function VerseReader(props: VerseReaderProps) {
                 </Button>
               </div>
               <Show when={verse.previous}>
-                <div class='fixed bottom-0 left-0 flex flex-col place-items-center justify-center'>
-                  <Tooltip placement='right'>
-                    <TooltipTrigger
-                      as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-8 rounded-none rounded-tr-2xl')}
-                      href={
-                        `/bible/${bible.abbreviation}/${verse.previous!.abbreviation.split('.')[0]}` +
-                        `/${verse.previous!.abbreviation.split('.')[1]}/${verse.previous!.number}`
-                      }
-                    >
-                      <ChevronLeft size={20} class='shrink-0' />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{verse.previous!.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Tooltip placement='right'>
+                  <TooltipTrigger
+                    as={A}
+                    class={cn(
+                      buttonVariants(),
+                      'fixed bottom-safe left-safe my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl',
+                    )}
+                    href={
+                      `/bible/${bible.abbreviation}/${verse.previous!.abbreviation.split('.')[0]}` +
+                      `/${verse.previous!.abbreviation.split('.')[1]}/${verse.previous!.number}`
+                    }
+                  >
+                    <ChevronLeft size={20} class='shrink-0' />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{verse.previous!.name}</p>
+                  </TooltipContent>
+                </Tooltip>
               </Show>
               <Show when={verse.next}>
-                <div class='fixed right-0 bottom-0 flex flex-col place-items-center justify-center'>
-                  <Tooltip placement='left'>
-                    <TooltipTrigger
-                      as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-8 rounded-none rounded-tl-2xl')}
-                      href={
-                        `/bible/${bible.abbreviation}/${verse.next!.abbreviation.split('.')[0]}` +
-                        `/${verse.next!.abbreviation.split('.')[1]}/${verse.next!.number}`
-                      }
-                    >
-                      <ChevronRight size={20} class='shrink-0' />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{verse.next!.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Tooltip placement='left'>
+                  <TooltipTrigger
+                    as={A}
+                    class={cn(
+                      buttonVariants(),
+                      'fixed right-safe bottom-safe my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl',
+                    )}
+                    href={
+                      `/bible/${bible.abbreviation}/${verse.next!.abbreviation.split('.')[0]}` +
+                      `/${verse.next!.abbreviation.split('.')[1]}/${verse.next!.number}`
+                    }
+                  >
+                    <ChevronRight size={20} class='shrink-0' />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{verse.next!.name}</p>
+                  </TooltipContent>
+                </Tooltip>
               </Show>
             </div>
           </BibleReaderProvider>

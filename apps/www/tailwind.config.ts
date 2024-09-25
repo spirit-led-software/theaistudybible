@@ -1,10 +1,11 @@
 import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
+import tailwindcssSafeArea from 'tailwindcss-safe-area';
 
 export default {
   darkMode: ['class', '[data-kb-theme="dark"]'],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAnimate, tailwindcssSafeArea],
   theme: {
     container: {
       center: true,

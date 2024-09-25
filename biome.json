@@ -63,6 +63,7 @@
   },
   "javascript": {
     "formatter": {
+      "enabled": true,
       "quoteStyle": "single",
       "jsxQuoteStyle": "single",
       "semicolons": "always",

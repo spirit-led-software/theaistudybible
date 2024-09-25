@@ -113,36 +113,38 @@ export default function ChapterReader(props: ChapterReaderProps) {
                 <Muted>{bible.copyrightStatement}</Muted>
               </div>
               <Show when={chapter.previous}>
-                <div class='fixed bottom-0 left-0 flex flex-col place-items-center justify-center'>
-                  <Tooltip placement='right'>
-                    <TooltipTrigger
-                      as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-8 rounded-none rounded-tr-2xl')}
-                      href={`/bible/${bible.abbreviation}/${chapter.previous!.abbreviation.split('.')[0]}/${chapter.previous!.number}`}
-                    >
-                      <ChevronLeft size={20} class='shrink-0' />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{chapter.previous!.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Tooltip placement='right'>
+                  <TooltipTrigger
+                    as={A}
+                    class={cn(
+                      buttonVariants(),
+                      'fixed bottom-safe left-safe my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl',
+                    )}
+                    href={`/bible/${bible.abbreviation}/${chapter.previous!.abbreviation.split('.')[0]}/${chapter.previous!.number}`}
+                  >
+                    <ChevronLeft size={20} class='shrink-0' />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{chapter.previous!.name}</p>
+                  </TooltipContent>
+                </Tooltip>
               </Show>
               <Show when={chapter.next}>
-                <div class='fixed right-0 bottom-0 flex flex-col place-items-center justify-center'>
-                  <Tooltip placement='left'>
-                    <TooltipTrigger
-                      as={A}
-                      class={cn(buttonVariants(), 'my-auto h-20 w-8 rounded-none rounded-tl-2xl')}
-                      href={`/bible/${bible.abbreviation}/${chapter.next!.abbreviation.split('.')[0]}/${chapter.next!.number}`}
-                    >
-                      <ChevronRight size={20} class='shrink-0' />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{chapter.next!.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+                <Tooltip placement='left'>
+                  <TooltipTrigger
+                    as={A}
+                    class={cn(
+                      buttonVariants(),
+                      'fixed right-safe bottom-safe my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl',
+                    )}
+                    href={`/bible/${bible.abbreviation}/${chapter.next!.abbreviation.split('.')[0]}/${chapter.next!.number}`}
+                  >
+                    <ChevronRight size={20} class='shrink-0' />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{chapter.next!.name}</p>
+                  </TooltipContent>
+                </Tooltip>
               </Show>
             </div>
           </BibleReaderProvider>

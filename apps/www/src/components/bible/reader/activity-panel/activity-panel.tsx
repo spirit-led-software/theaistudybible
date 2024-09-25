@@ -52,7 +52,7 @@ export const ActivityPanelAlwaysOpenButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-1/2 bottom-0 flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
+      class={`fixed inset-x-1/2 bottom-safe flex translate-x-1/2 transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
       <div class='flex h-10 place-items-center space-x-2 rounded-t-lg bg-primary px-3 py-1'>
         <Tooltip>
@@ -79,7 +79,7 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-0 bottom-0 flex transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
+      class={`fixed inset-x-safe bottom-safe flex transform place-items-center justify-center transition duration-200 ${open() ? 'delay-200' : 'translate-y-full'}`}
     >
       <div class='grid h-fit w-fit grid-cols-3 grid-rows-2 place-items-center gap-1 rounded-t-lg bg-primary p-1 md:flex md:flex-row'>
         <H6 class='col-span-2 text-nowrap px-1 text-center text-primary-foreground text-sm md:col-span-1'>

@@ -59,10 +59,7 @@
   }
 
   html {
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+    @apply pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)];
   }
 
   html,
@@ -83,50 +80,6 @@
   }
 }
 
-@layer components {
-  .fixed.inset-0 {
-    inset: 0px;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-
-  .fixed.inset-y-0 {
-    top: 0px;
-    bottom: 0px;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  .fixed.inset-x-0 {
-    left: 0px;
-    right: 0px;
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-
-  .fixed.top-0 {
-    top: 0px;
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-
-  .fixed.bottom-0 {
-    bottom: 0px;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
-  .fixed.left-0 {
-    left: 0px;
-    padding-left: env(safe-area-inset-left, 0px);
-  }
-
-  .fixed.right-0 {
-    right: 0px;
-    padding-right: env(safe-area-inset-right, 0px);
-  }
-}
-
 @media (max-width: 640px) {
   .container {
     @apply px-4;
@@ -137,10 +90,12 @@
 .card-item-exit-active {
   @apply transition-all duration-200;
 }
+
 .card-item-enter,
 .card-item-exit-to {
   @apply scale-0 opacity-0;
 }
+
 .card-item-enter-to {
   @apply scale-100 opacity-100;
 }

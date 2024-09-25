@@ -13,7 +13,7 @@ import { Menu } from './menu';
 
 export default function NavigationHeader() {
   return (
-    <nav class='fixed inset-x-0 top-0 z-50 flex h-20 items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
+    <nav class='fixed inset-x-safe top-safe z-50 flex h-20 items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
       <div class='flex w-1/3 justify-start sm:hidden sm:w-0'>
         <NavigationDrawer />
       </div>
