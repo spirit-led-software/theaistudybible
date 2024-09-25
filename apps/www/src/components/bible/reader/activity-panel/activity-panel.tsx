@@ -52,7 +52,7 @@ export const ActivityPanelAlwaysOpenButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-1/2 bottom-0 flex h-14 translate-x-1/2 transform place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`-translate-x-1/2 fixed inset-x-1/2 bottom-0 flex h-14 w-fit place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
       <Tooltip>
         <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
@@ -77,7 +77,7 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-safe bottom-0 grid h-fit w-fit transform grid-cols-3 grid-rows-2 place-items-center justify-center gap-1 rounded-t-lg bg-primary p-1 transition-all duration-200 md:flex md:flex-row ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`fixed inset-x-safe bottom-0 mx-auto grid h-fit w-fit transform grid-cols-3 grid-rows-2 place-items-center justify-center gap-1 rounded-t-lg bg-primary p-1 transition-all duration-200 md:flex md:flex-row ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
       <H6 class='col-span-2 text-nowrap px-1 text-center text-primary-foreground text-sm md:col-span-1'>
         {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
@@ -134,7 +134,6 @@ export const ActivityPanelContent = () => {
   return (
     <Drawer
       side='bottom'
-      modal={false}
       open={!!value()}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -142,7 +141,7 @@ export const ActivityPanelContent = () => {
         }
       }}
     >
-      <DrawerContent overlay={false} class='w-full max-w-2xl justify-self-center shadow-lg'>
+      <DrawerContent class='w-full max-w-2xl justify-self-center shadow-lg'>
         <div class='mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col overflow-hidden p-4'>
           <Show when={value() !== 'chat'}>
             <DrawerHeader class='mb-2'>

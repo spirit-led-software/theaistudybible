@@ -122,7 +122,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
       <Title>
         {brStore.verse ? brStore.verse.name : brStore.chapter.name} | Bible | The AI Study Bible
       </Title>
-      <div class='eb-container container select-none'>
+      <div class='eb-container w-full select-none'>
         <Contents
           contents={props.contents}
           highlights={

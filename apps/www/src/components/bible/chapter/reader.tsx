@@ -118,7 +118,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                     as={A}
                     class={cn(
                       buttonVariants(),
-                      'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl pb-safe pl-safe',
+                      'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe',
                     )}
                     href={`/bible/${bible.abbreviation}/${chapter.previous!.abbreviation.split('.')[0]}/${chapter.previous!.number}`}
                   >
@@ -135,7 +135,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                     as={A}
                     class={cn(
                       buttonVariants(),
-                      'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl pr-safe pb-safe',
+                      'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe',
                     )}
                     href={`/bible/${bible.abbreviation}/${chapter.next!.abbreviation.split('.')[0]}/${chapter.next!.number}`}
                   >
