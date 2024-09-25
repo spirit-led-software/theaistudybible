@@ -45,7 +45,7 @@ const SheetOverlay = <T extends ValidComponent = 'div'>(
   return (
     <SheetPrimitive.Overlay
       class={cn(
-        'data-[closed=]:fade-out-0 data-[expanded=]:fade-in-0 fixed inset-0 z-50 bg-black/80 data-[closed=]:animate-out data-[expanded=]:animate-in',
+        'data-[closed]:fade-out-0 data-[expanded]:fade-in-0 fixed inset-0 z-50 bg-black/80 data-[closed]:animate-out data-[expanded]:animate-in',
         local.class,
       )}
       {...others}
@@ -54,16 +54,16 @@ const SheetOverlay = <T extends ValidComponent = 'div'>(
 };
 
 const sheetVariants = cva(
-  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[closed=]:duration-300 data-[expanded=]:duration-500 data-[expanded=]:animate-in data-[closed=]:animate-out',
+  'fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[closed]:duration-300 data-[expanded]:duration-500 data-[expanded]:animate-in data-[closed]:animate-out',
   {
     variants: {
       position: {
-        top: 'inset-x-safe top-safe border-b data-[closed=]:slide-out-to-top data-[expanded=]:slide-in-from-top',
+        top: 'inset-x-0 px-safe top-0 pt-safe border-b data-[closed]:slide-out-to-top data-[expanded]:slide-in-from-top',
         bottom:
-          'inset-x-safe bottom-safe border-t data-[closed=]:slide-out-to-bottom data-[expanded=]:slide-in-from-bottom',
-        left: 'inset-y-safe left-safe h-full w-3/4 border-r data-[closed=]:slide-out-to-left data-[expanded]:slide-in-from-left sm:max-w-sm',
+          'inset-x-0 px-safe bottom-0 pb-safe border-t data-[closed]:slide-out-to-bottom data-[expanded]:slide-in-from-bottom',
+        left: 'inset-y-0 py-safe left-0 pl-safe h-full w-3/4 border-r data-[closed]:slide-out-to-left data-[expanded]:slide-in-from-left sm:max-w-sm',
         right:
-          'inset-y-safe right-safe h-full w-3/4  border-l data-[closed=]:slide-out-to-right data-[expanded=]:slide-in-from-right sm:max-w-sm',
+          'inset-y-0 py-safe right-0 pr-safe h-full w-3/4 border-l data-[closed]:slide-out-to-right data-[expanded]:slide-in-from-right sm:max-w-sm',
       },
     },
     defaultVariants: {
