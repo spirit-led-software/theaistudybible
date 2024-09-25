@@ -1,3 +1,5 @@
+FROM oven/bun:1-slim AS build
+
 ARG sentry_org="the-ai-study-bible"
 ARG sentry_project="javascript-solidstart"
 ARG sentry_auth_token
@@ -5,8 +7,6 @@ ARG website_url
 ARG cdn_url
 ARG stripe_publishable_key
 ARG stage
-
-FROM oven/bun:1-slim AS build
 
 USER root
 
