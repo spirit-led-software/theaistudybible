@@ -112,9 +112,5 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
-    "WebhooksApiRouter": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
   }
 }
