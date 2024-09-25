@@ -9,7 +9,7 @@ export default createHandler(() => (
           <meta charset='utf-8' />
           <meta
             name='viewport'
-            content='width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no'
+            content='width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
           />
           <link rel='manifest' href='/_build/manifest.webmanifest' />
           <meta name='theme-color' content='#030527' />

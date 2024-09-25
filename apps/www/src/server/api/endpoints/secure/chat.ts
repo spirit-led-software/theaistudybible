@@ -9,6 +9,7 @@ import type { Bindings, Variables } from '@/www/server/api/types';
 import { zValidator } from '@hono/zod-validator';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
+import { stream } from 'hono/streaming';
 import { z } from 'zod';
 import { getDefaultModelId, getValidMessages, validateModelId } from '../../utils/chat';
 
@@ -84,21 +85,21 @@ const app = new Hono<{
       console.time('getChat');
       let chat: Chat;
       if (chatId) {
-        [chat] = await db.query.chats
+        chat = await db.query.chats
           .findFirst({
             where: (chats, { eq }) => eq(chats.id, chatId),
           })
           .then(async (foundChat) => {
             if (!foundChat || foundChat.userId !== c.var.user!.id) {
-              return await db
+              const [newChat] = await db
                 .insert(chats)
                 .values({
                   userId: c.var.user!.id,
                 })
-                .returning()
-                .execute();
+                .returning();
+              return newChat;
             }
-            return [foundChat];
+            return foundChat;
           });
       } else {
         [chat] = await db
@@ -106,8 +107,7 @@ const app = new Hono<{
           .values({
             userId: c.var.user!.id,
           })
-          .returning()
-          .execute();
+          .returning();
       }
       console.timeEnd('getChat');
 
@@ -136,8 +136,7 @@ const app = new Hono<{
                 updatedAt: new Date(),
               })
               .where(eq(messagesTable.id, message.id))
-              .returning()
-              .execute();
+              .returning();
           }
           return await db
             .insert(messagesTable)
@@ -148,8 +147,7 @@ const app = new Hono<{
               chatId: chat.id,
               userId: c.var.user!.id,
             })
-            .returning()
-            .execute();
+            .returning();
         });
       console.timeEnd('saveMessage');
 
@@ -204,13 +202,16 @@ const app = new Hono<{
       });
 
       const result = await streamText(messages);
-      return result.toDataStreamResponse({
-        init: {
-          headers: {
-            'x-chat-id': chat.id,
-            'x-model-id': modelId,
-          },
-        },
+
+      return stream(c, async (stream) => {
+        c.header('X-Chat-Id', chat.id);
+        c.header('X-Model-Id', modelId);
+
+        // Mark the response as a v1 data stream:
+        c.header('X-Vercel-AI-Data-Stream', 'v1');
+        c.header('Content-Type', 'text/plain; charset=utf-8');
+
+        await stream.pipe(result.toDataStream());
       });
     },
   );

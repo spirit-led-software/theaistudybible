@@ -82,6 +82,13 @@
   }
 }
 
+@media (display-mode: standalone) {
+  /* Safe area */
+  body {
+    @apply pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)];
+  }
+}
+
 .card-item-enter-active,
 .card-item-exit-active {
   @apply transition-all duration-200;

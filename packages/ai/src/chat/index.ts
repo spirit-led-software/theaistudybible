@@ -44,6 +44,7 @@ export type CreateChatChainOptions = {
   userId: string;
   maxTokens?: number;
   streamData?: StreamData;
+  onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
 };
 
@@ -69,61 +70,59 @@ You must format your response in valid markdown syntax.`,
       tools: resolvedTools,
       maxTokens: options.maxTokens,
       maxSteps: 10,
-      onFinish: async (event) => {
-        for (const step of event.steps) {
-          const [response] = await db
-            .insert(messagesTable)
-            .values({
-              role: 'assistant',
-              content: step.text,
-              toolInvocations: step.toolCalls?.map((t) => ({
+      onStepFinish: async (step) => {
+        const [response] = await db
+          .insert(messagesTable)
+          .values({
+            role: 'assistant',
+            content: step.text,
+            toolInvocations: step.toolCalls?.map((t) => ({
+              ...t,
+              state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
+            })),
+            finishReason: step.finishReason,
+            data: {
+              modelId: options.modelId,
+            },
+            originMessageId: options.userMessageId,
+            userId: options.userId,
+            chatId: options.chatId,
+          })
+          .returning();
+
+        if (step.toolResults?.length) {
+          await db
+            .update(messagesTable)
+            .set({
+              toolInvocations: step.toolResults.map((t) => ({
                 ...t,
-                state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
+                state: 'result',
               })),
-              finishReason: step.finishReason,
-              data: {
-                modelId: options.modelId,
-              },
-              originMessageId: options.userMessageId,
-              userId: options.userId,
-              chatId: options.chatId,
             })
-            .returning()
-            .execute();
+            .where(eq(messagesTable.id, response.id))
+            .returning();
 
-          if (step.toolResults?.length) {
-            await db
-              .update(messagesTable)
-              .set({
-                toolInvocations: step.toolResults.map((t) => ({
-                  ...t,
-                  state: 'result',
-                })),
-              })
-              .where(eq(messagesTable.id, response.id))
-              .returning()
-              .execute();
-
-            for (const toolResult of step.toolResults) {
-              if (toolResult.toolName === 'vectorStore') {
-                await db
-                  .insert(messagesToSourceDocuments)
-                  .values(
-                    toolResult.result.map((d) => ({
-                      messageId: response.id,
-                      sourceDocumentId: d.id,
-                      distance: 1 - d.score,
-                      distanceMetric: 'cosine' as const,
-                    })),
-                  )
-                  // In case there are multiple results with the same document
-                  .onConflictDoNothing();
-              }
+          for (const toolResult of step.toolResults) {
+            if (toolResult.toolName === 'vectorStore') {
+              await db
+                .insert(messagesToSourceDocuments)
+                .values(
+                  toolResult.result.map((d) => ({
+                    messageId: response.id,
+                    sourceDocumentId: d.id,
+                    distance: 1 - d.score,
+                    distanceMetric: 'cosine' as const,
+                  })),
+                )
+                // In case there are multiple results with the same document
+                .onConflictDoNothing();
             }
           }
         }
-        return await options.onFinish?.(event);
+
+        return await options.onStepFinish?.(step);
       },
+      onFinish: (event) => options.onFinish?.(event),
     });
   };
 };
