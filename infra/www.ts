@@ -3,8 +3,6 @@ import {
   CLOUDFLARE_IPV6_RANGES,
   CLOUDFLARE_ZONE_ID,
   DOMAIN,
-  SENTRY_ORG,
-  SENTRY_PROJECT,
   STRIPE_PUBLISHABLE_KEY,
 } from './constants';
 import { allLinks } from './defaults';
@@ -15,12 +13,17 @@ export const vpc = new sst.aws.Vpc('Vpc');
 
 export const cluster = new sst.aws.Cluster('Cluster', { vpc });
 
+const webAppEnv = {
+  PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
+  PUBLIC_CDN_URL: cdn.url,
+  PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
+  PUBLIC_STAGE: $app.stage,
+};
+
 export const webapp = cluster.addService('WebAppService', {
   image: {
     dockerfile: 'docker/webapp.Dockerfile',
     args: {
-      sentry_org: SENTRY_ORG.value,
-      sentry_project: SENTRY_PROJECT.value,
       sentry_auth_token: SENTRY_AUTH_TOKEN.value,
       website_url: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
       cdn_url: cdn.url,
@@ -29,12 +32,7 @@ export const webapp = cluster.addService('WebAppService', {
     },
   },
   link: allLinks,
-  environment: {
-    PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
-    PUBLIC_CDN_URL: cdn.url,
-    PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
-    PUBLIC_STAGE: $app.stage,
-  },
+  environment: webAppEnv,
   public: {
     ports: [{ listen: '443/https', forward: '3000/http' }],
     domain: {
@@ -96,15 +94,9 @@ if ($app.stage === 'production') {
 
 export const webAppDev = new sst.x.DevCommand('WebAppDev', {
   dev: {
-    autostart: true,
     directory: 'apps/www',
     command: 'bun run dev',
   },
   link: allLinks,
-  environment: {
-    PUBLIC_WEBSITE_URL: 'https://localhost:3000',
-    PUBLIC_CDN_URL: cdn.url,
-    PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
-    PUBLIC_STAGE: $app.stage,
-  },
+  environment: webAppEnv,
 });

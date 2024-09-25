@@ -1,7 +1,5 @@
 FROM oven/bun:1-slim AS build
 
-ARG sentry_org="the-ai-study-bible"
-ARG sentry_project="javascript-solidstart"
 ARG sentry_auth_token
 ARG website_url
 ARG cdn_url
@@ -14,9 +12,7 @@ RUN apt update && apt install -y git
 
 WORKDIR /build
 
-ENV SENTRY_ORG=${sentry_org}
-ENV SENTRY_PROJECT=${sentry_project}
-ENV SENTRY_RELEASE=${sentry_release}
+ENV SENTRY_RELEASE=${stage}
 ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
 ENV PUBLIC_WEBSITE_URL=${website_url}
 ENV PUBLIC_CDN_URL=${cdn_url}

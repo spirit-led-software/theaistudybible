@@ -7,6 +7,7 @@ export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'bun',
+    plugins: ['./sentry.plugin.ts'],
     // @ts-expect-error - This is the correct format
     compatibilityDate: formatDate(new Date(), 'yyyy-MM-dd'),
   },
@@ -15,8 +16,8 @@ export default defineConfig({
     plugins: [
       tsconfigPaths(),
       sentrySolidStartVite({
-        org: process.env.SENTRY_ORG,
-        project: process.env.SENTRY_PROJECT,
+        org: 'the-ai-study-bible',
+        project: 'javascript-solidstart',
         authToken: process.env.SENTRY_AUTH_TOKEN,
         sourceMapsUploadOptions: {
           unstable_sentryVitePluginOptions: {
