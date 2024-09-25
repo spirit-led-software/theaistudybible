@@ -83,8 +83,10 @@
 }
 
 @media (display-mode: standalone) {
-  /* Safe area */
-  body {
+  /* Add safe areas */
+  html,
+  body,
+  #app {
     @apply pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)];
   }
 }
