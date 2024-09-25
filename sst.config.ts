@@ -22,7 +22,18 @@ export default $config({
             runner: {
               engine: 'codebuild',
               architecture: 'arm64',
-              compute: 'small',
+              compute: 'medium',
+            },
+          };
+        }
+
+        if (event.type === 'pull_request' && event.base === 'master') {
+          return {
+            stage: `pr-${event.number}`,
+            runner: {
+              engine: 'codebuild',
+              architecture: 'arm64',
+              compute: 'medium',
             },
           };
         }
