@@ -142,7 +142,7 @@ export default function VerseReader(props: VerseReaderProps) {
                   <Tooltip placement='right'>
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-none rounded-tr-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-8 rounded-none rounded-tr-2xl')}
                       href={
                         `/bible/${bible.abbreviation}/${verse.previous!.abbreviation.split('.')[0]}` +
                         `/${verse.previous!.abbreviation.split('.')[1]}/${verse.previous!.number}`
@@ -161,7 +161,7 @@ export default function VerseReader(props: VerseReaderProps) {
                   <Tooltip placement='left'>
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-none rounded-tl-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-8 rounded-none rounded-tl-2xl')}
                       href={
                         `/bible/${bible.abbreviation}/${verse.next!.abbreviation.split('.')[0]}` +
                         `/${verse.next!.abbreviation.split('.')[1]}/${verse.next!.number}`

@@ -2,7 +2,7 @@ import { LargeTranslationPicker } from '@/www/components/bible/reader/menu/trans
 import { largeTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/large';
 import { useBibleStore } from '@/www/contexts/bible';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { Title } from '@solidjs/meta';
+import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
@@ -33,8 +33,9 @@ export default function BiblePage() {
 
   return (
     <WithHeaderLayout>
+      <Title>Pick Your Translation | The AI Study Bible</Title>
+      <Meta name='description' content='Pick your translation for The AI Study Bible' />
       <div class='flex w-full flex-col p-5 text-center'>
-        <Title>Bible</Title>
         <LargeTranslationPicker />
       </div>
     </WithHeaderLayout>

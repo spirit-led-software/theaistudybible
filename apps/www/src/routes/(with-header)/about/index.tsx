@@ -2,6 +2,7 @@ import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { GradientH1, H2, P } from '@/www/components/ui/typography';
 import { AboutLayout } from '@/www/layouts/about';
+import { Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import { BookOpenText, MessageSquare, Search, ShieldCheck, Sparkles, Star } from 'lucide-solid';
 import { Heart } from 'lucide-solid';
@@ -42,6 +43,8 @@ export default function AboutPage() {
 
   return (
     <AboutLayout>
+      <Title>About | The AI Study Bible</Title>
+      <Meta name='description' content='About The AI Study Bible' />
       <div class='mx-auto max-w-4xl space-y-12 px-4 py-12'>
         <header class='space-y-4 text-center'>
           <GradientH1>Here's What We Do</GradientH1>

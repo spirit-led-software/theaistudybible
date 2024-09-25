@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/www/components/ui/c
 import { GradientH1, H4 } from '@/www/components/ui/typography';
 import { useAuth } from '@/www/contexts/auth';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
+import { Meta, Title } from '@solidjs/meta';
 import { Mail } from 'lucide-solid';
 import { Show } from 'solid-js';
 
@@ -14,6 +15,8 @@ export default function Profile() {
 
   return (
     <WithHeaderLayout>
+      <Title>Your Profile | The AI Study Bible</Title>
+      <Meta name='description' content='Your profile for The AI Study Bible' />
       <div class='container flex justify-center p-4 sm:p-6 md:p-10'>
         <Card class='w-full max-w-lg'>
           <CardHeader>

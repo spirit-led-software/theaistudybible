@@ -6,7 +6,7 @@ import {
 } from '@kobalte/core';
 import { withSentryRouterRouting } from '@sentry/solidstart/solidrouter';
 import { MultiProvider } from '@solid-primitives/context';
-import { MetaProvider } from '@solidjs/meta';
+import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { Router } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
@@ -21,7 +21,6 @@ import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
-
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
@@ -47,6 +46,11 @@ export default function App() {
 
   return (
     <MetaProvider>
+      <Title>The AI Study Bible</Title>
+      <Meta
+        name='description'
+        content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
+      />
       <QueryClientProvider client={queryClient}>
         <ColorModeScript storageType={storageManager.type} />
         <ColorModeProvider storageManager={storageManager} initialColorMode='system'>

@@ -148,8 +148,6 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     setChatId(props()?.id);
   });
 
-  const [lastAiResponseId, setLastAiResponseId] = createSignal<string | undefined>(undefined);
-
   const useChatResult = useAIChat(() => ({
     ...props(),
     api: '/api/chat',
@@ -165,10 +163,6 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId) {
         setChatId(newChatId);
-      }
-      const aiResponseId = response.headers.get('x-response-id');
-      if (aiResponseId) {
-        setLastAiResponseId(aiResponseId);
       }
       return props()?.onResponse?.(response);
     },
@@ -244,21 +238,6 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   createEffect(() => {
     setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data ?? []));
   });
-
-  createEffect(
-    on([useChatResult.isLoading, lastAiResponseId], ([isLoading, lastAiResponseId]) => {
-      if (useChatResult.messages() && lastAiResponseId && !isLoading) {
-        useChatResult.setMessages([
-          ...useChatResult.messages().slice(0, -1),
-          {
-            ...useChatResult.messages()[useChatResult.messages().length - 1],
-            id: lastAiResponseId,
-          },
-        ]);
-        setLastAiResponseId(undefined);
-      }
-    }),
-  );
 
   createEffect(
     on(

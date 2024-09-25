@@ -4,6 +4,7 @@ import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
 import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
+import { Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { createEffect } from 'solid-js';
@@ -14,7 +15,6 @@ import {
   ActivityPanelContent,
 } from './activity-panel';
 import Contents from './contents/contents';
-
 import './contents/contents.css';
 
 async function getHighlights(chapterId: string) {
@@ -119,6 +119,9 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   return (
     <>
+      <Title>
+        {brStore.verse ? brStore.verse.name : brStore.chapter.name} | Bible | The AI Study Bible
+      </Title>
       <div class='eb-container container select-none'>
         <Contents
           contents={props.contents}

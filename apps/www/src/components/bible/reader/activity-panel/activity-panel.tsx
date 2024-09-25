@@ -138,16 +138,12 @@ export const ActivityPanelContent = () => {
   return (
     <Drawer
       side='bottom'
-      modal={false}
-      preventScroll={false}
       open={!!value()}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           setValue(undefined);
         }
       }}
-      closeOnOutsidePointer={false}
-      snapPoints={[0, 0.2, 1]}
     >
       <DrawerContent overlay={false} class='w-full max-w-2xl justify-self-center shadow-lg'>
         <div class='mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col overflow-hidden p-4'>

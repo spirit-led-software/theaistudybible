@@ -1,5 +1,6 @@
 import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
+import { Title } from '@solidjs/meta';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -57,6 +58,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   return (
     <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
+      <Title>{chatStore.chat?.name ?? 'New Chat'} | The AI Study Bible</Title>
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button

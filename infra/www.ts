@@ -13,14 +13,6 @@ export const vpc = new sst.aws.Vpc('Vpc');
 
 export const cluster = new sst.aws.Cluster('Cluster', { vpc });
 
-export const webAppImageRegistry = new aws.ecr.Repository('WebAppImageRegistry', {
-  name: `${$app.name}-${$app.stage}-webapp-registry`,
-  forceDelete: true,
-});
-export const webAppImageRegistryToken = aws.ecr.getAuthorizationTokenOutput({
-  registryId: webAppImageRegistry.registryId,
-});
-
 const webAppEnv = {
   PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
   PUBLIC_CDN_URL: cdn.url,
@@ -84,15 +76,8 @@ export const webapp = cluster.addService('WebAppService', {
       ];
     },
     image: {
-      tags: [$interpolate`${webAppImageRegistry.repositoryUrl}:latest`],
-      cacheFrom: [{ registry: { ref: $interpolate`${webAppImageRegistry.repositoryUrl}:latest` } }],
-      registries: [
-        {
-          address: webAppImageRegistryToken.proxyEndpoint,
-          username: webAppImageRegistryToken.userName,
-          password: $util.secret(webAppImageRegistryToken.password),
-        },
-      ],
+      cacheFrom: [{ local: { src: '/tmp/buildx-cache' } }],
+      cacheTo: [{ local: { dest: '/tmp/buildx-cache' } }],
       network: 'host',
     },
   },

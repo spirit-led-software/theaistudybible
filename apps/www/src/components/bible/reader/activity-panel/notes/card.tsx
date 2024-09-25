@@ -89,11 +89,13 @@ export const NotesCard = () => {
   type NoteType = Prettify<Awaited<ReturnType<typeof getNotes>>['notes']>[number];
   const [notes, setNotes] = createStore<NoteType[]>(
     // @ts-expect-error - Types are messed up for some reason
-    query.data?.pages.flatMap((page) => page.notes) || [],
+    !query.isLoading && query.data ? query.data.pages.flatMap((page) => page.notes) : [],
   );
   createEffect(() => {
-    // @ts-expect-error - Types are messed up for some reason
-    setNotes(reconcile(query.data?.pages.flatMap((page) => page.notes) || []));
+    if (!query.isLoading && query.data) {
+      // @ts-expect-error - Types are messed up for some reason
+      setNotes(reconcile(query.data.pages.flatMap((page) => page.notes)));
+    }
   });
 
   const [isAddingNote, setIsAddingNote] = createSignal(false);

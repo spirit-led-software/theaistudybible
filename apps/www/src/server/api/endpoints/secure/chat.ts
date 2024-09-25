@@ -203,12 +203,11 @@ const app = new Hono<{
         },
       });
 
-      const { streamTextResult, responseId } = await streamText(messages);
-      return streamTextResult.toDataStreamResponse({
+      const { toDataStreamResponse } = await streamText(messages);
+      return toDataStreamResponse({
         init: {
           headers: {
             'x-chat-id': chat.id,
-            'x-response-id': responseId,
             'x-model-id': modelId,
           },
         },

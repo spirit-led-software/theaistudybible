@@ -18,6 +18,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth } from '@/www/server/auth';
+import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -117,14 +118,20 @@ const BookmarksPage = () => {
   }));
 
   const [bookmarks, setBookmarks] = createStore(
-    bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || [],
+    !bookmarksQuery.isLoading && bookmarksQuery.data
+      ? bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)
+      : [],
   );
   createEffect(() => {
-    setBookmarks(reconcile(bookmarksQuery.data?.pages.flatMap((page) => page.bookmarks) || []));
+    if (!bookmarksQuery.isLoading && bookmarksQuery.data) {
+      setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
+    }
   });
 
   return (
     <WithHeaderLayout>
+      <Title>Bookmarks | The AI Study Bible</Title>
+      <Meta name='description' content='Your bookmarks for The AI Study Bible' />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>

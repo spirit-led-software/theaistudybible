@@ -18,6 +18,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth } from '@/www/server/auth';
+import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -93,18 +94,24 @@ const HighlightsPage = () => {
   }));
 
   const [highlights, setHighlights] = createStore(
-    highlightsQuery.data?.pages.flatMap((page) => page.highlights) ?? [],
+    !highlightsQuery.isLoading && highlightsQuery.data
+      ? highlightsQuery.data.pages.flatMap((page) => page.highlights)
+      : [],
   );
   createEffect(() => {
-    setHighlights(
-      reconcile(highlightsQuery.data?.pages.flatMap((page) => page.highlights) ?? [], {
-        merge: true,
-      }),
-    );
+    if (!highlightsQuery.isLoading && highlightsQuery.data) {
+      setHighlights(
+        reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights) ?? [], {
+          merge: true,
+        }),
+      );
+    }
   });
 
   return (
     <WithHeaderLayout>
+      <Title>Highlights | Bible | The AI Study Bible</Title>
+      <Meta name='description' content='Your highlights for The AI Study Bible' />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>

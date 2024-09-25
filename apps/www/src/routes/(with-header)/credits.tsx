@@ -6,6 +6,7 @@ import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth } from '@/www/server/auth';
+import { Meta, Title } from '@solidjs/meta';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -99,6 +100,8 @@ export default function CreditPurchasePage() {
 
   return (
     <WithHeaderLayout>
+      <Title>Purchase Credits | The AI Study Bible</Title>
+      <Meta name='description' content='Purchase credits for The AI Study Bible' />
       <div class='container flex h-full w-full overflow-y-auto'>
         <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
           <div class='flex flex-col items-center gap-2 pb-8'>

@@ -4,7 +4,6 @@ import {
   messages as messagesTable,
   messagesToSourceDocuments,
 } from '@/core/database/schema';
-import { createId } from '@/core/utils/id';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { StreamData } from 'ai';
 import { convertToCoreMessages, generateObject, streamText } from 'ai';
@@ -50,8 +49,6 @@ export type CreateChatChainOptions = {
 
 export const createChatChain = (options: CreateChatChainOptions) => {
   return async (messages: Pick<Message, 'role' | 'content'>[]) => {
-    const responseId = `msg_${createId()}`;
-
     // @ts-expect-error - Messages are not typed correctly
     let coreMessages = convertToCoreMessages(messages);
     // Fix weird issue where some messages are empty
@@ -61,76 +58,72 @@ export const createChatChain = (options: CreateChatChainOptions) => {
       userId: options.userId,
     });
 
-    return {
-      streamTextResult: await streamText({
-        model: registry.languageModel(options.modelId),
-        system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith.
+    return await streamText({
+      model: registry.languageModel(options.modelId),
+      system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith.
 
 You must use the vector database tool to fetch relevant resources for your answer. You must only answer the query using these resources. If you don't know the answer, say: "I don't know". Don't make up an answer.
 
 You must format your response in valid markdown syntax.`,
-        messages: coreMessages,
-        tools: resolvedTools,
-        maxTokens: options.maxTokens,
-        maxSteps: 10,
-        onFinish: async (event) => {
-          for (const step of event.steps) {
-            const [response] = await db
-              .insert(messagesTable)
-              .values({
-                id: responseId,
-                role: 'assistant',
-                content: step.text,
-                toolInvocations: step.toolCalls?.map((t) => ({
+      messages: coreMessages,
+      tools: resolvedTools,
+      maxTokens: options.maxTokens,
+      maxSteps: 10,
+      onFinish: async (event) => {
+        for (const step of event.steps) {
+          const [response] = await db
+            .insert(messagesTable)
+            .values({
+              role: 'assistant',
+              content: step.text,
+              toolInvocations: step.toolCalls?.map((t) => ({
+                ...t,
+                state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
+              })),
+              finishReason: step.finishReason,
+              data: {
+                modelId: options.modelId,
+              },
+              originMessageId: options.userMessageId,
+              userId: options.userId,
+              chatId: options.chatId,
+            })
+            .returning()
+            .execute();
+
+          if (step.toolResults?.length) {
+            await db
+              .update(messagesTable)
+              .set({
+                toolInvocations: step.toolResults.map((t) => ({
                   ...t,
-                  state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
+                  state: 'result',
                 })),
-                finishReason: step.finishReason,
-                data: {
-                  modelId: options.modelId,
-                },
-                originMessageId: options.userMessageId,
-                userId: options.userId,
-                chatId: options.chatId,
               })
+              .where(eq(messagesTable.id, response.id))
               .returning()
               .execute();
 
-            if (step.toolResults?.length) {
-              await db
-                .update(messagesTable)
-                .set({
-                  toolInvocations: step.toolResults.map((t) => ({
-                    ...t,
-                    state: 'result',
-                  })),
-                })
-                .where(eq(messagesTable.id, response.id))
-                .returning()
-                .execute();
-
-              for (const toolResult of step.toolResults) {
-                if (toolResult.toolName === 'vectorStore') {
-                  await db
-                    .insert(messagesToSourceDocuments)
-                    .values(
-                      toolResult.result.map((d) => ({
-                        messageId: responseId,
-                        sourceDocumentId: d.id,
-                        distance: 1 - d.score,
-                        distanceMetric: 'cosine' as const,
-                      })),
-                    )
-                    // In case there are multiple results with the same document
-                    .onConflictDoNothing();
-                }
+            for (const toolResult of step.toolResults) {
+              if (toolResult.toolName === 'vectorStore') {
+                await db
+                  .insert(messagesToSourceDocuments)
+                  .values(
+                    toolResult.result.map((d) => ({
+                      messageId: response.id,
+                      sourceDocumentId: d.id,
+                      distance: 1 - d.score,
+                      distanceMetric: 'cosine' as const,
+                    })),
+                  )
+                  // In case there are multiple results with the same document
+                  .onConflictDoNothing();
               }
             }
           }
-          return await options.onFinish?.(event);
-        },
-      }),
-      responseId,
-    };
+        }
+        return await options.onFinish?.(event);
+      },
+    });
   };
 };

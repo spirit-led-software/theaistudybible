@@ -117,7 +117,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                   <Tooltip placement='right'>
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-none rounded-tr-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-8 rounded-none rounded-tr-2xl')}
                       href={`/bible/${bible.abbreviation}/${chapter.previous!.abbreviation.split('.')[0]}/${chapter.previous!.number}`}
                     >
                       <ChevronLeft size={20} class='shrink-0' />
@@ -133,7 +133,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                   <Tooltip placement='left'>
                     <TooltipTrigger
                       as={A}
-                      class={cn(buttonVariants(), 'my-auto h-10 w-5 rounded-none rounded-tl-2xl')}
+                      class={cn(buttonVariants(), 'my-auto h-10 w-8 rounded-none rounded-tl-2xl')}
                       href={`/bible/${bible.abbreviation}/${chapter.next!.abbreviation.split('.')[0]}/${chapter.next!.number}`}
                     >
                       <ChevronRight size={20} class='shrink-0' />

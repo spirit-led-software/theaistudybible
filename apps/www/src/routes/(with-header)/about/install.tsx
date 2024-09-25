@@ -5,6 +5,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { GradientH1, ListItem, OrderedList, P, Strong } from '@/www/components/ui/typography';
 import { AboutLayout } from '@/www/layouts/about';
 import { cn } from '@/www/lib/utils';
+import { Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import { EllipsisVertical, Globe, HousePlus, MonitorUp, Plus, Share } from 'lucide-solid';
 import type { JSX } from 'solid-js';
@@ -35,6 +36,8 @@ export default function InstallPage() {
 
   return (
     <AboutLayout>
+      <Title>Install | The AI Study Bible</Title>
+      <Meta name='description' content='Install the AI Study Bible PWA on your device' />
       <div class='mx-auto max-w-2xl p-4'>
         <Show
           when={isStandalone()}

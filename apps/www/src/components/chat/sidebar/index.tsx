@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { Clock } from 'lucide-solid';
-import { For, Match, Switch, createEffect, on } from 'solid-js';
+import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useChatStore } from '../../../contexts/chat';
 import { QueryBoundary } from '../../query-boundary';
@@ -57,19 +57,16 @@ export const ChatSidebar = () => {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
   }));
 
-  const [chats, setChats] = createStore(chatsQuery.data?.pages.flatMap((page) => page.chats) ?? []);
-  createEffect(
-    on(
-      () => chatsQuery.data,
-      (data) => {
-        setChats(
-          reconcile(data?.pages.flatMap((page) => page.chats) ?? [], {
-            merge: true,
-          }),
-        );
-      },
-    ),
+  const [chats, setChats] = createStore(
+    !chatsQuery.isLoading && chatsQuery.data
+      ? chatsQuery.data.pages.flatMap((page) => page.chats)
+      : [],
   );
+  createEffect(() => {
+    if (!chatsQuery.isLoading && chatsQuery.data) {
+      setChats(reconcile(chatsQuery.data.pages.flatMap((page) => page.chats)));
+    }
+  });
 
   return (
     <Sheet>

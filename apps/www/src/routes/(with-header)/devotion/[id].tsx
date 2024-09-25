@@ -5,6 +5,7 @@ import { Markdown } from '@/www/components/ui/markdown';
 import { H2 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
+import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -54,6 +55,11 @@ const DevotionPage = () => {
           <QueryBoundary query={devotionQuery}>
             {(devotion) => (
               <>
+                <Title>{devotion.topic} | Devotion | The AI Study Bible</Title>
+                <Meta
+                  name='description'
+                  content={`A devotion on '${devotion.topic}' from The AI Study Bible`}
+                />
                 <div class='flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap'>
                   <div class='flex flex-col gap-2 text-center'>
                     <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
