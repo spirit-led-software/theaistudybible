@@ -104,6 +104,7 @@ if ($app.stage === 'production') {
 
 export const webAppDev = new sst.x.DevCommand('WebAppDev', {
   dev: {
+    autostart: true,
     directory: 'apps/www',
     command: 'bun run dev',
   },

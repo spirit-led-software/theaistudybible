@@ -58,6 +58,13 @@
     @apply border-border;
   }
 
+  html {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
   html,
   body,
   #app {
@@ -76,18 +83,53 @@
   }
 }
 
-@media (max-width: 640px) {
-  .container {
-    @apply px-4;
+@layer components {
+  .fixed.inset-0 {
+    inset: 0px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .fixed.inset-y-0 {
+    top: 0px;
+    bottom: 0px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .fixed.inset-x-0 {
+    left: 0px;
+    right: 0px;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .fixed.top-0 {
+    top: 0px;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .fixed.bottom-0 {
+    bottom: 0px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .fixed.left-0 {
+    left: 0px;
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .fixed.right-0 {
+    right: 0px;
+    padding-right: env(safe-area-inset-right, 0px);
   }
 }
 
-@media (display-mode: standalone) {
-  /* Add safe areas */
-  html,
-  body,
-  #app {
-    @apply pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)];
+@media (max-width: 640px) {
+  .container {
+    @apply px-4;
   }
 }
 

@@ -138,6 +138,7 @@ export const ActivityPanelContent = () => {
   return (
     <Drawer
       side='bottom'
+      modal={false}
       open={!!value()}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
