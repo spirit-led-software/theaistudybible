@@ -22,7 +22,7 @@ export default $config({
             runner: {
               engine: 'codebuild',
               architecture: 'arm64',
-              compute: 'medium',
+              compute: 'large',
             },
           };
         }
@@ -33,7 +33,7 @@ export default $config({
             runner: {
               engine: 'codebuild',
               architecture: 'arm64',
-              compute: 'medium',
+              compute: 'large',
             },
           };
         }
