@@ -3,6 +3,7 @@ import type { JSX } from 'solid-js';
 import { Match, Show, Suspense, Switch } from 'solid-js';
 import { SentryErrorBoundary } from './error-boundary';
 import { Button } from './ui/button';
+import { Spinner } from './ui/spinner';
 import { H1, H6 } from './ui/typography';
 
 export interface QueryBoundaryProps<T = unknown> {
@@ -37,7 +38,15 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
   return (
     <Suspense
       fallback={
-        <Show when={props.loadingFallback} keyed>
+        <Show
+          when={props.loadingFallback}
+          fallback={
+            <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center'>
+              <Spinner class='mr-2 inline-block' /> Loading...
+            </div>
+          }
+          keyed
+        >
           {(fallback) => (
             <Show
               when={typeof fallback === 'function' && fallback}
@@ -51,27 +60,33 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
       }
     >
       <SentryErrorBoundary
-        fallback={(err: Error, reset) =>
-          props.errorFallback ? (
-            props.errorFallback(err, async () => {
-              await props.query.refetch();
-              reset();
-            })
-          ) : (
-            <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center space-x-2'>
-              <H1>Error</H1>
-              <H6 class='max-w-sm'>{err.message}</H6>
-              <Button
-                onClick={async () => {
-                  await props.query.refetch();
-                  reset();
-                }}
-              >
-                Retry
-              </Button>
-            </div>
-          )
-        }
+        fallback={(err: Error, reset) => (
+          <Show
+            when={props.errorFallback}
+            fallback={
+              <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center space-x-2'>
+                <H1>Error</H1>
+                <H6 class='max-w-sm'>{err.message}</H6>
+                <Button
+                  onClick={async () => {
+                    await props.query.refetch();
+                    reset();
+                  }}
+                >
+                  Retry
+                </Button>
+              </div>
+            }
+            keyed
+          >
+            {(fallback) =>
+              fallback(err, async () => {
+                await props.query.refetch();
+                reset();
+              })
+            }
+          </Show>
+        )}
       >
         <Switch
           fallback={

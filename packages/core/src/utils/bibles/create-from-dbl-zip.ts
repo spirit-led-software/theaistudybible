@@ -278,7 +278,8 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
     if (!name) throw new Error(`Content ${content['@_name']} not found`);
     return {
       src: content['@_src'],
-      abbreviation: (name.abbr ?? name.short.replace(/\s/g, '').substring(0, 4)).toUpperCase(),
+      code: content['@_role'],
+      abbreviation: name.abbr,
       shortName: name.short,
       longName: name.long,
     };
@@ -295,9 +296,10 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
       .insert(schema.books)
       .values(
         batch.map((book, index) => {
-          const { src, ...rest } = book;
+          const { src, code, ...rest } = book;
           return {
             ...rest,
+            code: code.toUpperCase(),
             number: i + index + 1,
             bibleId,
           };
@@ -382,7 +384,7 @@ async function insertChapters(
               previousId: index > 0 ? chapterEntries[index - 1][1].id : undefined,
               nextId:
                 index < chapterEntries.length - 1 ? chapterEntries[index + 1][1].id : undefined,
-              abbreviation: `${bookInfo.abbreviation.toUpperCase()}.${chapter}`,
+              code: `${bookInfo.code}.${chapter}`,
               name: `${bookInfo.shortName} ${chapter}`,
               number: Number.parseInt(chapter),
               content: content.contents,
@@ -462,7 +464,7 @@ async function insertVerses(
               previousId: i + index > 0 ? verseEntries[i + index - 1][1].id : undefined,
               nextId:
                 i + index < verseEntries.length - 1 ? verseEntries[i + index + 1][1].id : undefined,
-              abbreviation: `${chapter.abbreviation}.${verseNumber}`,
+              code: `${chapter.code}.${verseNumber}`,
               name: `${chapter.name}:${verseNumber}`,
               number: Number.parseInt(verseNumber),
               content: verseContent.contents,

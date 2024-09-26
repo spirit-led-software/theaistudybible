@@ -65,7 +65,7 @@ export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => (
 });
 
 export type ChapterPickerProps = {
-  book: Pick<Book, 'abbreviation' | 'shortName'>;
+  book: Pick<Book, 'code' | 'shortName'>;
 };
 
 export default function ChapterPicker(props: ChapterPickerProps) {
@@ -74,7 +74,7 @@ export default function ChapterPicker(props: ChapterPickerProps) {
   const query = createQuery(() => ({
     ...chapterPickerQueryOptions({
       bibleAbbr: brStore.bible.abbreviation,
-      bookAbbr: props.book.abbreviation,
+      bookAbbr: props.book.code,
     }),
   }));
 
@@ -82,7 +82,7 @@ export default function ChapterPicker(props: ChapterPickerProps) {
     <CommandItem value={props.book.shortName} class='aria-selected:bg-background'>
       <Accordion collapsible class='w-full'>
         <AccordionItem
-          value={props.book.abbreviation}
+          value={props.book.code}
           onMouseEnter={() => !query.data && query.refetch()}
           onClick={() => !query.data && query.refetch()}
         >

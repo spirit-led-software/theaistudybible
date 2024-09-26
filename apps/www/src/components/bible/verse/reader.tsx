@@ -174,8 +174,8 @@ export default function VerseReader(props: VerseReaderProps) {
                       'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
                     )}
                     href={
-                      `/bible/${bible.abbreviation}/${verse.previous!.abbreviation.split('.')[0]}` +
-                      `/${verse.previous!.abbreviation.split('.')[1]}/${verse.previous!.number}`
+                      `/bible/${bible.abbreviation}/${verse.previous!.code.split('.')[0]}` +
+                      `/${verse.previous!.code.split('.')[1]}/${verse.previous!.number}`
                     }
                   >
                     <ChevronLeft size={20} class='shrink-0' />
@@ -194,8 +194,8 @@ export default function VerseReader(props: VerseReaderProps) {
                       'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
                     )}
                     href={
-                      `/bible/${bible.abbreviation}/${verse.next!.abbreviation.split('.')[0]}` +
-                      `/${verse.next!.abbreviation.split('.')[1]}/${verse.next!.number}`
+                      `/bible/${bible.abbreviation}/${verse.next!.code.split('.')[0]}` +
+                      `/${verse.next!.code.split('.')[1]}/${verse.next!.number}`
                     }
                   >
                     <ChevronRight size={20} class='shrink-0' />

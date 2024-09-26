@@ -16,7 +16,7 @@ async function getBookPickerData(bibleId: string) {
     with: {
       books: {
         orderBy: (books, { asc }) => asc(books.number),
-        columns: { abbreviation: true, shortName: true },
+        columns: { code: true, shortName: true },
       },
     },
   });

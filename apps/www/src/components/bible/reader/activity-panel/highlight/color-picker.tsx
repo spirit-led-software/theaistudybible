@@ -1,7 +1,7 @@
 import { Button } from '@/www/components/ui/button';
 import { TextField, TextFieldInput, TextFieldLabel } from '@/www/components/ui/text-field';
 import { ToggleGroupItem } from '@/www/components/ui/toggle-group';
-import { ColorPicker } from '@ark-ui/solid';
+import { ColorPicker, parseColor } from '@ark-ui/solid';
 import { PipetteIcon } from 'lucide-solid';
 import type { Setter } from 'solid-js';
 
@@ -12,7 +12,7 @@ export type HighlightColorPickerProps = {
 export const HighlightColorPicker = (props: HighlightColorPickerProps) => {
   return (
     <ColorPicker.Root
-      defaultValue='#FFFd70'
+      defaultValue={parseColor('#FFFd70')}
       onValueChange={(details) => props.setColor(details.value.toString('hex'))}
     >
       <ColorPicker.Context>

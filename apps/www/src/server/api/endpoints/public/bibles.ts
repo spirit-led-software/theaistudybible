@@ -16,13 +16,13 @@ export const app = new Hono<{
     book: Book & {
       previous: {
         id: string;
-        abbreviation: string;
+        code: string;
         name: string;
         number: number;
       } | null;
       next: {
         id: string;
-        abbreviation: string;
+        code: string;
         name: string;
         number: number;
       } | null;
@@ -30,13 +30,13 @@ export const app = new Hono<{
     chapter: Chapter & {
       previous: {
         id: string;
-        abbreviation: string;
+        code: string;
         name: string;
         number: number;
       } | null;
       next: {
         id: string;
-        abbreviation: string;
+        code: string;
         name: string;
         number: number;
       } | null;
@@ -44,13 +44,13 @@ export const app = new Hono<{
     verse: Verse & {
       previous: {
         id: string;
-        abbreviation: string;
+        code: string;
         name: string;
         number: number;
       } | null;
       next: {
         id: string;
-        abbreviation: string;
+        code: string;
         name: string;
         number: number;
       } | null;
@@ -82,7 +82,7 @@ export const app = new Hono<{
         previous: {
           columns: {
             id: true,
-            abbreviation: true,
+            code: true,
             number: true,
           },
           extras: {
@@ -92,7 +92,7 @@ export const app = new Hono<{
         next: {
           columns: {
             id: true,
-            abbreviation: true,
+            code: true,
             number: true,
           },
           extras: {
@@ -114,13 +114,13 @@ export const app = new Hono<{
     const chapter = await db.query.chapters.findFirst({
       where: and(
         eq(chapters.bibleId, bible.id),
-        or(eq(chapters.id, chapterId), eq(chapters.abbreviation, chapterId)),
+        or(eq(chapters.id, chapterId), eq(chapters.code, chapterId)),
       ),
       with: {
         previous: {
           columns: {
             id: true,
-            abbreviation: true,
+            code: true,
             name: true,
             number: true,
           },
@@ -128,7 +128,7 @@ export const app = new Hono<{
         next: {
           columns: {
             id: true,
-            abbreviation: true,
+            code: true,
             name: true,
             number: true,
           },
@@ -148,13 +148,13 @@ export const app = new Hono<{
     const verse = await db.query.verses.findFirst({
       where: and(
         eq(verses.bibleId, bible.id),
-        or(eq(verses.id, verseId), eq(verses.abbreviation, verseId)),
+        or(eq(verses.id, verseId), eq(verses.code, verseId)),
       ),
       with: {
         previous: {
           columns: {
             id: true,
-            abbreviation: true,
+            code: true,
             name: true,
             number: true,
           },
@@ -162,7 +162,7 @@ export const app = new Hono<{
         next: {
           columns: {
             id: true,
-            abbreviation: true,
+            code: true,
             name: true,
             number: true,
           },

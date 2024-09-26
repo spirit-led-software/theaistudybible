@@ -149,7 +149,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                       buttonVariants(),
                       'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
                     )}
-                    href={`/bible/${bible.abbreviation}/${chapter.previous!.abbreviation.split('.')[0]}/${chapter.previous!.number}`}
+                    href={`/bible/${bible.abbreviation}/${chapter.previous!.code.split('.')[0]}/${chapter.previous!.number}`}
                   >
                     <ChevronLeft />
                   </TooltipTrigger>
@@ -166,7 +166,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                       buttonVariants(),
                       'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
                     )}
-                    href={`/bible/${bible.abbreviation}/${chapter.next!.abbreviation.split('.')[0]}/${chapter.next!.number}`}
+                    href={`/bible/${bible.abbreviation}/${chapter.next!.code.split('.')[0]}/${chapter.next!.number}`}
                   >
                     <ChevronRight />
                   </TooltipTrigger>
