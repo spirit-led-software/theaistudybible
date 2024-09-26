@@ -3,7 +3,7 @@ import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
 import type { Bible } from '@/schemas/bibles/types';
 import { type SQL, eq, getTableColumns, sql } from 'drizzle-orm';
-import { XMLParser } from 'fast-xml-parser';
+import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
 import { generateChapterEmbeddings } from './generate-chapter-embeddings';
 import type { DBLMetadata, Publication } from './types';
@@ -64,12 +64,22 @@ async function extractMetadataAndPublication(zipFile: JSZip, publicationId?: str
 
 function findPublication(metadata: DBLMetadata, publicationId?: string): Publication | undefined {
   if (publicationId) {
-    return metadata.publications.publication.find((pub) => pub['@_id'] === publicationId);
+    if (Array.isArray(metadata.publications.publication)) {
+      return metadata.publications.publication.find((pub) => pub['@_id'] === publicationId);
+    }
+    return metadata.publications.publication['@_id'] === publicationId
+      ? metadata.publications.publication
+      : undefined;
   }
-  return (
-    metadata.publications.publication.find((pub) => pub['@_default'] === 'true') ||
-    metadata.publications.publication[0]
-  );
+  if (Array.isArray(metadata.publications.publication)) {
+    return (
+      metadata.publications.publication.find((pub) => pub['@_default'] === 'true') ||
+      metadata.publications.publication[0]
+    );
+  }
+  return metadata.publications.publication['@_default'] === 'true'
+    ? metadata.publications.publication
+    : undefined;
 }
 
 async function findExistingBible(abbreviation: string, overwrite: boolean) {
@@ -124,6 +134,7 @@ async function getSourceDocIds(bibleId: string) {
 }
 
 async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
+  const copyRightHtml = new XMLBuilder().build(metadata.copyright.fullStatement.statementContent);
   const [bible] = await db
     .insert(schema.bibles)
     .values({
@@ -132,7 +143,7 @@ async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
       name: metadata.identification.name,
       nameLocal: metadata.identification.nameLocal,
       description: metadata.identification.description,
-      copyrightStatement: metadata.copyright.fullStatement.statementContent.p,
+      copyrightStatement: copyRightHtml,
     })
     .returning();
 
@@ -253,7 +264,7 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
     if (!name) throw new Error(`Content ${content['@_name']} not found`);
     return {
       src: content['@_src'],
-      abbreviation: name.abbr.toUpperCase(),
+      abbreviation: name.abbr?.toUpperCase() ?? name.short,
       shortName: name.short,
       longName: name.long,
     };

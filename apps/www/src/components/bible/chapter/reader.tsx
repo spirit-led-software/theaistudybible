@@ -110,7 +110,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                     {rightsHolder.nameLocal}
                   </Button>
                 </Muted>
-                <Muted>{bible.copyrightStatement}</Muted>
+                <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
               </div>
               <Show when={chapter.previous}>
                 <Tooltip placement='right'>

@@ -77,6 +77,7 @@ type DialogContentProps<T extends ValidComponent = 'div'> = SheetPrimitive.Dialo
     class?: string | undefined;
     children?: JSX.Element;
     overlay?: boolean;
+    defaultCloseButton?: boolean;
   };
 
 const SheetContent = <T extends ValidComponent = 'div'>(
@@ -86,10 +87,12 @@ const SheetContent = <T extends ValidComponent = 'div'>(
     'position',
     'class',
     'children',
+    'overlay',
+    'defaultCloseButton',
   ]);
   return (
     <SheetPortal position={local.position}>
-      <Show when={props.overlay ?? true}>
+      <Show when={local.overlay ?? true}>
         <SheetOverlay />
       </Show>
       <SheetPrimitive.Content
@@ -97,22 +100,24 @@ const SheetContent = <T extends ValidComponent = 'div'>(
         {...others}
       >
         {local.children}
-        <SheetPrimitive.CloseButton class='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            class='size-4'
-          >
-            <path d='M18 6l-12 12' />
-            <path d='M6 6l12 12' />
-          </svg>
-          <span class='sr-only'>Close</span>
-        </SheetPrimitive.CloseButton>
+        <Show when={local.defaultCloseButton ?? true}>
+          <SheetPrimitive.CloseButton class='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary'>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              stroke-width='2'
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              class='size-4'
+            >
+              <path d='M18 6l-12 12' />
+              <path d='M6 6l12 12' />
+            </svg>
+            <span class='sr-only'>Close</span>
+          </SheetPrimitive.CloseButton>
+        </Show>
       </SheetPrimitive.Content>
     </SheetPortal>
   );

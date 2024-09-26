@@ -4,7 +4,7 @@ import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
-import { History } from 'lucide-solid';
+import { History, X } from 'lucide-solid';
 import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useDevotionStore } from '../../contexts/devotion';
@@ -70,10 +70,17 @@ export const DevotionSidebar = () => {
         </TooltipTrigger>
         <TooltipContent>View Devotions</TooltipContent>
       </Tooltip>
-      <SheetContent class='h-dvh' position='left'>
-        <div class='flex h-full w-full max-w-none flex-col space-y-2 px-2 pb-10'>
-          <SheetHeader>
-            <SheetTitle>Devotions</SheetTitle>
+      <SheetContent
+        position='left'
+        defaultCloseButton={false}
+        class='h-full pt-safe pb-safe pl-safe'
+      >
+        <div class='flex h-full w-full max-w-none flex-col space-y-2 p-6'>
+          <SheetHeader class='flex items-center justify-between'>
+            <SheetTitle>Devotion History</SheetTitle>
+            <SheetClose as={Button} variant='ghost' size='icon'>
+              <X size={24} />
+            </SheetClose>
           </SheetHeader>
           <div class='flex max-h-full grow flex-col overflow-y-auto'>
             <div class='flex grow flex-col gap-2 pr-3'>
@@ -87,8 +94,9 @@ export const DevotionSidebar = () => {
                       </div>
                     }
                   >
-                    {(devotion) => (
+                    {(devotion, idx) => (
                       <div
+                        data-index={idx()}
                         class={cn(
                           'group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2 hover:bg-accent',
                           devotionStore.devotion?.id === devotion.id && 'bg-accent',

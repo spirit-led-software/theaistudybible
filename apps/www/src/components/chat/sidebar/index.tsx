@@ -4,7 +4,7 @@ import { auth } from '@/www/server/auth';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
-import { Clock } from 'lucide-solid';
+import { Clock, X } from 'lucide-solid';
 import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useChatStore } from '../../../contexts/chat';
@@ -79,10 +79,17 @@ export const ChatSidebar = () => {
         </TooltipTrigger>
         <TooltipContent>View Chats</TooltipContent>
       </Tooltip>
-      <SheetContent class='h-dvh' position='left'>
-        <div class='flex h-full w-full max-w-none flex-col space-y-2 px-2 pb-10'>
-          <SheetHeader>
-            <SheetTitle>Chats</SheetTitle>
+      <SheetContent
+        position='left'
+        defaultCloseButton={false}
+        class='h-full pt-safe pb-safe pl-safe'
+      >
+        <div class='flex h-full w-full max-w-none flex-col space-y-2 p-6'>
+          <SheetHeader class='flex items-center justify-between'>
+            <SheetTitle>Chat History</SheetTitle>
+            <SheetClose as={Button} variant='ghost' size='icon'>
+              <X size={24} />
+            </SheetClose>
           </SheetHeader>
           <div class='flex max-h-full grow flex-col overflow-y-auto'>
             <div class='flex grow flex-col gap-2 pr-3'>

@@ -100,6 +100,7 @@ export default {
         'content-show': 'content-show 0.2s ease-out',
         'content-hide': 'content-hide 0.2s ease-out',
       },
+      screens: { pwa: { raw: '(display-mode: standalone)' } },
     },
   },
 } satisfies Config;

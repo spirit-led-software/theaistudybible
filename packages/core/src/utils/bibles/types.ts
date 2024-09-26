@@ -47,12 +47,11 @@ export interface FullStatement {
 }
 
 export interface StatementContent {
-  p: string;
   '@_type': string;
 }
 
 export interface Publications {
-  publication: Publication[];
+  publication: Publication | Publication[];
 }
 
 export interface Publication {
@@ -116,7 +115,7 @@ export interface Names {
 }
 
 export interface Name {
-  abbr: string;
+  abbr?: string;
   short: string;
   long: string;
   '@_id': string;

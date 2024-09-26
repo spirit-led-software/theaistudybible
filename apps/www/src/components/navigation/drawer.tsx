@@ -25,8 +25,8 @@ export const NavigationDrawer = () => {
       <DrawerTrigger as={Button} variant='ghost'>
         <MenuIcon size={24} />
       </DrawerTrigger>
-      <DrawerContent class='w-1/2'>
-        <div class='relative h-dvh w-full'>
+      <DrawerContent class='w-1/2 pb-safe'>
+        <div class='relative h-full w-full p-6'>
           <DrawerHeader class='flex items-center justify-between'>
             <DrawerTitle as={A} href='/'>
               <LogoSmall width={150} height={150} />

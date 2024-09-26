@@ -51,7 +51,7 @@ async function createInitialAdminUser() {
     .insert(userCredits)
     .values({
       userId: admin.id,
-      balance: Number.MAX_SAFE_INTEGER,
+      balance: Number.MAX_SAFE_INTEGER / 2,
     })
     .onConflictDoUpdate({
       target: userCredits.userId,
