@@ -76,7 +76,7 @@ export const DevotionSidebar = () => {
         class='h-full pt-safe pb-safe pl-safe'
       >
         <div class='flex h-full w-full max-w-none flex-col space-y-2 p-6'>
-          <SheetHeader class='flex items-center justify-between'>
+          <SheetHeader class='flex flex-row items-center justify-between'>
             <SheetTitle>Devotion History</SheetTitle>
             <SheetClose as={Button} variant='ghost' size='icon'>
               <X size={24} />

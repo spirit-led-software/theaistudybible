@@ -4,13 +4,13 @@ import { createSignal } from 'solid-js';
 import LogoSmall from '../branding/logo-small';
 import { Button } from '../ui/button';
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '../ui/drawer';
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '../ui/sheet';
 import { Menu } from './menu';
 
 export const NavigationDrawer = () => {
@@ -21,25 +21,29 @@ export const NavigationDrawer = () => {
   });
 
   return (
-    <Drawer side='left' open={open()} onOpenChange={setOpen}>
-      <DrawerTrigger as={Button} variant='ghost'>
+    <Sheet open={open()} onOpenChange={setOpen}>
+      <SheetTrigger as={Button} variant='ghost'>
         <MenuIcon size={24} />
-      </DrawerTrigger>
-      <DrawerContent class='w-1/2 pb-safe'>
+      </SheetTrigger>
+      <SheetContent
+        position='left'
+        defaultCloseButton={false}
+        class='w-1/2 pt-safe pb-safe pl-safe'
+      >
         <div class='relative h-full w-full p-6'>
-          <DrawerHeader class='flex items-center justify-between'>
-            <DrawerTitle as={A} href='/'>
+          <SheetHeader class='flex flex-row items-center justify-between'>
+            <SheetTitle as={A} href='/'>
               <LogoSmall width={150} height={150} />
-            </DrawerTitle>
-            <DrawerClose as={Button} variant='ghost'>
+            </SheetTitle>
+            <SheetClose as={Button} variant='ghost'>
               <X size={24} />
-            </DrawerClose>
-          </DrawerHeader>
+            </SheetClose>
+          </SheetHeader>
           <div class='block max-w-none space-y-2 p-5'>
             <Menu orientation='vertical' />
           </div>
         </div>
-      </DrawerContent>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 };

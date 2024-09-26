@@ -1,9 +1,10 @@
 import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { H1, Muted } from '@/www/components/ui/typography';
+import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
-import { A } from '@solidjs/router';
+import { A, useNavigate } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
 import { Show } from 'solid-js';
@@ -73,7 +74,12 @@ export type ChapterReaderProps = {
   bookAbbr: string;
   chapterNum: number;
 };
+
 export default function ChapterReader(props: ChapterReaderProps) {
+  const navigate = useNavigate();
+
+  const [, setBibleStore] = useBibleStore();
+
   const query = createQuery(() =>
     chapterReaderQueryOptions({
       bibleAbbr: props.bibleAbbr,
@@ -84,7 +90,30 @@ export default function ChapterReader(props: ChapterReaderProps) {
 
   return (
     <div class='flex max-w-3xl flex-col items-center px-8 py-5'>
-      <QueryBoundary query={query}>
+      <QueryBoundary
+        query={query}
+        notFoundFallback={(retry) => (
+          <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center'>
+            <H1>Chapter Not Found</H1>
+            <div class='flex items-center gap-2'>
+              <Button onClick={retry}>Retry</Button>
+              <Button
+                onClick={() => {
+                  setBibleStore({
+                    bible: undefined,
+                    book: undefined,
+                    chapter: undefined,
+                    verse: undefined,
+                  });
+                  navigate(`/bible/${props.bibleAbbr}`);
+                }}
+              >
+                Go to beginning
+              </Button>
+            </div>
+          </div>
+        )}
+      >
         {({ bible, book, chapter, rightsHolder }) => (
           <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
             <BibleReaderMenu />

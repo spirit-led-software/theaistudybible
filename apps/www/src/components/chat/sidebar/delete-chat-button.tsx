@@ -73,11 +73,11 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
           <Button
             variant='destructive'
             onClick={() => {
-              deleteChatMutation.mutate();
               if (chatStore.chat?.id === props.chat.id) {
                 setChatStore('chat', undefined);
-                navigate('/chats');
+                navigate('/chats', { replace: true });
               }
+              deleteChatMutation.mutate();
             }}
           >
             Delete

@@ -1,9 +1,8 @@
 import type { CreateQueryResult } from '@tanstack/solid-query';
 import type { JSX } from 'solid-js';
-import { Match, Suspense, Switch } from 'solid-js';
+import { Match, Show, Suspense, Switch } from 'solid-js';
 import { SentryErrorBoundary } from './error-boundary';
 import { Button } from './ui/button';
-import { Spinner } from './ui/spinner';
 import { H1, H6 } from './ui/typography';
 
 export interface QueryBoundaryProps<T = unknown> {
@@ -12,12 +11,12 @@ export interface QueryBoundaryProps<T = unknown> {
   /**
    * Triggered when the data is initially loading.
    */
-  loadingFallback?: JSX.Element;
+  loadingFallback?: JSX.Element | (() => JSX.Element);
 
   /**
    * Triggered when fetching is complete, but the returned data was falsey.
    */
-  notFoundFallback?: JSX.Element;
+  notFoundFallback?: JSX.Element | ((retry: () => void) => JSX.Element);
 
   /**
    * Triggered when the query results in an error.
@@ -38,11 +37,17 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
   return (
     <Suspense
       fallback={
-        props.loadingFallback ?? (
-          <div class='flex h-full w-full flex-1 items-center justify-center p-10'>
-            <Spinner />
-          </div>
-        )
+        <Show when={props.loadingFallback} keyed>
+          {(fallback) => (
+            <Show
+              when={typeof fallback === 'function' && fallback}
+              fallback={fallback as JSX.Element}
+              keyed
+            >
+              {(fallback) => fallback()}
+            </Show>
+          )}
+        </Show>
       }
     >
       <SentryErrorBoundary
@@ -68,13 +73,50 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
           )
         }
       >
-        <Switch fallback={props.notFoundFallback}>
+        <Switch
+          fallback={
+            <Show when={props.notFoundFallback} keyed>
+              {(fallback) => (
+                <Show
+                  when={typeof fallback === 'function' && fallback}
+                  fallback={fallback as JSX.Element}
+                  keyed
+                >
+                  {(fallback) =>
+                    fallback(async () => {
+                      await props.query.refetch();
+                    })
+                  }
+                </Show>
+              )}
+            </Show>
+          }
+        >
           <Match when={!props.query.isFetching && !props.query.data}>
-            {props.notFoundFallback ?? (
-              <div class='flex h-full w-full flex-1 items-center justify-center'>
-                Data not found
-              </div>
-            )}
+            <Show
+              when={props.notFoundFallback}
+              fallback={
+                <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center space-x-2'>
+                  <H1>Data not found</H1>
+                  <Button onClick={() => props.query.refetch()}>Retry</Button>
+                </div>
+              }
+              keyed
+            >
+              {(fallback) => (
+                <Show
+                  when={typeof fallback === 'function' && fallback}
+                  fallback={fallback as JSX.Element}
+                  keyed
+                >
+                  {(fallback) =>
+                    fallback(async () => {
+                      await props.query.refetch();
+                    })
+                  }
+                </Show>
+              )}
+            </Show>
           </Match>
           <Match when={props.query.data} keyed>
             {props.children(props.query.data as Exclude<T, null | false | undefined>)}

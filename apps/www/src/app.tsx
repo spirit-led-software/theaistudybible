@@ -1,3 +1,4 @@
+// @refresh reload
 import {
   COLOR_MODE_STORAGE_KEY,
   ColorModeProvider,
