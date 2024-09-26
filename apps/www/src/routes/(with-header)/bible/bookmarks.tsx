@@ -124,7 +124,12 @@ const BookmarksPage = () => {
   );
   createEffect(() => {
     if (!bookmarksQuery.isLoading && bookmarksQuery.data) {
-      setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
+      setBookmarks(
+        reconcile(
+          bookmarksQuery.data.pages.flatMap((page) => page.bookmarks),
+          { merge: true },
+        ),
+      );
     }
   });
 

@@ -64,7 +64,12 @@ export const ChatSidebar = () => {
   );
   createEffect(() => {
     if (!chatsQuery.isLoading && chatsQuery.data) {
-      setChats(reconcile(chatsQuery.data.pages.flatMap((page) => page.chats)));
+      setChats(
+        reconcile(
+          chatsQuery.data.pages.flatMap((page) => page.chats),
+          { merge: true },
+        ),
+      );
     }
   });
 

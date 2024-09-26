@@ -101,9 +101,10 @@ const HighlightsPage = () => {
   createEffect(() => {
     if (!highlightsQuery.isLoading && highlightsQuery.data) {
       setHighlights(
-        reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights) ?? [], {
-          merge: true,
-        }),
+        reconcile(
+          highlightsQuery.data.pages.flatMap((page) => page.highlights),
+          { merge: true },
+        ),
       );
     }
   });

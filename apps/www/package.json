@@ -27,11 +27,11 @@
   },
   "dependencies": {
     "@ai-sdk/solid": "^0.0.47",
-    "@ark-ui/solid": "^3.13.0",
+    "@ark-ui/solid": "^4.0.0",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource/goldman": "^5.1.0",
-    "@hono/zod-validator": "^0.2.2",
+    "@hono/zod-validator": "^0.3.0",
     "@internationalized/date": "^3.5.5",
     "@kobalte/core": "^0.13.6",
     "@modular-forms/solid": "^0.23.0",

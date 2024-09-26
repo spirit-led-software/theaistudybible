@@ -93,8 +93,13 @@ export const NotesCard = () => {
   );
   createEffect(() => {
     if (!query.isLoading && query.data) {
-      // @ts-expect-error - Types are messed up for some reason
-      setNotes(reconcile(query.data.pages.flatMap((page) => page.notes)));
+      setNotes(
+        reconcile(
+          // @ts-expect-error - Types are messed up for some reason
+          query.data.pages.flatMap((page) => page.notes),
+          { merge: true },
+        ),
+      );
     }
   });
 

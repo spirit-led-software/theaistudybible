@@ -3,6 +3,7 @@ import { useChat } from '@/www/hooks/use-chat';
 import { Title } from '@solidjs/meta';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
+import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
@@ -53,6 +54,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
     }),
   );
 
+  const [messages, setMessages] = createStore(useChatResult.messages());
+  createEffect(
+    on(useChatResult.messages, (messages) => {
+      setMessages(reconcile(messages, { merge: true }));
+    }),
+  );
+
   const { isAtBottom, scrollToBottomSmooth, setScrollRef, setMessagesRef, setVisibilityRef } =
     createScrollAnchor();
 
@@ -100,7 +108,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </div>
         <div ref={setMessagesRef} class='flex flex-1 flex-col items-center justify-end'>
           <For
-            each={useChatResult.messages()}
+            each={messages}
             fallback={
               <div class='flex h-full w-full grow items-center justify-center p-20'>
                 <H5>No messages yet</H5>

@@ -42,8 +42,8 @@ export type CreateChatChainOptions = {
   chatId: string;
   userMessageId: string;
   userId: string;
+  streamData: StreamData;
   maxTokens?: number;
-  streamData?: StreamData;
   onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
 };
@@ -89,6 +89,10 @@ You must format your response in valid markdown syntax.`,
             chatId: options.chatId,
           })
           .returning();
+
+        options.streamData.append({
+          lastResponseId: response.id,
+        });
 
         if (step.toolResults?.length) {
           await db

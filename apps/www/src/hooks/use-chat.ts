@@ -233,10 +233,14 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     enabled: !!chat(),
   }));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(
-    followUpSuggestionsQuery.data ?? [],
+    !followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data
+      ? followUpSuggestionsQuery.data
+      : [],
   );
   createEffect(() => {
-    setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data ?? []));
+    if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
+      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data, { merge: true }));
+    }
   });
 
   createEffect(
@@ -252,6 +256,21 @@ export const useChat = (props: Accessor<UseChatProps>) => {
         }
       },
     ),
+  );
+
+  createEffect(
+    on(useChatResult.data, (data) => {
+      const lastData = data?.at(-1);
+      if (lastData && typeof lastData === 'object' && 'lastResponseId' in lastData) {
+        useChatResult.setMessages((messages) => [
+          ...messages.slice(0, -1),
+          {
+            ...messages.at(-1)!,
+            id: lastData.lastResponseId as string,
+          },
+        ]);
+      }
+    }),
   );
 
   return mergeProps(useChatResult, {

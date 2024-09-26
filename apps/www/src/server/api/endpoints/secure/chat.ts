@@ -7,6 +7,7 @@ import { MessageSchema } from '@/schemas/chats';
 import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { zValidator } from '@hono/zod-validator';
+import { StreamData } from 'ai';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
@@ -187,11 +188,13 @@ const app = new Hono<{
         );
       }
 
+      const streamData = new StreamData();
       const streamText = createChatChain({
         modelId,
         chatId: chat.id,
         userMessageId: lastUserMessage.id,
         userId: c.var.user!.id,
+        streamData,
         maxTokens: maxResponseTokens,
         onFinish: async (event) => {
           await Promise.all(pendingPromises);
@@ -211,7 +214,7 @@ const app = new Hono<{
         c.header('X-Vercel-AI-Data-Stream', 'v1');
         c.header('Content-Type', 'text/plain; charset=utf-8');
 
-        await stream.pipe(result.toDataStream());
+        await stream.pipe(result.toDataStream({ data: streamData }));
       });
     },
   );
