@@ -54,6 +54,7 @@ async function extractMetadataAndPublication(zipFile: JSZip, publicationId?: str
   const { DBLMetadata: metadata } = new XMLParser({
     ignoreAttributes: false,
     allowBooleanAttributes: true,
+    preserveOrder: true,
   }).parse(metadataXml) as { DBLMetadata: DBLMetadata };
 
   const publication = findPublication(metadata, publicationId);
@@ -134,7 +135,10 @@ async function getSourceDocIds(bibleId: string) {
 }
 
 async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
-  const copyRightHtml = new XMLBuilder().build(metadata.copyright.fullStatement.statementContent);
+  const copyRightHtml = new XMLBuilder({
+    ignoreAttributes: false,
+    preserveOrder: true,
+  }).build(metadata.copyright.fullStatement.statementContent);
   const [bible] = await db
     .insert(schema.bibles)
     .values({
@@ -264,7 +268,7 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
     if (!name) throw new Error(`Content ${content['@_name']} not found`);
     return {
       src: content['@_src'],
-      abbreviation: name.abbr?.toUpperCase() ?? name.short,
+      abbreviation: (name.abbr ?? name.short.replace(/\s/g, '').substring(0, 4)).toUpperCase(),
       shortName: name.short,
       longName: name.long,
     };

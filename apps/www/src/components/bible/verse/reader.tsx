@@ -171,7 +171,7 @@ export default function VerseReader(props: VerseReaderProps) {
                     as={A}
                     class={cn(
                       buttonVariants(),
-                      'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl pb-safe pl-safe',
+                      'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
                     )}
                     href={
                       `/bible/${bible.abbreviation}/${verse.previous!.abbreviation.split('.')[0]}` +
@@ -191,7 +191,7 @@ export default function VerseReader(props: VerseReaderProps) {
                     as={A}
                     class={cn(
                       buttonVariants(),
-                      'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl pr-safe pb-safe',
+                      'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
                     )}
                     href={
                       `/bible/${bible.abbreviation}/${verse.next!.abbreviation.split('.')[0]}` +

@@ -52,7 +52,7 @@ export const ActivityPanelAlwaysOpenButtons = () => {
 
   return (
     <div
-      class={`-translate-x-1/2 fixed inset-x-1/2 bottom-0 flex h-fit w-fit place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`-translate-x-1/2 fixed bottom-0 left-1/2 flex h-fit max-h-24 place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
       <Tooltip>
         <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
@@ -77,52 +77,56 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-safe bottom-0 mx-auto grid h-fit w-fit transform grid-cols-3 grid-rows-2 place-items-center justify-center gap-1 rounded-t-lg bg-primary p-1 pb-safe transition-all duration-200 md:flex md:flex-row ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`fixed inset-x-1/4 bottom-0 mx-auto flex h-fit max-h-48 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
-      <H6 class='col-span-2 text-nowrap px-1 text-center text-primary-foreground text-sm md:col-span-1'>
-        {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
-      </H6>
-      <Tooltip>
-        <TooltipTrigger
-          as={Button}
-          size='icon'
-          onClick={() => setBrStore('selectedVerseInfos', [])}
-        >
-          <X size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Clear Selection</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('share')}>
-          <Share size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Share</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('highlight')}>
-          <Highlighter size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Highlight</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('notes')}>
-          <Notebook size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Take Notes</TooltipContent>
-      </Tooltip>
-      <BookmarkButton />
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('references')}>
-          <TextSearch size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Find References</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
-          <MessageCircle size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Explain</TooltipContent>
-      </Tooltip>
+      <div class='flex w-full items-center justify-between'>
+        <H6 class='w-full text-center text-primary-foreground text-sm'>
+          {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
+        </H6>
+        <Tooltip>
+          <TooltipTrigger
+            as={Button}
+            size='icon'
+            onClick={() => setBrStore('selectedVerseInfos', [])}
+          >
+            <X size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Clear Selection</TooltipContent>
+        </Tooltip>
+      </div>
+      <div class='flex w-full flex-wrap justify-center gap-1'>
+        <Tooltip>
+          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('share')}>
+            <Share size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Share</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('highlight')}>
+            <Highlighter size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Highlight</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('notes')}>
+            <Notebook size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Take Notes</TooltipContent>
+        </Tooltip>
+        <BookmarkButton />
+        <Tooltip>
+          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('references')}>
+            <TextSearch size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Find References</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
+            <MessageCircle size={20} />
+          </TooltipTrigger>
+          <TooltipContent>Explain</TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   );
 };

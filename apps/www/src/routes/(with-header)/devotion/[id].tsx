@@ -1,4 +1,5 @@
 import { db } from '@/core/database';
+import { toTitleCase } from '@/core/utils/string';
 import { DevotionMenu } from '@/www/components/devotions/menu';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Markdown } from '@/www/components/ui/markdown';
@@ -55,10 +56,10 @@ const DevotionPage = () => {
           <QueryBoundary query={devotionQuery}>
             {(devotion) => (
               <>
-                <Title>{devotion.topic} | Devotion | The AI Study Bible</Title>
+                <Title>{toTitleCase(devotion.topic)} | Devotion | The AI Study Bible</Title>
                 <Meta
                   name='description'
-                  content={`A devotion on '${devotion.topic}' from The AI Study Bible`}
+                  content={`A devotion on '${toTitleCase(devotion.topic)}' from The AI Study Bible`}
                 />
                 <div class='flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap'>
                   <div class='flex flex-col gap-2 text-center'>

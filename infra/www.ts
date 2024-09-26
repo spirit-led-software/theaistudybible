@@ -6,6 +6,7 @@ import {
   STRIPE_PUBLISHABLE_KEY,
 } from './constants';
 import { allLinks } from './defaults';
+import { cloudflareHelpers } from './resources';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 
@@ -84,22 +85,38 @@ export const webapp = cluster.addService('WebAppService', {
 });
 
 if ($app.stage === 'production') {
-  new cloudflare.Ruleset(`${$app.stage}-CacheRuleset`, {
-    kind: 'zone',
-    zoneId: CLOUDFLARE_ZONE_ID,
-    name: `${$app.stage}-cacheruleset`,
-    phase: 'http_request_cache_settings',
-    rules: [
-      {
-        expression:
-          '(http.request.uri.path.extension in {"7z" "avi" "avif" "apk" "bin" "bmp" "bz2" "class" "css" "csv" "doc" "docx" "dmg" "ejs" "eot" "eps" "exe" "flac" "gif" "gz" "ico" "iso" "jar" "jpg" "jpeg" "js" "mid" "midi" "mkv" "mp3" "mp4" "ogg" "otf" "pdf" "pict" "pls" "png" "ppt" "pptx" "ps" "rar" "svg" "svgz" "swf" "tar" "tif" "tiff" "ttf" "webm" "webp" "woff" "woff2" "xls" "xlsx" "zip" "zst"})',
-        action: 'set_cache_settings',
-        actionParameters: {
-          cache: true,
+  const ruleset = new cloudflare.Ruleset(
+    `${$app.stage}-CacheRuleset`,
+    {
+      kind: 'zone',
+      zoneId: CLOUDFLARE_ZONE_ID,
+      name: `${$app.stage}-cacheruleset`,
+      phase: 'http_request_cache_settings',
+      rules: [
+        {
+          expression:
+            '(http.request.uri.path.extension in {"7z" "avi" "avif" "apk" "bin" "bmp" "bz2" "class" "css" "csv" "doc" "docx" "dmg" "ejs" "eot" "eps" "exe" "flac" "gif" "gz" "ico" "iso" "jar" "jpg" "jpeg" "js" "mid" "midi" "mkv" "mp3" "mp4" "ogg" "otf" "pdf" "pict" "pls" "png" "ppt" "pptx" "ps" "rar" "svg" "svgz" "swf" "tar" "tif" "tiff" "ttf" "webm" "webp" "woff" "woff2" "xls" "xlsx" "zip" "zst"})',
+          action: 'set_cache_settings',
+          actionParameters: {
+            cache: true,
+          },
         },
-      },
-    ],
-  });
+      ],
+    },
+    {
+      dependsOn: [webapp],
+    },
+  );
+  new cloudflareHelpers.PurgeCache(
+    'PurgeCache',
+    {
+      zoneId: CLOUDFLARE_ZONE_ID,
+      purge_everything: true,
+    },
+    {
+      dependsOn: [ruleset],
+    },
+  );
 }
 
 export const webAppDev = new sst.x.DevCommand('WebAppDev', {
