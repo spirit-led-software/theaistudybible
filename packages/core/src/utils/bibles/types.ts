@@ -4,11 +4,9 @@ export interface DBLMetadata {
   relationships: string;
   agencies: Agencies;
   language: Language;
-  countries:
-    | {
-        country: Country;
-      }
-    | Country[];
+  countries: {
+    country: Country | Country[];
+  };
   format: Format;
   names: Names;
   manifest: Manifest;
@@ -139,14 +137,14 @@ export interface Language {
   scriptCode: string;
   scriptDirection: 'LTR' | 'RTL';
   ldml: string;
-  rod: number;
+  rod?: number;
   numerals: string;
 }
 
 export interface Agencies {
   rightsHolder: RightsHolder;
   rightsAdmin: RightsAdmin;
-  contributor: Contributor;
+  contributor: Contributor | Contributor[];
 }
 
 export interface Contributor {

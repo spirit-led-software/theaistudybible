@@ -1,8 +1,9 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
+import { buildConflictUpdateColumns } from '@/core/database/utils';
 import type { Bible } from '@/schemas/bibles/types';
-import { type SQL, eq, getTableColumns, sql } from 'drizzle-orm';
+import { eq, getTableColumns } from 'drizzle-orm';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
 import { generateChapterEmbeddings } from './generate-chapter-embeddings';
@@ -54,7 +55,6 @@ async function extractMetadataAndPublication(zipFile: JSZip, publicationId?: str
   const { DBLMetadata: metadata } = new XMLParser({
     ignoreAttributes: false,
     allowBooleanAttributes: true,
-    preserveOrder: true,
   }).parse(metadataXml) as { DBLMetadata: DBLMetadata };
 
   const publication = findPublication(metadata, publicationId);
@@ -137,7 +137,6 @@ async function getSourceDocIds(bibleId: string) {
 async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
   const copyRightHtml = new XMLBuilder({
     ignoreAttributes: false,
-    preserveOrder: true,
   }).build(metadata.copyright.fullStatement.statementContent);
   const [bible] = await db
     .insert(schema.bibles)
@@ -159,19 +158,21 @@ async function createBibleRelations(
   metadata: DBLMetadata,
 ) {
   await createBibleLanguage(bible.id, metadata.language);
-  await createBibleCountries(bible.id, metadata.countries);
+  await createBibleCountries(bible.id, metadata.countries.country);
   await createBibleRightsHolder(bible.id, metadata.agencies.rightsHolder);
   await createBibleRightsAdmin(bible.id, metadata.agencies.rightsAdmin);
   await createBibleContributor(bible.id, metadata.agencies.contributor);
 }
 
 async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['language']) {
+  const { iso, ...rest } = dblLanguage;
+
   const [language] = await db
     .insert(schema.bibleLanguages)
     .values(dblLanguage)
     .onConflictDoUpdate({
       target: [schema.bibleLanguages.iso],
-      set: dblLanguage,
+      set: rest,
     })
     .returning();
   await db.insert(schema.biblesToLanguages).values({
@@ -180,24 +181,22 @@ async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['la
   });
 }
 
-async function createBibleCountries(bibleId: string, dblCountries: DBLMetadata['countries']) {
-  const countriesArray = Array.isArray(dblCountries)
-    ? dblCountries.map((country) => country)
-    : [dblCountries.country];
+async function createBibleCountries(
+  bibleId: string,
+  dblCountries: DBLMetadata['countries']['country'],
+) {
+  const countriesArray = Array.isArray(dblCountries) ? dblCountries : [dblCountries];
   const countries = await db
     .insert(schema.bibleCountries)
     .values(countriesArray)
     .onConflictDoUpdate({
       target: [schema.bibleCountries.iso],
-      set: Array.isArray(dblCountries)
-        ? Object.keys(dblCountries[0]).reduce(
-            (acc, curr) => {
-              acc[curr] = sql`excluded.${curr}`;
-              return acc;
-            },
-            {} as Record<string, SQL<unknown>>,
-          )
-        : dblCountries.country,
+      set: buildConflictUpdateColumns(
+        schema.bibleCountries,
+        Object.keys(countriesArray[0]).filter((key) =>
+          ['id', 'iso', 'createdAt', 'updatedAt'].includes(key),
+        ) as (keyof typeof schema.bibleCountries.$inferSelect)[],
+      ),
     })
     .returning();
   await db.insert(schema.biblesToCountries).values(
@@ -212,12 +211,13 @@ async function createBibleRightsHolder(
   bibleId: string,
   dblRightsHolder: DBLMetadata['agencies']['rightsHolder'],
 ) {
+  const { uid, ...rest } = dblRightsHolder;
   const [rightsHolder] = await db
     .insert(schema.bibleRightsHolders)
     .values(dblRightsHolder)
     .onConflictDoUpdate({
       target: [schema.bibleRightsHolders.uid],
-      set: dblRightsHolder,
+      set: rest,
     })
     .returning();
   await db.insert(schema.biblesToRightsHolders).values({
@@ -230,12 +230,13 @@ async function createBibleRightsAdmin(
   bibleId: string,
   dblRightsAdmin: DBLMetadata['agencies']['rightsAdmin'],
 ) {
+  const { uid, ...rest } = dblRightsAdmin;
   const [rightsAdmin] = await db
     .insert(schema.bibleRightsAdmins)
     .values(dblRightsAdmin)
     .onConflictDoUpdate({
       target: [schema.bibleRightsAdmins.uid],
-      set: dblRightsAdmin,
+      set: rest,
     })
     .returning();
   await db.insert(schema.biblesToRightsAdmins).values({
@@ -248,18 +249,27 @@ async function createBibleContributor(
   bibleId: string,
   dblContributor: DBLMetadata['agencies']['contributor'],
 ) {
-  const [contributor] = await db
+  const contributorsArray = Array.isArray(dblContributor) ? dblContributor : [dblContributor];
+  const contributors = await db
     .insert(schema.bibleContributors)
-    .values(dblContributor)
+    .values(contributorsArray)
     .onConflictDoUpdate({
       target: [schema.bibleContributors.uid],
-      set: dblContributor,
+      set: buildConflictUpdateColumns(
+        schema.bibleContributors,
+        Object.keys(contributorsArray[0]).filter((key) =>
+          ['id', 'uid', 'createdAt', 'updatedAt'].includes(key),
+        ) as (keyof typeof schema.bibleContributors.$inferSelect)[],
+      ),
     })
     .returning();
-  await db.insert(schema.biblesToContributors).values({
-    bibleId,
-    contributorId: contributor.id,
-  });
+
+  await db.insert(schema.biblesToContributors).values(
+    contributors.map((contributor) => ({
+      bibleId,
+      contributorId: contributor.id,
+    })),
+  );
 }
 
 function getBookInfos(publication: Publication, metadata: DBLMetadata) {
@@ -512,7 +522,10 @@ async function cleanupMissingChapterLinks(bibleId: string) {
 
     await Promise.all([
       ...chapters
-        .filter((chapter) => !chapter.nextId && chapter.book.next !== null)
+        .filter(
+          (chapter) =>
+            !chapter.nextId && chapter.book.next !== null && chapter.book.next.chapters.length > 0,
+        )
         .map((chapter) =>
           db
             .update(schema.chapters)
@@ -520,7 +533,12 @@ async function cleanupMissingChapterLinks(bibleId: string) {
             .where(eq(schema.chapters.id, chapter.id)),
         ),
       ...chapters
-        .filter((chapter) => !chapter.previousId && chapter.book.previous !== null)
+        .filter(
+          (chapter) =>
+            !chapter.previousId &&
+            chapter.book.previous !== null &&
+            chapter.book.previous.chapters.length > 0,
+        )
         .map((chapter) =>
           db
             .update(schema.chapters)
@@ -575,7 +593,10 @@ async function cleanupMissingVerseLinks(bibleId: string) {
 
     await Promise.all([
       ...verses
-        .filter((verse) => !verse.nextId && verse.chapter.next !== null)
+        .filter(
+          (verse) =>
+            !verse.nextId && verse.chapter.next !== null && verse.chapter.next.verses.length > 0,
+        )
         .map((verse) =>
           db
             .update(schema.verses)
@@ -583,7 +604,12 @@ async function cleanupMissingVerseLinks(bibleId: string) {
             .where(eq(schema.verses.id, verse.id)),
         ),
       ...verses
-        .filter((verse) => !verse.previousId && verse.chapter.previous !== null)
+        .filter(
+          (verse) =>
+            !verse.previousId &&
+            verse.chapter.previous !== null &&
+            verse.chapter.previous.verses.length > 0,
+        )
         .map((verse) =>
           db
             .update(schema.verses)

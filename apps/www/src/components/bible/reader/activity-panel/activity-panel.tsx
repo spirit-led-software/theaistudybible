@@ -77,7 +77,7 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-1/4 bottom-0 mx-auto flex h-fit max-h-48 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`fixed inset-x-1/3 bottom-0 mx-auto flex h-fit max-h-52 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
       <div class='flex w-full items-center justify-between'>
         <H6 class='w-full text-center text-primary-foreground text-sm'>
@@ -94,7 +94,7 @@ export const ActivityPanelButtons = () => {
           <TooltipContent>Clear Selection</TooltipContent>
         </Tooltip>
       </div>
-      <div class='flex w-full flex-wrap justify-center gap-1'>
+      <div class='grid shrink-0 grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-6'>
         <Tooltip>
           <TooltipTrigger as={Button} size='icon' onClick={() => setValue('share')}>
             <Share size={20} />

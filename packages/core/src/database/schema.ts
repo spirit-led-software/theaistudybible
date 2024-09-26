@@ -797,7 +797,7 @@ export const bibleLanguages = sqliteTable('bible_languages', {
   scriptCode: text('script_code').notNull(),
   scriptDirection: text('script_direction', { enum: ['LTR', 'RTL'] }).notNull(),
   ldml: text('ldml').notNull(),
-  rod: integer('rod').notNull(),
+  rod: integer('rod'),
   numerals: text('numerals').notNull(),
 });
 
@@ -993,11 +993,11 @@ export const bibleContributors = sqliteTable('bible_contributors', {
   ...baseModel,
   uid: text('uid').notNull().unique(),
   name: text('name').notNull(),
-  content: integer('content', { mode: 'boolean' }).notNull(),
-  publication: integer('publication', { mode: 'boolean' }).notNull(),
-  management: integer('management', { mode: 'boolean' }).notNull(),
-  finance: integer('finance', { mode: 'boolean' }).notNull(),
-  qa: integer('qa', { mode: 'boolean' }).notNull(),
+  content: integer('content', { mode: 'boolean' }).notNull().default(false),
+  publication: integer('publication', { mode: 'boolean' }).notNull().default(false),
+  management: integer('management', { mode: 'boolean' }).notNull().default(false),
+  finance: integer('finance', { mode: 'boolean' }).notNull().default(false),
+  qa: integer('qa', { mode: 'boolean' }).notNull().default(false),
 });
 
 export const bibleContributorsRelations = relations(bibleContributors, ({ many }) => {
