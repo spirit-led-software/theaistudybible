@@ -20,13 +20,13 @@ export default function BiblePage() {
     if (bibleStore.verse) {
       return (
         <Navigate
-          href={`/bible/${bibleStore.bible.abbreviation}/${bibleStore.book.abbreviation}/${bibleStore.chapter.number}/${bibleStore.verse.number}`}
+          href={`/bible/${bibleStore.bible.abbreviation}/${bibleStore.book.code}/${bibleStore.chapter.number}/${bibleStore.verse.number}`}
         />
       );
     }
     return (
       <Navigate
-        href={`/bible/${bibleStore.bible.abbreviation}/${bibleStore.book.abbreviation}/${bibleStore.chapter.number}`}
+        href={`/bible/${bibleStore.bible.abbreviation}/${bibleStore.book.code}/${bibleStore.chapter.number}`}
       />
     );
   }

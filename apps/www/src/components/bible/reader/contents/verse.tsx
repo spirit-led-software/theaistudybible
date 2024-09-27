@@ -30,7 +30,7 @@ export const VerseContent = (props: VerseContentProps) => {
       class={cn(props.style, 'inline-flex gap-1', props.class)}
     >
       <A
-        href={`/bible/${brStore.bible.abbreviation}/${brStore.book.abbreviation}/${brStore.chapter.number}/${props.content.number}`}
+        href={`/bible/${brStore.bible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}/${props.content.number}`}
         class='hover:underline'
       >
         {props.content.number}

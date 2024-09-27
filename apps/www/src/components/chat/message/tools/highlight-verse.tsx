@@ -65,7 +65,7 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
                           {formNumberSequenceString(successResult.verses.map((v) => v.number))}
                         </span>
                         <A
-                          href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
+                          href={`/bible/${successResult.bible.abbreviation}/${successResult.book.code}/${successResult.chapter.number}`}
                           class={cn(
                             buttonVariants({ variant: 'link' }),
                             'h-fit p-0 text-accent-foreground',

@@ -85,7 +85,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                               </span>
                               <Button
                                 as={A}
-                                href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${successResult.chapter.number}`}
+                                href={`/bible/${successResult.bible.abbreviation}/${successResult.book.code}/${successResult.chapter.number}`}
                                 variant='link'
                                 class='h-fit p-0 text-accent-foreground'
                               >
@@ -104,7 +104,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                                   </span>
                                   <Button
                                     as={A}
-                                    href={`/bible/${successResult.bible.abbreviation}/${successResult.book.abbreviation}/${chapter.number}`}
+                                    href={`/bible/${successResult.bible.abbreviation}/${successResult.book.code}/${chapter.number}`}
                                     variant='link'
                                     class='h-fit p-0 text-accent-foreground'
                                   >

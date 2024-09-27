@@ -26,7 +26,7 @@ const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
       books: {
         limit: 1,
         orderBy: (books, { asc }) => asc(books.number),
-        columns: { abbreviation: true },
+        columns: { code: true },
         with: {
           chapters: {
             limit: 1,
@@ -53,7 +53,7 @@ const getBibleRedirectUrl = async ({ bibleAbbr }: BibleRedirectUrlParams) => {
 
   const chapter = chapters[0];
 
-  return { redirectUrl: `/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}` };
+  return { redirectUrl: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}` };
 };
 
 const getBibleRedirectUrlQueryOptions = ({ bibleAbbr }: BibleRedirectUrlParams) => ({

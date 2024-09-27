@@ -7,18 +7,18 @@ import { createQuery, useQueryClient } from '@tanstack/solid-query';
 
 export type BookRedirectUrlParams = {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
 };
 
-const getBookRedirectUrl = async ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams) => {
+const getBookRedirectUrl = async ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
     columns: { abbreviation: true },
     with: {
       books: {
-        where: (books, { eq }) => eq(books.abbreviation, bookAbbr),
-        columns: { abbreviation: true },
+        where: (books, { eq }) => eq(books.code, bookCode),
+        columns: { code: true },
         with: {
           chapters: {
             limit: 1,
@@ -45,19 +45,19 @@ const getBookRedirectUrl = async ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams
 
   const chapter = chapters[0];
 
-  return { redirectUrl: `/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}` };
+  return { redirectUrl: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}` };
 };
 
-const getBookRedirectUrlQueryOptions = ({ bibleAbbr, bookAbbr }: BookRedirectUrlParams) => ({
-  queryKey: ['book-redirect', bibleAbbr, bookAbbr],
-  queryFn: () => getBookRedirectUrl({ bibleAbbr, bookAbbr }),
+const getBookRedirectUrlQueryOptions = ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => ({
+  queryKey: ['book-redirect', bibleAbbr, bookCode],
+  queryFn: () => getBookRedirectUrl({ bibleAbbr, bookCode }),
 });
 
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
-    const { bibleAbbr, bookAbbr } = params;
+    const { bibleAbbr, bookCode } = params;
     const qc = useQueryClient();
-    await qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookAbbr }));
+    await qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookCode }));
   },
 };
 
@@ -66,7 +66,7 @@ export default function BookPage() {
   const query = createQuery(() =>
     getBookRedirectUrlQueryOptions({
       bibleAbbr: params.bibleAbbr,
-      bookAbbr: params.bookAbbr,
+      bookCode: params.bookCode,
     }),
   );
 

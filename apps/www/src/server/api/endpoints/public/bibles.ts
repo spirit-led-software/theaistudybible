@@ -76,7 +76,7 @@ export const app = new Hono<{
     const book = await db.query.books.findFirst({
       where: and(
         eq(books.bibleId, bible.id),
-        or(eq(books.id, bookId), eq(books.abbreviation, bookId)),
+        or(eq(books.id, bookId), eq(books.code, bookId), eq(books.abbreviation, bookId)),
       ),
       with: {
         previous: {

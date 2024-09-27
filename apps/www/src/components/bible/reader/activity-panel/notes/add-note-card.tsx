@@ -113,10 +113,10 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
             </Select>
           </div>
         </Show>
-        <Show when={brStore.verse || brStore.selectedVerseInfos.length}>
+        <Show when={brStore.verse?.content?.length || brStore.selectedVerseInfos.length}>
           <P>
             {brStore.verse
-              ? contentsToText(brStore.verse.content)
+              ? contentsToText(brStore.verse.content!)
               : brStore.selectedVerseInfos.find((v) => v.id === selectedVerseInfo()?.id)?.text}
           </P>
         </Show>

@@ -43,7 +43,7 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
         verse: {
           with: {
             bible: { columns: { abbreviation: true } },
-            book: { columns: { abbreviation: true } },
+            book: { columns: { code: true } },
             chapter: { columns: { number: true } },
           },
         },
@@ -58,7 +58,7 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
           columns: { content: false },
           with: {
             bible: { columns: { abbreviation: true } },
-            book: { columns: { abbreviation: true } },
+            book: { columns: { code: true } },
           },
         },
       },
@@ -208,8 +208,8 @@ const BookmarksPage = () => {
                             as={A}
                             href={
                               'verse' in bookmark
-                                ? `/bible/${bookmark.verse.bible.abbreviation}/${bookmark.verse.book.abbreviation}/${bookmark.verse.chapter.number}/${bookmark.verse.number}`
-                                : `/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.abbreviation}/${bookmark.chapter.number}`
+                                ? `/bible/${bookmark.verse.bible.abbreviation}/${bookmark.verse.book.code}/${bookmark.verse.chapter.number}/${bookmark.verse.number}`
+                                : `/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.code}/${bookmark.chapter.number}`
                             }
                           >
                             View

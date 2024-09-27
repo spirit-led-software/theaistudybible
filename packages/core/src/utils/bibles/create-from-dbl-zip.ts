@@ -287,7 +287,7 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
 }
 
 async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBookInfos>) {
-  const batchSize = 20;
+  const batchSize = 50;
   const allBooks = [];
 
   for (let i = 0; i < bookInfos.length; i += batchSize) {
@@ -313,7 +313,7 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
 }
 
 async function createBookOrder(books: (typeof schema.books.$inferSelect)[]) {
-  const batchSize = 10;
+  const batchSize = 40;
   for (let i = 0; i < books.length; i += batchSize) {
     const batch = books.slice(i, i + batchSize);
     await Promise.all(
@@ -350,12 +350,12 @@ async function processBooks(
     const contents = parseUsx(bookXml);
 
     console.log('Book content parsed, inserting chapters into database...');
-    const newChapters = await insertChapters(bible, book, contents, bookInfo);
+    const newChapters = await insertChapters(bible, book, contents);
 
     console.log(
       `${bookInfo.abbreviation}: Inserted ${newChapters.length} chapters. Inserting verses...`,
     );
-    await processChapters(newChapters, contents, bible, book, bookInfo, generateEmbeddings);
+    await processChapters(newChapters, contents, bible, book, generateEmbeddings);
   }
 }
 
@@ -363,10 +363,9 @@ async function insertChapters(
   bible: typeof schema.bibles.$inferSelect,
   book: typeof schema.books.$inferSelect,
   contents: ReturnType<typeof parseUsx>,
-  bookInfo: ReturnType<typeof getBookInfos>[number],
 ) {
   const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
-  const insertChapterBatchSize = 20;
+  const insertChapterBatchSize = 40;
   const newChapters = [];
   const chapterEntries = Object.entries(contents);
 
@@ -384,8 +383,8 @@ async function insertChapters(
               previousId: index > 0 ? chapterEntries[index - 1][1].id : undefined,
               nextId:
                 index < chapterEntries.length - 1 ? chapterEntries[index + 1][1].id : undefined,
-              code: `${bookInfo.code}.${chapter}`,
-              name: `${bookInfo.shortName} ${chapter}`,
+              code: `${book.code}.${chapter}`,
+              name: `${book.shortName} ${chapter}`,
               number: Number.parseInt(chapter),
               content: content.contents,
             }) satisfies typeof schema.chapters.$inferInsert,
@@ -405,32 +404,31 @@ async function processChapters(
   contents: ReturnType<typeof parseUsx>,
   bible: typeof schema.bibles.$inferSelect,
   book: typeof schema.books.$inferSelect,
-  bookInfo: ReturnType<typeof getBookInfos>[number],
   generateEmbeddings: boolean,
 ) {
-  const batchSize = 5;
+  const batchSize = 10;
   for (let i = 0; i < chapters.length; i += batchSize) {
     const chapterBatch = chapters.slice(i, i + batchSize);
 
-    for (const chapter of chapterBatch) {
-      const content = contents[chapter.number];
-      const createdVerses = await insertVerses(bible, book, chapter, content);
-
-      if (generateEmbeddings) {
-        console.log(`Generating embeddings for ${bookInfo.abbreviation} ${chapter.number}...`);
-        await generateChapterEmbeddings({
-          verses: createdVerses.map((v) => ({
-            ...v,
-            content: content.verseContents[v.number].contents,
-          })),
-          chapter,
-          book,
-          bible,
-        });
-      }
-
-      console.log(`Processed chapter ${chapter.number} out of ${chapters.length}`);
-    }
+    await Promise.all(
+      chapterBatch.map(async (chapter) => {
+        const content = contents[chapter.number];
+        const createdVerses = await insertVerses(bible, book, chapter, content);
+        if (generateEmbeddings) {
+          console.log(`Generating embeddings for ${book.code} ${chapter.number}...`);
+          await generateChapterEmbeddings({
+            verses: createdVerses.map((v) => ({
+              ...v,
+              content: content.verseContents[v.number].contents,
+            })),
+            chapter,
+            book,
+            bible,
+          });
+        }
+        console.log(`Processed chapter ${chapter.number} out of ${chapters.length}`);
+      }),
+    );
 
     console.log(
       `Processed batch ${i / batchSize + 1} out of ${Math.ceil(chapters.length / batchSize)}`,
@@ -445,7 +443,7 @@ async function insertVerses(
   content: ReturnType<typeof parseUsx>[number],
 ) {
   const { content: verseContent, ...columnsWithoutContent } = getTableColumns(schema.verses);
-  const insertVerseBatchSize = 20;
+  const insertVerseBatchSize = 40;
   const allVerses = [];
   const verseEntries = Object.entries(content.verseContents);
 
@@ -482,7 +480,7 @@ async function insertVerses(
 
 async function cleanupMissingChapterLinks(bibleId: string) {
   let offset = 0;
-  const batchSize = 20;
+  const batchSize = 40;
   while (true) {
     const chapters = await db.query.chapters.findMany({
       columns: { id: true, nextId: true, previousId: true },
@@ -556,7 +554,7 @@ async function cleanupMissingChapterLinks(bibleId: string) {
 
 async function cleanupMissingVerseLinks(bibleId: string) {
   let offset = 0;
-  const batchSize = 20;
+  const batchSize = 40;
   while (true) {
     const verses = await db.query.verses.findMany({
       columns: { id: true, nextId: true, previousId: true },

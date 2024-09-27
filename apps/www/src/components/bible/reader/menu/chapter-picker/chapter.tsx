@@ -18,10 +18,10 @@ import { For } from 'solid-js';
 
 type GetChapterPickerDataProps = {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
 };
 
-async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDataProps) {
+async function getChapterPickerData({ bibleAbbr, bookCode }: GetChapterPickerDataProps) {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
@@ -29,8 +29,8 @@ async function getChapterPickerData({ bibleAbbr, bookAbbr }: GetChapterPickerDat
     with: {
       books: {
         limit: 1,
-        where: (books, { eq }) => eq(books.abbreviation, bookAbbr),
-        columns: { abbreviation: true },
+        where: (books, { eq }) => eq(books.code, bookCode),
+        columns: { code: true },
         with: {
           chapters: {
             orderBy: (chapters, { asc }) => asc(chapters.number),
@@ -74,7 +74,7 @@ export default function ChapterPicker(props: ChapterPickerProps) {
   const query = createQuery(() => ({
     ...chapterPickerQueryOptions({
       bibleAbbr: brStore.bible.abbreviation,
-      bookAbbr: props.book.code,
+      bookCode: props.book.code,
     }),
   }));
 
@@ -103,7 +103,7 @@ export default function ChapterPicker(props: ChapterPickerProps) {
                       data-index={idx()}
                       variant='outline'
                       as={A}
-                      href={`/bible/${brStore.bible.abbreviation}/${book.abbreviation}/${foundChapter.number}`}
+                      href={`/bible/${brStore.bible.abbreviation}/${book.code}/${foundChapter.number}`}
                       class='flex place-items-center justify-center overflow-visible'
                     >
                       <Check

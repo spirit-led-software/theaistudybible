@@ -62,9 +62,7 @@ export const ReferencesCard = () => {
                       <div class='flex w-full flex-col space-y-2'>
                         <H6>
                           {reference
-
                             .metadata!.name.replace(`(${brStore.bible.abbreviationLocal})`, '')
-
                             .trim()}
                           :
                         </H6>

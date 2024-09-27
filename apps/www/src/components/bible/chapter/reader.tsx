@@ -15,7 +15,7 @@ import { BibleReaderMenu } from '../reader/menu';
 
 async function getChapterReaderData(props: {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
   chapterNum: number;
 }) {
   'use server';
@@ -25,7 +25,7 @@ async function getChapterReaderData(props: {
       biblesToRightsHolders: { with: { rightsHolder: true } },
       books: {
         limit: 1,
-        where: (books, { eq }) => eq(books.abbreviation, props.bookAbbr),
+        where: (books, { eq }) => eq(books.code, props.bookCode),
         with: {
           chapters: {
             limit: 1,
@@ -62,7 +62,7 @@ async function getChapterReaderData(props: {
 
 export const chapterReaderQueryOptions = (props: {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
   chapterNum: number;
 }) => ({
   queryKey: ['chapter-reader', props],
@@ -71,7 +71,7 @@ export const chapterReaderQueryOptions = (props: {
 
 export type ChapterReaderProps = {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
   chapterNum: number;
 };
 
@@ -83,7 +83,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
   const query = createQuery(() =>
     chapterReaderQueryOptions({
       bibleAbbr: props.bibleAbbr,
-      bookAbbr: props.bookAbbr,
+      bookCode: props.bookCode,
       chapterNum: props.chapterNum,
     }),
   );

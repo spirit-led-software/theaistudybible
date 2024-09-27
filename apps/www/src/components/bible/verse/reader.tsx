@@ -15,7 +15,7 @@ import { BibleReaderMenu } from '../reader/menu';
 
 const getVerseReaderData = async (props: {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
   chapterNum: number;
   verseNum: number;
 }) => {
@@ -26,9 +26,10 @@ const getVerseReaderData = async (props: {
       biblesToRightsHolders: { with: { rightsHolder: true } },
       books: {
         limit: 1,
-        where: (books, { eq }) => eq(books.abbreviation, props.bookAbbr),
+        where: (books, { eq }) => eq(books.code, props.bookCode),
         with: {
           chapters: {
+            columns: { content: false },
             limit: 1,
             where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
             with: {
@@ -74,7 +75,7 @@ const getVerseReaderData = async (props: {
 
 export const getVerseReaderQueryOptions = (props: {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
   chapterNum: number;
   verseNum: number;
 }) => ({
@@ -84,7 +85,7 @@ export const getVerseReaderQueryOptions = (props: {
 
 export type VerseReaderProps = {
   bibleAbbr: string;
-  bookAbbr: string;
+  bookCode: string;
   chapterNum: number;
   verseNum: number;
 };
@@ -97,7 +98,7 @@ export default function VerseReader(props: VerseReaderProps) {
   const query = createQuery(() =>
     getVerseReaderQueryOptions({
       bibleAbbr: props.bibleAbbr,
-      bookAbbr: props.bookAbbr,
+      bookCode: props.bookCode,
       chapterNum: props.chapterNum,
       verseNum: props.verseNum,
     }),
@@ -159,7 +160,7 @@ export default function VerseReader(props: VerseReaderProps) {
               <div class='flex w-full flex-col items-center'>
                 <Button
                   as={A}
-                  href={`/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}`}
+                  href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
                   variant='outline'
                 >
                   More from {book.shortName} {chapter.number}

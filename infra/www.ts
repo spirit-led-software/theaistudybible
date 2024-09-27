@@ -99,6 +99,13 @@ if ($app.stage === 'production') {
           action: 'set_cache_settings',
           actionParameters: {
             cache: true,
+            edgeTtl: {
+              mode: 'override_origin',
+              default: 60 * 5, // 5 minutes
+            },
+            browserTtl: {
+              mode: 'respect_origin',
+            },
           },
         },
       ],

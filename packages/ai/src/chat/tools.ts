@@ -54,11 +54,16 @@ export const highlightVerseTool = (options: { userId: string }) =>
           books: {
             columns: {
               id: true,
+              code: true,
               abbreviation: true,
               shortName: true,
             },
             where: (books, { or, eq }) =>
-              or(eq(books.shortName, bookName), eq(books.abbreviation, bookName)),
+              or(
+                eq(books.shortName, bookName),
+                eq(books.code, bookName),
+                eq(books.abbreviation, bookName),
+              ),
             with: {
               chapters: {
                 columns: {
@@ -141,11 +146,16 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
           books: {
             columns: {
               id: true,
+              code: true,
               abbreviation: true,
               shortName: true,
             },
             where: (books, { or, eq }) =>
-              or(eq(books.shortName, bookName), eq(books.abbreviation, bookName)),
+              or(
+                eq(books.shortName, bookName),
+                eq(books.code, bookName),
+                eq(books.abbreviation, bookName),
+              ),
             with: {
               chapters: {
                 columns: {
@@ -221,11 +231,16 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
           books: {
             columns: {
               id: true,
+              code: true,
               abbreviation: true,
               shortName: true,
             },
             where: (books, { or, eq }) =>
-              or(eq(books.shortName, bookName), eq(books.abbreviation, bookName)),
+              or(
+                eq(books.shortName, bookName),
+                eq(books.code, bookName),
+                eq(books.abbreviation, bookName),
+              ),
             with: {
               chapters: {
                 columns: {

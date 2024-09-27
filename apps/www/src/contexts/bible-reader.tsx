@@ -1,4 +1,5 @@
 import { formNumberSequenceString } from '@/core/utils/number';
+import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import type { JSXElement } from 'solid-js';
 import { createComputed, createContext, on, splitProps, useContext } from 'solid-js';
@@ -16,8 +17,8 @@ export type SelectedVerseInfo = {
 export type BibleReaderStore = {
   bible: Bible;
   book: Book;
-  chapter: Chapter;
-  verse?: Verse;
+  chapter: Omit<Chapter, 'content'> & { content?: Content[] };
+  verse?: Omit<Verse, 'content'> & { content?: Content[] };
   selectedVerseInfos: SelectedVerseInfo[];
   selectedIds: string[];
   selectedTitle: string;
@@ -34,8 +35,8 @@ export const BibleReaderContext = createContext<BibleReaderContextValue>();
 export type BibleReaderProviderProps = {
   bible: Bible;
   book: Book;
-  chapter: Chapter;
-  verse?: Verse;
+  chapter: Omit<Chapter, 'content'> & { content?: Content[] };
+  verse?: Omit<Verse, 'content'> & { content?: Content[] };
   selectedVerseInfos?: SelectedVerseInfo[];
   children: JSXElement;
 };

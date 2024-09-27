@@ -74,7 +74,7 @@ export default function SmallTranslationPicker() {
                           value={foundBible.name}
                           onSelect={() => {
                             navigate(
-                              `/bible/${foundBible.abbreviation}/${brStore.book.abbreviation}/${brStore.chapter.number}`,
+                              `/bible/${foundBible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}`,
                             );
                           }}
                           class='flex w-full items-center justify-between'

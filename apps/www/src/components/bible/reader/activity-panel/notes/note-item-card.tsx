@@ -230,7 +230,7 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
           <Show when={props.showViewButton}>
             <Button
               as={A}
-              href={`/bible/${props.bible.abbreviation}/${props.book.abbreviation}/${props.chapter.number}${props.verse ? `/${props.verse.number}` : ''}`}
+              href={`/bible/${props.bible.abbreviation}/${props.book.code}/${props.chapter.number}${props.verse ? `/${props.verse.number}` : ''}`}
             >
               View
             </Button>

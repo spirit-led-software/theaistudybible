@@ -42,7 +42,7 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
       verse: {
         with: {
           bible: { columns: { abbreviation: true } },
-          book: { columns: { abbreviation: true } },
+          book: { columns: { code: true } },
           chapter: { columns: { number: true } },
         },
       },
@@ -175,7 +175,7 @@ const HighlightsPage = () => {
                           </Dialog>
                           <Button
                             as={A}
-                            href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.abbreviation}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
+                            href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.code}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
                           >
                             View
                           </Button>
