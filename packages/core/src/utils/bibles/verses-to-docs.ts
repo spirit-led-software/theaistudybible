@@ -78,7 +78,7 @@ function processVerseChunk(
       type: 'bible',
       translation: bible.abbreviation,
       name,
-      url: `/bible/${bible.abbreviation}/${book.abbreviation}/${chapter.number}`,
+      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}`,
       indexDate: new Date().toISOString(),
       verseRange,
       bibleId: bible.id,
