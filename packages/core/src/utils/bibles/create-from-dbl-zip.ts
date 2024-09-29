@@ -406,10 +406,9 @@ async function processChapters(
   book: typeof schema.books.$inferSelect,
   generateEmbeddings: boolean,
 ) {
-  const batchSize = 10;
+  const batchSize = 2;
   for (let i = 0; i < chapters.length; i += batchSize) {
     const chapterBatch = chapters.slice(i, i + batchSize);
-
     await Promise.all(
       chapterBatch.map(async (chapter) => {
         const content = contents[chapter.number];
@@ -429,7 +428,6 @@ async function processChapters(
         console.log(`Processed chapter ${chapter.number} out of ${chapters.length}`);
       }),
     );
-
     console.log(
       `Processed batch ${i / batchSize + 1} out of ${Math.ceil(chapters.length / batchSize)}`,
     );

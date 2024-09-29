@@ -11,12 +11,12 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.50",
-    "@ai-sdk/openai": "^0.0.62",
+    "@ai-sdk/anthropic": "^0.0.51",
+    "@ai-sdk/openai": "^0.0.63",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.1.6",
-    "openai": "^4.64.0",
+    "openai": "^4.65.0",
     "tiktoken": "^1.0.16"
   }
 }
