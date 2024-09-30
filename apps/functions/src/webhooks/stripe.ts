@@ -11,7 +11,7 @@ const app = new Hono().post('/', async (c) => {
   const sig = c.req.header('stripe-signature');
   let stripeEvent: Stripe.Event;
   try {
-    stripeEvent = stripe.webhooks.constructEvent(body, sig!, Resource.StripeWebhookSecret.value);
+    stripeEvent = stripe.webhooks.constructEvent(body, sig!, Resource.StripeWebhookEndpoint.secret);
   } catch (err) {
     return c.json({ message: `Webhook Error: ${JSON.stringify(err)}` }, 400);
   }

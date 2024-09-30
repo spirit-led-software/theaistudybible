@@ -9,6 +9,8 @@ export default $config({
           region: 'us-east-1',
         },
         cloudflare: true,
+        'pulumi-stripe': true,
+        '@pulumiverse/sentry': true,
         '@upstash/pulumi': true,
       },
     };
@@ -20,16 +22,16 @@ export default $config({
     await import('./infra/secrets');
     const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');
     const { cdn } = await import('./infra/storage');
-    const { webhooksApi } = await import('./infra/api');
+    const { webhooksApi } = await import('./infra/webhooks');
     const { webapp } = await import('./infra/www');
     await import('./infra/jobs');
     await import('./infra/dev');
 
     return {
-      'Database URL': database.properties.url,
-      'Vector Store Endpoint': upstashVectorIndex.endpoint,
-      'Redis Endpoint': upstashRedis.endpoint,
       'CDN URL': cdn.url,
+      'Database URL': database.properties.url,
+      'Redis Endpoint': upstashRedis.endpoint,
+      'Vector Store Endpoint': upstashVectorIndex.endpoint,
       'Web App URL': webapp.url,
       'Webhooks API URL': webhooksApi.properties.url,
     };

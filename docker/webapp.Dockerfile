@@ -1,5 +1,7 @@
 FROM oven/bun:1-slim AS builder
 
+ARG sentry_org
+ARG sentry_project
 ARG sentry_auth_token
 ARG website_url
 ARG cdn_url
@@ -26,6 +28,8 @@ COPY ./bun.lockb ./bun.lockb
 RUN bun install --frozen-lockfile
 
 ENV SENTRY_RELEASE=${stage}
+ENV SENTRY_ORG=${sentry_org}
+ENV SENTRY_PROJECT=${sentry_project}
 ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
 ENV PUBLIC_WEBSITE_URL=${website_url}
 ENV PUBLIC_CDN_URL=${cdn_url}

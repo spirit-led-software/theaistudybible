@@ -6,8 +6,8 @@ import {
   STRIPE_PUBLISHABLE_KEY,
 } from './constants';
 import { allLinks } from './defaults';
+import { webAppSentryProject } from './monitoring';
 import { cloudflareHelpers } from './resources';
-import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 
 export const vpc = new sst.aws.Vpc('Vpc');
@@ -25,7 +25,9 @@ export const webapp = cluster.addService('WebAppService', {
   image: {
     dockerfile: 'docker/webapp.Dockerfile',
     args: {
-      sentry_auth_token: SENTRY_AUTH_TOKEN.value,
+      sentry_org: webAppSentryProject?.organization ?? '',
+      sentry_project: webAppSentryProject?.name ?? '',
+      sentry_auth_token: versesentry.config.token ?? '',
       website_url: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
       cdn_url: cdn.url,
       stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,

@@ -126,11 +126,11 @@ class TursoGroupApi {
   private readonly organizationName: string;
 
   constructor() {
-    if (!process.env.TURSO_ORG_NAME || !process.env.TURSO_API_KEY) {
-      throw new Error('TURSO_ORG_NAME and TURSO_API_KEY must be set');
+    if (!process.env.TURSO_ORG || !process.env.TURSO_API_KEY) {
+      throw new Error('TURSO_ORG and TURSO_API_KEY must be set');
     }
     this.apiKey = process.env.TURSO_API_KEY;
-    this.organizationName = process.env.TURSO_ORG_NAME;
+    this.organizationName = process.env.TURSO_ORG;
   }
 
   private getBaseUrl() {

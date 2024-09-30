@@ -51,18 +51,7 @@ export default defineConfig({
           start_url: '/',
         },
       }),
-      sentrySolidStartVite({
-        org: 'the-ai-study-bible',
-        project: 'javascript-solidstart',
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        sourceMapsUploadOptions: {
-          unstable_sentryVitePluginOptions: {
-            release: {
-              name: process.env.SENTRY_RELEASE,
-            },
-          },
-        },
-      }),
+      sentrySolidStartVite(),
     ],
   },
 });

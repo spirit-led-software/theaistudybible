@@ -79,9 +79,9 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "StripeWebhookSecret": {
-      "type": "sst.sst.Secret"
-      "value": string
+    "StripeWebhookEndpoint": {
+      "secret": string
+      "type": "stripe.index/webhookEndpoint.WebhookEndpoint"
     }
     "UpstashRedis": {
       "redisUrl": string
@@ -112,9 +112,9 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
-    "WebhooksApiRouter": {
-      "type": "sst.aws.Router"
-      "url": string
+    "WebhooksDomain": {
+      "type": "sst.sst.Linkable"
+      "value": string
     }
   }
 }

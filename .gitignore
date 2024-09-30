@@ -9,9 +9,9 @@ node_modules
 # misc
 .DS_Store
 
-# local env files
-.env*.local
-/.env
+# env files
+.env*
+!.env.example
 
 # TurboRepo
 .turbo
