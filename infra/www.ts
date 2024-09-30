@@ -52,7 +52,6 @@ export const webapp = cluster.addService('WebAppService', {
       }),
     },
   },
-  architecture: 'arm64',
   scaling: {
     min: 1,
     max: $app.stage === 'production' ? 4 : 1,
@@ -79,8 +78,8 @@ export const webapp = cluster.addService('WebAppService', {
       ];
     },
     image: {
-      cacheFrom: [{ local: { src: '/tmp/buildx-cache' } }],
-      cacheTo: [{ local: { dest: '/tmp/buildx-cache' } }],
+      cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
+      cacheTo: [{ local: { dest: '/tmp/.buildx-cache', mode: 'max' } }],
       network: 'host',
     },
   },

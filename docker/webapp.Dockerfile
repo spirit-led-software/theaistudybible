@@ -40,7 +40,7 @@ COPY . .
 RUN bun run build
 
 ########################################################
-FROM oven/bun:1-slim
+FROM oven/bun:1-slim AS runner
 
 WORKDIR /app
 
