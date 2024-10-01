@@ -3,6 +3,7 @@ FROM oven/bun:1-slim AS builder
 ARG sentry_org
 ARG sentry_project
 ARG sentry_auth_token
+ARG sentry_dsn
 ARG website_url
 ARG cdn_url
 ARG stripe_publishable_key
@@ -31,6 +32,7 @@ ENV SENTRY_RELEASE=${stage}
 ENV SENTRY_ORG=${sentry_org}
 ENV SENTRY_PROJECT=${sentry_project}
 ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
+ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
 ENV PUBLIC_WEBSITE_URL=${website_url}
 ENV PUBLIC_CDN_URL=${cdn_url}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}

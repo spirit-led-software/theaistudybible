@@ -6,7 +6,7 @@ import {
   STRIPE_PUBLISHABLE_KEY,
 } from './constants';
 import { allLinks } from './defaults';
-import { webAppSentryProject } from './monitoring';
+import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { cloudflareHelpers } from './resources';
 import { cdn } from './storage';
 
@@ -15,6 +15,7 @@ export const vpc = new sst.aws.Vpc('Vpc');
 export const cluster = new sst.aws.Cluster('Cluster', { vpc });
 
 const webAppEnv = {
+  PUBLIC_SENTRY_DSN: webAppSentryKey?.dsnPublic ?? '',
   PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
   PUBLIC_CDN_URL: cdn.url,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
@@ -28,7 +29,8 @@ export const webapp = cluster.addService('WebAppService', {
       sentry_org: webAppSentryProject?.organization ?? '',
       sentry_project: webAppSentryProject?.name ?? '',
       sentry_auth_token: versesentry.config.token ?? '',
-      website_url: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
+      sentry_dsn: webAppSentryKey?.dsnPublic ?? '',
+      website_url: `https://${DOMAIN.value}`,
       cdn_url: cdn.url,
       stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
       stage: $app.stage,

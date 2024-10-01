@@ -4,7 +4,7 @@ import { H3Error } from 'vinxi/http';
 
 export default defineNitroPlugin((nitroApp) => {
   Sentry.init({
-    dsn: 'https://21cf8473687280bc22419486e74d5428@o4507103632359424.ingest.us.sentry.io/4507974022266880',
+    dsn: process.env.PUBLIC_SENTRY_DSN,
     tracesSampleRate: process.env.PUBLIC_STAGE === 'production' ? 1.0 : 0.1,
     environment: process.env.PUBLIC_STAGE,
     release: process.env.PUBLIC_STAGE,
