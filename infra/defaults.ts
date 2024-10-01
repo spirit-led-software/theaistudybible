@@ -1,34 +1,25 @@
-import constants from './constants';
-import { database, upstashRedis, upstashVectorIndex } from './database';
-import { email, emailQueue } from './email';
-import secrets from './secrets';
-import {
-  bibleBucket,
-  cdn,
-  devotionImagesBucket,
-  generatedImagesBucket,
-  profileImagesBucket,
-} from './storage';
+import * as constants from './constants';
+import * as databases from './database';
+import { email } from './email';
+import * as queues from './queues';
+import { Constant } from './resources';
+import * as secrets from './secrets';
+import * as storage from './storage';
 
 export const allLinks = [
-  ...constants,
-  ...secrets,
+  ...Object.values(constants).filter((l) => l instanceof Constant),
+  ...Object.values(secrets),
+  ...Object.values(databases),
+  ...Object.values(queues),
+  ...Object.values(storage),
   email,
-  emailQueue,
-  bibleBucket,
-  profileImagesBucket,
-  generatedImagesBucket,
-  devotionImagesBucket,
-  database,
-  upstashRedis,
-  upstashVectorIndex,
-  cdn,
 ];
 
 /**
  * Define defaults for all SST functions
  */
 $transform(sst.aws.Function, (args) => {
+  args.runtime = args.runtime ?? 'nodejs20.x';
   // biome-ignore lint/suspicious/noExplicitAny: Don't care
   args.link = $output(args.link).apply((link: sst.Linkable<any>[] = []) =>
     Array.from(new Set([...link, ...allLinks])),

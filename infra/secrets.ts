@@ -7,12 +7,3 @@ export const ADMIN_PASSWORD = new sst.Secret('AdminPassword');
 export const STRIPE_SECRET_KEY = new sst.Secret('StripeSecretKey', process.env.STRIPE_API_KEY);
 
 export const SENTRY_AUTH_TOKEN = new sst.Secret('SentryAuthToken', process.env.SENTRY_TOKEN);
-
-export default [
-  OPENAI_API_KEY,
-  ANTHROPIC_API_KEY,
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
-  STRIPE_SECRET_KEY,
-  SENTRY_AUTH_TOKEN,
-];

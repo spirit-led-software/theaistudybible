@@ -7,10 +7,3 @@ export const email =
         dns: sst.cloudflare.dns(),
       })
     : sst.aws.Email.get('Email', BASE_DOMAIN);
-
-export const emailQueue = new sst.aws.Queue('EmailQueue', {
-  fifo: true,
-});
-emailQueue.subscribe({
-  handler: 'apps/functions/src/queues/subscribers/email/index.handler',
-});

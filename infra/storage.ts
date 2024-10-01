@@ -1,31 +1,22 @@
 import { DOMAIN } from './constants';
+import { indexBibleChapterQueue, indexBibleQueue, profileImagesQueue } from './queues';
 
 export const bibleBucket = new sst.aws.Bucket('BibleBucket');
-bibleBucket.subscribe(
-  {
-    handler: 'apps/functions/src/buckets/subscribers/bible.handler',
-    nodejs: {
-      install: ['jsdom'],
-    },
-    memory: '4 GB',
-    timeout: '15 minutes',
-  },
-  {
-    events: ['s3:ObjectCreated:*'],
-  },
-);
+bibleBucket.subscribeQueue(indexBibleQueue.arn, {
+  events: ['s3:ObjectCreated:*'],
+});
+
+export const chapterMessageBucket = new sst.aws.Bucket('ChapterMessageBucket');
+chapterMessageBucket.subscribeQueue(indexBibleChapterQueue.arn, {
+  events: ['s3:ObjectCreated:*'],
+});
 
 export const profileImagesBucket = new sst.aws.Bucket('ProfileImagesBucket', {
   access: 'cloudfront',
 });
-profileImagesBucket.subscribe(
-  {
-    handler: 'apps/functions/src/buckets/subscribers/profile-images.handler',
-  },
-  {
-    events: ['s3:ObjectCreated:*'],
-  },
-);
+profileImagesBucket.subscribeQueue(profileImagesQueue.arn, {
+  events: ['s3:ObjectCreated:*'],
+});
 
 export const generatedImagesBucket = new sst.aws.Bucket('GeneratedImagesBucket', {
   access: 'cloudfront',

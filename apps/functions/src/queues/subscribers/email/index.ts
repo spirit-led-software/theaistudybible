@@ -1,9 +1,8 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import { ses } from '@/core/email';
+import { SendEmailCommand } from '@aws-sdk/client-ses';
 import type { SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 import { EmailQueueRecordSchema } from './schemas';
-
-const ses = new SESClient({});
 
 export const handler: SQSHandler = async (event) => {
   console.log('Email queue consumer event:', JSON.stringify(event, null, 2));

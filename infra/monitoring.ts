@@ -1,5 +1,4 @@
 export let webAppSentryProject: versesentry.SentryProject | null = null;
-
 if ($app.stage === 'production') {
   if (!process.env.SENTRY_ORG || !process.env.SENTRY_TEAM) {
     throw new Error('SENTRY_ORG and SENTRY_TEAM must be set');

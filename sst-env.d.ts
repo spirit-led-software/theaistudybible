@@ -25,9 +25,12 @@ declare module "sst" {
       "type": "sst.aws.Router"
       "url": string
     }
+    "ChapterMessageBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "Database": {
       "name": string
-      "token": string
       "type": "sst.sst.Linkable"
       "url": string
     }
@@ -55,6 +58,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "IndexBibleChapterQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "IndexBibleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "OpenAiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -62,6 +73,10 @@ declare module "sst" {
     "ProfileImagesBucket": {
       "name": string
       "type": "sst.aws.Bucket"
+    }
+    "ProfileImagesQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
     }
     "SentryAuthToken": {
       "type": "sst.sst.Secret"

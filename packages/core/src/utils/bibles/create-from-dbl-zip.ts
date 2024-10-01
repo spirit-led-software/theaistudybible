@@ -2,11 +2,15 @@ import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
 import { buildConflictUpdateColumns } from '@/core/database/utils';
+import { s3 } from '@/core/storage';
+import type { IndexChapterEvent } from '@/functions/queues/subscribers/bibles/index-chapter/types';
 import type { Bible } from '@/schemas/bibles/types';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { eq } from 'drizzle-orm';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
-import { generateChapterEmbeddings } from './generate-chapter-embeddings';
+import { Resource } from 'sst';
+import { createId } from '../id';
 import type { DBLMetadata, Publication } from './types';
 import { parseUsx } from './usx';
 
@@ -39,12 +43,7 @@ export async function createBibleFromDblZip({
 
   const bookInfos = getBookInfos(publication, metadata);
   const newBooks = await createBooks(bible.id, bookInfos);
-  await createBookOrder(newBooks);
-
   await processBooks(zipFile, bible, newBooks, bookInfos, generateEmbeddings);
-
-  await cleanupMissingChapterLinks(bible.id);
-  await cleanupMissingVerseLinks(bible.id);
 }
 
 async function extractMetadataAndPublication(zipFile: JSZip, publicationId?: string) {
@@ -277,6 +276,7 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
     const name = metadata.names.name.find((name) => content['@_name'] === name['@_id']);
     if (!name) throw new Error(`Content ${content['@_name']} not found`);
     return {
+      id: createId(),
       src: content['@_src'],
       code: content['@_role'],
       abbreviation: name.abbr,
@@ -296,13 +296,19 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
       .insert(schema.books)
       .values(
         batch.map((book, index) => {
-          const { src, code, ...rest } = book;
+          const { id, src, code, ...rest } = book;
           return {
             ...rest,
+            id,
+            previousId: i > 0 && index === 0 ? bookInfos[i - 1].id : batch[index - 1]?.id,
+            nextId:
+              i + index === bookInfos.length - 1
+                ? undefined
+                : batch[index + 1]?.id || bookInfos[i + batchSize]?.id,
             code: code.toUpperCase(),
             number: i + index + 1,
             bibleId,
-          };
+          } satisfies typeof schema.books.$inferInsert;
         }),
       )
       .returning();
@@ -310,25 +316,6 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
   }
 
   return allBooks;
-}
-
-async function createBookOrder(books: (typeof schema.books.$inferSelect)[]) {
-  const batchSize = 40;
-  for (let i = 0; i < books.length; i += batchSize) {
-    const batch = books.slice(i, i + batchSize);
-    await Promise.all(
-      batch.map((book, index) => {
-        const previousBook = books[i + index - 1];
-        const nextBook = books[i + index + 1];
-        const updates: Partial<typeof schema.books.$inferSelect> = {};
-
-        if (previousBook) updates.previousId = previousBook.id;
-        if (nextBook) updates.nextId = nextBook.id;
-
-        return db.update(schema.books).set(updates).where(eq(schema.books.id, book.id));
-      }),
-    );
-  }
 }
 
 async function processBooks(
@@ -349,274 +336,41 @@ async function processBooks(
     const bookXml = await bookFile.async('text');
     const contents = parseUsx(bookXml);
 
-    console.log('Book content parsed, inserting chapters into database...');
-    const newChapters = await insertChapters(bible, book, contents);
-
-    console.log(
-      `${bookInfo.abbreviation}: Inserted ${newChapters.length} chapters. Inserting verses...`,
-    );
-    await processChapters(newChapters, contents, bible, book, generateEmbeddings);
+    console.log('Book content parsed, sending chapters to queue...');
+    await sendChaptersToIndexBucket(contents, bible, book, generateEmbeddings);
   }
 }
 
-async function insertChapters(
-  bible: typeof schema.bibles.$inferSelect,
-  book: typeof schema.books.$inferSelect,
-  contents: ReturnType<typeof parseUsx>,
-) {
-  const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
-  const insertChapterBatchSize = 40;
-  const newChapters = [];
-  const chapterEntries = Object.entries(contents);
-
-  for (let i = 0; i < chapterEntries.length; i += insertChapterBatchSize) {
-    const chapterBatch = chapterEntries.slice(i, i + insertChapterBatchSize);
-    const insertedChapters = await db
-      .insert(schema.chapters)
-      .values(
-        chapterBatch.map(
-          ([chapter, content], index) =>
-            ({
-              id: content.id,
-              bibleId: bible.id,
-              bookId: book.id,
-              previousId: index > 0 ? chapterEntries[index - 1][1].id : undefined,
-              nextId:
-                index < chapterEntries.length - 1 ? chapterEntries[index + 1][1].id : undefined,
-              code: `${book.code}.${chapter}`,
-              name: `${book.shortName} ${chapter}`,
-              number: Number.parseInt(chapter),
-              content: content.contents,
-            }) satisfies typeof schema.chapters.$inferInsert,
-        ),
-      )
-      .returning({
-        ...columnsWithoutContent,
-      });
-    newChapters.push(...insertedChapters);
-  }
-
-  return newChapters;
-}
-
-async function processChapters(
-  chapters: Omit<typeof schema.chapters.$inferSelect, 'content'>[],
+async function sendChaptersToIndexBucket(
   contents: ReturnType<typeof parseUsx>,
   bible: typeof schema.bibles.$inferSelect,
   book: typeof schema.books.$inferSelect,
   generateEmbeddings: boolean,
 ) {
-  const batchSize = 2;
-  for (let i = 0; i < chapters.length; i += batchSize) {
-    const chapterBatch = chapters.slice(i, i + batchSize);
-    await Promise.all(
-      chapterBatch.map(async (chapter) => {
-        const content = contents[chapter.number];
-        const createdVerses = await insertVerses(bible, book, chapter, content);
-        if (generateEmbeddings) {
-          console.log(`Generating embeddings for ${book.code} ${chapter.number}...`);
-          await generateChapterEmbeddings({
-            verses: createdVerses.map((v) => ({
-              ...v,
-              content: content.verseContents[v.number].contents,
-            })),
-            chapter,
-            book,
-            bible,
-          });
-        }
-        console.log(`Processed chapter ${chapter.number} out of ${chapters.length}`);
+  const entries = Object.entries(contents);
+
+  for (const [index, [chapterNumber, content]] of entries.entries()) {
+    const message = {
+      bibleId: bible.id,
+      bookId: book.id,
+      previousId: index > 0 ? entries[index - 1]?.[1].id : undefined,
+      nextId: index < entries.length - 1 ? entries[index + 1]?.[1].id : undefined,
+      chapterNumber,
+      content,
+      generateEmbeddings,
+    } satisfies IndexChapterEvent;
+
+    const response = await s3.send(
+      new PutObjectCommand({
+        Bucket: Resource.ChapterMessageBucket.name,
+        Key: `${content.id}.json`,
+        Body: JSON.stringify(message),
+        ContentType: 'application/json',
       }),
     );
-    console.log(
-      `Processed batch ${i / batchSize + 1} out of ${Math.ceil(chapters.length / batchSize)}`,
-    );
-  }
-}
 
-async function insertVerses(
-  bible: typeof schema.bibles.$inferSelect,
-  book: typeof schema.books.$inferSelect,
-  chapter: Omit<typeof schema.chapters.$inferSelect, 'content'>,
-  content: ReturnType<typeof parseUsx>[number],
-) {
-  const { content: verseContent, ...columnsWithoutContent } = getTableColumns(schema.verses);
-  const insertVerseBatchSize = 40;
-  const allVerses = [];
-  const verseEntries = Object.entries(content.verseContents);
-
-  for (let i = 0; i < verseEntries.length; i += insertVerseBatchSize) {
-    const verseBatch = verseEntries.slice(i, i + insertVerseBatchSize);
-    const insertedVerses = await db
-      .insert(schema.verses)
-      .values(
-        verseBatch.map(
-          ([verseNumber, verseContent], index) =>
-            ({
-              id: verseContent.id,
-              bibleId: bible.id,
-              bookId: book.id,
-              chapterId: chapter.id,
-              previousId: i + index > 0 ? verseEntries[i + index - 1][1].id : undefined,
-              nextId:
-                i + index < verseEntries.length - 1 ? verseEntries[i + index + 1][1].id : undefined,
-              code: `${chapter.code}.${verseNumber}`,
-              name: `${chapter.name}:${verseNumber}`,
-              number: Number.parseInt(verseNumber),
-              content: verseContent.contents,
-            }) satisfies typeof schema.verses.$inferInsert,
-        ),
-      )
-      .returning({
-        ...columnsWithoutContent,
-      });
-    allVerses.push(...insertedVerses);
-  }
-
-  return allVerses;
-}
-
-async function cleanupMissingChapterLinks(bibleId: string) {
-  let offset = 0;
-  const batchSize = 40;
-  while (true) {
-    const chapters = await db.query.chapters.findMany({
-      columns: { id: true, nextId: true, previousId: true },
-      where: (chapters, { and, or, eq, isNull }) =>
-        and(
-          eq(chapters.bibleId, bibleId),
-          or(isNull(chapters.nextId), isNull(chapters.previousId)),
-        ),
-      with: {
-        book: {
-          columns: { id: true },
-          with: {
-            next: {
-              columns: { id: true },
-              with: {
-                chapters: {
-                  columns: { id: true },
-                  orderBy: (chapters, { asc }) => asc(chapters.number),
-                  limit: 1,
-                },
-              },
-            },
-            previous: {
-              columns: { id: true },
-              with: {
-                chapters: {
-                  columns: { id: true },
-                  orderBy: (chapters, { desc }) => desc(chapters.number),
-                  limit: 1,
-                },
-              },
-            },
-          },
-        },
-      },
-      limit: batchSize,
-      offset,
-    });
-
-    await Promise.all([
-      ...chapters
-        .filter(
-          (chapter) =>
-            !chapter.nextId && chapter.book.next !== null && chapter.book.next.chapters.length > 0,
-        )
-        .map((chapter) =>
-          db
-            .update(schema.chapters)
-            .set({ nextId: chapter.book.next!.chapters[0].id })
-            .where(eq(schema.chapters.id, chapter.id)),
-        ),
-      ...chapters
-        .filter(
-          (chapter) =>
-            !chapter.previousId &&
-            chapter.book.previous !== null &&
-            chapter.book.previous.chapters.length > 0,
-        )
-        .map((chapter) =>
-          db
-            .update(schema.chapters)
-            .set({ previousId: chapter.book.previous!.chapters[0].id })
-            .where(eq(schema.chapters.id, chapter.id)),
-        ),
-    ]);
-
-    if (chapters.length < batchSize) break;
-    offset += batchSize;
-  }
-}
-
-async function cleanupMissingVerseLinks(bibleId: string) {
-  let offset = 0;
-  const batchSize = 40;
-  while (true) {
-    const verses = await db.query.verses.findMany({
-      columns: { id: true, nextId: true, previousId: true },
-      where: (verses, { and, or, eq, isNull }) =>
-        and(eq(verses.bibleId, bibleId), or(isNull(verses.nextId), isNull(verses.previousId))),
-      with: {
-        chapter: {
-          columns: { id: true },
-          with: {
-            next: {
-              columns: { id: true },
-              with: {
-                verses: {
-                  columns: { id: true },
-                  orderBy: (verses, { asc }) => asc(verses.number),
-                  limit: 1,
-                },
-              },
-            },
-            previous: {
-              columns: { id: true },
-              with: {
-                verses: {
-                  columns: { id: true },
-                  orderBy: (verses, { desc }) => desc(verses.number),
-                  limit: 1,
-                },
-              },
-            },
-          },
-        },
-      },
-      limit: batchSize,
-      offset,
-    });
-
-    await Promise.all([
-      ...verses
-        .filter(
-          (verse) =>
-            !verse.nextId && verse.chapter.next !== null && verse.chapter.next.verses.length > 0,
-        )
-        .map((verse) =>
-          db
-            .update(schema.verses)
-            .set({ nextId: verse.chapter.next!.verses[0].id })
-            .where(eq(schema.verses.id, verse.id)),
-        ),
-      ...verses
-        .filter(
-          (verse) =>
-            !verse.previousId &&
-            verse.chapter.previous !== null &&
-            verse.chapter.previous.verses.length > 0,
-        )
-        .map((verse) =>
-          db
-            .update(schema.verses)
-            .set({ previousId: verse.chapter.previous!.verses[0].id })
-            .where(eq(schema.verses.id, verse.id)),
-        ),
-    ]);
-
-    if (verses.length < batchSize) break;
-    offset += batchSize;
+    if (response.$metadata.httpStatusCode !== 200) {
+      throw new Error('Failed to send message to index queue');
+    }
   }
 }
