@@ -50,9 +50,3 @@ runs:
       shell: bash
       run: |
         bun sst install
-
-    - name: Refresh SST Resources
-      shell: bash
-      run: |
-        bun sst refresh
-      continue-on-error: true # No changes equates to an error, so ignore it
