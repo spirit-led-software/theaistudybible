@@ -24,7 +24,7 @@ export const database = new sst.Linkable('Database', {
   properties: {
     name: tursoDb?.name ?? 'dev',
     url: tursoDb ? $interpolate`https://${tursoDb.hostname}` : `file://${process.cwd()}/.libsql.db`,
-    token: tursoDb?.token,
+    token: tursoDb?.token ?? '',
   },
 });
 

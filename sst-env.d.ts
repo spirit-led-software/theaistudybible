@@ -31,6 +31,7 @@ declare module "sst" {
     }
     "Database": {
       "name": string
+      "token": string
       "type": "sst.sst.Linkable"
       "url": string
     }

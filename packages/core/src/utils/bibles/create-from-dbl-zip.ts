@@ -348,29 +348,39 @@ async function sendChaptersToIndexBucket(
   generateEmbeddings: boolean,
 ) {
   const entries = Object.entries(contents);
-
-  for (const [index, [chapterNumber, content]] of entries.entries()) {
-    const message = {
-      bibleId: bible.id,
-      bookId: book.id,
-      previousId: index > 0 ? entries[index - 1]?.[1].id : undefined,
-      nextId: index < entries.length - 1 ? entries[index + 1]?.[1].id : undefined,
-      chapterNumber,
-      content,
-      generateEmbeddings,
-    } satisfies IndexChapterEvent;
-
-    const response = await s3.send(
-      new PutObjectCommand({
-        Bucket: Resource.ChapterMessageBucket.name,
-        Key: `${content.id}.json`,
-        Body: JSON.stringify(message),
-        ContentType: 'application/json',
-      }),
+  const batchSize = 20;
+  for (let i = 0; i < entries.length; i += batchSize) {
+    const batch = entries.slice(i, i + batchSize);
+    const messages = batch.map(
+      ([chapterNumber, content], index) =>
+        ({
+          bibleId: bible.id,
+          bookId: book.id,
+          previousId: i + index > 0 ? entries[i + index - 1]?.[1].id : undefined,
+          nextId: i + index < entries.length - 1 ? entries[i + index + 1]?.[1].id : undefined,
+          chapterNumber,
+          content,
+          generateEmbeddings,
+        }) satisfies IndexChapterEvent,
     );
 
-    if (response.$metadata.httpStatusCode !== 200) {
-      throw new Error('Failed to send message to index queue');
+    const uploadPromises = messages.map((message) =>
+      s3.send(
+        new PutObjectCommand({
+          Bucket: Resource.ChapterMessageBucket.name,
+          Key: `${message.content.id}.json`,
+          Body: JSON.stringify(message),
+          ContentType: 'application/json',
+        }),
+      ),
+    );
+
+    const responses = await Promise.all(uploadPromises);
+
+    for (const response of responses) {
+      if (response.$metadata.httpStatusCode !== 200) {
+        throw new Error('Failed to send message to index queue');
+      }
     }
   }
 }
