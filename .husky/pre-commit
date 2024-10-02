@@ -1,0 +1,5 @@
+bun run format
+bun run lint:fix
+git add .
+
+bun run test
