@@ -4,9 +4,7 @@ export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
 indexBibleQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-bible.handler',
-    nodejs: {
-      install: ['jsdom'],
-    },
+    nodejs: { install: ['jsdom'] },
     timeout: '15 minutes',
   },
   {
@@ -30,21 +28,11 @@ indexBibleChapterQueue.subscribe(
 );
 
 export const profileImagesQueue = new sst.aws.Queue('ProfileImagesQueue');
-profileImagesQueue.subscribe(
-  {
-    handler: 'apps/functions/src/queues/subscribers/profile-images.handler',
-  },
-  {
-    batch: { partialResponses: true },
-  },
-);
+profileImagesQueue.subscribe('apps/functions/src/queues/subscribers/profile-images.handler', {
+  batch: { partialResponses: true },
+});
 
 export const emailQueue = new sst.aws.Queue('EmailQueue');
-emailQueue.subscribe(
-  {
-    handler: 'apps/functions/src/queues/subscribers/email/index.handler',
-  },
-  {
-    batch: { partialResponses: true },
-  },
-);
+emailQueue.subscribe('apps/functions/src/queues/subscribers/email/index.handler', {
+  batch: { partialResponses: true },
+});
