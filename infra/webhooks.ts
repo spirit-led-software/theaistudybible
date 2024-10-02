@@ -4,9 +4,7 @@ import { Constant } from './resources';
 export const WEBHOOKS_DOMAIN = new Constant('WebhooksDomain', `webhooks.${DOMAIN.value}`);
 
 sst.Linkable.wrap(stripe.WebhookEndpoint, (resource) => ({
-  properties: {
-    secret: $util.secret(resource.secret),
-  },
+  properties: { secret: $util.secret(resource.secret) },
 }));
 const stripeWebhookEndpoint = new stripe.WebhookEndpoint('StripeWebhookEndpoint', {
   url: `https://${WEBHOOKS_DOMAIN.value}/stripe`,
@@ -28,7 +26,5 @@ new cloudflare.Record('WebhooksApiRecord', {
 });
 
 export const webhooksApi = new sst.Linkable('WebhooksApi', {
-  properties: {
-    url: `https://${WEBHOOKS_DOMAIN.value}`,
-  },
+  properties: { url: `https://${WEBHOOKS_DOMAIN.value}` },
 });

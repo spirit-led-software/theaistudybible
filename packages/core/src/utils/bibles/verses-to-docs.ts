@@ -1,7 +1,6 @@
 import { embeddingsModelInfo } from '@/ai/embeddings';
 import type { Document } from '@/ai/types/document';
 import { contentsToText } from '@/core/utils/bible';
-import { createId } from '@/core/utils/id';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 
 export const versesToDocs = ({
@@ -72,8 +71,8 @@ function processVerseChunk(
   const name = `${book.shortName} ${chapter.number}:${verseRange} (${bible.abbreviationLocal})`;
 
   return {
-    id: createId(),
-    content: `${currentPageContent} - ${name}`,
+    id: verseIds.join('-'),
+    content: `"${currentPageContent}" - ${name}`,
     metadata: {
       type: 'bible',
       translation: bible.abbreviation,

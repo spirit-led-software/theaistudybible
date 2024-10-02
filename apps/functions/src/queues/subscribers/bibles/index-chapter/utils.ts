@@ -1,5 +1,6 @@
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
+import { buildConflictUpdateColumns } from '@/core/database/utils';
 import type { parseUsx } from '@/core/utils/bibles/usx';
 import type { Bible, Book } from '@/schemas/bibles/types';
 import { eq, getTableColumns } from 'drizzle-orm';
@@ -33,6 +34,18 @@ export async function insertChapter({
       name: `${book.shortName} ${chapterNumber}`,
       number: Number.parseInt(chapterNumber),
       content: contents.contents,
+    })
+    // Since the queue can retry, we need to account for conflicts
+    .onConflictDoUpdate({
+      target: schema.chapters.id,
+      set: buildConflictUpdateColumns(schema.chapters, [
+        'code',
+        'content',
+        'name',
+        'number',
+        'nextId',
+        'previousId',
+      ]),
     })
     .returning({
       ...columnsWithoutContent,
@@ -79,6 +92,18 @@ export async function insertVerses({
             }) satisfies typeof schema.verses.$inferInsert,
         ),
       )
+      // Since the queue can retry, we need to account for conflicts
+      .onConflictDoUpdate({
+        target: schema.verses.id,
+        set: buildConflictUpdateColumns(schema.verses, [
+          'code',
+          'content',
+          'name',
+          'number',
+          'nextId',
+          'previousId',
+        ]),
+      })
       .returning({
         ...columnsWithoutContent,
       });
