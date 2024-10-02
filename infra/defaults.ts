@@ -19,10 +19,11 @@ export const allLinks = [
  * Define defaults for all SST functions
  */
 $transform(sst.aws.Function, (args) => {
-  args.runtime = args.runtime ?? 'nodejs20.x';
-  // biome-ignore lint/suspicious/noExplicitAny: Don't care
-  args.link = $output(args.link).apply((link: sst.Linkable<any>[] = []) =>
-    Array.from(new Set([...link, ...allLinks])),
+  args.runtime ??= 'nodejs20.x';
+  args.memory ??= '512 MB';
+  // biome-ignore lint/suspicious/noExplicitAny: Don't care about the type
+  args.link = $output(args.link).apply((links: sst.Linkable<any>[] = []) =>
+    Array.from(new Set([...links, ...allLinks])),
   );
   args.nodejs = $output(args.nodejs).apply((nodejs) => ({
     ...nodejs,

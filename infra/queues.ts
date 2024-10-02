@@ -10,9 +10,8 @@ indexBibleQueue.subscribe(
     timeout: '15 minutes',
   },
   {
-    batch: {
-      partialResponses: true,
-    },
+    batch: { partialResponses: true },
+    transform: { eventSourceMapping: { scalingConfig: { maximumConcurrency: 10 } } },
   },
 );
 
@@ -25,9 +24,8 @@ indexBibleChapterQueue.subscribe(
     timeout: '15 minutes',
   },
   {
-    batch: {
-      partialResponses: true,
-    },
+    batch: { partialResponses: true },
+    transform: { eventSourceMapping: { scalingConfig: { maximumConcurrency: 10 } } },
   },
 );
 
@@ -37,9 +35,7 @@ profileImagesQueue.subscribe(
     handler: 'apps/functions/src/queues/subscribers/profile-images.handler',
   },
   {
-    batch: {
-      partialResponses: true,
-    },
+    batch: { partialResponses: true },
   },
 );
 
@@ -49,8 +45,6 @@ emailQueue.subscribe(
     handler: 'apps/functions/src/queues/subscribers/email/index.handler',
   },
   {
-    batch: {
-      partialResponses: true,
-    },
+    batch: { partialResponses: true },
   },
 );

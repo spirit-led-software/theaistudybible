@@ -28,13 +28,15 @@ export const handler: SQSHandler = async (event) => {
       }
 
       for (const s3EventRecord of s3Event.Records as S3EventRecord[]) {
-        const result = await s3.send(
+        const { Body } = await s3.send(
           new GetObjectCommand({
             Bucket: s3EventRecord.s3.bucket.name,
             Key: s3EventRecord.s3.object.key,
           }),
         );
-        const messageContent = await result.Body?.transformToString();
+        if (!Body) throw new Error('Empty file body');
+
+        const messageContent = await Body.transformToString();
         if (!messageContent) {
           throw new Error('Content not found');
         }
