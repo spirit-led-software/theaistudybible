@@ -9,6 +9,7 @@ if ($app.stage === 'production') {
     team: process.env.SENTRY_TEAM,
     name: `${$app.name}-${$app.stage}-www`,
     platform: 'javascript-solidstart',
+    resolveAge: 24 * 7, // 1 week in hours
   });
   webAppSentryKey = new versesentry.SentryKey('WebAppSentryDsn', {
     organization: process.env.SENTRY_ORG,
