@@ -1,20 +1,18 @@
 export default $config({
-  app: (input) => {
-    return {
-      name: 'theaistudybible',
-      removal: input?.stage === 'production' ? 'retain' : 'remove',
-      home: 'aws',
-      providers: {
-        aws: {
-          region: 'us-east-1',
-        },
-        cloudflare: true,
-        'pulumi-stripe': true,
-        '@pulumiverse/sentry': true,
-        '@upstash/pulumi': true,
+  app: () => ({
+    name: 'theaistudybible',
+    removal: 'remove',
+    home: 'aws',
+    providers: {
+      aws: {
+        region: 'us-east-1',
       },
-    };
-  },
+      cloudflare: true,
+      'pulumi-stripe': true,
+      '@pulumiverse/sentry': true,
+      '@upstash/pulumi': true,
+    },
+  }),
   run: async () => {
     await import('./infra/defaults');
     await import('./infra/constants');

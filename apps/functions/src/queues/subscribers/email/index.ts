@@ -5,7 +5,7 @@ import { Resource } from 'sst';
 import { EmailQueueRecordSchema } from './schemas';
 
 export const handler: SQSHandler = async (event) => {
-  console.log('Email queue consumer event:', JSON.stringify(event, null, 2));
+  console.log('Processing email event:', JSON.stringify(event, null, 2));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const r of event.Records) {
