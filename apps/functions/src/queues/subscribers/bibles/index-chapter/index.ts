@@ -1,10 +1,9 @@
 import { db } from '@/core/database';
-import { bibles, books } from '@/core/database/schema';
+import {} from '@/core/database/schema';
 import { s3 } from '@/core/storage';
 import { generateChapterEmbeddings } from '@/core/utils/bibles/generate-chapter-embeddings';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
-import { eq } from 'drizzle-orm';
 import type { IndexChapterEvent } from './types';
 import {
   cleanupMissingChapterLinks,
@@ -44,16 +43,21 @@ export const handler: SQSHandler = async (event) => {
         const { bibleId, bookId, previousId, nextId, chapterNumber, content, generateEmbeddings } =
           JSON.parse(messageContent) as IndexChapterEvent;
 
-        const [bible, book] = await Promise.all([
-          db.query.bibles.findFirst({
-            where: eq(bibles.id, bibleId),
-          }),
-          db.query.books.findFirst({
-            where: eq(books.id, bookId),
-          }),
-        ]);
-        if (!bible || !book) {
-          throw new Error('Bible or book not found');
+        const bibleData = await db.query.bibles.findFirst({
+          where: (bibles, { eq }) => eq(bibles.id, bibleId),
+          with: {
+            books: {
+              where: (books, { eq }) => eq(books.id, bookId),
+            },
+          },
+        });
+        if (!bibleData) {
+          throw new Error('Bible not found');
+        }
+        const { books, ...bible } = bibleData;
+        const book = books[0];
+        if (!book) {
+          throw new Error('Book not found');
         }
 
         const chapter = await insertChapter({

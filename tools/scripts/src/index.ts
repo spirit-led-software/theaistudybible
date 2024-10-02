@@ -1,9 +1,6 @@
 import fs from 'node:fs';
-import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { seedDatabase } from './database/seed';
-import { upgradePackages } from './upgrade';
 
 await yargs(hideBin(process.argv))
   .scriptName('scripts')
@@ -12,6 +9,7 @@ await yargs(hideBin(process.argv))
     'Upgrade all packages',
     (yargs) => yargs,
     async () => {
+      const { upgradePackages } = await import('./upgrade');
       await upgradePackages();
     },
   )
@@ -21,6 +19,7 @@ await yargs(hideBin(process.argv))
       'Run database seeding',
       (yargs) => yargs,
       async () => {
+        const { seedDatabase } = await import('./database/seed');
         await seedDatabase();
       },
     ),
@@ -55,6 +54,7 @@ await yargs(hideBin(process.argv))
           })
           .demandOption(['zip-path']),
       async (argv) => {
+        const { createBibleFromDblZip } = await import('@/core/utils/bibles/create-from-dbl-zip');
         const zipBuffer = fs.readFileSync(argv['zip-path']);
         await createBibleFromDblZip({
           zipBuffer,

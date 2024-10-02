@@ -115,7 +115,7 @@ export async function insertVerses({
 
 export async function cleanupMissingChapterLinks(bibleId: string) {
   let offset = 0;
-  const batchSize = 40;
+  const batchSize = 100;
   while (true) {
     const chapters = await db.query.chapters.findMany({
       columns: { id: true, nextId: true, previousId: true },
@@ -189,7 +189,7 @@ export async function cleanupMissingChapterLinks(bibleId: string) {
 
 export async function cleanupMissingVerseLinks(bibleId: string) {
   let offset = 0;
-  const batchSize = 40;
+  const batchSize = 100;
   while (true) {
     const verses = await db.query.verses.findMany({
       columns: { id: true, nextId: true, previousId: true },

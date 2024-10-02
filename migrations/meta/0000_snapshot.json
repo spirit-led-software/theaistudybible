@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e88d1f6a-451e-4997-8391-9fefed9631eb",
+  "id": "6af05ebd-193f-4f76-af5d-af196a34cfdc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "bible_contributors": {
@@ -47,40 +47,45 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         },
         "publication": {
           "name": "publication",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         },
         "management": {
           "name": "management",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         },
         "finance": {
           "name": "finance",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         },
         "qa": {
           "name": "qa",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {
-        "bible_contributors_uid_unique": {
-          "name": "bible_contributors_uid_unique",
+        "bible_contributors_uid_idx": {
+          "name": "bible_contributors_uid_idx",
           "columns": [
             "uid"
           ],
@@ -131,8 +136,8 @@
         }
       },
       "indexes": {
-        "bible_countries_iso_unique": {
-          "name": "bible_countries_iso_unique",
+        "bible_countries_iso_idx": {
+          "name": "bible_countries_iso_idx",
           "columns": [
             "iso"
           ],
@@ -220,7 +225,7 @@
           "name": "rod",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "numerals": {
@@ -232,12 +237,40 @@
         }
       },
       "indexes": {
-        "bible_languages_iso_unique": {
-          "name": "bible_languages_iso_unique",
+        "bible_languages_iso_idx": {
+          "name": "bible_languages_iso_idx",
           "columns": [
             "iso"
           ],
           "isUnique": true
+        },
+        "bible_languages_name_idx": {
+          "name": "bible_languages_name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        },
+        "bible_languages_name_local_idx": {
+          "name": "bible_languages_name_local_idx",
+          "columns": [
+            "name_local"
+          ],
+          "isUnique": false
+        },
+        "bible_languages_script_code_idx": {
+          "name": "bible_languages_script_code_idx",
+          "columns": [
+            "script_code"
+          ],
+          "isUnique": false
+        },
+        "bible_languages_script_direction_idx": {
+          "name": "bible_languages_script_direction_idx",
+          "columns": [
+            "script_direction"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -291,8 +324,8 @@
         }
       },
       "indexes": {
-        "bible_rights_admins_uid_unique": {
-          "name": "bible_rights_admins_uid_unique",
+        "bible_rights_admins_uid_idx": {
+          "name": "bible_rights_admins_uid_idx",
           "columns": [
             "uid"
           ],
@@ -364,12 +397,19 @@
         }
       },
       "indexes": {
-        "bible_rights_holders_uid_unique": {
-          "name": "bible_rights_holders_uid_unique",
+        "bible_rights_holders_uid_idx": {
+          "name": "bible_rights_holders_uid_idx",
           "columns": [
             "uid"
           ],
           "isUnique": true
+        },
+        "bible_rights_holders_abbr_idx": {
+          "name": "bible_rights_holders_abbr_idx",
+          "columns": [
+            "abbr"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -444,17 +484,31 @@
         }
       },
       "indexes": {
-        "bibles_abbreviation_unique": {
-          "name": "bibles_abbreviation_unique",
+        "bibles_abbreviation_idx": {
+          "name": "bibles_abbreviation_idx",
           "columns": [
             "abbreviation"
           ],
           "isUnique": true
         },
-        "bibles_abbreviation": {
-          "name": "bibles_abbreviation",
+        "bibles_abbreviation_local_idx": {
+          "name": "bibles_abbreviation_local_idx",
           "columns": [
-            "abbreviation"
+            "abbreviation_local"
+          ],
+          "isUnique": false
+        },
+        "bibles_name_idx": {
+          "name": "bibles_name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        },
+        "bibles_name_local_idx": {
+          "name": "bibles_name_local_idx",
+          "columns": [
+            "name_local"
           ],
           "isUnique": false
         }
@@ -482,13 +536,19 @@
         }
       },
       "indexes": {
-        "bibles_to_contributors_key": {
-          "name": "bibles_to_contributors_key",
+        "bibles_to_contributors_bible_id_idx": {
+          "name": "bibles_to_contributors_bible_id_idx",
           "columns": [
-            "bible_id",
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "bibles_to_contributors_contributor_id_idx": {
+          "name": "bibles_to_contributors_contributor_id_idx",
+          "columns": [
             "contributor_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -503,7 +563,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "bibles_to_contributors_contributor_id_bible_contributors_id_fk": {
           "name": "bibles_to_contributors_contributor_id_bible_contributors_id_fk",
@@ -516,10 +576,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "bibles_to_contributors_bible_id_contributor_id_pk": {
+          "columns": [
+            "bible_id",
+            "contributor_id"
+          ],
+          "name": "bibles_to_contributors_bible_id_contributor_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "bibles_to_countries": {
@@ -541,13 +609,19 @@
         }
       },
       "indexes": {
-        "bibles_to_countries_key": {
-          "name": "bibles_to_countries_key",
+        "bibles_to_countries_bible_id_idx": {
+          "name": "bibles_to_countries_bible_id_idx",
           "columns": [
-            "bible_id",
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "bibles_to_countries_country_id_idx": {
+          "name": "bibles_to_countries_country_id_idx",
+          "columns": [
             "country_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -562,7 +636,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "bibles_to_countries_country_id_bible_countries_id_fk": {
           "name": "bibles_to_countries_country_id_bible_countries_id_fk",
@@ -575,10 +649,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "bibles_to_countries_bible_id_country_id_pk": {
+          "columns": [
+            "bible_id",
+            "country_id"
+          ],
+          "name": "bibles_to_countries_bible_id_country_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "bibles_to_languages": {
@@ -600,13 +682,19 @@
         }
       },
       "indexes": {
-        "bibles_to_languages_key": {
-          "name": "bibles_to_languages_key",
+        "bibles_to_languages_bible_id_idx": {
+          "name": "bibles_to_languages_bible_id_idx",
           "columns": [
-            "bible_id",
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "bibles_to_languages_language_id_idx": {
+          "name": "bibles_to_languages_language_id_idx",
+          "columns": [
             "language_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -621,7 +709,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "bibles_to_languages_language_id_bible_languages_id_fk": {
           "name": "bibles_to_languages_language_id_bible_languages_id_fk",
@@ -634,10 +722,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "bibles_to_languages_bible_id_language_id_pk": {
+          "columns": [
+            "bible_id",
+            "language_id"
+          ],
+          "name": "bibles_to_languages_bible_id_language_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "bibles_to_rights_admins": {
@@ -659,13 +755,19 @@
         }
       },
       "indexes": {
-        "bibles_to_rights_admins_key": {
-          "name": "bibles_to_rights_admins_key",
+        "bibles_to_rights_admins_bible_id_idx": {
+          "name": "bibles_to_rights_admins_bible_id_idx",
           "columns": [
-            "bible_id",
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "bibles_to_rights_admins_rights_admin_id_idx": {
+          "name": "bibles_to_rights_admins_rights_admin_id_idx",
+          "columns": [
             "rights_admin_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -680,7 +782,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "bibles_to_rights_admins_rights_admin_id_bible_rights_admins_id_fk": {
           "name": "bibles_to_rights_admins_rights_admin_id_bible_rights_admins_id_fk",
@@ -693,10 +795,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "bibles_to_rights_admins_bible_id_rights_admin_id_pk": {
+          "columns": [
+            "bible_id",
+            "rights_admin_id"
+          ],
+          "name": "bibles_to_rights_admins_bible_id_rights_admin_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "bibles_to_rights_holders": {
@@ -718,13 +828,19 @@
         }
       },
       "indexes": {
-        "bible_rights_holders_to_bibles_key": {
-          "name": "bible_rights_holders_to_bibles_key",
+        "bibles_to_rights_holders_bible_id_idx": {
+          "name": "bibles_to_rights_holders_bible_id_idx",
           "columns": [
-            "bible_id",
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "bibles_to_rights_holders_rights_holder_id_idx": {
+          "name": "bibles_to_rights_holders_rights_holder_id_idx",
+          "columns": [
             "rights_holder_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -739,7 +855,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "bibles_to_rights_holders_rights_holder_id_bible_rights_holders_id_fk": {
           "name": "bibles_to_rights_holders_rights_holder_id_bible_rights_holders_id_fk",
@@ -752,10 +868,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "bibles_to_rights_holders_bible_id_rights_holder_id_pk": {
+          "columns": [
+            "bible_id",
+            "rights_holder_id"
+          ],
+          "name": "bibles_to_rights_holders_bible_id_rights_holder_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "books": {
@@ -810,11 +934,18 @@
           "notNull": true,
           "autoincrement": false
         },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "abbreviation": {
           "name": "abbreviation",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "short_name": {
@@ -833,24 +964,45 @@
         }
       },
       "indexes": {
-        "books_abbreviation": {
-          "name": "books_abbreviation",
+        "books_bible_id_idx": {
+          "name": "books_bible_id_idx",
+          "columns": [
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "books_previous_id_idx": {
+          "name": "books_previous_id_idx",
+          "columns": [
+            "previous_id"
+          ],
+          "isUnique": false
+        },
+        "books_next_id_idx": {
+          "name": "books_next_id_idx",
+          "columns": [
+            "next_id"
+          ],
+          "isUnique": false
+        },
+        "books_number_idx": {
+          "name": "books_number_idx",
+          "columns": [
+            "number"
+          ],
+          "isUnique": false
+        },
+        "books_code_idx": {
+          "name": "books_code_idx",
+          "columns": [
+            "code"
+          ],
+          "isUnique": false
+        },
+        "books_abbreviation_idx": {
+          "name": "books_abbreviation_idx",
           "columns": [
             "abbreviation"
-          ],
-          "isUnique": false
-        },
-        "books_short_name": {
-          "name": "books_short_name",
-          "columns": [
-            "short_name"
-          ],
-          "isUnique": false
-        },
-        "books_long_name": {
-          "name": "books_long_name",
-          "columns": [
-            "long_name"
           ],
           "isUnique": false
         }
@@ -867,7 +1019,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -913,23 +1065,23 @@
         }
       },
       "indexes": {
-        "chapter_bookmarks_user_chapter_key": {
-          "name": "chapter_bookmarks_user_chapter_key",
+        "chapter_bookmarks_unique_user_chapter_idx": {
+          "name": "chapter_bookmarks_unique_user_chapter_idx",
           "columns": [
-            "user_id",
-            "chapter_id"
+            "chapter_id",
+            "user_id"
           ],
           "isUnique": true
         },
-        "chapter_bookmarks_chapter_id": {
-          "name": "chapter_bookmarks_chapter_id",
+        "chapter_bookmarks_chapter_id_idx": {
+          "name": "chapter_bookmarks_chapter_id_idx",
           "columns": [
             "chapter_id"
           ],
           "isUnique": false
         },
-        "chapter_bookmarks_user_id": {
-          "name": "chapter_bookmarks_user_id",
+        "chapter_bookmarks_user_id_idx": {
+          "name": "chapter_bookmarks_user_id_idx",
           "columns": [
             "user_id"
           ],
@@ -1014,15 +1166,15 @@
         }
       },
       "indexes": {
-        "chapter_notes_chapter_id": {
-          "name": "chapter_notes_chapter_id",
+        "chapter_notes_chapter_id_idx": {
+          "name": "chapter_notes_chapter_id_idx",
           "columns": [
             "chapter_id"
           ],
           "isUnique": false
         },
-        "chapter_notes_user_id": {
-          "name": "chapter_notes_user_id",
+        "chapter_notes_user_id_idx": {
+          "name": "chapter_notes_user_id_idx",
           "columns": [
             "user_id"
           ],
@@ -1041,7 +1193,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "chapter_notes_user_id_users_id_fk": {
           "name": "chapter_notes_user_id_users_id_fk",
@@ -1112,8 +1264,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "abbreviation": {
-          "name": "abbreviation",
+        "code": {
+          "name": "code",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1142,10 +1294,38 @@
         }
       },
       "indexes": {
-        "chapters_name": {
-          "name": "chapters_name",
+        "chapters_bible_id_idx": {
+          "name": "chapters_bible_id_idx",
           "columns": [
-            "name"
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "chapters_book_id_idx": {
+          "name": "chapters_book_id_idx",
+          "columns": [
+            "book_id"
+          ],
+          "isUnique": false
+        },
+        "chapters_previous_id_idx": {
+          "name": "chapters_previous_id_idx",
+          "columns": [
+            "previous_id"
+          ],
+          "isUnique": false
+        },
+        "chapters_next_id_idx": {
+          "name": "chapters_next_id_idx",
+          "columns": [
+            "next_id"
+          ],
+          "isUnique": false
+        },
+        "chapters_code_idx": {
+          "name": "chapters_code_idx",
+          "columns": [
+            "code"
           ],
           "isUnique": false
         }
@@ -1162,7 +1342,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "chapters_book_id_books_id_fk": {
           "name": "chapters_book_id_books_id_fk",
@@ -1175,7 +1355,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1200,13 +1380,19 @@
         }
       },
       "indexes": {
-        "chapter_source_document_key": {
-          "name": "chapter_source_document_key",
+        "chapters_to_source_documents_chapter_id_idx": {
+          "name": "chapters_to_source_documents_chapter_id_idx",
           "columns": [
-            "chapter_id",
+            "chapter_id"
+          ],
+          "isUnique": false
+        },
+        "chapters_to_source_documents_source_document_id_idx": {
+          "name": "chapters_to_source_documents_source_document_id_idx",
+          "columns": [
             "source_document_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1221,10 +1407,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "chapters_to_source_documents_chapter_id_source_document_id_pk": {
+          "columns": [
+            "chapter_id",
+            "source_document_id"
+          ],
+          "name": "chapters_to_source_documents_chapter_id_source_document_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "chats": {
@@ -1251,6 +1445,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -1266,27 +1467,20 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {
-        "chat_name": {
-          "name": "chat_name",
+        "chats_user_id_idx": {
+          "name": "chats_user_id_idx",
           "columns": [
-            "name"
+            "user_id"
           ],
           "isUnique": false
         },
-        "chat_user_id": {
-          "name": "chat_user_id",
+        "chats_name_idx": {
+          "name": "chats_name_idx",
           "columns": [
-            "user_id"
+            "name"
           ],
           "isUnique": false
         }
@@ -1401,10 +1595,17 @@
           ],
           "isUnique": true
         },
-        "data_sources_type": {
-          "name": "data_sources_type",
+        "data_sources_type_idx": {
+          "name": "data_sources_type_idx",
           "columns": [
             "type"
+          ],
+          "isUnique": false
+        },
+        "data_sources_metadata_idx": {
+          "name": "data_sources_metadata_idx",
+          "columns": [
+            "metadata"
           ],
           "isUnique": false
         },
@@ -1446,13 +1647,19 @@
         }
       },
       "indexes": {
-        "data_source_source_document_key": {
-          "name": "data_source_source_document_key",
+        "data_sources_to_source_documents_data_source_id_idx": {
+          "name": "data_sources_to_source_documents_data_source_id_idx",
           "columns": [
-            "data_source_id",
+            "data_source_id"
+          ],
+          "isUnique": false
+        },
+        "data_sources_to_source_documents_source_document_id_idx": {
+          "name": "data_sources_to_source_documents_source_document_id_idx",
+          "columns": [
             "source_document_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1467,10 +1674,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "data_sources_to_source_documents_data_source_id_source_document_id_pk": {
+          "columns": [
+            "data_source_id",
+            "source_document_id"
+          ],
+          "name": "data_sources_to_source_documents_data_source_id_source_document_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "devotion_images": {
@@ -1534,10 +1749,17 @@
         }
       },
       "indexes": {
-        "devotion_images_devotion_id": {
-          "name": "devotion_images_devotion_id",
+        "devotion_images_devotion_id_idx": {
+          "name": "devotion_images_devotion_id_idx",
           "columns": [
             "devotion_id"
+          ],
+          "isUnique": false
+        },
+        "devotion_images_caption_idx": {
+          "name": "devotion_images_caption_idx",
+          "columns": [
+            "caption"
           ],
           "isUnique": false
         }
@@ -1554,7 +1776,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1614,17 +1836,32 @@
         }
       },
       "indexes": {
-        "devotion_reactions_devotion_id": {
-          "name": "devotion_reactions_devotion_id",
+        "devotion_reactions_unique_user_idx": {
+          "name": "devotion_reactions_unique_user_idx",
+          "columns": [
+            "devotion_id",
+            "user_id"
+          ],
+          "isUnique": true
+        },
+        "devotion_reactions_devotion_id_idx": {
+          "name": "devotion_reactions_devotion_id_idx",
           "columns": [
             "devotion_id"
           ],
           "isUnique": false
         },
-        "devotion_reactions_user_id": {
-          "name": "devotion_reactions_user_id",
+        "devotion_reactions_user_id_idx": {
+          "name": "devotion_reactions_user_id_idx",
           "columns": [
             "user_id"
+          ],
+          "isUnique": false
+        },
+        "devotion_reactions_reaction_idx": {
+          "name": "devotion_reactions_reaction_idx",
+          "columns": [
+            "reaction"
           ],
           "isUnique": false
         }
@@ -1641,7 +1878,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "devotion_reactions_user_id_users_id_fk": {
           "name": "devotion_reactions_user_id_users_id_fk",
@@ -1738,10 +1975,24 @@
         }
       },
       "indexes": {
+        "devotions_topic_idx": {
+          "name": "devotions_topic_idx",
+          "columns": [
+            "topic"
+          ],
+          "isUnique": false
+        },
         "devotions_created_at_idx": {
           "name": "devotions_created_at_idx",
           "columns": [
             "created_at"
+          ],
+          "isUnique": false
+        },
+        "devotions_failed_idx": {
+          "name": "devotions_failed_idx",
+          "columns": [
+            "failed"
           ],
           "isUnique": false
         }
@@ -1785,13 +2036,19 @@
         }
       },
       "indexes": {
-        "devotion_source_document_key": {
-          "name": "devotion_source_document_key",
+        "devotions_to_source_documents_devotion_id_idx": {
+          "name": "devotions_to_source_documents_devotion_id_idx",
           "columns": [
-            "devotion_id",
+            "devotion_id"
+          ],
+          "isUnique": false
+        },
+        "devotions_to_source_documents_source_document_id_idx": {
+          "name": "devotions_to_source_documents_source_document_id_idx",
+          "columns": [
             "source_document_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1806,10 +2063,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "devotions_to_source_documents_devotion_id_source_document_id_pk": {
+          "columns": [
+            "devotion_id",
+            "source_document_id"
+          ],
+          "name": "devotions_to_source_documents_devotion_id_source_document_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "forgotten_password_codes": {
@@ -1859,8 +2124,8 @@
         }
       },
       "indexes": {
-        "forgotten_password_codes_userId_unique": {
-          "name": "forgotten_password_codes_userId_unique",
+        "forgotten_password_codes_user_id_idx": {
+          "name": "forgotten_password_codes_user_id_idx",
           "columns": [
             "userId"
           ],
@@ -1909,20 +2174,19 @@
           "notNull": true,
           "autoincrement": false
         },
+        "data_source_id": {
+          "name": "data_source_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "status": {
           "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "error_messages": {
-          "name": "error_messages",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'[]'"
         },
         "metadata": {
           "name": "metadata",
@@ -1932,19 +2196,34 @@
           "autoincrement": false,
           "default": "'{}'"
         },
-        "data_source_id": {
-          "name": "data_source_id",
+        "error_messages": {
+          "name": "error_messages",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'[]'"
         }
       },
       "indexes": {
-        "index_operation_status": {
-          "name": "index_operation_status",
+        "index_operation_data_source_id_idx": {
+          "name": "index_operation_data_source_id_idx",
+          "columns": [
+            "data_source_id"
+          ],
+          "isUnique": false
+        },
+        "index_operation_status_idx": {
+          "name": "index_operation_status_idx",
           "columns": [
             "status"
+          ],
+          "isUnique": false
+        },
+        "index_operation_metadata_idx": {
+          "name": "index_operation_metadata_idx",
+          "columns": [
+            "metadata"
           ],
           "isUnique": false
         }
@@ -1961,7 +2240,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2021,13 +2300,27 @@
         }
       },
       "indexes": {
-        "message_reaction_key": {
-          "name": "message_reaction_key",
+        "message_reactions_unique_user_idx": {
+          "name": "message_reactions_unique_user_idx",
           "columns": [
             "message_id",
             "user_id"
           ],
           "isUnique": true
+        },
+        "message_reactions_message_id_idx": {
+          "name": "message_reactions_message_id_idx",
+          "columns": [
+            "message_id"
+          ],
+          "isUnique": false
+        },
+        "message_reactions_user_id_idx": {
+          "name": "message_reactions_user_id_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -2042,7 +2335,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "message_reactions_user_id_users_id_fk": {
           "name": "message_reactions_user_id_users_id_fk",
@@ -2083,6 +2376,27 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "chat_id": {
+          "name": "chat_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "origin_message_id": {
+          "name": "origin_message_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "content": {
@@ -2150,76 +2464,48 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
-        },
-        "chat_id": {
-          "name": "chat_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "origin_message_id": {
-          "name": "origin_message_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
-        "role": {
-          "name": "role",
-          "columns": [
-            "role"
-          ],
-          "isUnique": false
-        },
-        "content": {
-          "name": "content",
-          "columns": [
-            "content"
-          ],
-          "isUnique": false
-        },
-        "chat_id": {
-          "name": "chat_id",
+        "messages_chat_id_idx": {
+          "name": "messages_chat_id_idx",
           "columns": [
             "chat_id"
           ],
           "isUnique": false
         },
-        "user_id": {
-          "name": "user_id",
+        "messages_user_id_idx": {
+          "name": "messages_user_id_idx",
           "columns": [
             "user_id"
           ],
           "isUnique": false
         },
-        "origin_message_id": {
-          "name": "origin_message_id",
+        "messages_origin_message_id_idx": {
+          "name": "messages_origin_message_id_idx",
           "columns": [
             "origin_message_id"
           ],
           "isUnique": false
         },
-        "anonymous": {
-          "name": "anonymous",
+        "messages_role_idx": {
+          "name": "messages_role_idx",
           "columns": [
-            "anonymous"
+            "role"
           ],
           "isUnique": false
         },
-        "messages_created_at_idx": {
-          "name": "messages_created_at_idx",
+        "messages_content_idx": {
+          "name": "messages_content_idx",
           "columns": [
-            "created_at"
+            "content"
+          ],
+          "isUnique": false
+        },
+        "messages_finish_reason_idx": {
+          "name": "messages_finish_reason_idx",
+          "columns": [
+            "finish_reason"
           ],
           "isUnique": false
         }
@@ -2275,7 +2561,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2316,13 +2602,19 @@
         }
       },
       "indexes": {
-        "message_source_document_key": {
-          "name": "message_source_document_key",
+        "messages_to_source_documents_message_id_idx": {
+          "name": "messages_to_source_documents_message_id_idx",
           "columns": [
-            "message_id",
+            "message_id"
+          ],
+          "isUnique": false
+        },
+        "messages_to_source_documents_source_document_id_idx": {
+          "name": "messages_to_source_documents_source_document_id_idx",
+          "columns": [
             "source_document_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -2337,10 +2629,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "messages_to_source_documents_message_id_source_document_id_pk": {
+          "columns": [
+            "message_id",
+            "source_document_id"
+          ],
+          "name": "messages_to_source_documents_message_id_source_document_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "passwords": {
@@ -2390,8 +2690,8 @@
         }
       },
       "indexes": {
-        "passwords_userId_unique": {
-          "name": "passwords_userId_unique",
+        "passwords_user_id_idx": {
+          "name": "passwords_user_id_idx",
           "columns": [
             "userId"
           ],
@@ -2573,7 +2873,15 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "sessions_user_id_idx": {
+          "name": "sessions_user_id_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "sessions_userId_users_id_fk": {
           "name": "sessions_userId_users_id_fk",
@@ -2625,12 +2933,12 @@
         }
       },
       "indexes": {
-        "chat_share_options_chat_id": {
-          "name": "chat_share_options_chat_id",
+        "chat_share_options_chat_id_idx": {
+          "name": "chat_share_options_chat_id_idx",
           "columns": [
             "chat_id"
           ],
-          "isUnique": false
+          "isUnique": true
         }
       },
       "foreignKeys": {
@@ -2645,7 +2953,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2808,24 +3116,31 @@
         }
       },
       "indexes": {
-        "user_generated_images_user_id": {
-          "name": "user_generated_images_user_id",
+        "user_generated_images_user_id_idx": {
+          "name": "user_generated_images_user_id_idx",
           "columns": [
             "user_id"
           ],
           "isUnique": false
         },
-        "user_generated_images_message_id": {
-          "name": "user_generated_images_message_id",
+        "user_generated_images_message_id_idx": {
+          "name": "user_generated_images_message_id_idx",
           "columns": [
             "message_id"
           ],
           "isUnique": false
         },
-        "user_generated_images_created_at_idx": {
-          "name": "user_generated_images_created_at_idx",
+        "user_generated_images_user_prompt_idx": {
+          "name": "user_generated_images_user_prompt_idx",
           "columns": [
-            "created_at"
+            "user_prompt"
+          ],
+          "isUnique": false
+        },
+        "user_generated_images_failed_idx": {
+          "name": "user_generated_images_failed_idx",
+          "columns": [
+            "failed"
           ],
           "isUnique": false
         }
@@ -2855,7 +3170,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2915,13 +3230,34 @@
         }
       },
       "indexes": {
-        "user_generated_image_reaction_key": {
-          "name": "user_generated_image_reaction_key",
+        "user_generated_image_reaction_idx": {
+          "name": "user_generated_image_reaction_idx",
           "columns": [
             "user_generated_image_id",
             "user_id"
           ],
           "isUnique": true
+        },
+        "user_generated_images_reactions_user_generated_image_id_idx": {
+          "name": "user_generated_images_reactions_user_generated_image_id_idx",
+          "columns": [
+            "user_generated_image_id"
+          ],
+          "isUnique": false
+        },
+        "user_generated_images_reactions_user_id_idx": {
+          "name": "user_generated_images_reactions_user_id_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "user_generated_images_reactions_reaction_idx": {
+          "name": "user_generated_images_reactions_reaction_idx",
+          "columns": [
+            "reaction"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -2936,7 +3272,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "user_generated_images_reactions_user_id_users_id_fk": {
           "name": "user_generated_images_reactions_user_id_users_id_fk",
@@ -2990,13 +3326,19 @@
         }
       },
       "indexes": {
-        "user_generated_image_source_document_key": {
-          "name": "user_generated_image_source_document_key",
+        "user_generated_images_to_source_documents_user_generated_image_id_idx": {
+          "name": "user_generated_images_to_source_documents_user_generated_image_id_idx",
           "columns": [
-            "user_generated_image_id",
+            "user_generated_image_id"
+          ],
+          "isUnique": false
+        },
+        "user_generated_images_to_source_documents_source_document_id_idx": {
+          "name": "user_generated_images_to_source_documents_source_document_id_idx",
+          "columns": [
             "source_document_id"
           ],
-          "isUnique": true
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -3011,10 +3353,18 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "user_generated_images_to_source_documents_user_generated_image_id_source_document_id_pk": {
+          "columns": [
+            "user_generated_image_id",
+            "source_document_id"
+          ],
+          "name": "user_generated_images_to_source_documents_user_generated_image_id_source_document_id_pk"
+        }
+      },
       "uniqueConstraints": {}
     },
     "users": {
@@ -3085,12 +3435,26 @@
         }
       },
       "indexes": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "users_email_idx": {
+          "name": "users_email_idx",
           "columns": [
             "email"
           ],
           "isUnique": true
+        },
+        "users_stripe_customer_id_idx": {
+          "name": "users_stripe_customer_id_idx",
+          "columns": [
+            "stripe_customer_id"
+          ],
+          "isUnique": false
+        },
+        "users_preferred_bible_id_idx": {
+          "name": "users_preferred_bible_id_idx",
+          "columns": [
+            "preferred_bible_id"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -3129,7 +3493,22 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "users_to_roles_user_id_idx": {
+          "name": "users_to_roles_user_id_idx",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "users_to_roles_role_id_idx": {
+          "name": "users_to_roles_role_id_idx",
+          "columns": [
+            "role_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "users_to_roles_user_id_users_id_fk": {
           "name": "users_to_roles_user_id_users_id_fk",
@@ -3209,23 +3588,23 @@
         }
       },
       "indexes": {
-        "verse_bookmarks_user_verse_key": {
-          "name": "verse_bookmarks_user_verse_key",
+        "verse_bookmarks_unique_user_verse_idx": {
+          "name": "verse_bookmarks_unique_user_verse_idx",
           "columns": [
             "user_id",
             "verse_id"
           ],
           "isUnique": true
         },
-        "verse_bookmarks_verse_id": {
-          "name": "verse_bookmarks_verse_id",
+        "verse_bookmarks_verse_id_idx": {
+          "name": "verse_bookmarks_verse_id_idx",
           "columns": [
             "verse_id"
           ],
           "isUnique": false
         },
-        "verse_bookmarks_user_id": {
-          "name": "verse_bookmarks_user_id",
+        "verse_bookmarks_user_id_idx": {
+          "name": "verse_bookmarks_user_id_idx",
           "columns": [
             "user_id"
           ],
@@ -3310,23 +3689,23 @@
         }
       },
       "indexes": {
-        "verse_highlights_user_verse_key": {
-          "name": "verse_highlights_user_verse_key",
+        "verse_highlights_unique_user_verse_idx": {
+          "name": "verse_highlights_unique_user_verse_idx",
           "columns": [
             "user_id",
             "verse_id"
           ],
           "isUnique": true
         },
-        "verse_highlights_verse_id": {
-          "name": "verse_highlights_verse_id",
+        "verse_highlights_verse_id_idx": {
+          "name": "verse_highlights_verse_id_idx",
           "columns": [
             "verse_id"
           ],
           "isUnique": false
         },
-        "verse_highlights_user_id": {
-          "name": "verse_highlights_user_id",
+        "verse_highlights_user_id_idx": {
+          "name": "verse_highlights_user_id_idx",
           "columns": [
             "user_id"
           ],
@@ -3411,15 +3790,15 @@
         }
       },
       "indexes": {
-        "verse_notes_verse_id": {
-          "name": "verse_notes_verse_id",
+        "verse_notes_verse_id_idx": {
+          "name": "verse_notes_verse_id_idx",
           "columns": [
             "verse_id"
           ],
           "isUnique": false
         },
-        "verse_notes_user_id": {
-          "name": "verse_notes_user_id",
+        "verse_notes_user_id_idx": {
+          "name": "verse_notes_user_id_idx",
           "columns": [
             "user_id"
           ],
@@ -3516,8 +3895,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "abbreviation": {
-          "name": "abbreviation",
+        "code": {
+          "name": "code",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -3546,10 +3925,45 @@
         }
       },
       "indexes": {
-        "verses_name": {
-          "name": "verses_name",
+        "verses_bible_id_idx": {
+          "name": "verses_bible_id_idx",
           "columns": [
-            "name"
+            "bible_id"
+          ],
+          "isUnique": false
+        },
+        "verses_book_id_idx": {
+          "name": "verses_book_id_idx",
+          "columns": [
+            "book_id"
+          ],
+          "isUnique": false
+        },
+        "verses_chapter_id_idx": {
+          "name": "verses_chapter_id_idx",
+          "columns": [
+            "chapter_id"
+          ],
+          "isUnique": false
+        },
+        "verses_previous_id_idx": {
+          "name": "verses_previous_id_idx",
+          "columns": [
+            "previous_id"
+          ],
+          "isUnique": false
+        },
+        "verses_next_id_idx": {
+          "name": "verses_next_id_idx",
+          "columns": [
+            "next_id"
+          ],
+          "isUnique": false
+        },
+        "verses_code_idx": {
+          "name": "verses_code_idx",
+          "columns": [
+            "code"
           ],
           "isUnique": false
         }
@@ -3566,7 +3980,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "verses_book_id_books_id_fk": {
           "name": "verses_book_id_books_id_fk",
@@ -3579,7 +3993,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         },
         "verses_chapter_id_chapters_id_fk": {
           "name": "verses_chapter_id_chapters_id_fk",
@@ -3592,7 +4006,7 @@
             "id"
           ],
           "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
