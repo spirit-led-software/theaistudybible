@@ -5,12 +5,20 @@ import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
 import type { Document, DocumentWithScore } from './types/document';
 
+export type AddDocumentsOptions = {
+  namespace?: string;
+};
+const addDocumentsDefaults = {
+  namespace: undefined,
+} as const satisfies AddDocumentsOptions;
+
 export type SearchDocumentsOptions = {
   filter?: Prettify<VectorStore['FilterType']>;
   scoreThreshold?: number;
   withEmbedding?: boolean;
   withMetadata?: boolean;
   limit?: number;
+  namespace?: string;
 };
 const searchDocumentsDefaults = {
   withEmbedding: false,
@@ -44,7 +52,10 @@ export class VectorStore {
     });
   }
 
-  async addDocuments(docs: Document[]): Promise<string[]> {
+  async addDocuments(
+    docs: Document[],
+    options: AddDocumentsOptions = addDocumentsDefaults,
+  ): Promise<string[]> {
     const docsWithEmbeddings = await this.embeddings.embedDocuments(docs);
     try {
       const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
@@ -62,6 +73,7 @@ export class VectorStore {
               ...d.metadata,
             },
           })),
+          { namespace: options.namespace },
         );
       }
       return docsWithEmbeddings.map((d) => d.id);
@@ -91,13 +103,16 @@ export class VectorStore {
     query: string,
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
-    const result = await this.client.query({
-      vector: await this.embeddings.embedQuery(query),
-      topK: options.limit ?? searchDocumentsDefaults.limit ?? 20,
-      filter: options.filter ?? searchDocumentsDefaults.filter,
-      includeMetadata: options.withMetadata ?? searchDocumentsDefaults.withMetadata,
-      includeVectors: options.withEmbedding ?? searchDocumentsDefaults.withEmbedding,
-    });
+    const result = await this.client.query(
+      {
+        vector: await this.embeddings.embedQuery(query),
+        topK: options.limit ?? searchDocumentsDefaults.limit ?? 20,
+        filter: options.filter ?? searchDocumentsDefaults.filter,
+        includeMetadata: options.withMetadata ?? searchDocumentsDefaults.withMetadata,
+        includeVectors: options.withEmbedding ?? searchDocumentsDefaults.withEmbedding,
+      },
+      { namespace: options.namespace },
+    );
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};

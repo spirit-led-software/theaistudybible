@@ -2,6 +2,7 @@ import { embeddingsModelInfo } from '@/ai/embeddings';
 import type { Document } from '@/ai/types/document';
 import { contentsToText } from '@/core/utils/bible';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
+import { sha256 } from '@noble/hashes/sha256';
 
 export const versesToDocs = ({
   bible,
@@ -70,20 +71,21 @@ function processVerseChunk(
   const verseRange = `${verseStart}-${verseEnd}`;
   const name = `${book.shortName} ${chapter.number}:${verseRange} (${bible.abbreviationLocal})`;
 
+  const content = `"${currentPageContent}" - ${name}`;
+  const id = Buffer.from(sha256(content)).toString('hex');
+
   return {
-    id: verseIds.join('-'),
-    content: `"${currentPageContent}" - ${name}`,
+    id,
+    content,
     metadata: {
       type: 'bible',
-      translation: bible.abbreviation,
-      name,
-      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}`,
-      indexDate: new Date().toISOString(),
-      verseRange,
       bibleId: bible.id,
       bookId: book.id,
       chapterId: chapter.id,
       verseIds,
+      name,
+      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}`,
+      indexDate: new Date().toISOString(),
     },
   };
 }
