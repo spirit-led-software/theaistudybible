@@ -16,7 +16,7 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.1.7",
-    "openai": "^4.66.1",
+    "openai": "^4.67.0",
     "tiktoken": "^1.0.16"
   }
 }
