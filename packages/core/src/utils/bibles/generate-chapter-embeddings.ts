@@ -27,12 +27,15 @@ export const generateChapterEmbeddings = async ({
   for (let i = 0; i < docs.length; i += batchSize) {
     const batch = docs.slice(i, i + batchSize);
     await vectorStore.addDocuments(batch);
-    await db.insert(chaptersToSourceDocuments).values(
-      batch.map((doc) => ({
-        chapterId: chapter.id,
-        sourceDocumentId: doc.id,
-      })),
-    );
+    await db
+      .insert(chaptersToSourceDocuments)
+      .values(
+        batch.map((doc) => ({
+          chapterId: chapter.id,
+          sourceDocumentId: doc.id,
+        })),
+      )
+      .onConflictDoNothing();
   }
 
   console.log(`Successfully added ${docs.length} documents to vector store for ${chapter.name}`);
