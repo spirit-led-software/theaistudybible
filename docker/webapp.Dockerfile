@@ -52,4 +52,5 @@ COPY --from=builder /build/apps/www/.output .
 
 EXPOSE 3000
 
-CMD ["bun", "run", "./server/index.mjs"]
+# --smol is needed to reduce memory usage
+CMD ["bun", "--smol", "run", "./server/index.mjs"]
