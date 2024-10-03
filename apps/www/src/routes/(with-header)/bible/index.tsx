@@ -8,9 +8,9 @@ import { Navigate } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
 
 export const route: RouteDefinition = {
-  preload: async () => {
+  preload: () => {
     const qc = useQueryClient();
-    await qc.prefetchQuery(largeTranslationPickerQueryOptions);
+    qc.prefetchQuery(largeTranslationPickerQueryOptions);
   },
 };
 

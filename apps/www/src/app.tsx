@@ -5,7 +5,7 @@ import {
   ColorModeScript,
   cookieStorageManagerSSR,
 } from '@kobalte/core';
-import { withSentryRouterRouting } from '@sentry/solidstart/solidrouter';
+import { withSentryRouterRouting } from '@sentry/solid/solidrouter';
 import { MultiProvider } from '@solid-primitives/context';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { Router } from '@solidjs/router';

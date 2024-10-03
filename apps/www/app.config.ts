@@ -1,4 +1,4 @@
-import { sentrySolidStartVite } from '@sentry/solidstart';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig } from '@solidjs/start/config';
 import { formatDate } from 'date-fns';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -51,7 +51,7 @@ export default defineConfig({
           start_url: '/',
         },
       }),
-      sentrySolidStartVite(),
+      sentryVitePlugin(),
     ],
   },
 });

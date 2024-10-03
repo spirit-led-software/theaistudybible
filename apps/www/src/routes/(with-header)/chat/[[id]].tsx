@@ -10,11 +10,11 @@ import { useQueryClient } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 
 export const route: RouteDefinition = {
-  preload: async ({ params }) => {
+  preload: ({ params }) => {
     const { id } = params;
     if (id) {
       const qc = useQueryClient();
-      await Promise.all([
+      Promise.all([
         qc.prefetchQuery(getChatQueryProps(id)),
         qc.prefetchInfiniteQuery(getChatMessagesQueryProps(id)),
       ]);

@@ -1,6 +1,6 @@
 // @refresh reload
-import * as Sentry from '@sentry/solidstart';
-import { solidRouterBrowserTracingIntegration } from '@sentry/solidstart/solidrouter';
+import * as Sentry from '@sentry/solid';
+import { solidRouterBrowserTracingIntegration } from '@sentry/solid/solidrouter';
 import { StartClient, mount } from '@solidjs/start/client';
 
 Sentry.init({
