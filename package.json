@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
-    "@sentry/vite-plugin": "^2.22.5",
     "@types/bun": "^1.1.10",
     "@types/node": "^22.7.4",
     "drizzle-kit": "^0.24.2",
@@ -55,7 +54,7 @@
     "drizzle-orm": "^0.33.0",
     "drizzle-zod": "^0.5.1",
     "lucia": "^3.2.0",
-    "sst": "3.1.54",
+    "sst": "3.1.59",
     "stripe": "^17.0.0",
     "zod": "^3.23.8"
   },

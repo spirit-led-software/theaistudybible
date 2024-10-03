@@ -1,5 +1,6 @@
 import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
+import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
 import { appendHeader, getCookie } from 'vinxi/http';
 
@@ -40,4 +41,5 @@ export default createMiddleware({
       locals.roles = roles;
     },
   ],
+  onBeforeResponse: [sentryBeforeResponseMiddleware()],
 });

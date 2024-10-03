@@ -37,7 +37,7 @@
     "@modular-forms/solid": "^0.23.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@sentry/bun": "^8.33.1",
-    "@sentry/solid": "^8.33.1",
+    "@sentry/solidstart": "^8.33.1",
     "@solid-primitives/clipboard": "^1.5.10",
     "@solid-primitives/context": "^0.2.3",
     "@solid-primitives/intersection-observer": "^2.1.6",

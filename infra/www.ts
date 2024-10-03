@@ -60,6 +60,11 @@ export const webapp = cluster.addService('WebAppService', {
     cpuUtilization: 75,
     memoryUtilization: 75,
   },
+  dev: {
+    autostart: true,
+    directory: 'apps/www',
+    command: 'bun run dev',
+  },
   transform: {
     loadBalancerSecurityGroup: (args) => {
       args.ingress = [
@@ -128,13 +133,3 @@ if ($app.stage === 'production') {
     },
   );
 }
-
-export const webAppDev = new sst.x.DevCommand('WebAppDev', {
-  dev: {
-    autostart: true,
-    directory: 'apps/www',
-    command: 'bun run dev',
-  },
-  link: allLinks,
-  environment: webAppEnv,
-});
