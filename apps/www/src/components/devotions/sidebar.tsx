@@ -36,17 +36,19 @@ const getDevotions = async ({ offset, limit }: { offset: number; limit: number }
   };
 };
 
+export const getDevotionsQueryOptions = {
+  queryKey: ['devotions', { limit: 10 }],
+  queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 10 }),
+  initialPageParam: 0,
+  getNextPageParam: (lastPage: { nextCursor?: number }) => lastPage.nextCursor,
+};
+
 export const DevotionSidebar = () => {
   const navigate = useNavigate();
 
   const [devotionStore, setDevotionStore] = useDevotionStore();
 
-  const devotionsQuery = createInfiniteQuery(() => ({
-    queryKey: ['devotions', { limit: 10 }],
-    queryFn: ({ pageParam }) => getDevotions({ offset: pageParam, limit: 10 }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  }));
+  const devotionsQuery = createInfiniteQuery(() => getDevotionsQueryOptions);
 
   const [devotions, setDevotions] = createStore(
     !devotionsQuery.isLoading && devotionsQuery.data

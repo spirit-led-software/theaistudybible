@@ -44,18 +44,20 @@ const getChats = async ({ offset, limit }: { offset: number; limit: number }) =>
   };
 };
 
+export const getChatsQueryOptions = {
+  queryKey: ['chats', { limit: 10 }],
+  queryFn: ({ pageParam }: { pageParam: number }) => getChats({ offset: pageParam, limit: 10 }),
+  initialPageParam: 0,
+  getNextPageParam: (lastPage: { nextCursor?: number }) => lastPage.nextCursor,
+};
+
 export const ChatSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [chatStore, setChatStore] = useChatStore();
 
-  const chatsQuery = createInfiniteQuery(() => ({
-    queryKey: ['chats', { limit: 10 }],
-    queryFn: ({ pageParam }) => getChats({ offset: pageParam, limit: 10 }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-  }));
+  const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions);
 
   const [chats, setChats] = createStore(
     !chatsQuery.isLoading && chatsQuery.data

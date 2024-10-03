@@ -1,5 +1,6 @@
 import { SignedIn, SignedOut } from '@/www/components/auth/control';
 import { SignIn } from '@/www/components/auth/sign-in';
+import { getChatsQueryOptions } from '@/www/components/chat/sidebar';
 import { ChatWindow } from '@/www/components/chat/window';
 import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
@@ -15,6 +16,7 @@ export const route: RouteDefinition = {
     if (id) {
       const qc = useQueryClient();
       Promise.all([
+        qc.prefetchInfiniteQuery(getChatsQueryOptions),
         qc.prefetchQuery(getChatQueryProps(id)),
         qc.prefetchInfiniteQuery(getChatMessagesQueryProps(id)),
       ]);

@@ -1,6 +1,7 @@
 import { db } from '@/core/database';
 import { toTitleCase } from '@/core/utils/string';
 import { DevotionMenu } from '@/www/components/devotions/menu';
+import { getDevotionsQueryOptions } from '@/www/components/devotions/sidebar';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Markdown } from '@/www/components/ui/markdown';
 import { H2 } from '@/www/components/ui/typography';
@@ -31,7 +32,10 @@ export const route: RouteDefinition = {
   preload: ({ params }) => {
     const { id } = params;
     const qc = useQueryClient();
-    qc.prefetchQuery(getDevotionQueryProps({ id }));
+    Promise.all([
+      qc.prefetchInfiniteQuery(getDevotionsQueryOptions),
+      qc.prefetchQuery(getDevotionQueryProps({ id })),
+    ]);
   },
 };
 
