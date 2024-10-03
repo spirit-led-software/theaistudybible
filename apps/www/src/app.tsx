@@ -40,7 +40,6 @@ export default function App() {
       queries: {
         gcTime: 1000 * 60 * 5,
         staleTime: 1000 * 60 * 5,
-        experimental_prefetchInRender: true,
       },
     },
   });
