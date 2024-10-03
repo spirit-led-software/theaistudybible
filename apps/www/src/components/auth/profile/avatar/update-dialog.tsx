@@ -71,10 +71,12 @@ export function UpdateAvatarDialog() {
       setToastId(toast.loading('Updating avatar...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      invalidate();
       toast.dismiss(toastId());
       toast.success('Avatar updated successfully');
       setOpen(false);
+      // Need to wait a few seconds for the
+      // bucket function to update the user
+      setTimeout(() => invalidate(), 5000);
     },
     onError: (error) => {
       toast.dismiss(toastId());
