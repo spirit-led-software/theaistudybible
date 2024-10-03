@@ -56,7 +56,7 @@ export const webapp = cluster.addService('WebAppService', {
   },
   scaling: {
     min: 1,
-    max: $app.stage === 'production' ? 2 : 1,
+    max: $app.stage === 'production' ? 4 : 1,
     cpuUtilization: 75,
     memoryUtilization: 75,
   },
