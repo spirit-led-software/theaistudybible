@@ -54,12 +54,6 @@ export const webapp = cluster.addService('WebAppService', {
       }),
     },
   },
-  scaling: {
-    min: 1,
-    max: $app.stage === 'production' ? 2 : 1,
-    cpuUtilization: 90,
-    memoryUtilization: 90,
-  },
   dev: {
     autostart: true,
     directory: 'apps/www',

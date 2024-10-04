@@ -326,9 +326,9 @@ async function processBooks(
   generateEmbeddings: boolean,
 ) {
   for (const bookInfo of bookInfos) {
-    console.log(`Processing book: ${bookInfo.abbreviation}...`);
-    const book = books.find((b) => b.abbreviation === bookInfo.abbreviation);
-    if (!book) throw new Error(`Book ${bookInfo.abbreviation} not found`);
+    console.log(`Processing book: ${bookInfo.code}...`);
+    const book = books.find((b) => b.code === bookInfo.code);
+    if (!book) throw new Error(`Book ${bookInfo.code} not found`);
 
     const bookFile = zipFile.file(bookInfo.src);
     if (!bookFile) throw new Error(`Book file ${bookInfo.src} not found`);

@@ -34,7 +34,7 @@
     "@hono/zod-validator": "^0.3.0",
     "@internationalized/date": "^3.5.6",
     "@kobalte/core": "^0.13.6",
-    "@modular-forms/solid": "^0.23.0",
+    "@modular-forms/solid": "^0.24.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@sentry/bun": "^8.33.1",
     "@sentry/solidstart": "^8.33.1",
@@ -66,7 +66,7 @@
     "solid-marked": "^0.6.3",
     "solid-sonner": "^0.2.8",
     "solid-transition-group": "^0.2.3",
-    "tailwind-merge": "^2.5.2",
+    "tailwind-merge": "^2.5.3",
     "tailwind-variants": "^0.2.1",
     "tailwindcss-animate": "^1.0.7",
     "vinxi": "^0.4.3"
