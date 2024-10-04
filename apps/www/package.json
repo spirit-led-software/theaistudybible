@@ -34,7 +34,7 @@
     "@hono/zod-validator": "^0.3.0",
     "@internationalized/date": "^3.5.6",
     "@kobalte/core": "^0.13.6",
-    "@modular-forms/solid": "^0.24.0",
+    "@modular-forms/solid": "0.23.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@sentry/bun": "^8.33.1",
     "@sentry/solidstart": "^8.33.1",
