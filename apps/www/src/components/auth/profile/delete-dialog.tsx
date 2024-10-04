@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { useAuth } from '@/www/contexts/auth';
-import { auth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import { useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
@@ -17,17 +17,10 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 
-async function deleteUser() {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
+const deleteUser = serverFnRequiresAuth(async ({ user }) => {
   await db.delete(users).where(eq(users.id, user.id));
-
   return { success: true };
-}
+});
 
 export const DeleteProfileDialog = () => {
   const navigate = useNavigate();

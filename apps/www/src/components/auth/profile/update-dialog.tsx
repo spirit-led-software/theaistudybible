@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { type UpdateUser, UpdateUserSchema } from '@/schemas';
 import { useAuth } from '@/www/contexts/auth';
-import { auth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
@@ -18,16 +18,10 @@ import {
   TextFieldLabel,
 } from '../../ui/text-field';
 
-async function updateUser(values: UpdateUser) {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
+const updateUser = serverFnRequiresAuth(async ({ user }, values: UpdateUser) => {
   const [updatedUser] = await db.update(users).set(values).where(eq(users.id, user.id)).returning();
   return updatedUser;
-}
+});
 
 export const EditProfileDialog = () => {
   const { user, invalidate } = useAuth();

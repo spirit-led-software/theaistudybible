@@ -2,19 +2,18 @@ import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
+import { serverFn } from '@/www/server/server-fn';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 
-const getLatestDevotion = async () => {
-  'use server';
+const getLatestDevotion = serverFn(async () => {
   const devotion = await db.query.devotions.findFirst({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
   });
-
   return devotion ?? null;
-};
+});
 
 const getLatestDevotionQueryOptions = {
   queryKey: ['latest-devotion'],

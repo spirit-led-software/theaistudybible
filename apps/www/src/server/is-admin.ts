@@ -1,7 +1,5 @@
-import { auth } from './auth';
+import { serverFnWithAuth } from './server-fn';
 
-export function isAdmin() {
-  'use server';
-  const { roles } = auth();
+export const isAdmin = serverFnWithAuth(({ roles }) => {
   return roles?.some((role) => role.id === 'admin') ?? false;
-}
+});

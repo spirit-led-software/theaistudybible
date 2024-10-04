@@ -7,7 +7,7 @@ import { Button } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { auth } from '@/www/server/auth';
+import { serverFnWithAuth } from '@/www/server/server-fn';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -16,57 +16,57 @@ import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getNotes = async ({ limit, offset }: { limit: number; offset: number }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    return {
-      notes: [],
-      nextCursor: undefined,
-    };
-  }
-  const [verseNotes, chapterNotes] = await Promise.all([
-    db.query.verseNotes.findMany({
-      where: (verseNotes, { eq }) => eq(verseNotes.userId, user.id),
-      with: {
-        verse: {
-          columns: {
-            content: false,
-          },
-          with: {
-            chapter: {
-              columns: {
-                content: false,
-              },
+const getNotes = serverFnWithAuth(
+  async ({ user }, { limit, offset }: { limit: number; offset: number }) => {
+    if (!user) {
+      return {
+        notes: [],
+        nextCursor: undefined,
+      };
+    }
+    const [verseNotes, chapterNotes] = await Promise.all([
+      db.query.verseNotes.findMany({
+        where: (verseNotes, { eq }) => eq(verseNotes.userId, user.id),
+        with: {
+          verse: {
+            columns: {
+              content: false,
             },
-            bible: true,
-            book: true,
+            with: {
+              chapter: {
+                columns: {
+                  content: false,
+                },
+              },
+              bible: true,
+              book: true,
+            },
           },
         },
-      },
-      limit,
-      offset,
-    }),
-    db.query.chapterNotes.findMany({
-      where: (chapterNotes, { eq }) => eq(chapterNotes.userId, user.id),
-      with: {
-        chapter: {
-          columns: { content: false },
-          with: { bible: true, book: true },
+        limit,
+        offset,
+      }),
+      db.query.chapterNotes.findMany({
+        where: (chapterNotes, { eq }) => eq(chapterNotes.userId, user.id),
+        with: {
+          chapter: {
+            columns: { content: false },
+            with: { bible: true, book: true },
+          },
         },
-      },
-      limit,
-      offset,
-    }),
-  ]);
+        limit,
+        offset,
+      }),
+    ]);
 
-  const notes = [...verseNotes, ...chapterNotes];
+    const notes = [...verseNotes, ...chapterNotes];
 
-  return {
-    notes,
-    nextCursor: notes.length === limit ? offset + limit : undefined,
-  };
-};
+    return {
+      notes,
+      nextCursor: notes.length === limit ? offset + limit : undefined,
+    };
+  },
+);
 
 const getNotesQueryOptions = () => ({
   queryKey: ['notes'],

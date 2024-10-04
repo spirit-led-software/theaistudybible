@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/comp
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { auth } from '@/www/server/auth';
+import { serverFn, serverFnRequiresAuth } from '@/www/server/server-fn';
 import { Meta, Title } from '@solidjs/meta';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
@@ -14,8 +14,7 @@ import { createEffect } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { Stripe } from 'stripe';
 
-async function getProducts() {
-  'use server';
+const getProducts = serverFn(async () => {
   const productsListResponse = await stripe.products.list({
     expand: ['data.default_price'],
   });
@@ -23,15 +22,9 @@ async function getProducts() {
     (a, b) => Number(a.metadata.credits) - Number(b.metadata.credits),
   );
   return products;
-}
+});
 
-async function createCheckoutSession(product: Stripe.Product) {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
-
+const createCheckoutSession = serverFnRequiresAuth(async ({ user }, product: Stripe.Product) => {
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [
@@ -45,7 +38,7 @@ async function createCheckoutSession(product: Stripe.Product) {
     cancel_url: `${import.meta.env.PUBLIC_WEBSITE_URL}/credits?canceled=true`,
   });
   return checkoutSession;
-}
+});
 
 const getProductsQueryOptions = {
   queryKey: ['products-list'],

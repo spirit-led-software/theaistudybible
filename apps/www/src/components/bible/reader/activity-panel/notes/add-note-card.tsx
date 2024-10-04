@@ -23,42 +23,38 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { P } from '@/www/components/ui/typography';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const addNote = async (props: { chapterId: string; verseId?: string; content: string }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
+const addNote = serverFnRequiresAuth(
+  async ({ user }, props: { chapterId: string; verseId?: string; content: string }) => {
+    let note: VerseNote | ChapterNote;
+    if (props.verseId) {
+      [note] = await db
+        .insert(verseNotes)
+        .values({
+          userId: user.id,
+          verseId: props.verseId,
+          content: props.content,
+        })
+        .returning();
+    } else {
+      [note] = await db
+        .insert(chapterNotes)
+        .values({
+          userId: user.id,
+          chapterId: props.chapterId,
+          content: props.content,
+        })
+        .returning();
+    }
 
-  let note: VerseNote | ChapterNote;
-  if (props.verseId) {
-    [note] = await db
-      .insert(verseNotes)
-      .values({
-        userId: user.id,
-        verseId: props.verseId,
-        content: props.content,
-      })
-      .returning();
-  } else {
-    [note] = await db
-      .insert(chapterNotes)
-      .values({
-        userId: user.id,
-        chapterId: props.chapterId,
-        content: props.content,
-      })
-      .returning();
-  }
-
-  return note;
-};
+    return note;
+  },
+);
 
 export type AddNoteCardProps = {
   onAdd?: () => void;

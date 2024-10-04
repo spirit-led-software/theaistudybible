@@ -1,15 +1,14 @@
 import { getRequestEvent } from 'solid-js/web';
+import { serverFn } from './server-fn';
 
-export function auth() {
-  'use server';
+export const auth = serverFn(() => {
   const event = getRequestEvent();
   if (!event) {
     throw new Error('No event found');
   }
-
   return {
     session: event.locals.session,
     user: event.locals.user,
     roles: event.locals.roles,
   };
-}
+});

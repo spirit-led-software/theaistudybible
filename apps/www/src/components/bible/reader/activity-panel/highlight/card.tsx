@@ -9,7 +9,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
@@ -17,44 +17,36 @@ import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
-async function updateHighlights({ color, verseIds }: { color: string; verseIds: string[] }) {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
+const updateHighlights = serverFnRequiresAuth(
+  async ({ user }, { color, verseIds }: { color: string; verseIds: string[] }) => {
+    return await db
+      .insert(verseHighlights)
+      .values(
+        verseIds.map((id) => ({
+          color,
+          userId: user.id,
+          verseId: id,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: [verseHighlights.userId, verseHighlights.verseId],
+        set: {
+          color,
+        },
+      })
+      .returning();
+  },
+);
 
-  return await db
-    .insert(verseHighlights)
-    .values(
-      verseIds.map((id) => ({
-        color,
-        userId: user.id,
-        verseId: id,
-      })),
-    )
-    .onConflictDoUpdate({
-      target: [verseHighlights.userId, verseHighlights.verseId],
-      set: {
-        color,
-      },
-    })
-    .returning();
-}
+const deleteHighlights = serverFnRequiresAuth(
+  async ({ user }, { verseIds }: { verseIds: string[] }) => {
+    await db
+      .delete(verseHighlights)
+      .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
 
-async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
-  await db
-    .delete(verseHighlights)
-    .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
-
-  return { success: true };
-}
+    return { success: true };
+  },
+);
 
 export const HighlightCard = () => {
   const [brStore] = useBibleReaderStore();

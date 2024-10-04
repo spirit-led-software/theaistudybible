@@ -1,6 +1,7 @@
 import { db } from '@/core/database';
 import { toTitleCase } from '@/core/utils/string';
 import { cn } from '@/www/lib/utils';
+import { serverFn } from '@/www/server/server-fn';
 import { useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
@@ -22,8 +23,7 @@ import { Spinner } from '../ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
 
-const getDevotions = async ({ offset, limit }: { offset: number; limit: number }) => {
-  'use server';
+const getDevotions = serverFn(async ({ offset, limit }: { offset: number; limit: number }) => {
   const devotions = await db.query.devotions.findMany({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
     offset,
@@ -34,7 +34,7 @@ const getDevotions = async ({ offset, limit }: { offset: number; limit: number }
     devotions,
     nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
   };
-};
+});
 
 export const getDevotionsQueryOptions = {
   queryKey: ['devotions', { limit: 10 }],

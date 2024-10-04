@@ -17,7 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { auth } from '@/www/server/auth';
+import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -27,73 +27,71 @@ import { For, Match, Show, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
+const getBookmarks = serverFnWithAuth(
+  async ({ user }, { limit, offset }: { limit: number; offset: number }) => {
+    if (!user) {
+      return {
+        bookmarks: [],
+        nextCursor: undefined,
+      };
+    }
+    const [verseBookmarks, chapterBookmarks] = await Promise.all([
+      db.query.verseBookmarks.findMany({
+        where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, user.id),
+        with: {
+          verse: {
+            with: {
+              bible: { columns: { abbreviation: true } },
+              book: { columns: { code: true } },
+              chapter: { columns: { number: true } },
+            },
+          },
+        },
+        limit,
+        offset,
+      }),
+      db.query.chapterBookmarks.findMany({
+        where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, user.id),
+        with: {
+          chapter: {
+            columns: { content: false },
+            with: {
+              bible: { columns: { abbreviation: true } },
+              book: { columns: { code: true } },
+            },
+          },
+        },
+        limit,
+        offset,
+      }),
+    ]);
+
+    const bookmarks = [...verseBookmarks, ...chapterBookmarks];
+
     return {
-      bookmarks: [],
-      nextCursor: undefined,
+      bookmarks,
+      nextCursor: bookmarks.length === limit ? offset + limit : undefined,
     };
-  }
-  const [verseBookmarks, chapterBookmarks] = await Promise.all([
-    db.query.verseBookmarks.findMany({
-      where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, user.id),
-      with: {
-        verse: {
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-            chapter: { columns: { number: true } },
-          },
-        },
-      },
-      limit,
-      offset,
-    }),
-    db.query.chapterBookmarks.findMany({
-      where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, user.id),
-      with: {
-        chapter: {
-          columns: { content: false },
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-          },
-        },
-      },
-      limit,
-      offset,
-    }),
-  ]);
+  },
+);
 
-  const bookmarks = [...verseBookmarks, ...chapterBookmarks];
+const deleteBookmark = serverFnRequiresAuth(
+  async ({ user }, props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
+    if (props.type === 'verse') {
+      await db
+        .delete(verseBookmarks)
+        .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
+    } else {
+      await db
+        .delete(chapterBookmarks)
+        .where(
+          and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)),
+        );
+    }
 
-  return {
-    bookmarks,
-    nextCursor: bookmarks.length === limit ? offset + limit : undefined,
-  };
-};
-
-const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
-  if (props.type === 'verse') {
-    await db
-      .delete(verseBookmarks)
-      .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
-  } else {
-    await db
-      .delete(chapterBookmarks)
-      .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)));
-  }
-
-  return { success: true };
-};
+    return { success: true };
+  },
+);
 
 const getBookmarksQueryOptions = () => ({
   queryKey: ['bookmarks'],

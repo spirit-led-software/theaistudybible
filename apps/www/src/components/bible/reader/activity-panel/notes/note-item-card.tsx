@@ -19,57 +19,49 @@ import {
   TextFieldTextArea,
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { auth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
+const editNote = serverFnRequiresAuth(
+  async ({ user }, props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
+    let note: VerseNote | ChapterNote;
+    if (props.type === 'chapter') {
+      [note] = await db
+        .update(chapterNotes)
+        .set({ content: props.content })
+        .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)))
+        .returning();
+    } else {
+      [note] = await db
+        .update(verseNotes)
+        .set({ content: props.content })
+        .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
+        .returning();
+    }
 
-  let note: VerseNote | ChapterNote;
-  if (props.type === 'chapter') {
-    [note] = await db
-      .update(chapterNotes)
-      .set({ content: props.content })
-      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)))
-      .returning();
-  } else {
-    [note] = await db
-      .update(verseNotes)
-      .set({ content: props.content })
-      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
-      .returning();
-  }
+    return note;
+  },
+);
 
-  return note;
-};
+const deleteNote = serverFnRequiresAuth(
+  async ({ user }, props: { type: 'chapter' | 'verse'; noteId: string }) => {
+    if (props.type === 'chapter') {
+      await db
+        .delete(chapterNotes)
+        .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)));
+    } else {
+      await db
+        .delete(verseNotes)
+        .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
+    }
 
-const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
-  if (props.type === 'chapter') {
-    await db
-      .delete(chapterNotes)
-      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)));
-  } else {
-    await db
-      .delete(verseNotes)
-      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
-  }
-
-  return { success: true };
-};
+    return { success: true };
+  },
+);
 
 export type NoteItemCardProps = {
   note: ChapterNote | VerseNote;

@@ -4,17 +4,17 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';
 import { H2, P } from '@/www/components/ui/typography';
+import { serverFn } from '@/www/server/server-fn';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { Search } from 'lucide-solid';
 import { createMemo, createSignal } from 'solid-js';
 
-async function getBibles() {
-  'use server';
+const getBibles = serverFn(async () => {
   return await db.query.bibles.findMany({
     with: { biblesToLanguages: { with: { language: true } } },
   });
-}
+});
 
 export const largeTranslationPickerQueryOptions = {
   queryKey: ['bibles'],
