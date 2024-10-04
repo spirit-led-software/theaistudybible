@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { cn } from '@/www/lib/utils';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
@@ -24,8 +24,9 @@ import { H6 } from '../../ui/typography';
 import { DeleteChatButton } from './delete-chat-button';
 import { EditChatButton } from './edit-chat-button';
 
-const getChats = serverFnRequiresAuth(
+const getChats = requiresAuth(
   async ({ user }, { offset, limit }: { offset: number; limit: number }) => {
+    'use server';
     const chats = await db.query.chats.findMany({
       where: (chats, { eq }) => eq(chats.userId, user.id),
       orderBy: (chats, { desc }) => desc(chats.updatedAt),

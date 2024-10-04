@@ -4,7 +4,6 @@ import { H1, Muted } from '@/www/components/ui/typography';
 import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
-import { serverFn } from '@/www/server/server-fn';
 import { A, useNavigate } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -14,66 +13,65 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
 import { BibleReaderMenu } from '../reader/menu';
 
-const getVerseReaderData = serverFn(
-  async (props: {
-    bibleAbbr: string;
-    bookCode: string;
-    chapterNum: number;
-    verseNum: number;
-  }) => {
-    const bibleData = await db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
-      with: {
-        biblesToRightsHolders: { with: { rightsHolder: true } },
-        books: {
-          limit: 1,
-          where: (books, { eq }) => eq(books.code, props.bookCode),
-          with: {
-            chapters: {
-              columns: { content: false },
-              limit: 1,
-              where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
-              with: {
-                verses: {
-                  limit: 1,
-                  where: (verses, { eq }) => eq(verses.number, props.verseNum),
-                  with: { previous: true, next: true },
-                },
+const getVerseReaderData = async (props: {
+  bibleAbbr: string;
+  bookCode: string;
+  chapterNum: number;
+  verseNum: number;
+}) => {
+  'use server';
+  const bibleData = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
+    with: {
+      biblesToRightsHolders: { with: { rightsHolder: true } },
+      books: {
+        limit: 1,
+        where: (books, { eq }) => eq(books.code, props.bookCode),
+        with: {
+          chapters: {
+            columns: { content: false },
+            limit: 1,
+            where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
+            with: {
+              verses: {
+                limit: 1,
+                where: (verses, { eq }) => eq(verses.number, props.verseNum),
+                with: { previous: true, next: true },
               },
             },
           },
         },
       },
-    });
-    if (!bibleData) {
-      throw new Error('Bible not found');
-    }
+    },
+  });
+  if (!bibleData) {
+    throw new Error('Bible not found');
+  }
 
-    const { books, biblesToRightsHolders, ...bible } = bibleData;
-    if (!books[0]) {
-      throw new Error('Book not found');
-    }
+  const { books, biblesToRightsHolders, ...bible } = bibleData;
+  if (!books[0]) {
+    throw new Error('Book not found');
+  }
 
-    const { chapters, ...book } = books[0];
-    if (!chapters[0]) {
-      throw new Error('Chapter not found');
-    }
+  const { chapters, ...book } = books[0];
+  if (!chapters[0]) {
+    throw new Error('Chapter not found');
+  }
 
-    const { verses, ...chapter } = chapters[0];
-    if (!verses[0]) {
-      throw new Error('Verse not found');
-    }
-    const verse = verses[0];
+  const { verses, ...chapter } = chapters[0];
+  if (!verses[0]) {
+    throw new Error('Verse not found');
+  }
+  const verse = verses[0];
 
-    return {
-      bible,
-      book,
-      chapter,
-      verse,
-      rightsHolder: biblesToRightsHolders[0].rightsHolder,
-    };
-  },
-);
+  return {
+    bible,
+    book,
+    chapter,
+    verse,
+    rightsHolder: biblesToRightsHolders[0].rightsHolder,
+  };
+};
 
 export const getVerseReaderQueryOptions = (props: {
   bibleAbbr: string;

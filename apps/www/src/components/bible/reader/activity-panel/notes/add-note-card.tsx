@@ -23,14 +23,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { P } from '@/www/components/ui/typography';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const addNote = serverFnRequiresAuth(
+const addNote = requiresAuth(
   async ({ user }, props: { chapterId: string; verseId?: string; content: string }) => {
+    'use server';
     let note: VerseNote | ChapterNote;
     if (props.verseId) {
       [note] = await db

@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import { userCredits } from '@/core/database/schema';
 import { DEFAULT_CREDITS } from '@/core/utils/credits/default';
 import { cn } from '@/www/lib/utils';
-import { serverFnWithAuth } from '@/www/server/server-fn';
+import { withAuth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
@@ -12,7 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Spinner } from '../ui/spinner';
 import { H5, H6 } from '../ui/typography';
 
-export const getUserCredits = serverFnWithAuth(async ({ user }) => {
+export const getUserCredits = withAuth(async ({ user }) => {
+  'use server';
   if (!user) {
     return DEFAULT_CREDITS;
   }

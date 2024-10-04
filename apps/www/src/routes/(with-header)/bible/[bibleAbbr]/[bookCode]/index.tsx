@@ -1,7 +1,6 @@
 import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { serverFn } from '@/www/server/server-fn';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate, useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -11,7 +10,8 @@ export type BookRedirectUrlParams = {
   bookCode: string;
 };
 
-const getBookRedirectUrl = serverFn(async ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => {
+const getBookRedirectUrl = async ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => {
+  'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
     columns: { abbreviation: true },
@@ -46,7 +46,7 @@ const getBookRedirectUrl = serverFn(async ({ bibleAbbr, bookCode }: BookRedirect
   const chapter = chapters[0];
 
   return { redirectUrl: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}` };
-});
+};
 
 const getBookRedirectUrlQueryOptions = ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => ({
   queryKey: ['book-redirect', bibleAbbr, bookCode],

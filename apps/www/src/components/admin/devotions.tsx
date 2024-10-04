@@ -1,12 +1,13 @@
 import { generateDevotion } from '@/ai/devotion';
-import { serverFnRequiresRole } from '@/www/server/server-fn';
+import { requiresRole } from '@/www/server/auth';
 import { createMutation } from '@tanstack/solid-query';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
-const triggerGenerateDevotion = serverFnRequiresRole('admin', async () => {
+const triggerGenerateDevotion = requiresRole('admin', async () => {
+  'use server';
   return await generateDevotion();
 });
 

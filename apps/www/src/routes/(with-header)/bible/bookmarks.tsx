@@ -17,7 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
+import { requiresAuth, withAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -27,8 +27,9 @@ import { For, Match, Show, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getBookmarks = serverFnWithAuth(
+const getBookmarks = withAuth(
   async ({ user }, { limit, offset }: { limit: number; offset: number }) => {
+    'use server';
     if (!user) {
       return {
         bookmarks: [],
@@ -75,8 +76,9 @@ const getBookmarks = serverFnWithAuth(
   },
 );
 
-const deleteBookmark = serverFnRequiresAuth(
+const deleteBookmark = requiresAuth(
   async ({ user }, props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
+    'use server';
     if (props.type === 'verse') {
       await db
         .delete(verseBookmarks)

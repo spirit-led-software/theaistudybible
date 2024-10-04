@@ -17,7 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
+import { requiresAuth, withAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -27,8 +27,9 @@ import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getHighlights = serverFnWithAuth(
+const getHighlights = withAuth(
   async ({ user }, { limit, offset }: { limit: number; offset: number }) => {
+    'use server';
     if (!user) {
       return {
         highlights: [],
@@ -57,7 +58,8 @@ const getHighlights = serverFnWithAuth(
   },
 );
 
-const deleteHighlight = serverFnRequiresAuth(async ({ user }, highlightId: string) => {
+const deleteHighlight = requiresAuth(async ({ user }, highlightId: string) => {
+  'use server';
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));

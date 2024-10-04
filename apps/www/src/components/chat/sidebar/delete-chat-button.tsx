@@ -12,14 +12,15 @@ import {
 } from '@/www/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { useNavigate } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Trash } from 'lucide-solid';
 
-const deleteChat = serverFnRequiresAuth(async ({ user }, chatId: string) => {
+const deleteChat = requiresAuth(async ({ user }, chatId: string) => {
+  'use server';
   await db.delete(chats).where(and(eq(chats.userId, user.id), eq(chats.id, chatId)));
   return { success: true };
 });

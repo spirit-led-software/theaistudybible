@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { useAuth } from '@/www/contexts/auth';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import { useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
@@ -17,7 +17,8 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 
-const deleteUser = serverFnRequiresAuth(async ({ user }) => {
+const deleteUser = requiresAuth(async ({ user }) => {
+  'use server';
   await db.delete(users).where(eq(users.id, user.id));
   return { success: true };
 });

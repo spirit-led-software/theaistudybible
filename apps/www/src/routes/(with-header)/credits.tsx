@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/comp
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { serverFn, serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
@@ -14,7 +14,8 @@ import { createEffect } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { Stripe } from 'stripe';
 
-const getProducts = serverFn(async () => {
+const getProducts = async () => {
+  'use server';
   const productsListResponse = await stripe.products.list({
     expand: ['data.default_price'],
   });
@@ -22,9 +23,10 @@ const getProducts = serverFn(async () => {
     (a, b) => Number(a.metadata.credits) - Number(b.metadata.credits),
   );
   return products;
-});
+};
 
-const createCheckoutSession = serverFnRequiresAuth(async ({ user }, product: Stripe.Product) => {
+const createCheckoutSession = requiresAuth(async ({ user }, product: Stripe.Product) => {
+  'use server';
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [

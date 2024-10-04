@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { useAuth } from '@/www/contexts/auth';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
@@ -19,8 +19,9 @@ import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../ui/avatar';
 
-const requestUpload = serverFnRequiresAuth(
+const requestUpload = requiresAuth(
   async ({ user }, props: { name: string; contentType: string; size: number }) => {
+    'use server';
     const key = `${user.id}/${createId()}_${props.name}`;
     const presignedUrl = await getSignedUrl(
       s3,

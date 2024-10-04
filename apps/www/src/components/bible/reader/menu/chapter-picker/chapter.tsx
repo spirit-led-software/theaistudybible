@@ -11,7 +11,6 @@ import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFn } from '@/www/server/server-fn';
 import { A } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
@@ -22,44 +21,43 @@ type GetChapterPickerDataProps = {
   bookCode: string;
 };
 
-const getChapterPickerData = serverFn(
-  async ({ bibleAbbr, bookCode }: GetChapterPickerDataProps) => {
-    const bibleData = await db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
-      columns: { id: true },
-      with: {
-        books: {
-          limit: 1,
-          where: (books, { eq }) => eq(books.code, bookCode),
-          columns: { code: true },
-          with: {
-            chapters: {
-              orderBy: (chapters, { asc }) => asc(chapters.number),
-              columns: { id: true, number: true },
-            },
+const getChapterPickerData = async ({ bibleAbbr, bookCode }: GetChapterPickerDataProps) => {
+  'use server';
+  const bibleData = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    columns: { id: true },
+    with: {
+      books: {
+        limit: 1,
+        where: (books, { eq }) => eq(books.code, bookCode),
+        columns: { code: true },
+        with: {
+          chapters: {
+            orderBy: (chapters, { asc }) => asc(chapters.number),
+            columns: { id: true, number: true },
           },
         },
       },
-    });
+    },
+  });
 
-    if (!bibleData) {
-      throw new Error('Bible not found');
-    }
+  if (!bibleData) {
+    throw new Error('Bible not found');
+  }
 
-    const { books, ...bible } = bibleData;
-    if (!books[0]) {
-      throw new Error('Book not found');
-    }
+  const { books, ...bible } = bibleData;
+  if (!books[0]) {
+    throw new Error('Book not found');
+  }
 
-    const { chapters, ...book } = books[0];
+  const { chapters, ...book } = books[0];
 
-    return {
-      bible,
-      book,
-      chapters,
-    };
-  },
-);
+  return {
+    bible,
+    book,
+    chapters,
+  };
+};
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],

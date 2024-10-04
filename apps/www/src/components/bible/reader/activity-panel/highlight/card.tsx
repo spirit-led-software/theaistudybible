@@ -9,7 +9,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { requiresAuth } from '@/www/server/auth';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
@@ -17,8 +17,9 @@ import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
-const updateHighlights = serverFnRequiresAuth(
+const updateHighlights = requiresAuth(
   async ({ user }, { color, verseIds }: { color: string; verseIds: string[] }) => {
+    'use server';
     return await db
       .insert(verseHighlights)
       .values(
@@ -38,15 +39,13 @@ const updateHighlights = serverFnRequiresAuth(
   },
 );
 
-const deleteHighlights = serverFnRequiresAuth(
-  async ({ user }, { verseIds }: { verseIds: string[] }) => {
-    await db
-      .delete(verseHighlights)
-      .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
-
-    return { success: true };
-  },
-);
+const deleteHighlights = requiresAuth(async ({ user }, { verseIds }: { verseIds: string[] }) => {
+  'use server';
+  await db
+    .delete(verseHighlights)
+    .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
+  return { success: true };
+});
 
 export const HighlightCard = () => {
   const [brStore] = useBibleReaderStore();

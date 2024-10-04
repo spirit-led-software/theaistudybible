@@ -1,6 +1,6 @@
 import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
-import { serverFnRequiresRole } from '@/www/server/server-fn';
+import { requiresRole } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
@@ -20,7 +20,7 @@ import {
   NumberFieldInput,
 } from '../ui/number-field';
 
-const requestUpload = serverFnRequiresRole(
+const requestUpload = requiresRole(
   'admin',
   async (
     _,
@@ -36,6 +36,7 @@ const requestUpload = serverFnRequiresRole(
       generateEmbeddings: boolean;
     },
   ) => {
+    'use server';
     const metadata: Record<string, string> = {
       'generate-embeddings': generateEmbeddings.toString(),
     };
