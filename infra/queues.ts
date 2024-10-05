@@ -1,7 +1,5 @@
 export const deadLetterQueue = new sst.aws.Queue('DeadLetterQueue');
-deadLetterQueue.subscribe('apps/functions/src/queues/subscribers/dead-letter.handler', {
-  transform: { eventSourceMapping: { maximumRetryAttempts: 3 } },
-});
+deadLetterQueue.subscribe('apps/functions/src/queues/subscribers/dead-letter.handler');
 
 export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
   visibilityTimeout: '15 minutes',
