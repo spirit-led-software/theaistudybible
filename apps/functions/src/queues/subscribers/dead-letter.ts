@@ -17,7 +17,7 @@ export const handler: SQSHandler = async (event) => {
   );
 
   if (response.Failed?.length) {
-    throw new Error(
+    console.log(
       `Failed to send message(s) to email queue: ${response.Failed.map((f) => f.Id).join(', ')}`,
     );
   }
