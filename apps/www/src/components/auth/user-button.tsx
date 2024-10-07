@@ -1,5 +1,6 @@
 import { lucia } from '@/core/auth';
 import { useAuth } from '@/www/contexts/auth';
+import { serverFn } from '@/www/server/server-fn';
 import { action, redirect, useAction, useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
@@ -10,12 +11,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { H6 } from '../ui/typography';
 import { UserAvatar } from './user-avatar';
 
-const signOutAction = action(() => {
-  'use server';
-  const cookie = lucia.createBlankSessionCookie();
-  appendHeader('Set-Cookie', cookie.serialize());
-  throw redirect('/');
-});
+const signOutAction = action(
+  serverFn(() => {
+    const cookie = lucia.createBlankSessionCookie();
+    appendHeader('Set-Cookie', cookie.serialize());
+    throw redirect('/');
+  }),
+);
 
 export type UserButtonProps = {
   showName?: boolean;

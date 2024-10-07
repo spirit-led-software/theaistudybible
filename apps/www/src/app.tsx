@@ -22,18 +22,17 @@ import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
+import { serverFn } from './server/server-fn';
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
 
 const SentryRouter = withSentryRouterRouting(Router);
 
-export const getServerCookies = () => {
-  'use server';
-
+export const getServerCookies = serverFn(() => {
   const colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
   return colorMode ? `${COLOR_MODE_STORAGE_KEY}=${colorMode}` : '';
-};
+});
 
 export default function App() {
   const queryClient = new QueryClient({

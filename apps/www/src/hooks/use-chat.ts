@@ -13,10 +13,9 @@ import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
-import { requiresAuth } from '../server/auth';
+import { serverFnRequiresAuth } from '../server/server-fn';
 
-const getChat = requiresAuth(async ({ user }, chatId: string) => {
-  'use server';
+const getChat = serverFnRequiresAuth(async ({ user }, chatId: string) => {
   const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
@@ -33,7 +32,7 @@ export const getChatQueryProps = (chatId?: string) => ({
   },
 });
 
-const getChatMessages = requiresAuth(
+const getChatMessages = serverFnRequiresAuth(
   async (
     { user },
     {
@@ -46,7 +45,6 @@ const getChatMessages = requiresAuth(
       offset: number;
     },
   ) => {
-    'use server';
     const messages = await db.query.messages.findMany({
       where: (messages, { eq, and, or, ne }) =>
         and(
@@ -82,8 +80,7 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
 });
 
-const getChatSuggestions = requiresAuth(async ({ user }, chatId: string) => {
-  'use server';
+const getChatSuggestions = serverFnRequiresAuth(async ({ user }, chatId: string) => {
   const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,

@@ -19,16 +19,15 @@ import {
   TextFieldTextArea,
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { requiresAuth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const editNote = requiresAuth(
+const editNote = serverFnRequiresAuth(
   async ({ user }, props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
-    'use server';
     let note: VerseNote | ChapterNote;
     if (props.type === 'chapter') {
       [note] = await db
@@ -48,9 +47,8 @@ const editNote = requiresAuth(
   },
 );
 
-const deleteNote = requiresAuth(
+const deleteNote = serverFnRequiresAuth(
   async ({ user }, props: { type: 'chapter' | 'verse'; noteId: string }) => {
-    'use server';
     if (props.type === 'chapter') {
       await db
         .delete(chapterNotes)

@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { messageReactions } from '@/core/database/schema';
-import { requiresAuth, withAuth } from '@/www/server/auth';
+import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
@@ -10,8 +10,7 @@ import { Button } from '../../ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';
 import { TextField, TextFieldTextArea } from '../../ui/text-field';
 
-const getReactions = withAuth(async ({ user }, messageId: string) => {
-  'use server';
+const getReactions = serverFnWithAuth(async ({ user }, messageId: string) => {
   if (!user) {
     return null;
   }
@@ -24,7 +23,7 @@ const getReactions = withAuth(async ({ user }, messageId: string) => {
   return reaction ?? null;
 });
 
-const addReaction = requiresAuth(
+const addReaction = serverFnRequiresAuth(
   async (
     { user },
     props: {
@@ -33,7 +32,6 @@ const addReaction = requiresAuth(
       messageId: string;
     },
   ) => {
-    'use server';
     const [reaction] = await db
       .insert(messageReactions)
       .values({
@@ -54,8 +52,7 @@ const addReaction = requiresAuth(
   },
 );
 
-const removeReaction = requiresAuth(async ({ user }, props: { messageId: string }) => {
-  'use server';
+const removeReaction = serverFnRequiresAuth(async ({ user }, props: { messageId: string }) => {
   await db
     .delete(messageReactions)
     .where(

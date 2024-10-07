@@ -18,15 +18,14 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
-import { requiresAuth } from '@/www/server/auth';
+import { serverFnRequiresAuth } from '@/www/server/server-fn';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';
 
-const editChat = requiresAuth(async ({ user }, props: { chatId: string; name: string }) => {
-  'use server';
+const editChat = serverFnRequiresAuth(async ({ user }, props: { chatId: string; name: string }) => {
   const [chat] = await db
     .update(chats)
     .set({

@@ -5,19 +5,22 @@ import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { requiresAuth, withAuth } from '@/www/server/auth';
+import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 
-const getSelectionBookmarked = withAuth(async ({ user }, props: { verseIds: string[] }) => {
-  'use server';
+const getSelectionBookmarked = serverFnWithAuth(async ({ user }, props: { verseIds: string[] }) => {
   if (!props.verseIds.length) {
-    return { isBookmarked: false };
+    return {
+      isBookmarked: false,
+    };
   }
 
   if (!user) {
-    return { isBookmarked: false };
+    return {
+      isBookmarked: false,
+    };
   }
 
   const bookmarks = await db
@@ -27,11 +30,12 @@ const getSelectionBookmarked = withAuth(async ({ user }, props: { verseIds: stri
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
     );
 
-  return { isBookmarked: bookmarks.length === props.verseIds.length };
+  return {
+    isBookmarked: bookmarks.length === props.verseIds.length,
+  };
 });
 
-const bookmarkVerses = requiresAuth(async ({ user }, props: { verseIds: string[] }) => {
-  'use server';
+const bookmarkVerses = serverFnRequiresAuth(async ({ user }, props: { verseIds: string[] }) => {
   await db
     .insert(verseBookmarks)
     .values(
@@ -45,8 +49,7 @@ const bookmarkVerses = requiresAuth(async ({ user }, props: { verseIds: string[]
   return { success: true };
 });
 
-const unbookmarkVerses = requiresAuth(async ({ user }, props: { verseIds: string[] }) => {
-  'use server';
+const unbookmarkVerses = serverFnRequiresAuth(async ({ user }, props: { verseIds: string[] }) => {
   await db
     .delete(verseBookmarks)
     .where(

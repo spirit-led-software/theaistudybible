@@ -7,7 +7,7 @@ import { Button } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { withAuth } from '@/www/server/auth';
+import { serverFnWithAuth } from '@/www/server/server-fn';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -16,9 +16,8 @@ import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getNotes = withAuth(
+const getNotes = serverFnWithAuth(
   async ({ user }, { limit, offset }: { limit: number; offset: number }) => {
-    'use server';
     if (!user) {
       return {
         notes: [],

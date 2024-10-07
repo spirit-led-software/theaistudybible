@@ -15,10 +15,9 @@ import {
 } from './activity-panel';
 import Contents from './contents/contents';
 import './contents/contents.css';
-import { withAuth } from '@/www/server/auth';
+import { serverFnWithAuth } from '@/www/server/server-fn';
 
-const getHighlights = withAuth(async ({ user }, chapterId: string) => {
-  'use server';
+const getHighlights = serverFnWithAuth(async ({ user }, chapterId: string) => {
   if (!user) {
     return [];
   }
@@ -39,8 +38,7 @@ const getHighlights = withAuth(async ({ user }, chapterId: string) => {
     });
 });
 
-const getNotes = withAuth(async ({ user }, chapterId: string) => {
-  'use server';
+const getNotes = serverFnWithAuth(async ({ user }, chapterId: string) => {
   if (!user) {
     return [];
   }

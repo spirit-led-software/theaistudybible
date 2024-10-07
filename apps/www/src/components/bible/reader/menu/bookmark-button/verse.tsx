@@ -6,28 +6,25 @@ import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { requiresAuth, withAuth } from '@/www/server/auth';
+import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 import { toast } from 'solid-sonner';
 
-const addBookmark = requiresAuth(async ({ user }, verseId: string) => {
-  'use server';
+const addBookmark = serverFnRequiresAuth(async ({ user }, verseId: string) => {
   await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
   return { success: true };
 });
 
-const deleteBookmark = requiresAuth(async ({ user }, verseId: string) => {
-  'use server';
+const deleteBookmark = serverFnRequiresAuth(async ({ user }, verseId: string) => {
   await db
     .delete(verseBookmarks)
     .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)));
   return { success: true };
 });
 
-const getBookmark = withAuth(async ({ user }, verseId: string) => {
-  'use server';
+const getBookmark = serverFnWithAuth(async ({ user }, verseId: string) => {
   if (!user) {
     return null;
   }

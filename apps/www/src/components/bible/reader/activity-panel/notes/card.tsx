@@ -8,7 +8,7 @@ import { DrawerClose } from '@/www/components/ui/drawer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { H5, P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { withAuth } from '@/www/server/auth';
+import { serverFnWithAuth } from '@/www/server/server-fn';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { Plus } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
@@ -17,7 +17,7 @@ import { Transition, TransitionGroup } from 'solid-transition-group';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 
-const getNotes = withAuth(
+const getNotes = serverFnWithAuth(
   async (
     { user },
     props: {
@@ -27,7 +27,6 @@ const getNotes = withAuth(
       limit: number;
     },
   ) => {
-    'use server';
     if (!user) {
       return {
         notes: [],
