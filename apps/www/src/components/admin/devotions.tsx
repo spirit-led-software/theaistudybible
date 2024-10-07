@@ -1,14 +1,19 @@
 import { generateDevotion } from '@/ai/devotion';
-import { serverFnRequiresRole } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { createMutation } from '@tanstack/solid-query';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
-const triggerGenerateDevotion = serverFnRequiresRole('admin', async () => {
+const triggerGenerateDevotion = async () => {
+  'use server';
+  const { roles } = auth();
+  if (!roles?.some((role) => role.id === 'admin')) {
+    throw new Error('You must be an admin to access this resource.');
+  }
   return await generateDevotion();
-});
+};
 
 export const DevotionsContent = () => {
   const [toastId, setToastId] = createSignal<string | number>();

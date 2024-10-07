@@ -18,14 +18,20 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';
 
-const editChat = serverFnRequiresAuth(async ({ user }, props: { chatId: string; name: string }) => {
+const editChat = async (props: { chatId: string; name: string }) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('User is not authenticated');
+  }
+
   const [chat] = await db
     .update(chats)
     .set({
@@ -36,7 +42,7 @@ const editChat = serverFnRequiresAuth(async ({ user }, props: { chatId: string; 
     .returning();
 
   return chat;
-});
+};
 
 export type EditChatButtonProps = {
   chat: Chat;

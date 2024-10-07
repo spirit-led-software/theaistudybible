@@ -5,18 +5,20 @@ import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 
-const getSelectionBookmarked = serverFnWithAuth(async ({ user }, props: { verseIds: string[] }) => {
+const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
+  'use server';
   if (!props.verseIds.length) {
     return {
       isBookmarked: false,
     };
   }
 
+  const { user } = auth();
   if (!user) {
     return {
       isBookmarked: false,
@@ -33,9 +35,15 @@ const getSelectionBookmarked = serverFnWithAuth(async ({ user }, props: { verseI
   return {
     isBookmarked: bookmarks.length === props.verseIds.length,
   };
-});
+};
 
-const bookmarkVerses = serverFnRequiresAuth(async ({ user }, props: { verseIds: string[] }) => {
+const bookmarkVerses = async (props: { verseIds: string[] }) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('Not signed in');
+  }
+
   await db
     .insert(verseBookmarks)
     .values(
@@ -47,9 +55,15 @@ const bookmarkVerses = serverFnRequiresAuth(async ({ user }, props: { verseIds: 
     .onConflictDoNothing();
 
   return { success: true };
-});
+};
 
-const unbookmarkVerses = serverFnRequiresAuth(async ({ user }, props: { verseIds: string[] }) => {
+const unbookmarkVerses = async (props: { verseIds: string[] }) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('Not signed in');
+  }
+
   await db
     .delete(verseBookmarks)
     .where(
@@ -57,7 +71,7 @@ const unbookmarkVerses = serverFnRequiresAuth(async ({ user }, props: { verseIds
     );
 
   return { success: true };
-});
+};
 
 export const BookmarkButton = () => {
   const { isSignedIn } = useAuth();

@@ -8,7 +8,7 @@ import { DrawerClose } from '@/www/components/ui/drawer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { H5, P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFnWithAuth } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { Plus } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
@@ -17,55 +17,52 @@ import { Transition, TransitionGroup } from 'solid-transition-group';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 
-const getNotes = serverFnWithAuth(
-  async (
-    { user },
-    props: {
-      chapterId: string;
-      verseIds?: string[];
-      offset: number;
-      limit: number;
-    },
-  ) => {
-    if (!user) {
-      return {
-        notes: [],
-        nextCursor: undefined,
-      };
-    }
-
-    let notes = [];
-    if (props.verseIds?.length) {
-      notes = await db.query.verseNotes.findMany({
-        where: (verseNotes, { and, eq, inArray }) =>
-          and(eq(verseNotes.userId, user.id), inArray(verseNotes.verseId, props.verseIds!)),
-        orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
-        offset: props.offset,
-        limit: props.limit,
-        with: {
-          verse: {
-            columns: { content: false },
-            with: { book: true, chapter: { columns: { content: false } }, bible: true },
-          },
-        },
-      });
-    } else {
-      notes = await db.query.chapterNotes.findMany({
-        where: (chapterNotes, { and, eq }) =>
-          and(eq(chapterNotes.userId, user.id), eq(chapterNotes.chapterId, props.chapterId)),
-        orderBy: (chapterNotes, { desc }) => desc(chapterNotes.updatedAt),
-        offset: props.offset,
-        limit: props.limit,
-        with: { chapter: { columns: { content: false }, with: { book: true, bible: true } } },
-      });
-    }
-
+const getNotes = async (props: {
+  chapterId: string;
+  verseIds?: string[];
+  offset: number;
+  limit: number;
+}) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
     return {
-      notes,
-      nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined,
+      notes: [],
+      nextCursor: undefined,
     };
-  },
-);
+  }
+
+  let notes = [];
+  if (props.verseIds?.length) {
+    notes = await db.query.verseNotes.findMany({
+      where: (verseNotes, { and, eq, inArray }) =>
+        and(eq(verseNotes.userId, user.id), inArray(verseNotes.verseId, props.verseIds!)),
+      orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
+      offset: props.offset,
+      limit: props.limit,
+      with: {
+        verse: {
+          columns: { content: false },
+          with: { book: true, chapter: { columns: { content: false } }, bible: true },
+        },
+      },
+    });
+  } else {
+    notes = await db.query.chapterNotes.findMany({
+      where: (chapterNotes, { and, eq }) =>
+        and(eq(chapterNotes.userId, user.id), eq(chapterNotes.chapterId, props.chapterId)),
+      orderBy: (chapterNotes, { desc }) => desc(chapterNotes.updatedAt),
+      offset: props.offset,
+      limit: props.limit,
+      with: { chapter: { columns: { content: false }, with: { book: true, bible: true } } },
+    });
+  }
+
+  return {
+    notes,
+    nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined,
+  };
+};
 
 export const NotesCard = () => {
   const [brStore] = useBibleReaderStore();

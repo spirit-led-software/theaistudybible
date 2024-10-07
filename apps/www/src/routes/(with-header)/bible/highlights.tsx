@@ -17,7 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -27,42 +27,49 @@ import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getHighlights = serverFnWithAuth(
-  async ({ user }, { limit, offset }: { limit: number; offset: number }) => {
-    if (!user) {
-      return {
-        highlights: [],
-        nextCursor: undefined,
-      };
-    }
-    const highlights = await db.query.verseHighlights.findMany({
-      where: (verseHighlights, { eq }) => eq(verseHighlights.userId, user.id),
-      with: {
-        verse: {
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-            chapter: { columns: { number: true } },
-          },
+const getHighlights = async ({ limit, offset }: { limit: number; offset: number }) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    return {
+      highlights: [],
+      nextCursor: undefined,
+    };
+  }
+  const highlights = await db.query.verseHighlights.findMany({
+    where: (verseHighlights, { eq }) => eq(verseHighlights.userId, user.id),
+    with: {
+      verse: {
+        with: {
+          bible: { columns: { abbreviation: true } },
+          book: { columns: { code: true } },
+          chapter: { columns: { number: true } },
         },
       },
-      limit,
-      offset,
-    });
+    },
+    limit,
+    offset,
+  });
 
-    return {
-      highlights,
-      nextCursor: highlights.length === limit ? offset + limit : undefined,
-    };
-  },
-);
+  return {
+    highlights,
+    nextCursor: highlights.length === limit ? offset + limit : undefined,
+  };
+};
 
-const deleteHighlight = serverFnRequiresAuth(async ({ user }, highlightId: string) => {
+const deleteHighlight = async (highlightId: string) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('Not signed in');
+  }
+
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
+
   return { success: true };
-});
+};
 
 const getHighlightsQueryOptions = () => ({
   queryKey: ['highlights'],

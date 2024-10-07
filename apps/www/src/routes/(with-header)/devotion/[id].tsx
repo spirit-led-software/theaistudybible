@@ -7,20 +7,21 @@ import { Markdown } from '@/www/components/ui/markdown';
 import { H2 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { serverFn } from '@/www/server/server-fn';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { Show, createEffect } from 'solid-js';
 
-const getDevotion = serverFn(async ({ id }: { id: string }) => {
+const getDevotion = async ({ id }: { id: string }) => {
+  'use server';
   const devotion = await db.query.devotions.findFirst({
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
   });
+
   return devotion ?? null;
-});
+};
 
 const getDevotionQueryProps = ({ id }: { id: string }) => ({
   queryKey: ['devotion', { id }],

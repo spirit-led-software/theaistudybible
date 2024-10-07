@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { useAuth } from '@/www/contexts/auth';
-import { serverFnRequiresAuth } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
@@ -19,26 +19,30 @@ import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../ui/avatar';
 
-const requestUpload = serverFnRequiresAuth(
-  async ({ user }, props: { name: string; contentType: string; size: number }) => {
-    const key = `${user.id}/${createId()}_${props.name}`;
-    const presignedUrl = await getSignedUrl(
-      s3,
-      new PutObjectCommand({
-        Bucket: Resource.ProfileImagesBucket.name,
-        Key: key,
-        ContentType: props.contentType,
-        ContentLength: props.size,
-        Metadata: {
-          'user-id': user.id,
-        },
-      }),
-      { expiresIn: 3600 },
-    );
+async function requestUpload(props: { name: string; contentType: string; size: number }) {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
 
-    return { presignedUrl };
-  },
-);
+  const key = `${user.id}/${createId()}_${props.name}`;
+  const presignedUrl = await getSignedUrl(
+    s3,
+    new PutObjectCommand({
+      Bucket: Resource.ProfileImagesBucket.name,
+      Key: key,
+      ContentType: props.contentType,
+      ContentLength: props.size,
+      Metadata: {
+        'user-id': user.id,
+      },
+    }),
+    { expiresIn: 3600 },
+  );
+
+  return { presignedUrl };
+}
 
 export function UpdateAvatarDialog() {
   const { user, invalidate } = useAuth();

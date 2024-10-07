@@ -6,25 +6,41 @@ import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFnRequiresAuth, serverFnWithAuth } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 import { toast } from 'solid-sonner';
 
-const addBookmark = serverFnRequiresAuth(async ({ user }, chapterId: string) => {
-  await db.insert(chapterBookmarks).values({ chapterId, userId: user.id }).onConflictDoNothing();
-  return { success: true };
-});
+const addBookmark = async (chapterId: string) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('Not signed in');
+  }
 
-const deleteBookmark = serverFnRequiresAuth(async ({ user }, chapterId: string) => {
+  await db.insert(chapterBookmarks).values({ chapterId, userId: user.id }).onConflictDoNothing();
+
+  return { success: true };
+};
+
+const deleteBookmark = async (chapterId: string) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('Not signed in');
+  }
+
   await db
     .delete(chapterBookmarks)
     .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)));
-  return { success: true };
-});
 
-const getBookmark = serverFnWithAuth(async ({ user }, chapterId: string) => {
+  return { success: true };
+};
+
+const getBookmark = async (chapterId: string) => {
+  'use server';
+  const { user } = auth();
   if (!user) {
     return null;
   }
@@ -32,8 +48,9 @@ const getBookmark = serverFnWithAuth(async ({ user }, chapterId: string) => {
     where: (chapterBookmarks, { and, eq }) =>
       and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)),
   });
+
   return bookmark ?? null;
-});
+};
 
 export const getChapterBookmarkQueryOptions = ({
   userId,

@@ -12,17 +12,17 @@ import {
 } from '@/www/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { serverFn } from '@/www/server/server-fn';
 import { useNavigate } from '@solidjs/router';
 import { createQuery } from '@tanstack/solid-query';
 import { Check, ChevronsUpDown } from 'lucide-solid';
 import { createMemo } from 'solid-js';
 
-const getSmallPickerData = serverFn(async () => {
+async function getSmallPickerData() {
+  'use server';
   return await db.query.bibles.findMany({
     with: { biblesToLanguages: { with: { language: true } } },
   });
-});
+}
 
 export const smallTranslationPickerQueryOptions = () => ({
   queryKey: ['small-translation-picker'],

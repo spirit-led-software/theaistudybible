@@ -1,6 +1,6 @@
 import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
-import { serverFnRequiresRole } from '@/www/server/server-fn';
+import { auth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
@@ -20,44 +20,44 @@ import {
   NumberFieldInput,
 } from '../ui/number-field';
 
-const requestUpload = serverFnRequiresRole(
-  'admin',
-  async (
-    _,
-    {
-      name,
-      size,
-      publicationId,
-      generateEmbeddings,
-    }: {
-      name: string;
-      size: number;
-      publicationId?: string;
-      generateEmbeddings: boolean;
-    },
-  ) => {
-    const metadata: Record<string, string> = {
-      'generate-embeddings': generateEmbeddings.toString(),
-    };
-    if (publicationId) {
-      metadata['publication-id'] = publicationId;
-    }
+async function requestUpload({
+  name,
+  size,
+  publicationId,
+  generateEmbeddings,
+}: {
+  name: string;
+  size: number;
+  publicationId?: string;
+  generateEmbeddings: boolean;
+}) {
+  'use server';
+  const { roles } = auth();
+  if (!roles?.some((role) => role.id === 'admin')) {
+    throw new Error('You must be an admin to access this resource.');
+  }
 
-    const presignedUrl = await getSignedUrl(
-      s3,
-      new PutObjectCommand({
-        Bucket: Resource.BibleBucket.name,
-        Key: `${createId()}_${name}`,
-        ContentLength: size,
-        ContentType: 'application/zip',
-        Metadata: metadata,
-      }),
-      { expiresIn: 60 * 60 * 24 },
-    );
+  const metadata: Record<string, string> = {
+    'generate-embeddings': generateEmbeddings.toString(),
+  };
+  if (publicationId) {
+    metadata['publication-id'] = publicationId;
+  }
 
-    return { presignedUrl };
-  },
-);
+  const presignedUrl = await getSignedUrl(
+    s3,
+    new PutObjectCommand({
+      Bucket: Resource.BibleBucket.name,
+      Key: `${createId()}_${name}`,
+      ContentLength: size,
+      ContentType: 'application/zip',
+      Metadata: metadata,
+    }),
+    { expiresIn: 60 * 60 * 24 },
+  );
+
+  return { presignedUrl };
+}
 
 export const BiblesContent = () => {
   const [publicationId, setPublicationId] = createSignal<string>();

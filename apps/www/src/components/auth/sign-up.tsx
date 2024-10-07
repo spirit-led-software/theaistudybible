@@ -1,7 +1,6 @@
 import { signUp } from '@/core/auth/providers/credentials';
 import { signUpSchema } from '@/core/auth/providers/credentials/schemas';
 import { useAuth } from '@/www/contexts/auth';
-import { serverFn } from '@/www/server/server-fn';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { A, action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
@@ -20,13 +19,12 @@ export type SignUpProps = {
   redirectUrl?: string;
 };
 
-const signUpAction = action(
-  serverFn(async (values: z.infer<typeof signUpSchema>, redirectUrl = '/') => {
-    const cookie = await signUp(values);
-    appendHeader('Set-Cookie', cookie.serialize());
-    throw redirect(redirectUrl);
-  }),
-);
+const signUpAction = action(async (values: z.infer<typeof signUpSchema>, redirectUrl = '/') => {
+  'use server';
+  const cookie = await signUp(values);
+  appendHeader('Set-Cookie', cookie.serialize());
+  throw redirect(redirectUrl);
+});
 
 export const SignUp = (props: SignUpProps) => {
   const { invalidate } = useAuth();

@@ -13,14 +13,20 @@ import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
-import { serverFnRequiresAuth } from '../server/server-fn';
+import { auth } from '../server/auth';
 
-const getChat = serverFnRequiresAuth(async ({ user }, chatId: string) => {
+const getChat = async (chatId: string) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('User is not authenticated');
+  }
   const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
+
   return chat ?? null;
-});
+};
 
 export const getChatQueryProps = (chatId?: string) => ({
   queryKey: ['chat', { chatId: chatId ?? null }],
@@ -32,38 +38,38 @@ export const getChatQueryProps = (chatId?: string) => ({
   },
 });
 
-const getChatMessages = serverFnRequiresAuth(
-  async (
-    { user },
-    {
-      chatId,
-      limit,
-      offset,
-    }: {
-      chatId: string;
-      limit: number;
-      offset: number;
-    },
-  ) => {
-    const messages = await db.query.messages.findMany({
-      where: (messages, { eq, and, or, ne }) =>
-        and(
-          eq(messages.userId, user.id),
-          eq(messages.chatId, chatId),
-          eq(messages.regenerated, false),
-          or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
-        ),
-      limit,
-      offset,
-      orderBy: (messages, { desc }) => desc(messages.createdAt),
-    });
+const getChatMessages = async ({
+  chatId,
+  limit,
+  offset,
+}: {
+  chatId: string;
+  limit: number;
+  offset: number;
+}) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('User is not authenticated');
+  }
+  const messages = await db.query.messages.findMany({
+    where: (messages, { eq, and, or, ne }) =>
+      and(
+        eq(messages.userId, user.id),
+        eq(messages.chatId, chatId),
+        eq(messages.regenerated, false),
+        or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
+      ),
+    limit,
+    offset,
+    orderBy: (messages, { desc }) => desc(messages.createdAt),
+  });
 
-    return {
-      messages,
-      nextCursor: messages.length === limit ? offset + messages.length : undefined,
-    };
-  },
-);
+  return {
+    messages,
+    nextCursor: messages.length === limit ? offset + messages.length : undefined,
+  };
+};
 
 export const getChatMessagesQueryProps = (chatId?: string) => ({
   queryKey: ['chat-messages', { chatId: chatId ?? null }],
@@ -80,7 +86,13 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
 });
 
-const getChatSuggestions = serverFnRequiresAuth(async ({ user }, chatId: string) => {
+const getChatSuggestions = async (chatId: string) => {
+  'use server';
+  const { user } = auth();
+  if (!user) {
+    throw new Error('User is not authenticated');
+  }
+
   const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,
@@ -108,7 +120,7 @@ These questions must drive the conversation forward and be thought-provoking.`,
   });
 
   return object.suggestions;
-});
+};
 
 export const getChatSuggestionsQueryProps = (chatId?: string) => ({
   queryKey: ['chat-suggestions', { chatId: chatId ?? null }],

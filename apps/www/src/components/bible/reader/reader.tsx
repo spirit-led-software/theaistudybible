@@ -2,6 +2,7 @@ import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { auth } from '@/www/server/auth';
 import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
@@ -15,9 +16,10 @@ import {
 } from './activity-panel';
 import Contents from './contents/contents';
 import './contents/contents.css';
-import { serverFnWithAuth } from '@/www/server/server-fn';
 
-const getHighlights = serverFnWithAuth(async ({ user }, chapterId: string) => {
+async function getHighlights(chapterId: string) {
+  'use server';
+  const { user } = auth();
   if (!user) {
     return [];
   }
@@ -36,9 +38,11 @@ const getHighlights = serverFnWithAuth(async ({ user }, chapterId: string) => {
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.highlights) || [];
     });
-});
+}
 
-const getNotes = serverFnWithAuth(async ({ user }, chapterId: string) => {
+async function getNotes(chapterId: string) {
+  'use server';
+  const { user } = auth();
   if (!user) {
     return [];
   }
@@ -57,7 +61,7 @@ const getNotes = serverFnWithAuth(async ({ user }, chapterId: string) => {
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.notes) || [];
     });
-});
+}
 
 export type ReaderContentProps = {
   contents: Content[];
