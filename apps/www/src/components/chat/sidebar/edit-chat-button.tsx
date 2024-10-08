@@ -18,7 +18,7 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
@@ -27,11 +27,7 @@ import { createEffect, createSignal } from 'solid-js';
 
 const editChat = async (props: { chatId: string; name: string }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User is not authenticated');
-  }
-
+  const { user } = requireAuth();
   const [chat] = await db
     .update(chats)
     .set({
@@ -40,7 +36,6 @@ const editChat = async (props: { chatId: string; name: string }) => {
     })
     .where(and(eq(chats.userId, user.id), eq(chats.id, props.chatId)))
     .returning();
-
   return chat;
 };
 

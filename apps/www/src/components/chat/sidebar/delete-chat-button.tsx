@@ -12,7 +12,7 @@ import {
 } from '@/www/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { useNavigate } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -21,13 +21,8 @@ import { Trash } from 'lucide-solid';
 
 const deleteChat = async (chatId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User is not authenticated');
-  }
-
+  const { user } = requireAuth();
   await db.delete(chats).where(and(eq(chats.userId, user.id), eq(chats.id, chatId)));
-
   return { success: true };
 };
 

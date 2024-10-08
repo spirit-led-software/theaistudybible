@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { cn } from '@/www/lib/utils';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
@@ -26,18 +26,13 @@ import { EditChatButton } from './edit-chat-button';
 
 const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User is not authenticated');
-  }
-
+  const { user } = requireAuth();
   const chats = await db.query.chats.findMany({
     where: (chats, { eq }) => eq(chats.userId, user.id),
     orderBy: (chats, { desc }) => desc(chats.updatedAt),
     offset,
     limit,
   });
-
   return {
     chats,
     nextCursor: chats.length === limit ? offset + chats.length : undefined,

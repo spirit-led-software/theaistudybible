@@ -17,7 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { auth } from '@/www/server/auth';
+import { auth, requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -59,15 +59,10 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
 
 const deleteHighlight = async (highlightId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
-
   return { success: true };
 };
 

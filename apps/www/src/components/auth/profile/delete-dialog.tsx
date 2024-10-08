@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { useAuth } from '@/www/contexts/auth';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
@@ -19,13 +19,8 @@ import {
 
 async function deleteUser() {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
+  const { user } = requireAuth();
   await db.delete(users).where(eq(users.id, user.id));
-
   return { success: true };
 }
 

@@ -13,18 +13,14 @@ import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
-import { auth } from '../server/auth';
+import { requireAuth } from '../server/auth';
 
 const getChat = async (chatId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User is not authenticated');
-  }
+  const { user } = requireAuth();
   const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
-
   return chat ?? null;
 };
 
@@ -48,10 +44,7 @@ const getChatMessages = async ({
   offset: number;
 }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User is not authenticated');
-  }
+  const { user } = requireAuth();
   const messages = await db.query.messages.findMany({
     where: (messages, { eq, and, or, ne }) =>
       and(
@@ -64,7 +57,6 @@ const getChatMessages = async ({
     offset,
     orderBy: (messages, { desc }) => desc(messages.createdAt),
   });
-
   return {
     messages,
     nextCursor: messages.length === limit ? offset + messages.length : undefined,
@@ -88,11 +80,7 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
 
 const getChatSuggestions = async (chatId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User is not authenticated');
-  }
-
+  const { user } = requireAuth();
   const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,
@@ -118,7 +106,6 @@ These questions must drive the conversation forward and be thought-provoking.`,
     // @ts-expect-error - convertToCoreMessages is not typed
     messages: convertToCoreMessages(messages),
   });
-
   return object.suggestions;
 };
 

@@ -39,9 +39,14 @@ export const useAuth = () => {
   };
 };
 
+const getAuth = () => {
+  'use server';
+  return auth();
+};
+
 export const authProviderQueryOptions = {
   queryKey: ['auth-context'],
-  queryFn: () => auth(),
+  queryFn: () => getAuth(),
 };
 
 export type AuthProviderProps = {

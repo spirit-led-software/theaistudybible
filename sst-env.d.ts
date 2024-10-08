@@ -35,6 +35,10 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
+    "DeadLetterQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "Dev": {
       "type": "sst.sst.Linkable"
       "value": string
@@ -110,14 +114,6 @@ declare module "sst" {
       "restToken": string
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
-    }
-    "Vpc": {
-      "type": "sst.aws.Vpc"
-    }
-    "WebAppService": {
-      "service": string
-      "type": "sst.aws.Service"
-      "url": string
     }
     "WebhooksApi": {
       "type": "sst.sst.Linkable"

@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { useAuth } from '@/www/contexts/auth';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';
@@ -21,11 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../../ui/avatar';
 
 async function requestUpload(props: { name: string; contentType: string; size: number }) {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
+  const { user } = requireAuth();
   const key = `${user.id}/${createId()}_${props.name}`;
   const presignedUrl = await getSignedUrl(
     s3,
@@ -40,7 +36,6 @@ async function requestUpload(props: { name: string; contentType: string; size: n
     }),
     { expiresIn: 3600 },
   );
-
   return { presignedUrl };
 }
 

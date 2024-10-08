@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     preset: 'bun',
     plugins: ['./sentry.plugin.ts'],
-    // @ts-expect-error - This is the correct format
+    // @ts-expect-error - We know this is valid format
     compatibilityDate: formatDate(new Date(), 'yyyy-MM-dd'),
   },
   vite: {

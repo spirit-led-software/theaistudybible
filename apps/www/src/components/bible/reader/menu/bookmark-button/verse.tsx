@@ -6,7 +6,7 @@ import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { auth, requireAuth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
@@ -14,27 +14,17 @@ import { toast } from 'solid-sonner';
 
 const addBookmark = async (verseId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
-
   return { success: true };
 };
 
 const deleteBookmark = async (verseId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db
     .delete(verseBookmarks)
     .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)));
-
   return { success: true };
 };
 

@@ -9,7 +9,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
@@ -19,11 +19,7 @@ import { HighlightColorPicker } from './color-picker';
 
 async function updateHighlights({ color, verseIds }: { color: string; verseIds: string[] }) {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   return await db
     .insert(verseHighlights)
     .values(
@@ -44,15 +40,10 @@ async function updateHighlights({ color, verseIds }: { color: string; verseIds: 
 
 async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
-
   return { success: true };
 }
 
@@ -84,7 +75,7 @@ export const HighlightCard = () => {
     },
   }));
 
-  const [tgValue, setTgValue] = createSignal<string | undefined>();
+  const [tgValue, setTgValue] = createSignal<string | null>(null);
   const [customColor, setCustomColor] = createSignal<string>();
 
   return (
@@ -129,7 +120,7 @@ export const HighlightCard = () => {
             onClick={() =>
               addHighlightsMutation.mutate({
                 verseIds: brStore.selectedVerseInfos.map((v) => v.id),
-                color: tgValue() === 'custom' ? customColor() : tgValue(),
+                color: tgValue() === 'custom' ? customColor() : tgValue() || undefined,
               })
             }
           >

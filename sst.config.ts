@@ -8,23 +8,28 @@ export default $config({
         region: 'us-east-1',
       },
       cloudflare: true,
+      docker: true,
+      'docker-build': true,
+      hcloud: true,
       'pulumi-stripe': true,
       '@pulumiverse/sentry': true,
+      tls: true,
       '@upstash/pulumi': true,
     },
   }),
   run: async () => {
     await import('./infra/defaults');
-    await import('./infra/constants');
+    const { DOMAIN } = await import('./infra/constants');
     await import('./infra/secrets');
     const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');
-    const { cdn } = await import('./infra/storage');
     await import('./infra/queues');
     const { webhooksApi } = await import('./infra/webhooks');
     await import('./infra/email');
     await import('./infra/monitoring');
-    const { webapp } = await import('./infra/www');
     await import('./infra/jobs');
+    const { cdn } = await import('./infra/cdn');
+    const { vps } = await import('./infra/vps');
+    await import('./infra/www');
     await import('./infra/dev');
 
     return {
@@ -32,7 +37,7 @@ export default $config({
       'Database URL': database.properties.url,
       'Redis Endpoint': upstashRedis.endpoint,
       'Vector Store Endpoint': upstashVectorIndex.endpoint,
-      'Web App URL': webapp.url,
+      'Web App URL': vps ? `https://${DOMAIN.value}` : 'Not available in dev',
       'Webhooks API URL': webhooksApi.properties.url,
     };
   },

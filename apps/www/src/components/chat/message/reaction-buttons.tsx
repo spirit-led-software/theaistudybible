@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { messageReactions } from '@/core/database/schema';
-import { auth } from '@/www/server/auth';
+import { auth, requireAuth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
@@ -31,11 +31,7 @@ const addReaction = async (props: {
   messageId: string;
 }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   const [reaction] = await db
     .insert(messageReactions)
     .values({
@@ -51,23 +47,17 @@ const addReaction = async (props: {
       },
     })
     .returning();
-
   return reaction;
 };
 
 const removeReaction = async (props: { messageId: string }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db
     .delete(messageReactions)
     .where(
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, props.messageId)),
     );
-
   return { success: true };
 };
 

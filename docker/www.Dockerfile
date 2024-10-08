@@ -1,0 +1,71 @@
+FROM oven/bun:1-slim as base
+
+########################################################
+# Install
+########################################################
+FROM base as install
+
+WORKDIR /install
+
+COPY ./package.json ./package.json
+COPY ./apps/functions/package.json ./apps/functions/package.json
+COPY ./apps/www/package.json ./apps/www/package.json
+COPY ./packages/ai/package.json ./packages/ai/package.json
+COPY ./packages/core/package.json ./packages/core/package.json
+COPY ./packages/schemas/package.json ./packages/schemas/package.json
+COPY ./tools/scripts/package.json ./tools/scripts/package.json
+COPY ./tools/tsconfig/package.json ./tools/tsconfig/package.json
+COPY ./bun.lockb ./bun.lockb
+
+RUN bun install --frozen-lockfile
+
+########################################################
+# Build
+########################################################
+FROM base AS build
+
+ARG sentry_org
+ARG sentry_project
+ARG sentry_auth_token
+ARG sentry_dsn
+ARG website_url
+ARG cdn_url
+ARG stripe_publishable_key
+ARG stage
+
+WORKDIR /build
+
+RUN apt update \
+&& apt install -y git \
+&& rm -rf /var/lib/apt/lists/* \
+&& apt clean
+
+COPY --from=install /install/node_modules ./node_modules
+
+ENV SENTRY_RELEASE=${stage}
+ENV SENTRY_ORG=${sentry_org}
+ENV SENTRY_PROJECT=${sentry_project}
+ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
+ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
+ENV PUBLIC_WEBSITE_URL=${website_url}
+ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
+ENV PUBLIC_STAGE=${stage}
+
+COPY . .
+RUN bun run build
+
+########################################################
+# Release
+########################################################
+FROM base AS release
+
+WORKDIR /app
+
+ENV NODE_ENV="production"
+
+COPY --from=build /build/apps/www/.output .
+
+EXPOSE 3000
+
+CMD [ "bun", "run", "./server/index.mjs" ]

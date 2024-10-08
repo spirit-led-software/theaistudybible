@@ -15,12 +15,8 @@ import { H5, H6 } from '../ui/typography';
 export async function getUserCredits() {
   'use server';
   const { user } = auth();
-  if (!user) {
-    return DEFAULT_CREDITS;
-  }
-
+  if (!user) return DEFAULT_CREDITS;
   const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, user.id));
-
   return userCredit?.balance ?? DEFAULT_CREDITS;
 }
 

@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { type UpdateUser, UpdateUserSchema } from '@/schemas';
 import { useAuth } from '@/www/contexts/auth';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
@@ -20,11 +20,7 @@ import {
 
 async function updateUser(values: UpdateUser) {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
+  const { user } = requireAuth();
   const [updatedUser] = await db.update(users).set(values).where(eq(users.id, user.id)).returning();
   return updatedUser;
 }

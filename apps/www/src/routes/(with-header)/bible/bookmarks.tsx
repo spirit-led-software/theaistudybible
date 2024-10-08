@@ -17,7 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { auth } from '@/www/server/auth';
+import { auth, requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -77,11 +77,7 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
 
 const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   if (props.type === 'verse') {
     await db
       .delete(verseBookmarks)
@@ -91,7 +87,6 @@ const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: st
       .delete(chapterBookmarks)
       .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)));
   }
-
   return { success: true };
 };
 

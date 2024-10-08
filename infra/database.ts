@@ -37,7 +37,8 @@ sst.Linkable.wrap(upstash.RedisDatabase, (resource) => ({
 }));
 export const upstashRedis = new upstash.RedisDatabase('UpstashRedis', {
   databaseName: `${$app.name}-${$app.stage}`,
-  region: 'us-east-1',
+  region: 'global',
+  primaryRegion: 'us-east-1',
   tls: true,
   eviction: true,
   autoScale: true,

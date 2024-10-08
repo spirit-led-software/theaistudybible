@@ -5,7 +5,7 @@ import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { auth, requireAuth } from '@/www/server/auth';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
@@ -20,9 +20,7 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
 
   const { user } = auth();
   if (!user) {
-    return {
-      isBookmarked: false,
-    };
+    return { isBookmarked: false };
   }
 
   const bookmarks = await db
@@ -32,18 +30,12 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
     );
 
-  return {
-    isBookmarked: bookmarks.length === props.verseIds.length,
-  };
+  return { isBookmarked: bookmarks.length === props.verseIds.length };
 };
 
 const bookmarkVerses = async (props: { verseIds: string[] }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db
     .insert(verseBookmarks)
     .values(
@@ -53,23 +45,17 @@ const bookmarkVerses = async (props: { verseIds: string[] }) => {
       })),
     )
     .onConflictDoNothing();
-
   return { success: true };
 };
 
 const unbookmarkVerses = async (props: { verseIds: string[] }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   await db
     .delete(verseBookmarks)
     .where(
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
     );
-
   return { success: true };
 };
 

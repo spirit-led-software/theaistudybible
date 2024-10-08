@@ -13,6 +13,9 @@ node_modules
 # Dockerfiles
 /docker
 
+# Turbo
+.turbo
+
 # SolidStart Build Output
 .output
 .vinxi

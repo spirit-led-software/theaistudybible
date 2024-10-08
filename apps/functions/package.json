@@ -8,8 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@theaistudybible/tsconfig": "workspace:*",
-    "@types/aws-lambda": "^8.10.145"
+    "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
     "@theaistudybible/ai": "workspace:*",

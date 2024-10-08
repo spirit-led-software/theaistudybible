@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/comp
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import { type RouteDefinition, useSearchParams } from '@solidjs/router';
 import { loadStripe } from '@stripe/stripe-js';
@@ -27,11 +27,7 @@ async function getProducts() {
 
 async function createCheckoutSession(product: Stripe.Product) {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
-
+  const { user } = requireAuth();
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [

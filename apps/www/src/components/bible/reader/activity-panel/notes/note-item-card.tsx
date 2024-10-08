@@ -19,7 +19,7 @@ import {
   TextFieldTextArea,
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { auth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
@@ -28,11 +28,7 @@ import { Show, createSignal } from 'solid-js';
 
 const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   let note: VerseNote | ChapterNote;
   if (props.type === 'chapter') {
     [note] = await db
@@ -47,17 +43,12 @@ const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; cont
       .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
       .returning();
   }
-
   return note;
 };
 
 const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    throw new Error('Not signed in');
-  }
-
+  const { user } = requireAuth();
   if (props.type === 'chapter') {
     await db
       .delete(chapterNotes)
@@ -67,7 +58,6 @@ const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) 
       .delete(verseNotes)
       .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
   }
-
   return { success: true };
 };
 
