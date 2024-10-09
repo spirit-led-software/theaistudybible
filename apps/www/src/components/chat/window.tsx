@@ -57,7 +57,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [messages, setMessages] = createStore(useChatResult.messages());
   createEffect(
     on(useChatResult.messages, (messages) => {
-      setMessages(reconcile(messages, { merge: true }));
+      setMessages(reconcile(messages));
     }),
   );
 

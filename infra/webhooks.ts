@@ -1,4 +1,4 @@
-import { CLOUDFLARE_ZONE_ID, DOMAIN } from './constants';
+import { CLOUDFLARE_ZONE, DOMAIN } from './constants';
 import { Constant } from './resources';
 
 export const WEBHOOKS_DOMAIN = new Constant('WebhooksDomain', `webhooks.${DOMAIN.value}`);
@@ -18,7 +18,7 @@ const webhooksApiFn = new sst.aws.Function('WebhooksApiFunction', {
 });
 
 new cloudflare.Record('WebhooksApiRecord', {
-  zoneId: CLOUDFLARE_ZONE_ID,
+  zoneId: CLOUDFLARE_ZONE.zoneId,
   type: 'CNAME',
   name: WEBHOOKS_DOMAIN.value,
   value: webhooksApiFn.url.apply((url) => new URL(url).hostname),

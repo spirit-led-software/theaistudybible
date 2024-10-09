@@ -120,7 +120,8 @@ export const ReaderContent = (props: ReaderContentProps) => {
   return (
     <>
       <Title>
-        {brStore.verse ? brStore.verse.name : brStore.chapter.name} | Bible | The AI Study Bible
+        {brStore.verse ? brStore.verse.name : brStore.chapter.name} |{' '}
+        {brStore.bible.abbreviationLocal} | The AI Study Bible
       </Title>
       <div class='eb-container w-full select-none'>
         <Contents

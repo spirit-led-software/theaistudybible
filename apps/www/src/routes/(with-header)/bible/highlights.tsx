@@ -74,9 +74,9 @@ const getHighlightsQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
+    await qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
   },
 };
 
@@ -95,12 +95,7 @@ const HighlightsPage = () => {
   );
   createEffect(() => {
     if (!highlightsQuery.isLoading && highlightsQuery.data) {
-      setHighlights(
-        reconcile(
-          highlightsQuery.data.pages.flatMap((page) => page.highlights),
-          { merge: true },
-        ),
-      );
+      setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));
     }
   });
 

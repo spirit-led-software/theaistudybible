@@ -98,9 +98,9 @@ const getBookmarksQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+    await qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
   },
 };
 
@@ -119,12 +119,7 @@ const BookmarksPage = () => {
   );
   createEffect(() => {
     if (!bookmarksQuery.isLoading && bookmarksQuery.data) {
-      setBookmarks(
-        reconcile(
-          bookmarksQuery.data.pages.flatMap((page) => page.bookmarks),
-          { merge: true },
-        ),
-      );
+      setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
     }
   });
 

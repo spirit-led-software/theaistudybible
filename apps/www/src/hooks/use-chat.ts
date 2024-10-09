@@ -153,8 +153,8 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       }
       return props()?.onResponse?.(response);
     },
-    onFinish: (message, options) => {
-      void Promise.all([
+    onFinish: async (message, options) => {
+      await Promise.all([
         chatQuery.refetch(),
         messagesQuery.refetch(),
         followUpSuggestionsQuery.refetch(),
@@ -169,48 +169,34 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     },
   }));
 
-  const chatQuery = createQuery(() => ({
-    ...getChatQueryProps(chatId()),
-    keepPreviousData: true,
-    placeholderData: null,
-  }));
-  const chat = createMemo(() => chatQuery.data);
+  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+  const chat = createMemo(() => {
+    if (!chatQuery.isLoading && chatQuery.data) {
+      return chatQuery.data;
+    }
+    return null;
+  });
 
-  const messagesQuery = createInfiniteQuery(() => ({
-    ...getChatMessagesQueryProps(chatId()),
-    keepPreviousData: true,
-    placeholderData: {
-      pages: [
-        {
-          messages: [],
-          nextCursor: undefined,
-        },
-      ],
-      pageParams: [0],
-    },
-  }));
-  createEffect(
-    on(
-      () => messagesQuery.data,
-      (data) => {
-        if (!useChatResult.isLoading()) {
-          useChatResult.setMessages(
-            data?.pages
-              ?.flatMap((page) => [...page.messages])
-              .toReversed()
-              .map((message) => ({
-                ...message,
-                createdAt: new Date(message.createdAt),
-                content: message.content ?? '',
-                tool_call_id: message.tool_call_id ?? undefined,
-                annotations: message.annotations ?? undefined,
-                toolInvocations: message.toolInvocations ?? undefined,
-              })) ?? [],
-          );
-        }
-      },
-    ),
-  );
+  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  createEffect(() => {
+    if (!messagesQuery.isLoading && messagesQuery.data) {
+      if (!useChatResult.isLoading()) {
+        useChatResult.setMessages(
+          messagesQuery.data.pages
+            .flatMap((page) => [...page.messages])
+            .toReversed()
+            .map((message) => ({
+              ...message,
+              createdAt: new Date(message.createdAt),
+              content: message.content ?? '',
+              tool_call_id: message.tool_call_id ?? undefined,
+              annotations: message.annotations ?? undefined,
+              toolInvocations: message.toolInvocations ?? undefined,
+            })),
+        );
+      }
+    }
+  });
 
   const followUpSuggestionsQuery = createQuery(() => ({
     ...getChatSuggestionsQueryProps(chatId()),
@@ -226,7 +212,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   );
   createEffect(() => {
     if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
-      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data, { merge: true }));
+      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
     }
   });
 

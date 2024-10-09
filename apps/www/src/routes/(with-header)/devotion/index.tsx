@@ -22,9 +22,9 @@ const getLatestDevotionQueryOptions = {
 };
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    qc.prefetchQuery(getLatestDevotionQueryOptions);
+    await qc.prefetchQuery(getLatestDevotionQueryOptions);
   },
 };
 

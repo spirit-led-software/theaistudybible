@@ -76,9 +76,9 @@ const getNotesQueryOptions = () => ({
 });
 
 export const route: RouteDefinition = {
-  preload: () => {
+  preload: async () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getNotesQueryOptions());
+    await qc.prefetchInfiniteQuery(getNotesQueryOptions());
   },
 };
 
@@ -92,12 +92,7 @@ const NotesPage = () => {
   );
   createEffect(() => {
     if (!notesQuery.isLoading && notesQuery.data) {
-      setNotes(
-        reconcile(
-          notesQuery.data.pages.flatMap((page) => page.notes),
-          { merge: true },
-        ),
-      );
+      setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes)));
     }
   });
 

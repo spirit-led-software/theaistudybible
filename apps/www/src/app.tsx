@@ -47,17 +47,17 @@ export default function App() {
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
 
   return (
-    <MetaProvider>
-      <Title>The AI Study Bible</Title>
-      <Meta
-        name='description'
-        content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
-      />
-      <QueryClientProvider client={queryClient}>
-        <ColorModeScript storageType={storageManager.type} />
-        <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
-          <SentryRouter
-            root={(props) => (
+    <SentryRouter
+      root={(props) => (
+        <MetaProvider>
+          <Title>The AI Study Bible</Title>
+          <Meta
+            name='description'
+            content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
+          />
+          <QueryClientProvider client={queryClient}>
+            <ColorModeScript storageType={storageManager.type} />
+            <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
               <SentryErrorBoundary
                 fallback={(err, reset) => (
                   <div class='flex h-full w-full items-center justify-center'>
@@ -86,12 +86,12 @@ export default function App() {
                   </AuthProvider>
                 </Suspense>
               </SentryErrorBoundary>
-            )}
-          >
-            <FileRoutes />
-          </SentryRouter>
-        </ColorModeProvider>
-      </QueryClientProvider>
-    </MetaProvider>
+            </ColorModeProvider>
+          </QueryClientProvider>
+        </MetaProvider>
+      )}
+    >
+      <FileRoutes />
+    </SentryRouter>
   );
 }

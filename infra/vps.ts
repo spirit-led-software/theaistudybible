@@ -1,13 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {
-  CLOUDFLARE_IPV4_RANGES,
-  CLOUDFLARE_IPV6_RANGES,
-  CLOUDFLARE_ZONE_ID,
-  DOMAIN,
-} from './constants';
+import { CLOUDFLARE_IP_RANGES, CLOUDFLARE_ZONE, DOMAIN } from './constants';
 import { allLinks } from './defaults';
-import { email } from './email';
 import { buildLinks } from './helpers/link';
 import * as queues from './queues';
 import { cloudflareHelpers } from './resources';
@@ -25,7 +19,7 @@ if (!$dev) {
       Statement: [
         {
           Effect: 'Allow',
-          Action: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
+          Action: ['s3:GetObject', 's3:PutObject'],
           Resource: Object.values(storage).flatMap((b) => [
             b.nodes.bucket.arn,
             $interpolate`${b.nodes.bucket.arn}/*`,
@@ -35,11 +29,6 @@ if (!$dev) {
           Effect: 'Allow',
           Action: ['sqs:SendMessage'],
           Resource: Object.values(queues).map((q) => q.arn),
-        },
-        {
-          Effect: 'Allow',
-          Action: ['ses:SendEmail', 'ses:SendRawEmail'],
-          Resource: [email.nodes.identity.arn],
         },
       ],
     },
@@ -167,17 +156,43 @@ if (!$dev) {
 
   const webAppNginxConf = $interpolate`
 server {
-  listen 443 ssl;
   server_name ${DOMAIN.value} ${vps.ipv4Address} ${vps.ipv6Address};
+
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2 ipv6only=on;
+
   ssl_certificate /etc/nginx/ssl/cert.pem;
   ssl_certificate_key /etc/nginx/ssl/key.pem;
 
-  ${CLOUDFLARE_IPV4_RANGES.map((range) => `allow ${range};`).join('\n')}
-  ${CLOUDFLARE_IPV6_RANGES.map((range) => `allow ${range};`).join('\n')}
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 1d;
+  ssl_session_tickets off;
+
+  ${CLOUDFLARE_IP_RANGES.ipv4CidrBlocks.apply((blocks) =>
+    blocks.map((block) => `allow ${block};`).join('\n'),
+  )}
+  ${CLOUDFLARE_IP_RANGES.ipv6CidrBlocks.apply((blocks) =>
+    blocks.map((block) => `allow ${block};`).join('\n'),
+  )}
   deny all;
 
   location / {
     proxy_pass http://${webAppContainer.name}:3000;
+    proxy_set_header Host \\$host;
+    proxy_set_header X-Real-IP \\$remote_addr;
+    proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \\$scheme;
+
+    proxy_connect_timeout 300s;
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
+
+    proxy_request_buffering off;
+    proxy_buffering off;
+    proxy_redirect off;
   }
 }
 `;
@@ -219,14 +234,14 @@ server {
   );
 
   new cloudflare.Record('WebAppIpv4Record', {
-    zoneId: CLOUDFLARE_ZONE_ID,
+    zoneId: CLOUDFLARE_ZONE.zoneId,
     type: 'A',
     name: $app.stage === 'production' ? '@' : $app.stage,
     value: vps.ipv4Address,
     proxied: true,
   });
   new cloudflare.Record('WebAppIpv6Record', {
-    zoneId: CLOUDFLARE_ZONE_ID,
+    zoneId: CLOUDFLARE_ZONE.zoneId,
     type: 'AAAA',
     name: $app.stage === 'production' ? '@' : $app.stage,
     value: vps.ipv6Address,
@@ -238,7 +253,7 @@ server {
       `${$app.stage}-CacheRuleset`,
       {
         kind: 'zone',
-        zoneId: CLOUDFLARE_ZONE_ID,
+        zoneId: CLOUDFLARE_ZONE.zoneId,
         name: `${$app.stage}-cacheruleset`,
         phase: 'http_request_cache_settings',
         rules: [
@@ -261,7 +276,11 @@ server {
     );
     new cloudflareHelpers.PurgeCache(
       'PurgeCache',
-      { zoneId: CLOUDFLARE_ZONE_ID, purge_everything: true },
+      {
+        zoneId: CLOUDFLARE_ZONE.zoneId,
+        triggers: [webAppContainer.id],
+        purge_everything: true,
+      },
       { dependsOn: [ruleset] },
     );
   }

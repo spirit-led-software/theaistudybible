@@ -29,10 +29,10 @@ const getDevotionQueryProps = ({ id }: { id: string }) => ({
 });
 
 export const route: RouteDefinition = {
-  preload: ({ params }) => {
+  preload: async ({ params }) => {
     const { id } = params;
     const qc = useQueryClient();
-    Promise.all([
+    await Promise.all([
       qc.prefetchInfiniteQuery(getDevotionsQueryOptions),
       qc.prefetchQuery(getDevotionQueryProps({ id })),
     ]);

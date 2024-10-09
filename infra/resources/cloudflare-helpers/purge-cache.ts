@@ -1,5 +1,6 @@
 export type PurgeCacheInputs = {
   zoneId: $util.Input<string>;
+  triggers?: $util.Input<$util.Input<string>[]>;
 } & (
   | {
       purge_everything: $util.Input<boolean>;
@@ -21,7 +22,7 @@ export type PurgeCacheInputs = {
 const PurgeCacheResourceProvider = (
   apiKey: string,
 ): $util.dynamic.ResourceProvider<PurgeCacheInputs> => ({
-  create: async ({ zoneId, ...rest }) => {
+  create: async ({ zoneId, triggers, ...rest }) => {
     const response = await fetch(
       `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
       {
@@ -35,7 +36,7 @@ const PurgeCacheResourceProvider = (
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to purge cache: ${response.statusText}`);
+      throw new Error(`Failed to purge cache: ${response.status} ${response.statusText}`);
     }
 
     const { result } = await response.json();
@@ -43,7 +44,7 @@ const PurgeCacheResourceProvider = (
       id: result.id,
     };
   },
-  update: async (_, { zoneId, ...rest }) => {
+  update: async (_, __, { zoneId, triggers, ...rest }) => {
     const response = await fetch(
       `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
       {
@@ -57,7 +58,7 @@ const PurgeCacheResourceProvider = (
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to purge cache: ${response.statusText}`);
+      throw new Error(`Failed to purge cache: ${response.status} ${response.statusText}`);
     }
 
     return {};
