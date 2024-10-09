@@ -186,13 +186,12 @@ server {
     proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto \\$scheme;
 
-    proxy_connect_timeout 300s;
-    proxy_read_timeout 300s;
-    proxy_send_timeout 300s;
+    proxy_connect_timeout 300;
+    proxy_read_timeout 300;
+    proxy_send_timeout 300;
 
-    proxy_request_buffering off;
-    proxy_buffering off;
-    proxy_redirect off;
+    proxy_buffers 16 32k;
+    proxy_buffer_size 64k;
   }
 }
 `;
