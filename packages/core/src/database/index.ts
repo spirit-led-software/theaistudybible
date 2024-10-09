@@ -8,6 +8,4 @@ const client = createClient({
   authToken: Resource.Database.token || undefined,
 });
 
-export const db = drizzle(client, {
-  schema,
-});
+export const db = drizzle(client, { schema });

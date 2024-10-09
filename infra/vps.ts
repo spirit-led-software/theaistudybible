@@ -1,5 +1,5 @@
-import { writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   CLOUDFLARE_IPV4_RANGES,
   CLOUDFLARE_IPV6_RANGES,
@@ -20,7 +20,6 @@ export let webAppContainer: docker.Container | undefined;
 export let nginxContainer: docker.Container | undefined;
 if (!$dev) {
   const vpsIamPolicy = new aws.iam.Policy('VpsIamPolicy', {
-    name: `${$app.name}-${$app.stage}-vps`,
     policy: {
       Version: '2012-10-17',
       Statement: [
@@ -42,9 +41,7 @@ if (!$dev) {
       ],
     },
   });
-  const vpsIamUser = new aws.iam.User('VpsIamUser', {
-    name: `${$app.name}-${$app.stage}-vps`,
-  });
+  const vpsIamUser = new aws.iam.User('VpsIamUser');
   new aws.iam.UserPolicyAttachment('VpsUserPolicyAttachment', {
     user: vpsIamUser.name,
     policyArn: vpsIamPolicy.arn,
@@ -82,9 +79,9 @@ if (!$dev) {
   };
 
   const keyPath = privateKey.privateKeyOpenssh.apply((key) => {
-    const path = 'key_rsa';
-    writeFileSync(path, key, { mode: 0o600 });
-    return resolve(path);
+    const keyPath = 'key_rsa';
+    fs.writeFileSync(keyPath, key, { mode: 0o600 });
+    return path.resolve(keyPath);
   });
 
   dockerProvider = new docker.Provider('DockerProvider', {
@@ -110,7 +107,6 @@ if (!$dev) {
       connection: vpsConnection,
       create: 'until docker ps | grep -q "CONTAINER ID"; do sleep 1; done',
       update: 'until docker ps | grep -q "CONTAINER ID"; do sleep 1; done',
-      delete: 'true',
     },
     { dependsOn: [dockerProvider, vps] },
   );
@@ -146,7 +142,7 @@ if (!$dev) {
 
   const webAppPrivateKey = new tls.PrivateKey('WebAppPrivateKey', {
     algorithm: 'RSA',
-    rsaBits: 2048,
+    rsaBits: 4096,
   });
   const webAppCsr = new tls.CertRequest('WebAppCSR', {
     privateKeyPem: webAppPrivateKey.privateKeyPem,
@@ -173,39 +169,30 @@ server {
   ssl_certificate /etc/nginx/ssl/cert.pem;
   ssl_certificate_key /etc/nginx/ssl/key.pem;
 
-  ${CLOUDFLARE_IPV4_RANGES.map((range) => `allow ${range};`).join('\n\t')}
-  ${CLOUDFLARE_IPV6_RANGES.map((range) => `allow ${range};`).join('\n\t')}
+  ${CLOUDFLARE_IPV4_RANGES.map((range) => `allow ${range};`).join('\n')}
+  ${CLOUDFLARE_IPV6_RANGES.map((range) => `allow ${range};`).join('\n')}
   deny all;
 
   location / {
     proxy_pass http://${webAppContainer.name}:3000;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
   }
 }
 `;
   const createNginxFilesCmd = new command.remote.Command('CreateNginxFiles', {
     connection: vpsConnection,
     create: $interpolate`
-      mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && 
-      echo "${webAppNginxConf}" > /etc/nginx/sites-available/default && 
-      ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && 
+      mkdir -p /etc/nginx/conf.d /etc/nginx/ssl && 
+      echo "${webAppNginxConf}" > /etc/nginx/conf.d/default.conf && 
       echo "${webAppCert.certificate}" > /etc/nginx/ssl/cert.pem && 
-      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem && 
-      chmod 600 /etc/nginx/sites-available/default /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem
+      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem
     `,
     update: $interpolate`
-      mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && 
-      echo "${webAppNginxConf}" > /etc/nginx/sites-available/default && 
-      ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && 
+      mkdir -p /etc/nginx/conf.d /etc/nginx/ssl && 
+      echo "${webAppNginxConf}" > /etc/nginx/conf.d/default.conf && 
       echo "${webAppCert.certificate}" > /etc/nginx/ssl/cert.pem && 
-      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem && 
-      chmod 600 /etc/nginx/sites-available/default /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem
+      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem
     `,
-    delete:
-      'rm -f /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem',
+    delete: 'rm -f /etc/nginx/conf.d/default.conf /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem',
   });
 
   const nginxImage = new docker.RemoteImage(
@@ -219,8 +206,7 @@ server {
       image: nginxImage.repoDigest,
       ports: [{ internal: 443, external: 443 }],
       volumes: [
-        { hostPath: '/etc/nginx/sites-available', containerPath: '/etc/nginx/sites-available' },
-        { hostPath: '/etc/nginx/sites-enabled', containerPath: '/etc/nginx/sites-enabled' },
+        { hostPath: '/etc/nginx/conf.d', containerPath: '/etc/nginx/conf.d' },
         { hostPath: '/etc/nginx/ssl', containerPath: '/etc/nginx/ssl' },
       ],
       restart: 'always',

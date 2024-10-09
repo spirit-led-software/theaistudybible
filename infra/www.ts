@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import path from 'node:path';
 import { cdn } from './cdn';
 import { DOMAIN, STRIPE_PUBLISHABLE_KEY } from './constants';
 import { allLinks } from './defaults';
@@ -20,22 +20,14 @@ export const webAppImageRepo = new aws.ecr.Repository('WebAppImageRepository', {
 export const webAppBuildImage = new dockerbuild.Image('WebAppImage', {
   tags: [$interpolate`${webAppImageRepo.repositoryUrl}:latest`],
   registries: [
-    aws.ecr
-      .getAuthorizationTokenOutput({
-        registryId: webAppImageRepo.id,
-      })
-      .apply((auth) => ({
-        address: auth.proxyEndpoint,
-        username: auth.userName,
-        password: $util.secret(auth.password),
-      })),
+    aws.ecr.getAuthorizationTokenOutput({ registryId: webAppImageRepo.id }).apply((auth) => ({
+      address: auth.proxyEndpoint,
+      username: auth.userName,
+      password: $util.secret(auth.password),
+    })),
   ],
-  dockerfile: {
-    location: join(process.cwd(), 'docker/www.Dockerfile'),
-  },
-  context: {
-    location: process.cwd(),
-  },
+  dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
+  context: { location: process.cwd() },
   buildArgs: {
     sentry_org: webAppSentryProject?.organization ?? '',
     sentry_project: webAppSentryProject?.name ?? '',
@@ -54,11 +46,7 @@ export const webAppBuildImage = new dockerbuild.Image('WebAppImage', {
 });
 
 export const webAppDevCommand = new sst.x.DevCommand('WebAppDev', {
-  dev: {
-    autostart: true,
-    directory: 'apps/www',
-    command: 'bun dev',
-  },
+  dev: { autostart: true, directory: 'apps/www', command: 'bun run dev' },
   link: allLinks,
   environment: webAppEnv,
 });
