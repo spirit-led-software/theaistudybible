@@ -1074,6 +1074,8 @@ export const chapters = sqliteTable(
     previousIdIdx: index('chapters_previous_id_idx').on(table.previousId),
     nextIdIdx: index('chapters_next_id_idx').on(table.nextId),
     codeIdx: index('chapters_code_idx').on(table.code),
+    nameIdx: index('chapters_name_idx').on(table.name),
+    numberIdx: index('chapters_number_idx').on(table.number),
   }),
 );
 
@@ -1243,6 +1245,8 @@ export const verses = sqliteTable(
     previousIdIdx: index('verses_previous_id_idx').on(table.previousId),
     nextIdIdx: index('verses_next_id_idx').on(table.nextId),
     codeIdx: index('verses_code_idx').on(table.code),
+    nameIdx: index('verses_name_idx').on(table.name),
+    numberIdx: index('verses_number_idx').on(table.number),
   }),
 );
 

@@ -9,6 +9,7 @@ indexBibleQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-bible.handler',
     nodejs: { install: ['jsdom'] },
+    memory: '2 GB',
     timeout: '15 minutes',
   },
   {
@@ -24,6 +25,7 @@ export const indexBibleChapterQueue = new sst.aws.Queue('IndexBibleChapterQueue'
 indexBibleChapterQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-chapter/index.handler',
+    memory: '2 GB',
     timeout: '15 minutes',
   },
   {
