@@ -8,6 +8,7 @@ export default $config({
         region: 'us-east-1',
       },
       cloudflare: true,
+      command: true,
       docker: true,
       'docker-build': true,
       hcloud: true,
@@ -21,13 +22,14 @@ export default $config({
     await import('./infra/defaults');
     const { DOMAIN } = await import('./infra/constants');
     await import('./infra/secrets');
+    await import('./infra/storage');
+    const { cdn } = await import('./infra/cdn');
     const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');
     await import('./infra/queues');
     const { webhooksApi } = await import('./infra/webhooks');
     await import('./infra/email');
     await import('./infra/monitoring');
     await import('./infra/jobs');
-    const { cdn } = await import('./infra/cdn');
     const { vps } = await import('./infra/vps');
     await import('./infra/www');
     await import('./infra/dev');

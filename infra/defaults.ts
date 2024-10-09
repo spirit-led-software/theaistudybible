@@ -1,3 +1,4 @@
+import { cdn } from './cdn';
 import * as constants from './constants';
 import * as databases from './database';
 import { email } from './email';
@@ -9,9 +10,10 @@ import * as storage from './storage';
 export const allLinks = [
   ...Object.values(constants).filter((l) => l instanceof Constant),
   ...Object.values(secrets),
+  ...Object.values(storage),
+  cdn,
   ...Object.values(databases),
   ...Object.values(queues),
-  ...Object.values(storage),
   email,
 ];
 

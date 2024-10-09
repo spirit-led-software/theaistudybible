@@ -1,6 +1,11 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { CLOUDFLARE_ZONE_ID, DOMAIN } from './constants';
+import {
+  CLOUDFLARE_IPV4_RANGES,
+  CLOUDFLARE_IPV6_RANGES,
+  CLOUDFLARE_ZONE_ID,
+  DOMAIN,
+} from './constants';
 import { allLinks } from './defaults';
 import { email } from './email';
 import { buildLinks } from './helpers/link';
@@ -12,8 +17,7 @@ import { webAppBuildImage, webAppEnv, webAppImageRepo } from './www';
 export let vps: hcloud.Server | undefined;
 export let dockerProvider: docker.Provider | undefined;
 export let webAppContainer: docker.Container | undefined;
-export let webAppIpv4Record: cloudflare.Record | undefined;
-export let webAppIpv6Record: cloudflare.Record | undefined;
+export let nginxContainer: docker.Container | undefined;
 if (!$dev) {
   const vpsIamPolicy = new aws.iam.Policy('VpsIamPolicy', {
     name: `${$app.name}-${$app.stage}-vps`,
@@ -71,6 +75,12 @@ if (!$dev) {
     ].join('\n'),
   });
 
+  const vpsConnection = {
+    host: vps.ipv4Address,
+    user: 'root',
+    privateKey: $util.secret(privateKey.privateKeyOpenssh),
+  };
+
   const keyPath = privateKey.privateKeyOpenssh.apply((key) => {
     const path = 'key_rsa';
     writeFileSync(path, key, { mode: 0o600 });
@@ -93,11 +103,52 @@ if (!$dev) {
     ],
   });
 
+  // Wait for docker to be ready, which seems unnecessary, but is necessary
+  const waitForDockerReadyCmd = new command.remote.Command(
+    'WaitForDockerReady',
+    {
+      connection: vpsConnection,
+      create: 'until docker ps | grep -q "CONTAINER ID"; do sleep 1; done',
+      update: 'until docker ps | grep -q "CONTAINER ID"; do sleep 1; done',
+      delete: 'true',
+    },
+    { dependsOn: [dockerProvider, vps] },
+  );
+
+  const webAppNetwork = new docker.Network(
+    'WebAppNetwork',
+    { driver: 'bridge' },
+    { provider: dockerProvider, dependsOn: [waitForDockerReadyCmd] },
+  );
+
+  const links = buildLinks(allLinks);
+  const envs = $output(links).apply((links) => [
+    $interpolate`AWS_ACCESS_KEY_ID=${vpsAwsAccessKey.id}`,
+    $interpolate`AWS_SECRET_ACCESS_KEY=${$util.secret(vpsAwsAccessKey.secret)}`,
+    `AWS_DEFAULT_REGION=${$app.providers?.aws.region ?? 'us-east-1'}`,
+    `SST_RESOURCE_App=${JSON.stringify({
+      name: $app.name,
+      stage: $app.stage,
+    })}`,
+    ...links.map((l) => `SST_RESOURCE_${l.name}=${JSON.stringify(l.properties)}`),
+    ...Object.entries(webAppEnv).map(([k, v]) => `${k}=${v}`),
+  ]);
+  webAppContainer = new docker.Container(
+    'WebAppContainer',
+    {
+      image: webAppBuildImage.ref,
+      envs,
+      restart: 'always',
+      networksAdvanced: [{ name: webAppNetwork.name }],
+    },
+    { provider: dockerProvider },
+  );
+
   const webAppPrivateKey = new tls.PrivateKey('WebAppPrivateKey', {
     algorithm: 'RSA',
     rsaBits: 2048,
   });
-  const csr = new tls.CertRequest('WebAppCSR', {
+  const webAppCsr = new tls.CertRequest('WebAppCSR', {
     privateKeyPem: webAppPrivateKey.privateKeyPem,
     subject: {
       commonName: DOMAIN.value,
@@ -105,40 +156,91 @@ if (!$dev) {
       organizationalUnit: 'The AI Study Bible',
       country: 'US',
     },
-    dnsNames: [DOMAIN.value, `www.${DOMAIN.value}`],
-    ipAddresses: [vps!.ipv4Address, vps!.ipv6Address],
+    dnsNames: [DOMAIN.value],
+    ipAddresses: [vps.ipv4Address, vps.ipv6Address],
   });
-  const cert = new cloudflare.OriginCaCertificate('WebAppCertificate', {
-    csr: csr.certRequestPem,
+  const webAppCert = new cloudflare.OriginCaCertificate('WebAppCertificate', {
+    csr: webAppCsr.certRequestPem,
     hostnames: [DOMAIN.value],
     requestType: 'origin-rsa',
     requestedValidity: 5475,
   });
 
-  const envs = buildEnvs();
-  webAppContainer = new docker.Container(
-    'WebAppContainer',
+  const webAppNginxConf = $interpolate`
+server {
+  listen 443 ssl;
+  server_name ${DOMAIN.value} ${vps.ipv4Address} ${vps.ipv6Address};
+  ssl_certificate /etc/nginx/ssl/cert.pem;
+  ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+  ${CLOUDFLARE_IPV4_RANGES.map((range) => `allow ${range};`).join('\n\t')}
+  ${CLOUDFLARE_IPV6_RANGES.map((range) => `allow ${range};`).join('\n\t')}
+  deny all;
+
+  location / {
+    proxy_pass http://${webAppContainer.name}:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+`;
+  const createNginxFilesCmd = new command.remote.Command('CreateNginxFiles', {
+    connection: vpsConnection,
+    create: $interpolate`
+      mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && 
+      echo "${webAppNginxConf}" > /etc/nginx/sites-available/default && 
+      ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && 
+      echo "${webAppCert.certificate}" > /etc/nginx/ssl/cert.pem && 
+      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem && 
+      chmod 600 /etc/nginx/sites-available/default /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem
+    `,
+    update: $interpolate`
+      mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled /etc/nginx/ssl && 
+      echo "${webAppNginxConf}" > /etc/nginx/sites-available/default && 
+      ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && 
+      echo "${webAppCert.certificate}" > /etc/nginx/ssl/cert.pem && 
+      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem && 
+      chmod 600 /etc/nginx/sites-available/default /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem
+    `,
+    delete:
+      'rm -f /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem',
+  });
+
+  const nginxImage = new docker.RemoteImage(
+    'NginxImage',
+    { name: 'nginx:latest' },
+    { provider: dockerProvider },
+  );
+  nginxContainer = new docker.Container(
+    'NginxContainer',
     {
-      image: webAppBuildImage.ref,
-      ports: [{ internal: 3000, external: 443 }],
-      envs,
+      image: nginxImage.repoDigest,
+      ports: [{ internal: 443, external: 443 }],
+      volumes: [
+        { hostPath: '/etc/nginx/sites-available', containerPath: '/etc/nginx/sites-available' },
+        { hostPath: '/etc/nginx/sites-enabled', containerPath: '/etc/nginx/sites-enabled' },
+        { hostPath: '/etc/nginx/ssl', containerPath: '/etc/nginx/ssl' },
+      ],
       restart: 'always',
+      networksAdvanced: [{ name: webAppNetwork.name }],
     },
-    { provider: dockerProvider, dependsOn: [vps!] },
+    { provider: dockerProvider, dependsOn: [createNginxFilesCmd] },
   );
 
-  webAppIpv4Record = new cloudflare.Record('WebAppIpv4Record', {
+  new cloudflare.Record('WebAppIpv4Record', {
     zoneId: CLOUDFLARE_ZONE_ID,
     type: 'A',
     name: $app.stage === 'production' ? '@' : $app.stage,
-    value: vps!.ipv4Address,
+    value: vps.ipv4Address,
     proxied: true,
   });
-  webAppIpv6Record = new cloudflare.Record('WebAppIpv6Record', {
+  new cloudflare.Record('WebAppIpv6Record', {
     zoneId: CLOUDFLARE_ZONE_ID,
     type: 'AAAA',
     name: $app.stage === 'production' ? '@' : $app.stage,
-    value: vps!.ipv6Address,
+    value: vps.ipv6Address,
     proxied: true,
   });
 
@@ -173,23 +275,5 @@ if (!$dev) {
       { zoneId: CLOUDFLARE_ZONE_ID, purge_everything: true },
       { dependsOn: [ruleset] },
     );
-  }
-
-  function buildEnvs() {
-    const links = buildLinks(allLinks);
-    const envs = $output([links]).apply(([links]) => [
-      $interpolate`AWS_ACCESS_KEY_ID=${vpsAwsAccessKey.id}`,
-      $interpolate`AWS_SECRET_ACCESS_KEY=${$util.secret(vpsAwsAccessKey.secret)}`,
-      `AWS_DEFAULT_REGION=${$app.providers?.aws.region ?? 'us-east-1'}`,
-      $interpolate`NITRO_SSL_CERT=${cert.certificate}`,
-      $interpolate`NITRO_SSL_KEY=${$util.secret(webAppPrivateKey.privateKeyPem)}`,
-      `SST_RESOURCE_App=${JSON.stringify({
-        name: $app.name,
-        stage: $app.stage,
-      })}`,
-      ...links.map((l) => `SST_RESOURCE_${l.name}=${JSON.stringify(l.properties)}`),
-      ...Object.entries(webAppEnv).map(([k, v]) => `${k}=${v}`),
-    ]);
-    return envs;
   }
 }

@@ -7,11 +7,14 @@ node_modules
 # GitHub
 .github
 
+# Husky
+.husky
+
 # VSCode
 .vscode
 
-# Dockerfiles
-/docker
+# Migrations
+migrations
 
 # Turbo
 .turbo
@@ -19,3 +22,14 @@ node_modules
 # SolidStart Build Output
 .output
 .vinxi
+
+# Infra files
+sst.config.ts
+/infra
+
+# Cursor
+.cursorrules
+
+# Misc
+.libsql.db
+.env*

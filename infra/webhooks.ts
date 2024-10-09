@@ -21,7 +21,7 @@ new cloudflare.Record('WebhooksApiRecord', {
   zoneId: CLOUDFLARE_ZONE_ID,
   type: 'CNAME',
   name: WEBHOOKS_DOMAIN.value,
-  value: $output(webhooksApiFn.url).apply((url) => new URL(url).hostname),
+  value: webhooksApiFn.url.apply((url) => new URL(url).hostname),
   proxied: true,
 });
 
