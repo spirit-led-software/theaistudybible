@@ -25,17 +25,20 @@ if (!$dev) {
       Statement: [
         {
           Effect: 'Allow',
-          Action: ['s3:*'],
-          Resource: Object.values(storage).map((b) => b.nodes.bucket.arn),
+          Action: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
+          Resource: Object.values(storage).flatMap((b) => [
+            b.nodes.bucket.arn,
+            $interpolate`${b.nodes.bucket.arn}/*`,
+          ]),
         },
         {
           Effect: 'Allow',
-          Action: ['sqs:*'],
+          Action: ['sqs:SendMessage'],
           Resource: Object.values(queues).map((q) => q.arn),
         },
         {
           Effect: 'Allow',
-          Action: ['ses:*'],
+          Action: ['ses:SendEmail', 'ses:SendRawEmail'],
           Resource: [email.nodes.identity.arn],
         },
       ],
