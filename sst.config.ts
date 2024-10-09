@@ -31,36 +31,15 @@ export default $config({
     await import('./infra/jobs');
     await import('./infra/monitoring');
     await import('./infra/www');
-    const { vps } = await import('./infra/vps');
+    await import('./infra/vps');
     await import('./infra/dev');
-
-    const dbMigrateCmd = new command.local.Command(
-      'DbMigrate',
-      {
-        dir: process.cwd(),
-        create: 'bun run db:migrate',
-        update: 'bun run db:migrate',
-        triggers: [Date.now()],
-      },
-      { dependsOn: [database] },
-    );
-    new command.local.Command(
-      'DbSeed',
-      {
-        dir: process.cwd(),
-        create: 'bun run db:seed',
-        update: 'bun run db:seed',
-        triggers: [Date.now()],
-      },
-      { dependsOn: [dbMigrateCmd] },
-    );
 
     return {
       'CDN URL': cdn.url,
       'Database URL': database.properties.url,
       'Redis Endpoint': upstashRedis.endpoint,
       'Vector Store Endpoint': upstashVectorIndex.endpoint,
-      'Web App URL': vps ? `https://${DOMAIN.value}` : 'Not available in dev',
+      'Web App URL': !$dev ? `https://${DOMAIN.value}` : 'Not available in dev',
       'Webhooks API URL': webhooksApi.properties.url,
     };
   },

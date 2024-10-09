@@ -121,13 +121,13 @@ if (!$dev) {
   const envs = $output(links).apply((links) => [
     $interpolate`AWS_ACCESS_KEY_ID=${vpsAwsAccessKey.id}`,
     $interpolate`AWS_SECRET_ACCESS_KEY=${$util.secret(vpsAwsAccessKey.secret)}`,
-    `AWS_DEFAULT_REGION=${$app.providers?.aws.region ?? 'us-east-1'}`,
-    `SST_RESOURCE_App=${JSON.stringify({
+    $interpolate`AWS_REGION=${$app.providers?.aws.region ?? 'us-east-1'}`,
+    $interpolate`SST_RESOURCE_App=${JSON.stringify({
       name: $app.name,
       stage: $app.stage,
     })}`,
-    ...links.map((l) => `SST_RESOURCE_${l.name}=${JSON.stringify(l.properties)}`),
-    ...Object.entries(webAppEnv).map(([k, v]) => `${k}=${v}`),
+    ...links.map((l) => $interpolate`SST_RESOURCE_${l.name}=${JSON.stringify(l.properties)}`),
+    ...Object.entries(webAppEnv).map(([k, v]) => $interpolate`${k}=${v}`),
   ]);
   webAppContainer = new docker.Container(
     'WebAppContainer',
@@ -241,7 +241,7 @@ server {
         rules: [
           {
             expression:
-              '(http.request.uri.path.extension in {"7z" "avi" "avif" "apk" "bin" "bmp" "br" "bz2" "class" "css" "csv" "doc" "docx" "dmg" "ejs" "eot" "eps" "exe" "flac" "gif" "gz" "ico" "iso" "jar" "jpg" "jpeg" "js" "mid" "midi" "mkv" "mp3" "mp4" "ogg" "otf" "pdf" "pict" "pls" "png" "ppt" "pptx" "ps" "rar" "svg" "svgz" "swf" "tar" "tif" "tiff" "ttf" "webm" "webp" "woff" "woff2" "xls" "xlsx" "zip" "zst"}) or (http.request.uri.path matches "^\\/bible\\/(?!(highlights|notes|bookmarks))(.*[^\\/])$")',
+              '(http.request.uri.path.extension in {"7z" "avi" "avif" "apk" "bin" "bmp" "br" "bz2" "class" "css" "csv" "doc" "docx" "dmg" "ejs" "eot" "eps" "exe" "flac" "gif" "gz" "ico" "iso" "jar" "jpg" "jpeg" "js" "mid" "midi" "mkv" "mp3" "mp4" "ogg" "otf" "pdf" "pict" "pls" "png" "ppt" "pptx" "ps" "rar" "svg" "svgz" "swf" "tar" "tif" "tiff" "ttf" "webm" "webp" "woff" "woff2" "xls" "xlsx" "zip" "zst"})',
             action: 'set_cache_settings',
             actionParameters: {
               cache: true,

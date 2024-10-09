@@ -16,10 +16,7 @@ env:
   TURSO_API_KEY: ${{ secrets.TURSO_API_KEY }}
   UPSTASH_EMAIL: ${{ vars.UPSTASH_EMAIL }}
   UPSTASH_API_KEY: ${{ secrets.UPSTASH_API_KEY }}
-  STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-  SENTRY_ORG: ${{ vars.SENTRY_ORG }}
-  SENTRY_TEAM: ${{ vars.SENTRY_TEAM }}
-  SENTRY_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  STRIPE_API_KEY: ${{ secrets.DEV_STRIPE_SECRET_KEY }}
 
 jobs:
   remove:
