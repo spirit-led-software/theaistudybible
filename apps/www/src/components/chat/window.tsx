@@ -144,10 +144,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                         <Button
                           class='mx-2 h-full w-full text-wrap rounded-full'
                           onClick={() =>
-                            useChatResult.append({
-                              role: 'user',
-                              content: suggestion,
-                            })
+                            useChatResult.append({ role: 'user', content: suggestion })
                           }
                         >
                           {suggestion}

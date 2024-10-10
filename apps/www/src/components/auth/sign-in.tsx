@@ -7,7 +7,6 @@ import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { appendHeader } from 'vinxi/http';
 import type { z } from 'zod';
 import Logo from '../branding/logo';
 import { Button } from '../ui/button';
@@ -21,8 +20,7 @@ export type SignInProps = {
 const signInAction = action(async (values: z.infer<typeof signInSchema>, redirectUrl = '/') => {
   'use server';
   const cookie = await signIn(values);
-  appendHeader('Set-Cookie', cookie.serialize());
-  throw redirect(redirectUrl);
+  throw redirect(redirectUrl, { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 
 export const SignIn = (props: SignInProps) => {

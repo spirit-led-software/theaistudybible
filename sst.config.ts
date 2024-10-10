@@ -13,7 +13,6 @@ export default $config({
       'docker-build': true,
       hcloud: true,
       'pulumi-stripe': true,
-      '@pulumiverse/sentry': true,
       tls: true,
       '@upstash/pulumi': true,
     },
@@ -29,7 +28,6 @@ export default $config({
     await import('./infra/queues');
     const { webhooksApi } = await import('./infra/webhooks');
     await import('./infra/jobs');
-    await import('./infra/monitoring');
     await import('./infra/www');
     await import('./infra/vps');
     await import('./infra/dev');

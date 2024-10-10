@@ -1,9 +1,9 @@
 import { db } from '@/core/database';
 import { userCredits } from '@/core/database/schema';
-import { DEFAULT_CREDITS } from '@/core/utils/credits/default';
 import { cn } from '@/www/lib/utils';
 import { auth } from '@/www/server/auth';
 import { A } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { QueryBoundary } from '../query-boundary';
@@ -12,13 +12,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Spinner } from '../ui/spinner';
 import { H5, H6 } from '../ui/typography';
 
-export async function getUserCredits() {
+const getUserCredits = GET(async () => {
   'use server';
   const { user } = auth();
-  if (!user) return DEFAULT_CREDITS;
+  if (!user) {
+    return 10;
+  }
   const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, user.id));
-  return userCredit?.balance ?? DEFAULT_CREDITS;
-}
+  return userCredit?.balance ?? 10;
+});
 
 export function CreditDisplay() {
   const creditsQuery = createQuery(() => ({
@@ -40,7 +42,7 @@ export function CreditDisplay() {
               credits < 5 && 'text-yellow-500',
             )}
           >
-            {credits > DEFAULT_CREDITS ? `>${DEFAULT_CREDITS}` : credits}
+            {credits > 10 ? `>${10}` : credits}
           </PopoverTrigger>
           <PopoverContent class='flex flex-col gap-2'>
             <H5>{credits} credits</H5>

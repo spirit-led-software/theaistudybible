@@ -3,6 +3,7 @@ import { users } from '@/core/database/schema';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { useNavigate } from '@solidjs/router';
+import { action } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
@@ -17,12 +18,12 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 
-async function deleteUser() {
+const deleteUser = action(async () => {
   'use server';
   const { user } = requireAuth();
   await db.delete(users).where(eq(users.id, user.id));
   return { success: true };
-}
+});
 
 export const DeleteProfileDialog = () => {
   const navigate = useNavigate();

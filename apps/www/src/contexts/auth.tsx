@@ -1,4 +1,5 @@
 import type { Role } from '@/schemas/roles';
+import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
 import { type Accessor, type JSX, createContext, useContext } from 'solid-js';
@@ -39,10 +40,10 @@ export const useAuth = () => {
   };
 };
 
-const getAuth = () => {
+const getAuth = GET(() => {
   'use server';
   return auth();
-};
+});
 
 export const authProviderQueryOptions = {
   queryKey: ['auth-context'],

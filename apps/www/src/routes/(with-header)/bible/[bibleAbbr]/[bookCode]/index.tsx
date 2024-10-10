@@ -3,6 +3,7 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate, useParams } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 
 export type BookRedirectUrlParams = {
@@ -10,7 +11,7 @@ export type BookRedirectUrlParams = {
   bookCode: string;
 };
 
-const getBookRedirectUrl = async ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => {
+const getBookRedirectUrl = GET(async ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
@@ -46,7 +47,7 @@ const getBookRedirectUrl = async ({ bibleAbbr, bookCode }: BookRedirectUrlParams
   const chapter = chapters[0];
 
   return { redirectUrl: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}` };
-};
+});
 
 const getBookRedirectUrlQueryOptions = ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => ({
   queryKey: ['book-redirect', bibleAbbr, bookCode],

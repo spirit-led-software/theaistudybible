@@ -8,17 +8,19 @@ import { H6 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { For } from 'solid-js';
 
-const getReferences = async ({ text, bibleId }: { text: string; bibleId: string }) => {
+const getReferences = GET(async ({ text, bibleId }: { text: string; bibleId: string }) => {
   'use server';
   return await vectorStore.searchDocuments(text, {
     withMetadata: true,
+    withEmbedding: false,
     limit: 5,
     filter: `bibleId = "${bibleId}" or type != "bible"`, // Get references from the same bible OR non-bible references like commentaries
   });
-};
+});
 
 export const ReferencesCard = () => {
   const [brStore] = useBibleReaderStore();

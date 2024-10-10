@@ -11,12 +11,13 @@ import { auth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getNotes = async ({ limit, offset }: { limit: number; offset: number }) => {
+const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -30,15 +31,9 @@ const getNotes = async ({ limit, offset }: { limit: number; offset: number }) =>
       where: (verseNotes, { eq }) => eq(verseNotes.userId, user.id),
       with: {
         verse: {
-          columns: {
-            content: false,
-          },
+          columns: { content: false },
           with: {
-            chapter: {
-              columns: {
-                content: false,
-              },
-            },
+            chapter: { columns: { content: false } },
             bible: true,
             book: true,
           },
@@ -66,7 +61,7 @@ const getNotes = async ({ limit, offset }: { limit: number; offset: number }) =>
     notes,
     nextCursor: notes.length === limit ? offset + limit : undefined,
   };
-};
+});
 
 const getNotesQueryOptions = () => ({
   queryKey: ['notes'],

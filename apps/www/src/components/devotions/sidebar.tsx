@@ -2,6 +2,7 @@ import { db } from '@/core/database';
 import { toTitleCase } from '@/core/utils/string';
 import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { History, X } from 'lucide-solid';
@@ -22,33 +23,32 @@ import { Spinner } from '../ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
 
-const getDevotions = async ({ offset, limit }: { offset: number; limit: number }) => {
+const getDevotions = GET(async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
   const devotions = await db.query.devotions.findMany({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
     offset,
     limit,
   });
-
   return {
     devotions,
     nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
   };
-};
+});
 
-export const getDevotionsQueryOptions = {
-  queryKey: ['devotions', { limit: 10 }],
+export const getDevotionsQueryOptions = () => ({
+  queryKey: ['devotions'],
   queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 10 }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: { nextCursor?: number }) => lastPage.nextCursor,
-};
+});
 
 export const DevotionSidebar = () => {
   const navigate = useNavigate();
 
   const [devotionStore, setDevotionStore] = useDevotionStore();
 
-  const devotionsQuery = createInfiniteQuery(() => getDevotionsQueryOptions);
+  const devotionsQuery = createInfiniteQuery(() => getDevotionsQueryOptions());
 
   const [devotions, setDevotions] = createStore(
     !devotionsQuery.isLoading && devotionsQuery.data

@@ -176,15 +176,8 @@ const app = new Hono<{
       if (!chat.customName) {
         pendingPromises.push(renameChat(chat.id, messages));
       } else {
-        // Hacky way to update the chat updatedAt field
         pendingPromises.push(
-          db
-            .update(chats)
-            .set({
-              updatedAt: new Date(),
-            })
-            .where(eq(chats.id, chat.id))
-            .execute(),
+          db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chat.id)).execute(),
         );
       }
 

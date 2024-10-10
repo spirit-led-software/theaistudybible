@@ -12,6 +12,7 @@ import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { A } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
 import { For } from 'solid-js';
@@ -21,7 +22,7 @@ type GetChapterPickerDataProps = {
   bookCode: string;
 };
 
-async function getChapterPickerData({ bibleAbbr, bookCode }: GetChapterPickerDataProps) {
+const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPickerDataProps) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
@@ -57,7 +58,7 @@ async function getChapterPickerData({ bibleAbbr, bookCode }: GetChapterPickerDat
     book,
     chapters,
   };
-}
+});
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],

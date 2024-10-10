@@ -20,14 +20,15 @@ import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth, requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { A } from '@solidjs/router';
+import { A, action } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { For, Match, Show, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }) => {
+const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -66,16 +67,14 @@ const getBookmarks = async ({ limit, offset }: { limit: number; offset: number }
       offset,
     }),
   ]);
-
   const bookmarks = [...verseBookmarks, ...chapterBookmarks];
-
   return {
     bookmarks,
     nextCursor: bookmarks.length === limit ? offset + limit : undefined,
   };
-};
+});
 
-const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
+const deleteBookmark = action(async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
   'use server';
   const { user } = requireAuth();
   if (props.type === 'verse') {
@@ -88,7 +87,7 @@ const deleteBookmark = async (props: { type: 'verse' | 'chapter'; bookmarkId: st
       .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)));
   }
   return { success: true };
-};
+});
 
 const getBookmarksQueryOptions = () => ({
   queryKey: ['bookmarks'],

@@ -87,21 +87,21 @@ export const Message = (props: MessageProps) => {
                 >
                   {(modelId) => {
                     const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
-                    if (!modelInfo) {
-                      return null;
-                    }
-
                     return (
-                      <Tooltip>
-                        <TooltipTrigger
-                          as={A}
-                          href={modelInfo.link}
-                          class='mt-2 w-fit rounded-full border p-2 text-gray-500 text-xs'
-                        >
-                          {modelInfo.name}
-                        </TooltipTrigger>
-                        <TooltipContent>{modelInfo.description}</TooltipContent>
-                      </Tooltip>
+                      <Show when={modelInfo} keyed>
+                        {(modelInfo) => (
+                          <Tooltip>
+                            <TooltipTrigger
+                              as={A}
+                              href={modelInfo.link}
+                              class='mt-2 w-fit rounded-full border p-2 text-gray-500 text-xs'
+                            >
+                              {modelInfo.name}
+                            </TooltipTrigger>
+                            <TooltipContent>{modelInfo.description}</TooltipContent>
+                          </Tooltip>
+                        )}
+                      </Show>
                     );
                   }}
                 </Show>
@@ -118,7 +118,7 @@ export const Message = (props: MessageProps) => {
                 variant='ghost'
                 class='h-fit w-fit p-1'
                 onClick={() => {
-                  void writeClipboard([
+                  writeClipboard([
                     new ClipboardItem({
                       'text/plain': new Blob([props.message.content], {
                         type: 'text/plain',

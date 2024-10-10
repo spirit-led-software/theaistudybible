@@ -11,7 +11,7 @@ export const DOMAIN = new Constant(
   $app.stage === 'production' ? BASE_DOMAIN : `${$app.stage}.${BASE_DOMAIN}`,
 );
 
-export const CLOUDFLARE_ZONE = cloudflare.getZoneOutput({ name: DOMAIN.value });
+export const CLOUDFLARE_ZONE = cloudflare.getZoneOutput({ name: BASE_DOMAIN });
 export const CLOUDFLARE_IP_RANGES = cloudflare.getIpRangesOutput();
 
 export const STRIPE_PUBLISHABLE_KEY = new Constant(

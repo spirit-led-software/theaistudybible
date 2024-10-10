@@ -1,7 +1,7 @@
 import { resetPassword } from '@/core/auth/providers/credentials';
 import { resetPasswordSchema } from '@/core/auth/providers/credentials/schemas';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { A } from '@solidjs/router';
+import { A, action } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
@@ -18,11 +18,11 @@ export type ResetPasswordProps = {
   onSuccess?: () => void;
 };
 
-async function handleResetPassword(values: z.infer<typeof resetPasswordSchema>) {
+const handleResetPassword = action(async (values: z.infer<typeof resetPasswordSchema>) => {
   'use server';
   await resetPassword(values);
   return { success: true };
-}
+});
 
 export function ResetPassword(props: ResetPasswordProps) {
   const [form, { Form, Field }] = createForm<z.infer<typeof resetPasswordSchema>>({

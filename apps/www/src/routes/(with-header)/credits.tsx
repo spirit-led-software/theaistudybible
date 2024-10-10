@@ -7,14 +7,15 @@ import { H1, P } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
-import { type RouteDefinition, useSearchParams } from '@solidjs/router';
+import { type RouteDefinition, action, useSearchParams } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { createEffect } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { Stripe } from 'stripe';
 
-async function getProducts() {
+const getProducts = GET(async () => {
   'use server';
   const productsListResponse = await stripe.products.list({
     expand: ['data.default_price'],
@@ -23,9 +24,9 @@ async function getProducts() {
     (a, b) => Number(a.metadata.credits) - Number(b.metadata.credits),
   );
   return products;
-}
+});
 
-async function createCheckoutSession(product: Stripe.Product) {
+const createCheckoutSession = action(async (product: Stripe.Product) => {
   'use server';
   const { user } = requireAuth();
   const checkoutSession = await stripe.checkout.sessions.create({
@@ -41,7 +42,7 @@ async function createCheckoutSession(product: Stripe.Product) {
     cancel_url: `${import.meta.env.PUBLIC_WEBSITE_URL}/credits?canceled=true`,
   });
   return checkoutSession;
-}
+});
 
 const getProductsQueryOptions = {
   queryKey: ['products-list'],

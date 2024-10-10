@@ -3,7 +3,6 @@ import type { Session, User } from 'lucia';
 import { getRequestEvent } from 'solid-js/web';
 
 export function auth() {
-  'use server';
   const event = getRequestEvent();
   if (!event) {
     throw new Error('No event found');
@@ -16,7 +15,6 @@ export function auth() {
 }
 
 export function requireAuth(message?: string) {
-  'use server';
   const authObj = auth();
   if (!authObj.session || !authObj.user) {
     throw new Error(message || 'You must be signed in to access this resource');

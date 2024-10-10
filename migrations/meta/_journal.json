@@ -15,6 +15,13 @@
       "when": 1728500833426,
       "tag": "0001_breezy_trish_tilby",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1728571662657,
+      "tag": "0002_silky_falcon",
+      "breakpoints": true
     }
   ]
 }

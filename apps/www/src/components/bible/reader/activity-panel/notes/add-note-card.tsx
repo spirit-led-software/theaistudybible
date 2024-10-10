@@ -24,12 +24,12 @@ import { P } from '@/www/components/ui/typography';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { requireAuth } from '@/www/server/auth';
-import { A } from '@solidjs/router';
+import { A, action } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const addNote = async (props: { chapterId: string; verseId?: string; content: string }) => {
+const addNote = action(async (props: { chapterId: string; verseId?: string; content: string }) => {
   'use server';
   const { user } = requireAuth();
   let note: VerseNote | ChapterNote;
@@ -53,7 +53,7 @@ const addNote = async (props: { chapterId: string; verseId?: string; content: st
       .returning();
   }
   return note;
-};
+});
 
 export type AddNoteCardProps = {
   onAdd?: () => void;

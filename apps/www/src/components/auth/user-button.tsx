@@ -4,7 +4,6 @@ import { action, redirect, useAction, useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { appendHeader } from 'vinxi/http';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { H6 } from '../ui/typography';
@@ -13,8 +12,7 @@ import { UserAvatar } from './user-avatar';
 const signOutAction = action(() => {
   'use server';
   const cookie = lucia.createBlankSessionCookie();
-  appendHeader('Set-Cookie', cookie.serialize());
-  throw redirect('/');
+  throw redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 
 export type UserButtonProps = {

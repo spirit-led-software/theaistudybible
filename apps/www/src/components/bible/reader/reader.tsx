@@ -6,6 +6,7 @@ import { auth } from '@/www/server/auth';
 import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { createEffect } from 'solid-js';
 import {
@@ -17,7 +18,7 @@ import {
 import Contents from './contents/contents';
 import './contents/contents.css';
 
-async function getHighlights(chapterId: string) {
+const getHighlights = GET(async (chapterId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -38,9 +39,9 @@ async function getHighlights(chapterId: string) {
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.highlights) || [];
     });
-}
+});
 
-async function getNotes(chapterId: string) {
+const getNotes = GET(async (chapterId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -61,7 +62,7 @@ async function getNotes(chapterId: string) {
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.notes) || [];
     });
-}
+});
 
 export type ReaderContentProps = {
   contents: Content[];

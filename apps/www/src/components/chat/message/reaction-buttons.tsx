@@ -1,6 +1,8 @@
 import { db } from '@/core/database';
 import { messageReactions } from '@/core/database/schema';
-import { auth, requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/auth';
+import { action } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
@@ -10,47 +12,44 @@ import { Button } from '../../ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';
 import { TextField, TextFieldTextArea } from '../../ui/text-field';
 
-const getReactions = async (messageId: string) => {
+const getReactions = GET(async (messageId: string) => {
   'use server';
-  const { user } = auth();
-  if (!user) {
-    return null;
-  }
-
+  const { user } = requireAuth();
   const reaction = await db.query.messageReactions.findFirst({
     where: (messageReactions, { and, eq }) =>
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, messageId)),
   });
-
   return reaction ?? null;
-};
+});
 
-const addReaction = async (props: {
-  reaction: typeof messageReactions.$inferSelect.reaction;
-  comment?: string;
-  messageId: string;
-}) => {
-  'use server';
-  const { user } = requireAuth();
-  const [reaction] = await db
-    .insert(messageReactions)
-    .values({
-      reaction: props.reaction,
-      comment: props.comment,
-      messageId: props.messageId,
-      userId: user.id,
-    })
-    .onConflictDoUpdate({
-      target: [messageReactions.userId, messageReactions.messageId],
-      set: {
+const addReaction = action(
+  async (props: {
+    reaction: typeof messageReactions.$inferSelect.reaction;
+    comment?: string;
+    messageId: string;
+  }) => {
+    'use server';
+    const { user } = requireAuth();
+    const [reaction] = await db
+      .insert(messageReactions)
+      .values({
         reaction: props.reaction,
-      },
-    })
-    .returning();
-  return reaction;
-};
+        comment: props.comment,
+        messageId: props.messageId,
+        userId: user.id,
+      })
+      .onConflictDoUpdate({
+        target: [messageReactions.userId, messageReactions.messageId],
+        set: {
+          reaction: props.reaction,
+        },
+      })
+      .returning();
+    return reaction;
+  },
+);
 
-const removeReaction = async (props: { messageId: string }) => {
+const removeReaction = action(async (props: { messageId: string }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -59,7 +58,7 @@ const removeReaction = async (props: { messageId: string }) => {
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, props.messageId)),
     );
   return { success: true };
-};
+});
 
 export type MessageReactionButtonsProps = {
   messageId: string;

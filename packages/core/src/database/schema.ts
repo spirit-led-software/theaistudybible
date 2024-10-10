@@ -15,7 +15,6 @@ import {
   text,
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
-import { DEFAULT_CREDITS } from '../utils/credits/default';
 import { createId } from '../utils/id';
 
 const timestamp = customType<{
@@ -159,7 +158,7 @@ export const userCredits = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     balance: integer('balance')
       .notNull()
-      .$defaultFn(() => DEFAULT_CREDITS),
+      .$defaultFn(() => 10),
     lastReadingCreditAt: timestamp('last_reading_credit_at'),
   },
   (table) => ({
@@ -278,7 +277,7 @@ export const messages = sqliteTable(
     }),
 
     // Fields required by the ai sdk
-    content: text('content').default(''),
+    content: text('content'),
     tool_call_id: text('tool_call_id'),
     role: text('role', {
       enum: ['system', 'user', 'assistant', 'data'],

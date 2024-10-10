@@ -13,14 +13,12 @@ import { Show } from 'solid-js';
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
     const { id } = params;
-    if (id) {
-      const qc = useQueryClient();
-      await Promise.all([
-        qc.prefetchInfiniteQuery(getChatsQueryOptions),
-        qc.prefetchQuery(getChatQueryProps(id)),
-        qc.prefetchInfiniteQuery(getChatMessagesQueryProps(id)),
-      ]);
-    }
+    const qc = useQueryClient();
+    await Promise.all([
+      qc.prefetchInfiniteQuery(getChatsQueryOptions()),
+      qc.prefetchQuery(getChatQueryProps(id)),
+      qc.prefetchInfiniteQuery(getChatMessagesQueryProps(id)),
+    ]);
   },
 };
 
@@ -31,11 +29,33 @@ export default function ChatPage() {
   return (
     <WithHeaderLayout>
       <Show
-        when={!params.id && chatStore.chat}
+        when={params.id}
         fallback={
+          <Show
+            when={chatStore.chat}
+            fallback={
+              <>
+                <SignedIn>
+                  <ChatWindow />
+                </SignedIn>
+                <SignedOut>
+                  <div class='flex h-full w-full flex-col items-center justify-center'>
+                    <SignIn />
+                  </div>
+                </SignedOut>
+              </>
+            }
+            keyed
+          >
+            {(chat) => <Navigate href={`/chat/${chat.id}`} />}
+          </Show>
+        }
+        keyed
+      >
+        {(id) => (
           <>
             <SignedIn>
-              <ChatWindow chatId={params.id} />
+              <ChatWindow chatId={id} />
             </SignedIn>
             <SignedOut>
               <div class='flex h-full w-full flex-col items-center justify-center'>
@@ -43,10 +63,7 @@ export default function ChatPage() {
               </div>
             </SignedOut>
           </>
-        }
-        keyed
-      >
-        {(chat) => <Navigate href={`/chat/${chat.id}`} />}
+        )}
       </Show>
     </WithHeaderLayout>
   );

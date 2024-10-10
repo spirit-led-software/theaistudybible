@@ -1,7 +1,7 @@
 import { requestPasswordReset } from '@/core/auth/providers/credentials';
 import { forgotPasswordSchema } from '@/core/auth/providers/credentials/schemas';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { A } from '@solidjs/router';
+import { A, action } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
@@ -14,11 +14,11 @@ export type ForgotPasswordProps = {
   onSuccess?: () => void;
 };
 
-async function handleForgotPassword(values: z.infer<typeof forgotPasswordSchema>) {
+const handleForgotPassword = action(async (values: z.infer<typeof forgotPasswordSchema>) => {
   'use server';
   await requestPasswordReset({ email: values.email });
   return { success: true };
-}
+});
 
 export const ForgotPassword = (props: ForgotPasswordProps) => {
   const [form, { Form, Field }] = createForm<z.infer<typeof forgotPasswordSchema>>({

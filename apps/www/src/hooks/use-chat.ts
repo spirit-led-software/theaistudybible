@@ -6,81 +6,89 @@ import { createId } from '@/core/utils/id';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
+import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
+import { toast } from 'solid-sonner';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
 
-const getChat = async (chatId: string) => {
+const getChat = GET(async (chatId?: string) => {
   'use server';
   const { user } = requireAuth();
+  if (!chatId) {
+    return null;
+  }
   const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
   return chat ?? null;
-};
+});
 
 export const getChatQueryProps = (chatId?: string) => ({
   queryKey: ['chat', { chatId: chatId ?? null }],
-  queryFn: async () => {
-    if (chatId) {
-      return await getChat(chatId);
-    }
-    return null;
-  },
+  queryFn: () => getChat(chatId),
+  enabled: !!chatId,
 });
 
-const getChatMessages = async ({
-  chatId,
-  limit,
-  offset,
-}: {
-  chatId: string;
-  limit: number;
-  offset: number;
-}) => {
-  'use server';
-  const { user } = requireAuth();
-  const messages = await db.query.messages.findMany({
-    where: (messages, { eq, and, or, ne }) =>
-      and(
-        eq(messages.userId, user.id),
-        eq(messages.chatId, chatId),
-        eq(messages.regenerated, false),
-        or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
-      ),
+const getChatMessages = GET(
+  async ({
+    chatId,
     limit,
     offset,
-    orderBy: (messages, { desc }) => desc(messages.createdAt),
-  });
-  return {
-    messages,
-    nextCursor: messages.length === limit ? offset + messages.length : undefined,
-  };
-};
+  }: {
+    chatId?: string;
+    limit: number;
+    offset: number;
+  }) => {
+    'use server';
+    const { user } = requireAuth();
+    if (!chatId) {
+      return {
+        messages: [],
+        nextCursor: undefined,
+      };
+    }
+
+    const messages = await db.query.messages.findMany({
+      where: (messages, { eq, and, or, ne, not }) =>
+        and(
+          eq(messages.userId, user.id),
+          eq(messages.chatId, chatId),
+          not(messages.regenerated),
+          or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
+        ),
+      limit,
+      offset,
+      orderBy: (messages, { desc }) => desc(messages.createdAt),
+    });
+    return {
+      messages,
+      nextCursor: messages.length === limit ? offset + messages.length : undefined,
+    };
+  },
+);
 
 export const getChatMessagesQueryProps = (chatId?: string) => ({
   queryKey: ['chat-messages', { chatId: chatId ?? null }],
-  queryFn: async ({ pageParam }: { pageParam: number }) => {
-    if (chatId) {
-      return await getChatMessages({ chatId, limit: 10, offset: pageParam });
-    }
-    return {
-      messages: [],
-      nextCursor: undefined,
-    } satisfies Awaited<ReturnType<typeof getChatMessages>>;
-  },
+  queryFn: ({ pageParam }: { pageParam: number }) =>
+    getChatMessages({ chatId, limit: 5, offset: pageParam }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
+  enabled: !!chatId,
 });
 
-const getChatSuggestions = async (chatId: string) => {
+const getChatSuggestions = GET(async (chatId?: string) => {
   'use server';
   const { user } = requireAuth();
+  if (!chatId) {
+    return [];
+  }
+
   const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,
@@ -107,16 +115,13 @@ These questions must drive the conversation forward and be thought-provoking.`,
     messages: convertToCoreMessages(messages),
   });
   return object.suggestions;
-};
+});
 
 export const getChatSuggestionsQueryProps = (chatId?: string) => ({
   queryKey: ['chat-suggestions', { chatId: chatId ?? null }],
-  queryFn: async () => {
-    if (chatId) {
-      return await getChatSuggestions(chatId);
-    }
-    return [];
-  },
+  queryFn: () => getChatSuggestions(chatId),
+  enabled: !!chatId,
+  staleTime: Number.MAX_SAFE_INTEGER,
 });
 
 export type UseChatProps = Prettify<
@@ -130,10 +135,8 @@ export type UseChatProps = Prettify<
 export const useChat = (props: Accessor<UseChatProps>) => {
   const qc = useQueryClient();
 
-  const [chatId, setChatId] = createSignal<string | undefined>(props()?.id);
-  createEffect(() => {
-    setChatId(props()?.id);
-  });
+  const [chatId, setChatId] = createSignal(props()?.id);
+  createEffect(() => setChatId(props()?.id));
 
   const useChatResult = useAIChat(() => ({
     ...props(),
@@ -153,8 +156,8 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       }
       return props()?.onResponse?.(response);
     },
-    onFinish: async (message, options) => {
-      await Promise.all([
+    onFinish: (message, options) => {
+      Promise.all([
         chatQuery.refetch(),
         messagesQuery.refetch(),
         followUpSuggestionsQuery.refetch(),
@@ -170,11 +173,14 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   }));
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
-  const chat = createMemo(() => {
-    if (!chatQuery.isLoading && chatQuery.data) {
-      return chatQuery.data;
+  const chat = createMemo(() =>
+    !chatQuery.isLoading && chatQuery.data ? chatQuery.data : undefined,
+  );
+  createEffect(() => {
+    if (!chatQuery.isLoading && chatQuery.error) {
+      console.error('Error fetching chat', JSON.stringify(chatQuery.error));
+      toast.error(`Error fetching chat: ${chatQuery.error.message}\n\t${chatQuery.error.stack}`);
     }
-    return null;
   });
 
   const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
@@ -189,22 +195,24 @@ export const useChat = (props: Accessor<UseChatProps>) => {
               ...message,
               createdAt: new Date(message.createdAt),
               content: message.content ?? '',
-              tool_call_id: message.tool_call_id ?? undefined,
               annotations: message.annotations ?? undefined,
               toolInvocations: message.toolInvocations ?? undefined,
+              tool_call_id: message.tool_call_id ?? undefined,
             })),
         );
       }
     }
   });
+  createEffect(() => {
+    if (!messagesQuery.isLoading && messagesQuery.error) {
+      console.error('Error fetching messages', JSON.stringify(messagesQuery.error));
+      toast.error(
+        `Error fetching messages: ${messagesQuery.error.message}\n\t${messagesQuery.error.stack}`,
+      );
+    }
+  });
 
-  const followUpSuggestionsQuery = createQuery(() => ({
-    ...getChatSuggestionsQueryProps(chatId()),
-    // Reduce LLM calls by setting this as never stale
-    gcTime: Number.POSITIVE_INFINITY,
-    staleTime: Number.POSITIVE_INFINITY,
-    enabled: !!chat(),
-  }));
+  const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chat()?.id));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(
     !followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data
       ? followUpSuggestionsQuery.data
@@ -213,6 +221,17 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   createEffect(() => {
     if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
       setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
+    }
+  });
+  createEffect(() => {
+    if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.error) {
+      console.error(
+        'Error fetching follow up suggestions',
+        JSON.stringify(followUpSuggestionsQuery.error),
+      );
+      toast.error(
+        `Error fetching follow up suggestions: ${followUpSuggestionsQuery.error.message}\n\t${followUpSuggestionsQuery.error.stack}`,
+      );
     }
   });
 

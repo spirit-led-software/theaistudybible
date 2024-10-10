@@ -4,12 +4,13 @@ import { Button } from '@/www/components/ui/button';
 import { Command, CommandEmpty, CommandInput, CommandList } from '@/www/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
 import ChapterPicker from './chapter';
 
-async function getBookPickerData(bibleId: string) {
+const getBookPickerData = GET(async (bibleId: string) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { or, eq }) => or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
@@ -30,7 +31,7 @@ async function getBookPickerData(bibleId: string) {
     bible,
     books,
   };
-}
+});
 
 export const bookPickerQueryOptions = (bibleId: string) => ({
   queryKey: ['book-picker', { bibleId }],

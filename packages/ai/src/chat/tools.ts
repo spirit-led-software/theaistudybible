@@ -293,7 +293,7 @@ export const vectorStoreTool = tool({
       .describe('1 to 4 search terms or phrases that will be used to find relevant resources.'),
   }),
   execute: async ({ terms }) => {
-    const maxDocs = 12;
+    const maxDocs = 8;
     return (
       await Promise.all(
         terms.map((term) =>

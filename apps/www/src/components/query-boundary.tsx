@@ -1,7 +1,6 @@
 import type { CreateQueryResult } from '@tanstack/solid-query';
 import type { JSX } from 'solid-js';
-import { Match, Show, Suspense, Switch } from 'solid-js';
-import { SentryErrorBoundary } from './error-boundary';
+import { ErrorBoundary, Match, Show, Suspense, Switch } from 'solid-js';
 import { Button } from './ui/button';
 import { Spinner } from './ui/spinner';
 import { H1, H6 } from './ui/typography';
@@ -41,25 +40,25 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
         <Show
           when={props.loadingFallback}
           fallback={
-            <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center'>
+            <div class='flex h-full w-full flex-1 place-items-center justify-center'>
               <Spinner class='mr-2 inline-block' /> Loading...
             </div>
           }
           keyed
         >
-          {(fallback) => (
+          {(notNullLoadingFallback) => (
             <Show
-              when={typeof fallback === 'function' && fallback}
-              fallback={fallback as JSX.Element}
+              when={typeof notNullLoadingFallback === 'function' && notNullLoadingFallback}
+              fallback={notNullLoadingFallback as JSX.Element}
               keyed
             >
-              {(fallback) => fallback()}
+              {(notNullLoadingFallbackFn) => notNullLoadingFallbackFn()}
             </Show>
           )}
         </Show>
       }
     >
-      <SentryErrorBoundary
+      <ErrorBoundary
         fallback={(err: Error, reset) => (
           <Show
             when={props.errorFallback}
@@ -79,8 +78,8 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
             }
             keyed
           >
-            {(fallback) =>
-              fallback(err, async () => {
+            {(notNullErrorFallback) =>
+              notNullErrorFallback(err, async () => {
                 await props.query.refetch();
                 reset();
               })
@@ -91,16 +90,14 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
         <Switch
           fallback={
             <Show when={props.notFoundFallback} keyed>
-              {(fallback) => (
+              {(notNullNotFoundFallback) => (
                 <Show
-                  when={typeof fallback === 'function' && fallback}
-                  fallback={fallback as JSX.Element}
+                  when={typeof notNullNotFoundFallback === 'function' && notNullNotFoundFallback}
+                  fallback={notNullNotFoundFallback as JSX.Element}
                   keyed
                 >
-                  {(fallback) =>
-                    fallback(async () => {
-                      await props.query.refetch();
-                    })
+                  {(notNullNotFoundFallbackFn) =>
+                    notNullNotFoundFallbackFn(() => props.query.refetch())
                   }
                 </Show>
               )}
@@ -118,16 +115,14 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
               }
               keyed
             >
-              {(fallback) => (
+              {(notNullNotFoundFallback) => (
                 <Show
-                  when={typeof fallback === 'function' && fallback}
-                  fallback={fallback as JSX.Element}
+                  when={typeof notNullNotFoundFallback === 'function' && notNullNotFoundFallback}
+                  fallback={notNullNotFoundFallback as JSX.Element}
                   keyed
                 >
-                  {(fallback) =>
-                    fallback(async () => {
-                      await props.query.refetch();
-                    })
+                  {(notNullNotFoundFallbackFn) =>
+                    notNullNotFoundFallbackFn(() => props.query.refetch())
                   }
                 </Show>
               )}
@@ -137,7 +132,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
             {props.children(props.query.data as Exclude<T, null | false | undefined>)}
           </Match>
         </Switch>
-      </SentryErrorBoundary>
+      </ErrorBoundary>
     </Suspense>
   );
 }

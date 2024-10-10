@@ -2,6 +2,7 @@ import { db } from '@/core/database';
 import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/auth';
 import { useLocation, useNavigate } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { Clock, X } from 'lucide-solid';
@@ -24,7 +25,7 @@ import { H6 } from '../../ui/typography';
 import { DeleteChatButton } from './delete-chat-button';
 import { EditChatButton } from './edit-chat-button';
 
-const getChats = async ({ offset, limit }: { offset: number; limit: number }) => {
+const getChats = GET(async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
   const { user } = requireAuth();
   const chats = await db.query.chats.findMany({
@@ -37,14 +38,14 @@ const getChats = async ({ offset, limit }: { offset: number; limit: number }) =>
     chats,
     nextCursor: chats.length === limit ? offset + chats.length : undefined,
   };
-};
+});
 
-export const getChatsQueryOptions = {
-  queryKey: ['chats', { limit: 10 }],
+export const getChatsQueryOptions = () => ({
+  queryKey: ['chats'],
   queryFn: ({ pageParam }: { pageParam: number }) => getChats({ offset: pageParam, limit: 10 }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: { nextCursor?: number }) => lastPage.nextCursor,
-};
+});
 
 export const ChatSidebar = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export const ChatSidebar = () => {
 
   const [chatStore, setChatStore] = useChatStore();
 
-  const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions);
+  const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions());
 
   const [chats, setChats] = createStore(
     !chatsQuery.isLoading && chatsQuery.data

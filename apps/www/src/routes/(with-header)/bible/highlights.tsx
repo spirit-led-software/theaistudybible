@@ -20,14 +20,15 @@ import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth, requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { A } from '@solidjs/router';
+import { A, action } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { TransitionGroup } from 'solid-transition-group';
 
-const getHighlights = async ({ limit, offset }: { limit: number; offset: number }) => {
+const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -36,6 +37,7 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
       nextCursor: undefined,
     };
   }
+
   const highlights = await db.query.verseHighlights.findMany({
     where: (verseHighlights, { eq }) => eq(verseHighlights.userId, user.id),
     with: {
@@ -55,16 +57,16 @@ const getHighlights = async ({ limit, offset }: { limit: number; offset: number 
     highlights,
     nextCursor: highlights.length === limit ? offset + limit : undefined,
   };
-};
+});
 
-const deleteHighlight = async (highlightId: string) => {
+const deleteHighlight = action(async (highlightId: string) => {
   'use server';
   const { user } = requireAuth();
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
   return { success: true };
-};
+});
 
 const getHighlightsQueryOptions = () => ({
   queryKey: ['highlights'],

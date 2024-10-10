@@ -8,7 +8,6 @@ import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { appendHeader } from 'vinxi/http';
 import type { z } from 'zod';
 import Logo from '../branding/logo';
 import { Button } from '../ui/button';
@@ -22,8 +21,7 @@ export type SignUpProps = {
 const signUpAction = action(async (values: z.infer<typeof signUpSchema>, redirectUrl = '/') => {
   'use server';
   const cookie = await signUp(values);
-  appendHeader('Set-Cookie', cookie.serialize());
-  throw redirect(redirectUrl);
+  throw redirect(redirectUrl, { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 
 export const SignUp = (props: SignUpProps) => {

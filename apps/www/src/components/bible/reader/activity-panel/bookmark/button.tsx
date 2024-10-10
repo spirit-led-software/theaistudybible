@@ -6,16 +6,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';
+import { action } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 
-const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
+const getSelectionBookmarked = GET(async (props: { verseIds: string[] }) => {
   'use server';
   if (!props.verseIds.length) {
-    return {
-      isBookmarked: false,
-    };
+    return { isBookmarked: false };
   }
 
   const { user } = auth();
@@ -29,11 +29,10 @@ const getSelectionBookmarked = async (props: { verseIds: string[] }) => {
     .where(
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
     );
-
   return { isBookmarked: bookmarks.length === props.verseIds.length };
-};
+});
 
-const bookmarkVerses = async (props: { verseIds: string[] }) => {
+const bookmarkVerses = action(async (props: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -46,9 +45,9 @@ const bookmarkVerses = async (props: { verseIds: string[] }) => {
     )
     .onConflictDoNothing();
   return { success: true };
-};
+});
 
-const unbookmarkVerses = async (props: { verseIds: string[] }) => {
+const unbookmarkVerses = action(async (props: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -57,7 +56,7 @@ const unbookmarkVerses = async (props: { verseIds: string[] }) => {
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),
     );
   return { success: true };
-};
+});
 
 export const BookmarkButton = () => {
   const { isSignedIn } = useAuth();

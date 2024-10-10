@@ -10,18 +10,18 @@ import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { Show, createEffect } from 'solid-js';
 
-const getDevotion = async ({ id }: { id: string }) => {
+const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
   const devotion = await db.query.devotions.findFirst({
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
   });
-
   return devotion ?? null;
-};
+});
 
 const getDevotionQueryProps = ({ id }: { id: string }) => ({
   queryKey: ['devotion', { id }],
@@ -33,7 +33,7 @@ export const route: RouteDefinition = {
     const { id } = params;
     const qc = useQueryClient();
     await Promise.all([
-      qc.prefetchInfiniteQuery(getDevotionsQueryOptions),
+      qc.prefetchInfiniteQuery(getDevotionsQueryOptions()),
       qc.prefetchQuery(getDevotionQueryProps({ id })),
     ]);
   },

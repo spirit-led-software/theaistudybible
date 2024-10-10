@@ -1,21 +1,16 @@
-import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
-import { formatDate } from 'date-fns';
+import { devtoolsPlugin } from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
-  server: {
-    preset: 'bun',
-    plugins: ['./sentry.plugin.ts'],
-    // @ts-expect-error - We know this is valid format
-    compatibilityDate: formatDate(new Date(), 'yyyy-MM-dd'),
-  },
+  server: { preset: 'bun' },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
+      devtoolsPlugin({ autoname: true, locator: { targetIDE: 'vscode' } }),
       VitePWA({
         includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
         manifest: {
@@ -51,7 +46,7 @@ export default defineConfig({
           start_url: '/',
         },
       }),
-      sentrySolidStartVite(),
     ],
   },
+  ssr: true,
 });

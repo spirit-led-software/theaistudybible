@@ -10,6 +10,7 @@ import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { requireAuth } from '@/www/server/auth';
+import { action } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
@@ -17,35 +18,37 @@ import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
-async function updateHighlights({ color, verseIds }: { color: string; verseIds: string[] }) {
-  'use server';
-  const { user } = requireAuth();
-  return await db
-    .insert(verseHighlights)
-    .values(
-      verseIds.map((id) => ({
-        color,
-        userId: user.id,
-        verseId: id,
-      })),
-    )
-    .onConflictDoUpdate({
-      target: [verseHighlights.userId, verseHighlights.verseId],
-      set: {
-        color,
-      },
-    })
-    .returning();
-}
+const updateHighlights = action(
+  async ({ color, verseIds }: { color: string; verseIds: string[] }) => {
+    'use server';
+    const { user } = requireAuth();
+    return await db
+      .insert(verseHighlights)
+      .values(
+        verseIds.map((id) => ({
+          color,
+          userId: user.id,
+          verseId: id,
+        })),
+      )
+      .onConflictDoUpdate({
+        target: [verseHighlights.userId, verseHighlights.verseId],
+        set: {
+          color,
+        },
+      })
+      .returning();
+  },
+);
 
-async function deleteHighlights({ verseIds }: { verseIds: string[] }) {
+const deleteHighlights = action(async ({ verseIds }: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
   await db
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
   return { success: true };
-}
+});
 
 export const HighlightCard = () => {
   const [brStore] = useBibleReaderStore();

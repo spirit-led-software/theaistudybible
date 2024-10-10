@@ -5,16 +5,17 @@ import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';
 import { H2, P } from '@/www/components/ui/typography';
 import { A } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Search } from 'lucide-solid';
 import { createMemo, createSignal } from 'solid-js';
 
-async function getBibles() {
+const getBibles = GET(async () => {
   'use server';
   return await db.query.bibles.findMany({
     with: { biblesToLanguages: { with: { language: true } } },
   });
-}
+});
 
 export const largeTranslationPickerQueryOptions = {
   queryKey: ['bibles'],

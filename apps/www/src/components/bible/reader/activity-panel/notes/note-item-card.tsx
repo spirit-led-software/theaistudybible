@@ -20,33 +20,35 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { requireAuth } from '@/www/server/auth';
-import { A } from '@solidjs/router';
+import { A, action } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const editNote = async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
-  'use server';
-  const { user } = requireAuth();
-  let note: VerseNote | ChapterNote;
-  if (props.type === 'chapter') {
-    [note] = await db
-      .update(chapterNotes)
-      .set({ content: props.content })
-      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)))
-      .returning();
-  } else {
-    [note] = await db
-      .update(verseNotes)
-      .set({ content: props.content })
-      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
-      .returning();
-  }
-  return note;
-};
+const editNote = action(
+  async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
+    'use server';
+    const { user } = requireAuth();
+    let note: VerseNote | ChapterNote;
+    if (props.type === 'chapter') {
+      [note] = await db
+        .update(chapterNotes)
+        .set({ content: props.content })
+        .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)))
+        .returning();
+    } else {
+      [note] = await db
+        .update(verseNotes)
+        .set({ content: props.content })
+        .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
+        .returning();
+    }
+    return note;
+  },
+);
 
-const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
+const deleteNote = action(async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
   'use server';
   const { user } = requireAuth();
   if (props.type === 'chapter') {
@@ -59,7 +61,7 @@ const deleteNote = async (props: { type: 'chapter' | 'verse'; noteId: string }) 
       .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
   }
   return { success: true };
-};
+});
 
 export type NoteItemCardProps = {
   note: ChapterNote | VerseNote;

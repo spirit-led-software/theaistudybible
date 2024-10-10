@@ -66,11 +66,11 @@ export async function getValidMessages({
   mustStartWithUserMessage?: boolean;
 }) {
   let messages = await db.query.messages.findMany({
-    where: (messages, { and, eq, or, isNull, ne }) =>
+    where: (messages, { and, eq, or, isNull, ne, not }) =>
       and(
         eq(messages.userId, userId),
         eq(messages.chatId, chatId),
-        eq(messages.regenerated, false),
+        not(messages.regenerated),
         or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
       ),
     orderBy: (messages, { desc }) => desc(messages.createdAt),

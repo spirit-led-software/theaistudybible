@@ -7,28 +7,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';
+import { action } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
 import { toast } from 'solid-sonner';
 
-const addBookmark = async (verseId: string) => {
-  'use server';
-  const { user } = requireAuth();
-  await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
-  return { success: true };
-};
-
-const deleteBookmark = async (verseId: string) => {
-  'use server';
-  const { user } = requireAuth();
-  await db
-    .delete(verseBookmarks)
-    .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)));
-  return { success: true };
-};
-
-const getBookmark = async (verseId: string) => {
+const getBookmark = GET(async (verseId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -39,9 +25,24 @@ const getBookmark = async (verseId: string) => {
     where: (verseBookmarks, { and, eq }) =>
       and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)),
   });
-
   return bookmark ?? null;
-};
+});
+
+const addBookmark = action(async (verseId: string) => {
+  'use server';
+  const { user } = requireAuth();
+  await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
+  return { success: true };
+});
+
+const deleteBookmark = action(async (verseId: string) => {
+  'use server';
+  const { user } = requireAuth();
+  await db
+    .delete(verseBookmarks)
+    .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)));
+  return { success: true };
+});
 
 export const getVerseBookmarkQueryOptions = ({
   userId,

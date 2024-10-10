@@ -51,9 +51,7 @@ export type CreateChatChainOptions = {
 export const createChatChain = (options: CreateChatChainOptions) => {
   return async (messages: Pick<Message, 'role' | 'content'>[]) => {
     // @ts-expect-error - Messages are not typed correctly
-    let coreMessages = convertToCoreMessages(messages);
-    // Fix weird issue where some messages are empty
-    coreMessages = coreMessages.filter((message) => (message.content?.length ?? 0) > 0);
+    const coreMessages = convertToCoreMessages(messages);
 
     const resolvedTools = tools({
       userId: options.userId,

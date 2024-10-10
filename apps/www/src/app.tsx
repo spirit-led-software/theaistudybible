@@ -1,20 +1,20 @@
-// @refresh reload
 import {
   COLOR_MODE_STORAGE_KEY,
   ColorModeProvider,
   ColorModeScript,
   cookieStorageManagerSSR,
 } from '@kobalte/core';
-import { withSentryRouterRouting } from '@sentry/solidstart/solidrouter';
 import { MultiProvider } from '@solid-primitives/context';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { Router } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
-import { Suspense, isServer } from 'solid-js/web';
+import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
+import { ErrorBoundary, Show, Suspense } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import Logo from './components/branding/logo';
-import { SentryErrorBoundary } from './components/error-boundary';
 import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/sonner';
 import { H1, H3 } from './components/ui/typography';
@@ -26,72 +26,74 @@ import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
 
-const SentryRouter = withSentryRouterRouting(Router);
-
-export function getServerCookies() {
+const getServerCookies = GET(() => {
   'use server';
   const colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
   return colorMode ? `${COLOR_MODE_STORAGE_KEY}=${colorMode}` : '';
-}
+});
 
 export default function App() {
   const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        gcTime: 1000 * 60 * 5,
-        staleTime: 1000 * 60 * 5,
-        experimental_prefetchInRender: true,
-      },
-    },
+    defaultOptions: { queries: { staleTime: 1000 * 30, experimental_prefetchInRender: true } },
   });
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
 
   return (
-    <SentryRouter
-      root={(props) => (
-        <MetaProvider>
-          <Title>The AI Study Bible</Title>
-          <Meta
-            name='description'
-            content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
-          />
-          <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <SolidQueryDevtools initialIsOpen={false} buttonPosition='top-left' />
+      <Router
+        root={(props) => (
+          <MetaProvider>
+            <Title>The AI Study Bible</Title>
+            <Meta
+              name='description'
+              content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
+            />
             <ColorModeScript storageType={storageManager.type} />
             <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
-              <SentryErrorBoundary
-                fallback={(err, reset) => (
-                  <div class='flex h-full w-full items-center justify-center'>
-                    <div class='flex w-full max-w-xl flex-col gap-3'>
-                      <H1>Oops, something went wrong</H1>
-                      <H3>{err.message}</H3>
-                      <Button onClick={reset}>Try again</Button>
-                    </div>
-                  </div>
-                )}
-              >
-                <Suspense
-                  fallback={
-                    <div class='flex h-full w-full items-center justify-center'>
-                      <div class='w-full max-w-xl'>
-                        <Logo />
+              <AuthProvider>
+                <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
+                  <ErrorBoundary
+                    fallback={(err, reset) => (
+                      <div class='flex h-full w-full items-center justify-center'>
+                        <div class='flex w-full max-w-xl flex-col gap-3'>
+                          <H1>Oops, something went wrong. Please contact support.</H1>
+                          <H3>{err.message}</H3>
+                          <pre class='whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
+                            {err.stack}
+                          </pre>
+                          <Show
+                            when={'cause' in err && err.cause instanceof Error && err.cause}
+                            keyed
+                          >
+                            {(cause) => <H3>{cause.message}</H3>}
+                          </Show>
+                          <Button onClick={reset}>Try again</Button>
+                        </div>
                       </div>
-                    </div>
-                  }
-                >
-                  <AuthProvider>
-                    <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
+                    )}
+                  >
+                    <Suspense
+                      fallback={
+                        <div class='flex h-full w-full items-center justify-center'>
+                          <div class='w-full max-w-xl'>
+                            <Logo />
+                          </div>
+                        </div>
+                      }
+                    >
                       {props.children}
-                      <Toaster />
-                    </MultiProvider>
-                  </AuthProvider>
-                </Suspense>
-              </SentryErrorBoundary>
+                    </Suspense>
+                    <Toaster />
+                  </ErrorBoundary>
+                </MultiProvider>
+              </AuthProvider>
             </ColorModeProvider>
-          </QueryClientProvider>
-        </MetaProvider>
-      )}
-    >
-      <FileRoutes />
-    </SentryRouter>
+          </MetaProvider>
+        )}
+      >
+        <FileRoutes />
+      </Router>
+    </QueryClientProvider>
   );
 }

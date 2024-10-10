@@ -12,6 +12,7 @@ import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { action } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Pencil } from 'lucide-solid';
 import { createSignal } from 'solid-js';
@@ -19,7 +20,7 @@ import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../ui/avatar';
 
-async function requestUpload(props: { name: string; contentType: string; size: number }) {
+const requestUpload = action(async (props: { name: string; contentType: string; size: number }) => {
   'use server';
   const { user } = requireAuth();
   const key = `${user.id}/${createId()}_${props.name}`;
@@ -37,7 +38,7 @@ async function requestUpload(props: { name: string; contentType: string; size: n
     { expiresIn: 3600 },
   );
   return { presignedUrl };
-}
+});
 
 export function UpdateAvatarDialog() {
   const { user, invalidate } = useAuth();
