@@ -1,10 +1,10 @@
+// @refresh reload
 import {
   COLOR_MODE_STORAGE_KEY,
   ColorModeProvider,
   ColorModeScript,
   cookieStorageManagerSSR,
 } from '@kobalte/core';
-import { MultiProvider } from '@solid-primitives/context';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { Router } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -17,7 +17,7 @@ import { getCookie } from 'vinxi/http';
 import Logo from './components/branding/logo';
 import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/sonner';
-import { H1, H3 } from './components/ui/typography';
+import { H1, H3, H4 } from './components/ui/typography';
 import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
@@ -52,41 +52,49 @@ export default function App() {
             <ColorModeScript storageType={storageManager.type} />
             <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
               <AuthProvider>
-                <MultiProvider values={[BibleProvider, ChatProvider, DevotionProvider]}>
-                  <ErrorBoundary
-                    fallback={(err, reset) => (
-                      <div class='flex h-full w-full items-center justify-center'>
-                        <div class='flex w-full max-w-xl flex-col gap-3'>
-                          <H1>Oops, something went wrong. Please contact support.</H1>
-                          <H3>{err.message}</H3>
-                          <pre class='whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                            {err.stack}
-                          </pre>
-                          <Show
-                            when={'cause' in err && err.cause instanceof Error && err.cause}
-                            keyed
-                          >
-                            {(cause) => <H3>{cause.message}</H3>}
-                          </Show>
-                          <Button onClick={reset}>Try again</Button>
-                        </div>
-                      </div>
-                    )}
-                  >
-                    <Suspense
-                      fallback={
-                        <div class='flex h-full w-full items-center justify-center'>
-                          <div class='w-full max-w-xl'>
-                            <Logo />
+                <BibleProvider>
+                  <ChatProvider>
+                    <DevotionProvider>
+                      <ErrorBoundary
+                        fallback={(err, reset) => (
+                          <div class='flex h-full w-full items-center justify-center'>
+                            <div class='flex w-full max-w-xl flex-col gap-3'>
+                              <H1>Oops, something went wrong. Please contact support.</H1>
+                              <H4>{err.message}</H4>
+                              <Show when={err.stack} keyed>
+                                {(stack) => (
+                                  <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
+                                    {stack}
+                                  </pre>
+                                )}
+                              </Show>
+                              <Show
+                                when={'cause' in err && err.cause instanceof Error && err.cause}
+                                keyed
+                              >
+                                {(cause) => <H3>{cause.message}</H3>}
+                              </Show>
+                              <Button onClick={reset}>Try again</Button>
+                            </div>
                           </div>
-                        </div>
-                      }
-                    >
-                      {props.children}
-                    </Suspense>
-                    <Toaster />
-                  </ErrorBoundary>
-                </MultiProvider>
+                        )}
+                      >
+                        <Suspense
+                          fallback={
+                            <div class='flex h-full w-full items-center justify-center'>
+                              <div class='w-full max-w-xl'>
+                                <Logo />
+                              </div>
+                            </div>
+                          }
+                        >
+                          {props.children}
+                        </Suspense>
+                        <Toaster />
+                      </ErrorBoundary>
+                    </DevotionProvider>
+                  </ChatProvider>
+                </BibleProvider>
               </AuthProvider>
             </ColorModeProvider>
           </MetaProvider>

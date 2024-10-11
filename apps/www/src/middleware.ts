@@ -7,7 +7,8 @@ import { getCookie, getHeader, setCookie } from 'vinxi/http';
 export default createMiddleware({
   onRequest: [
     ({ request }) => {
-      console.log(`Request: ${request.method} ${request.url}`);
+      const url = new URL(request.url);
+      console.log(`Request: ${request.method} ${url.pathname}`);
     },
     async ({ nativeEvent, locals }) => {
       if (nativeEvent.node.req.method !== 'GET') {
@@ -55,8 +56,9 @@ export default createMiddleware({
   ],
   onBeforeResponse: [
     ({ request, response }) => {
+      const url = new URL(request.url);
       console.log(
-        `Response: ${request.method} ${request.url} ${response.status} ${response.statusText ?? ''}`,
+        `Response: ${request.method} ${url.pathname} ${response.status} ${response.statusText ?? ''}`,
       );
     },
   ],

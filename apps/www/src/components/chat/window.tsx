@@ -31,11 +31,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const useChatResult = useChat(() => ({
     id: props.chatId ?? chatStore.chat?.id,
   }));
-  createEffect(
-    on(useChatResult.chat, (chat) => {
-      setChatStore('chat', chat ?? undefined);
-    }),
-  );
+  createEffect(on(useChatResult.chat, (chat) => setChatStore('chat', chat)));
 
   createEffect(
     on(
@@ -122,7 +118,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   message={message}
                   nextMessage={useChatResult.messages()[idx() + 1]}
                   addToolResult={useChatResult.addToolResult}
-                  isLoading={useChatResult.isLoading()}
+                  isLoading={useChatResult.isLoading}
                 />
               </div>
             )}

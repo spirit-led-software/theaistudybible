@@ -17,12 +17,9 @@ import { toast } from 'solid-sonner';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
 
-const getChat = GET(async (chatId?: string) => {
+const getChat = GET(async (chatId: string) => {
   'use server';
   const { user } = requireAuth();
-  if (!chatId) {
-    return null;
-  }
   const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
@@ -31,8 +28,12 @@ const getChat = GET(async (chatId?: string) => {
 
 export const getChatQueryProps = (chatId?: string) => ({
   queryKey: ['chat', { chatId: chatId ?? null }],
-  queryFn: () => getChat(chatId),
-  enabled: !!chatId,
+  queryFn: async () => {
+    if (chatId) {
+      return await getChat(chatId);
+    }
+    return null;
+  },
 });
 
 const getChatMessages = GET(
@@ -41,19 +42,12 @@ const getChatMessages = GET(
     limit,
     offset,
   }: {
-    chatId?: string;
+    chatId: string;
     limit: number;
     offset: number;
   }) => {
     'use server';
     const { user } = requireAuth();
-    if (!chatId) {
-      return {
-        messages: [],
-        nextCursor: undefined,
-      };
-    }
-
     const messages = await db.query.messages.findMany({
       where: (messages, { eq, and, or, ne, not }) =>
         and(
@@ -75,20 +69,19 @@ const getChatMessages = GET(
 
 export const getChatMessagesQueryProps = (chatId?: string) => ({
   queryKey: ['chat-messages', { chatId: chatId ?? null }],
-  queryFn: ({ pageParam }: { pageParam: number }) =>
-    getChatMessages({ chatId, limit: 5, offset: pageParam }),
+  queryFn: async ({ pageParam }: { pageParam: number }) => {
+    if (chatId) {
+      return await getChatMessages({ chatId: chatId!, limit: 5, offset: pageParam });
+    }
+    return { messages: [], nextCursor: undefined };
+  },
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
-  enabled: !!chatId,
 });
 
-const getChatSuggestions = GET(async (chatId?: string) => {
+const getChatSuggestions = GET(async (chatId: string) => {
   'use server';
   const { user } = requireAuth();
-  if (!chatId) {
-    return [];
-  }
-
   const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,
@@ -119,8 +112,12 @@ These questions must drive the conversation forward and be thought-provoking.`,
 
 export const getChatSuggestionsQueryProps = (chatId?: string) => ({
   queryKey: ['chat-suggestions', { chatId: chatId ?? null }],
-  queryFn: () => getChatSuggestions(chatId),
-  enabled: !!chatId,
+  queryFn: async () => {
+    if (chatId) {
+      return await getChatSuggestions(chatId);
+    }
+    return [];
+  },
   staleTime: Number.MAX_SAFE_INTEGER,
 });
 

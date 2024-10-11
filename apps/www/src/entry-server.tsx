@@ -3,7 +3,7 @@ import { StartServer, createHandler } from '@solidjs/start/server';
 
 export default createHandler(() => (
   <StartServer
-    document={(props) => (
+    document={({ assets, scripts, children }) => (
       <html lang='en'>
         <head>
           <meta charset='utf-8' />
@@ -316,11 +316,11 @@ export default createHandler(() => (
             media='screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)'
             href='/pwa/apple-splash/landscape-dark-1136x640.png'
           />
-          {props.assets}
+          {assets}
         </head>
         <body>
-          <div id='app'>{props.children}</div>
-          {props.scripts}
+          <div id='app'>{children}</div>
+          {scripts}
         </body>
       </html>
     )}

@@ -6,7 +6,7 @@ import { writeClipboard } from '@solid-primitives/clipboard';
 import { A } from '@solidjs/router';
 import type { Message as AIMessage } from 'ai/solid';
 import { Copy } from 'lucide-solid';
-import { Match, Show, Switch } from 'solid-js';
+import { type Accessor, Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { UserAvatar } from '../../auth/user-avatar';
 import Icon from '../../branding/icon';
@@ -20,7 +20,7 @@ export type MessageProps = {
   nextMessage?: AIMessage;
   message: AIMessage;
   addToolResult: ReturnType<typeof useChat>['addToolResult'];
-  isLoading: boolean;
+  isLoading: Accessor<boolean>;
 };
 
 export const Message = (props: MessageProps) => {
@@ -67,7 +67,7 @@ export const Message = (props: MessageProps) => {
             <Tools
               toolInvocations={toolInvocations}
               addToolResult={props.addToolResult}
-              isLoading={props.isLoading && !props.nextMessage}
+              isLoading={props.isLoading() && !props.nextMessage}
             />
           )}
         </Show>

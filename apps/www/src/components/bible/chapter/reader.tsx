@@ -95,11 +95,10 @@ export default function ChapterReader(props: ChapterReaderProps) {
     <div class='flex max-w-3xl flex-col items-center px-8 py-5'>
       <QueryBoundary
         query={query}
-        notFoundFallback={(retry) => (
+        notFoundFallback={
           <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center'>
             <H1>Chapter Not Found</H1>
             <div class='flex items-center gap-2'>
-              <Button onClick={retry}>Retry</Button>
               <Button
                 onClick={() => {
                   setBibleStore({
@@ -108,14 +107,14 @@ export default function ChapterReader(props: ChapterReaderProps) {
                     chapter: undefined,
                     verse: undefined,
                   });
-                  navigate(`/bible/${props.bibleAbbr}`);
+                  navigate('/bible');
                 }}
               >
-                Go to beginning
+                View other bibles
               </Button>
             </div>
           </div>
-        )}
+        }
       >
         {({ bible, book, chapter, rightsHolder }) => (
           <BibleReaderProvider bible={bible} book={book} chapter={chapter}>

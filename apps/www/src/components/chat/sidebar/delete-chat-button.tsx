@@ -37,10 +37,7 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const qc = useQueryClient();
   const deleteChatMutation = createMutation(() => ({
     mutationFn: () => deleteChat(props.chat.id),
-    onSettled: () =>
-      qc.invalidateQueries({
-        queryKey: ['chats'],
-      }),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['chats'] }),
   }));
 
   return (

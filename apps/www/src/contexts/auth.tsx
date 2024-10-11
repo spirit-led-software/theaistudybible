@@ -3,7 +3,7 @@ import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
 import { type Accessor, type JSX, createContext, useContext } from 'solid-js';
-import { getRequestEvent, isServer } from 'solid-js/web';
+import { isServer } from 'solid-js/web';
 import { auth } from '../server/auth';
 
 export type AuthContextType = {
@@ -34,8 +34,8 @@ export const useAuth = () => {
     isSignedIn: () => context.session() !== null && context.user() !== null,
     isAdmin: () => context.roles()?.some((role) => role.id === 'admin') ?? false,
     invalidate: () =>
-      queryClient.invalidateQueries({ queryKey: authProviderQueryOptions.queryKey }),
-    refetch: () => queryClient.refetchQueries({ queryKey: authProviderQueryOptions.queryKey }),
+      queryClient.invalidateQueries({ queryKey: authProviderQueryOptions().queryKey }),
+    refetch: () => queryClient.refetchQueries({ queryKey: authProviderQueryOptions().queryKey }),
     ...context,
   };
 };
@@ -45,20 +45,20 @@ const getAuth = GET(() => {
   return auth();
 });
 
-export const authProviderQueryOptions = {
+export const authProviderQueryOptions = () => ({
   queryKey: ['auth-context'],
   queryFn: () => getAuth(),
-};
+});
 
 export type AuthProviderProps = {
   children: JSX.Element;
 };
 
 export const AuthProvider = (props: AuthProviderProps) => {
-  const initialData = isServer ? getRequestEvent()?.locals : undefined;
+  const initialData = isServer ? getAuth() : undefined;
 
   const query = createQuery(() => ({
-    ...authProviderQueryOptions,
+    ...authProviderQueryOptions(),
     initialData,
   }));
 
