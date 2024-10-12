@@ -57,7 +57,9 @@ export const DevotionSidebar = () => {
   );
   createEffect(() => {
     if (!devotionsQuery.isLoading && devotionsQuery.data) {
-      setDevotions(reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions)));
+      setDevotions(
+        reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions, { merge: true })),
+      );
     }
   });
 

@@ -100,6 +100,7 @@ export const NotesCard = () => {
         reconcile(
           // @ts-expect-error - Types are messed up for some reason
           query.data.pages.flatMap((page) => page.notes),
+          { merge: true },
         ),
       );
     }

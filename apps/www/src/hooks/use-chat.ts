@@ -217,7 +217,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   );
   createEffect(() => {
     if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
-      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
+      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data, { merge: true }));
     }
   });
   createEffect(() => {

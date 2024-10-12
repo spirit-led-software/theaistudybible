@@ -87,7 +87,7 @@ const NotesPage = () => {
   );
   createEffect(() => {
     if (!notesQuery.isLoading && notesQuery.data) {
-      setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes)));
+      setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes, { merge: true })));
     }
   });
 

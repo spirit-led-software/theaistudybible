@@ -97,7 +97,9 @@ const HighlightsPage = () => {
   );
   createEffect(() => {
     if (!highlightsQuery.isLoading && highlightsQuery.data) {
-      setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));
+      setHighlights(
+        reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights, { merge: true })),
+      );
     }
   });
 
