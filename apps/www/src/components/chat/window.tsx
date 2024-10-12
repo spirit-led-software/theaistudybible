@@ -53,7 +53,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [messages, setMessages] = createStore(useChatResult.messages());
   createEffect(
     on(useChatResult.messages, (messages) => {
-      setMessages(reconcile(messages));
+      setMessages(reconcile(messages, { merge: true }));
     }),
   );
 
@@ -114,9 +114,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
             {(message, idx) => (
               <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
                 <Message
-                  previousMessage={useChatResult.messages()[idx() - 1]}
+                  previousMessage={messages[idx() - 1]}
                   message={message}
-                  nextMessage={useChatResult.messages()[idx() + 1]}
+                  nextMessage={messages[idx() + 1]}
                   addToolResult={useChatResult.addToolResult}
                   isLoading={useChatResult.isLoading}
                 />
