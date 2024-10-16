@@ -28,32 +28,45 @@ export type ChatWindowProps = {
 export const ChatWindow = (props: ChatWindowProps) => {
   const [chatStore, setChatStore] = useChatStore();
 
-  const useChatResult = useChat(() => ({
+  const {
+    input,
+    setInput,
+    handleSubmit,
+    isLoading,
+    error,
+    chat,
+    messages,
+    messagesQuery,
+    append,
+    addToolResult,
+    followUpSuggestions,
+    followUpSuggestionsQuery,
+  } = useChat(() => ({
     id: props.chatId ?? chatStore.chat?.id,
   }));
-  createComputed(on(useChatResult.chat, (chat) => setChatStore('chat', chat)));
+  createComputed(on(chat, (chat) => setChatStore('chat', chat)));
 
   createEffect(
     on(
       () => props.initInput,
       (initInput) => {
-        useChatResult.setInput(initInput ?? '');
+        setInput(initInput ?? '');
       },
     ),
   );
 
   createEffect(
-    on(useChatResult.error, (error) => {
+    on(error, (error) => {
       if (error) {
         toast.error(error.message);
       }
     }),
   );
 
-  const [messages, setMessages] = createStore(useChatResult.messages());
+  const [messagesReversed, setMessagesReversed] = createStore(messages().toReversed());
   createEffect(
-    on(useChatResult.messages, (messages) => {
-      setMessages(reconcile(messages.toReversed(), { merge: true }));
+    on(messages, (messages) => {
+      setMessagesReversed(reconcile(messages.toReversed(), { merge: true }));
     }),
   );
 
@@ -79,23 +92,19 @@ export const ChatWindow = (props: ChatWindowProps) => {
           <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
           <Show
             when={
-              !useChatResult.isLoading() &&
-              !useChatResult.followUpSuggestionsQuery.isFetching &&
-              useChatResult.followUpSuggestions.length
+              !isLoading() && !followUpSuggestionsQuery.isFetching && followUpSuggestions.length
             }
           >
             <div class='fade-in zoom-in flex w-full max-w-2xl animate-in flex-col gap-2 pb-2'>
               <H6 class='text-center'>Follow-up Questions</H6>
               <Carousel class='mx-16 overflow-x-visible'>
                 <CarouselContent>
-                  <For each={useChatResult.followUpSuggestions}>
+                  <For each={followUpSuggestions}>
                     {(suggestion) => (
                       <CarouselItem class='flex justify-center'>
                         <Button
                           class='mx-2 h-full w-full text-wrap rounded-full'
-                          onClick={() =>
-                            useChatResult.append({ role: 'user', content: suggestion })
-                          }
+                          onClick={() => append({ role: 'user', content: suggestion })}
                         >
                           {suggestion}
                         </Button>
@@ -109,7 +118,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             </div>
           </Show>
           <For
-            each={messages}
+            each={messagesReversed}
             fallback={
               <div class='flex h-full w-full flex-1 items-center justify-center p-20'>
                 <H5>No messages yet</H5>
@@ -119,11 +128,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
             {(message, idx) => (
               <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
                 <Message
-                  previousMessage={messages[idx() + 1]}
+                  previousMessage={messagesReversed[idx() + 1]}
                   message={message}
-                  nextMessage={messages[idx() - 1]}
-                  addToolResult={useChatResult.addToolResult}
-                  isLoading={useChatResult.isLoading}
+                  nextMessage={messagesReversed[idx() - 1]}
+                  addToolResult={addToolResult}
+                  isLoading={isLoading}
                 />
               </div>
             )}
@@ -131,21 +140,18 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </div>
         <div class='flex w-full items-start justify-center'>
           <Switch>
-            <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
+            <Match when={messagesQuery.isFetchingNextPage}>
               <Spinner size='sm' />
             </Match>
-            <Match when={useChatResult.messagesQuery.hasNextPage}>
+            <Match when={messagesQuery.hasNextPage}>
               <div class='flex flex-col items-center justify-center'>
                 <Button
                   variant='link'
                   size='icon'
                   class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
                   onClick={() => {
-                    if (
-                      useChatResult.messagesQuery.hasNextPage &&
-                      !useChatResult.messagesQuery.isFetchingNextPage
-                    ) {
-                      void useChatResult.messagesQuery.fetchNextPage();
+                    if (messagesQuery.hasNextPage && !messagesQuery.isFetchingNextPage) {
+                      void messagesQuery.fetchNextPage();
                     }
                   }}
                 >
@@ -161,18 +167,18 @@ export const ChatWindow = (props: ChatWindowProps) => {
         class='relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2'
         onSubmit={(e) => {
           e.preventDefault();
-          if (!useChatResult.input()) {
+          if (!input()) {
             toast.error('Please type a message');
             return;
           }
-          useChatResult.handleSubmit(e);
+          handleSubmit(e);
         }}
       >
         <div class='flex w-full max-w-2xl items-center rounded-full border py-2 pr-1 pl-5'>
           <TextField
             class='flex flex-1 items-center'
-            value={useChatResult.input()}
-            onChange={useChatResult.setInput}
+            value={input()}
+            onChange={setInput}
             autoCapitalize='sentences'
           >
             <TextFieldTextArea
@@ -190,13 +196,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 size='icon'
                 variant='outline'
                 class='rounded-full'
-                disabled={useChatResult.isLoading()}
+                disabled={isLoading()}
               >
                 <Send size={20} />
               </Button>
             }
           >
-            <Match when={useChatResult.isLoading()}>
+            <Match when={isLoading()}>
               <Spinner size='sm' />
             </Match>
           </Switch>

@@ -158,7 +158,10 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     },
   }));
 
-  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+  const chatQuery = createQuery(() => ({
+    ...getChatQueryProps(chatId()),
+    keepPreviousData: true,
+  }));
   const [chat, setChat] = createSignal(
     !chatQuery.isLoading && chatQuery.data !== undefined ? chatQuery.data : null,
   );
@@ -190,7 +193,10 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     }
   });
 
-  const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chat()?.id));
+  const followUpSuggestionsQuery = createQuery(() => ({
+    ...getChatSuggestionsQueryProps(chatId()),
+    keepPreviousData: true,
+  }));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(
     !followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data
       ? followUpSuggestionsQuery.data
