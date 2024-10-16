@@ -5,9 +5,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/www/components/ui/accordion';
-import { Button } from '@/www/components/ui/button';
+import { buttonVariants } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H5, H6 } from '@/www/components/ui/typography';
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import type { ToolInvocation } from 'ai';
 import { Search } from 'lucide-solid';
@@ -67,14 +68,12 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
                   <For each={result}>
                     {(doc) => (
                       <li class='list-item'>
-                        <Button
-                          as={A}
-                          href={doc.metadata!.url as string}
-                          variant='link'
-                          class='h-fit p-0 text-xs'
+                        <A
+                          href={doc.metadata?.url ?? ''}
+                          class={cn(buttonVariants({ variant: 'link' }), 'h-fit p-0 text-xs')}
                         >
-                          {doc.metadata!.name}
-                        </Button>
+                          {doc.metadata?.name ?? doc.metadata?.title ?? doc.metadata?.url ?? ''}
+                        </A>
                       </li>
                     )}
                   </For>

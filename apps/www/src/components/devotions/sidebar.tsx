@@ -40,7 +40,7 @@ export const getDevotionsQueryOptions = () => ({
   queryKey: ['devotions'],
   queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 10 }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: { nextCursor?: number }) => lastPage.nextCursor,
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
 });
 
 export const DevotionSidebar = () => {

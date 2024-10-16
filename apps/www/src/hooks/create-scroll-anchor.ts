@@ -6,7 +6,6 @@ export const createScrollAnchor = () => {
   const [visibilityRef, setVisibilityRef] = createSignal<HTMLDivElement>();
 
   const [isAtBottom, setIsAtBottom] = createSignal(true);
-  const [isVisible, setIsVisible] = createSignal(false);
   const [shouldScrollToBottom, setShouldScrollToBottom] = createSignal(true);
 
   const scrollToBottomInstant = () => {
@@ -34,22 +33,21 @@ export const createScrollAnchor = () => {
 
   createEffect(() => {
     const current = scrollRef();
+    const visibilityCurrent = visibilityRef();
 
-    if (current) {
-      const handleScroll = () => {
-        const { scrollTop, scrollHeight, clientHeight } = current;
-        const offset = 10; // Small offset to account for minor discrepancies
-        const bottomPosition = scrollTop + clientHeight;
-        const newIsAtBottom = bottomPosition >= scrollHeight - offset;
+    if (current && visibilityCurrent) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsAtBottom(entry.isIntersecting);
+          setShouldScrollToBottom(entry.isIntersecting);
+        },
+        { root: current, threshold: 1 },
+      );
 
-        setIsAtBottom(newIsAtBottom);
-        setShouldScrollToBottom(newIsAtBottom);
-      };
-
-      current.addEventListener('scroll', handleScroll, { passive: true });
+      observer.observe(visibilityCurrent);
 
       return () => {
-        current.removeEventListener('scroll', handleScroll);
+        observer.disconnect();
       };
     }
   });
@@ -71,29 +69,7 @@ export const createScrollAnchor = () => {
     }
 
     return () => observer.disconnect();
-  }, [isAtBottom, scrollToBottomInstant]);
-
-  createEffect(() => {
-    const current = visibilityRef();
-    if (current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            setIsVisible(entry.isIntersecting);
-          }
-        },
-        {
-          rootMargin: '0px 0px -150px 0px',
-        },
-      );
-
-      observer.observe(current);
-
-      return () => {
-        observer.disconnect();
-      };
-    }
-  }, []);
+  });
 
   return {
     messagesRef,
@@ -105,6 +81,5 @@ export const createScrollAnchor = () => {
     scrollToBottomInstant,
     scrollToBottomSmooth,
     isAtBottom,
-    isVisible,
   };
 };

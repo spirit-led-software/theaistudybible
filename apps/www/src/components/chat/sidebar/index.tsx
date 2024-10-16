@@ -44,7 +44,7 @@ export const getChatsQueryOptions = () => ({
   queryKey: ['chats'],
   queryFn: ({ pageParam }: { pageParam: number }) => getChats({ offset: pageParam, limit: 10 }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: { nextCursor?: number }) => lastPage.nextCursor,
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChats>>) => lastPage.nextCursor,
 });
 
 export const ChatSidebar = () => {

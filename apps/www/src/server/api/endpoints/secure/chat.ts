@@ -194,6 +194,7 @@ const app = new Hono<{
           if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
             await restoreCreditsOnFailure(c.var.user!.id, 'chat');
           }
+          streamData.append('complete');
           await streamData.close();
         },
       });
@@ -202,7 +203,6 @@ const app = new Hono<{
 
       return stream(c, async (stream) => {
         c.header('X-Chat-Id', chat.id);
-        c.header('X-Model-Id', modelId);
 
         // Mark the response as a v1 data stream:
         c.header('X-Vercel-AI-Data-Stream', 'v1');

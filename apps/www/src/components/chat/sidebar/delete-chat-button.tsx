@@ -42,7 +42,7 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
     onSettled: () => {
       if (chatStore.chat?.id === props.chat.id) {
         setChatStore('chat', undefined);
-        navigate('/chats', { replace: true });
+        navigate('/chat', { replace: true });
       }
       qc.invalidateQueries({ queryKey: ['chats'] });
     },

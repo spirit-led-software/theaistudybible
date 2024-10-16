@@ -3,6 +3,7 @@ import { registry } from '@/ai/provider-registry';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
+import type { Chat } from '@/schemas/chats/types';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
@@ -11,7 +12,7 @@ import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/soli
 import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
+import { createEffect, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
@@ -70,7 +71,7 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
   queryKey: ['chat-messages', { chatId: chatId ?? null }],
   queryFn: async ({ pageParam }: { pageParam: number }) => {
     if (chatId) {
-      return await getChatMessages({ chatId: chatId!, limit: 5, offset: pageParam });
+      return await getChatMessages({ chatId: chatId!, limit: 10, offset: pageParam });
     }
     return { messages: [], nextCursor: undefined };
   },
@@ -152,28 +153,24 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       }
       return props()?.onResponse?.(response);
     },
-    onFinish: async (message, options) => {
-      await Promise.all([
-        chatQuery.refetch(),
-        messagesQuery.refetch(),
-        followUpSuggestionsQuery.refetch(),
-        qc.invalidateQueries({ queryKey: ['chats'] }),
-        qc.invalidateQueries({ queryKey: ['user-credits'] }),
-      ]);
-      return props()?.onFinish?.(message, options);
-    },
     onError: (err) => {
       console.error(err);
       return props()?.onError?.(err);
     },
   }));
 
+  const [chat, setChat] = createSignal<Chat>();
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
-  const chat = createMemo(() =>
-    !chatQuery.isLoading && chatQuery.data ? chatQuery.data : undefined,
-  );
+  createEffect(() => {
+    if (!chatQuery.isLoading && chatQuery.data) {
+      setChat(chatQuery.data);
+    }
+  });
 
-  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  const messagesQuery = createInfiniteQuery(() => ({
+    ...getChatMessagesQueryProps(chatId()),
+    keepPreviousData: true,
+  }));
   createEffect(() => {
     if (!messagesQuery.isLoading && messagesQuery.data && !useChatResult.isLoading()) {
       useChatResult.setMessages(
@@ -222,14 +219,27 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   createEffect(
     on(useChatResult.data, (data) => {
       const lastData = data?.at(-1);
-      if (lastData && typeof lastData === 'object' && 'lastResponseId' in lastData) {
-        useChatResult.setMessages((messages) => [
-          ...messages.slice(0, -1),
-          {
-            ...messages.at(-1)!,
-            id: lastData.lastResponseId as string,
-          },
-        ]);
+      if (lastData && typeof lastData === 'object') {
+        if ('lastResponseId' in lastData) {
+          useChatResult.setMessages((messages) => [
+            ...messages.slice(0, -1),
+            {
+              ...messages.at(-1)!,
+              id: lastData.lastResponseId as string,
+            },
+          ]);
+        }
+      }
+      if (lastData && typeof lastData === 'string') {
+        if (lastData === 'complete') {
+          Promise.all([
+            chatQuery.refetch(),
+            messagesQuery.refetch(),
+            followUpSuggestionsQuery.refetch(),
+            qc.invalidateQueries({ queryKey: ['chats'] }),
+            qc.invalidateQueries({ queryKey: ['user-credits'] }),
+          ]);
+        }
       }
     }),
   );

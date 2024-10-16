@@ -53,7 +53,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [messages, setMessages] = createStore(useChatResult.messages());
   createEffect(
     on(useChatResult.messages, (messages) => {
-      setMessages(reconcile(messages, { merge: true }));
+      setMessages(reconcile(messages.toReversed(), { merge: true }));
     }),
   );
 
@@ -68,61 +68,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
         <Button
           variant='outline'
           size='icon'
-          class='-translate-x-1/2 absolute right-1/2 bottom-20 left-1/2 z-40 rounded-full bg-background shadow-lg'
+          class='-translate-x-1/2 absolute bottom-20 left-1/2 z-40 rounded-full bg-background shadow-lg'
           onClick={scrollToBottomSmooth}
         >
           <ChevronDown />
         </Button>
       </Show>
-      <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
-        <div class='flex w-full items-end justify-center'>
-          <Switch>
-            <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
-              <Spinner size='sm' />
-            </Match>
-            <Match when={useChatResult.messagesQuery.hasNextPage}>
-              <div class='flex flex-col items-center justify-center'>
-                <Button
-                  variant='link'
-                  size='icon'
-                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
-                  onClick={() => {
-                    if (
-                      useChatResult.messagesQuery.hasNextPage &&
-                      !useChatResult.messagesQuery.isFetchingNextPage
-                    ) {
-                      void useChatResult.messagesQuery.fetchNextPage();
-                    }
-                  }}
-                >
-                  <ChevronUp />
-                  More
-                </Button>
-              </div>
-            </Match>
-          </Switch>
-        </div>
-        <div ref={setMessagesRef} class='flex flex-1 flex-col items-center justify-end'>
-          <For
-            each={messages}
-            fallback={
-              <div class='flex h-full w-full grow items-center justify-center p-20'>
-                <H5>No messages yet</H5>
-              </div>
-            }
-          >
-            {(message, idx) => (
-              <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
-                <Message
-                  previousMessage={messages[idx() - 1]}
-                  message={message}
-                  nextMessage={messages[idx() + 1]}
-                  addToolResult={useChatResult.addToolResult}
-                  isLoading={useChatResult.isLoading}
-                />
-              </div>
-            )}
-          </For>
+      <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col-reverse overflow-y-auto'>
+        <div ref={setMessagesRef} class='flex flex-1 flex-col-reverse items-center justify-start'>
+          <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
           <Show
             when={
               !useChatResult.isLoading() &&
@@ -154,7 +108,53 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Carousel>
             </div>
           </Show>
-          <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
+          <For
+            each={messages}
+            fallback={
+              <div class='flex h-full w-full flex-1 items-center justify-center p-20'>
+                <H5>No messages yet</H5>
+              </div>
+            }
+          >
+            {(message, idx) => (
+              <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
+                <Message
+                  previousMessage={messages[idx() + 1]}
+                  message={message}
+                  nextMessage={messages[idx() - 1]}
+                  addToolResult={useChatResult.addToolResult}
+                  isLoading={useChatResult.isLoading}
+                />
+              </div>
+            )}
+          </For>
+        </div>
+        <div class='flex w-full items-start justify-center'>
+          <Switch>
+            <Match when={useChatResult.messagesQuery.isFetchingNextPage}>
+              <Spinner size='sm' />
+            </Match>
+            <Match when={useChatResult.messagesQuery.hasNextPage}>
+              <div class='flex flex-col items-center justify-center'>
+                <Button
+                  variant='link'
+                  size='icon'
+                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
+                  onClick={() => {
+                    if (
+                      useChatResult.messagesQuery.hasNextPage &&
+                      !useChatResult.messagesQuery.isFetchingNextPage
+                    ) {
+                      void useChatResult.messagesQuery.fetchNextPage();
+                    }
+                  }}
+                >
+                  <ChevronUp />
+                  More
+                </Button>
+              </div>
+            </Match>
+          </Switch>
         </div>
       </div>
       <form
