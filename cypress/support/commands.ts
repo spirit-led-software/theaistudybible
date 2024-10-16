@@ -32,7 +32,7 @@ Cypress.Commands.add('login', (email: string, password: string) => {
   cy.waitUntil(() => cy.getCookie('auth_session').then((cookie) => cookie !== null), {
     timeout: Cypress.config('defaultCommandTimeout') * 5,
     interval: 200,
-    errorMsg: 'Timed out waiting for authentication or redirection',
+    errorMsg: 'Timed out waiting for session cookie',
   });
 });
 
