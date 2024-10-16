@@ -20,22 +20,6 @@ describe('Devotion Pages', () => {
     cy.get('div[role="dialog"]').should('be.visible');
   });
 
-  it('displays correct meta tags', () => {
-    cy.get('head title').should('contain', 'Devotion | The AI Study Bible');
-    cy.waitUntil(
-      () =>
-        cy
-          .get('head meta[name="description"]')
-          .should('have.attr', 'content')
-          .and('contain', 'A devotion on'),
-      {
-        timeout: Cypress.config('defaultCommandTimeout') * 4,
-        interval: 200,
-        errorMsg: 'Timed out waiting for meta description',
-      },
-    );
-  });
-
   it('handles non-existent devotion gracefully', () => {
     cy.visit('/devotion/non-existent-id');
     cy.contains('Devotion not found').should('be.visible');

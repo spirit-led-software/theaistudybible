@@ -14,7 +14,7 @@ node_modules
 .vscode
 
 # Migrations
-migrations
+/migrations
 
 # Turbo
 .turbo
@@ -26,6 +26,9 @@ migrations
 # Infra files
 sst.config.ts
 /infra
+
+# Cypress
+/cypress
 
 # Cursor
 .cursorrules
