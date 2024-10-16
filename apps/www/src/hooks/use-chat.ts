@@ -160,10 +160,10 @@ export const useChat = (props: Accessor<UseChatProps>) => {
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
   const [chat, setChat] = createSignal(
-    !chatQuery.isLoading && chatQuery.data ? chatQuery.data : undefined,
+    !chatQuery.isLoading && chatQuery.data !== undefined ? chatQuery.data : null,
   );
   createEffect(() => {
-    if (!chatQuery.isLoading && chatQuery.data) {
+    if (!chatQuery.isLoading && chatQuery.data !== undefined) {
       setChat(chatQuery.data);
     }
   });

@@ -12,7 +12,7 @@ import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { Show, createEffect } from 'solid-js';
+import { Show, createComputed } from 'solid-js';
 
 const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
@@ -46,8 +46,8 @@ const DevotionPage = () => {
   const devotionQuery = createQuery(() => ({
     ...getDevotionQueryProps({ id: params.id }),
   }));
-  createEffect(() => {
-    if (!devotionQuery.isLoading && devotionQuery.data) {
+  createComputed(() => {
+    if (!devotionQuery.isLoading && devotionQuery.data !== undefined) {
       setDevotionStore('devotion', devotionQuery.data);
     }
   });

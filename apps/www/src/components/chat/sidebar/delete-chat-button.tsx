@@ -41,7 +41,7 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
     mutationFn: () => deleteChat(props.chat.id),
     onSettled: () => {
       if (chatStore.chat?.id === props.chat.id) {
-        setChatStore('chat', undefined);
+        setChatStore('chat', null);
         navigate('/chat', { replace: true });
       }
       qc.invalidateQueries({ queryKey: ['chats'] });
@@ -74,8 +74,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
             variant='destructive'
             onClick={() => {
               if (chatStore.chat?.id === props.chat.id) {
-                setChatStore('chat', undefined);
-                navigate('/chats', { replace: true });
+                setChatStore('chat', null);
+                navigate('/chat', { replace: true });
               }
               deleteChatMutation.mutate();
             }}

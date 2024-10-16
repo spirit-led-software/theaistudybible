@@ -6,10 +6,10 @@ import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 
 export type BibleStore = {
-  bible?: Bible;
-  book?: Book;
-  chapter?: Chapter;
-  verse?: Verse;
+  bible: Bible | null;
+  book: Book | null;
+  chapter: Chapter | null;
+  verse: Verse | null;
 };
 
 export type BibleContextValue = [get: Store<BibleStore>, set: SetStoreFunction<BibleStore>];
@@ -29,14 +29,12 @@ export const BibleProvider = (props: BibleProviderProps) => {
 
   const [store, setStore] = makePersisted(
     createStore<BibleStore>({
-      bible: others.bible,
-      book: others.book,
-      chapter: others.chapter,
-      verse: others.verse,
+      bible: others.bible ?? null,
+      book: others.book ?? null,
+      chapter: others.chapter ?? null,
+      verse: others.verse ?? null,
     }),
-    {
-      name: 'bible',
-    },
+    { name: 'bible' },
   );
 
   return (

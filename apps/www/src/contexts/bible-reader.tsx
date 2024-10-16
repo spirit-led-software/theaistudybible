@@ -18,7 +18,7 @@ export type BibleReaderStore = {
   bible: Bible;
   book: Book;
   chapter: Omit<Chapter, 'content'> & { content?: Content[] };
-  verse?: Omit<Verse, 'content'> & { content?: Content[] };
+  verse: (Omit<Verse, 'content'> & { content?: Content[] }) | null;
   selectedVerseInfos: SelectedVerseInfo[];
   selectedIds: string[];
   selectedTitle: string;
@@ -48,7 +48,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     bible: others.bible,
     book: others.book,
     chapter: others.chapter,
-    verse: others.verse,
+    verse: others.verse ?? null,
     selectedVerseInfos: others.selectedVerseInfos ?? [],
     get selectedIds(): string[] {
       return this.selectedVerseInfos.flatMap((info: SelectedVerseInfo) => info.contentIds);

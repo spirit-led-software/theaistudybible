@@ -25,8 +25,7 @@ export const ChatMenu = () => {
               size='icon'
               variant='ghost'
               onClick={() => {
-                setChatStore('chat', undefined);
-
+                setChatStore('chat', null);
                 if (location.pathname.startsWith('/chat')) {
                   navigate('/chat');
                 }

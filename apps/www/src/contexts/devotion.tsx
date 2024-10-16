@@ -6,7 +6,7 @@ import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 
 export type DevotionStore = {
-  devotion?: Devotion;
+  devotion: Devotion | null;
 };
 
 export type DevotionContextValue = [
@@ -26,11 +26,9 @@ export const DevotionProvider = (props: DevotionProviderProps) => {
 
   const [store, setStore] = makePersisted(
     createStore<DevotionStore>({
-      devotion: others.devotion,
+      devotion: others.devotion ?? null,
     }),
-    {
-      name: 'devotion',
-    },
+    { name: 'devotion' },
   );
 
   return (
