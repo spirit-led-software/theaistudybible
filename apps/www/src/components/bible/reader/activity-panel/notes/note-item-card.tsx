@@ -20,13 +20,13 @@ import {
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { requireAuth } from '@/www/server/auth';
-import { A, action } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const editNote = action(
+const editNoteAction = action(
   async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
     'use server';
     const { user } = requireAuth();
@@ -48,7 +48,7 @@ const editNote = action(
   },
 );
 
-const deleteNote = action(async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
+const deleteNoteAction = action(async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
   'use server';
   const { user } = requireAuth();
   if (props.type === 'chapter') {
@@ -72,11 +72,14 @@ export type NoteItemCardProps = {
   showViewButton?: boolean;
 };
 export const NoteItemCard = (props: NoteItemCardProps) => {
+  const editNote = useAction(editNoteAction);
+  const deleteNote = useAction(deleteNoteAction);
+
+  const qc = useQueryClient();
+
   const [isEditingNote, setIsEditingNote] = createSignal(false);
   const [editNoteContent, setEditNoteContent] = createSignal(props.note.content);
   const [showPreview, setShowPreview] = createSignal(false);
-
-  const qc = useQueryClient();
 
   const editNoteMutation = createMutation(() => ({
     mutationFn: (mProps: { noteId: string; content: string }) =>

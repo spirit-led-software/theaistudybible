@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
@@ -28,14 +28,14 @@ const getBookmark = GET(async (chapterId: string) => {
   return bookmark ?? null;
 });
 
-const addBookmark = action(async (chapterId: string) => {
+const addBookmarkAction = action(async (chapterId: string) => {
   'use server';
   const { user } = requireAuth();
   await db.insert(chapterBookmarks).values({ chapterId, userId: user.id }).onConflictDoNothing();
   return { success: true };
 });
 
-const deleteBookmark = action(async (chapterId: string) => {
+const deleteBookmarkAction = action(async (chapterId: string) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -56,6 +56,9 @@ export const getChapterBookmarkQueryOptions = ({
 });
 
 export const ChapterBookmarkButton = () => {
+  const addBookmark = useAction(addBookmarkAction);
+  const deleteBookmark = useAction(deleteBookmarkAction);
+
   const { isSignedIn, user } = useAuth();
   const [brStore] = useBibleReaderStore();
 

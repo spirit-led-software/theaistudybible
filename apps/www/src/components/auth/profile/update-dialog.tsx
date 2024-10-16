@@ -4,7 +4,7 @@ import { type UpdateUser, UpdateUserSchema } from '@/schemas';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
@@ -19,7 +19,7 @@ import {
   TextFieldLabel,
 } from '../../ui/text-field';
 
-const updateUser = action(async (values: UpdateUser) => {
+const updateUserAction = action(async (values: UpdateUser) => {
   'use server';
   const { user } = requireAuth();
   const [updatedUser] = await db.update(users).set(values).where(eq(users.id, user.id)).returning();
@@ -27,6 +27,8 @@ const updateUser = action(async (values: UpdateUser) => {
 });
 
 export const EditProfileDialog = () => {
+  const updateUser = useAction(updateUserAction);
+
   const { user, invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();

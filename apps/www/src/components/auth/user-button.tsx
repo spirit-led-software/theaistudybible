@@ -20,9 +20,10 @@ export type UserButtonProps = {
 };
 
 export const UserButton = (props: UserButtonProps) => {
+  const signOut = useAction(signOutAction);
+
   const navigate = useNavigate();
   const { isLoaded, isSignedIn, user, invalidate } = useAuth();
-  const signOut = useAction(signOutAction);
 
   const handleSignOut = createMutation(() => ({
     mutationFn: () => Promise.resolve(signOut()),

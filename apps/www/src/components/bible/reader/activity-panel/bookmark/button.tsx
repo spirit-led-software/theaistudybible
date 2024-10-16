@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
@@ -32,7 +32,7 @@ const getSelectionBookmarked = GET(async (props: { verseIds: string[] }) => {
   return { isBookmarked: bookmarks.length === props.verseIds.length };
 });
 
-const bookmarkVerses = action(async (props: { verseIds: string[] }) => {
+const bookmarkVersesAction = action(async (props: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -47,7 +47,7 @@ const bookmarkVerses = action(async (props: { verseIds: string[] }) => {
   return { success: true };
 });
 
-const unbookmarkVerses = action(async (props: { verseIds: string[] }) => {
+const unbookmarkVersesAction = action(async (props: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -59,6 +59,8 @@ const unbookmarkVerses = action(async (props: { verseIds: string[] }) => {
 });
 
 export const BookmarkButton = () => {
+  const bookmarkVerses = useAction(bookmarkVersesAction);
+  const unbookmarkVerses = useAction(unbookmarkVersesAction);
   const { isSignedIn } = useAuth();
   const [brStore] = useBibleReaderStore();
 

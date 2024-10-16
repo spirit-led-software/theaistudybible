@@ -24,36 +24,38 @@ import { P } from '@/www/components/ui/typography';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { requireAuth } from '@/www/server/auth';
-import { A, action } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
-const addNote = action(async (props: { chapterId: string; verseId?: string; content: string }) => {
-  'use server';
-  const { user } = requireAuth();
-  let note: VerseNote | ChapterNote;
-  if (props.verseId) {
-    [note] = await db
-      .insert(verseNotes)
-      .values({
-        userId: user.id,
-        verseId: props.verseId,
-        content: props.content,
-      })
-      .returning();
-  } else {
-    [note] = await db
-      .insert(chapterNotes)
-      .values({
-        userId: user.id,
-        chapterId: props.chapterId,
-        content: props.content,
-      })
-      .returning();
-  }
-  return note;
-});
+const addNoteAction = action(
+  async (props: { chapterId: string; verseId?: string; content: string }) => {
+    'use server';
+    const { user } = requireAuth();
+    let note: VerseNote | ChapterNote;
+    if (props.verseId) {
+      [note] = await db
+        .insert(verseNotes)
+        .values({
+          userId: user.id,
+          verseId: props.verseId,
+          content: props.content,
+        })
+        .returning();
+    } else {
+      [note] = await db
+        .insert(chapterNotes)
+        .values({
+          userId: user.id,
+          chapterId: props.chapterId,
+          content: props.content,
+        })
+        .returning();
+    }
+    return note;
+  },
+);
 
 export type AddNoteCardProps = {
   onAdd?: () => void;
@@ -61,6 +63,9 @@ export type AddNoteCardProps = {
 };
 
 export const AddNoteCard = (props: AddNoteCardProps) => {
+  const addNote = useAction(addNoteAction);
+
+  const qc = useQueryClient();
   const [brStore] = useBibleReaderStore();
 
   const [selectedVerseInfo, setSelectedVerseInfo] = createSignal<SelectedVerseInfo | undefined>(
@@ -68,8 +73,6 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
   );
   const [contentValue, setContentValue] = createSignal('');
   const [showPreview, setShowPreview] = createSignal(false);
-
-  const qc = useQueryClient();
 
   const addNoteMutation = createMutation(() => ({
     mutationFn: (props: { chapterId: string; verseId?: string; content: string }) => addNote(props),

@@ -1,7 +1,7 @@
 import { resetPassword } from '@/core/auth/providers/credentials';
 import { resetPasswordSchema } from '@/core/auth/providers/credentials/schemas';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { A, action } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
@@ -18,13 +18,15 @@ export type ResetPasswordProps = {
   onSuccess?: () => void;
 };
 
-const handleResetPassword = action(async (values: z.infer<typeof resetPasswordSchema>) => {
+const resetPasswordAction = action(async (values: z.infer<typeof resetPasswordSchema>) => {
   'use server';
   await resetPassword(values);
   return { success: true };
 });
 
 export function ResetPassword(props: ResetPasswordProps) {
+  const resetPassword = useAction(resetPasswordAction);
+
   const [form, { Form, Field }] = createForm<z.infer<typeof resetPasswordSchema>>({
     validate: zodForm(resetPasswordSchema),
     initialValues: {
@@ -33,7 +35,7 @@ export function ResetPassword(props: ResetPasswordProps) {
   });
 
   const onSubmit = createMutation(() => ({
-    mutationFn: (values: z.infer<typeof resetPasswordSchema>) => handleResetPassword(values),
+    mutationFn: (values: z.infer<typeof resetPasswordSchema>) => resetPassword(values),
     onSuccess: () => {
       toast.success('Password reset successfully. You can now log in with your new password.');
       props.onSuccess?.();

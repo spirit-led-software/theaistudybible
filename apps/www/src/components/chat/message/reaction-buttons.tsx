@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { messageReactions } from '@/core/database/schema';
 import { requireAuth } from '@/www/server/auth';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
@@ -22,7 +22,7 @@ const getReactions = GET(async (messageId: string) => {
   return reaction ?? null;
 });
 
-const addReaction = action(
+const addReactionAction = action(
   async (props: {
     reaction: typeof messageReactions.$inferSelect.reaction;
     comment?: string;
@@ -49,7 +49,7 @@ const addReaction = action(
   },
 );
 
-const removeReaction = action(async (props: { messageId: string }) => {
+const removeReactionAction = action(async (props: { messageId: string }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -65,6 +65,9 @@ export type MessageReactionButtonsProps = {
 };
 
 export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
+  const addReaction = useAction(addReactionAction);
+  const removeReaction = useAction(removeReactionAction);
+
   const reactionQuery = createQuery(() => ({
     queryKey: ['reactions', { messageId: props.messageId }],
     queryFn: () => getReactions(props.messageId),

@@ -10,7 +10,7 @@ import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { requireAuth } from '@/www/server/auth';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
@@ -18,7 +18,7 @@ import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
 import { HighlightColorPicker } from './color-picker';
 
-const updateHighlights = action(
+const updateHighlightsAction = action(
   async ({ color, verseIds }: { color: string; verseIds: string[] }) => {
     'use server';
     const { user } = requireAuth();
@@ -41,7 +41,7 @@ const updateHighlights = action(
   },
 );
 
-const deleteHighlights = action(async ({ verseIds }: { verseIds: string[] }) => {
+const deleteHighlightsAction = action(async ({ verseIds }: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -51,9 +51,11 @@ const deleteHighlights = action(async ({ verseIds }: { verseIds: string[] }) => 
 });
 
 export const HighlightCard = () => {
-  const [brStore] = useBibleReaderStore();
+  const updateHighlights = useAction(updateHighlightsAction);
+  const deleteHighlights = useAction(deleteHighlightsAction);
 
   const qc = useQueryClient();
+  const [brStore] = useBibleReaderStore();
 
   const addHighlightsMutation = createMutation(() => ({
     mutationFn: ({ color = '#FFD700', verseIds }: { color?: string; verseIds: string[] }) =>

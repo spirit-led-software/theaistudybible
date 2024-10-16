@@ -20,13 +20,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { useChatStore } from '@/www/contexts/chat';
 import { requireAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-solid';
 import { createEffect, createSignal } from 'solid-js';
 
-const editChat = action(async (props: { chatId: string; name: string }) => {
+const editChatAction = action(async (props: { chatId: string; name: string }) => {
   'use server';
   const { user } = requireAuth();
   const [chat] = await db
@@ -45,9 +45,11 @@ export type EditChatButtonProps = {
 };
 
 export const EditChatButton = (props: EditChatButtonProps) => {
-  const [chatStore] = useChatStore();
+  const editChat = useAction(editChatAction);
 
   const qc = useQueryClient();
+  const [chatStore] = useChatStore();
+
   const editChatMutation = createMutation(() => ({
     mutationFn: (mProps: { name: string }) =>
       editChat({

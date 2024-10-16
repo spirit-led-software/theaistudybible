@@ -12,7 +12,7 @@ import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { action } from '@solidjs/router';
+import { action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Pencil } from 'lucide-solid';
 import { createSignal } from 'solid-js';
@@ -20,27 +20,31 @@ import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../ui/avatar';
 
-const requestUpload = action(async (props: { name: string; contentType: string; size: number }) => {
-  'use server';
-  const { user } = requireAuth();
-  const key = `${user.id}/${createId()}_${props.name}`;
-  const presignedUrl = await getSignedUrl(
-    s3,
-    new PutObjectCommand({
-      Bucket: Resource.ProfileImagesBucket.name,
-      Key: key,
-      ContentType: props.contentType,
-      ContentLength: props.size,
-      Metadata: {
-        'user-id': user.id,
-      },
-    }),
-    { expiresIn: 3600 },
-  );
-  return { presignedUrl };
-});
+const requestUploadAction = action(
+  async (props: { name: string; contentType: string; size: number }) => {
+    'use server';
+    const { user } = requireAuth();
+    const key = `${user.id}/${createId()}_${props.name}`;
+    const presignedUrl = await getSignedUrl(
+      s3,
+      new PutObjectCommand({
+        Bucket: Resource.ProfileImagesBucket.name,
+        Key: key,
+        ContentType: props.contentType,
+        ContentLength: props.size,
+        Metadata: {
+          'user-id': user.id,
+        },
+      }),
+      { expiresIn: 3600 },
+    );
+    return { presignedUrl };
+  },
+);
 
 export function UpdateAvatarDialog() {
+  const requestUpload = useAction(requestUploadAction);
+
   const { user, invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();

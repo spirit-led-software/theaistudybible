@@ -7,7 +7,7 @@ import { H1, P } from '@/www/components/ui/typography';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
-import { type RouteDefinition, action, useSearchParams } from '@solidjs/router';
+import { type RouteDefinition, action, useAction, useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -26,7 +26,7 @@ const getProducts = GET(async () => {
   return products;
 });
 
-const createCheckoutSession = action(async (product: Stripe.Product) => {
+const createCheckoutSessionAction = action(async (product: Stripe.Product) => {
   'use server';
   const { user } = requireAuth();
   const checkoutSession = await stripe.checkout.sessions.create({
@@ -57,6 +57,8 @@ export const route: RouteDefinition = {
 };
 
 export default function CreditPurchasePage() {
+  const createCheckoutSession = useAction(createCheckoutSessionAction);
+
   const queryClient = useQueryClient();
 
   const [searchParams] = useSearchParams();

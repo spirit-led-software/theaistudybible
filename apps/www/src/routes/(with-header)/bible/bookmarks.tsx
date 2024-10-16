@@ -20,7 +20,7 @@ import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth, requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { A, action } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
@@ -74,20 +74,24 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
   };
 });
 
-const deleteBookmark = action(async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
-  'use server';
-  const { user } = requireAuth();
-  if (props.type === 'verse') {
-    await db
-      .delete(verseBookmarks)
-      .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
-  } else {
-    await db
-      .delete(chapterBookmarks)
-      .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)));
-  }
-  return { success: true };
-});
+const deleteBookmarkAction = action(
+  async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
+    'use server';
+    const { user } = requireAuth();
+    if (props.type === 'verse') {
+      await db
+        .delete(verseBookmarks)
+        .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
+    } else {
+      await db
+        .delete(chapterBookmarks)
+        .where(
+          and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)),
+        );
+    }
+    return { success: true };
+  },
+);
 
 const getBookmarksQueryOptions = () => ({
   queryKey: ['bookmarks'],
@@ -104,6 +108,8 @@ export const route: RouteDefinition = {
 };
 
 const BookmarksPage = () => {
+  const deleteBookmark = useAction(deleteBookmarkAction);
+
   const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
 
   const deleteBookmarkMutation = createMutation(() => ({

@@ -1,9 +1,9 @@
-FROM oven/bun:1-slim as base
+FROM oven/bun:1-slim AS base
 
 ########################################################
 # Install
 ########################################################
-FROM base as install
+FROM base AS install
 
 WORKDIR /install
 
@@ -57,6 +57,5 @@ ENV NODE_ENV="production"
 
 COPY --from=build /build/apps/www/.output .
 
+ENTRYPOINT [ "bun", "run", "./server/index.mjs" ]
 EXPOSE 3000
-
-CMD [ "bun", "run", "./server/index.mjs" ]

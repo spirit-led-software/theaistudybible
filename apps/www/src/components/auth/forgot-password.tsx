@@ -1,7 +1,7 @@
 import { requestPasswordReset } from '@/core/auth/providers/credentials';
 import { forgotPasswordSchema } from '@/core/auth/providers/credentials/schemas';
 import { createForm, zodForm } from '@modular-forms/solid';
-import { A, action } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
@@ -14,19 +14,20 @@ export type ForgotPasswordProps = {
   onSuccess?: () => void;
 };
 
-const handleForgotPassword = action(async (values: z.infer<typeof forgotPasswordSchema>) => {
+const forgotPasswordAction = action(async (values: z.infer<typeof forgotPasswordSchema>) => {
   'use server';
   await requestPasswordReset({ email: values.email });
   return { success: true };
 });
 
 export const ForgotPassword = (props: ForgotPasswordProps) => {
+  const forgotPassword = useAction(forgotPasswordAction);
   const [form, { Form, Field }] = createForm<z.infer<typeof forgotPasswordSchema>>({
     validate: zodForm(forgotPasswordSchema),
   });
 
   const onSubmit = createMutation(() => ({
-    mutationFn: (values: z.infer<typeof forgotPasswordSchema>) => handleForgotPassword(values),
+    mutationFn: (values: z.infer<typeof forgotPasswordSchema>) => forgotPassword(values),
     onSuccess: () => {
       toast.success('Password reset email sent. Please check your inbox.');
       props.onSuccess?.();

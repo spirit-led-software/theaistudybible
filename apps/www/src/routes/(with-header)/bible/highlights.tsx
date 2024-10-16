@@ -20,7 +20,7 @@ import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { auth, requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { A, action } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
@@ -59,7 +59,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
   };
 });
 
-const deleteHighlight = action(async (highlightId: string) => {
+const deleteHighlightAction = action(async (highlightId: string) => {
   'use server';
   const { user } = requireAuth();
   await db
@@ -83,6 +83,8 @@ export const route: RouteDefinition = {
 };
 
 const HighlightsPage = () => {
+  const deleteHighlight = useAction(deleteHighlightAction);
+
   const highlightsQuery = createInfiniteQuery(() => getHighlightsQueryOptions());
 
   const deleteHighlightMutation = createMutation(() => ({

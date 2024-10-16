@@ -2,8 +2,7 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
-import { useNavigate } from '@solidjs/router';
-import { action } from '@solidjs/router';
+import { action, useAction, useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
@@ -18,7 +17,7 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 
-const deleteUser = action(async () => {
+const deleteUserAction = action(async () => {
   'use server';
   const { user } = requireAuth();
   await db.delete(users).where(eq(users.id, user.id));
@@ -26,6 +25,8 @@ const deleteUser = action(async () => {
 });
 
 export const DeleteProfileDialog = () => {
+  const deleteUser = useAction(deleteUserAction);
+
   const navigate = useNavigate();
   const { invalidate } = useAuth();
 

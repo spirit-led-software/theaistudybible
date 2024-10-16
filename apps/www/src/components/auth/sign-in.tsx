@@ -24,8 +24,10 @@ const signInAction = action(async (values: z.infer<typeof signInSchema>, redirec
 });
 
 export const SignIn = (props: SignInProps) => {
-  const { invalidate } = useAuth();
   const signIn = useAction(signInAction);
+
+  const { invalidate } = useAuth();
+
   const [form, { Form, Field }] = createForm<z.infer<typeof signInSchema>>({
     validate: zodForm(signInSchema),
   });

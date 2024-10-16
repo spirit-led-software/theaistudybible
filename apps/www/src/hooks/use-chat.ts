@@ -13,7 +13,6 @@ import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { toast } from 'solid-sonner';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
 
@@ -153,8 +152,8 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       }
       return props()?.onResponse?.(response);
     },
-    onFinish: (message, options) => {
-      Promise.all([
+    onFinish: async (message, options) => {
+      await Promise.all([
         chatQuery.refetch(),
         messagesQuery.refetch(),
         followUpSuggestionsQuery.refetch(),
@@ -173,38 +172,22 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   const chat = createMemo(() =>
     !chatQuery.isLoading && chatQuery.data ? chatQuery.data : undefined,
   );
-  createEffect(() => {
-    if (!chatQuery.isLoading && chatQuery.error) {
-      console.error('Error fetching chat', JSON.stringify(chatQuery.error));
-      toast.error(`Error fetching chat: ${chatQuery.error.message}\n\t${chatQuery.error.stack}`);
-    }
-  });
 
   const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
   createEffect(() => {
-    if (!messagesQuery.isLoading && messagesQuery.data) {
-      if (!useChatResult.isLoading()) {
-        useChatResult.setMessages(
-          messagesQuery.data.pages
-            .flatMap((page) => [...page.messages])
-            .toReversed()
-            .map((message) => ({
-              ...message,
-              createdAt: new Date(message.createdAt),
-              content: message.content ?? '',
-              annotations: message.annotations ?? undefined,
-              toolInvocations: message.toolInvocations ?? undefined,
-              tool_call_id: message.tool_call_id ?? undefined,
-            })),
-        );
-      }
-    }
-  });
-  createEffect(() => {
-    if (!messagesQuery.isLoading && messagesQuery.error) {
-      console.error('Error fetching messages', JSON.stringify(messagesQuery.error));
-      toast.error(
-        `Error fetching messages: ${messagesQuery.error.message}\n\t${messagesQuery.error.stack}`,
+    if (!messagesQuery.isLoading && messagesQuery.data && !useChatResult.isLoading()) {
+      useChatResult.setMessages(
+        messagesQuery.data.pages
+          .flatMap((page) => [...page.messages])
+          .toReversed()
+          .map((message) => ({
+            ...message,
+            createdAt: new Date(message.createdAt),
+            content: message.content ?? '',
+            annotations: message.annotations ?? undefined,
+            toolInvocations: message.toolInvocations ?? undefined,
+            tool_call_id: message.tool_call_id ?? undefined,
+          })),
       );
     }
   });
@@ -218,17 +201,6 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   createEffect(() => {
     if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
       setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data, { merge: true }));
-    }
-  });
-  createEffect(() => {
-    if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.error) {
-      console.error(
-        'Error fetching follow up suggestions',
-        JSON.stringify(followUpSuggestionsQuery.error),
-      );
-      toast.error(
-        `Error fetching follow up suggestions: ${followUpSuggestionsQuery.error.message}\n\t${followUpSuggestionsQuery.error.stack}`,
-      );
     }
   });
 
