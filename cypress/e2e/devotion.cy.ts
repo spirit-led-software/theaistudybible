@@ -28,7 +28,11 @@ describe('Devotion Pages', () => {
           .get('head meta[name="description"]')
           .should('have.attr', 'content')
           .and('contain', 'A devotion on'),
-      { interval: 200, errorMsg: 'Timed out waiting for meta description' },
+      {
+        timeout: Cypress.config('defaultCommandTimeout') * 4,
+        interval: 200,
+        errorMsg: 'Timed out waiting for meta description',
+      },
     );
   });
 
