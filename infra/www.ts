@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { cdn } from './cdn';
-import { DOMAIN, STRIPE_PUBLISHABLE_KEY } from './constants';
+import { STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
 import { allLinks } from './defaults';
 
 export const webAppEnv = {
-  PUBLIC_WEBSITE_URL: $dev ? 'https://localhost:3000' : `https://${DOMAIN.value}`,
+  PUBLIC_WEBAPP_URL: WEBAPP_URL.value,
   PUBLIC_CDN_URL: cdn.url,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
   PUBLIC_STAGE: $app.stage,
@@ -29,7 +29,7 @@ if (!$dev) {
     dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
     context: { location: process.cwd() },
     buildArgs: {
-      website_url: `https://${DOMAIN.value}`,
+      webapp_url: WEBAPP_URL.value,
       cdn_url: cdn.url,
       stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
       stage: $app.stage,

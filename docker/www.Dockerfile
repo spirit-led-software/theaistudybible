@@ -7,6 +7,11 @@ FROM base AS install
 
 WORKDIR /install
 
+RUN apt update \
+&& apt install -y unzip \
+&& rm -rf /var/lib/apt/lists/* \
+&& apt clean
+
 COPY ./package.json ./package.json
 COPY ./apps/functions/package.json ./apps/functions/package.json
 COPY ./apps/www/package.json ./apps/www/package.json
@@ -24,7 +29,7 @@ RUN bun install --frozen-lockfile
 ########################################################
 FROM base AS build
 
-ARG website_url
+ARG webapp_url
 ARG cdn_url
 ARG stripe_publishable_key
 ARG stage
@@ -38,7 +43,7 @@ RUN apt update \
 
 COPY --from=install /install/node_modules ./node_modules
 
-ENV PUBLIC_WEBSITE_URL=${website_url}
+ENV PUBLIC_WEBAPP_URL=${webapp_url}
 ENV PUBLIC_CDN_URL=${cdn_url}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
 ENV PUBLIC_STAGE=${stage}

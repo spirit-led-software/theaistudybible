@@ -19,7 +19,7 @@ export default $config({
   }),
   run: async () => {
     await import('./infra/defaults');
-    const { DOMAIN } = await import('./infra/constants');
+    const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
     await import('./infra/storage');
     const { cdn } = await import('./infra/cdn');
@@ -37,7 +37,7 @@ export default $config({
       'Database URL': database.properties.url,
       'Redis Endpoint': upstashRedis.endpoint,
       'Vector Store Endpoint': upstashVectorIndex.endpoint,
-      'Web App URL': !$dev ? `https://${DOMAIN.value}` : 'Not available in dev',
+      'Web App URL': WEBAPP_URL.value,
       'Webhooks API URL': webhooksApi.properties.url,
     };
   },

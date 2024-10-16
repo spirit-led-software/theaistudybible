@@ -111,6 +111,10 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
+    "WebAppUrl": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
     "WebhooksApi": {
       "type": "sst.sst.Linkable"
       "url": string

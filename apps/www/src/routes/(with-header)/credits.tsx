@@ -38,8 +38,8 @@ const createCheckoutSessionAction = action(async (product: Stripe.Product) => {
       },
     ],
     client_reference_id: user.id,
-    success_url: `${import.meta.env.PUBLIC_WEBSITE_URL}/credits?success=true`,
-    cancel_url: `${import.meta.env.PUBLIC_WEBSITE_URL}/credits?canceled=true`,
+    success_url: `${import.meta.env.PUBLIC_WEBAPP_URL}/credits?success=true`,
+    cancel_url: `${import.meta.env.PUBLIC_WEBAPP_URL}/credits?canceled=true`,
   });
   return checkoutSession;
 });
