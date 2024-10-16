@@ -3,7 +3,6 @@ import { registry } from '@/ai/provider-registry';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
-import type { Chat } from '@/schemas/chats/types';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
@@ -159,8 +158,10 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     },
   }));
 
-  const [chat, setChat] = createSignal<Chat>();
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+  const [chat, setChat] = createSignal(
+    !chatQuery.isLoading && chatQuery.data ? chatQuery.data : undefined,
+  );
   createEffect(() => {
     if (!chatQuery.isLoading && chatQuery.data) {
       setChat(chatQuery.data);
