@@ -3,13 +3,14 @@ import { toTitleCase } from '@/core/utils/string';
 import { DevotionMenu } from '@/www/components/devotions/menu';
 import { getDevotionsQueryOptions } from '@/www/components/devotions/sidebar';
 import { QueryBoundary } from '@/www/components/query-boundary';
+import { Button } from '@/www/components/ui/button';
 import { Markdown } from '@/www/components/ui/markdown';
-import { H2 } from '@/www/components/ui/typography';
+import { H2, H3 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { WithHeaderLayout } from '@/www/layouts/with-header';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { useParams } from '@solidjs/router';
+import { A, useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { Show, createComputed } from 'solid-js';
@@ -57,7 +58,17 @@ const DevotionPage = () => {
       <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
         <DevotionMenu />
         <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pt-32 pb-20'>
-          <QueryBoundary query={devotionQuery}>
+          <QueryBoundary
+            query={devotionQuery}
+            notFoundFallback={
+              <div class='flex h-full w-full flex-1 items-center justify-center'>
+                <H3>Devotion not found</H3>
+                <Button as={A} href='/devotion'>
+                  Go back to Devotions
+                </Button>
+              </div>
+            }
+          >
             {(devotion) => (
               <>
                 <Title>{toTitleCase(devotion.topic)} | Devotion | The AI Study Bible</Title>

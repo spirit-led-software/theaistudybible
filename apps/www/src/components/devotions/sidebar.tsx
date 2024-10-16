@@ -69,6 +69,7 @@ export const DevotionSidebar = () => {
         <TooltipTrigger
           as={SheetTrigger}
           class={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+          aria-label='View Devotions'
         >
           <History size={24} />
         </TooltipTrigger>

@@ -63,6 +63,10 @@ jobs:
         run: |
           bun run db:seed
 
+      - name: Run E2E tests
+        run: |
+          bun run test:e2e
+
       - id: extract_website_url
         name: Extract website URL
         run: |
