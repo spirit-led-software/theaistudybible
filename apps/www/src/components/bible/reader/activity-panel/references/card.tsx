@@ -43,7 +43,11 @@ ${text}`,
         filter: `bibleId = "${bibleId}" or type != "bible"`, // Get references from the same bible OR non-bible references like commentaries
       }),
     ),
-  ).then((results) => results.flat());
+  ).then((results) =>
+    results.flat().filter(
+      (result, idx, self) => self.findIndex((t) => t.id === result.id) === idx, // Remove duplicates
+    ),
+  );
 });
 
 export const ReferencesCard = () => {
