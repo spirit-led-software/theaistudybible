@@ -1,5 +1,6 @@
 import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
+import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
 import { verifyRequestOrigin } from 'lucia';
 import { getCookie, getHeader, setCookie } from 'vinxi/http';
@@ -61,5 +62,6 @@ export default createMiddleware({
         `Response: ${request.method} ${url.pathname} ${response.status} ${response.statusText ?? ''}`,
       );
     },
+    sentryBeforeResponseMiddleware(),
   ],
 });

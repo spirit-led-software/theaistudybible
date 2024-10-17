@@ -2,12 +2,15 @@ import path from 'node:path';
 import { cdn } from './cdn';
 import { STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
 import { allLinks } from './defaults';
+import { webAppSentryKey, webAppSentryProject } from './monitoring';
+import { SENTRY_AUTH_TOKEN } from './secrets';
 
 export const webAppEnv = {
   PUBLIC_WEBAPP_URL: WEBAPP_URL.value,
   PUBLIC_CDN_URL: cdn.url,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
   PUBLIC_STAGE: $app.stage,
+  PUBLIC_SENTRY_DSN: webAppSentryKey?.dsnPublic ?? '',
 };
 
 export const webAppImageRepo = new aws.ecr.Repository('WebAppImageRepository', {
@@ -33,6 +36,10 @@ if (!$dev) {
       cdn_url: cdn.url,
       stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
       stage: $app.stage,
+      sentry_dsn: webAppSentryKey?.dsnPublic ?? '',
+      sentry_org: webAppSentryProject?.organization ?? '',
+      sentry_project: webAppSentryProject?.name ?? '',
+      sentry_auth_token: SENTRY_AUTH_TOKEN.value,
     },
     platforms: ['linux/amd64'],
     push: true,

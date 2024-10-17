@@ -36,6 +36,8 @@
     "@kobalte/core": "^0.13.7",
     "@modular-forms/solid": "0.24.1",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@sentry/bun": "^8.34.0",
+    "@sentry/solidstart": "^8.34.0",
     "@solid-primitives/clipboard": "^1.5.10",
     "@solid-primitives/context": "^0.2.3",
     "@solid-primitives/intersection-observer": "^2.1.6",

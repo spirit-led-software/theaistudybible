@@ -34,6 +34,11 @@ ARG cdn_url
 ARG stripe_publishable_key
 ARG stage
 
+ARG sentry_dsn
+ARG sentry_org
+ARG sentry_project
+ARG sentry_auth_token
+
 WORKDIR /build
 
 RUN apt update \
@@ -47,6 +52,12 @@ ENV PUBLIC_WEBAPP_URL=${webapp_url}
 ENV PUBLIC_CDN_URL=${cdn_url}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
 ENV PUBLIC_STAGE=${stage}
+
+ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
+ENV SENTRY_ORG=${sentry_org}
+ENV SENTRY_PROJECT=${sentry_project}
+ENV SENTRY_RELEASE=${stage}
+ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
 
 COPY . .
 RUN bun run build

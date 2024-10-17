@@ -6,15 +6,16 @@ import {
   cookieStorageManagerSSR,
 } from '@kobalte/core';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
-import { Router } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import { ErrorBoundary, Show, Suspense } from 'solid-js';
+import { Show, Suspense } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import Logo from './components/branding/logo';
+import { SentryErrorBoundary } from './components/sentry/error-boundary';
+import { SentryRouter } from './components/sentry/router';
 import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/sonner';
 import { H1, H3, H4 } from './components/ui/typography';
@@ -22,6 +23,7 @@ import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
+
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
@@ -41,7 +43,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SolidQueryDevtools initialIsOpen={false} buttonPosition='top-left' />
-      <Router
+      <SentryRouter
         root={(props) => (
           <MetaProvider>
             <Title>The AI Study Bible</Title>
@@ -55,7 +57,7 @@ export default function App() {
                 <BibleProvider>
                   <ChatProvider>
                     <DevotionProvider>
-                      <ErrorBoundary
+                      <SentryErrorBoundary
                         fallback={(err, reset) => (
                           <div class='flex h-full w-full items-center justify-center'>
                             <div class='flex w-full max-w-xl flex-col gap-3'>
@@ -91,7 +93,7 @@ export default function App() {
                           {props.children}
                         </Suspense>
                         <Toaster />
-                      </ErrorBoundary>
+                      </SentryErrorBoundary>
                     </DevotionProvider>
                   </ChatProvider>
                 </BibleProvider>
@@ -101,7 +103,7 @@ export default function App() {
         )}
       >
         <FileRoutes />
-      </Router>
+      </SentryRouter>
     </QueryClientProvider>
   );
 }

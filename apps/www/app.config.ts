@@ -1,10 +1,14 @@
+import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
-  server: { preset: 'bun' },
+  server: {
+    preset: 'bun',
+    plugins: ['./sentry.plugin.ts'],
+  },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [
@@ -43,6 +47,11 @@ export default defineConfig({
           ],
           start_url: '/',
         },
+      }),
+      sentrySolidStartVite({
+        org: process.env.SENTRY_ORG,
+        project: process.env.SENTRY_PROJECT,
+        authToken: process.env.SENTRY_AUTH_TOKEN,
       }),
     ],
   },

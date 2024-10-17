@@ -83,6 +83,10 @@ declare module "sst" {
       "type": "sst.aws.Queue"
       "url": string
     }
+    "SentryAuthToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Stage": {
       "type": "sst.sst.Linkable"
       "value": string
