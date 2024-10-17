@@ -3,7 +3,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/www/componen
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { H6 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { Highlighter, MessageCircle, Notebook, Share, TextSearch, X } from 'lucide-solid';
+import { Highlighter, MessageCircle, Notebook, Share, X } from 'lucide-solid';
 import { Switch, createContext, createMemo, createSignal, splitProps, useContext } from 'solid-js';
 import type { Accessor, JSXElement, Setter } from 'solid-js';
 import { Match, Show } from 'solid-js';
@@ -11,6 +11,7 @@ import { BookmarkButton } from './bookmark/button';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';
 import { NotesCard } from './notes/card';
+import { ReferencesButton } from './references/button';
 import { ReferencesCard } from './references/card';
 import { ShareCard } from './share/card';
 
@@ -114,12 +115,7 @@ export const ActivityPanelButtons = () => {
           <TooltipContent>Take Notes</TooltipContent>
         </Tooltip>
         <BookmarkButton />
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('references')}>
-            <TextSearch size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Find References</TooltipContent>
-        </Tooltip>
+        <ReferencesButton />
         <Tooltip>
           <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
             <MessageCircle size={20} />

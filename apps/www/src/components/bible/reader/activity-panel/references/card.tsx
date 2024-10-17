@@ -1,3 +1,4 @@
+import { registry } from '@/ai/provider-registry';
 import { vectorStore } from '@/ai/vector-store';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button, buttonVariants } from '@/www/components/ui/button';
@@ -10,16 +11,39 @@ import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
+import { generateObject } from 'ai';
 import { For } from 'solid-js';
+import { z } from 'zod';
 
 const getReferences = GET(async ({ text, bibleId }: { text: string; bibleId: string }) => {
   'use server';
-  return await vectorStore.searchDocuments(text, {
-    withMetadata: true,
-    withEmbedding: false,
-    limit: 5,
-    filter: `bibleId = "${bibleId}" or type != "bible"`, // Get references from the same bible OR non-bible references like commentaries
+  const {
+    object: { searchTerms },
+  } = await generateObject({
+    model: registry.languageModel('openai:gpt-4o-mini'),
+    schema: z.object({
+      searchTerms: z.array(z.string()),
+    }),
+    prompt: `You are an expert in the bible. You will be given a passage and asked to find references to it in the bible. Return a list of search terms or phrases that could be used to find references to this verse in a vector similarity search engine. 
+
+Here are some rules for you to follow:
+- The search terms can include text from the verse itself, or a paraphrase of the verse.
+- The search terms can be single words or a whole sentence.
+
+Here is the passage:
+${text}`,
   });
+  const maxDocs = 10;
+  return await Promise.all(
+    searchTerms.map((searchTerm) =>
+      vectorStore.searchDocuments(searchTerm, {
+        withMetadata: true,
+        withEmbedding: false,
+        limit: Math.ceil(maxDocs / searchTerms.length),
+        filter: `bibleId = "${bibleId}" or type != "bible"`, // Get references from the same bible OR non-bible references like commentaries
+      }),
+    ),
+  ).then((results) => results.flat());
 });
 
 export const ReferencesCard = () => {
