@@ -87,7 +87,31 @@ export const ChatWindow = (props: ChatWindowProps) => {
           <ChevronDown />
         </Button>
       </Show>
-      <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col-reverse overflow-y-auto'>
+      <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
+        <div class='flex w-full items-start justify-center'>
+          <Switch>
+            <Match when={messagesQuery.isFetchingNextPage}>
+              <Spinner size='sm' />
+            </Match>
+            <Match when={messagesQuery.hasNextPage}>
+              <div class='flex flex-col items-center justify-center'>
+                <Button
+                  variant='link'
+                  size='icon'
+                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
+                  onClick={() => {
+                    if (messagesQuery.hasNextPage && !messagesQuery.isFetchingNextPage) {
+                      void messagesQuery.fetchNextPage();
+                    }
+                  }}
+                >
+                  <ChevronUp />
+                  More
+                </Button>
+              </div>
+            </Match>
+          </Switch>
+        </div>
         <div ref={setMessagesRef} class='flex flex-1 flex-col-reverse items-center justify-start'>
           <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
           <Show
@@ -137,30 +161,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </div>
             )}
           </For>
-        </div>
-        <div class='flex w-full items-start justify-center'>
-          <Switch>
-            <Match when={messagesQuery.isFetchingNextPage}>
-              <Spinner size='sm' />
-            </Match>
-            <Match when={messagesQuery.hasNextPage}>
-              <div class='flex flex-col items-center justify-center'>
-                <Button
-                  variant='link'
-                  size='icon'
-                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
-                  onClick={() => {
-                    if (messagesQuery.hasNextPage && !messagesQuery.isFetchingNextPage) {
-                      void messagesQuery.fetchNextPage();
-                    }
-                  }}
-                >
-                  <ChevronUp />
-                  More
-                </Button>
-              </div>
-            </Match>
-          </Switch>
         </div>
       </div>
       <form

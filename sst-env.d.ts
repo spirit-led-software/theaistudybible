@@ -52,6 +52,7 @@ declare module "sst" {
       "value": string
     }
     "Email": {
+      "configSet": string
       "sender": string
       "type": "sst.aws.Email"
     }

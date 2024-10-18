@@ -12,15 +12,15 @@ RUN apt update \
 && rm -rf /var/lib/apt/lists/* \
 && apt clean
 
-COPY ./package.json ./package.json
-COPY ./apps/functions/package.json ./apps/functions/package.json
-COPY ./apps/www/package.json ./apps/www/package.json
-COPY ./packages/ai/package.json ./packages/ai/package.json
-COPY ./packages/core/package.json ./packages/core/package.json
-COPY ./packages/schemas/package.json ./packages/schemas/package.json
-COPY ./tools/scripts/package.json ./tools/scripts/package.json
-COPY ./tools/tsconfig/package.json ./tools/tsconfig/package.json
-COPY ./bun.lockb ./bun.lockb
+COPY --link ./package.json ./package.json
+COPY --link ./apps/functions/package.json ./apps/functions/package.json
+COPY --link ./apps/www/package.json ./apps/www/package.json
+COPY --link ./packages/ai/package.json ./packages/ai/package.json
+COPY --link ./packages/core/package.json ./packages/core/package.json
+COPY --link ./packages/schemas/package.json ./packages/schemas/package.json
+COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
+COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
+COPY --link ./bun.lockb ./bun.lockb
 
 RUN bun install --frozen-lockfile
 
@@ -59,7 +59,7 @@ ENV SENTRY_PROJECT=${sentry_project}
 ENV SENTRY_RELEASE=${stage}
 ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
 
-COPY . .
+COPY --link . .
 RUN bun run build
 
 ########################################################
