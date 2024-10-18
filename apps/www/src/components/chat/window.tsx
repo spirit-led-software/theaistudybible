@@ -186,7 +186,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
               class='flex max-h-24 min-h-[10px] w-full resize-none items-center justify-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
               minLength={1}
               autoResize
-              autofocus
             />
           </TextField>
           <Switch
