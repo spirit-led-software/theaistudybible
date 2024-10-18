@@ -61,7 +61,7 @@ const DevotionPage = () => {
           <QueryBoundary
             query={devotionQuery}
             notFoundFallback={
-              <div class='flex h-full w-full flex-1 items-center justify-center'>
+              <div class='flex h-full w-full flex-1 flex-col items-center justify-center gap-4'>
                 <H3>Devotion not found</H3>
                 <Button as={A} href='/devotion'>
                   Go back to Devotions
