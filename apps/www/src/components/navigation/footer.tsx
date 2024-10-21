@@ -8,20 +8,20 @@ import { Copyright } from 'lucide-solid';
 
 export const NavigationFooter = () => {
   return (
-    <footer class='bg-muted/30 py-12 text-muted-foreground'>
+    <footer class='bg-muted/30 py-8 text-muted-foreground sm:py-12'>
       <div class='container mx-auto px-4'>
-        <div class='mb-8 flex flex-col items-center'>
-          <Logo class='mb-4 h-12' />
-          <div class='mb-4 text-sm'>
+        <div class='mb-6 flex flex-col items-center sm:mb-8'>
+          <Logo class='mb-4 h-8 sm:h-12' />
+          <div class='mb-4 text-center text-xs sm:text-sm'>
             <Copyright class='mr-1 inline-block' /> {new Date().getFullYear()} Spirit-Led Software.
             All rights reserved.
           </div>
         </div>
 
-        <Separator class='my-8 h-[2px] bg-primary/20' />
+        <Separator class='my-6 h-[2px] bg-primary/20 sm:my-8' />
 
         <div class='flex flex-col items-center'>
-          <div class='mb-8 flex items-center space-x-4'>
+          <div class='mb-6 flex flex-col items-center space-y-4 sm:mb-8 sm:flex-row sm:space-x-4 sm:space-y-0'>
             <Button variant='link' size='sm' as={A} href='/about'>
               About
             </Button>
@@ -42,12 +42,12 @@ export const NavigationFooter = () => {
               target='_blank'
               rel='noopener noreferrer'
             >
-              <GitHub class='mr-1 inline-block size-6' />
+              <GitHub class='mr-1 inline-block size-4 sm:size-6' />
               GitHub
             </Button>
           </div>
           <A href='https://spiritledsoftware.com' target='_blank'>
-            <SpiritLedSoftwareLogo class='h-8' />
+            <SpiritLedSoftwareLogo class='h-6 sm:h-8' />
           </A>
         </div>
       </div>
