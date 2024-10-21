@@ -7,9 +7,11 @@ import type { Document, DocumentWithScore } from './types/document';
 
 export type AddDocumentsOptions = {
   namespace?: string;
+  overwrite?: boolean;
 };
 const addDocumentsDefaults = {
   namespace: undefined,
+  overwrite: false,
 } as const satisfies AddDocumentsOptions;
 
 export type SearchDocumentsOptions = {
@@ -60,10 +62,26 @@ export class VectorStore {
     try {
       const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
       for (let i = 0; i < batches; i++) {
-        const batch = docsWithEmbeddings.slice(
+        let batch = docsWithEmbeddings.slice(
           i * VectorStore.MAX_UPSERT_BATCH_SIZE,
           (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
         );
+
+        let existingDocs: Document[] = [];
+        if (options.overwrite === false) {
+          existingDocs = await this.client
+            .fetch(
+              batch.map((d) => d.id),
+              {
+                includeMetadata: false,
+                includeVectors: false,
+                namespace: options.namespace,
+              },
+            )
+            .then((r) => r.filter((d) => d !== null) as Document[]);
+          batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
+        }
+
         await this.client.upsert(
           batch.map((d) => ({
             id: d.id,

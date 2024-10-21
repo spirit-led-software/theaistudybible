@@ -8,7 +8,7 @@ import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
-import Logo from '../branding/logo';
+import { Logo } from '../branding/logo';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { TextField, TextFieldErrorMessage, TextFieldInput, TextFieldLabel } from '../ui/text-field';

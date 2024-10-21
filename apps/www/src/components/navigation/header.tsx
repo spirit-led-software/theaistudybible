@@ -2,8 +2,8 @@ import { A } from '@solidjs/router';
 import { AuthLoaded, AuthLoading, SignedIn, SignedOut } from '../auth/control';
 import { SignInButton } from '../auth/sign-in-button';
 import { UserButton } from '../auth/user-button';
-import Logo from '../branding/logo';
-import LogoSmall from '../branding/logo-small';
+import { Logo } from '../branding/logo';
+import { LogoSmall } from '../branding/logo-small';
 import { ThemeToggleButton } from '../theme/toggle-button';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
@@ -11,7 +11,7 @@ import { CreditDisplay } from './credit-display';
 import { NavigationDrawer } from './drawer';
 import { Menu } from './menu';
 
-export default function NavigationHeader() {
+export function NavigationHeader() {
   return (
     <nav class='fixed inset-x-safe top-safe z-50 flex h-20 items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
       <div class='flex w-1/3 justify-start sm:hidden sm:w-0'>

@@ -9,7 +9,7 @@ import { Copy } from 'lucide-solid';
 import { type Accessor, Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { UserAvatar } from '../../auth/user-avatar';
-import Icon from '../../branding/icon';
+import { Icon } from '../../branding/icon';
 import { Button } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { MessageReactionButtons } from './reaction-buttons';

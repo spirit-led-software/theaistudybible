@@ -352,12 +352,12 @@ async function sendChaptersToIndexBucket(
   for (let i = 0; i < entries.length; i += batchSize) {
     const batch = entries.slice(i, i + batchSize);
     const messages = batch.map(
-      ([chapterNumber, content], index) =>
+      ([chapterNumber, content]) =>
         ({
           bibleId: bible.id,
           bookId: book.id,
-          previousId: i + index > 0 ? entries[i + index - 1]?.[1].id : undefined,
-          nextId: i + index < entries.length - 1 ? entries[i + index + 1]?.[1].id : undefined,
+          previousId: entries.at(i - 1)?.[1].id,
+          nextId: entries.at(i + batchSize)?.[1].id,
           chapterNumber,
           content,
           generateEmbeddings,

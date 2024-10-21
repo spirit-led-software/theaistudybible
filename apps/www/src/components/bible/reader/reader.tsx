@@ -8,7 +8,7 @@ import { Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
-import { createEffect } from 'solid-js';
+import { onMount } from 'solid-js';
 import {
   ActivityPanel,
   ActivityPanelAlwaysOpenButtons,
@@ -71,11 +71,11 @@ export type ReaderContentProps = {
 export const ReaderContent = (props: ReaderContentProps) => {
   const [brStore, setBrStore] = useBibleReaderStore();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  createEffect(() => {
+  const [searchParams] = useSearchParams();
+  onMount(() => {
     const verseIdsParam = searchParams.verseIds;
     if (verseIdsParam) {
-      const verseIds = verseIdsParam.split(',');
+      const verseIds = Array.isArray(verseIdsParam) ? verseIdsParam : verseIdsParam.split(',');
       setBrStore('selectedVerseInfos', (prev) => {
         const newSelectedVerseInfos: SelectedVerseInfo[] = verseIds.map((id) => {
           const contents = gatherElementIdsAndVerseNumberByVerseId(id);
@@ -93,15 +93,9 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
         return [...prev, ...newSelectedVerseInfos];
       });
-      setSearchParams(
-        { verseIds: undefined },
-        {
-          replace: true,
-        },
-      );
-      document.getElementById(verseIds[0])?.scrollIntoView({
+      document.getElementById(verseIds[verseIds.length - 1])?.scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
+        block: 'end',
       });
     }
   });

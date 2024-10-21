@@ -1,7 +1,11 @@
 import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
+import { userCredits } from '@/core/database/schema';
 import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
+import { add, isAfter } from 'date-fns';
+import { sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { verifyRequestOrigin } from 'lucia';
 import { getCookie, getHeader, setCookie } from 'vinxi/http';
 
@@ -49,6 +53,37 @@ export default createMiddleware({
           with: { role: true },
         })
         .then((roles) => roles.map((role) => role.role));
+
+      if (user) {
+        const [userCredit] = await db
+          .select()
+          .from(userCredits)
+          .where(eq(userCredits.userId, user.id));
+
+        if (userCredit) {
+          const twentyFourHoursAfterLastCredit = add(userCredit.lastReadingCreditAt ?? new Date(), {
+            hours: 24,
+          });
+          if (
+            !userCredit.lastReadingCreditAt ||
+            isAfter(new Date(), twentyFourHoursAfterLastCredit)
+          ) {
+            await db
+              .update(userCredits)
+              .set({
+                balance: sql`${userCredits.balance} + 10`,
+                lastReadingCreditAt: new Date(),
+              })
+              .where(eq(userCredits.userId, user.id));
+          }
+        } else {
+          await db.insert(userCredits).values({
+            userId: user.id,
+            balance: 10,
+            lastReadingCreditAt: new Date(),
+          });
+        }
+      }
 
       locals.session = session;
       locals.user = user;

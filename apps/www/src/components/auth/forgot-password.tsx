@@ -5,7 +5,7 @@ import { A, action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
-import Logo from '../branding/logo';
+import { Logo } from '../branding/logo';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { TextField, TextFieldErrorMessage, TextFieldInput, TextFieldLabel } from '../ui/text-field';

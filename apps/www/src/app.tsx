@@ -13,7 +13,7 @@ import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { Show, Suspense } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
-import Logo from './components/branding/logo';
+import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
 import { SentryRouter } from './components/sentry/router';
 import { Button } from './components/ui/button';

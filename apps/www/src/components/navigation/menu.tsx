@@ -5,11 +5,13 @@ import {
   Bookmark,
   CreditCard,
   Download,
+  FileText,
   Highlighter,
   Info,
   Lightbulb,
   MessageCircle,
   Notebook,
+  Shield,
 } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { SignedIn } from '../auth/control';
@@ -57,17 +59,20 @@ export const Menu = (props: MenuProps) => {
               Install this website as an app on your device
             </NavigationMenuDescription>
           </NavigationMenuLink>
-          <SignedIn>
-            <NavigationMenuLink as={A} href='/credits'>
-              <NavigationMenuLabel class='flex items-center gap-2'>
-                <CreditCard />
-                Credits
-              </NavigationMenuLabel>
-              <NavigationMenuDescription>
-                Purchase credits to use on AI actions
-              </NavigationMenuDescription>
-            </NavigationMenuLink>
-          </SignedIn>
+          <NavigationMenuLink as={A} href='/privacy'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
+              <Shield />
+              Privacy
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>Learn about our privacy practices</NavigationMenuDescription>
+          </NavigationMenuLink>
+          <NavigationMenuLink as={A} href='/terms'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
+              <FileText />
+              Terms
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>Learn about our terms of service</NavigationMenuDescription>
+          </NavigationMenuLink>
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
@@ -130,6 +135,17 @@ export const Menu = (props: MenuProps) => {
               Stir up your spirit with today's devotion
             </NavigationMenuDescription>
           </NavigationMenuLink>
+          <SignedIn>
+            <NavigationMenuLink as={A} href='/credits'>
+              <NavigationMenuLabel class='flex items-center gap-2'>
+                <CreditCard />
+                Credits
+              </NavigationMenuLabel>
+              <NavigationMenuDescription>
+                Purchase credits to use on AI actions
+              </NavigationMenuDescription>
+            </NavigationMenuLink>
+          </SignedIn>
         </NavigationMenuContent>
       </NavigationMenuItem>
       <Show when={isAdmin()}>

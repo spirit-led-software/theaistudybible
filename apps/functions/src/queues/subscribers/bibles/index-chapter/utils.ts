@@ -76,15 +76,14 @@ export async function insertVerses({
       .insert(schema.verses)
       .values(
         verseBatch.map(
-          ([verseNumber, verseContent], index) =>
+          ([verseNumber, verseContent]) =>
             ({
               id: verseContent.id,
               bibleId: bible.id,
               bookId: book.id,
               chapterId: chapter.id,
-              previousId: i + index > 0 ? verseEntries[i + index - 1][1].id : undefined,
-              nextId:
-                i + index < verseEntries.length - 1 ? verseEntries[i + index + 1][1].id : undefined,
+              previousId: verseEntries.at(i - 1)?.[1].id,
+              nextId: verseEntries.at(i + insertVerseBatchSize)?.[1].id,
               code: `${chapter.code}.${verseNumber}`,
               name: `${chapter.name}:${verseNumber}`,
               number: Number.parseInt(verseNumber),

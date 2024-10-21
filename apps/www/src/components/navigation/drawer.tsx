@@ -1,7 +1,7 @@
 import { A, useBeforeLeave } from '@solidjs/router';
 import { MenuIcon, X } from 'lucide-solid';
 import { createSignal } from 'solid-js';
-import LogoSmall from '../branding/logo-small';
+import { LogoSmall } from '../branding/logo-small';
 import { Button } from '../ui/button';
 import {
   Sheet,
