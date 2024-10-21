@@ -3,6 +3,7 @@ import { Logo as SpiritLedSoftwareLogo } from '@/www/components/branding/spirit-
 import { Button } from '@/www/components/ui/button';
 import { Separator } from '@/www/components/ui/separator';
 import { A } from '@solidjs/router';
+import { Copyright } from 'lucide-solid';
 
 export const NavigationFooter = () => {
   return (
@@ -11,7 +12,8 @@ export const NavigationFooter = () => {
         <div class='mb-8 flex flex-col items-center'>
           <Logo class='mb-4 h-12' />
           <div class='mb-4 text-sm'>
-            © {new Date().getFullYear()} The AI Study Bible. All rights reserved.
+            <Copyright class='mr-1 inline-block' /> {new Date().getFullYear()} Spirit-Led Software.
+            All rights reserved.
           </div>
         </div>
 
