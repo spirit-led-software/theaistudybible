@@ -68,7 +68,9 @@ export async function insertVerses({
   const { content: verseContent, ...columnsWithoutContent } = getTableColumns(schema.verses);
   const insertVerseBatchSize = 40;
   const allVerses = [];
-  const verseEntries = Object.entries(content.verseContents);
+  const verseEntries = Object.entries(content.verseContents).toSorted(
+    ([a], [b]) => Number(a) - Number(b),
+  );
 
   for (let i = 0; i < verseEntries.length; i += insertVerseBatchSize) {
     const verseBatch = verseEntries.slice(i, i + insertVerseBatchSize);
@@ -76,14 +78,14 @@ export async function insertVerses({
       .insert(schema.verses)
       .values(
         verseBatch.map(
-          ([verseNumber, verseContent]) =>
+          ([verseNumber, verseContent], idx) =>
             ({
               id: verseContent.id,
               bibleId: bible.id,
               bookId: book.id,
               chapterId: chapter.id,
-              previousId: verseEntries.at(i - 1)?.[1].id,
-              nextId: verseEntries.at(i + insertVerseBatchSize)?.[1].id,
+              previousId: verseEntries[i + idx - 1]?.[1]?.id,
+              nextId: verseEntries[i + idx + 1]?.[1]?.id,
               code: `${chapter.code}.${verseNumber}`,
               name: `${chapter.name}:${verseNumber}`,
               number: Number.parseInt(verseNumber),

@@ -347,17 +347,17 @@ async function sendChaptersToIndexBucket(
   book: typeof schema.books.$inferSelect,
   generateEmbeddings: boolean,
 ) {
-  const entries = Object.entries(contents);
+  const entries = Object.entries(contents).toSorted(([a], [b]) => Number(a) - Number(b));
   const batchSize = 20;
   for (let i = 0; i < entries.length; i += batchSize) {
     const batch = entries.slice(i, i + batchSize);
     const messages = batch.map(
-      ([chapterNumber, content]) =>
+      ([chapterNumber, content], idx) =>
         ({
           bibleId: bible.id,
           bookId: book.id,
-          previousId: entries.at(i - 1)?.[1].id,
-          nextId: entries.at(i + batchSize)?.[1].id,
+          previousId: entries[i + idx - 1]?.[1]?.id,
+          nextId: entries[i + idx + 1]?.[1]?.id,
           chapterNumber,
           content,
           generateEmbeddings,
