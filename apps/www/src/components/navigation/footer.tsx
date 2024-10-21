@@ -1,5 +1,6 @@
 import { Logo } from '@/www/components/branding/logo';
 import { Logo as SpiritLedSoftwareLogo } from '@/www/components/branding/spirit-led-software/logo';
+import { GitHub } from '@/www/components/ui/brand-icons';
 import { Button } from '@/www/components/ui/button';
 import { Separator } from '@/www/components/ui/separator';
 import { A } from '@solidjs/router';
@@ -32,6 +33,17 @@ export const NavigationFooter = () => {
             </Button>
             <Button variant='link' size='sm' as={A} href='/terms'>
               Terms of Service
+            </Button>
+            <Button
+              variant='link'
+              size='sm'
+              as='a'
+              href='https://github.com/spirit-led-software/theaistudybible'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <GitHub class='mr-1 inline-block size-6' />
+              GitHub
             </Button>
           </div>
           <A href='https://spiritledsoftware.com' target='_blank'>
