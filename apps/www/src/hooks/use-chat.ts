@@ -175,17 +175,19 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   createEffect(() => {
     if (!messagesQuery.isLoading && messagesQuery.data && !useChatResult.isLoading()) {
       useChatResult.setMessages(
-        messagesQuery.data.pages
-          .flatMap((page) => page.messages)
-          .toReversed()
-          .map((message) => ({
-            ...message,
-            createdAt: new Date(message.createdAt),
-            content: message.content ?? '',
-            annotations: message.annotations ?? undefined,
-            toolInvocations: message.toolInvocations ?? undefined,
-            tool_call_id: message.tool_call_id ?? undefined,
-          })),
+        reconcile(
+          messagesQuery.data.pages
+            .flatMap((page) => page.messages)
+            .toReversed()
+            .map((message) => ({
+              ...message,
+              createdAt: new Date(message.createdAt),
+              content: message.content ?? '',
+              annotations: message.annotations ?? undefined,
+              toolInvocations: message.toolInvocations ?? undefined,
+              tool_call_id: message.tool_call_id ?? undefined,
+            })),
+        ),
       );
     }
   });
