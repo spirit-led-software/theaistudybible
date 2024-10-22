@@ -295,18 +295,15 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
     const insertedBooks = await db
       .insert(schema.books)
       .values(
-        batch.map((book, index) => {
+        batch.map((book, idx) => {
           const { id, src, code, ...rest } = book;
           return {
             ...rest,
             id,
-            previousId: i > 0 && index === 0 ? bookInfos[i - 1].id : batch[index - 1]?.id,
-            nextId:
-              i + index === bookInfos.length - 1
-                ? undefined
-                : batch[index + 1]?.id || bookInfos[i + batchSize]?.id,
+            previousId: bookInfos[i + idx - 1]?.id,
+            nextId: bookInfos[i + idx + 1]?.id,
             code: code.toUpperCase(),
-            number: i + index + 1,
+            number: i + idx + 1,
             bibleId,
           } satisfies typeof schema.books.$inferInsert;
         }),

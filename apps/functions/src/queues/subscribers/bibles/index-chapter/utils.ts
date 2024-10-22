@@ -133,7 +133,7 @@ export async function cleanupMissingChapterLinks(bibleId: string) {
               columns: { id: true },
               with: {
                 chapters: {
-                  columns: { id: true },
+                  columns: { id: true, number: true },
                   orderBy: (chapters, { asc }) => asc(chapters.number),
                   limit: 1,
                 },
@@ -143,7 +143,7 @@ export async function cleanupMissingChapterLinks(bibleId: string) {
               columns: { id: true },
               with: {
                 chapters: {
-                  columns: { id: true },
+                  columns: { id: true, number: true },
                   orderBy: (chapters, { desc }) => desc(chapters.number),
                   limit: 1,
                 },
@@ -204,7 +204,7 @@ export async function cleanupMissingVerseLinks(bibleId: string) {
               columns: { id: true },
               with: {
                 verses: {
-                  columns: { id: true },
+                  columns: { id: true, number: true },
                   orderBy: (verses, { asc }) => asc(verses.number),
                   limit: 1,
                 },
@@ -214,7 +214,7 @@ export async function cleanupMissingVerseLinks(bibleId: string) {
               columns: { id: true },
               with: {
                 verses: {
-                  columns: { id: true },
+                  columns: { id: true, number: true },
                   orderBy: (verses, { desc }) => desc(verses.number),
                   limit: 1,
                 },
