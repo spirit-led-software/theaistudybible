@@ -52,6 +52,7 @@ const app = new Hono<{
           })
           .passthrough()
           .array(),
+        additionalContext: z.string().optional(), // TODO: Flesh this out
       }),
     ),
     async (c) => {
