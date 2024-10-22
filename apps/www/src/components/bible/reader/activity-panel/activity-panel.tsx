@@ -78,7 +78,7 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-[20%] bottom-0 z-30 mx-auto flex h-fit max-h-52 flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`fixed inset-x-[20%] bottom-0 z-30 mx-auto flex h-fit max-h-52 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
       <div class='container flex items-center justify-between'>
         <H6 class='w-full text-center text-primary-foreground text-sm'>
