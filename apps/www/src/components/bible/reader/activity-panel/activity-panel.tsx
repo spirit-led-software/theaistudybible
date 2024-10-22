@@ -80,7 +80,7 @@ export const ActivityPanelButtons = () => {
     <div
       class={`fixed inset-x-[20%] bottom-0 z-30 mx-auto flex h-fit max-h-52 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
-      <div class='container flex items-center justify-between'>
+      <div class='flex w-full items-center justify-between'>
         <H6 class='w-full text-center text-primary-foreground text-sm'>
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
