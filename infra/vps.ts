@@ -10,9 +10,28 @@ import { webAppBuildImage, webAppEnv, webAppImageRepo } from './www';
 
 export let vps: hcloud.Server | undefined;
 export let dockerProvider: docker.Provider | undefined;
-export let webAppContainer: docker.Container | undefined;
-export let nginxContainer: docker.Container | undefined;
+export let webAppService: docker.Service | undefined;
+export let nginxService: docker.Service | undefined;
 if (!$dev) {
+  const firewall = new hcloud.Firewall('Firewall', {
+    rules: [
+      {
+        direction: 'in',
+        protocol: 'tcp',
+        port: '22',
+        sourceIps: ['0.0.0.0/0'],
+      },
+      {
+        direction: 'in',
+        protocol: 'tcp',
+        port: '443',
+        sourceIps: $util
+          .all([CLOUDFLARE_IP_RANGES.ipv4CidrBlocks, CLOUDFLARE_IP_RANGES.ipv6CidrBlocks])
+          .apply(([ipv4, ipv6]) => [...ipv4, ...ipv6]),
+      },
+    ],
+  });
+
   const { vpsAwsAccessKey } = buildVpsIamUser();
 
   const privateKey = new tls.PrivateKey('PrivateKey', {
@@ -34,6 +53,7 @@ if (!$dev) {
       'systemctl enable --now docker',
       'usermod -aG docker debian',
     ].join('\n'),
+    firewallIds: firewall.id.apply((id) => [Number(id)]),
   });
   const vpsConnection = {
     host: vps.ipv4Address,
@@ -47,16 +67,19 @@ if (!$dev) {
     return path.resolve(keyPath);
   });
 
-  const { dockerProvider: createdDockerProvider, isReady } = buildDockerProvider();
+  const { dockerProvider: createdDockerProvider, dockerSwarmInitCmd } = buildDockerProvider();
   dockerProvider = createdDockerProvider;
 
   const webAppNetwork = new docker.Network(
     'WebAppNetwork',
-    { driver: 'bridge' },
-    { provider: dockerProvider, dependsOn: [isReady] },
+    {
+      driver: 'overlay',
+      attachable: true,
+    },
+    { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
   );
-  webAppContainer = buildWebAppContainer();
-  nginxContainer = buildNginxContainer();
+  webAppService = buildWebAppService();
+  nginxService = buildNginxService();
 
   buildCloudflareRecordsAndCache();
 
@@ -108,17 +131,18 @@ if (!$dev) {
           })),
       ],
     });
-    // Wait for docker to be ready, which seems unnecessary, but is necessary
-    const waitForDockerReadyCmd = new command.remote.Command(
-      'WaitForDockerReady',
+
+    const dockerSwarmInitCmd = new command.remote.Command(
+      'DockerSwarmInit',
       {
         connection: vpsConnection,
-        create: 'until docker ps | grep -q "CONTAINER ID"; do sleep 1; done',
-        update: 'until docker ps | grep -q "CONTAINER ID"; do sleep 1; done',
+        create: 'docker swarm init',
+        delete: 'docker swarm leave --force',
       },
       { dependsOn: [dockerProvider, vps!] },
     );
-    return { dockerProvider, isReady: waitForDockerReadyCmd };
+
+    return { dockerProvider, dockerSwarmInitCmd };
   }
 
   function buildCloudflareRecordsAndCache() {
@@ -160,13 +184,13 @@ if (!$dev) {
             },
           ],
         },
-        { dependsOn: [webAppContainer!] },
+        { dependsOn: [webAppService!] },
       );
       new cloudflareHelpers.PurgeCache(
         'PurgeCache',
         {
           zoneId: CLOUDFLARE_ZONE.zoneId,
-          triggers: [webAppContainer!.id],
+          triggers: [webAppService!.id],
           purge_everything: true,
         },
         { dependsOn: [ruleset] },
@@ -174,32 +198,42 @@ if (!$dev) {
     }
   }
 
-  function buildWebAppContainer() {
+  function buildWebAppService() {
     const links = buildLinks(allLinks);
-    const envs = $output(links).apply((links) => [
-      $interpolate`AWS_ACCESS_KEY_ID=${vpsAwsAccessKey.id}`,
-      $interpolate`AWS_SECRET_ACCESS_KEY=${$util.secret(vpsAwsAccessKey.secret)}`,
-      $interpolate`AWS_REGION=${$app.providers?.aws.region ?? 'us-east-1'}`,
-      $interpolate`SST_RESOURCE_App=${JSON.stringify({
-        name: $app.name,
-        stage: $app.stage,
-      })}`,
-      ...links.map((l) => $interpolate`SST_RESOURCE_${l.name}=${JSON.stringify(l.properties)}`),
-      ...Object.entries(webAppEnv).map(([k, v]) => $interpolate`${k}=${v}`),
-    ]);
-    return new docker.Container(
-      'WebAppContainer',
+    return new docker.Service(
+      'WebAppService',
       {
-        image: webAppBuildImage!.ref,
-        envs,
-        restart: 'always',
-        networksAdvanced: [{ name: webAppNetwork.name }],
+        taskSpec: {
+          containerSpec: {
+            image: webAppBuildImage!.ref,
+            env: {
+              AWS_ACCESS_KEY_ID: vpsAwsAccessKey.id,
+              AWS_SECRET_ACCESS_KEY: $util.secret(vpsAwsAccessKey.secret),
+              AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
+              SST_RESOURCE_App: JSON.stringify({
+                name: $app.name,
+                stage: $app.stage,
+              }),
+              ...webAppEnv,
+              ...$output(links).apply((links) =>
+                links.reduce(
+                  (acc, l) => {
+                    acc[`SST_RESOURCE_${l.name}`] = JSON.stringify(l.properties);
+                    return acc;
+                  },
+                  {} as Record<string, string>,
+                ),
+              ),
+            },
+          },
+          networksAdvanceds: [{ name: webAppNetwork.name, aliases: ['web-app'] }],
+        },
       },
-      { provider: dockerProvider },
+      { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
     );
   }
 
-  function buildNginxContainer() {
+  function buildNginxService() {
     const webAppPrivateKey = new tls.PrivateKey('WebAppPrivateKey', { algorithm: 'RSA' });
     const webAppCsr = new tls.CertRequest('WebAppCSR', {
       privateKeyPem: webAppPrivateKey.privateKeyPem,
@@ -218,41 +252,72 @@ if (!$dev) {
       requestType: 'origin-rsa',
       requestedValidity: 5475,
     });
+    const nginxCert = new docker.Secret(
+      'NginxCert',
+      { data: webAppCert.certificate.apply((cert) => Buffer.from(cert).toString('base64')) },
+      { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
+    );
+    const nginxKey = new docker.Secret(
+      'NginxKey',
+      {
+        data: $util
+          .secret(webAppPrivateKey.privateKeyPem)
+          .apply((key) => Buffer.from(key).toString('base64')),
+      },
+      { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
+    );
+
     const webAppNginxConf = buildNginxConfig();
-    const createNginxFilesCmd = new command.remote.Command('CreateNginxFiles', {
-      connection: vpsConnection,
-      create: $interpolate`
-      mkdir -p /etc/nginx/conf.d /etc/nginx/ssl && 
-      echo "${webAppNginxConf}" > /etc/nginx/conf.d/default.conf && 
-      echo "${webAppCert.certificate}" > /etc/nginx/ssl/cert.pem && 
-      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem
-    `,
-      update: $interpolate`
-      mkdir -p /etc/nginx/conf.d /etc/nginx/ssl && 
-      echo "${webAppNginxConf}" > /etc/nginx/conf.d/default.conf && 
-      echo "${webAppCert.certificate}" > /etc/nginx/ssl/cert.pem && 
-      echo "${$util.secret(webAppPrivateKey.privateKeyPem)}" > /etc/nginx/ssl/key.pem
-    `,
-      delete: 'rm -f /etc/nginx/conf.d/default.conf /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem',
-    });
+    const nginxConfig = new docker.ServiceConfig(
+      'NginxConfig',
+      { data: webAppNginxConf.apply((conf) => Buffer.from(conf).toString('base64')) },
+      { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
+    );
+
     const nginxImage = new docker.RemoteImage(
       'NginxImage',
       { name: 'nginx:latest' },
       { provider: dockerProvider },
     );
-    return new docker.Container(
-      'NginxContainer',
+    return new docker.Service(
+      'NginxService',
       {
-        image: nginxImage.repoDigest,
-        ports: [{ internal: 443, external: 443 }],
-        volumes: [
-          { hostPath: '/etc/nginx/conf.d', containerPath: '/etc/nginx/conf.d' },
-          { hostPath: '/etc/nginx/ssl', containerPath: '/etc/nginx/ssl' },
-        ],
-        restart: 'always',
-        networksAdvanced: [{ name: webAppNetwork.name }],
+        taskSpec: {
+          containerSpec: {
+            image: nginxImage.repoDigest,
+            configs: [
+              {
+                configId: nginxConfig.id,
+                configName: nginxConfig.name,
+                fileName: '/etc/nginx/conf.d/default.conf',
+              },
+            ],
+            secrets: [
+              {
+                secretId: nginxCert.id,
+                secretName: nginxCert.name,
+                fileName: '/etc/nginx/ssl/cert.pem',
+              },
+              {
+                secretId: nginxKey.id,
+                secretName: nginxKey.name,
+                fileName: '/etc/nginx/ssl/key.pem',
+              },
+            ],
+          },
+          restartPolicy: {
+            condition: 'any',
+            delay: '5s',
+            maxAttempts: 10,
+            window: '120s',
+          },
+          networksAdvanceds: [{ name: webAppNetwork.name, aliases: ['nginx'] }],
+        },
+        endpointSpec: {
+          ports: [{ targetPort: 443, publishedPort: 443 }],
+        },
       },
-      { provider: dockerProvider, dependsOn: [createNginxFilesCmd] },
+      { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
     );
   }
 
@@ -275,26 +340,17 @@ server {
   ssl_session_timeout 1d;
   ssl_session_tickets off;
 
-  # Only allow requests from Cloudflare
-  ${CLOUDFLARE_IP_RANGES.ipv4CidrBlocks.apply((blocks) =>
-    blocks.map((block) => `allow ${block};`).join('\n'),
-  )}
-  ${CLOUDFLARE_IP_RANGES.ipv6CidrBlocks.apply((blocks) =>
-    blocks.map((block) => `allow ${block};`).join('\n'),
-  )}
-  deny all;
-
   location / {
-    proxy_pass http://${webAppContainer!.name}:3000;
-    proxy_set_header Host \\$host;
-    proxy_set_header X-Real-IP \\$remote_addr;
-    proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \\$scheme;
-    proxy_set_header X-Forwarded-Host \\$host;
-    proxy_set_header X-Forwarded-Port \\$server_port;
+    proxy_pass http://web-app:3000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
 
     proxy_http_version 1.1;
-    proxy_set_header Connection \\"\\";
+    proxy_set_header Connection "";
 
     proxy_connect_timeout 300;
     proxy_read_timeout 300;

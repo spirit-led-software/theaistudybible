@@ -66,7 +66,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [messagesReversed, setMessagesReversed] = createStore(messages().toReversed());
   createEffect(
     on(messages, (messages) => {
-      setMessagesReversed(reconcile(messages.toReversed(), { merge: true }));
+      setMessagesReversed(reconcile(messages.toReversed()));
     }),
   );
 

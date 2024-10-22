@@ -72,6 +72,7 @@ const getHighlightsQueryOptions = () => ({
   queryFn: ({ pageParam }: { pageParam: number }) => getHighlights({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getHighlights>>) => lastPage.nextCursor,
+  keepPreviousData: true,
 });
 
 export const route: RouteDefinition = {
@@ -98,9 +99,7 @@ const HighlightsPage = () => {
   );
   createEffect(() => {
     if (!highlightsQuery.isLoading && highlightsQuery.data) {
-      setHighlights(
-        reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights, { merge: true })),
-      );
+      setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));
     }
   });
 

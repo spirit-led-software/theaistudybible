@@ -67,6 +67,7 @@ const getNotesQueryOptions = () => ({
   queryFn: ({ pageParam }: { pageParam: number }) => getNotes({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor,
+  keepPreviousData: true,
 });
 
 export const route: RouteDefinition = {
@@ -86,7 +87,7 @@ const NotesPage = () => {
   );
   createEffect(() => {
     if (!notesQuery.isLoading && notesQuery.data) {
-      setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes, { merge: true })));
+      setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes)));
     }
   });
 

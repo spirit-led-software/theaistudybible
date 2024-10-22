@@ -41,6 +41,7 @@ export const getDevotionsQueryOptions = () => ({
   queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 10 }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
+  keepPreviousData: true,
 });
 
 export const DevotionSidebar = () => {
@@ -57,9 +58,7 @@ export const DevotionSidebar = () => {
   );
   createEffect(() => {
     if (!devotionsQuery.isLoading && devotionsQuery.data) {
-      setDevotions(
-        reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions, { merge: true })),
-      );
+      setDevotions(reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions)));
     }
   });
 

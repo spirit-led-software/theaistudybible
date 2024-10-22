@@ -158,10 +158,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     },
   }));
 
-  const chatQuery = createQuery(() => ({
-    ...getChatQueryProps(chatId()),
-    keepPreviousData: true,
-  }));
+  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
   const [chat, setChat] = createSignal(
     !chatQuery.isLoading && chatQuery.data !== undefined ? chatQuery.data : null,
   );
@@ -179,7 +176,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     if (!messagesQuery.isLoading && messagesQuery.data && !useChatResult.isLoading()) {
       useChatResult.setMessages(
         messagesQuery.data.pages
-          .flatMap((page) => [...page.messages])
+          .flatMap((page) => page.messages)
           .toReversed()
           .map((message) => ({
             ...message,
@@ -193,10 +190,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     }
   });
 
-  const followUpSuggestionsQuery = createQuery(() => ({
-    ...getChatSuggestionsQueryProps(chatId()),
-    keepPreviousData: true,
-  }));
+  const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore(
     !followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data
       ? followUpSuggestionsQuery.data
@@ -204,7 +198,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   );
   createEffect(() => {
     if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
-      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data, { merge: true }));
+      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
     }
   });
 

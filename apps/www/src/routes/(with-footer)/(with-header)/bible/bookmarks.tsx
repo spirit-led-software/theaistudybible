@@ -97,6 +97,7 @@ const getBookmarksQueryOptions = () => ({
   queryFn: ({ pageParam }: { pageParam: number }) => getBookmarks({ limit: 9, offset: pageParam }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor,
+  keepPreviousData: true,
 });
 
 export const route: RouteDefinition = {
@@ -123,9 +124,7 @@ const BookmarksPage = () => {
   );
   createEffect(() => {
     if (!bookmarksQuery.isLoading && bookmarksQuery.data) {
-      setBookmarks(
-        reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks, { merge: true })),
-      );
+      setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
     }
   });
 

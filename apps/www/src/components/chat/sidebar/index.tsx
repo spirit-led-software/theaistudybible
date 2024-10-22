@@ -45,6 +45,7 @@ export const getChatsQueryOptions = () => ({
   queryFn: ({ pageParam }: { pageParam: number }) => getChats({ offset: pageParam, limit: 10 }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChats>>) => lastPage.nextCursor,
+  keepPreviousData: true,
 });
 
 export const ChatSidebar = () => {
@@ -62,7 +63,7 @@ export const ChatSidebar = () => {
   );
   createEffect(() => {
     if (!chatsQuery.isLoading && chatsQuery.data) {
-      setChats(reconcile(chatsQuery.data.pages.flatMap((page) => page.chats, { merge: true })));
+      setChats(reconcile(chatsQuery.data.pages.flatMap((page) => page.chats)));
     }
   });
 
