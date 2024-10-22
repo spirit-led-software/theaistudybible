@@ -8,8 +8,8 @@ import { createStore } from 'solid-js/store';
 export type BibleStore = {
   bible: Bible | null;
   book: Book | null;
-  chapter: Chapter | null;
-  verse: Verse | null;
+  chapter: Omit<Chapter, 'content'> | null;
+  verse: Omit<Verse, 'content'> | null;
 };
 
 export type BibleContextValue = [get: Store<BibleStore>, set: SetStoreFunction<BibleStore>];
@@ -19,8 +19,8 @@ export const BibleContext = createContext<BibleContextValue>();
 export type BibleProviderProps = {
   bible?: Bible;
   book?: Book;
-  chapter?: Chapter;
-  verse?: Verse;
+  chapter?: Omit<Chapter, 'content'>;
+  verse?: Omit<Verse, 'content'>;
   children: JSXElement;
 };
 

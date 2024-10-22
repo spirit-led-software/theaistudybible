@@ -8,7 +8,7 @@ import { createMemo } from 'solid-js';
 export type TextContentProps = {
   content: TextContentType;
   style: string;
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  // biome-ignore lint/suspicious/noExplicitAny: We need to pass all props to the span
   props: any;
   highlights?: HighlightInfo[];
   class?: string;
@@ -62,20 +62,20 @@ export default function TextContent(props: TextContentProps) {
       data-type={props.content.type}
       data-verse-id={props.content.verseId}
       data-verse-number={props.content.verseNumber}
-      {...props}
+      {...props.props}
       class={cn(
         props.style,
-        'cursor-pointer',
-        selected() && 'underline decoration-accent-foreground underline-offset-4',
+        'relative cursor-pointer underline-offset-4 transition-all duration-1000 ease-in-out',
+        selected() && 'underline decoration-accent-foreground',
         props.class,
       )}
       style={{
         'background-color': bgColor(),
-        transition: 'all 1s ease',
       }}
       onClick={handleClick}
     >
-      {props.content.text}
+      <span class='relative z-10'>{props.content.text}</span>
+      <span class='-left-1 -right-1 -top-2 -bottom-2 absolute inset-0 z-0' />
     </span>
   );
 }

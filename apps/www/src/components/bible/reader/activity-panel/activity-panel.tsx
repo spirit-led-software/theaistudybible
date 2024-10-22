@@ -53,7 +53,7 @@ export const ActivityPanelAlwaysOpenButtons = () => {
 
   return (
     <div
-      class={`-translate-x-1/2 fixed bottom-0 left-1/2 flex h-fit max-h-24 place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`-translate-x-1/2 fixed bottom-0 left-1/2 z-30 flex h-fit max-h-24 place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
       <Tooltip>
         <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
@@ -78,9 +78,9 @@ export const ActivityPanelButtons = () => {
 
   return (
     <div
-      class={`fixed inset-x-1/3 bottom-0 mx-auto flex h-fit max-h-52 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
+      class={`fixed inset-x-[20%] bottom-0 z-30 mx-auto flex h-fit max-h-52 flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
     >
-      <div class='flex w-full items-center justify-between'>
+      <div class='container flex items-center justify-between'>
         <H6 class='w-full text-center text-primary-foreground text-sm'>
           {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
         </H6>
@@ -95,7 +95,7 @@ export const ActivityPanelButtons = () => {
           <TooltipContent>Clear Selection</TooltipContent>
         </Tooltip>
       </div>
-      <div class='grid shrink-0 grid-cols-2 gap-1 sm:grid-cols-3 md:grid-cols-6'>
+      <div class='grid shrink-0 grid-cols-3 gap-3 md:grid-cols-6'>
         <Tooltip>
           <TooltipTrigger as={Button} size='icon' onClick={() => setValue('share')}>
             <Share size={20} />

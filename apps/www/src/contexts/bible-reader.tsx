@@ -1,8 +1,10 @@
+import { findTextContentByVerseIds } from '@/core/utils/bibles/find-by-verse-id';
 import { formNumberSequenceString } from '@/core/utils/number';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
+import { useSearchParams } from '@solidjs/router';
 import type { JSXElement } from 'solid-js';
-import { createComputed, createContext, on, splitProps, useContext } from 'solid-js';
+import { createComputed, createContext, createMemo, on, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
@@ -44,12 +46,47 @@ export type BibleReaderProviderProps = {
 export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   const [local, others] = splitProps(props, ['children']);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const verseIds = createMemo(() =>
+    searchParams.verseIds
+      ? Array.isArray(searchParams.verseIds)
+        ? searchParams.verseIds
+        : searchParams.verseIds.split(',')
+      : [],
+  );
+
+  const getVerseInfosFromVerseIds = (verseIds: string[]) => {
+    if (others.verse && verseIds.length !== 0) {
+      const texts = findTextContentByVerseIds(others.verse.content ?? [], verseIds);
+      return texts.map(
+        (t) =>
+          ({
+            id: t.verseId,
+            number: t.verseNumber,
+            contentIds: [t.id],
+            text: t.text,
+          }) satisfies SelectedVerseInfo,
+      );
+    }
+    const texts = findTextContentByVerseIds(others.chapter.content ?? [], verseIds);
+    return texts.map(
+      (t) =>
+        ({
+          id: t.verseId,
+          number: t.verseNumber,
+          contentIds: [t.id],
+          text: t.text,
+        }) satisfies SelectedVerseInfo,
+    );
+  };
+
   const [store, setStore] = createStore<BibleReaderStore>({
     bible: others.bible,
     book: others.book,
     chapter: others.chapter,
     verse: others.verse ?? null,
-    selectedVerseInfos: others.selectedVerseInfos ?? [],
+    selectedVerseInfos: others.selectedVerseInfos ?? getVerseInfosFromVerseIds(verseIds()),
     get selectedIds(): string[] {
       return this.selectedVerseInfos.flatMap((info: SelectedVerseInfo) => info.contentIds);
     },
@@ -91,32 +128,41 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   createComputed(
     on(
       () => store.bible,
-      () => {
-        setBibleStore('bible', store.bible);
+      (bible) => {
+        setBibleStore('bible', bible);
       },
     ),
   );
   createComputed(
     on(
       () => store.book,
-      () => {
-        setBibleStore('book', store.book);
+      (book) => {
+        setBibleStore('book', book);
       },
     ),
   );
   createComputed(
     on(
       () => store.chapter,
-      () => {
-        setBibleStore('chapter', store.chapter);
+      (chapter) => {
+        setBibleStore('chapter', chapter);
       },
     ),
   );
   createComputed(
     on(
       () => store.verse,
-      () => {
-        setBibleStore('verse', store.verse);
+      (verse) => {
+        setBibleStore('verse', verse);
+      },
+    ),
+  );
+
+  createComputed(
+    on(
+      () => store.selectedVerseInfos,
+      (verseInfos) => {
+        setSearchParams({ verseIds: verseInfos.map((info) => info.id) });
       },
     ),
   );

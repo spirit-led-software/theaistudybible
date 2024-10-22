@@ -34,7 +34,7 @@ export default function RefContent(props: RefContentProps) {
       data-type={props.content.type}
       data-verse-id={props.content.verseId}
       data-verse-number={props.content.verseNumber}
-      {...props}
+      {...props.props}
       class={cn(props.style, 'hover:underline', props.class)}
       href={link()}
     >

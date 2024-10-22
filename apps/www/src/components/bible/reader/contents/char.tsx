@@ -24,8 +24,8 @@ export default function CharContent(props: CharContentProps) {
       data-type={props.content.type}
       data-verse-id={props.content.verseId}
       data-verse-number={props.content.verseNumber}
-      {...props}
-      class={cn(props.style, props.class)}
+      {...props.props}
+      class={cn(props.style, 'h-full w-full', props.class)}
     >
       <Contents
         contents={props.content.contents}

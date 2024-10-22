@@ -93,9 +93,9 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
         return [...prev, ...newSelectedVerseInfos];
       });
-      document.getElementById(verseIds[verseIds.length - 1])?.scrollIntoView({
+      document.getElementById(verseIds[0])?.scrollIntoView({
         behavior: 'smooth',
-        block: 'end',
+        block: 'center',
       });
     }
   });

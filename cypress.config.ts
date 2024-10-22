@@ -8,7 +8,7 @@ export default defineConfig({
       ADMIN_EMAIL: Resource.AdminEmail.value,
       ADMIN_PASSWORD: Resource.AdminPassword.value,
     },
-    defaultCommandTimeout: Resource.Dev.value === 'true' ? 1000 * 20 : 1000 * 10,
+    defaultCommandTimeout: 1000 * (Resource.Dev.value === 'true' ? 20 : 10),
     retries: { runMode: 2 },
   },
 });
