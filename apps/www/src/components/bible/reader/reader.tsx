@@ -1,9 +1,7 @@
 import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
-import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
-import { gatherElementIdsAndVerseNumberByVerseId } from '@/www/utils';
 import { Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -69,35 +67,25 @@ export type ReaderContentProps = {
 };
 
 export const ReaderContent = (props: ReaderContentProps) => {
-  const [brStore, setBrStore] = useBibleReaderStore();
+  const [brStore] = useBibleReaderStore();
 
   const [searchParams] = useSearchParams();
   onMount(() => {
-    const verseIdsParam = searchParams.verseIds;
-    if (verseIdsParam) {
-      const verseIds = Array.isArray(verseIdsParam) ? verseIdsParam : verseIdsParam.split(',');
-      setBrStore('selectedVerseInfos', (prev) => {
-        const newSelectedVerseInfos: SelectedVerseInfo[] = verseIds.map((id) => {
-          const contents = gatherElementIdsAndVerseNumberByVerseId(id);
-          const text = contents.ids
-            .map((id) => document.getElementById(id)?.textContent)
-            .join('')
-            .trim();
-          return {
-            id,
-            number: Number.parseInt(contents.verseNumber!),
-            contentIds: contents.ids,
-            text,
-          };
-        });
-
-        return [...prev, ...newSelectedVerseInfos];
-      });
-      document.getElementById(verseIds[0])?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+    if (!searchParams.verseId) {
+      return;
     }
+
+    const verseIds = Array.isArray(searchParams.verseId)
+      ? searchParams.verseId
+      : searchParams.verseId.split(',');
+    if (!verseIds.length) {
+      return;
+    }
+
+    document.getElementById(verseIds[0])?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
   });
 
   const highlightsQuery = createQuery(() => ({

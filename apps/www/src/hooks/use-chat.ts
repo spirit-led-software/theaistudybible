@@ -185,8 +185,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
             annotations: message.annotations ?? undefined,
             toolInvocations: message.toolInvocations ?? undefined,
             tool_call_id: message.tool_call_id ?? undefined,
-          }),
-        ),
+          })),
       );
     }
   });

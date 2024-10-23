@@ -4,7 +4,7 @@ import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { useSearchParams } from '@solidjs/router';
 import type { JSXElement } from 'solid-js';
-import { createComputed, createContext, createMemo, on, splitProps, useContext } from 'solid-js';
+import { createComputed, createContext, on, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
@@ -48,28 +48,24 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const verseIds = createMemo(() =>
-    searchParams.verseIds
-      ? Array.isArray(searchParams.verseIds)
-        ? searchParams.verseIds
-        : searchParams.verseIds.split(',')
-      : [],
-  );
-
-  const getVerseInfosFromVerseIds = (verseIds: string[]) => {
-    if (others.verse && verseIds.length !== 0) {
-      const texts = findTextContentByVerseIds(others.verse.content ?? [], verseIds);
-      return texts.map(
-        (t) =>
-          ({
-            id: t.verseId,
-            number: t.verseNumber,
-            contentIds: [t.id],
-            text: t.text,
-          }) satisfies SelectedVerseInfo,
-      );
+  const getVerseInfosFromVerseIdsInSearchParams = () => {
+    if (!searchParams.verseId) {
+      return [];
     }
-    const texts = findTextContentByVerseIds(others.chapter.content ?? [], verseIds);
+
+    const verseIds = Array.isArray(searchParams.verseId)
+      ? searchParams.verseId
+      : searchParams.verseId.split(',');
+    if (!verseIds.length) {
+      return [];
+    }
+
+    const content = others.verse ? others.verse.content : others.chapter.content;
+    if (!content || !content.length) {
+      return [];
+    }
+
+    const texts = findTextContentByVerseIds(content, verseIds);
     return texts.map(
       (t) =>
         ({
@@ -86,7 +82,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     book: others.book,
     chapter: others.chapter,
     verse: others.verse ?? null,
-    selectedVerseInfos: others.selectedVerseInfos ?? getVerseInfosFromVerseIds(verseIds()),
+    selectedVerseInfos: others.selectedVerseInfos ?? getVerseInfosFromVerseIdsInSearchParams(),
     get selectedIds(): string[] {
       return this.selectedVerseInfos.flatMap((info: SelectedVerseInfo) => info.contentIds);
     },
@@ -162,7 +158,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     on(
       () => store.selectedVerseInfos,
       (verseInfos) => {
-        setSearchParams({ verseIds: verseInfos.map((info) => info.id) });
+        setSearchParams({ verseId: verseInfos.map((info) => info.id) });
       },
     ),
   );
