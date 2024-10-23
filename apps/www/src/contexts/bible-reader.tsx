@@ -66,13 +66,13 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     }
 
     return verseIds.map((verseId) => {
-        const texts = findTextContentByVerseIds(content, [verseId]);
-        return {
-          id: verseId,
-          number: texts[0].verseNumber,
-          contentIds: texts.map((t) => t.id),
-          text: texts.map((t) => t.text).join(''),
-        } satisfies SelectedVerseInfo;
+      const texts = findTextContentByVerseIds(content, [verseId]);
+      return {
+        id: verseId,
+        number: texts[0].verseNumber,
+        contentIds: texts.map((t) => t.id),
+        text: texts.map((t) => t.text).join(''),
+      } satisfies SelectedVerseInfo;
     });
   };
 
