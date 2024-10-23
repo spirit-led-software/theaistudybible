@@ -6,7 +6,7 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { History, X } from 'lucide-solid';
-import { For, Match, Switch, createEffect } from 'solid-js';
+import { For, Show, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { useDevotionStore } from '../../contexts/devotion';
 import { QueryBoundary } from '../query-boundary';
@@ -19,7 +19,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '../ui/sheet';
-import { Spinner } from '../ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
 
@@ -125,23 +124,19 @@ export const DevotionSidebar = () => {
                   </For>
                 )}
               </QueryBoundary>
-              <Switch>
-                <Match when={devotionsQuery.isFetchingNextPage}>
-                  <Spinner />
-                </Match>
-                <Match when={devotionsQuery.hasNextPage}>
-                  <Button
-                    class='w-full'
-                    onClick={() => {
-                      if (!devotionsQuery.isFetchingNextPage) {
-                        void devotionsQuery.fetchNextPage();
-                      }
-                    }}
-                  >
-                    Load More
-                  </Button>
-                </Match>
-              </Switch>
+              <Show
+                when={
+                  !devotionsQuery.isLoading && devotionsQuery.data && devotionsQuery.hasNextPage
+                }
+              >
+                <Button
+                  class='w-full'
+                  disabled={devotionsQuery.isFetchingNextPage}
+                  onClick={() => devotionsQuery.fetchNextPage()}
+                >
+                  Load More
+                </Button>
+              </Show>
             </div>
           </div>
         </div>
