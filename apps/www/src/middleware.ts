@@ -61,26 +61,25 @@ export default createMiddleware({
           .where(eq(userCredits.userId, user.id));
 
         if (userCredit) {
-          const twentyFourHoursAfterLastCredit = add(userCredit.lastReadingCreditAt ?? new Date(), {
+          const twentyFourHoursAfterLastCredit = add(userCredit.lastSignInCreditAt ?? new Date(), {
             hours: 24,
           });
           if (
-            !userCredit.lastReadingCreditAt ||
+            !userCredit.lastSignInCreditAt ||
             isAfter(new Date(), twentyFourHoursAfterLastCredit)
           ) {
             await db
               .update(userCredits)
               .set({
-                balance: sql`${userCredits.balance} + 10`,
-                lastReadingCreditAt: new Date(),
+                balance: sql`${userCredits.balance} + 5`,
+                lastSignInCreditAt: new Date(),
               })
               .where(eq(userCredits.userId, user.id));
           }
         } else {
           await db.insert(userCredits).values({
             userId: user.id,
-            balance: 10,
-            lastReadingCreditAt: new Date(),
+            lastSignInCreditAt: new Date(),
           });
         }
       }

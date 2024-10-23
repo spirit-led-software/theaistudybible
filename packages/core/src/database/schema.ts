@@ -159,6 +159,7 @@ export const userCredits = sqliteTable(
     balance: integer('balance')
       .notNull()
       .$defaultFn(() => 10),
+    lastSignInCreditAt: timestamp('last_sign_in_credit_at'),
     lastReadingCreditAt: timestamp('last_reading_credit_at'),
   },
   (table) => ({
