@@ -130,7 +130,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundMessages,
-        nextCursor: foundMessages.length < limit ? null : cursor + limit,
+        nextCursor: foundMessages.length < limit ? undefined : cursor + limit,
         count: messagesCount,
       },
       200,

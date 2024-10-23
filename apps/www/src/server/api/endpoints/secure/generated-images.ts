@@ -77,7 +77,7 @@ export const app = new Hono<{
 
     return c.json({
       data: foundImages,
-      nextCursor: foundImages.length < limit ? null : cursor + limit,
+      nextCursor: foundImages.length < limit ? undefined : cursor + limit,
       count: imageCount,
     });
   })

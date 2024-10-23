@@ -36,7 +36,7 @@ const getChats = GET(async ({ offset, limit }: { offset: number; limit: number }
   });
   return {
     chats,
-    nextCursor: chats.length === limit ? offset + chats.length : null,
+    nextCursor: chats.length === limit ? offset + chats.length : undefined,
   };
 });
 

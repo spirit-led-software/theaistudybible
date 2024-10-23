@@ -31,7 +31,7 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
   'use server';
   const { user } = auth();
   if (!user) {
-    return { bookmarks: [], nextCursor: null };
+    return { bookmarks: [], nextCursor: undefined };
   }
   const [verseBookmarks, chapterBookmarks] = await Promise.all([
     db.query.verseBookmarks.findMany({
@@ -66,7 +66,7 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
   const bookmarks = [...verseBookmarks, ...chapterBookmarks];
   return {
     bookmarks,
-    nextCursor: bookmarks.length === limit ? offset + limit : null,
+    nextCursor: bookmarks.length === limit ? offset + limit : undefined,
   };
 });
 

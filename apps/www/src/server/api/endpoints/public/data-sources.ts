@@ -48,7 +48,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundDataSources,
-        nextCursor: foundDataSources.length < limit ? null : cursor + limit,
+        nextCursor: foundDataSources.length < limit ? undefined : cursor + limit,
         count: dataSourcesCount,
       },
       200,
@@ -109,7 +109,7 @@ export const app = new Hono<{
       return c.json(
         {
           data: sourceDocuments,
-          nextCursor: sourceDocumentIds.length < limit ? null : cursor + limit,
+          nextCursor: sourceDocumentIds.length < limit ? undefined : cursor + limit,
           count: sourceDocumentCount,
         },
         200,

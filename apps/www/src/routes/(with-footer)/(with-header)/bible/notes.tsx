@@ -20,7 +20,7 @@ const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }
   'use server';
   const { user } = auth();
   if (!user) {
-    return { notes: [], nextCursor: null };
+    return { notes: [], nextCursor: undefined };
   }
   const [verseNotes, chapterNotes] = await Promise.all([
     db.query.verseNotes.findMany({
@@ -55,7 +55,7 @@ const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }
 
   return {
     notes,
-    nextCursor: notes.length === limit ? offset + limit : null,
+    nextCursor: notes.length === limit ? offset + limit : undefined,
   };
 });
 

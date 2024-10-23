@@ -111,7 +111,7 @@ const app = new Hono<{
       return c.json(
         {
           data: foundChats,
-          nextCursor: foundChats.length < limit ? null : cursor + limit,
+          nextCursor: foundChats.length < limit ? undefined : cursor + limit,
           count: chatCount,
         },
         200,
@@ -188,7 +188,7 @@ const app = new Hono<{
     return c.json(
       {
         data: messages,
-        nextCursor: foundMessages.length < limit ? null : cursor + limit,
+        nextCursor: foundMessages.length < limit ? undefined : cursor + limit,
         count: messageCount,
       },
       200,

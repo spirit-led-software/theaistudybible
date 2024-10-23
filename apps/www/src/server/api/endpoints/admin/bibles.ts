@@ -45,7 +45,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundBibles,
-        nextCursor: foundBibles.length < limit ? null : cursor + limit,
+        nextCursor: foundBibles.length < limit ? undefined : cursor + limit,
         count: bibleCount,
       },
       200,

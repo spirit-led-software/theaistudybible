@@ -32,7 +32,7 @@ const getDevotions = GET(async ({ offset, limit }: { offset: number; limit: numb
   });
   return {
     devotions,
-    nextCursor: devotions.length === limit ? offset + devotions.length : null,
+    nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
   };
 });
 

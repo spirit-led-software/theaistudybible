@@ -62,7 +62,7 @@ const getChatMessages = GET(
     });
     return {
       messages,
-      nextCursor: messages.length === limit ? offset + messages.length : null,
+      nextCursor: messages.length === limit ? offset + messages.length : undefined,
     };
   },
 );
@@ -73,7 +73,7 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChatMessages({ chatId: chatId!, limit: 10, offset: pageParam });
     }
-    return await Promise.resolve({ messages: [], nextCursor: null });
+    return await Promise.resolve({ messages: [], nextCursor: undefined });
   },
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,

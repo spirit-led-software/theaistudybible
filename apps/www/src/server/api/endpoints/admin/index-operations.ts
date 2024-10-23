@@ -44,7 +44,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundIndexOperations,
-        nextCursor: foundIndexOperations.length < limit ? null : cursor + limit,
+        nextCursor: foundIndexOperations.length < limit ? undefined : cursor + limit,
         count: indexOperationsCount[0].count,
       },
       200,

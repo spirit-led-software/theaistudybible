@@ -31,7 +31,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
   'use server';
   const { user } = auth();
   if (!user) {
-    return { highlights: [], nextCursor: null };
+    return { highlights: [], nextCursor: undefined };
   }
 
   const highlights = await db.query.verseHighlights.findMany({
@@ -51,7 +51,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
 
   return {
     highlights,
-    nextCursor: highlights.length === limit ? offset + limit : null,
+    nextCursor: highlights.length === limit ? offset + limit : undefined,
   };
 });
 
