@@ -5,12 +5,7 @@ import { generateChapterEmbeddings } from '@/core/utils/bibles/generate-chapter-
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import type { IndexChapterEvent } from './types';
-import {
-  cleanupMissingChapterLinks,
-  cleanupMissingVerseLinks,
-  insertChapter,
-  insertVerses,
-} from './utils';
+import { insertChapter, insertVerses } from './utils';
 
 export const handler: SQSHandler = async (event) => {
   console.log('Processing index bible chapter event:', JSON.stringify(event, null, 2));
@@ -80,9 +75,6 @@ export const handler: SQSHandler = async (event) => {
             })),
           });
         }
-
-        await cleanupMissingChapterLinks(bibleId);
-        await cleanupMissingVerseLinks(bibleId);
       }
     } catch (error) {
       console.error('Error processing index bible chapter:', error);
