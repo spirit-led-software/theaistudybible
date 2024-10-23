@@ -65,16 +65,15 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       return [];
     }
 
-    const texts = findTextContentByVerseIds(content, verseIds);
-    return texts.map(
-      (t) =>
-        ({
-          id: t.verseId,
-          number: t.verseNumber,
-          contentIds: [t.id],
-          text: t.text,
-        }) satisfies SelectedVerseInfo,
-    );
+    return verseIds.map((verseId) => {
+        const texts = findTextContentByVerseIds(content, [verseId]);
+        return {
+          id: verseId,
+          number: texts[0].verseNumber,
+          contentIds: texts.map((t) => t.id),
+          text: texts.map((t) => t.text).join(''),
+        } satisfies SelectedVerseInfo;
+    });
   };
 
   const [store, setStore] = createStore<BibleReaderStore>({
