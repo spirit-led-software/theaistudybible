@@ -173,7 +173,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     keepPreviousData: true,
   }));
   createEffect(() => {
-    if (!messagesQuery.isLoading && messagesQuery.data && !useChatResult.isLoading()) {
+    if (!messagesQuery.isLoading && messagesQuery.data) {
       useChatResult.setMessages(
         messagesQuery.data.pages
           .flatMap((page) => page.messages)
