@@ -235,7 +235,6 @@ export const useChat = (props: Accessor<UseChatProps>) => {
         if (lastData === 'complete') {
           Promise.all([
             chatQuery.refetch(),
-            messagesQuery.refetch(),
             followUpSuggestionsQuery.refetch(),
             qc.invalidateQueries({ queryKey: ['chats'] }),
             qc.invalidateQueries({ queryKey: ['user-credits'] }),
