@@ -14,16 +14,38 @@ import { registry } from '../provider-registry';
 import { messagesToString } from '../utils';
 import { tools } from './tools';
 
-export const renameChat = async (chatId: string, messages: Pick<Message, 'role' | 'content'>[]) => {
+export const renameChat = async ({
+  chatId,
+  messages,
+  additionalContext,
+}: {
+  chatId: string;
+  messages: Pick<Message, 'role' | 'content'>[];
+  additionalContext?: string;
+}) => {
   const { object } = await generateObject({
     model: registry.languageModel(`${defaultModel.provider}:${defaultModel.id}`),
     schema: z.object({
       title: z.string().describe('The new title of the chat'),
     }),
-    system:
-      'Given the following conversation, you must generate a new title for the conversation.' +
-      ' The new title must be short and descriptive.',
-    prompt: `Here's the conversation delimited by triple backticks:\n\`\`\`\n${messagesToString(messages)}\n\`\`\`\nWhat's the new title?`,
+    system: `Given the following conversation, you must generate a new title for the conversation. The new title must be short and descriptive.
+Here are some additional rules for you to follow:
+- Do not put your title in quotes.
+- Your title should be no more than 10 words.
+${
+  additionalContext
+    ? `- You must take into account the following additional context (delimited by triple dashes):
+---
+${additionalContext}
+---`
+    : ''
+}`,
+    prompt: `Here's the conversation (delimited by triple dashes):
+---
+${messagesToString(messages)}
+---
+
+What's the new title?`,
   });
 
   const [chat] = await db
@@ -43,6 +65,7 @@ export type CreateChatChainOptions = {
   userMessageId: string;
   userId: string;
   streamData: StreamData;
+  additionalContext?: string;
   maxTokens?: number;
   onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
@@ -53,22 +76,36 @@ export const createChatChain = (options: CreateChatChainOptions) => {
     // @ts-expect-error - Messages are not typed correctly
     const coreMessages = convertToCoreMessages(messages);
 
+    // biome-ignore lint/style/useConst: The tool needs to be able to update the value
+    let hasSavedContext = false;
     const resolvedTools = tools({
+      hasSavedContext,
       userId: options.userId,
     });
 
     return await streamText({
       model: registry.languageModel(options.modelId),
-      system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith.
+      system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith. You may also be provided with additional context to help you answer the question.
 
-Here are some additional rules to follow:
-- You must use the vector database tool to fetch relevant resources for your answer. You must only answer the query using these resources. If you don't know the answer, say: "I don't know" or an equivalent phrase. Don't make up an answer.
+Here are some additional rules for you to follow:
+- If you have been provided with additional context, you must use it to answer the question.
+- You must use the 'Save Context' tool to save additional context (if provided) to the conversation history.
+- You must use the 'Vector Store' tool to fetch relevant resources for your answer. You must only answer the query using these resources. 
 - You must be concise and to the point, unless the user asks for a more verbose answer.
-- You must format your response in valid markdown syntax.`,
+- If you don't know the answer, say: "I don't know" or an equivalent phrase. Do not, for any reason, make up an answer.
+- You must format your response in valid markdown syntax.
+${
+  options.additionalContext
+    ? `- You must take into account the following additional context (delimited by triple dashes):
+---
+${options.additionalContext}
+---`
+    : ''
+}`,
       messages: coreMessages,
       tools: resolvedTools,
       maxTokens: options.maxTokens,
-      maxSteps: 10,
+      maxSteps: 5,
       onStepFinish: async (step) => {
         const [response] = await db
           .insert(messagesTable)

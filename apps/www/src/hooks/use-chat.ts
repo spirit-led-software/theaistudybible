@@ -11,7 +11,7 @@ import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/soli
 import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
-import { createEffect, createSignal, mergeProps, on } from 'solid-js';
+import { createEffect, createSignal, mergeProps, on, untrack } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
@@ -173,7 +173,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
     keepPreviousData: true,
   }));
   createEffect(() => {
-    if (!messagesQuery.isLoading && messagesQuery.data) {
+    if (!messagesQuery.isLoading && messagesQuery.data && !untrack(useChatResult.isLoading)) {
       useChatResult.setMessages(
         messagesQuery.data.pages
           .flatMap((page) => page.messages)

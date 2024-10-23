@@ -16,13 +16,15 @@ import {
 } from '../ui/carousel';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
-import { H5, H6 } from '../ui/typography';
+import { H6 } from '../ui/typography';
+import { EmptyWindow } from './empty-window';
 import { ChatMenu } from './menu';
 import { Message } from './message';
 
 export type ChatWindowProps = {
   chatId?: string;
   initInput?: string;
+  additionalContext?: string;
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
@@ -43,6 +45,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
     followUpSuggestionsQuery,
   } = useChat(() => ({
     id: props.chatId ?? chatStore.chat?.id,
+    body: {
+      additionalContext: props.additionalContext,
+    },
   }));
   createComputed(on(chat, (chat) => setChatStore('chat', chat)));
 
@@ -141,14 +146,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Carousel>
             </div>
           </Show>
-          <For
-            each={messagesReversed}
-            fallback={
-              <div class='flex h-full w-full flex-1 items-center justify-center p-20'>
-                <H5>No messages yet</H5>
-              </div>
-            }
-          >
+          <For each={messagesReversed} fallback={<EmptyWindow append={append} />}>
             {(message, idx) => (
               <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
                 <Message

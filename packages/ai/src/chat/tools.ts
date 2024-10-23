@@ -16,14 +16,15 @@ import { openai } from '../provider-registry';
 import { vectorStore } from '../vector-store';
 
 export const askForConfirmationTool = tool({
-  description: 'Ask the user for confirmation to use a tool.',
+  description:
+    'Ask for Confirmation: Ask the user for confirmation to use another one of your tools.',
   parameters: z.object({
     message: z.string().describe('The message you want to ask the user to confirm.'),
   }),
 });
 
 export const askForHighlightColorTool = tool({
-  description: 'Ask the user which color to use for a highlight.',
+  description: 'Ask for Highlight Color: Ask which color to use when highlighting a verse.',
   parameters: z.object({
     message: z.string().describe('A polite message to ask the user for a highlight color.'),
   }),
@@ -32,7 +33,7 @@ export const askForHighlightColorTool = tool({
 export const highlightVerseTool = (options: { userId: string }) =>
   tool({
     description:
-      'Highlight a verse from the Bible. You must always ask the user for confirmation and the highlight color before using it.',
+      'Highlight Verse: Highlight a verse in the Bible. You must always ask the user for confirmation and the highlight color before using this tool.',
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
@@ -52,12 +53,7 @@ export const highlightVerseTool = (options: { userId: string }) =>
         where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
         with: {
           books: {
-            columns: {
-              id: true,
-              code: true,
-              abbreviation: true,
-              shortName: true,
-            },
+            columns: { id: true, code: true, abbreviation: true, shortName: true },
             where: (books, { or, eq }) =>
               or(
                 eq(books.shortName, bookName),
@@ -66,17 +62,11 @@ export const highlightVerseTool = (options: { userId: string }) =>
               ),
             with: {
               chapters: {
-                columns: {
-                  id: true,
-                  number: true,
-                },
+                columns: { id: true, number: true },
                 where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
                 with: {
                   verses: {
-                    columns: {
-                      id: true,
-                      number: true,
-                    },
+                    columns: { id: true, number: true },
                     where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
                   },
                 },
@@ -128,7 +118,7 @@ export const highlightVerseTool = (options: { userId: string }) =>
 export const bookmarkVerseTool = (options: { userId: string }) =>
   tool({
     description:
-      'Bookmark a verse from the Bible. You must always ask the user for confirmation before using it.',
+      'Bookmark Verse: Bookmark a verse in the Bible. You must always ask the user for confirmation before using this tool.',
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
@@ -214,7 +204,7 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
 export const bookmarkChapterTool = (options: { userId: string }) =>
   tool({
     description:
-      'Bookmark a chapter from the Bible. You must always ask the user for confirmation before using it.',
+      'Bookmark Chapter: Bookmark a chapter in the Bible. You must always ask the user for confirmation before using this tool.',
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
@@ -286,7 +276,8 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
   });
 
 export const vectorStoreTool = tool({
-  description: 'Fetch relevant resources for your answer. This tool does not require confirmation.',
+  description:
+    'Vector Store: Fetch relevant resources for your answer. This tool does not require confirmation.',
   parameters: z.object({
     terms: z
       .array(z.string())
@@ -315,7 +306,7 @@ export const generateImageTool = (props: {
 }) =>
   tool({
     description:
-      'Generate an image from a text prompt. You must use the vector store search tool to fetch relevant resources to make your prompt more detailed. This tool does not require confirmation.',
+      'Generate Image: Generate an image from a text prompt. You must use the "Vector Store" tool to fetch relevant resources to make your prompt more detailed. You must always ask the user for confirmation before using this tool.',
     parameters: z.object({
       prompt: z
         .string()
@@ -398,8 +389,30 @@ export const generateImageTool = (props: {
     },
   });
 
+export const saveContextTool = (options: { hasSavedContext: boolean }) =>
+  tool({
+    description:
+      'Save Context: Save additional context to the conversation history. You do not need to ask the user for confirmation before using this tool.',
+    parameters: z.object({
+      context: z
+        .string()
+        .describe(
+          'The context to save to the conversation history. This must be plain text, not markdown.',
+        ),
+    }),
+    execute: ({ context }) => {
+      options.hasSavedContext = true;
+      return Promise.resolve({
+        status: 'success',
+        message: 'Context saved',
+        context,
+      } as const);
+    },
+  });
+
 export const tools = (options: {
   userId: string;
+  hasSavedContext: boolean;
 }) => ({
   askForConfirmation: askForConfirmationTool,
   askForHighlightColor: askForHighlightColorTool,
@@ -416,4 +429,7 @@ export const tools = (options: {
     userId: options.userId,
   }),
   vectorStore: vectorStoreTool,
+  saveContext: saveContextTool({
+    hasSavedContext: options.hasSavedContext,
+  }),
 });

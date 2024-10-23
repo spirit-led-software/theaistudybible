@@ -1,5 +1,6 @@
 import { createChatChain, renameChat } from '@/ai/chat';
 import { allModels } from '@/ai/models';
+import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
@@ -52,12 +53,17 @@ const app = new Hono<{
           })
           .passthrough()
           .array(),
-        additionalContext: z.string().optional(), // TODO: Flesh this out
+        additionalContext: z.string().optional(),
       }),
     ),
     async (c) => {
       const pendingPromises: Promise<unknown>[] = []; // promises to wait for before closing the stream
-      const { messages: providedMessages, chatId, modelId: providedModelId } = c.req.valid('json');
+      const {
+        messages: providedMessages,
+        chatId,
+        modelId: providedModelId,
+        additionalContext,
+      } = c.req.valid('json');
 
       console.time('checkAndConsumeCredits');
       const hasCredits = await checkAndConsumeCredits(c.var.user!.id, 'chat');
@@ -163,11 +169,16 @@ const app = new Hono<{
         );
       }
 
+      let additionalContextTokens = 0;
+      if (additionalContext) {
+        additionalContextTokens = numTokensFromString({ text: additionalContext });
+      }
+
       console.time('getValidMessages');
       const messages = await getValidMessages({
         userId: c.var.user!.id,
         chatId: chat.id,
-        maxTokens: modelInfo.contextSize - maxResponseTokens,
+        maxTokens: modelInfo.contextSize - additionalContextTokens - maxResponseTokens,
         mustStartWithUserMessage: modelInfo.provider === 'anthropic',
       });
       console.timeEnd('getValidMessages');
@@ -175,7 +186,13 @@ const app = new Hono<{
       const lastUserMessage = messages.find((m) => m.role === 'user')!;
 
       if (!chat.customName) {
-        pendingPromises.push(renameChat(chat.id, messages));
+        pendingPromises.push(
+          renameChat({
+            chatId: chat.id,
+            messages,
+            additionalContext,
+          }),
+        );
       } else {
         pendingPromises.push(
           db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chat.id)).execute(),
@@ -189,6 +206,7 @@ const app = new Hono<{
         userMessageId: lastUserMessage.id,
         userId: c.var.user!.id,
         streamData,
+        additionalContext,
         maxTokens: maxResponseTokens,
         onFinish: async (event) => {
           await Promise.all(pendingPromises);

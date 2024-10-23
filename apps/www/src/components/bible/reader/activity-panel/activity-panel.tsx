@@ -142,7 +142,7 @@ export const ActivityPanelContent = () => {
       }}
     >
       <DrawerContent class='w-full max-w-2xl justify-self-center shadow-lg'>
-        <div class='mx-auto flex max-h-[calc(100dvh-100px)] w-full flex-col overflow-hidden p-4'>
+        <div class='mx-auto flex max-h-[calc(100dvh-200px)] w-full flex-col overflow-hidden p-4'>
           <Show when={value() !== 'chat'}>
             <DrawerHeader class='mb-2'>
               <DrawerTitle class='text-center'>{brStore.selectedTitle}</DrawerTitle>

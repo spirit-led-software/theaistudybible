@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { vectorStore } from '../vector-store';
 
 export const bibleVectorStoreTool = tool({
-  description: 'Fetch bible passages for your answer.',
+  description: 'Bible Vector Store: Fetch bible passages for your answer.',
   parameters: z.object({
     terms: z
       .array(z.string())
@@ -31,7 +31,7 @@ export const bibleVectorStoreTool = tool({
 });
 
 export const vectorStoreTool = tool({
-  description: 'Fetch relevant resources for your answer.',
+  description: 'Vector Store: Fetch relevant resources for your answer.',
   parameters: z.object({
     terms: z
       .array(z.string())

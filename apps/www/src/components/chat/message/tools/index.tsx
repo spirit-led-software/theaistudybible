@@ -7,6 +7,7 @@ import { AskForHighlightColorTool } from './ask-for-highlight-color';
 import { BookmarkTool } from './bookmark';
 import { HighlightVerseTool } from './highlight-verse';
 import { GenerateImageTool } from './image';
+import { SaveContextTool } from './save-context';
 import { VectorStoreTool } from './vector-store';
 
 export type ToolsProps = {
@@ -62,6 +63,9 @@ export const Tools = (props: ToolsProps) => {
             </Match>
             <Match when={toolInvocation.toolName === 'vectorStore'}>
               <VectorStoreTool toolInvocation={toolInvocation} isLoading={props.isLoading} />
+            </Match>
+            <Match when={toolInvocation.toolName === 'saveContext'}>
+              <SaveContextTool toolInvocation={toolInvocation} isLoading={props.isLoading} />
             </Match>
           </Switch>
         </div>
