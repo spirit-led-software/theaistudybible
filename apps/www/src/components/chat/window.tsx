@@ -94,7 +94,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
       </Show>
       <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
         <div class='flex w-full items-start justify-center'>
-          <Show when={messagesQuery.hasNextPage}>
+          <Show when={!messagesQuery.isLoading && messagesQuery.data && messagesQuery.hasNextPage}>
             <div class='flex flex-col items-center justify-center'>
               <Button
                 variant='link'
@@ -192,7 +192,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Button>
             }
           >
-            <Match when={isLoading()}>
+            <Match when={isLoading()} keyed>
               <Spinner size='sm' />
             </Match>
           </Switch>
