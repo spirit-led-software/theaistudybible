@@ -6,7 +6,7 @@ import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
-import { createSignal } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../../ui/dialog';
@@ -19,7 +19,7 @@ const getReactions = GET(async (messageId: string) => {
     where: (messageReactions, { and, eq }) =>
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, messageId)),
   });
-  return reaction ?? null;
+  return { reaction: reaction ?? null };
 });
 
 const addReactionAction = action(
@@ -107,70 +107,77 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
             </Button>
           </>
         }
-        notFoundFallback={
-          <>
-            <Button
-              size='icon'
-              variant='ghost'
-              class='h-fit w-fit p-1'
-              onClick={() =>
-                addReactionMutation.mutate({
-                  reaction: 'LIKE',
-                })
-              }
-            >
-              <ThumbsUp size={15} />
-            </Button>
-            <Button
-              size='icon'
-              variant='ghost'
-              class='h-fit w-fit p-1'
-              onClick={() => setDislikeDialogOpen(true)}
-            >
-              <ThumbsDown size={15} />
-            </Button>
-          </>
-        }
       >
-        {(reaction) => (
-          <>
-            <Button
-              size='icon'
-              variant='ghost'
-              class='h-fit w-fit p-1'
-              onClick={() => {
-                if (reaction?.reaction === 'LIKE') {
-                  removeReactionMutation.mutate();
-                } else {
-                  addReactionMutation.mutate({
-                    reaction: 'LIKE',
-                  });
-                }
-              }}
-            >
-              <ThumbsUp
-                size={15}
-                fill={reaction?.reaction === 'LIKE' ? 'hsl(var(--foreground))' : undefined}
-              />
-            </Button>
-            <Button
-              size='icon'
-              variant='ghost'
-              class='h-fit w-fit p-1'
-              onClick={() => {
-                if (reaction?.reaction === 'DISLIKE') {
-                  removeReactionMutation.mutate();
-                } else {
-                  setDislikeDialogOpen(true);
-                }
-              }}
-            >
-              <ThumbsDown
-                size={15}
-                fill={reaction?.reaction === 'DISLIKE' ? 'hsl(var(--foreground))' : undefined}
-              />
-            </Button>
-          </>
+        {({ reaction }) => (
+          <Show
+            when={reaction}
+            fallback={
+              <>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  class='h-fit w-fit p-1'
+                  onClick={() =>
+                    addReactionMutation.mutate({
+                      reaction: 'LIKE',
+                    })
+                  }
+                >
+                  <ThumbsUp size={15} />
+                </Button>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  class='h-fit w-fit p-1'
+                  onClick={() => setDislikeDialogOpen(true)}
+                >
+                  <ThumbsDown size={15} />
+                </Button>
+              </>
+            }
+            keyed
+          >
+            {(reaction) => (
+              <>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  class='h-fit w-fit p-1'
+                  onClick={() => {
+                    if (reaction.reaction === 'LIKE') {
+                      removeReactionMutation.mutate();
+                    } else {
+                      addReactionMutation.mutate({
+                        reaction: 'LIKE',
+                      });
+                    }
+                  }}
+                >
+                  <ThumbsUp
+                    size={15}
+                    fill={reaction.reaction === 'LIKE' ? 'hsl(var(--foreground))' : undefined}
+                  />
+                </Button>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  class='h-fit w-fit p-1'
+                  onClick={() => {
+                    if (reaction.reaction === 'DISLIKE') {
+                      removeReactionMutation.mutate();
+                    } else {
+                      setDislikeDialogOpen(true);
+                    }
+                  }}
+                >
+                  <ThumbsDown
+                    size={15}
+                    fill={reaction.reaction === 'DISLIKE' ? 'hsl(var(--foreground))' : undefined}
+                  />
+                </Button>
+              </>
+            )}
+          </Show>
         )}
       </QueryBoundary>
       <Dialog open={dislikeDialogOpen()} onOpenChange={setDislikeDialogOpen}>

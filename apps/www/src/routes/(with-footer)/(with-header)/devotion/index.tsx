@@ -12,7 +12,7 @@ const getLatestDevotion = GET(async () => {
   const devotion = await db.query.devotions.findFirst({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
   });
-  return devotion ?? null;
+  return { devotion: devotion ?? null };
 });
 
 const getLatestDevotionQueryOptions = () => ({
@@ -37,7 +37,19 @@ const DevotionPage = () => {
       fallback={<Navigate href={`/devotion/${devotionStore.devotion!.id}`} />}
     >
       <QueryBoundary query={devotionQuery}>
-        {(devotion) => <Navigate href={`/devotion/${devotion.id}`} />}
+        {({ devotion }) => (
+          <Show
+            when={devotion}
+            fallback={
+              <div class='flex h-full w-full items-center justify-center p-10'>
+                Latest devotion not found
+              </div>
+            }
+            keyed
+          >
+            {(devotion) => <Navigate href={`/devotion/${devotion.id}`} />}
+          </Show>
+        )}
       </QueryBoundary>
     </Show>
   );
