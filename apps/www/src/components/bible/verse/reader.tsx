@@ -38,7 +38,62 @@ const getVerseReaderData = GET(
                 verses: {
                   limit: 1,
                   where: (verses, { eq }) => eq(verses.number, props.verseNum),
-                  with: { previous: true, next: true },
+                  with: {
+                    previous: { columns: { code: true, number: true, name: true } },
+                    next: { columns: { code: true, number: true, name: true } },
+                  },
+                },
+                previous: {
+                  columns: { id: true },
+                  with: {
+                    verses: {
+                      columns: { code: true, number: true, name: true },
+                      orderBy: (verses, { desc }) => desc(verses.number),
+                      limit: 1,
+                    },
+                  },
+                },
+                next: {
+                  columns: { id: true },
+                  with: {
+                    verses: {
+                      columns: { code: true, number: true, name: true },
+                      orderBy: (verses, { asc }) => asc(verses.number),
+                      limit: 1,
+                    },
+                  },
+                },
+              },
+            },
+            previous: {
+              columns: { id: true },
+              with: {
+                chapters: {
+                  columns: { id: true, number: true },
+                  orderBy: (chapters, { desc }) => desc(chapters.number),
+                  with: {
+                    verses: {
+                      columns: { code: true, number: true, name: true },
+                      orderBy: (verses, { desc }) => desc(verses.number),
+                      limit: 1,
+                    },
+                  },
+                },
+              },
+            },
+            next: {
+              columns: { id: true },
+              with: {
+                chapters: {
+                  columns: { id: true, number: true },
+                  orderBy: (chapters, { asc }) => asc(chapters.number),
+                  with: {
+                    verses: {
+                      columns: { code: true, number: true, name: true },
+                      orderBy: (verses, { asc }) => asc(verses.number),
+                      limit: 1,
+                    },
+                  },
                 },
               },
             },
@@ -132,85 +187,96 @@ export default function VerseReader(props: VerseReaderProps) {
           </div>
         }
       >
-        {({ bible, book, chapter, verse, rightsHolder }) => (
-          <BibleReaderProvider bible={bible} book={book} chapter={chapter} verse={verse}>
-            <BibleReaderMenu />
-            <div class='mt-10'>
-              <div class='flex w-full justify-center'>
-                <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                  {verse.name}
-                </H1>
-              </div>
-              <div class='mt-10 mb-5'>
-                <ReaderContent contents={verse.content} />
-              </div>
-              <div class='mb-20 flex flex-col items-center gap-2'>
-                <Muted>
-                  Copyright
-                  <Copyright class='mx-2 inline-block size-4' />
+        {({ bible, book, chapter, verse, rightsHolder }) => {
+          const previousVerse =
+            verse.previous ?? chapter.previous?.verses[0] ?? book.previous?.chapters[0]?.verses[0];
+          const nextVerse =
+            verse.next ?? chapter.next?.verses[0] ?? book.next?.chapters[0]?.verses[0];
+
+          return (
+            <BibleReaderProvider bible={bible} book={book} chapter={chapter} verse={verse}>
+              <BibleReaderMenu />
+              <div class='mt-10'>
+                <div class='flex w-full justify-center'>
+                  <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                    {verse.name}
+                  </H1>
+                </div>
+                <div class='mt-10 mb-5'>
+                  <ReaderContent contents={verse.content} />
+                </div>
+                <div class='mb-20 flex flex-col items-center gap-2'>
+                  <Muted>
+                    Copyright
+                    <Copyright class='mx-2 inline-block size-4' />
+                    <Button
+                      as={A}
+                      variant='link'
+                      href={rightsHolder.url}
+                      class='p-0 text-muted-foreground'
+                    >
+                      {rightsHolder.nameLocal}
+                    </Button>
+                  </Muted>
+                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
+                </div>
+                <div class='flex w-full flex-col items-center'>
                   <Button
                     as={A}
-                    variant='link'
-                    href={rightsHolder.url}
-                    class='p-0 text-muted-foreground'
+                    href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
+                    variant='outline'
                   >
-                    {rightsHolder.nameLocal}
+                    More from {chapter.name}
                   </Button>
-                </Muted>
-                <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
+                </div>
+                <Show when={previousVerse} keyed>
+                  {(previousVerse) => (
+                    <Tooltip placement='right'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
+                        )}
+                        href={
+                          `/bible/${bible.abbreviation}/${previousVerse.code.split('.')[0]}` +
+                          `/${previousVerse.code.split('.')[1]}/${previousVerse.number}`
+                        }
+                      >
+                        <ChevronLeft size={20} class='shrink-0' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{previousVerse.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </Show>
+                <Show when={nextVerse} keyed>
+                  {(nextVerse) => (
+                    <Tooltip placement='left'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
+                        )}
+                        href={
+                          `/bible/${bible.abbreviation}/${nextVerse.code.split('.')[0]}` +
+                          `/${nextVerse.code.split('.')[1]}/${nextVerse.number}`
+                        }
+                      >
+                        <ChevronRight size={20} class='shrink-0' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{nextVerse.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </Show>
               </div>
-              <div class='flex w-full flex-col items-center'>
-                <Button
-                  as={A}
-                  href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
-                  variant='outline'
-                >
-                  More from {book.shortName} {chapter.number}
-                </Button>
-              </div>
-              <Show when={verse.previous}>
-                <Tooltip placement='right'>
-                  <TooltipTrigger
-                    as={A}
-                    class={cn(
-                      buttonVariants(),
-                      'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
-                    )}
-                    href={
-                      `/bible/${bible.abbreviation}/${verse.previous!.code.split('.')[0]}` +
-                      `/${verse.previous!.code.split('.')[1]}/${verse.previous!.number}`
-                    }
-                  >
-                    <ChevronLeft size={20} class='shrink-0' />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{verse.previous!.name}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </Show>
-              <Show when={verse.next}>
-                <Tooltip placement='left'>
-                  <TooltipTrigger
-                    as={A}
-                    class={cn(
-                      buttonVariants(),
-                      'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
-                    )}
-                    href={
-                      `/bible/${bible.abbreviation}/${verse.next!.code.split('.')[0]}` +
-                      `/${verse.next!.code.split('.')[1]}/${verse.next!.number}`
-                    }
-                  >
-                    <ChevronRight size={20} class='shrink-0' />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{verse.next!.name}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </Show>
-            </div>
-          </BibleReaderProvider>
-        )}
+            </BibleReaderProvider>
+          );
+        }}
       </QueryBoundary>
     </div>
   );

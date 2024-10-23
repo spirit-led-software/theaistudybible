@@ -32,7 +32,30 @@ const getChapterReaderData = GET(
             chapters: {
               limit: 1,
               where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
-              with: { previous: true, next: true },
+              with: {
+                previous: { columns: { code: true, number: true, name: true } },
+                next: { columns: { code: true, number: true, name: true } },
+              },
+            },
+            previous: {
+              columns: { id: true },
+              with: {
+                chapters: {
+                  columns: { code: true, number: true, name: true },
+                  orderBy: (chapters, { desc }) => desc(chapters.number),
+                  limit: 1,
+                },
+              },
+            },
+            next: {
+              columns: { id: true },
+              with: {
+                chapters: {
+                  columns: { code: true, number: true, name: true },
+                  orderBy: (chapters, { asc }) => asc(chapters.number),
+                  limit: 1,
+                },
+              },
             },
           },
         },
@@ -116,70 +139,79 @@ export default function ChapterReader(props: ChapterReaderProps) {
           </div>
         }
       >
-        {({ bible, book, chapter, rightsHolder }) => (
-          <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
-            <BibleReaderMenu />
-            <div class='mt-10'>
-              <div class='flex w-full justify-center'>
-                <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                  {chapter.name}
-                </H1>
+        {({ bible, book, chapter, rightsHolder }) => {
+          const previousChapter = chapter.previous ?? book.previous?.chapters[0];
+          const nextChapter = chapter.next ?? book.next?.chapters[0];
+
+          return (
+            <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
+              <BibleReaderMenu />
+              <div class='mt-10'>
+                <div class='flex w-full justify-center'>
+                  <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                    {chapter.name}
+                  </H1>
+                </div>
+                <div class='mt-10 mb-5'>
+                  <ReaderContent contents={chapter.content} />
+                </div>
+                <div class='mb-20 flex flex-col items-center gap-2'>
+                  <Muted>
+                    Copyright
+                    <Copyright class='mx-2 inline-block size-4' />
+                    <Button
+                      as={A}
+                      variant='link'
+                      href={rightsHolder.url}
+                      class='p-0 text-muted-foreground'
+                    >
+                      {rightsHolder.nameLocal}
+                    </Button>
+                  </Muted>
+                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
+                </div>
+                <Show when={previousChapter} keyed>
+                  {(previousChapter) => (
+                    <Tooltip placement='right'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
+                        )}
+                        href={`/bible/${bible.abbreviation}/${previousChapter.code.split('.')[0]}/${previousChapter.number}`}
+                      >
+                        <ChevronLeft />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{previousChapter.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </Show>
+                <Show when={nextChapter} keyed>
+                  {(nextChapter) => (
+                    <Tooltip placement='left'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
+                        )}
+                        href={`/bible/${bible.abbreviation}/${nextChapter.code.split('.')[0]}/${nextChapter.number}`}
+                      >
+                        <ChevronRight />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{nextChapter.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </Show>
               </div>
-              <div class='mt-10 mb-5'>
-                <ReaderContent contents={chapter.content} />
-              </div>
-              <div class='mb-20 flex flex-col items-center gap-2'>
-                <Muted>
-                  Copyright
-                  <Copyright class='mx-2 inline-block size-4' />
-                  <Button
-                    as={A}
-                    variant='link'
-                    href={rightsHolder.url}
-                    class='p-0 text-muted-foreground'
-                  >
-                    {rightsHolder.nameLocal}
-                  </Button>
-                </Muted>
-                <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
-              </div>
-              <Show when={chapter.previous}>
-                <Tooltip placement='right'>
-                  <TooltipTrigger
-                    as={A}
-                    class={cn(
-                      buttonVariants(),
-                      'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
-                    )}
-                    href={`/bible/${bible.abbreviation}/${chapter.previous!.code.split('.')[0]}/${chapter.previous!.number}`}
-                  >
-                    <ChevronLeft />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{chapter.previous!.name}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </Show>
-              <Show when={chapter.next}>
-                <Tooltip placement='left'>
-                  <TooltipTrigger
-                    as={A}
-                    class={cn(
-                      buttonVariants(),
-                      'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
-                    )}
-                    href={`/bible/${bible.abbreviation}/${chapter.next!.code.split('.')[0]}/${chapter.next!.number}`}
-                  >
-                    <ChevronRight />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{chapter.next!.name}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </Show>
-            </div>
-          </BibleReaderProvider>
-        )}
+            </BibleReaderProvider>
+          );
+        }}
       </QueryBoundary>
     </div>
   );
