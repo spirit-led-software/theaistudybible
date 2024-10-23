@@ -31,10 +31,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
   'use server';
   const { user } = auth();
   if (!user) {
-    return {
-      highlights: [],
-      nextCursor: undefined,
-    };
+    return { highlights: [], nextCursor: null };
   }
 
   const highlights = await db.query.verseHighlights.findMany({
@@ -54,7 +51,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
 
   return {
     highlights,
-    nextCursor: highlights.length === limit ? offset + limit : undefined,
+    nextCursor: highlights.length === limit ? offset + limit : null,
   };
 });
 
@@ -92,11 +89,9 @@ const HighlightsPage = () => {
     onSettled: () => highlightsQuery.refetch(),
   }));
 
-  const [highlights, setHighlights] = createStore(
-    !highlightsQuery.isLoading && highlightsQuery.data
-      ? highlightsQuery.data.pages.flatMap((page) => page.highlights)
-      : [],
-  );
+  const [highlights, setHighlights] = createStore<
+    Awaited<ReturnType<typeof getHighlights>>['highlights']
+  >([]);
   createEffect(() => {
     if (!highlightsQuery.isLoading && highlightsQuery.data) {
       setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));

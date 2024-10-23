@@ -28,10 +28,7 @@ const getNotes = GET(
     'use server';
     const { user } = auth();
     if (!user) {
-      return {
-        notes: [],
-        nextCursor: undefined,
-      };
+      return { notes: [], nextCursor: null };
     }
 
     let notes = [];
@@ -62,7 +59,7 @@ const getNotes = GET(
 
     return {
       notes,
-      nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined,
+      nextCursor: notes.length === props.limit ? props.offset + notes.length : null,
     };
   },
 );
@@ -90,10 +87,7 @@ export const NotesCard = () => {
   }));
 
   type NoteType = Prettify<Awaited<ReturnType<typeof getNotes>>['notes']>[number];
-  const [notes, setNotes] = createStore<NoteType[]>(
-    // @ts-expect-error - Types are messed up for some reason
-    !query.isLoading && query.data ? query.data.pages.flatMap((page) => page.notes) : [],
-  );
+  const [notes, setNotes] = createStore<NoteType[]>([]);
   createEffect(() => {
     if (!query.isLoading && query.data) {
       setNotes(

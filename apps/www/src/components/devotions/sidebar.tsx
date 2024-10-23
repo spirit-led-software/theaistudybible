@@ -32,7 +32,7 @@ const getDevotions = GET(async ({ offset, limit }: { offset: number; limit: numb
   });
   return {
     devotions,
-    nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
+    nextCursor: devotions.length === limit ? offset + devotions.length : null,
   };
 });
 
@@ -51,11 +51,9 @@ export const DevotionSidebar = () => {
 
   const devotionsQuery = createInfiniteQuery(() => getDevotionsQueryOptions());
 
-  const [devotions, setDevotions] = createStore(
-    !devotionsQuery.isLoading && devotionsQuery.data
-      ? devotionsQuery.data.pages.flatMap((page) => page.devotions)
-      : [],
-  );
+  const [devotions, setDevotions] = createStore<
+    Awaited<ReturnType<typeof getDevotions>>['devotions']
+  >([]);
   createEffect(() => {
     if (!devotionsQuery.isLoading && devotionsQuery.data) {
       setDevotions(reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions)));

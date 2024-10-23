@@ -12,20 +12,21 @@ import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
+import { Show } from 'solid-js';
 import { toast } from 'solid-sonner';
 
 const getBookmark = GET(async (chapterId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
-    return null;
+    return { bookmark: null };
   }
 
   const bookmark = await db.query.chapterBookmarks.findFirst({
     where: (chapterBookmarks, { and, eq }) =>
       and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)),
   });
-  return bookmark ?? null;
+  return { bookmark: bookmark ?? null };
 });
 
 const addBookmarkAction = action(async (chapterId: string) => {
@@ -88,49 +89,53 @@ export const ChapterBookmarkButton = () => {
   return (
     <QueryBoundary
       query={query}
-      notFoundFallback={
-        <Tooltip>
-          <TooltipTrigger
-            as={Button}
-            size='icon'
-            onClick={() => addBookmarkMutation.mutate()}
-            disabled={
-              !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
-            }
-            class='disabled:pointer-events-auto'
-          >
-            <Bookmark />
-          </TooltipTrigger>
-          <TooltipContent>
-            <SignedIn>
-              <p>Add Bookmark</p>
-            </SignedIn>
-            <SignedOut>
-              <p>Sign in to add bookmark</p>
-            </SignedOut>
-          </TooltipContent>
-        </Tooltip>
-      }
       loadingFallback={
         <Button disabled size='icon'>
           <Bookmark />
         </Button>
       }
     >
-      {() => (
-        <Tooltip>
-          <TooltipTrigger
-            as={Button}
-            size='icon'
-            onClick={() => deleteBookmarkMutation.mutate()}
-            disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
-          >
-            <Bookmark fill='hsl(var(--primary-foreground))' />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Remove Bookmark</p>
-          </TooltipContent>
-        </Tooltip>
+      {({ bookmark }) => (
+        <Show
+          when={bookmark}
+          fallback={
+            <Tooltip>
+              <TooltipTrigger
+                as={Button}
+                size='icon'
+                onClick={() => addBookmarkMutation.mutate()}
+                disabled={
+                  !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
+                }
+                class='disabled:pointer-events-auto'
+              >
+                <Bookmark />
+              </TooltipTrigger>
+              <TooltipContent>
+                <SignedIn>
+                  <p>Add Bookmark</p>
+                </SignedIn>
+                <SignedOut>
+                  <p>Sign in to add bookmark</p>
+                </SignedOut>
+              </TooltipContent>
+            </Tooltip>
+          }
+        >
+          <Tooltip>
+            <TooltipTrigger
+              as={Button}
+              size='icon'
+              onClick={() => deleteBookmarkMutation.mutate()}
+              disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
+            >
+              <Bookmark fill='hsl(var(--primary-foreground))' />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove Bookmark</p>
+            </TooltipContent>
+          </Tooltip>
+        </Show>
       )}
     </QueryBoundary>
   );

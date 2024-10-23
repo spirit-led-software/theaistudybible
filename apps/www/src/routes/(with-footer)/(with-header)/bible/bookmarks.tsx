@@ -31,10 +31,7 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
   'use server';
   const { user } = auth();
   if (!user) {
-    return {
-      bookmarks: [],
-      nextCursor: undefined,
-    };
+    return { bookmarks: [], nextCursor: null };
   }
   const [verseBookmarks, chapterBookmarks] = await Promise.all([
     db.query.verseBookmarks.findMany({
@@ -69,7 +66,7 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
   const bookmarks = [...verseBookmarks, ...chapterBookmarks];
   return {
     bookmarks,
-    nextCursor: bookmarks.length === limit ? offset + limit : undefined,
+    nextCursor: bookmarks.length === limit ? offset + limit : null,
   };
 });
 
@@ -117,11 +114,9 @@ const BookmarksPage = () => {
     onSettled: () => bookmarksQuery.refetch(),
   }));
 
-  const [bookmarks, setBookmarks] = createStore(
-    !bookmarksQuery.isLoading && bookmarksQuery.data
-      ? bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)
-      : [],
-  );
+  const [bookmarks, setBookmarks] = createStore<
+    Awaited<ReturnType<typeof getBookmarks>>['bookmarks']
+  >([]);
   createEffect(() => {
     if (!bookmarksQuery.isLoading && bookmarksQuery.data) {
       setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));

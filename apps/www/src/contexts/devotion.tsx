@@ -1,5 +1,4 @@
 import type { Devotion } from '@/schemas/devotions';
-import { makePersisted } from '@solid-primitives/storage';
 import type { JSX } from 'solid-js';
 import { createContext, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
@@ -24,12 +23,9 @@ export type DevotionProviderProps = {
 export const DevotionProvider = (props: DevotionProviderProps) => {
   const [local, others] = splitProps(props, ['children']);
 
-  const [store, setStore] = makePersisted(
-    createStore<DevotionStore>({
-      devotion: others.devotion ?? null,
-    }),
-    { name: 'devotion' },
-  );
+  const [store, setStore] = createStore<DevotionStore>({
+    devotion: others.devotion ?? null,
+  });
 
   return (
     <DevotionContext.Provider value={[store, setStore] as DevotionContextValue}>

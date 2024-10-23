@@ -94,28 +94,21 @@ export const ChatWindow = (props: ChatWindowProps) => {
       </Show>
       <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
         <div class='flex w-full items-start justify-center'>
-          <Switch>
-            <Match when={messagesQuery.isFetchingNextPage}>
-              <Spinner size='sm' />
-            </Match>
-            <Match when={messagesQuery.hasNextPage}>
-              <div class='flex flex-col items-center justify-center'>
-                <Button
-                  variant='link'
-                  size='icon'
-                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
-                  onClick={() => {
-                    if (messagesQuery.hasNextPage && !messagesQuery.isFetchingNextPage) {
-                      void messagesQuery.fetchNextPage();
-                    }
-                  }}
-                >
-                  <ChevronUp />
-                  More
-                </Button>
-              </div>
-            </Match>
-          </Switch>
+          <Show when={messagesQuery.hasNextPage}>
+            <div class='flex flex-col items-center justify-center'>
+              <Button
+                variant='link'
+                size='icon'
+                class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
+                disabled={messagesQuery.isFetchingNextPage}
+                onClick={() => messagesQuery.fetchNextPage()}
+              >
+                <Show when={messagesQuery.isFetchingNextPage} fallback={<ChevronUp />}>
+                  <Spinner size='sm' />
+                </Show>
+              </Button>
+            </div>
+          </Show>
         </div>
         <div ref={setMessagesRef} class='flex flex-1 flex-col-reverse items-center justify-start'>
           <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
@@ -129,8 +122,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
               <Carousel class='mx-16 overflow-x-visible'>
                 <CarouselContent>
                   <For each={followUpSuggestions}>
-                    {(suggestion) => (
-                      <CarouselItem class='flex justify-center'>
+                    {(suggestion, idx) => (
+                      <CarouselItem data-index={idx()} class='flex justify-center'>
                         <Button
                           class='mx-2 h-full w-full text-wrap rounded-full'
                           onClick={() => append({ role: 'user', content: suggestion })}

@@ -198,7 +198,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundBibles,
-        nextCursor: foundBibles.length < limit ? undefined : cursor + limit,
+        nextCursor: foundBibles.length < limit ? null : cursor + limit,
         count: bibleCount,
       },
       200,
@@ -261,7 +261,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundBooks,
-        nextCursor: foundBooks.length < limit ? undefined : cursor + limit,
+        nextCursor: foundBooks.length < limit ? null : cursor + limit,
         count: bookCount,
       },
       200,
@@ -354,7 +354,7 @@ export const app = new Hono<{
       return c.json(
         {
           data: foundChapters,
-          nextCursor: foundChapters.length < limit ? undefined : cursor + limit,
+          nextCursor: foundChapters.length < limit ? null : cursor + limit,
           count: chapterCount,
         },
         200,
@@ -416,7 +416,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundVerses,
-        nextCursor: foundVerses.length < limit ? undefined : cursor + limit,
+        nextCursor: foundVerses.length < limit ? null : cursor + limit,
         count: verseCount,
       },
       200,

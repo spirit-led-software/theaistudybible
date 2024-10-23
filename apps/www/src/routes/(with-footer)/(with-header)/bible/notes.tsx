@@ -20,10 +20,7 @@ const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }
   'use server';
   const { user } = auth();
   if (!user) {
-    return {
-      notes: [],
-      nextCursor: undefined,
-    };
+    return { notes: [], nextCursor: null };
   }
   const [verseNotes, chapterNotes] = await Promise.all([
     db.query.verseNotes.findMany({
@@ -58,7 +55,7 @@ const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }
 
   return {
     notes,
-    nextCursor: notes.length === limit ? offset + limit : undefined,
+    nextCursor: notes.length === limit ? offset + limit : null,
   };
 });
 
@@ -80,11 +77,7 @@ export const route: RouteDefinition = {
 const NotesPage = () => {
   const notesQuery = createInfiniteQuery(() => getNotesQueryOptions());
 
-  const [notes, setNotes] = createStore(
-    !notesQuery.isLoading && notesQuery.data
-      ? notesQuery.data.pages.flatMap((page) => page.notes)
-      : [],
-  );
+  const [notes, setNotes] = createStore<Awaited<ReturnType<typeof getNotes>>['notes']>([]);
   createEffect(() => {
     if (!notesQuery.isLoading && notesQuery.data) {
       setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes)));

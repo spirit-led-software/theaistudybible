@@ -3,6 +3,7 @@ import { registry } from '@/ai/provider-registry';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
+import type { Chat } from '@/schemas/chats/types';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
@@ -22,7 +23,7 @@ const getChat = GET(async (chatId: string) => {
   const chat = await db.query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
-  return chat ?? null;
+  return { chat: chat ?? null };
 });
 
 export const getChatQueryProps = (chatId?: string) => ({
@@ -31,7 +32,7 @@ export const getChatQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChat(chatId);
     }
-    return null;
+    return await Promise.resolve({ chat: null });
   },
 });
 
@@ -61,7 +62,7 @@ const getChatMessages = GET(
     });
     return {
       messages,
-      nextCursor: messages.length === limit ? offset + messages.length : undefined,
+      nextCursor: messages.length === limit ? offset + messages.length : null,
     };
   },
 );
@@ -72,7 +73,7 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChatMessages({ chatId: chatId!, limit: 10, offset: pageParam });
     }
-    return { messages: [], nextCursor: undefined };
+    return await Promise.resolve({ messages: [], nextCursor: null });
   },
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
@@ -115,7 +116,7 @@ export const getChatSuggestionsQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChatSuggestions(chatId);
     }
-    return [];
+    return await Promise.resolve([]);
   },
   staleTime: Number.MAX_SAFE_INTEGER,
 });
@@ -128,21 +129,21 @@ export type UseChatProps = Prettify<
   | undefined
 >;
 
-export const useChat = (props: Accessor<UseChatProps>) => {
+export const useChat = (props?: Accessor<UseChatProps>) => {
   const qc = useQueryClient();
 
-  const [chatId, setChatId] = createSignal(props()?.id);
-  createEffect(() => setChatId(props()?.id));
+  const [chatId, setChatId] = createSignal(props?.()?.id);
+  createEffect(() => setChatId(props?.()?.id));
 
   const useChatResult = useAIChat(() => ({
-    ...props(),
+    ...props?.(),
     api: '/api/chat',
     id: chatId(),
     generateId: createId,
     sendExtraMessageFields: true,
     maxToolRoundtrips: 0,
     body: {
-      ...props()?.body,
+      ...props?.()?.body,
       chatId: chatId(),
     },
     onResponse: (response) => {
@@ -150,21 +151,19 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       if (newChatId) {
         setChatId(newChatId);
       }
-      return props()?.onResponse?.(response);
+      return props?.()?.onResponse?.(response);
     },
     onError: (err) => {
       console.error(err);
-      return props()?.onError?.(err);
+      return props?.()?.onError?.(err);
     },
   }));
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
-  const [chat, setChat] = createSignal(
-    !chatQuery.isLoading && chatQuery.data !== undefined ? chatQuery.data : null,
-  );
+  const [chat, setChat] = createSignal<Chat | null>(null);
   createEffect(() => {
-    if (!chatQuery.isLoading && chatQuery.data !== undefined) {
-      setChat(chatQuery.data);
+    if (!chatQuery.isLoading && chatQuery.data) {
+      setChat(chatQuery.data.chat);
     }
   });
 
@@ -191,11 +190,7 @@ export const useChat = (props: Accessor<UseChatProps>) => {
   });
 
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
-  const [followUpSuggestions, setFollowUpSuggestions] = createStore(
-    !followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data
-      ? followUpSuggestionsQuery.data
-      : [],
-  );
+  const [followUpSuggestions, setFollowUpSuggestions] = createStore<string[]>([]);
   createEffect(() => {
     if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
       setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
@@ -204,14 +199,14 @@ export const useChat = (props: Accessor<UseChatProps>) => {
 
   createEffect(
     on(
-      () => props()?.initQuery,
+      () => props?.()?.initQuery,
       (query) => {
         if (query) {
           void useChatResult.append({
             role: 'user',
             content: query,
           });
-          props()?.setInitQuery?.(undefined);
+          props?.()?.setInitQuery?.(undefined);
         }
       },
     ),
@@ -222,10 +217,10 @@ export const useChat = (props: Accessor<UseChatProps>) => {
       const lastData = data?.at(-1);
       if (lastData && typeof lastData === 'object') {
         if ('lastResponseId' in lastData) {
-          useChatResult.setMessages((messages) => [
-            ...messages.slice(0, -1),
+          useChatResult.setMessages((prev) => [
+            ...prev.slice(0, -1),
             {
-              ...messages.at(-1)!,
+              ...prev.at(-1)!,
               id: lastData.lastResponseId as string,
             },
           ]);

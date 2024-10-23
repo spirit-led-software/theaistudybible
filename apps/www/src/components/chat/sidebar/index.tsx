@@ -36,7 +36,7 @@ const getChats = GET(async ({ offset, limit }: { offset: number; limit: number }
   });
   return {
     chats,
-    nextCursor: chats.length === limit ? offset + chats.length : undefined,
+    nextCursor: chats.length === limit ? offset + chats.length : null,
   };
 });
 
@@ -56,11 +56,7 @@ export const ChatSidebar = () => {
 
   const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions());
 
-  const [chats, setChats] = createStore(
-    !chatsQuery.isLoading && chatsQuery.data
-      ? chatsQuery.data.pages.flatMap((page) => page.chats)
-      : [],
-  );
+  const [chats, setChats] = createStore<Awaited<ReturnType<typeof getChats>>['chats']>([]);
   createEffect(() => {
     if (!chatsQuery.isLoading && chatsQuery.data) {
       setChats(reconcile(chatsQuery.data.pages.flatMap((page) => page.chats)));
