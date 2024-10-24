@@ -12,7 +12,7 @@ import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/soli
 import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
-import { createEffect, createSignal, mergeProps, on } from 'solid-js';
+import { createEffect, createSignal, mergeProps, on, untrack } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
@@ -77,7 +77,7 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
   },
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
   initialPageParam: 0,
-  initialData: { pages: [{ messages: [], nextCursor: undefined }], pageParams: [0] },
+  initialData: { pages: [], pageParams: [] },
   keepPreviousData: true,
 });
 
@@ -170,30 +170,27 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
   });
 
   const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
-  createEffect(
-    on(
-      () => messagesQuery.data,
-      (data) => {
-        if (useChatResult.isLoading()) {
-          return;
-        }
+  createEffect(() => {
+    if (untrack(useChatResult.isLoading)) {
+      return;
+    }
 
-        useChatResult.setMessages(
-          data.pages
-            .flatMap((page) => page.messages)
-            .toReversed()
-            .map((message) => ({
-              ...message,
-              createdAt: new Date(message.createdAt),
-              content: message.content ?? '',
-              annotations: message.annotations ?? undefined,
-              toolInvocations: message.toolInvocations ?? undefined,
-              tool_call_id: message.tool_call_id ?? undefined,
-            })),
-        );
-      },
-    ),
-  );
+    if (messagesQuery.status === 'success') {
+      useChatResult.setMessages(
+        messagesQuery.data.pages
+          .flatMap((page) => page.messages)
+          .toReversed()
+          .map((message) => ({
+            ...message,
+            createdAt: new Date(message.createdAt),
+            content: message.content ?? '',
+            annotations: message.annotations ?? undefined,
+            toolInvocations: message.toolInvocations ?? undefined,
+            tool_call_id: message.tool_call_id ?? undefined,
+          })),
+      );
+    }
+  });
 
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore<string[]>([]);
