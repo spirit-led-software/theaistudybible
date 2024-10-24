@@ -41,7 +41,7 @@ const getChats = GET(async ({ offset, limit }: { offset: number; limit: number }
 
 export const getChatsQueryOptions = () => ({
   queryKey: ['chats'],
-  queryFn: ({ pageParam }: { pageParam: number }) => getChats({ offset: pageParam, limit: 10 }),
+  queryFn: ({ pageParam }: { pageParam: number }) => getChats({ offset: pageParam, limit: 5 }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChats>>) => lastPage.nextCursor,
   keepPreviousData: true,
@@ -134,10 +134,10 @@ export const ChatSidebar = () => {
                   </>
                 )}
               </QueryBoundary>
-              <Show when={!chatsQuery.isLoading && chatsQuery.data && chatsQuery.hasNextPage}>
+              <Show when={chatsQuery.status === 'success' && Boolean(chatsQuery.hasNextPage)}>
                 <Button
                   class='w-full'
-                  disabled={chatsQuery.isFetchingNextPage}
+                  disabled={Boolean(chatsQuery.isFetchingNextPage)}
                   onClick={() => chatsQuery.fetchNextPage()}
                 >
                   Load More

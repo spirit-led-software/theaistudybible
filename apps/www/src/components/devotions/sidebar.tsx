@@ -37,7 +37,7 @@ const getDevotions = GET(async ({ offset, limit }: { offset: number; limit: numb
 
 export const getDevotionsQueryOptions = () => ({
   queryKey: ['devotions'],
-  queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 10 }),
+  queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 7 }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
   keepPreviousData: true,
@@ -125,13 +125,11 @@ export const DevotionSidebar = () => {
                 )}
               </QueryBoundary>
               <Show
-                when={
-                  !devotionsQuery.isLoading && devotionsQuery.data && devotionsQuery.hasNextPage
-                }
+                when={devotionsQuery.status === 'success' && Boolean(devotionsQuery.hasNextPage)}
               >
                 <Button
                   class='w-full'
-                  disabled={devotionsQuery.isFetchingNextPage}
+                  disabled={Boolean(devotionsQuery.isFetchingNextPage)}
                   onClick={() => devotionsQuery.fetchNextPage()}
                 >
                   Load More

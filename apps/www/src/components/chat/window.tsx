@@ -94,16 +94,16 @@ export const ChatWindow = (props: ChatWindowProps) => {
       </Show>
       <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
         <div class='flex w-full items-start justify-center'>
-          <Show when={!messagesQuery.isLoading && messagesQuery.data && messagesQuery.hasNextPage}>
+          <Show when={messagesQuery.status === 'success' && Boolean(messagesQuery.hasNextPage)}>
             <div class='flex flex-col items-center justify-center'>
               <Button
                 variant='link'
                 size='icon'
                 class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
-                disabled={messagesQuery.isFetchingNextPage}
+                disabled={Boolean(messagesQuery.isFetchingNextPage)}
                 onClick={() => messagesQuery.fetchNextPage()}
               >
-                <Show when={messagesQuery.isFetchingNextPage} fallback={<ChevronUp />}>
+                <Show when={Boolean(messagesQuery.isFetchingNextPage)} fallback={<ChevronUp />}>
                   <Spinner size='sm' />
                 </Show>
               </Button>
@@ -165,18 +165,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
           handleSubmit(e);
         }}
       >
-        <div class='flex w-full max-w-2xl items-center rounded-full border py-2 pr-1 pl-5'>
-          <TextField
-            class='flex flex-1 items-center'
-            value={input()}
-            onChange={setInput}
-            autoCapitalize='sentences'
-          >
+        <div class='flex h-fit w-full max-w-2xl items-center rounded-full border py-2 pr-1 pl-5'>
+          <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
             <TextFieldTextArea
               placeholder='Type a message'
-              class='flex max-h-24 min-h-[10px] w-full resize-none items-center justify-center border-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
-              minLength={1}
+              class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent py-0 pl-3 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
+              rows={1}
+              minlength={1}
               autoResize
+              autoCapitalize='sentences'
             />
           </TextField>
           <Switch

@@ -90,7 +90,7 @@ if (!$dev) {
         Statement: [
           {
             Effect: 'Allow',
-            Action: ['s3:GetObject', 's3:PutObject'],
+            Action: ['s3:*'],
             Resource: Object.values(storage).flatMap((b) => [
               b.nodes.bucket.arn,
               $interpolate`${b.nodes.bucket.arn}/*`,
@@ -98,7 +98,7 @@ if (!$dev) {
           },
           {
             Effect: 'Allow',
-            Action: ['sqs:SendMessage'],
+            Action: ['sqs:*'],
             Resource: Object.values(queues).map((q) => q.arn),
           },
         ],
