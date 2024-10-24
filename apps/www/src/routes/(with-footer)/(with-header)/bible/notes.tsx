@@ -79,7 +79,7 @@ const NotesPage = () => {
 
   const [notes, setNotes] = createStore<Awaited<ReturnType<typeof getNotes>>['notes']>([]);
   createEffect(() => {
-    if (!notesQuery.isLoading && notesQuery.data) {
+    if (notesQuery.status === 'success') {
       setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes)));
     }
   });

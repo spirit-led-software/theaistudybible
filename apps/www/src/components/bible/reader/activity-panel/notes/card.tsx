@@ -89,7 +89,7 @@ export const NotesCard = () => {
   type NoteType = Prettify<Awaited<ReturnType<typeof getNotes>>['notes']>[number];
   const [notes, setNotes] = createStore<NoteType[]>([]);
   createEffect(() => {
-    if (!query.isLoading && query.data) {
+    if (query.status === 'success') {
       setNotes(
         reconcile(
           // @ts-expect-error - Types are messed up for some reason

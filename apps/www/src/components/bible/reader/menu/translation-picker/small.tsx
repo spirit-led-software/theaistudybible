@@ -37,7 +37,7 @@ export default function SmallTranslationPicker() {
   const query = createQuery(() => smallTranslationPickerQueryOptions());
 
   const uniqueLanguages = createMemo(() => {
-    if (!query.isLoading && query.data) {
+    if (query.status === 'success') {
       return query.data.reduce((acc, bible) => {
         if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
           acc.push(bible.biblesToLanguages[0].language);

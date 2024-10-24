@@ -28,7 +28,7 @@ export default function LargeTranslationPicker() {
   const [search, setSearch] = createSignal('');
 
   const filteredBibles = createMemo(() => {
-    if (!query.isLoading && query.data) {
+    if (query.status === 'success') {
       return query.data.filter(
         (bible) =>
           bible.name.toLowerCase().includes(search().toLowerCase()) ||

@@ -57,7 +57,7 @@ export const ChatSidebar = () => {
 
   const [chats, setChats] = createStore<Awaited<ReturnType<typeof getChats>>['chats']>([]);
   createEffect(() => {
-    if (!chatsQuery.isLoading && chatsQuery.data) {
+    if (chatsQuery.status === 'success') {
       setChats(reconcile(chatsQuery.data.pages.flatMap((page) => page.chats)));
     }
   });

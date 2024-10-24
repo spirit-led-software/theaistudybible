@@ -12,7 +12,7 @@ const getHasReferences = GET(async (chapterId: string) => {
   const sourceDocs = await db.query.chaptersToSourceDocuments.findMany({
     where: (table, { eq }) => eq(table.chapterId, chapterId),
   });
-  return sourceDocs.length > 0;
+  return { hasReferences: sourceDocs.length > 0 };
 });
 
 export const ReferencesButton = () => {
@@ -29,7 +29,11 @@ export const ReferencesButton = () => {
       <TooltipTrigger
         as={Button}
         size='icon'
-        disabled={query.isLoading || (!query.isLoading && !query.data)}
+        disabled={
+          query.status === 'pending' ||
+          query.status === 'error' ||
+          (query.status === 'success' && !query.data.hasReferences)
+        }
         onClick={() => setValue('references')}
       >
         <TextSearch size={20} />

@@ -54,7 +54,7 @@ export const DevotionSidebar = () => {
     Awaited<ReturnType<typeof getDevotions>>['devotions']
   >([]);
   createEffect(() => {
-    if (!devotionsQuery.isLoading && devotionsQuery.data) {
+    if (devotionsQuery.status === 'success') {
       setDevotions(reconcile(devotionsQuery.data.pages.flatMap((page) => page.devotions)));
     }
   });

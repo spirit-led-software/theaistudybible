@@ -93,7 +93,7 @@ const HighlightsPage = () => {
     Awaited<ReturnType<typeof getHighlights>>['highlights']
   >([]);
   createEffect(() => {
-    if (!highlightsQuery.isLoading && highlightsQuery.data) {
+    if (highlightsQuery.status === 'success') {
       setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));
     }
   });

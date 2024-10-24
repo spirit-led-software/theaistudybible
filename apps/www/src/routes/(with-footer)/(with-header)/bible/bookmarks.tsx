@@ -118,7 +118,7 @@ const BookmarksPage = () => {
     Awaited<ReturnType<typeof getBookmarks>>['bookmarks']
   >([]);
   createEffect(() => {
-    if (!bookmarksQuery.isLoading && bookmarksQuery.data) {
+    if (bookmarksQuery.status === 'success') {
       setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
     }
   });

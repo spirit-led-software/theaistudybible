@@ -12,7 +12,7 @@ import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/soli
 import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
-import { createEffect, createSignal, mergeProps, on, untrack } from 'solid-js';
+import { createEffect, createSignal, mergeProps, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
@@ -75,8 +75,10 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
     }
     return await Promise.resolve({ messages: [], nextCursor: undefined });
   },
-  initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
+  initialPageParam: 0,
+  initialData: { pages: [{ messages: [], nextCursor: undefined }], pageParams: [0] },
+  keepPreviousData: true,
 });
 
 const getChatSuggestions = GET(async (chatId: string) => {
@@ -162,37 +164,41 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
   const [chat, setChat] = createSignal<Chat | null>(null);
   createEffect(() => {
-    if (!chatQuery.isLoading && chatQuery.data) {
+    if (chatQuery.status === 'success') {
       setChat(chatQuery.data.chat);
     }
   });
 
-  const messagesQuery = createInfiniteQuery(() => ({
-    ...getChatMessagesQueryProps(chatId()),
-    keepPreviousData: true,
-  }));
-  createEffect(() => {
-    if (!messagesQuery.isLoading && messagesQuery.data && !untrack(useChatResult.isLoading)) {
-      useChatResult.setMessages(
-        messagesQuery.data.pages
-          .flatMap((page) => page.messages)
-          .toReversed()
-          .map((message) => ({
-            ...message,
-            createdAt: new Date(message.createdAt),
-            content: message.content ?? '',
-            annotations: message.annotations ?? undefined,
-            toolInvocations: message.toolInvocations ?? undefined,
-            tool_call_id: message.tool_call_id ?? undefined,
-          })),
-      );
-    }
-  });
+  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  createEffect(
+    on(
+      () => messagesQuery.data,
+      (data) => {
+        if (useChatResult.isLoading()) {
+          return;
+        }
+
+        useChatResult.setMessages(
+          data.pages
+            .flatMap((page) => page.messages)
+            .toReversed()
+            .map((message) => ({
+              ...message,
+              createdAt: new Date(message.createdAt),
+              content: message.content ?? '',
+              annotations: message.annotations ?? undefined,
+              toolInvocations: message.toolInvocations ?? undefined,
+              tool_call_id: message.tool_call_id ?? undefined,
+            })),
+        );
+      },
+    ),
+  );
 
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
   const [followUpSuggestions, setFollowUpSuggestions] = createStore<string[]>([]);
   createEffect(() => {
-    if (!followUpSuggestionsQuery.isLoading && followUpSuggestionsQuery.data) {
+    if (followUpSuggestionsQuery.status === 'success') {
       setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
     }
   });

@@ -47,7 +47,7 @@ const DevotionPage = () => {
     ...getDevotionQueryProps({ id: params.id }),
   }));
   createComputed(() => {
-    if (!devotionQuery.isLoading && devotionQuery.data) {
+    if (devotionQuery.status === 'success') {
       setDevotionStore('devotion', devotionQuery.data.devotion);
     }
   });
