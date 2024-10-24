@@ -82,12 +82,9 @@ export const route: RouteDefinition = {
 const HighlightsPage = () => {
   const deleteHighlight = useAction(deleteHighlightAction);
 
-  const highlightsQuery = createInfiniteQuery(() => getHighlightsQueryOptions());
+  const qc = useQueryClient();
 
-  const deleteHighlightMutation = createMutation(() => ({
-    mutationFn: (highlightId: string) => deleteHighlight(highlightId),
-    onSettled: () => highlightsQuery.refetch(),
-  }));
+  const highlightsQuery = createInfiniteQuery(() => getHighlightsQueryOptions());
 
   const [highlights, setHighlights] = createStore<
     Awaited<ReturnType<typeof getHighlights>>['highlights']
@@ -97,6 +94,11 @@ const HighlightsPage = () => {
       setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));
     }
   });
+
+  const deleteHighlightMutation = createMutation(() => ({
+    mutationFn: (highlightId: string) => deleteHighlight(highlightId),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['highlights'] }),
+  }));
 
   return (
     <>

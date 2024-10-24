@@ -107,12 +107,9 @@ export const route: RouteDefinition = {
 const BookmarksPage = () => {
   const deleteBookmark = useAction(deleteBookmarkAction);
 
-  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
+  const qc = useQueryClient();
 
-  const deleteBookmarkMutation = createMutation(() => ({
-    mutationFn: (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => deleteBookmark(props),
-    onSettled: () => bookmarksQuery.refetch(),
-  }));
+  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
 
   const [bookmarks, setBookmarks] = createStore<
     Awaited<ReturnType<typeof getBookmarks>>['bookmarks']
@@ -122,6 +119,11 @@ const BookmarksPage = () => {
       setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
     }
   });
+
+  const deleteBookmarkMutation = createMutation(() => ({
+    mutationFn: (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => deleteBookmark(props),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['bookmarks'] }),
+  }));
 
   return (
     <>
