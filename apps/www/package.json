@@ -22,8 +22,7 @@
     "tailwindcss": "^3.4.14",
     "tailwindcss-safe-area": "^0.6.0",
     "vite-plugin-cjs-interop": "^2.1.4",
-    "vite-plugin-pwa": "^0.20.5",
-    "vite-tsconfig-paths": "^5.0.1"
+    "vite-plugin-pwa": "^0.20.5"
   },
   "dependencies": {
     "@ai-sdk/solid": "^0.0.50",
@@ -66,6 +65,7 @@
     "solid-marked": "^0.6.3",
     "solid-sonner": "^0.2.8",
     "solid-transition-group": "^0.2.3",
+    "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.2.1",
     "tailwindcss-animate": "^1.0.7",

@@ -32,7 +32,7 @@ export const getChatQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChat(chatId);
     }
-    return await Promise.resolve({ chat: null });
+    return { chat: null };
   },
 });
 
@@ -73,12 +73,12 @@ export const getChatMessagesQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChatMessages({ chatId: chatId!, limit: 10, offset: pageParam });
     }
-    return await Promise.resolve({ messages: [], nextCursor: undefined });
+    return { messages: [], nextCursor: undefined };
   },
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
   initialPageParam: 0,
-  initialData: { pages: [], pageParams: [] },
   keepPreviousData: true,
+  placeholderData: { pages: [{ messages: [], nextCursor: undefined }], pageParams: [0] },
 });
 
 const getChatSuggestions = GET(async (chatId: string) => {
@@ -118,7 +118,7 @@ export const getChatSuggestionsQueryProps = (chatId?: string) => ({
     if (chatId) {
       return await getChatSuggestions(chatId);
     }
-    return await Promise.resolve([]);
+    return [];
   },
   staleTime: Number.MAX_SAFE_INTEGER,
 });
@@ -228,15 +228,14 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
             },
           ]);
         }
-      }
-      if (lastData && typeof lastData === 'string') {
-        if (lastData === 'complete') {
-          Promise.all([
-            chatQuery.refetch(),
-            followUpSuggestionsQuery.refetch(),
-            qc.invalidateQueries({ queryKey: ['chats'] }),
-            qc.invalidateQueries({ queryKey: ['user-credits'] }),
-          ]);
+
+        if ('status' in lastData) {
+          if (lastData.status === 'complete') {
+            chatQuery.refetch();
+            followUpSuggestionsQuery.refetch();
+            qc.invalidateQueries({ queryKey: ['chats'] });
+            qc.invalidateQueries({ queryKey: ['user-credits'] });
+          }
         }
       }
     }),

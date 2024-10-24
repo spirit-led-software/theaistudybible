@@ -213,7 +213,7 @@ const app = new Hono<{
           if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
             await restoreCreditsOnFailure(c.var.user!.id, 'chat');
           }
-          streamData.append('complete');
+          streamData.append({ status: 'complete' });
           await streamData.close();
         },
       });

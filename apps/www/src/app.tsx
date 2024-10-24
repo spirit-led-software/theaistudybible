@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { Show, Suspense } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import SuperJson from 'superjson';
 import { getCookie } from 'vinxi/http';
 import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
@@ -36,7 +37,11 @@ const getServerCookies = GET(() => {
 
 export default function App() {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { staleTime: 1000 * 30, experimental_prefetchInRender: true } },
+    defaultOptions: {
+      queries: { staleTime: 1000 * 30, experimental_prefetchInRender: true },
+      dehydrate: { serializeData: SuperJson.serialize },
+      hydrate: { deserializeData: SuperJson.deserialize },
+    },
   });
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
 

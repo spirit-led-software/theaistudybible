@@ -11,20 +11,15 @@
   "devDependencies": {
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/jsdom": "^21.1.7",
-    "@types/yargs": "^17.0.33",
-    "vite-tsconfig-paths": "^5.0.1"
+    "@types/yargs": "^17.0.33"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^2.2.2",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "fast-xml-parser": "^4.5.0",
     "jsdom": "^25.0.1",
     "jszip": "^3.10.1",
-    "ora": "^8.1.0",
-    "pg": "^8.13.0",
-    "yargs": "^17.7.2",
-    "zod": "^3.23.8"
+    "yargs": "^17.7.2"
   }
 }
