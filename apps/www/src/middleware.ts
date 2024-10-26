@@ -11,10 +11,12 @@ import { getCookie, getHeader, setCookie } from 'vinxi/http';
 
 export default createMiddleware({
   onRequest: [
+    // Logging Middleware
     ({ request }) => {
       const url = new URL(request.url);
       console.log(`Request: ${request.method} ${url.pathname}`);
     },
+    // Auth Middleware
     async ({ nativeEvent, locals }) => {
       if (nativeEvent.node.req.method !== 'GET') {
         const originHeader = getHeader(nativeEvent, 'Origin') ?? null;
@@ -90,12 +92,20 @@ export default createMiddleware({
     },
   ],
   onBeforeResponse: [
+    // Logging Middleware
     ({ request, response }) => {
       const url = new URL(request.url);
       console.log(
         `Response: ${request.method} ${url.pathname} ${response.status} ${response.statusText ?? ''}`,
       );
     },
+    // Need to add this for Sentry profiling to work
+    ({ response }) => {
+      if (response.headers.get('Content-Type')?.includes('text/html')) {
+        response.headers.append('Document-Policy', 'js-profiling');
+      }
+    },
+    // Sentry Middleware
     sentryBeforeResponseMiddleware(),
   ],
 });
