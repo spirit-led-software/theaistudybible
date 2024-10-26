@@ -14,6 +14,7 @@
       "**/.turbo",
       "**/.vinxi",
       "**/.output",
+      "**/dist",
       "**/bun.lockb",
       "**/migrations",
       "**/sst-env.d.ts",

@@ -25,7 +25,7 @@
     "vite-plugin-pwa": "^0.20.5"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^0.0.50",
+    "@ai-sdk/solid": "^0.0.52",
     "@ark-ui/solid": "^4.2.1",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
@@ -40,7 +40,7 @@
     "@solid-primitives/clipboard": "^1.5.10",
     "@solid-primitives/context": "^0.2.3",
     "@solid-primitives/intersection-observer": "^2.1.6",
-    "@solid-primitives/keyed": "^1.2.2",
+    "@solid-primitives/keyed": "^1.2.3",
     "@solid-primitives/resize-observer": "^2.0.26",
     "@solid-primitives/share": "^2.0.6",
     "@solid-primitives/storage": "^4.2.1",
@@ -59,7 +59,7 @@
     "cmdk-solid": "^1.1.0",
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.3.0",
-    "hono": "^4.6.6",
+    "hono": "^4.6.7",
     "lucide-solid": "^0.453.0",
     "solid-js": "^1.9.3",
     "solid-marked": "^0.6.3",
