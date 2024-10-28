@@ -129,7 +129,7 @@ export type UseChatProps = Prettify<
 export const useChat = (props?: Accessor<UseChatProps>) => {
   const qc = useQueryClient();
 
-  const [chatId, setChatId] = createWritableMemo(() => props?.()?.id);
+  const [chatId, setChatId] = createWritableMemo(() => props?.().id);
 
   const useChatResult = useAIChat(() => ({
     ...props?.(),
@@ -143,15 +143,15 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
       chatId: chatId(),
     },
     onResponse: (response) => {
-      const newChatId = response.headers.get('x-chat-id');
+      const newChatId = response.headers.get('X-Chat-Id');
       if (newChatId) {
         setChatId(newChatId);
       }
-      return props?.()?.onResponse?.(response);
+      return props?.().onResponse?.(response);
     },
     onError: (err) => {
       console.error(err);
-      return props?.()?.onError?.(err);
+      return props?.().onError?.(err);
     },
   }));
 
