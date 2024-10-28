@@ -17,10 +17,10 @@ export const ChatCard = () => {
       return `"${brStore.selectedText}" - ${brStore.selectedTitle}`;
     }
     if (brStore.verse?.content) {
-      return contentsToText(brStore.verse.content);
+      return `"${contentsToText(brStore.verse.content)}" - ${brStore.verse.name}`;
     }
     if (brStore.chapter?.content) {
-      return contentsToText(brStore.chapter.content);
+      return `"${contentsToText(brStore.chapter.content)}" - ${brStore.chapter.name}`;
     }
     return undefined;
   });

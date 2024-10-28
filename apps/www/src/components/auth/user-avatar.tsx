@@ -1,12 +1,11 @@
 import { useAuth } from '@/www/contexts/auth';
-import type { PolymorphicProps } from '@kobalte/core';
-import type { ImageRootProps } from '@kobalte/core/image';
-import { type ValidComponent, createMemo } from 'solid-js';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { cn } from '@/www/lib/utils';
+import { createMemo, splitProps } from 'solid-js';
+import { Avatar, AvatarFallback, AvatarImage, type AvatarRootProps } from '../ui/avatar';
 
-export const UserAvatar = <T extends ValidComponent>(
-  props: PolymorphicProps<T, ImageRootProps>,
-) => {
+export const UserAvatar = (props: AvatarRootProps) => {
+  const [local, rest] = splitProps(props, ['class']);
+
   const { user } = useAuth();
 
   const src = createMemo(() => user()?.image || undefined);
@@ -18,7 +17,7 @@ export const UserAvatar = <T extends ValidComponent>(
   );
 
   return (
-    <Avatar {...(props as ImageRootProps)}>
+    <Avatar class={cn('size-10', local.class)} {...rest}>
       <AvatarImage src={src()} />
       <AvatarFallback>{fallback()}</AvatarFallback>
     </Avatar>
