@@ -2,7 +2,7 @@ import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { Title } from '@solidjs/meta';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createComputed, createEffect, on } from 'solid-js';
+import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
@@ -36,12 +36,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
     handleSubmit,
     isLoading,
     error,
-    chat,
     messages,
     messagesQuery,
     append,
     addToolResult,
-    followUpSuggestions,
+    chatQuery,
     followUpSuggestionsQuery,
   } = useChat(() => ({
     id: props.chatId ?? chatStore.chat?.id,
@@ -49,7 +48,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
       additionalContext: props.additionalContext,
     },
   }));
-  createComputed(on(chat, (chat) => setChatStore('chat', chat)));
+  createEffect(() => {
+    if (chatQuery.status === 'success') {
+      setChatStore('chat', chatQuery.data.chat);
+    }
+  });
 
   createEffect(
     on(
@@ -114,14 +117,16 @@ export const ChatWindow = (props: ChatWindowProps) => {
           <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
           <Show
             when={
-              !isLoading() && !followUpSuggestionsQuery.isFetching && followUpSuggestions.length
+              !isLoading() &&
+              !followUpSuggestionsQuery.isFetching &&
+              followUpSuggestionsQuery.data?.length
             }
           >
             <div class='fade-in zoom-in flex w-full max-w-2xl animate-in flex-col gap-2 pb-2'>
               <H6 class='text-center'>Follow-up Questions</H6>
               <Carousel class='mx-16 overflow-x-visible'>
                 <CarouselContent>
-                  <For each={followUpSuggestions}>
+                  <For each={followUpSuggestionsQuery.data}>
                     {(suggestion, idx) => (
                       <CarouselItem data-index={idx()} class='flex justify-center'>
                         <Button

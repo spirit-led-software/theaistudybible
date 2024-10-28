@@ -27,10 +27,12 @@ export const useAuth = () => {
   }
 
   return {
-    isLoaded: createMemo(() =>
-      context.session() !== undefined &&
-      context.user() !== undefined &&
-      context.roles() !== undefined),
+    isLoaded: createMemo(
+      () =>
+        context.session() !== undefined &&
+        context.user() !== undefined &&
+        context.roles() !== undefined,
+    ),
     isSignedIn: createMemo(() => context.session() !== null && context.user() !== null),
     isAdmin: createMemo(() => context.roles()?.some((role) => role.id === 'admin') ?? false),
     invalidate: () =>

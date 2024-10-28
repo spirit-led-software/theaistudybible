@@ -4,7 +4,7 @@ import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { useSearchParams } from '@solidjs/router';
 import type { JSXElement } from 'solid-js';
-import { createComputed, createContext, on, splitProps, useContext } from 'solid-js';
+import { createContext, createEffect, on, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
@@ -120,7 +120,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   });
 
   const [, setBibleStore] = useBibleStore();
-  createComputed(
+  createEffect(
     on(
       () => store.bible,
       (bible) => {
@@ -128,7 +128,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       },
     ),
   );
-  createComputed(
+  createEffect(
     on(
       () => store.book,
       (book) => {
@@ -136,7 +136,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       },
     ),
   );
-  createComputed(
+  createEffect(
     on(
       () => store.chapter,
       (chapter) => {
@@ -144,7 +144,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
       },
     ),
   );
-  createComputed(
+  createEffect(
     on(
       () => store.verse,
       (verse) => {
@@ -153,7 +153,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     ),
   );
 
-  createComputed(
+  createEffect(
     on(
       () => store.selectedVerseInfos,
       (verseInfos) => {

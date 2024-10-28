@@ -3,7 +3,6 @@ import { registry } from '@/ai/provider-registry';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
-import type { Chat } from '@/schemas/chats/types';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
@@ -13,7 +12,7 @@ import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
 import { createEffect, createSignal, mergeProps, on, untrack } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import {} from 'solid-js/store';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
 
@@ -162,12 +161,6 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
   }));
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
-  const [chat, setChat] = createSignal<Chat | null>(null);
-  createEffect(() => {
-    if (chatQuery.status === 'success') {
-      setChat(chatQuery.data.chat);
-    }
-  });
 
   const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
   createEffect(() => {
@@ -193,12 +186,6 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
   });
 
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
-  const [followUpSuggestions, setFollowUpSuggestions] = createStore<string[]>([]);
-  createEffect(() => {
-    if (followUpSuggestionsQuery.status === 'success') {
-      setFollowUpSuggestions(reconcile(followUpSuggestionsQuery.data));
-    }
-  });
 
   createEffect(
     on(
@@ -245,8 +232,6 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     id: chatId,
     messagesQuery,
     chatQuery,
-    chat,
     followUpSuggestionsQuery,
-    followUpSuggestions,
   });
 };
