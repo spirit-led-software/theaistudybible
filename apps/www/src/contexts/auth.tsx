@@ -62,16 +62,12 @@ export const AuthProvider = (props: AuthProviderProps) => {
     initialData,
   }));
 
-  const session = createMemo(() => query.data?.session);
-  const user = createMemo(() => query.data?.user);
-  const roles = createMemo(() => query.data?.roles);
-
   return (
     <AuthContext.Provider
       value={{
-        session: session(),
-        user: user(),
-        roles: roles(),
+        session: createMemo(() => query.data?.session),
+        user: createMemo(() => query.data?.user),
+        roles: createMemo(() => query.data?.roles),
       }}
     >
       {props.children}
