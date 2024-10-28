@@ -2,7 +2,7 @@ import type { Role } from '@/schemas/roles';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
-import { type Accessor, type JSX, createContext, useContext } from 'solid-js';
+import { type Accessor, type JSX, createContext, useContext, useMemo } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { auth } from '../server/auth';
 
@@ -27,12 +27,12 @@ export const useAuth = () => {
   }
 
   return {
-    isLoaded: () =>
+    isLoaded: createMemo(() =>
       context.session() !== undefined &&
       context.user() !== undefined &&
-      context.roles() !== undefined,
-    isSignedIn: () => context.session() !== null && context.user() !== null,
-    isAdmin: () => context.roles()?.some((role) => role.id === 'admin') ?? false,
+      context.roles() !== undefined),
+    isSignedIn: createMemo(() => context.session() !== null && context.user() !== null),
+    isAdmin: createMemo(() => context.roles()?.some((role) => role.id === 'admin') ?? false),
     invalidate: () =>
       queryClient.invalidateQueries({ queryKey: authProviderQueryOptions().queryKey }),
     refetch: () => queryClient.refetchQueries({ queryKey: authProviderQueryOptions().queryKey }),
@@ -62,12 +62,16 @@ export const AuthProvider = (props: AuthProviderProps) => {
     initialData,
   }));
 
+  const session = createMemo(() => query.data?.session);
+  const user = createMemo(() => query.data?.user);
+  const roles = createMemo(() => query.data?.roles);
+
   return (
     <AuthContext.Provider
       value={{
-        session: () => query.data?.session,
-        user: () => query.data?.user,
-        roles: () => query.data?.roles,
+        session: session(),
+        user: user(),
+        roles: roles(),
       }}
     >
       {props.children}
