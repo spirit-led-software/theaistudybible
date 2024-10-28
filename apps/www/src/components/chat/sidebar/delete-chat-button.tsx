@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { useChatStore } from '@/www/contexts/chat';
 import { requireAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
-import { action, useAction, useNavigate } from '@solidjs/router';
+import { action, useAction, useLocation, useNavigate } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Trash } from 'lucide-solid';
@@ -34,15 +34,19 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const deleteChat = useAction(deleteChatAction);
 
   const qc = useQueryClient();
-  const [chatStore, setChatStore] = useChatStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [chatStore, setChatStore] = useChatStore();
 
   const deleteChatMutation = createMutation(() => ({
     mutationFn: () => deleteChat(props.chat.id),
     onSettled: () => {
       if (chatStore.chat?.id === props.chat.id) {
         setChatStore('chat', null);
-        navigate('/chat', { replace: true });
+
+        if (location.pathname.startsWith('/chat')) {
+          navigate('/chat', { replace: true });
+        }
       }
       qc.invalidateQueries({ queryKey: ['chats'] });
     },
