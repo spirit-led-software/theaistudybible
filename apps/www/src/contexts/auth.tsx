@@ -2,7 +2,7 @@ import type { Role } from '@/schemas/roles';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
-import { type Accessor, type JSX, createContext, useContext, useMemo } from 'solid-js';
+import { type Accessor, type JSX, createContext, createMemo, useContext } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { auth } from '../server/auth';
 
