@@ -6,13 +6,13 @@ import { createId } from '@/core/utils/id';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
+import { createWritableMemo } from '@solid-primitives/memo';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { convertToCoreMessages, generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
-import { createEffect, createSignal, mergeProps, on, untrack } from 'solid-js';
-import {} from 'solid-js/store';
+import { createEffect, mergeProps, on, untrack } from 'solid-js';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
 
@@ -123,18 +123,13 @@ export const getChatSuggestionsQueryProps = (chatId?: string) => ({
 });
 
 export type UseChatProps = Prettify<
-  | (Omit<UseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'> & {
-      initQuery?: string;
-      setInitQuery?: (query: string | undefined) => void;
-    })
-  | undefined
+  Omit<UseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'>
 >;
 
 export const useChat = (props?: Accessor<UseChatProps>) => {
   const qc = useQueryClient();
 
-  const [chatId, setChatId] = createSignal(props?.()?.id);
-  createEffect(() => setChatId(props?.()?.id));
+  const [chatId, setChatId] = createWritableMemo(() => props?.()?.id);
 
   const useChatResult = useAIChat(() => ({
     ...props?.(),
@@ -186,21 +181,6 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
   });
 
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
-
-  createEffect(
-    on(
-      () => props?.()?.initQuery,
-      (query) => {
-        if (query) {
-          void useChatResult.append({
-            role: 'user',
-            content: query,
-          });
-          props?.()?.setInitQuery?.(undefined);
-        }
-      },
-    ),
-  );
 
   createEffect(
     on(useChatResult.data, (data) => {

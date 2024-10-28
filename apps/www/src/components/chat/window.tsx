@@ -2,7 +2,7 @@ import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { Title } from '@solidjs/meta';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
+import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
@@ -23,12 +23,13 @@ import { Message } from './message';
 
 export type ChatWindowProps = {
   chatId?: string;
-  initInput?: string;
   additionalContext?: string;
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
   const [chatStore, setChatStore] = useChatStore();
+
+  const chatId = createMemo(() => props.chatId ?? chatStore.chat?.id);
 
   const {
     input,
@@ -43,7 +44,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     chatQuery,
     followUpSuggestionsQuery,
   } = useChat(() => ({
-    id: props.chatId ?? chatStore.chat?.id,
+    id: chatId(),
     body: {
       additionalContext: props.additionalContext,
     },
@@ -53,15 +54,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
       setChatStore('chat', chatQuery.data.chat);
     }
   });
-
-  createEffect(
-    on(
-      () => props.initInput,
-      (initInput) => {
-        setInput(initInput ?? '');
-      },
-    ),
-  );
 
   createEffect(
     on(error, (error) => {
