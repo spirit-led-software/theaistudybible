@@ -2,7 +2,7 @@ import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { Title } from '@solidjs/meta';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
+import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
@@ -27,7 +27,7 @@ export type ChatWindowProps = {
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const [chatStore, setChatStore] = useChatStore();
+  const [, setChatStore] = useChatStore();
 
   const {
     input,
@@ -42,16 +42,26 @@ export const ChatWindow = (props: ChatWindowProps) => {
     chatQuery,
     followUpSuggestionsQuery,
   } = useChat(() => ({
-    id: props.chatId ?? chatStore.chat?.id,
+    id: props.chatId,
     body: {
       additionalContext: props.additionalContext,
     },
   }));
-  createEffect(() => {
+  const chat = createMemo(() => {
     if (chatQuery.status === 'success') {
-      setChatStore('chat', chatQuery.data.chat);
+      return chatQuery.data.chat;
     }
+    return undefined;
   });
+  const chatName = createMemo(on(chat, (chat) => chat?.name ?? 'New Chat'));
+
+  createEffect(
+    on(chat, (chat) => {
+      if (chat) {
+        setChatStore('chat', chat);
+      }
+    }),
+  );
 
   createEffect(
     on(error, (error) => {
@@ -73,7 +83,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   return (
     <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
-      <Title>{chatStore.chat?.name ?? 'New Chat'} | The AI Study Bible</Title>
+      <Title>{chatName()} | The AI Study Bible</Title>
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button
