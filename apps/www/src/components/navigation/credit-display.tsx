@@ -38,11 +38,11 @@ export function CreditDisplay() {
             size='icon'
             class={cn(
               'flex size-8 flex-col items-center justify-center gap-1 rounded-full p-2 text-xs lg:flex-row',
-              credits < 3 && 'text-red-500',
-              credits < 5 && 'text-yellow-500',
+              credits < 5 && 'text-red-500',
+              credits < 10 && 'text-yellow-500',
             )}
           >
-            {credits > 10 ? `>${10}` : credits}
+            {credits > 100 ? `>${100}` : credits}
           </PopoverTrigger>
           <PopoverContent class='flex flex-col gap-2'>
             <H5>{credits} credits</H5>
@@ -51,7 +51,8 @@ export function CreditDisplay() {
               <H6>Spend credits using AI</H6>
               <ul class='list-inside list-disc'>
                 <li class='text-sm'>1 response = 1 credit</li>
-                <li class='text-sm'>1 image = 5 credits</li>
+                <li class='text-sm'>1 advanced response = 5 credits</li>
+                <li class='text-sm'>1 image = 10 credits</li>
               </ul>
             </div>
             <Button as={A} href='/credits'>
