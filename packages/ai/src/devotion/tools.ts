@@ -12,13 +12,12 @@ export const bibleVectorStoreTool = tool({
       ),
   }),
   execute: async ({ terms }) => {
-    const maxDocs = 10;
     return (
       await Promise.all(
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
             filter: 'type = "bible"',
-            limit: maxDocs / terms.length,
+            limit: 12,
             withMetadata: true,
             withEmbedding: false,
           }),
@@ -26,7 +25,9 @@ export const bibleVectorStoreTool = tool({
       )
     )
       .flat()
-      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i); // remove duplicates
+      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
   },
 });
 
@@ -38,12 +39,11 @@ export const vectorStoreTool = tool({
       .describe('1 to 4 search terms or phrases that will be used to find relevant resources.'),
   }),
   execute: async ({ terms }) => {
-    const maxDocs = 4;
     return (
       await Promise.all(
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
-            limit: maxDocs / terms.length,
+            limit: 8,
             withMetadata: true,
             withEmbedding: false,
           }),
@@ -51,6 +51,8 @@ export const vectorStoreTool = tool({
       )
     )
       .flat()
-      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i); // remove duplicates
+      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4);
   },
 });

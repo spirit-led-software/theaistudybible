@@ -281,15 +281,14 @@ export const vectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('1 to 4 search terms or phrases that will be used to find relevant resources.'),
+      .describe('1 to 6 search terms or phrases that will be used to find relevant resources.'),
   }),
   execute: async ({ terms }) => {
-    const maxDocs = 8;
     return (
       await Promise.all(
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
-            limit: maxDocs / terms.length,
+            limit: 12,
             withMetadata: true,
             withEmbedding: false,
           }),
@@ -297,7 +296,9 @@ export const vectorStoreTool = tool({
       )
     )
       .flat()
-      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i); // remove duplicates
+      .filter((d, i, a) => a.findIndex((d2) => d2.id === d.id) === i)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
   },
 });
 
