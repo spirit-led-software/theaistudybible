@@ -17,6 +17,7 @@ import type { Stripe } from 'stripe';
 const getProducts = GET(async () => {
   'use server';
   const productsListResponse = await stripe.products.list({
+    active: true,
     expand: ['data.default_price'],
   });
   const products = productsListResponse.data.toSorted(
