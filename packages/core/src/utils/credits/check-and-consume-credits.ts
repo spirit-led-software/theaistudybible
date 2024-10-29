@@ -3,7 +3,7 @@ import { userCredits } from '@/core/database/schema';
 import { eq } from 'drizzle-orm';
 
 export async function checkAndConsumeCredits(userId: string, action: 'chat' | 'image') {
-  const cost = action === 'chat' ? 1 : 5; // Example: chat costs 1 credit, image generation costs 5
+  const cost = action === 'chat' ? 1 : 10;
   let [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, userId));
   if (!userCredit) {
     [userCredit] = await db.insert(userCredits).values({ userId, balance: 10 }).returning();
