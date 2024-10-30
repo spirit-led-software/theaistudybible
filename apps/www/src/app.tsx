@@ -10,7 +10,7 @@ import { GET } from '@solidjs/start';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import { Show, Suspense } from 'solid-js';
+import { Show, Suspense, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
 import { Logo } from './components/branding/logo';
@@ -27,7 +27,7 @@ import { DevotionProvider } from './contexts/devotion';
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
-import { PosthogInit } from './components/posthog/init';
+import posthog from 'posthog-js';
 
 const getServerCookies = GET(() => {
   'use server';
@@ -46,6 +46,13 @@ export default function App() {
   });
 
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
+
+  onMount(() => {
+    posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
+      api_host: 'https://us.i.posthog.com',
+      person_profiles: 'always',
+    });
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -100,7 +107,6 @@ export default function App() {
                           {props.children}
                         </Suspense>
                         <Toaster />
-                        <PosthogInit />
                       </SentryErrorBoundary>
                     </DevotionProvider>
                   </ChatProvider>

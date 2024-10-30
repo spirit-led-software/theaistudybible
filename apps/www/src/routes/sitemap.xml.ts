@@ -13,19 +13,6 @@ export const GET = async () => {
 
   const bibles = await db.query.bibles.findMany({
     columns: { abbreviation: true },
-    with: {
-      books: {
-        columns: { code: true },
-        with: {
-          chapters: {
-            columns: { number: true },
-            with: {
-              verses: { columns: { number: true } },
-            },
-          },
-        },
-      },
-    },
   });
 
   const sitemapXml = sitemapXmlBuilder.build({
@@ -44,23 +31,10 @@ export const GET = async () => {
         ...devotions.map((devotion) => ({
           loc: `https://theaistudybible.com/devotion/${devotion.id}`,
         })),
-        ...bibles.flatMap((bible) =>
-          bible.books.flatMap((book) =>
-            book.chapters.flatMap((chapter) => ({
-              loc: `https://theaistudybible.com/bible/${bible.abbreviation}/${book.code}/${chapter.number}`,
-            })),
-          ),
-        ),
-        ...bibles.flatMap((bible) =>
-          bible.books.flatMap((book) =>
-            book.chapters.flatMap((chapter) =>
-              chapter.verses.map((verse) => ({
-                loc: `https://theaistudybible.com/bible/${bible.abbreviation}/${book.code}/${chapter.number}/${verse.number}`,
-              })),
-            ),
-          ),
-        ),
       ],
+      sitemap: bibles.map((bible) => ({
+        loc: `https://theaistudybible.com/sitemaps/${bible.abbreviation}.xml`,
+      })),
     },
   });
 
