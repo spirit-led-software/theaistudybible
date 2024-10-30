@@ -1,5 +1,6 @@
 import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
+import solidDevTools from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -13,6 +14,7 @@ export default defineConfig({
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
+      solidDevTools({ autoname: true }),
       VitePWA({
         includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
         manifest: {

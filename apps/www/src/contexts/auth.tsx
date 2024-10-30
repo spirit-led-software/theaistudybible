@@ -57,7 +57,13 @@ export type AuthProviderProps = {
 };
 
 export const AuthProvider = (props: AuthProviderProps) => {
-  const initialData = isServer ? getAuth() : undefined;
+  const initialData = isServer
+    ? getAuth()
+    : {
+        session: undefined,
+        user: undefined,
+        roles: undefined,
+      };
 
   const query = createQuery(() => ({
     ...authProviderQueryOptions(),

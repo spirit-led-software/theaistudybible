@@ -37,9 +37,13 @@ const getServerCookies = GET(() => {
 export default function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { staleTime: 1000 * 30, experimental_prefetchInRender: true },
+      queries: {
+        staleTime: 1000 * 60 * 5,
+        experimental_prefetchInRender: true,
+      },
     },
   });
+
   const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
 
   return (
